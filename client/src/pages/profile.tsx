@@ -32,13 +32,13 @@ export default function ProfilePage() {
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
+    <div className="flex flex-col h-full items-center">
+      <div className="w-full max-w-4xl p-4 border-b border-border">
         <h1 className="text-lg font-semibold text-foreground">Profile</h1>
         <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
       </div>
 
-      <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-10 p-0 gap-4">
             <TabsTrigger value="profile" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-main">
