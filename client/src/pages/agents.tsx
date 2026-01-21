@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, 
   Plus, 
-  Search, 
   Phone, 
   MessageSquare, 
   Video, 
@@ -12,13 +11,10 @@ import {
   Settings,
   Trash2,
   Play,
-  Pause,
-  ChevronRight,
-  ChevronLeft
+  Pause
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -42,52 +38,8 @@ const channelIcons: Record<AgentChannel, React.ElementType> = {
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
-  const { agents, updateAgent, activePanel, panelLocked, setActivePanel, setPanelLocked, setPanelHovered } = useApp();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-
-  const isPanelVisible = activePanel === 'agents';
-  const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  useEffect(() => {
-    setActivePanel('agents');
-    setPanelLocked(true);
-    return () => {
-      setActivePanel(null);
-      setPanelLocked(false);
-      setPanelHovered(false);
-      if (panelLeaveTimeoutRef.current) {
-        clearTimeout(panelLeaveTimeoutRef.current);
-      }
-    };
-  }, [setActivePanel, setPanelLocked, setPanelHovered]);
-
-  const handleCollapsePanel = () => {
-    setPanelLocked(false);
-    setActivePanel(null);
-  };
-
-  const handlePanelMouseEnter = () => {
-    if (panelLeaveTimeoutRef.current) {
-      clearTimeout(panelLeaveTimeoutRef.current);
-      panelLeaveTimeoutRef.current = null;
-    }
-    setPanelHovered(true);
-  };
-
-  const handlePanelMouseLeave = () => {
-    setPanelHovered(false);
-    if (!panelLocked) {
-      panelLeaveTimeoutRef.current = setTimeout(() => {
-        setActivePanel(null);
-      }, 150);
-    }
-  };
-
-  const filteredAgents = agents.filter(agent =>
-    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { agents, updateAgent } = useApp();
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(agents[0] || null);
 
   const handleToggleStatus = (agent: Agent) => {
     const newStatus = agent.status === 'active' ? 'inactive' : 'active';
@@ -96,114 +48,9 @@ export default function AgentsPage() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Left Panel - Agent List (Pop-out Panel) */}
-      <aside 
-        className={cn(
-          "flex flex-col border-r border-border bg-card/30 flex-shrink-0 transition-all duration-200",
-          isPanelVisible ? "w-full md:w-80" : "w-0 overflow-hidden"
-        )}
-        onMouseEnter={handlePanelMouseEnter}
-        onMouseLeave={handlePanelMouseLeave}
-      >
-        <div className="p-4 border-b border-border space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-foreground">Agents</h2>
-            <div className="flex items-center gap-1">
-              <Button
-                size="sm"
-                onClick={() => setLocation('/agents/create')}
-                data-testid="button-create-agent"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                New
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={handleCollapsePanel}
-                data-testid="button-collapse-agents-panel"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search agents..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              data-testid="input-search-agents"
-            />
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-2 flex flex-col gap-1">
-            {filteredAgents.length === 0 ? (
-              <div className="text-center py-8">
-                <Bot className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                <p className="text-sm text-muted-foreground">No agents found</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setLocation('/agents/create')}
-                  className="mt-2 text-primary"
-                >
-                  Create your first agent
-                </Button>
-              </div>
-            ) : (
-              filteredAgents.map((agent) => {
-                const ChannelIcon = channelIcons[agent.channel];
-                return (
-                  <button
-                    key={agent.id}
-                    onClick={() => setSelectedAgent(agent)}
-                    className={cn(
-                      'w-full text-left p-3 rounded-lg transition-colors hover-elevate',
-                      selectedAgent?.id === agent.id ? 'bg-accent' : 'hover:bg-accent/50'
-                    )}
-                    data-testid={`agent-item-${agent.id}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                          <Bot className="h-5 w-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-foreground truncate">{agent.name}</p>
-                          <div className={cn('w-2 h-2 rounded-full', getAgentStatusColor(agent.status))} />
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">{agent.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary" className="text-[10px] h-5 gap-1">
-                            <ChannelIcon className="h-3 w-3" />
-                            {agent.channel}
-                          </Badge>
-                          <span className="text-[10px] text-muted-foreground">
-                            {formatDistanceToNow(new Date(agent.updatedAt), { addSuffix: true })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </ScrollArea>
-      </aside>
-
-      {/* Main Content - Agent Details or Empty State */}
-      <div className="hidden md:flex flex-1 flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0">
         {selectedAgent ? (
           <>
-            {/* Agent Header */}
             <div className="p-6 border-b border-border">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
@@ -270,10 +117,8 @@ export default function AgentsPage() {
               </div>
             </div>
 
-            {/* Agent Details */}
             <ScrollArea className="flex-1 p-6">
               <div className="space-y-8 max-w-2xl">
-                {/* Instructions */}
                 <section>
                   <h3 className="text-sm font-semibold text-foreground mb-3">Instructions</h3>
                   <div className="bg-card border border-border rounded-lg p-4">
@@ -283,7 +128,6 @@ export default function AgentsPage() {
                   </div>
                 </section>
 
-                {/* Triggers */}
                 <section>
                   <h3 className="text-sm font-semibold text-foreground mb-3">Triggers</h3>
                   <div className="bg-card border border-border rounded-lg divide-y divide-border">
@@ -308,7 +152,6 @@ export default function AgentsPage() {
                   </div>
                 </section>
 
-                {/* Tools */}
                 <section>
                   <h3 className="text-sm font-semibold text-foreground mb-3">Tools & Skills</h3>
                   <div className="flex flex-wrap gap-2">
@@ -338,24 +181,6 @@ export default function AgentsPage() {
               <Plus className="h-4 w-4 mr-2" />
               Create New Agent
             </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile - Show selected agent or empty state */}
-      <div className="md:hidden flex-1">
-        {selectedAgent && (
-          <div className="p-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedAgent(null)}
-              className="mb-4"
-            >
-              <ChevronRight className="h-4 w-4 mr-1 rotate-180" />
-              Back
-            </Button>
-            {/* Mobile agent details would go here */}
           </div>
         )}
       </div>

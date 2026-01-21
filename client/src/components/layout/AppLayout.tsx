@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { MessageSquare, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -6,7 +7,9 @@ import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { MobileSidebar } from './MobileSidebar';
 import { RightPane } from './RightPane';
+import { SubMenuManager } from './SubMenuManager';
 import { useApp } from '@/contexts/AppContext';
+import { type Agent } from '@/mocks/agents';
 
 type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat';
 
@@ -28,7 +31,8 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setMobileChatOpen, setMobileMenuOpen } = useApp();
+  const { rightPaneOpen, setMobileChatOpen, setMobileMenuOpen, agents } = useApp();
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(agents[0] || null);
   
   const viewConfig = getViewConfig(location);
   const showRightPane = viewConfig !== 'chat-only' && rightPaneOpen;
@@ -41,7 +45,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Sidebar />
         <MobileSidebar />
         
-        {/* Main Content */}
+        <SubMenuManager 
+          selectedAgent={selectedAgent}
+          onSelectAgent={setSelectedAgent}
+        />
+        
         <main className={cn(
           'flex-1 overflow-hidden flex flex-col',
           viewConfig === 'chat-only' && 'max-w-4xl mx-auto w-full'
@@ -49,7 +57,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
 
-        {/* Right Pane - Desktop */}
         {showRightPane && (
           <aside className="hidden xl:flex w-80 border-l border-border flex-shrink-0">
             <RightPane />
@@ -57,7 +64,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         )}
       </div>
 
-      {/* Mobile Bottom Bar */}
       <nav className="lg:hidden flex items-center justify-around p-2 border-t border-border bg-background" data-testid="nav-mobile-bottom">
         <Button
           variant="ghost"
@@ -79,7 +85,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         </Button>
       </nav>
 
-      {/* Mobile Chat Sheet */}
       <RightPane mode="sheet" />
     </div>
   );

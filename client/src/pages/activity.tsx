@@ -50,14 +50,12 @@ export default function ActivityPage() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
+    <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
-        <h1 className="text-xl font-semibold text-foreground">Activity</h1>
+        <h1 className="text-lg font-semibold text-foreground">Activity</h1>
         <p className="text-sm text-muted-foreground">Track all system activity and events</p>
       </div>
 
-      {/* Filters */}
       <div className="flex items-center gap-4 p-4 border-b border-border">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -95,27 +93,21 @@ export default function ActivityPage() {
         </DropdownMenu>
       </div>
 
-      {/* Activity Feed */}
       <ScrollArea className="flex-1">
         <div className="p-4">
           {filteredActivity.length > 0 ? (
             <div className="relative">
-              {/* Timeline line */}
               <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
-
               <div className="space-y-6">
                 {filteredActivity.map((item) => {
                   const Icon = getActivityIcon(item.type);
                   return (
                     <div key={item.id} className="relative flex gap-4" data-testid={`activity-row-${item.id}`}>
-                      {/* Timeline dot */}
                       <Avatar className={cn('h-10 w-10 flex-shrink-0 z-10', getActivityColor(item.type))}>
                         <AvatarFallback className="text-white">
                           <Icon className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>
-
-                      {/* Content */}
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-start justify-between gap-4">
                           <div>
@@ -135,7 +127,6 @@ export default function ActivityPage() {
                             </span>
                           </div>
                         </div>
-
                         {item.metadata && (
                           <div className="flex gap-2 mt-2">
                             {Object.entries(item.metadata).map(([key, value]) => (

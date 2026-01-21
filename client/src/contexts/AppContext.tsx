@@ -9,21 +9,21 @@ interface AppContextValue {
   organizations: Organization[];
   agents: Agent[];
   notifications: Notification[];
-  sidebarCollapsed: boolean;
+  sidebarVisible: boolean;
   rightPaneOpen: boolean;
   mobileMenuOpen: boolean;
   mobileChatOpen: boolean;
   activePanel: string | null;
-  panelLocked: boolean;
+  subMenuExpanded: boolean;
   panelHovered: boolean;
-  setSidebarCollapsed: (collapsed: boolean) => void;
+  setSidebarVisible: (visible: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
   setMobileMenuOpen: (open: boolean) => void;
   setMobileChatOpen: (open: boolean) => void;
   setActivePanel: (panel: string | null) => void;
-  setPanelLocked: (locked: boolean) => void;
+  setSubMenuExpanded: (expanded: boolean) => void;
   setPanelHovered: (hovered: boolean) => void;
-  togglePanelLock: (panel: string) => void;
+  toggleSubMenuExpanded: () => void;
   switchOrganization: (orgId: string) => void;
   addAgent: (agent: Agent) => void;
   updateAgent: (agentId: string, updates: Partial<Agent>) => void;
@@ -38,22 +38,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentOrganization, setCurrentOrganization] = useState<Organization>(mockOrganizations[0]);
   const [agents, setAgents] = useState<Agent[]>(mockAgents);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rightPaneOpen, setRightPaneOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<string | null>(null);
-  const [panelLocked, setPanelLocked] = useState(false);
+  const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
 
-  const togglePanelLock = (panel: string) => {
-    if (activePanel === panel && panelLocked) {
-      setPanelLocked(false);
-      setActivePanel(null);
-    } else {
-      setActivePanel(panel);
-      setPanelLocked(true);
-    }
+  const toggleSubMenuExpanded = () => {
+    setSubMenuExpanded(prev => !prev);
   };
 
   const switchOrganization = (orgId: string) => {
@@ -85,21 +79,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         organizations: mockOrganizations,
         agents,
         notifications,
-        sidebarCollapsed,
+        sidebarVisible,
         rightPaneOpen,
         mobileMenuOpen,
         mobileChatOpen,
         activePanel,
-        panelLocked,
+        subMenuExpanded,
         panelHovered,
-        setSidebarCollapsed,
+        setSidebarVisible,
         setRightPaneOpen,
         setMobileMenuOpen,
         setMobileChatOpen,
         setActivePanel,
-        setPanelLocked,
+        setSubMenuExpanded,
         setPanelHovered,
-        togglePanelLock,
+        toggleSubMenuExpanded,
         switchOrganization,
         addAgent,
         updateAgent,

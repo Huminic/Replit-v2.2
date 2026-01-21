@@ -9,12 +9,11 @@ import {
   Activity, 
   Settings, 
   User,
-  PanelLeftClose,
-  PanelLeft
+  ChevronsRight,
+  PanelLeftClose
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
 import { canAccessSystem } from '@/mocks/users';
@@ -46,13 +45,13 @@ export function Sidebar() {
   const [location, setLocation] = useLocation();
   const { 
     currentUser, 
-    sidebarCollapsed, 
-    setSidebarCollapsed,
+    sidebarVisible, 
+    setSidebarVisible,
     activePanel,
-    panelLocked,
+    subMenuExpanded,
     panelHovered,
     setActivePanel,
-    togglePanelLock
+    toggleSubMenuExpanded
   } = useApp();
   
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -60,6 +59,12 @@ export function Sidebar() {
   const isActive = (path: string) => {
     if (path === '/') return location === '/';
     return location.startsWith(path);
+  };
+
+  const getCurrentPagePanel = () => {
+    const allItems = [...menuItems, ...bottomItems];
+    const currentItem = allItems.find(item => isActive(item.path));
+    return currentItem?.hasPanel ? currentItem.id : null;
   };
 
   const handleMouseEnter = (item: MenuItem) => {
@@ -73,7 +78,7 @@ export function Sidebar() {
   };
 
   const handleMouseLeave = () => {
-    if (!panelLocked) {
+    if (!subMenuExpanded) {
       leaveTimeoutRef.current = setTimeout(() => {
         if (!panelHovered) {
           setActivePanel(null);
@@ -85,7 +90,9 @@ export function Sidebar() {
   const handleClick = (item: MenuItem) => {
     setLocation(item.path);
     if (item.hasPanel) {
-      togglePanelLock(item.id);
+      setActivePanel(item.id);
+    } else {
+      setActivePanel(null);
     }
   };
 
@@ -98,86 +105,115 @@ export function Sidebar() {
     const active = isActive(item.path);
     const isPanelOpen = activePanel === item.id;
 
-    const menuButton = (
-      <Button
-        variant="ghost"
-        className={cn(
-          'w-full justify-start gap-3 h-auto py-3 px-3 relative group',
-          'hover-elevate',
-          (active || isPanelOpen) && 'bg-accent',
-          sidebarCollapsed && 'justify-center px-2'
-        )}
-        onClick={() => handleClick(item)}
-        onMouseEnter={() => handleMouseEnter(item)}
-        data-testid={`sidebar-item-${item.id}`}
-      >
-        <Icon className={cn(
-          'h-5 w-5 flex-shrink-0',
-          (active || isPanelOpen) ? 'text-primary' : 'text-muted-foreground'
-        )} />
-        {!sidebarCollapsed && (
-          <span className={cn(
-            'text-sm',
-            (active || isPanelOpen) ? 'font-medium text-foreground' : 'text-muted-foreground'
-          )}>
-            {item.label}
-          </span>
-        )}
-        {active && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
-        )}
-      </Button>
+    return (
+      <Tooltip key={item.id}>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              'w-full flex-col gap-1 h-auto py-2 px-1 relative',
+              'hover-elevate',
+              (active || isPanelOpen) && 'bg-accent'
+            )}
+            onClick={() => handleClick(item)}
+            onMouseEnter={() => handleMouseEnter(item)}
+            data-testid={`sidebar-item-${item.id}`}
+          >
+            <Icon className={cn(
+              'h-5 w-5 flex-shrink-0',
+              (active || isPanelOpen) ? 'text-primary' : 'text-muted-foreground'
+            )} />
+            <span className={cn(
+              'text-[10px] leading-tight text-center',
+              (active || isPanelOpen) ? 'font-medium text-foreground' : 'text-muted-foreground'
+            )}>
+              {item.label}
+            </span>
+            {active && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-primary rounded-r-full" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="hidden">
+          <span className="font-medium">{item.label}</span>
+        </TooltipContent>
+      </Tooltip>
     );
-
-    if (sidebarCollapsed) {
-      return (
-        <Tooltip key={item.id}>
-          <TooltipTrigger asChild>
-            <div
-              onMouseEnter={() => handleMouseEnter(item)}
-            >
-              {menuButton}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <span className="font-medium">{item.label}</span>
-          </TooltipContent>
-        </Tooltip>
-      );
-    }
-
-    return <div key={item.id}>{menuButton}</div>;
   };
+
+  if (!sidebarVisible) {
+    return (
+      <aside className="hidden lg:flex flex-col items-center border-r border-border bg-sidebar w-10 py-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground"
+          onClick={() => setSidebarVisible(true)}
+          data-testid="button-show-sidebar"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
+      </aside>
+    );
+  }
 
   return (
     <aside
-      className={cn(
-        'hidden lg:flex flex-col border-r border-border bg-sidebar transition-all duration-200',
-        sidebarCollapsed ? 'w-16' : 'w-60'
-      )}
+      className="hidden lg:flex flex-col border-r border-border bg-sidebar w-16"
       onMouseLeave={handleMouseLeave}
     >
-      <ScrollArea className="flex-1 py-4">
-        <nav className="flex flex-col gap-1 px-2">
+      <div className="flex flex-col items-center py-3 border-b border-border gap-2">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <span className="text-primary-foreground font-bold text-sm">N</span>
+        </div>
+        
+        {getCurrentPagePanel() && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'h-6 w-6 text-muted-foreground',
+                  subMenuExpanded && 'bg-accent text-primary'
+                )}
+                onClick={toggleSubMenuExpanded}
+                data-testid="button-toggle-submenu"
+              >
+                <ChevronsRight className={cn(
+                  'h-3.5 w-3.5 transition-transform',
+                  subMenuExpanded && 'rotate-180'
+                )} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {subMenuExpanded ? 'Collapse sub-menu' : 'Expand sub-menu'}
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+
+      <div className="flex-1 py-2 overflow-y-auto">
+        <nav className="flex flex-col gap-1 px-1">
           {menuItems.map((item) => renderMenuItem(item))}
         </nav>
-      </ScrollArea>
+      </div>
 
-      <div className="border-t border-border py-4 px-2">
+      <div className="border-t border-border py-2 px-1">
         <nav className="flex flex-col gap-1">
           {bottomItems.map((item) => renderMenuItem(item))}
         </nav>
       </div>
 
-      <div className="border-t border-border p-2">
+      <div className="border-t border-border p-1">
         <Button
           variant="ghost"
-          size="sm"
-          className="w-full justify-center text-muted-foreground"
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          data-testid="button-toggle-sidebar"
+          size="icon"
+          className="w-full h-8 text-muted-foreground"
+          onClick={() => setSidebarVisible(false)}
+          data-testid="button-hide-sidebar"
         >
-          {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          <PanelLeftClose className="h-4 w-4" />
         </Button>
       </div>
     </aside>
