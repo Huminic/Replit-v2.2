@@ -37,10 +37,11 @@ The app uses a context-aware multi-pane layout system with ClickUp-style navigat
 6. **Global Persistence**: When pinned, sub-menu stays visible across all page navigations
 
 **Layout Components:**
-- **Left Sidebar** (`Sidebar.tsx`): Thin icon+label navigation strip with double-arrow toggle
-- **Sub-Menu Manager** (`SubMenuManager.tsx`): Layout-level component rendering appropriate sub-menu based on `activePanel`
+- **Left Sidebar** (`Sidebar.tsx`): Thin icon+label navigation strip (w-16, 64px). Toggle arrows only visible on pages with sub-menus (hidden on home page)
+- **Sub-Menu Manager** (`SubMenuManager.tsx`): Fixed-position overlay (left-16 top-14 z-40) that renders appropriate sub-menu based on `activePanel`. Uses 200ms timeout for hover-leave to hide
 - **Main Content**: Route-specific content area
-- **Right Pane**: Persistent AI chat interface (Automa), hidden on mobile with FAB access
+- **Right Pane**: Persistent AI chat interface (Automa), defaults closed, hidden on mobile with FAB access
+- **Home Page**: Has its own internal Favorites/Message History panel (not part of SubMenuManager system)
 
 View configurations auto-select based on route:
 - `chat-only`: Main page - centered chat, no right pane
