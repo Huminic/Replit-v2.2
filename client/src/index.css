@@ -27,11 +27,11 @@
   --sidebar: 210 40% 98%; /* Slate 50 #f8fafc */
   --sidebar-foreground: 222 47% 11%; /* Slate 900 #0f172a */
   --sidebar-border: 214 32% 91%; /* Slate 200 #e2e8f0 */
-  --sidebar-primary: 217 91% 60%; /* Blue 500 #3b82f6 */
+  --sidebar-primary: 263 70% 66%; /* Purple 500 #8b5cf6 */
   --sidebar-primary-foreground: 0 0% 100%; /* White */
   --sidebar-accent: 215 16% 47%; /* Slate 500 #64748b */
   --sidebar-accent-foreground: 0 0% 100%; /* White */
-  --sidebar-ring: 217 91% 60%; /* Blue 500 */
+  --sidebar-ring: 263 70% 66%; /* Purple 500 */
 
   --popover: 0 0% 100%; /* White */
   --popover-foreground: 222 47% 11%; /* Slate 900 */
@@ -132,11 +132,11 @@
   --sidebar: 222 47% 15%; /* Slate 800 #1e293b */
   --sidebar-foreground: 210 40% 98%; /* Slate 50 */
   --sidebar-border: 217 33% 17%; /* Slate 700 */
-  --sidebar-primary: 217 91% 73%; /* Blue 400 #60a5fa */
+  --sidebar-primary: 263 83% 78%; /* Purple 400 #a78bfa */
   --sidebar-primary-foreground: 222 47% 11%; /* Slate 900 */
   --sidebar-accent: 215 20% 65%; /* Slate 400 #94a3b8 */
   --sidebar-accent-foreground: 222 47% 11%; /* Slate 900 */
-  --sidebar-ring: 217 91% 73%; /* Blue 400 */
+  --sidebar-ring: 263 83% 78%; /* Purple 400 */
 
   --popover: 222 47% 15%; /* Slate 800 */
   --popover-foreground: 210 40% 98%; /* Slate 50 */
