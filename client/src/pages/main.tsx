@@ -134,6 +134,7 @@ export default function MainPage() {
                   'flex gap-3',
                   message.role === 'user' && 'flex-row-reverse'
                 )}
+                data-testid={`main-chat-message-${message.id}`}
               >
                 <Avatar className="h-9 w-9 flex-shrink-0">
                   <AvatarFallback className={cn(

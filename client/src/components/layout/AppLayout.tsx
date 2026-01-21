@@ -58,7 +58,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="lg:hidden flex items-center justify-around p-2 border-t border-border bg-background">
+      <nav className="lg:hidden flex items-center justify-around p-2 border-t border-border bg-background" data-testid="nav-mobile-bottom">
         <Button
           variant="ghost"
           className="flex-1 flex flex-col gap-1 h-auto py-2"
@@ -77,7 +77,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Menu className="h-5 w-5 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">Menu</span>
         </Button>
-      </div>
+      </nav>
 
       {/* Mobile Chat Sheet */}
       <RightPane mode="sheet" />

@@ -52,19 +52,19 @@ export default function WorkCenterPage() {
       <Tabs defaultValue="calendar" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-12 p-0 gap-4">
-            <TabsTrigger value="calendar" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="calendar" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-calendar">
               <CalendarIcon className="h-4 w-4" />
               Calendar
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="tasks" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-tasks">
               <CheckSquare className="h-4 w-4" />
               Tasks
             </TabsTrigger>
-            <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-hunches">
               <Lightbulb className="h-4 w-4" />
               Hunches
             </TabsTrigger>
-            <TabsTrigger value="approvals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative">
+            <TabsTrigger value="approvals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative" data-testid="tab-wc-approvals">
               <ClipboardCheck className="h-4 w-4" />
               Approvals
               {pendingApprovals.length > 0 && (

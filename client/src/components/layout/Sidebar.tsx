@@ -205,6 +205,7 @@ export function Sidebar() {
                     size="sm"
                     className="justify-start gap-2 h-8 text-xs"
                     onClick={() => setLocation(sub.path)}
+                    data-testid={`tooltip-submenu-${item.id}-${sub.label.toLowerCase().replace(/\s/g, '-')}`}
                   >
                     <sub.icon className="h-3 w-3" />
                     {sub.label}

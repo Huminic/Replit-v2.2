@@ -102,6 +102,7 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
                 'flex gap-3',
                 message.role === 'user' && 'flex-row-reverse'
               )}
+              data-testid={`chat-message-${message.id}`}
             >
               <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarFallback className={cn(

@@ -198,12 +198,12 @@ export default function AgentsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem data-testid="menu-edit-agent">
                         <Settings className="h-4 w-4 mr-2" />
                         Edit Agent
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem className="text-destructive" data-testid="menu-delete-agent">
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete Agent
                       </DropdownMenuItem>
