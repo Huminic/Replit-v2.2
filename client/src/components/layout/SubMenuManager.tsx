@@ -340,24 +340,27 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
             </div>
             <ScrollArea className="flex-1">
               <div className="p-2">
-                <nav className="flex flex-col gap-0.5">
+                <nav className="flex flex-col gap-1">
                   {[
-                    { id: 'users', label: 'Users', icon: Users },
-                    { id: 'app', label: 'Application', icon: Settings },
-                    { id: 'tools', label: 'Tools', icon: Wrench },
-                    { id: 'knowledge', label: 'Knowledge', icon: BookOpen },
-                    { id: 'hunches', label: 'Hunches', icon: Zap },
+                    { id: 'users', label: 'Users', icon: Users, desc: 'Manage team members and roles' },
+                    { id: 'app', label: 'Application', icon: Settings, desc: 'General app settings and config' },
+                    { id: 'tools', label: 'Tools', icon: Wrench, desc: 'Configure integrations and APIs' },
+                    { id: 'knowledge', label: 'Knowledge', icon: BookOpen, desc: 'Manage knowledge base sources' },
+                    { id: 'hunches', label: 'Hunches', icon: Zap, desc: 'AI-generated insights settings' },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
                         onClick={() => !location.startsWith('/settings') && setLocation('/settings/system')}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
+                        className="w-full flex items-start gap-2 px-2 py-2 rounded-md text-left hover-elevate"
                         data-testid={`panel-settings-${item.id}`}
                       >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
+                        <Icon className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
                       </button>
                     );
                   })}
@@ -389,22 +392,25 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
                     <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
                   </div>
                 </div>
-                <nav className="flex flex-col gap-0.5">
+                <nav className="flex flex-col gap-1">
                   {[
-                    { id: 'profile', label: 'My Profile', icon: UserIcon },
-                    { id: 'preferences', label: 'Preferences', icon: Settings },
-                    { id: 'billing', label: 'Billing', icon: CreditCard },
+                    { id: 'profile', label: 'My Profile', icon: UserIcon, desc: 'View and edit your profile' },
+                    { id: 'preferences', label: 'Preferences', icon: Settings, desc: 'Notifications and display' },
+                    { id: 'billing', label: 'Billing', icon: CreditCard, desc: 'Subscription and payments' },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
                         onClick={() => !location.startsWith('/profile') && setLocation('/profile')}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
+                        className="w-full flex items-start gap-2 px-2 py-2 rounded-md text-left hover-elevate"
                         data-testid={`panel-profile-${item.id}`}
                       >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
+                        <Icon className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
                       </button>
                     );
                   })}
