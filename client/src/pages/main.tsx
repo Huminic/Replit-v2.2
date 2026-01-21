@@ -141,8 +141,8 @@ export default function MainPage() {
         <div className="flex items-center justify-center py-8 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-purple-500" />
               <div className="w-3 h-3 rounded-full bg-blue-500" />
+              <div className="w-3 h-3 rounded-full bg-cyan-500" />
             </div>
             <span className="text-xl font-semibold text-foreground">SuperAgents</span>
             <span className="text-muted-foreground text-xl">™</span>
@@ -165,7 +165,7 @@ export default function MainPage() {
                   <AvatarFallback className={cn(
                     'text-sm',
                     message.role === 'assistant' 
-                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' 
+                      ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white' 
                       : 'bg-primary text-primary-foreground'
                   )}>
                     {message.role === 'assistant' ? <Bot className="h-4 w-4" /> : userInitials}
@@ -187,7 +187,7 @@ export default function MainPage() {
             {isTyping && (
               <div className="flex gap-3">
                 <Avatar className="h-9 w-9 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>

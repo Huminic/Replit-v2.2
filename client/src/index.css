@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - Nexxus V2 Theme (Slate palette, Purple primary) */
+/* LIGHT MODE - Nexxus V2 Theme (Slate palette, Blue primary) */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -27,22 +27,22 @@
   --sidebar: 210 40% 98%; /* Slate 50 #f8fafc */
   --sidebar-foreground: 222 47% 11%; /* Slate 900 #0f172a */
   --sidebar-border: 214 32% 91%; /* Slate 200 #e2e8f0 */
-  --sidebar-primary: 263 70% 66%; /* Purple 500 #8b5cf6 */
+  --sidebar-primary: 217 91% 60%; /* Blue 500 #3b82f6 */
   --sidebar-primary-foreground: 0 0% 100%; /* White */
   --sidebar-accent: 215 16% 47%; /* Slate 500 #64748b */
   --sidebar-accent-foreground: 0 0% 100%; /* White */
-  --sidebar-ring: 263 70% 66%; /* Purple 500 */
+  --sidebar-ring: 217 91% 60%; /* Blue 500 */
 
   --popover: 0 0% 100%; /* White */
   --popover-foreground: 222 47% 11%; /* Slate 900 */
   --popover-border: 214 32% 91%; /* Slate 200 */
 
-  /* Primary - Purple */
-  --primary: 263 70% 66%; /* Purple 500 #8b5cf6 */
+  /* Primary - Blue */
+  --primary: 217 91% 60%; /* Blue 500 #3b82f6 */
   --primary-foreground: 0 0% 100%; /* White */
 
-  /* Secondary - Blue */
-  --secondary: 217 91% 60%; /* Blue 500 #3b82f6 */
+  /* Secondary - Cyan */
+  --secondary: 187 85% 43%; /* Cyan 500 #06b6d4 */
   --secondary-foreground: 0 0% 100%; /* White */
 
   /* Muted - Slate */
@@ -58,11 +58,11 @@
   --destructive-foreground: 0 0% 100%; /* White */
 
   --input: 214 32% 91%; /* Slate 200 */
-  --ring: 263 70% 66%; /* Purple 500 */
+  --ring: 217 91% 60%; /* Blue 500 */
   
   /* Charts - Brand palette */
-  --chart-1: 263 70% 66%; /* Purple */
-  --chart-2: 217 91% 60%; /* Blue */
+  --chart-1: 217 91% 60%; /* Blue */
+  --chart-2: 187 85% 43%; /* Cyan */
   --chart-3: 187 85% 43%; /* Cyan #06b6d4 */
   --chart-4: 160 84% 39%; /* Green #10b981 */
   --chart-5: 38 92% 50%; /* Amber #f59e0b */
@@ -132,22 +132,22 @@
   --sidebar: 222 47% 15%; /* Slate 800 #1e293b */
   --sidebar-foreground: 210 40% 98%; /* Slate 50 */
   --sidebar-border: 217 33% 17%; /* Slate 700 */
-  --sidebar-primary: 263 83% 78%; /* Purple 400 #a78bfa */
+  --sidebar-primary: 217 91% 73%; /* Blue 400 #60a5fa */
   --sidebar-primary-foreground: 222 47% 11%; /* Slate 900 */
   --sidebar-accent: 215 20% 65%; /* Slate 400 #94a3b8 */
   --sidebar-accent-foreground: 222 47% 11%; /* Slate 900 */
-  --sidebar-ring: 263 83% 78%; /* Purple 400 */
+  --sidebar-ring: 217 91% 73%; /* Blue 400 */
 
   --popover: 222 47% 15%; /* Slate 800 */
   --popover-foreground: 210 40% 98%; /* Slate 50 */
   --popover-border: 217 33% 17%; /* Slate 700 */
 
-  /* Primary - Purple (Lighter for dark mode) */
-  --primary: 263 83% 78%; /* Purple 400 #a78bfa */
+  /* Primary - Blue (Lighter for dark mode) */
+  --primary: 217 91% 73%; /* Blue 400 #60a5fa */
   --primary-foreground: 222 47% 11%; /* Slate 900 */
 
-  /* Secondary - Blue (Lighter for dark mode) */
-  --secondary: 217 91% 73%; /* Blue 400 #60a5fa */
+  /* Secondary - Cyan (Lighter for dark mode) */
+  --secondary: 187 94% 58%; /* Cyan 400 #22d3ee */
   --secondary-foreground: 222 47% 11%; /* Slate 900 */
 
   /* Muted - Slate */
@@ -163,11 +163,11 @@
   --destructive-foreground: 222 47% 11%; /* Slate 900 */
 
   --input: 217 33% 25%; /* Slate 600 #475569 */
-  --ring: 263 83% 78%; /* Purple 400 */
+  --ring: 217 91% 73%; /* Blue 400 */
   
   /* Charts - Lighter for dark mode */
-  --chart-1: 263 83% 78%; /* Purple 400 */
-  --chart-2: 217 91% 73%; /* Blue 400 */
+  --chart-1: 217 91% 73%; /* Blue 400 */
+  --chart-2: 187 94% 58%; /* Cyan 400 */
   --chart-3: 187 94% 58%; /* Cyan 400 #22d3ee */
   --chart-4: 160 84% 54%; /* Green 400 #34d399 */
   --chart-5: 38 92% 57%; /* Amber 400 #fbbf24 */
@@ -200,10 +200,10 @@
 }
 
 .chat-input-gradient {
-  background: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4, #8b5cf6);
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #60a5fa, #3b82f6);
   background-size: 300% 100%;
   animation: gradient-shift 8s ease infinite;
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.4), 0 0 50px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.4), 0 0 50px rgba(6, 182, 212, 0.2);
 }
 
 /* Dual-density typography classes */

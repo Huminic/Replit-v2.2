@@ -51,7 +51,7 @@ export function MobileSidebar() {
         <SheetHeader className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-500 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">N</span>
               </div>
               <SheetTitle className="text-lg">Nexxus</SheetTitle>

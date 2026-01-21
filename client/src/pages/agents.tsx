@@ -55,7 +55,7 @@ export default function AgentsPage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-xl">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-xl">
                       <Bot className="h-8 w-8" />
                     </AvatarFallback>
                   </Avatar>
@@ -170,7 +170,7 @@ export default function AgentsPage() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-6">
               <Bot className="h-10 w-10 text-primary" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Select an Agent</h2>
