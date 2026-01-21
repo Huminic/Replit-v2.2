@@ -8,7 +8,13 @@ import {
   Clock,
   User,
   Check,
-  X
+  X,
+  MessageSquare,
+  Users,
+  Phone,
+  Mail,
+  Voicemail,
+  MessageCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,17 +24,31 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
   mockTasks, 
   mockCalendarEvents, 
   mockHunches, 
   mockApprovals,
-  getTaskPriorityColor
+  mockLeads,
+  mockInboxMessages,
+  getTaskPriorityColor,
+  getLeadStatusColor
 } from '@/mocks/tasks';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 export default function WorkCenterPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [dialerOpen, setDialerOpen] = useState(false);
+  const [dialerNumber, setDialerNumber] = useState('');
+  const [selectedContact, setSelectedContact] = useState<{ name: string; phone: string } | null>(null);
 
   const todayEvents = mockCalendarEvents.filter(event => {
     const eventDate = new Date(event.startTime).toDateString();
@@ -37,6 +57,32 @@ export default function WorkCenterPage() {
   });
 
   const pendingApprovals = mockApprovals.filter(a => a.status === 'pending');
+  const unreadMessages = mockInboxMessages.filter(m => !m.read).length;
+
+  const handleDialerInput = (digit: string) => {
+    setDialerNumber(prev => prev + digit);
+  };
+
+  const handleCall = (contact?: { name: string; phone: string }) => {
+    if (contact) {
+      setSelectedContact(contact);
+      setDialerNumber(contact.phone);
+    }
+    setDialerOpen(true);
+  };
+
+  const handleClearDialer = () => {
+    setDialerNumber('');
+    setSelectedContact(null);
+  };
+
+  const getMessageIcon = (type: 'email' | 'sms' | 'voicemail') => {
+    switch (type) {
+      case 'email': return Mail;
+      case 'sms': return MessageCircle;
+      case 'voicemail': return Voicemail;
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -74,6 +120,19 @@ export default function WorkCenterPage() {
                   {pendingApprovals.length}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="communication" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative" data-testid="tab-wc-communication">
+              <MessageSquare className="h-4 w-4" />
+              Communication
+              {unreadMessages > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-[10px]">
+                  {unreadMessages}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="leads" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-leads">
+              <Users className="h-4 w-4" />
+              Open Leads
             </TabsTrigger>
           </TabsList>
         </div>
@@ -283,7 +342,175 @@ export default function WorkCenterPage() {
             </div>
           </ScrollArea>
         </TabsContent>
+
+        <TabsContent value="communication" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium text-foreground">Inbox</h3>
+                <Button size="sm" onClick={() => handleCall()} data-testid="button-make-call">
+                  <Phone className="h-4 w-4 mr-1" />
+                  Make Call
+                </Button>
+              </div>
+              {mockInboxMessages.map(message => {
+                const Icon = getMessageIcon(message.type);
+                return (
+                  <Card key={message.id} className={cn("hover-elevate", !message.read && "border-primary/50")} data-testid={`inbox-${message.id}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                          message.type === 'email' ? "bg-blue-500/10" : message.type === 'sms' ? "bg-green-500/10" : "bg-purple-500/10"
+                        )}>
+                          <Icon className={cn(
+                            "h-5 w-5",
+                            message.type === 'email' ? "text-blue-500" : message.type === 'sms' ? "text-green-500" : "text-purple-500"
+                          )} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className={cn("font-medium truncate", !message.read && "text-foreground", message.read && "text-muted-foreground")}>
+                              {message.from}
+                            </p>
+                            <span className="text-xs text-muted-foreground flex-shrink-0">
+                              {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+                            </span>
+                          </div>
+                          <p className={cn("text-sm truncate", !message.read ? "text-foreground" : "text-muted-foreground")}>
+                            {message.subject}
+                          </p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{message.preview}</p>
+                        </div>
+                        {!message.read && (
+                          <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="leads" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              {mockLeads.map(lead => (
+                <Card key={lead.id} className="hover-elevate" data-testid={`lead-${lead.id}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>{lead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-medium text-foreground">{lead.name}</h4>
+                          <Badge className={getLeadStatusColor(lead.status)} variant="secondary">
+                            {lead.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Interested in: {lead.interestedIn}
+                        </p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                          <span>{lead.phone}</span>
+                          <span>•</span>
+                          <span>{lead.email}</span>
+                          {lead.lastContact && (
+                            <>
+                              <span>•</span>
+                              <span>Last contact: {formatDistanceToNow(new Date(lead.lastContact), { addSuffix: true })}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleCall({ name: lead.name, phone: lead.phone })} data-testid={`lead-call-${lead.id}`}>
+                          <Phone className="h-4 w-4 mr-1" />
+                          Call
+                        </Button>
+                        <Button size="sm" variant="outline" data-testid={`lead-email-${lead.id}`}>
+                          <Mail className="h-4 w-4 mr-1" />
+                          Email
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
       </Tabs>
+
+      <Dialog open={dialerOpen} onOpenChange={setDialerOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="dialer-modal">
+          <DialogHeader>
+            <DialogTitle>Make a Call</DialogTitle>
+            <DialogDescription>
+              {selectedContact ? `Calling ${selectedContact.name}` : 'Enter a phone number or select a contact'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              value={dialerNumber}
+              onChange={(e) => setDialerNumber(e.target.value)}
+              placeholder="Enter phone number"
+              className="text-center text-xl font-mono"
+              data-testid="dialer-input"
+            />
+            <div className="grid grid-cols-3 gap-2">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(digit => (
+                <Button
+                  key={digit}
+                  variant="outline"
+                  className="h-12 text-lg font-medium"
+                  onClick={() => handleDialerInput(digit)}
+                  data-testid={`dialer-btn-${digit}`}
+                >
+                  {digit}
+                </Button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={handleClearDialer} data-testid="dialer-clear">
+                Clear
+              </Button>
+              <Button className="flex-1 bg-green-600 hover:bg-green-700" disabled={!dialerNumber} data-testid="dialer-call">
+                <Phone className="h-4 w-4 mr-2" />
+                Call
+              </Button>
+            </div>
+            {!selectedContact && (
+              <div className="border-t border-border pt-4">
+                <p className="text-sm text-muted-foreground mb-2">Quick contacts</p>
+                <div className="space-y-2">
+                  {mockLeads.slice(0, 3).map(lead => (
+                    <Button
+                      key={lead.id}
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setSelectedContact({ name: lead.name, phone: lead.phone });
+                        setDialerNumber(lead.phone);
+                      }}
+                      data-testid={`dialer-contact-${lead.id}`}
+                    >
+                      <Avatar className="h-6 w-6 mr-2">
+                        <AvatarFallback className="text-xs">{lead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <span className="truncate">{lead.name}</span>
+                      <span className="text-muted-foreground ml-auto text-xs">{lead.phone}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

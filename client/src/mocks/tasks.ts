@@ -221,3 +221,152 @@ export const getTaskPriorityColor = (priority: TaskPriority): string => {
   };
   return colors[priority];
 };
+
+// Lead types and mock data
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal' | 'won' | 'lost';
+
+export interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company?: string;
+  status: LeadStatus;
+  source: string;
+  interestedIn: string;
+  lastContact?: string;
+  createdAt: string;
+}
+
+export interface InboxMessage {
+  id: string;
+  from: string;
+  fromEmail: string;
+  subject: string;
+  preview: string;
+  timestamp: string;
+  read: boolean;
+  type: 'email' | 'sms' | 'voicemail';
+}
+
+export const mockLeads: Lead[] = [
+  {
+    id: 'lead-1',
+    name: 'Jennifer Martinez',
+    email: 'jennifer.m@email.com',
+    phone: '(555) 123-4567',
+    status: 'new',
+    source: 'Website',
+    interestedIn: '2024 Toyota Camry',
+    createdAt: '2026-01-21T08:00:00Z',
+  },
+  {
+    id: 'lead-2',
+    name: 'Robert Williams',
+    email: 'rwilliams@company.com',
+    phone: '(555) 234-5678',
+    company: 'Williams Construction',
+    status: 'contacted',
+    source: 'Phone Inquiry',
+    interestedIn: '2024 Ford F-150',
+    lastContact: '2026-01-20T14:30:00Z',
+    createdAt: '2026-01-19T10:00:00Z',
+  },
+  {
+    id: 'lead-3',
+    name: 'Amanda Chen',
+    email: 'amanda.chen@gmail.com',
+    phone: '(555) 345-6789',
+    status: 'qualified',
+    source: 'Referral',
+    interestedIn: '2024 Honda CR-V',
+    lastContact: '2026-01-21T09:15:00Z',
+    createdAt: '2026-01-18T11:00:00Z',
+  },
+  {
+    id: 'lead-4',
+    name: 'Michael Thompson',
+    email: 'mthompson@email.com',
+    phone: '(555) 456-7890',
+    status: 'proposal',
+    source: 'Walk-in',
+    interestedIn: '2024 BMW X5',
+    lastContact: '2026-01-20T16:00:00Z',
+    createdAt: '2026-01-15T13:00:00Z',
+  },
+  {
+    id: 'lead-5',
+    name: 'Sarah Kim',
+    email: 'sarahkim@outlook.com',
+    phone: '(555) 567-8901',
+    status: 'new',
+    source: 'Social Media',
+    interestedIn: '2024 Tesla Model 3',
+    createdAt: '2026-01-21T07:30:00Z',
+  },
+];
+
+export const mockInboxMessages: InboxMessage[] = [
+  {
+    id: 'msg-1',
+    from: 'Jennifer Martinez',
+    fromEmail: 'jennifer.m@email.com',
+    subject: 'Interested in the Camry',
+    preview: 'Hi, I saw the 2024 Toyota Camry on your website and I would like to schedule a test drive...',
+    timestamp: '2026-01-21T08:15:00Z',
+    read: false,
+    type: 'email',
+  },
+  {
+    id: 'msg-2',
+    from: 'Robert Williams',
+    fromEmail: 'rwilliams@company.com',
+    subject: 'Re: Ford F-150 Availability',
+    preview: 'Thank you for the information. I am available this Saturday for a viewing...',
+    timestamp: '2026-01-20T16:45:00Z',
+    read: true,
+    type: 'email',
+  },
+  {
+    id: 'msg-3',
+    from: '(555) 345-6789',
+    fromEmail: 'amanda.chen@gmail.com',
+    subject: 'Voicemail',
+    preview: 'Hi, this is Amanda Chen calling about the Honda CR-V we discussed...',
+    timestamp: '2026-01-21T09:00:00Z',
+    read: false,
+    type: 'voicemail',
+  },
+  {
+    id: 'msg-4',
+    from: 'Michael Thompson',
+    fromEmail: 'mthompson@email.com',
+    subject: 'BMW X5 Financing Options',
+    preview: 'I reviewed the financing options you sent. Can we discuss the 60-month term?',
+    timestamp: '2026-01-20T15:30:00Z',
+    read: true,
+    type: 'email',
+  },
+  {
+    id: 'msg-5',
+    from: '(555) 567-8901',
+    fromEmail: 'sarahkim@outlook.com',
+    subject: 'SMS',
+    preview: 'Is the Tesla Model 3 still available?',
+    timestamp: '2026-01-21T07:45:00Z',
+    read: false,
+    type: 'sms',
+  },
+];
+
+export const getLeadStatusColor = (status: LeadStatus): string => {
+  const colors: Record<LeadStatus, string> = {
+    new: 'bg-blue-100 text-blue-700',
+    contacted: 'bg-purple-100 text-purple-700',
+    qualified: 'bg-green-100 text-green-700',
+    proposal: 'bg-amber-100 text-amber-700',
+    won: 'bg-emerald-100 text-emerald-700',
+    lost: 'bg-gray-100 text-gray-700',
+  };
+  return colors[status];
+};

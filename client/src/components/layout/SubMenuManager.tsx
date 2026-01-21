@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
   Calendar as CalendarIcon, CheckSquare, Lightbulb, ClipboardCheck, Activity, User as UserIcon,
-  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload
+  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -260,6 +260,8 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
                     { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: 0 },
                     { id: 'hunches', label: 'Hunches', icon: Lightbulb, badge: 0 },
                     { id: 'approvals', label: 'Approvals', icon: ClipboardCheck, badge: pendingApprovals },
+                    { id: 'communication', label: 'Communication', icon: MessageSquare, badge: 0 },
+                    { id: 'leads', label: 'Open Leads', icon: Users, badge: 0 },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
