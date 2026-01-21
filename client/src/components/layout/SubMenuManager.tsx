@@ -137,7 +137,7 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
                   >
                     <div className="flex items-center gap-2">
                       <Avatar className="h-7 w-7">
-                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-[10px]">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-[10px]">
                           <Bot className="h-3.5 w-3.5" />
                         </AvatarFallback>
                       </Avatar>

@@ -72,7 +72,7 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-500 flex items-center justify-center">
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -108,7 +108,7 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
                 <AvatarFallback className={cn(
                   'text-xs',
                   message.role === 'assistant' 
-                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' 
+                    ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white' 
                     : 'bg-primary text-primary-foreground'
                 )}>
                   {message.role === 'assistant' ? <Bot className="h-4 w-4" /> : userInitials}
@@ -130,7 +130,7 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
           {isTyping && (
             <div className="flex gap-3">
               <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
