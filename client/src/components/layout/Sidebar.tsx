@@ -128,7 +128,7 @@ export function Sidebar() {
           >
             <Icon className={cn(
               'h-5 w-5 flex-shrink-0',
-              (active || isPanelOpen) ? 'text-primary' : 'text-muted-foreground'
+              (active || isPanelOpen) ? 'text-purple-500 dark:text-purple-400' : 'text-muted-foreground'
             )} />
             <span className={cn(
               'text-[10px] leading-tight text-center',
@@ -137,7 +137,7 @@ export function Sidebar() {
               {item.label}
             </span>
             {active && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-primary rounded-r-full" />
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-purple-500 dark:bg-purple-400 rounded-r-full" />
             )}
           </Button>
         </TooltipTrigger>
