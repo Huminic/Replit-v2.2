@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { 
   Users, 
   Settings, 
@@ -32,16 +33,21 @@ import { availableTools } from '@/mocks/agents';
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-border">
-        <h1 className="text-xl font-semibold text-foreground">System Settings</h1>
-        <p className="text-sm text-muted-foreground">Configure your organization and application settings</p>
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">System Settings</h1>
+          <p className="text-sm text-muted-foreground">Configure your organization and application settings</p>
+        </div>
+        <Button size="sm" data-testid="button-add-user">
+          <Plus className="h-4 w-4 mr-1" />
+          Add User
+        </Button>
       </div>
 
       <Tabs defaultValue="users" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-12 p-0 gap-4">
+          <TabsList className="bg-transparent h-10 p-0 gap-4">
             <TabsTrigger value="users" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-users">
               <Users className="h-4 w-4" />
               Users
@@ -65,61 +71,52 @@ export default function SettingsPage() {
           </TabsList>
         </div>
 
-        {/* Users Tab */}
         <TabsContent value="users" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search users..." className="pl-9" data-testid="input-search-users" />
-                </div>
-                <Button size="sm" data-testid="button-add-user">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add User
-                </Button>
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search users..." className="pl-9" data-testid="input-search-users" />
               </div>
-
+              
               <div className="space-y-2">
-                {mockUsers.map((user) => (
+                {mockUsers.map(user => (
                   <Card key={user.id} className="hover-elevate" data-testid={`user-${user.id}`}>
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-primary text-primary-foreground">
-                              {user.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback>
+                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
                             <p className="font-medium text-foreground">{user.name}</p>
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <Badge variant="secondary" className="gap-1">
+                              <Shield className="h-3 w-3" />
+                              {getRoleLabel(user.role)}
+                            </Badge>
                           </div>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <Badge variant="secondary" className="gap-1">
-                            <Shield className="h-3 w-3" />
-                            {getRoleLabel(user.role)}
-                          </Badge>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem data-testid={`menu-edit-user-${user.id}`}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit User
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive" data-testid={`menu-remove-user-${user.id}`}>
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove User
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" data-testid={`user-menu-${user.id}`}>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </CardContent>
                   </Card>
@@ -129,59 +126,35 @@ export default function SettingsPage() {
           </ScrollArea>
         </TabsContent>
 
-        {/* Application Tab */}
         <TabsContent value="app" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6 max-w-2xl">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">General Settings</CardTitle>
-                  <CardDescription>Configure general application settings</CardDescription>
+                  <CardDescription>Configure basic application settings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Email Notifications</p>
-                      <p className="text-xs text-muted-foreground">Receive email updates about agent activity</p>
+                      <p className="font-medium text-foreground">Auto-assign leads</p>
+                      <p className="text-sm text-muted-foreground">Automatically assign new leads to available agents</p>
+                    </div>
+                    <Switch data-testid="switch-auto-assign" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-foreground">Email notifications</p>
+                      <p className="text-sm text-muted-foreground">Send email notifications for important events</p>
                     </div>
                     <Switch defaultChecked data-testid="switch-email-notifications" />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Daily Digest</p>
-                      <p className="text-xs text-muted-foreground">Send daily summary of all activity</p>
+                      <p className="font-medium text-foreground">Analytics tracking</p>
+                      <p className="text-sm text-muted-foreground">Track user interactions for insights</p>
                     </div>
-                    <Switch data-testid="switch-daily-digest" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Auto-approve Agents</p>
-                      <p className="text-xs text-muted-foreground">Automatically approve new agent activations</p>
-                    </div>
-                    <Switch data-testid="switch-auto-approve" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">AI Settings</CardTitle>
-                  <CardDescription>Configure AI behavior and limits</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Response Length</p>
-                      <p className="text-xs text-muted-foreground">Maximum words per agent response</p>
-                    </div>
-                    <Input type="number" defaultValue="250" className="w-24 text-right" data-testid="input-response-length" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Monthly Credit Limit</p>
-                      <p className="text-xs text-muted-foreground">Maximum AI credits per month</p>
-                    </div>
-                    <Input type="number" defaultValue="10000" className="w-24 text-right" data-testid="input-credit-limit" />
+                    <Switch defaultChecked data-testid="switch-analytics" />
                   </div>
                 </CardContent>
               </Card>
@@ -189,29 +162,19 @@ export default function SettingsPage() {
           </ScrollArea>
         </TabsContent>
 
-        {/* Tools Tab */}
         <TabsContent value="tools" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Configure available tools for your AI agents. Enable or disable tools globally.
-              </p>
-              
-              <div className="space-y-2">
-                {availableTools.map((tool) => (
-                  <Card key={tool.id} className="hover-elevate" data-testid={`tool-setting-${tool.id}`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {availableTools.map(tool => (
+                  <Card key={tool.id} className="hover-elevate" data-testid={`tool-${tool.id}`}>
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Wrench className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{tool.name}</p>
-                            <p className="text-sm text-muted-foreground">{tool.description}</p>
-                          </div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-foreground">{tool.name}</h4>
+                          <p className="text-sm text-muted-foreground mt-1">{tool.description}</p>
                         </div>
-                        <Switch defaultChecked={tool.enabled} data-testid={`switch-tool-${tool.id}`} />
+                        <Switch defaultChecked={tool.enabled} data-testid={`tool-switch-${tool.id}`} />
                       </div>
                     </CardContent>
                   </Card>
@@ -221,66 +184,42 @@ export default function SettingsPage() {
           </ScrollArea>
         </TabsContent>
 
-        {/* Knowledge Tab */}
         <TabsContent value="knowledge" className="flex-1 m-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Knowledge Base</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Upload documents and data to train your AI agents
-                  </p>
-                </div>
-                <Button size="sm" data-testid="button-upload-knowledge">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Upload
-                </Button>
-              </div>
-
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">No knowledge sources added yet</p>
-                  <p className="text-sm text-muted-foreground/70 mt-1">
-                    Upload documents, connect APIs, or add website URLs to train your agents
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </ScrollArea>
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <BookOpen className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <p className="text-lg font-medium text-foreground">Knowledge Base</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Upload documents and configure your AI knowledge base
+            </p>
+            <Button className="mt-4" data-testid="button-upload-knowledge">
+              <Plus className="h-4 w-4 mr-2" />
+              Upload Documents
+            </Button>
+          </div>
         </TabsContent>
 
-        {/* Hunches Tab */}
         <TabsContent value="hunches" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6 max-w-2xl">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Hunch Configuration</CardTitle>
-                  <CardDescription>Configure AI-generated insights and suggestions</CardDescription>
+                  <CardTitle className="text-base">AI Hunches Configuration</CardTitle>
+                  <CardDescription>Configure how AI-generated insights are created and delivered</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Enable Hunches</p>
-                      <p className="text-xs text-muted-foreground">Allow agents to generate insights proactively</p>
+                      <p className="font-medium text-foreground">Enable Hunches</p>
+                      <p className="text-sm text-muted-foreground">Allow AI to generate proactive insights</p>
                     </div>
-                    <Switch defaultChecked data-testid="switch-enable-hunches" />
+                    <Switch defaultChecked data-testid="switch-hunches-enabled" />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Minimum Confidence</p>
-                      <p className="text-xs text-muted-foreground">Only show hunches above this threshold</p>
+                      <p className="font-medium text-foreground">High-priority alerts</p>
+                      <p className="text-sm text-muted-foreground">Get notified for high-confidence hunches</p>
                     </div>
-                    <Input type="number" defaultValue="70" className="w-20 text-right" data-testid="input-min-confidence" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Hunch Notifications</p>
-                      <p className="text-xs text-muted-foreground">Send notifications for new hunches</p>
-                    </div>
-                    <Switch defaultChecked data-testid="switch-hunch-notifications" />
+                    <Switch defaultChecked data-testid="switch-hunches-alerts" />
                   </div>
                 </CardContent>
               </Card>

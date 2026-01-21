@@ -1,4 +1,5 @@
-import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle, PieChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,21 +19,23 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 export default function InsightsPage() {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
+    <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
-        <h1 className="text-xl font-semibold text-foreground">Insights</h1>
+        <h1 className="text-lg font-semibold text-foreground">Insights</h1>
         <p className="text-sm text-muted-foreground">Track your performance and achieve your goals</p>
       </div>
 
       <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-12 p-0">
+          <TabsList className="bg-transparent h-10 p-0">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
               Dashboard
             </TabsTrigger>
             <TabsTrigger value="goals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-goals">
               Goals
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-reports">
+              Reports
             </TabsTrigger>
           </TabsList>
         </div>
@@ -40,7 +43,6 @@ export default function InsightsPage() {
         <TabsContent value="dashboard" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              {/* Metrics Grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {mockMetrics.map((metric) => (
                   <Card key={metric.id} className="hover-elevate" data-testid={`metric-${metric.id}`}>
@@ -59,16 +61,13 @@ export default function InsightsPage() {
                         )}>
                           {metric.change > 0 ? '+' : ''}{metric.change}%
                         </span>
-                        <span className="text-xs text-muted-foreground">{metric.changeLabel}</span>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
-              {/* Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Leads Chart */}
                 <Card data-testid="chart-leads">
                   <CardHeader>
                     <CardTitle className="text-base">Leads This Week</CardTitle>
@@ -98,8 +97,8 @@ export default function InsightsPage() {
                             type="monotone" 
                             dataKey="value" 
                             stroke="hsl(var(--primary))" 
-                            fillOpacity={1} 
-                            fill="url(#leadGradient)" 
+                            fillOpacity={1}
+                            fill="url(#leadGradient)"
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -107,11 +106,10 @@ export default function InsightsPage() {
                   </CardContent>
                 </Card>
 
-                {/* Conversions Chart */}
                 <Card data-testid="chart-conversions">
                   <CardHeader>
-                    <CardTitle className="text-base">Conversions This Week</CardTitle>
-                    <CardDescription>Lead to sale conversions</CardDescription>
+                    <CardTitle className="text-base">Conversions by Channel</CardTitle>
+                    <CardDescription>This month's performance</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="h-64">
@@ -135,29 +133,24 @@ export default function InsightsPage() {
                 </Card>
               </div>
 
-              {/* Agent Performance */}
-              <Card data-testid="chart-agent-performance">
+              <Card data-testid="agent-performance">
                 <CardHeader>
                   <CardTitle className="text-base">Agent Performance</CardTitle>
-                  <CardDescription>Interactions by agent this month</CardDescription>
+                  <CardDescription>Interactions by agent this week</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={mockAgentPerformance} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                        <XAxis type="number" className="text-xs" />
-                        <YAxis dataKey="date" type="category" width={120} className="text-xs" />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))', 
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Bar dataKey="value" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="space-y-4">
+                    {mockAgentPerformance.map((agent, index) => (
+                      <div key={index} className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-foreground">{agent.date}</span>
+                            <span className="text-sm text-muted-foreground">{agent.value} interactions</span>
+                          </div>
+                          <Progress value={Math.min(100, (agent.value / 250) * 100)} className="h-2" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -171,46 +164,28 @@ export default function InsightsPage() {
               {mockGoals.map((goal) => {
                 const progress = getGoalProgress(goal);
                 const statusColor = getGoalStatusColor(goal.status);
-                
                 return (
                   <Card key={goal.id} className="hover-elevate" data-testid={`goal-${goal.id}`}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-start gap-3">
-                          <div className={cn(
-                            'w-10 h-10 rounded-lg flex items-center justify-center',
-                            goal.status === 'completed' && 'bg-green-100 dark:bg-green-900/30',
-                            goal.status === 'on_track' && 'bg-blue-100 dark:bg-blue-900/30',
-                            goal.status === 'at_risk' && 'bg-amber-100 dark:bg-amber-900/30',
-                            goal.status === 'behind' && 'bg-red-100 dark:bg-red-900/30'
-                          )}>
-                            {goal.status === 'completed' && <CheckCircle className="h-5 w-5 text-green-600" />}
-                            {goal.status === 'on_track' && <Target className="h-5 w-5 text-blue-600" />}
-                            {goal.status === 'at_risk' && <AlertTriangle className="h-5 w-5 text-amber-600" />}
-                            {goal.status === 'behind' && <AlertCircle className="h-5 w-5 text-red-600" />}
-                          </div>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          {goal.status === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                          {goal.status === 'on_track' && <Target className="h-5 w-5 text-blue-500" />}
+                          {goal.status === 'at_risk' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
+                          {goal.status === 'behind' && <AlertCircle className="h-5 w-5 text-red-500" />}
                           <div>
-                            <h3 className="font-semibold text-foreground">{goal.title}</h3>
+                            <h3 className="font-medium text-foreground">{goal.title}</h3>
                             <p className="text-sm text-muted-foreground">{goal.description}</p>
                           </div>
                         </div>
-                        <Badge variant="secondary" className={cn('capitalize', statusColor)}>
-                          {goal.status.replace('_', ' ')}
-                        </Badge>
+                        <Badge className={statusColor}>{goal.status.replace('_', ' ')}</Badge>
                       </div>
-                      
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Progress</span>
-                          <span className="font-medium text-foreground">
-                            {goal.current} / {goal.target} {goal.unit}
-                          </span>
+                          <span className="font-medium">{goal.current} / {goal.target} {goal.unit}</span>
                         </div>
                         <Progress value={progress} className="h-2" />
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>{Math.round(progress)}% complete</span>
-                          <span>Due {new Date(goal.dueDate).toLocaleDateString()}</span>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -218,6 +193,16 @@ export default function InsightsPage() {
               })}
             </div>
           </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="reports" className="flex-1 m-0 overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <PieChart className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <p className="text-lg font-medium text-foreground">Reports Coming Soon</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Advanced analytics and custom reports are in development
+            </p>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
