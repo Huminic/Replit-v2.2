@@ -26,8 +26,19 @@ Preferred communication style: Simple, everyday language.
 - **Shadcn/ui** component library (Radix UI primitives with custom styling)
 
 ### Layout Architecture
-The app uses a context-aware 3-pane layout system:
-- **Left Sidebar**: Navigation menu with 8 items, collapsible on desktop, sheet-based on mobile
+The app uses a context-aware multi-pane layout system with ClickUp-style navigation:
+
+**ClickUp-Style Navigation Pattern (6 key behaviors):**
+1. **Thin Sidebar**: Always-visible 64px icon+label strip with navigation icons
+2. **Hover Preview**: Hovering sidebar items shows sub-menu panel as preview
+3. **Click Navigates Only**: Clicking navigates to the page and sets activePanel (no auto-pin)
+4. **Double Arrow Pins Globally**: Toggle under logo controls `subMenuExpanded` state
+5. **Collapse in Panel Header**: ChevronLeft button in sub-menu header collapses panel
+6. **Global Persistence**: When pinned, sub-menu stays visible across all page navigations
+
+**Layout Components:**
+- **Left Sidebar** (`Sidebar.tsx`): Thin icon+label navigation strip with double-arrow toggle
+- **Sub-Menu Manager** (`SubMenuManager.tsx`): Layout-level component rendering appropriate sub-menu based on `activePanel`
 - **Main Content**: Route-specific content area
 - **Right Pane**: Persistent AI chat interface (Automa), hidden on mobile with FAB access
 
@@ -39,7 +50,11 @@ View configurations auto-select based on route:
 
 ### State Management
 - **ThemeContext**: Light/dark mode with localStorage persistence and system preference detection
-- **AppContext**: Global app state including current user, organization, agents, notifications, sidebar states
+- **AppContext**: Global app state including:
+  - `activePanel`: Currently active/hovered sub-menu panel ID (null, 'agents', 'drive', etc.)
+  - `subMenuExpanded`: Global pin state for sub-menu (true = always show)
+  - `panelHovered`: Whether mouse is currently over sub-menu panel
+  - Current user, organization, agents, notifications
 - No external state library - React Context handles all global state
 
 ### Data Layer
