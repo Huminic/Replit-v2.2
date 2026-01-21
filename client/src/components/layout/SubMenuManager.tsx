@@ -65,11 +65,12 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
 
   const handlePanelMouseLeave = (e: React.MouseEvent) => {
     // Check if we're actually leaving the panel (not entering a child)
-    const relatedTarget = e.relatedTarget as HTMLElement | null;
+    const relatedTarget = e.relatedTarget;
     const panel = e.currentTarget as HTMLElement;
     
     // If we're moving to an element inside the panel, don't hide
-    if (relatedTarget && panel.contains(relatedTarget)) {
+    // Check that relatedTarget is a Node before calling contains
+    if (relatedTarget && relatedTarget instanceof Node && panel.contains(relatedTarget)) {
       return;
     }
     
@@ -418,9 +419,18 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
     }
   };
 
+  // When pinned (subMenuExpanded), use flex layout to push content
+  // When just hovering (not pinned), use fixed positioning to overlay
+  const positionClasses = subMenuExpanded
+    ? 'relative flex-shrink-0' // Push content - part of flex layout
+    : 'fixed left-16 top-14 bottom-0 z-40 shadow-xl'; // Overlay content
+  
   return (
     <aside 
-      className="hidden lg:flex flex-col border-r border-border bg-card/95 backdrop-blur-sm w-64 fixed left-16 top-14 bottom-0 z-40 shadow-xl"
+      className={cn(
+        "hidden lg:flex flex-col border-r border-border bg-card/95 backdrop-blur-sm w-64",
+        positionClasses
+      )}
       onMouseEnter={handlePanelMouseEnter}
       onMouseLeave={handlePanelMouseLeave}
     >
