@@ -39,7 +39,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [agents, setAgents] = useState<Agent[]>(mockAgents);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [sidebarVisible, setSidebarVisible] = useState(true);
-  const [rightPaneOpen, setRightPaneOpen] = useState(true);
+  const [rightPaneOpen, setRightPaneOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<string | null>(null);
