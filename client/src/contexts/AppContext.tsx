@@ -3,12 +3,19 @@ import { mockCurrentUser, mockOrganizations, type User, type Organization } from
 import { mockAgents, type Agent } from '@/mocks/agents';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
 
+export interface FavoriteItem {
+  id: string;
+  label: string;
+  path: string;
+}
+
 interface AppContextValue {
   currentUser: User;
   currentOrganization: Organization;
   organizations: Organization[];
   agents: Agent[];
   notifications: Notification[];
+  favorites: FavoriteItem[];
   sidebarVisible: boolean;
   rightPaneOpen: boolean;
   mobileMenuOpen: boolean;
@@ -29,6 +36,9 @@ interface AppContextValue {
   updateAgent: (agentId: string, updates: Partial<Agent>) => void;
   markNotificationRead: (notifId: string) => void;
   unreadNotificationCount: number;
+  addFavorite: (item: FavoriteItem) => void;
+  removeFavorite: (id: string) => void;
+  isFavorite: (path: string) => boolean;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -45,6 +55,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([
+    { id: 'fav-1', label: 'Insights Dashboard', path: '/insights' },
+    { id: 'fav-2', label: 'Hub Calendar', path: '/work-center' },
+  ]);
+
+  const addFavorite = (item: FavoriteItem) => {
+    setFavorites(prev => [...prev, item]);
+  };
+
+  const removeFavorite = (id: string) => {
+    setFavorites(prev => prev.filter(f => f.id !== id));
+  };
+
+  const isFavorite = (path: string) => {
+    return favorites.some(f => f.path === path);
+  };
 
   const toggleSubMenuExpanded = () => {
     setSubMenuExpanded(prev => !prev);
@@ -79,6 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         organizations: mockOrganizations,
         agents,
         notifications,
+        favorites,
         sidebarVisible,
         rightPaneOpen,
         mobileMenuOpen,
@@ -99,6 +126,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateAgent,
         markNotificationRead,
         unreadNotificationCount,
+        addFavorite,
+        removeFavorite,
+        isFavorite,
       }}
     >
       {children}

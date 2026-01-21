@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { mockChatMessages, mockConversations, agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
 import { formatDistanceToNow } from 'date-fns';
+import { useLocation } from 'wouter';
 
 export default function MainPage() {
-  const { currentUser } = useApp();
+  const { currentUser, favorites, removeFavorite } = useApp();
+  const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -79,9 +81,25 @@ export default function MainPage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground px-3 py-2">
-            Star conversations to access them quickly
-          </p>
+          {favorites.length > 0 ? (
+            <div className="p-2 flex flex-col gap-1">
+              {favorites.map((fav) => (
+                <button
+                  key={fav.id}
+                  onClick={() => setLocation(fav.path)}
+                  className="w-full text-left p-2 rounded-lg transition-colors hover-elevate flex items-center gap-2"
+                  data-testid={`home-favorite-${fav.id}`}
+                >
+                  <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+                  <span className="text-sm text-foreground truncate">{fav.label}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground px-3 py-2">
+              Star pages to access them quickly
+            </p>
+          )}
 
           <div className="flex-1 flex flex-col">
             <div className="p-3 border-b border-border">

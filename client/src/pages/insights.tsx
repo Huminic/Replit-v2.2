@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle, PieChart, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,8 +33,8 @@ export default function InsightsPage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-10 p-0">
+        <div className="px-4 border-b border-border flex items-center">
+          <TabsList className="bg-transparent h-10 p-0 flex-shrink-0">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
               Dashboard
             </TabsTrigger>
@@ -44,6 +45,7 @@ export default function InsightsPage() {
               Reports
             </TabsTrigger>
           </TabsList>
+          <FavoritesBar currentPath="/insights" currentLabel="Insights" />
         </div>
 
         <TabsContent value="dashboard" className="flex-1 m-0 overflow-hidden">

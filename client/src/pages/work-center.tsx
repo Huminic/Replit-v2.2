@@ -43,6 +43,7 @@ import {
   getLeadStatusColor
 } from '@/mocks/tasks';
 import { format, formatDistanceToNow } from 'date-fns';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function WorkCenterPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -98,8 +99,8 @@ export default function WorkCenterPage() {
       </div>
 
       <Tabs defaultValue="calendar" className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-10 p-0 gap-4">
+        <div className="px-4 border-b border-border flex items-center">
+          <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="calendar" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-calendar">
               <CalendarIcon className="h-4 w-4" />
               Calendar
@@ -135,6 +136,7 @@ export default function WorkCenterPage() {
               Open Leads
             </TabsTrigger>
           </TabsList>
+          <FavoritesBar currentPath="/work-center" currentLabel="Hub" />
         </div>
 
         <TabsContent value="calendar" className="flex-1 m-0 overflow-hidden">
