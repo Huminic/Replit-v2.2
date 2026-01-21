@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle, PieChart, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,9 +20,15 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 export default function InsightsPage() {
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
-        <h1 className="text-lg font-semibold text-foreground">Insights</h1>
-        <p className="text-sm text-muted-foreground">Track your performance and achieve your goals</p>
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Insights</h1>
+          <p className="text-sm text-muted-foreground">Track your performance and achieve your goals</p>
+        </div>
+        <Button size="sm" data-testid="button-add-goal">
+          <Plus className="h-4 w-4 mr-1" />
+          New Goal
+        </Button>
       </div>
 
       <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">

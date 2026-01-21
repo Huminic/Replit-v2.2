@@ -7,10 +7,9 @@ import {
   BarChart3, 
   Briefcase, 
   Activity, 
-  Settings, 
-  User,
+  Settings,
   ChevronsRight,
-  PanelLeftClose
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ const menuItems: MenuItem[] = [
 
 const bottomItems: MenuItem[] = [
   { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, adminOnly: true },
-  { id: 'profile', label: 'Profile', icon: User, path: '/profile', hasPanel: true },
 ];
 
 export function Sidebar() {
@@ -208,15 +206,14 @@ export function Sidebar() {
         </nav>
       </div>
 
-      <div className="border-t border-border p-1">
+      <div className="border-t border-border py-2 px-1">
         <Button
           variant="ghost"
-          size="icon"
-          className="w-full h-8 text-muted-foreground"
-          onClick={() => setSidebarVisible(false)}
-          data-testid="button-hide-sidebar"
+          className="w-full flex-col gap-1 h-auto py-2 px-1 hover-elevate"
+          data-testid="button-logout"
         >
-          <PanelLeftClose className="h-4 w-4" />
+          <LogOut className="h-5 w-5 text-muted-foreground" />
+          <span className="text-[10px] leading-tight text-muted-foreground">Logout</span>
         </Button>
       </div>
     </aside>
