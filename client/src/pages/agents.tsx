@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, 
@@ -13,7 +13,8 @@ import {
   Trash2,
   Play,
   Pause,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -41,9 +42,47 @@ const channelIcons: Record<AgentChannel, React.ElementType> = {
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
-  const { agents, updateAgent } = useApp();
+  const { agents, updateAgent, activePanel, panelLocked, setActivePanel, setPanelLocked, setPanelHovered } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+
+  const isPanelVisible = activePanel === 'agents';
+  const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setActivePanel('agents');
+    setPanelLocked(true);
+    return () => {
+      setActivePanel(null);
+      setPanelLocked(false);
+      setPanelHovered(false);
+      if (panelLeaveTimeoutRef.current) {
+        clearTimeout(panelLeaveTimeoutRef.current);
+      }
+    };
+  }, [setActivePanel, setPanelLocked, setPanelHovered]);
+
+  const handleCollapsePanel = () => {
+    setPanelLocked(false);
+    setActivePanel(null);
+  };
+
+  const handlePanelMouseEnter = () => {
+    if (panelLeaveTimeoutRef.current) {
+      clearTimeout(panelLeaveTimeoutRef.current);
+      panelLeaveTimeoutRef.current = null;
+    }
+    setPanelHovered(true);
+  };
+
+  const handlePanelMouseLeave = () => {
+    setPanelHovered(false);
+    if (!panelLocked) {
+      panelLeaveTimeoutRef.current = setTimeout(() => {
+        setActivePanel(null);
+      }, 150);
+    }
+  };
 
   const filteredAgents = agents.filter(agent =>
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -57,19 +96,37 @@ export default function AgentsPage() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Left Panel - Agent List */}
-      <aside className="flex flex-col w-full md:w-80 border-r border-border bg-card/30 flex-shrink-0">
+      {/* Left Panel - Agent List (Pop-out Panel) */}
+      <aside 
+        className={cn(
+          "flex flex-col border-r border-border bg-card/30 flex-shrink-0 transition-all duration-200",
+          isPanelVisible ? "w-full md:w-80" : "w-0 overflow-hidden"
+        )}
+        onMouseEnter={handlePanelMouseEnter}
+        onMouseLeave={handlePanelMouseLeave}
+      >
         <div className="p-4 border-b border-border space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-foreground">Agents</h2>
-            <Button
-              size="sm"
-              onClick={() => setLocation('/agents/create')}
-              data-testid="button-create-agent"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              New
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                onClick={() => setLocation('/agents/create')}
+                data-testid="button-create-agent"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                New
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleCollapsePanel}
+                data-testid="button-collapse-agents-panel"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -90,10 +147,10 @@ export default function AgentsPage() {
                 <Bot className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
                 <p className="text-sm text-muted-foreground">No agents found</p>
                 <Button
-                  variant="link"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setLocation('/agents/create')}
-                  className="mt-2"
+                  className="mt-2 text-primary"
                 >
                   Create your first agent
                 </Button>

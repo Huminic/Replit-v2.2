@@ -13,10 +13,17 @@ interface AppContextValue {
   rightPaneOpen: boolean;
   mobileMenuOpen: boolean;
   mobileChatOpen: boolean;
+  activePanel: string | null;
+  panelLocked: boolean;
+  panelHovered: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
   setMobileMenuOpen: (open: boolean) => void;
   setMobileChatOpen: (open: boolean) => void;
+  setActivePanel: (panel: string | null) => void;
+  setPanelLocked: (locked: boolean) => void;
+  setPanelHovered: (hovered: boolean) => void;
+  togglePanelLock: (panel: string) => void;
   switchOrganization: (orgId: string) => void;
   addAgent: (agent: Agent) => void;
   updateAgent: (agentId: string, updates: Partial<Agent>) => void;
@@ -35,6 +42,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [rightPaneOpen, setRightPaneOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [panelLocked, setPanelLocked] = useState(false);
+  const [panelHovered, setPanelHovered] = useState(false);
+
+  const togglePanelLock = (panel: string) => {
+    if (activePanel === panel && panelLocked) {
+      setPanelLocked(false);
+      setActivePanel(null);
+    } else {
+      setActivePanel(panel);
+      setPanelLocked(true);
+    }
+  };
 
   const switchOrganization = (orgId: string) => {
     const org = mockOrganizations.find(o => o.id === orgId);
@@ -69,10 +89,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         rightPaneOpen,
         mobileMenuOpen,
         mobileChatOpen,
+        activePanel,
+        panelLocked,
+        panelHovered,
         setSidebarCollapsed,
         setRightPaneOpen,
         setMobileMenuOpen,
         setMobileChatOpen,
+        setActivePanel,
+        setPanelLocked,
+        setPanelHovered,
+        togglePanelLock,
         switchOrganization,
         addAgent,
         updateAgent,

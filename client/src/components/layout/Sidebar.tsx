@@ -1,4 +1,5 @@
 import { useLocation } from 'wouter';
+import { useRef } from 'react';
 import { 
   Home, 
   Bot, 
@@ -8,27 +9,13 @@ import {
   Activity, 
   Settings, 
   User,
-  ChevronRight,
-  Star,
-  MessageSquare,
-  Calendar,
-  CheckSquare,
-  Lightbulb,
-  ClipboardCheck,
-  Users,
-  Wrench,
-  BookOpen,
-  Zap
+  PanelLeftClose,
+  PanelLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import { useApp } from '@/contexts/AppContext';
 import { canAccessSystem } from '@/mocks/users';
 
@@ -37,121 +24,79 @@ interface MenuItem {
   label: string;
   icon: React.ElementType;
   path: string;
-  submenu?: { label: string; path: string; icon: React.ElementType }[];
+  hasPanel?: boolean;
   adminOnly?: boolean;
 }
 
 const menuItems: MenuItem[] = [
-  {
-    id: 'main',
-    label: 'Main',
-    icon: Home,
-    path: '/',
-    submenu: [
-      { label: 'Favorites', path: '/', icon: Star },
-      { label: 'Message History', path: '/', icon: MessageSquare },
-    ],
-  },
-  {
-    id: 'agents',
-    label: 'Agents',
-    icon: Bot,
-    path: '/agents',
-    submenu: [
-      { label: 'Agent Chat', path: '/agents', icon: MessageSquare },
-      { label: 'Create Agent', path: '/agents/create', icon: Bot },
-      { label: 'All Agents', path: '/agents', icon: Users },
-    ],
-  },
-  {
-    id: 'drive',
-    label: 'Drive',
-    icon: Folder,
-    path: '/drive',
-    submenu: [
-      { label: 'My Files', path: '/drive', icon: Folder },
-      { label: 'Shared Files', path: '/drive?tab=shared', icon: Users },
-      { label: 'Templates', path: '/drive?tab=templates', icon: BookOpen },
-    ],
-  },
-  {
-    id: 'insights',
-    label: 'Insights',
-    icon: BarChart3,
-    path: '/insights',
-    submenu: [
-      { label: 'Insight Engine', path: '/insights', icon: BarChart3 },
-      { label: 'Goals', path: '/insights?tab=goals', icon: CheckSquare },
-    ],
-  },
-  {
-    id: 'work-center',
-    label: 'Work Center',
-    icon: Briefcase,
-    path: '/work-center',
-    submenu: [
-      { label: 'Calendar', path: '/work-center', icon: Calendar },
-      { label: 'Tasks', path: '/work-center?tab=tasks', icon: CheckSquare },
-      { label: 'Hunches', path: '/work-center?tab=hunches', icon: Lightbulb },
-      { label: 'Approvals', path: '/work-center?tab=approvals', icon: ClipboardCheck },
-    ],
-  },
-  {
-    id: 'activity',
-    label: 'Activity',
-    icon: Activity,
-    path: '/activity',
-    submenu: [
-      { label: 'Users', path: '/activity?filter=user', icon: Users },
-      { label: 'Agents', path: '/activity?filter=agent', icon: Bot },
-      { label: 'System', path: '/activity?filter=system', icon: Settings },
-    ],
-  },
+  { id: 'main', label: 'Main', icon: Home, path: '/', hasPanel: false },
+  { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
+  { id: 'drive', label: 'Drive', icon: Folder, path: '/drive', hasPanel: true },
+  { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
+  { id: 'work-center', label: 'Work Center', icon: Briefcase, path: '/work-center', hasPanel: true },
+  { id: 'activity', label: 'Activity', icon: Activity, path: '/activity', hasPanel: true },
 ];
 
 const bottomItems: MenuItem[] = [
-  {
-    id: 'system',
-    label: 'System',
-    icon: Settings,
-    path: '/settings/system',
-    adminOnly: true,
-    submenu: [
-      { label: 'Users', path: '/settings/system', icon: Users },
-      { label: 'Application Settings', path: '/settings/system?tab=app', icon: Settings },
-      { label: 'Tools', path: '/settings/system?tab=tools', icon: Wrench },
-      { label: 'Knowledge', path: '/settings/system?tab=knowledge', icon: BookOpen },
-      { label: 'Hunch Config', path: '/settings/system?tab=hunches', icon: Zap },
-    ],
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    icon: User,
-    path: '/profile',
-    submenu: [
-      { label: 'My Profile', path: '/profile', icon: User },
-      { label: 'Preferences', path: '/profile/preferences', icon: Settings },
-    ],
-  },
+  { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, adminOnly: true },
+  { id: 'profile', label: 'Profile', icon: User, path: '/profile', hasPanel: true },
 ];
 
 export function Sidebar() {
   const [location, setLocation] = useLocation();
-  const { currentUser, sidebarCollapsed, setSidebarCollapsed } = useApp();
+  const { 
+    currentUser, 
+    sidebarCollapsed, 
+    setSidebarCollapsed,
+    activePanel,
+    panelLocked,
+    panelHovered,
+    setActivePanel,
+    togglePanelLock
+  } = useApp();
+  
+  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const isActive = (path: string) => {
     if (path === '/') return location === '/';
     return location.startsWith(path);
   };
 
-  const renderMenuItem = (item: MenuItem, isBottom = false) => {
+  const handleMouseEnter = (item: MenuItem) => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+    if (item.hasPanel && !panelLocked) {
+      setActivePanel(item.id);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!panelLocked) {
+      leaveTimeoutRef.current = setTimeout(() => {
+        if (!panelHovered) {
+          setActivePanel(null);
+        }
+      }, 150);
+    }
+  };
+
+  const handleClick = (item: MenuItem) => {
+    setLocation(item.path);
+    if (item.hasPanel) {
+      togglePanelLock(item.id);
+    }
+  };
+
+  const renderMenuItem = (item: MenuItem) => {
     if (item.adminOnly && !canAccessSystem(currentUser.role)) {
       return null;
     }
 
     const Icon = item.icon;
     const active = isActive(item.path);
+    const isPanelOpen = activePanel === item.id;
 
     const menuButton = (
       <Button
@@ -159,28 +104,24 @@ export function Sidebar() {
         className={cn(
           'w-full justify-start gap-3 h-auto py-3 px-3 relative group',
           'hover-elevate',
-          active && 'bg-accent',
+          (active || isPanelOpen) && 'bg-accent',
           sidebarCollapsed && 'justify-center px-2'
         )}
-        onClick={() => setLocation(item.path)}
+        onClick={() => handleClick(item)}
+        onMouseEnter={() => handleMouseEnter(item)}
         data-testid={`sidebar-item-${item.id}`}
       >
         <Icon className={cn(
           'h-5 w-5 flex-shrink-0',
-          active ? 'text-primary' : 'text-muted-foreground'
+          (active || isPanelOpen) ? 'text-primary' : 'text-muted-foreground'
         )} />
         {!sidebarCollapsed && (
-          <>
-            <span className={cn(
-              'text-sm',
-              active ? 'font-medium text-foreground' : 'text-muted-foreground'
-            )}>
-              {item.label}
-            </span>
-            {item.submenu && (
-              <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            )}
-          </>
+          <span className={cn(
+            'text-sm',
+            (active || isPanelOpen) ? 'font-medium text-foreground' : 'text-muted-foreground'
+          )}>
+            {item.label}
+          </span>
         )}
         {active && (
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
@@ -192,56 +133,16 @@ export function Sidebar() {
       return (
         <Tooltip key={item.id}>
           <TooltipTrigger asChild>
-            {menuButton}
+            <div
+              onMouseEnter={() => handleMouseEnter(item)}
+            >
+              {menuButton}
+            </div>
           </TooltipTrigger>
-          <TooltipContent side="right" className="flex flex-col gap-1">
+          <TooltipContent side="right">
             <span className="font-medium">{item.label}</span>
-            {item.submenu && (
-              <div className="flex flex-col gap-1 mt-1 pt-1 border-t border-border">
-                {item.submenu.map((sub) => (
-                  <Button
-                    key={sub.path}
-                    variant="ghost"
-                    size="sm"
-                    className="justify-start gap-2 h-8 text-xs"
-                    onClick={() => setLocation(sub.path)}
-                    data-testid={`tooltip-submenu-${item.id}-${sub.label.toLowerCase().replace(/\s/g, '-')}`}
-                  >
-                    <sub.icon className="h-3 w-3" />
-                    {sub.label}
-                  </Button>
-                ))}
-              </div>
-            )}
           </TooltipContent>
         </Tooltip>
-      );
-    }
-
-    if (item.submenu) {
-      return (
-        <HoverCard key={item.id} openDelay={200} closeDelay={100}>
-          <HoverCardTrigger asChild>
-            {menuButton}
-          </HoverCardTrigger>
-          <HoverCardContent side="right" align="start" className="w-48 p-2">
-            <div className="flex flex-col gap-1">
-              {item.submenu.map((sub) => (
-                <Button
-                  key={sub.path}
-                  variant="ghost"
-                  size="sm"
-                  className="justify-start gap-2 h-9"
-                  onClick={() => setLocation(sub.path)}
-                  data-testid={`submenu-${item.id}-${sub.label.toLowerCase().replace(/\s/g, '-')}`}
-                >
-                  <sub.icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{sub.label}</span>
-                </Button>
-              ))}
-            </div>
-          </HoverCardContent>
-        </HoverCard>
       );
     }
 
@@ -254,6 +155,7 @@ export function Sidebar() {
         'hidden lg:flex flex-col border-r border-border bg-sidebar transition-all duration-200',
         sidebarCollapsed ? 'w-16' : 'w-60'
       )}
+      onMouseLeave={handleMouseLeave}
     >
       <ScrollArea className="flex-1 py-4">
         <nav className="flex flex-col gap-1 px-2">
@@ -263,7 +165,7 @@ export function Sidebar() {
 
       <div className="border-t border-border py-4 px-2">
         <nav className="flex flex-col gap-1">
-          {bottomItems.map((item) => renderMenuItem(item, true))}
+          {bottomItems.map((item) => renderMenuItem(item))}
         </nav>
       </div>
 
@@ -271,11 +173,11 @@ export function Sidebar() {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-center text-muted-foreground text-xs"
+          className="w-full justify-center text-muted-foreground"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           data-testid="button-toggle-sidebar"
         >
-          {sidebarCollapsed ? '→' : '←'}
+          {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </Button>
       </div>
     </aside>
