@@ -16,12 +16,7 @@ import { getAgentStatusColor, type Agent } from '@/mocks/agents';
 import { mockActivityFeed } from '@/mocks/activity';
 import { mockApprovals } from '@/mocks/tasks';
 
-interface SubMenuManagerProps {
-  selectedAgent: Agent | null;
-  onSelectAgent: (agent: Agent) => void;
-}
-
-export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerProps) {
+export function SubMenuManager() {
   const [location, setLocation] = useLocation();
   const { 
     activePanel, 
@@ -30,7 +25,9 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
     setSubMenuExpanded,
     setPanelHovered,
     agents,
-    currentUser
+    currentUser,
+    selectedAgent,
+    setSelectedAgent
   } = useApp();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -78,7 +75,7 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 200);
+      }, 400);
     }
   };
 
@@ -126,7 +123,7 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
                   <button
                     key={agent.id}
                     onClick={() => {
-                      onSelectAgent(agent);
+                      setSelectedAgent(agent);
                       if (!location.startsWith('/agents')) setLocation('/agents');
                     }}
                     className={cn(

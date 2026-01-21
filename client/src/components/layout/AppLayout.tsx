@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { MessageSquare, Menu } from 'lucide-react';
+import { MessageSquare, Menu, PanelRightOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -9,7 +8,6 @@ import { MobileSidebar } from './MobileSidebar';
 import { RightPane } from './RightPane';
 import { SubMenuManager } from './SubMenuManager';
 import { useApp } from '@/contexts/AppContext';
-import { type Agent } from '@/mocks/agents';
 
 type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat';
 
@@ -31,11 +29,11 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setMobileChatOpen, setMobileMenuOpen, agents } = useApp();
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(agents[0] || null);
+  const { rightPaneOpen, setRightPaneOpen, setMobileChatOpen, setMobileMenuOpen, selectedAgent, setSelectedAgent } = useApp();
   
   const viewConfig = getViewConfig(location);
   const showRightPane = viewConfig !== 'chat-only' && rightPaneOpen;
+  const canShowRightPaneToggle = viewConfig !== 'chat-only';
 
   return (
     <div className="flex flex-col h-screen w-full bg-background">
@@ -45,10 +43,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Sidebar />
         <MobileSidebar />
         
-        <SubMenuManager 
-          selectedAgent={selectedAgent}
-          onSelectAgent={setSelectedAgent}
-        />
+        <SubMenuManager />
         
         <main className={cn(
           'flex-1 overflow-hidden flex flex-col',
@@ -61,6 +56,18 @@ export function AppLayout({ children }: AppLayoutProps) {
           <aside className="hidden xl:flex w-80 border-l border-border flex-shrink-0">
             <RightPane />
           </aside>
+        )}
+
+        {canShowRightPaneToggle && !rightPaneOpen && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden xl:flex fixed right-4 top-1/2 -translate-y-1/2 z-30 h-10 w-10 rounded-full bg-background border border-border shadow-md"
+            onClick={() => setRightPaneOpen(true)}
+            data-testid="button-open-right-pane"
+          >
+            <PanelRightOpen className="h-5 w-5 text-muted-foreground" />
+          </Button>
         )}
       </div>
 

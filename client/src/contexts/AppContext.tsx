@@ -16,6 +16,7 @@ interface AppContextValue {
   agents: Agent[];
   notifications: Notification[];
   favorites: FavoriteItem[];
+  selectedAgent: Agent | null;
   sidebarVisible: boolean;
   rightPaneOpen: boolean;
   mobileMenuOpen: boolean;
@@ -23,6 +24,7 @@ interface AppContextValue {
   activePanel: string | null;
   subMenuExpanded: boolean;
   panelHovered: boolean;
+  setSelectedAgent: (agent: Agent | null) => void;
   setSidebarVisible: (visible: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
   setMobileMenuOpen: (open: boolean) => void;
@@ -55,6 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(mockAgents[0] || null);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([
     { id: 'fav-1', label: 'Insights Dashboard', path: '/insights' },
     { id: 'fav-2', label: 'Hub Calendar', path: '/work-center' },
@@ -106,6 +109,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         agents,
         notifications,
         favorites,
+        selectedAgent,
         sidebarVisible,
         rightPaneOpen,
         mobileMenuOpen,
@@ -113,6 +117,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         activePanel,
         subMenuExpanded,
         panelHovered,
+        setSelectedAgent,
         setSidebarVisible,
         setRightPaneOpen,
         setMobileMenuOpen,
