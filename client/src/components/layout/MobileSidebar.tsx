@@ -22,7 +22,7 @@ const menuItems = [
   { id: 'agents', label: 'Agents', icon: Bot, path: '/agents' },
   { id: 'drive', label: 'Drive', icon: Folder, path: '/drive' },
   { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights' },
-  { id: 'work-center', label: 'Work Center', icon: Briefcase, path: '/work-center' },
+  { id: 'work-center', label: 'Hub', icon: Briefcase, path: '/work-center' },
   { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
 ];
 
