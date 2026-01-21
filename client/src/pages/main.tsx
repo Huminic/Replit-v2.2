@@ -155,14 +155,14 @@ export default function MainPage() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* SuperAgents Header */}
-        <div className="flex items-center justify-center py-8 border-b border-border">
+        {/* Nexxus Connect Header */}
+        <div className="flex items-center justify-center py-8 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-purple-500" />
               <div className="w-3 h-3 rounded-full bg-blue-500" />
             </div>
-            <span className="text-xl font-semibold text-foreground">SuperAgents</span>
+            <span className="text-xl font-semibold text-foreground">Nexxus Connect</span>
             <span className="text-muted-foreground text-xl">™</span>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function MainPage() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Give your Super Agent responsibilities, workflows, or projects to manage"
+                  placeholder="Give Nexxus Connect responsibilities, workflows, or projects to manage"
                   className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[28px] max-h-40 py-1.5"
                   rows={1}
                   data-testid="input-main-chat"
