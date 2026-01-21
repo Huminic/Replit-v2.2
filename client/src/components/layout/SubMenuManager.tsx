@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
@@ -34,6 +34,19 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
   } = useApp();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Responsive: collapse sub-menu when window is resized smaller
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024 && subMenuExpanded) {
+        setSubMenuExpanded(false);
+        setActivePanel(null);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [subMenuExpanded, setSubMenuExpanded, setActivePanel]);
   
   const isVisible = activePanel !== null || subMenuExpanded;
 
@@ -398,7 +411,7 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
 
   return (
     <aside 
-      className="hidden lg:flex flex-col border-r border-border bg-card/30 flex-shrink-0 w-64"
+      className="hidden lg:flex flex-col border-r border-border bg-card/95 backdrop-blur-sm w-64 fixed left-16 top-14 bottom-0 z-40 shadow-xl"
       onMouseEnter={handlePanelMouseEnter}
       onMouseLeave={handlePanelMouseLeave}
     >

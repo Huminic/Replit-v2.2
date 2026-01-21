@@ -32,7 +32,7 @@ const menuItems: MenuItem[] = [
   { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
   { id: 'drive', label: 'Drive', icon: Folder, path: '/drive', hasPanel: true },
   { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
-  { id: 'work-center', label: 'Work Center', icon: Briefcase, path: '/work-center', hasPanel: true },
+  { id: 'work-center', label: 'Hub', icon: Briefcase, path: '/work-center', hasPanel: true },
   { id: 'activity', label: 'Activity', icon: Activity, path: '/activity', hasPanel: true },
 ];
 
@@ -163,34 +163,28 @@ export function Sidebar() {
       onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col items-center py-3 border-b border-border gap-2">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">N</span>
-        </div>
-        
-        {getCurrentPagePanel() && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  'h-6 w-6 text-muted-foreground',
-                  subMenuExpanded && 'bg-accent text-primary'
-                )}
-                onClick={toggleSubMenuExpanded}
-                data-testid="button-toggle-submenu"
-              >
-                <ChevronsRight className={cn(
-                  'h-3.5 w-3.5 transition-transform',
-                  subMenuExpanded && 'rotate-180'
-                )} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              {subMenuExpanded ? 'Collapse sub-menu' : 'Expand sub-menu'}
-            </TooltipContent>
-          </Tooltip>
-        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'h-7 w-7 text-muted-foreground',
+                subMenuExpanded && 'bg-accent text-primary'
+              )}
+              onClick={toggleSubMenuExpanded}
+              data-testid="button-toggle-submenu"
+            >
+              <ChevronsRight className={cn(
+                'h-4 w-4 transition-transform',
+                subMenuExpanded && 'rotate-180'
+              )} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {subMenuExpanded ? 'Collapse sub-menu' : 'Expand sub-menu'}
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <div className="flex-1 py-2 overflow-y-auto">
