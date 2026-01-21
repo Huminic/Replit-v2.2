@@ -1,0 +1,359 @@
+Insights Module — UI Content Specifications
+Left Sidebar Sub-Menu (appears when Insights is active)
+Projects (default)
+Goals
+Dashboards
+Alerts
+Discoveries
+1. PROJECTS PAGE (default landing)
+Header
+Title: "Insights Projects"
+Subtitle: "Analyze goals and performance data"
+Content
+Display a grid of project cards. Each card contains:
+
+Project name
+Number of goals (e.g., "3 goals")
+Status: Active / At Risk / Completed / Archived
+Last updated timestamp
+Evidence item count
+Insights count
+Clicking card navigates to project detail view
+Include a "Create New Project" card as the last item in grid.
+
+2. GOALS PAGE
+Header
+Title: "All Goals"
+Content
+Display a table with these columns:
+
+Goal name (clickable link)
+Project (parent project name, links to project)
+Status: On Track / At Risk / Blocked
+Owner (user name)
+KPIs (show current metric values with trend indicators: increasing/decreasing/stable)
+Due date
+Actions menu
+Filters Available
+Status
+Owner
+Project
+Date range
+Sort Options
+Priority
+Due date
+Created date
+3. DASHBOARDS PAGE
+Header
+Title: "Dashboard Library"
+Content
+Section: Templates Display template options:
+
+Goal Health Dashboard
+Agent Performance
+Pipeline Trends
+Cohort Analysis
+Each template shows: name, preview, "Use Template" action
+
+Section: My Dashboards Display grid of saved dashboards. Each shows:
+
+Dashboard name
+Preview
+Creator name or last updated time
+"View" action
+Actions menu: Edit, Duplicate, Delete
+4. ALERTS PAGE
+Header
+Title: "Alert Monitors"
+"Create Alert" action
+Content
+Section: Active Alerts Display cards for each active alert containing:
+
+Alert name
+Condition in plain English (e.g., "Win-rate < 15% for Enterprise accounts")
+Status: Active / Paused
+Fire count with time period (e.g., "Triggered 3 times this week")
+Last fired timestamp with brief description of what triggered
+Actions: Edit, Pause/Resume, View History
+Section: Recent Alert Events Display chronological timeline of alert fires. Each entry shows:
+
+Alert name
+Timestamp when fired
+Triggered values (e.g., "Win-rate dropped to 12.3%")
+Link to view investigation details
+Number of related evidence items
+5. DISCOVERIES PAGE
+Header
+Title: "Auto-Generated Insights"
+Content
+Display feed of insight cards in chronological order (newest first). Each card shows:
+
+Category indicator: Alert / Insight / Trend
+Claim statement (1-2 sentences)
+Impact level: High / Medium / Low
+Evidence count (clickable to expand evidence list)
+Confidence level (percentage or qualitative)
+Timestamp
+Actions: Investigate, Create Alert, Dismiss
+Filters Available
+Impact level
+Date range
+Project
+Status: New / Reviewed / Dismissed
+Load more insights as user scrolls (infinite scroll).
+
+6. PROJECT DETAIL VIEW
+Header Area
+Display:
+
+Project name (editable)
+Status selector: Active / At Risk / Completed / Archived
+Owner (changeable)
+Summary metrics:
+Number of goals
+Number of insights
+Number of evidence items
+Number of active alerts
+Actions: Settings, Share, Archive
+Tabs
+Overview (default)
+Insights
+Evidence
+Alerts
+Views
+TAB 1: OVERVIEW
+Section: Goal Health Display cards for each goal containing:
+
+Goal name
+Status: On Track / At Risk / Blocked
+KPI metrics with current values
+Trend direction: increasing / decreasing / stable
+Comparison text (e.g., "+12% vs last week")
+Section: Recent Discoveries Show last 5 insight cards (same format as Discoveries page) Include link: "View all insights" that switches to Insights tab
+
+Section: View Gallery Display thumbnails of saved visualizations in a grid. Each shows:
+
+Preview image
+View name
+Clicking opens view in full-screen
+TAB 2: INSIGHTS
+Display same content as Discoveries page, filtered to show only insights from this project.
+
+TAB 3: EVIDENCE
+Search Provide search input: "Search evidence..."
+
+Filters Available
+
+Source type: File / CRM Note / Activity Event / Metric Snapshot / Outcome
+Date range
+Entities: Accounts, Deals, Agents
+Tags
+View Modes
+
+List View Display table with columns:
+
+Title or text snippet
+Source type
+Date and time
+Related entities (account name, deal name, agent name)
+Actions: View (opens detail), Pin to Goal
+Timeline View Display vertical chronological timeline grouped by day. Each event shows:
+
+Time
+Source type
+Title
+Brief snippet
+Related entities
+Clicking opens detail
+Group related events (e.g., call + email within 1 hour) visually together.
+
+TAB 4: ALERTS
+Display same content as Alerts page, filtered to show only alerts from this project.
+
+TAB 5: VIEWS
+Header "Create View" action with options:
+
+From template
+From chat
+Upload data
+Content Display grid of saved visualizations. Each shows:
+
+Preview
+View name
+Type: Heatmap / Line Chart / Bar Chart / Funnel / Timeline
+Created date
+Actions menu: Open, Edit, Duplicate, Delete
+7. RIGHT CHAT PANEL (persistent across all pages)
+Header
+Agent name (e.g., "Project Insight Agent")
+Status: Idle / Thinking / Generating
+Collapse action
+Chat Messages
+Display conversation history. Message types include:
+
+User messages
+
+Text content from user
+Agent text responses
+
+Text content from agent
+Citations to evidence (clickable references)
+Agent-generated visualizations
+
+Rendered chart, heatmap, or graph
+"Pin to Views" action
+"Explain" action to ask follow-up
+Insight cards
+
+Claim statement
+Evidence count
+"Save to Insights" action
+Evidence attachments
+
+File name or snippet
+Expandable preview
+Recommendation cards
+
+Action description
+Rationale explanation
+Expected impact description
+"Convert to Action" action
+Input Area
+Suggested Prompts (context-aware) Display prompts relevant to current view:
+
+"What changed this week?"
+"Show outlier agents"
+"Create a heatmap of stage conversions"
+"Why is EMEA underperforming?"
+Input Field
+
+Multi-line text input
+Placeholder: "Ask about this project..."
+Attachment options: Upload files, Link CRM entities
+8. CREATE PROJECT FLOW
+Display form with fields:
+
+Project name (required)
+Description (optional)
+Goals (repeatable section, can add multiple):
+Goal name
+KPI definitions (metric name + target value pairs)
+Due date
+Evidence scope:
+File selection
+CRM filter configuration
+Data source connections: Activity logs, Performance metrics, etc.
+Instructions (large text area):
+Placeholder: "Describe what you want to analyze or any specific context..."
+Actions: Cancel, Create Project
+
+9. CREATE ALERT FLOW (3 steps)
+Step 1: Define Trigger
+
+Option A: Natural language input
+
+Text input: "Describe when this alert should fire..."
+Example prompts displayed: "Win-rate drops below 15%", "SLA exceeds 2 hours for Enterprise"
+Option B: Template selection
+
+Templates: "KPI Threshold", "Metric Spike", "Negative Trend", "Combo Condition"
+After input, display detected trigger breakdown:
+
+Metric identified
+Condition operator (less than / greater than / equals)
+Threshold value
+Scope/filter
+Time window
+Action: Next (proceed to Step 2)
+
+Step 2: Choose Scope
+
+Apply to (select one or more):
+
+All entities in project
+Specific goals
+Specific accounts
+Specific agents
+Specific teams
+Evaluation frequency:
+
+Real-time (as data arrives)
+Daily (specify time)
+Weekly (specify day and time)
+Actions: Back, Next (proceed to Step 3)
+
+Step 3: Choose Actions
+
+When alert fires (select one or more):
+
+Send in-app notification
+Create task (specify assignee)
+Send email (specify recipient)
+Post to Slack channel (specify channel)
+Attach investigation pack (includes evidence and analysis)
+Actions: Back, Create Alert
+
+10. VIEW DETAIL (full-screen)
+Display:
+
+View name (editable)
+Close action
+Actions: Edit, Export (PNG/PDF/CSV), Create Alert
+Main Content
+
+Full-size interactive visualization
+Controls
+
+Filters (various based on data)
+Grouping options (e.g., "Group by: Agent / Team / Region")
+Date range selector
+Interaction
+
+"Explain this" input at bottom: "Ask about this visualization..."
+Suggested prompts: "Why did this spike?", "Compare top 3 vs bottom 3"
+11. EMPTY STATES
+No projects
+
+Message: "Get started with Insights"
+Submessage: "Create your first project to analyze goals and performance data"
+Action: Create Project
+No goals in project
+
+Message: "Add goals to track progress"
+Action: Add Goal
+No evidence
+
+Message: "No evidence yet"
+Submessage: "Upload files or sync CRM data to begin"
+Action: Upload Files
+No insights yet
+
+Message: "Insights will appear as your agent analyzes data"
+Suggestion: "Try asking a question in the chat panel"
+No alerts
+
+Message: "No active alerts"
+Action: Create Alert
+No views
+
+Message: "No saved views yet"
+Action: Create View
+12. LOADING STATES
+Show placeholder content while loading:
+
+Project cards (multiple placeholders)
+Tables (row placeholders)
+Charts (placeholder area)
+KPI tiles (placeholder boxes)
+For chat: show typing/processing indicator with message "Agent is thinking..."
+
+13. ERROR STATES
+Failed to load content
+
+Error message: "Failed to load [content type]"
+Action: Retry
+Form validation errors
+
+Display error message below invalid field
+Indicate which field has error
+END OF UI CONTENT SPECIFICATIONS

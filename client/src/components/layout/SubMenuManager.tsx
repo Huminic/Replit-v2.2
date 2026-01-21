@@ -63,12 +63,21 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
     setPanelHovered(true);
   };
 
-  const handlePanelMouseLeave = () => {
+  const handlePanelMouseLeave = (e: React.MouseEvent) => {
+    // Check if we're actually leaving the panel (not entering a child)
+    const relatedTarget = e.relatedTarget as HTMLElement | null;
+    const panel = e.currentTarget as HTMLElement;
+    
+    // If we're moving to an element inside the panel, don't hide
+    if (relatedTarget && panel.contains(relatedTarget)) {
+      return;
+    }
+    
     setPanelHovered(false);
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 150);
+      }, 200);
     }
   };
 
