@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, 
@@ -39,8 +38,7 @@ const channelIcons: Record<AgentChannel, React.ElementType> = {
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
-  const { agents, updateAgent } = useApp();
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(agents[0] || null);
+  const { agents, updateAgent, selectedAgent, setSelectedAgent } = useApp();
 
   const handleToggleStatus = (agent: Agent) => {
     const newStatus = agent.status === 'active' ? 'inactive' : 'active';
