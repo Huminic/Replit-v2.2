@@ -65,7 +65,7 @@ export function TopBar() {
           <Menu className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-500 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 flex items-center justify-center">
             <span className="text-white font-bold text-sm">N</span>
           </div>
           <span className="font-semibold text-foreground hidden sm:block">Nexxus</span>
