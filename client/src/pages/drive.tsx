@@ -88,15 +88,15 @@ export default function DrivePage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem data-testid={`menu-download-${file.id}`}>
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem data-testid={`menu-share-${file.id}`}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem data-testid={`menu-star-${file.id}`}>
                   <Star className="h-4 w-4 mr-2" />
                   {file.starred ? 'Unstar' : 'Star'}
                 </DropdownMenuItem>
@@ -162,16 +162,16 @@ export default function DrivePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem data-testid={`menu-download-list-${file.id}`}>
               <Download className="h-4 w-4 mr-2" />
               Download
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem data-testid={`menu-share-list-${file.id}`}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" data-testid={`menu-delete-list-${file.id}`}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>
@@ -248,16 +248,16 @@ export default function DrivePage() {
       <Tabs defaultValue="my-files" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-12 p-0">
-            <TabsTrigger value="my-files" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="my-files" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-drive-my-files">
               My Files
             </TabsTrigger>
-            <TabsTrigger value="shared" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="shared" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-drive-shared">
               Shared
             </TabsTrigger>
-            <TabsTrigger value="starred" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="starred" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-drive-starred">
               Starred
             </TabsTrigger>
-            <TabsTrigger value="templates" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-drive-templates">
               Templates
             </TabsTrigger>
           </TabsList>

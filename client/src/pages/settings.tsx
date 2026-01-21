@@ -42,23 +42,23 @@ export default function SettingsPage() {
       <Tabs defaultValue="users" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-12 p-0 gap-4">
-            <TabsTrigger value="users" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="users" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-users">
               <Users className="h-4 w-4" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="app" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="app" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-app">
               <Settings className="h-4 w-4" />
               Application
             </TabsTrigger>
-            <TabsTrigger value="tools" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="tools" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-tools">
               <Wrench className="h-4 w-4" />
               Tools
             </TabsTrigger>
-            <TabsTrigger value="knowledge" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="knowledge" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-knowledge">
               <BookOpen className="h-4 w-4" />
               Knowledge
             </TabsTrigger>
-            <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2">
+            <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-hunches">
               <Zap className="h-4 w-4" />
               Hunches
             </TabsTrigger>
@@ -108,12 +108,12 @@ export default function SettingsPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem data-testid={`menu-edit-user-${user.id}`}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit User
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
+                              <DropdownMenuItem className="text-destructive" data-testid={`menu-remove-user-${user.id}`}>
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Remove User
                               </DropdownMenuItem>

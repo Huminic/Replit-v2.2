@@ -28,10 +28,10 @@ export default function InsightsPage() {
       <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-12 p-0">
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="goals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+            <TabsTrigger value="goals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-goals">
               Goals
             </TabsTrigger>
           </TabsList>
