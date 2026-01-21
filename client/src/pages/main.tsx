@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Bot, Star, MessageSquare, Sparkles } from 'lucide-react';
+import { Send, Plus, Bot, Star, MessageSquare, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,6 +14,7 @@ export default function MainPage() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false); // Default closed
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -61,52 +62,78 @@ export default function MainPage() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* Left Panel - Favorites & Message History */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card/50 flex-shrink-0">
-        <div className="p-3 border-b border-border">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Star className="h-4 w-4 text-amber-500" />
-            Favorites
+      {leftPanelOpen && (
+        <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card/50 flex-shrink-0">
+          <div className="p-3 border-b border-border flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Star className="h-4 w-4 text-amber-500" />
+              Favorites
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground"
+              onClick={() => setLeftPanelOpen(false)}
+              data-testid="button-collapse-home-panel"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground px-3 py-2">
             Star conversations to access them quickly
           </p>
-        </div>
 
-        <div className="flex-1 flex flex-col">
-          <div className="p-3 border-b border-border">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <MessageSquare className="h-4 w-4 text-primary" />
-              Message History
+          <div className="flex-1 flex flex-col">
+            <div className="p-3 border-b border-border">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                Message History
+              </div>
             </div>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="p-2 flex flex-col gap-1">
-              {mockConversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => setActiveConversation(conv.id)}
-                  className={cn(
-                    'w-full text-left p-3 rounded-lg transition-colors hover-elevate',
-                    activeConversation === conv.id ? 'bg-accent' : 'hover:bg-accent/50'
-                  )}
-                  data-testid={`conversation-${conv.id}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-foreground truncate">{conv.title}</p>
-                    {conv.unread && (
-                      <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+            <ScrollArea className="flex-1">
+              <div className="p-2 flex flex-col gap-1">
+                {mockConversations.map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => setActiveConversation(conv.id)}
+                    className={cn(
+                      'w-full text-left p-3 rounded-lg transition-colors hover-elevate',
+                      activeConversation === conv.id ? 'bg-accent' : 'hover:bg-accent/50'
                     )}
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate mt-1">{conv.lastMessage}</p>
-                  <p className="text-xs text-muted-foreground/70 mt-1">
-                    {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
+                    data-testid={`conversation-${conv.id}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{conv.title}</p>
+                      {conv.unread && (
+                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate mt-1">{conv.lastMessage}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </aside>
+      )}
+      
+      {/* Expand button when panel is closed */}
+      {!leftPanelOpen && (
+        <div className="hidden md:flex items-start pt-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground"
+            onClick={() => setLeftPanelOpen(true)}
+            data-testid="button-expand-home-panel"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-      </aside>
+      )}
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
