@@ -236,7 +236,7 @@ export function SubMenuManager({ selectedAgent, onSelectAgent }: SubMenuManagerP
           <>
             <div className="p-3 border-b border-border">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold text-foreground">Work Center</h2>
+                <h2 className="text-sm font-semibold text-foreground">Hub</h2>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCollapsePanel} data-testid="button-collapse-work-panel">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>

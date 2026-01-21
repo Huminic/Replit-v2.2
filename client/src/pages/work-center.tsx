@@ -42,7 +42,7 @@ export default function WorkCenterPage() {
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-foreground">Work Center</h1>
+          <h1 className="text-lg font-semibold text-foreground">Hub</h1>
           <p className="text-sm text-muted-foreground">Manage your tasks, calendar, and approvals</p>
         </div>
         <Button size="sm" data-testid="button-add-task">
