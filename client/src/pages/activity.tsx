@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { mockActivityFeed, getActivityColor, type ActivityType } from '@/mocks/activity';
 import { formatDistanceToNow } from 'date-fns';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 const filterOptions: { id: ActivityType | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Activity', icon: Filter },
@@ -91,6 +92,10 @@ export default function ActivityPage() {
             })}
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+
+      <div className="px-4 py-2 border-b border-border flex items-center">
+        <FavoritesBar currentPath="/activity" currentLabel="Activity" />
       </div>
 
       <ScrollArea className="flex-1">

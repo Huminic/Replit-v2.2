@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { mockFiles, formatFileSize, type DriveFile, type FileType } from '@/mocks/files';
 import { formatDistanceToNow } from 'date-fns';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 const fileIcons: Record<FileType, React.ElementType> = {
   folder: Folder,
@@ -185,6 +186,10 @@ export default function DrivePage() {
             New Folder
           </Button>
         </div>
+      </div>
+
+      <div className="px-4 py-2 border-b border-border flex items-center">
+        <FavoritesBar currentPath="/drive" currentLabel="Drive" />
       </div>
 
       <ScrollArea className="flex-1">

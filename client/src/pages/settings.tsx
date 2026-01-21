@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { mockUsers, getRoleLabel } from '@/mocks/users';
 import { availableTools } from '@/mocks/agents';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function SettingsPage() {
   return (
@@ -46,8 +47,8 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="users" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
-        <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-10 p-0 gap-4">
+        <div className="px-4 border-b border-border flex items-center">
+          <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="users" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-users">
               <Users className="h-4 w-4" />
               Users
@@ -69,6 +70,7 @@ export default function SettingsPage() {
               Hunches
             </TabsTrigger>
           </TabsList>
+          <FavoritesBar currentPath="/settings/system" currentLabel="System Settings" />
         </div>
 
         <TabsContent value="users" className="flex-1 m-0 overflow-hidden">

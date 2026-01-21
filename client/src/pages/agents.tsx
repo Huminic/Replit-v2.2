@@ -28,6 +28,7 @@ import {
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor, type Agent, type AgentChannel } from '@/mocks/agents';
 import { formatDistanceToNow } from 'date-fns';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 const channelIcons: Record<AgentChannel, React.ElementType> = {
   voice: Phone,
@@ -49,6 +50,9 @@ export default function AgentsPage() {
   return (
     <div className="flex h-full overflow-hidden justify-center">
       <div className="flex-1 flex flex-col min-w-0 max-w-4xl">
+        <div className="px-4 py-2 border-b border-border flex items-center">
+          <FavoritesBar currentPath="/agents" currentLabel="Agents" />
+        </div>
         {selectedAgent ? (
           <>
             <div className="p-6 border-b border-border">

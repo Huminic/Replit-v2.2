@@ -26,6 +26,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { getRoleLabel } from '@/mocks/users';
+import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function ProfilePage() {
   const { currentUser, currentOrganization } = useApp();
@@ -39,8 +40,8 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
-        <div className="px-4 border-b border-border">
-          <TabsList className="bg-transparent h-10 p-0 gap-4">
+        <div className="px-4 border-b border-border flex items-center">
+          <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="profile" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-main">
               <User className="h-4 w-4" />
               My Profile
@@ -54,6 +55,7 @@ export default function ProfilePage() {
               Billing
             </TabsTrigger>
           </TabsList>
+          <FavoritesBar currentPath="/profile" currentLabel="Profile" />
         </div>
 
         <TabsContent value="profile" className="flex-1 m-0 overflow-hidden">
