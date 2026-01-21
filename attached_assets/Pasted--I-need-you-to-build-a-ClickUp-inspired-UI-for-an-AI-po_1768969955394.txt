@@ -1,0 +1,24 @@
+  I need you to build a ClickUp-inspired UI for an AI-powered agent platform.                                                                                                  
+                                                                                                                                                                                    
+  I've provided:                                                                                                                                                                    
+  1. REPLIT_PROMPT.md — Read this FIRST (your complete instructions)                                                                                                                
+  2. REPLIT_DESIGN_BRIEF.md — Project overview + tech stack                                                                                                                         
+  3. THEME_CONTRACT_V2.md — Complete design token system (use these tokens exclusively)                                                                                             
+  4. UI_DEVELOPER_HANDOFF_V3.md — Main UI specification (your bible)                                                                                                                
+  5. inspiration/ folder — 4 ClickUp screenshots (INSPIRATION ONLY, not specs to copy)                                                                                              
+                                                                                                                                                                                    
+  CRITICAL:                                                                                                                                                                         
+  - Follow the written specifications EXACTLY                                                                                                                                       
+  - Screenshots are just to show the aesthetic vibe                                                                                                                                 
+  - All design decisions are finalized (no need to ask)                                                                                                                             
+  - Mobile-first responsive is MANDATORY                                                                                                                                            
+  - Light + Dark mode both REQUIRED                                                                                                                                                 
+  - Dual-density: 13px for data, 14px for chat                                                                                                                                      
+  - Gradient ONLY on chat input (nowhere else)                                                                                                                                      
+  - Muted gray icons (not colorful like ClickUp)                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                 
+  Success criteria: See REPLIT_PROMPT.md checklist (11 critical requirements)                                                                                                       
+                                                                                                                                                                                    
+  Start by reading REPLIT_PROMPT.md, then the 3 spec docs in order. Ask questions only after reading all docs.                                                                      
+                                                                                                                                                                                    
+  Ready to build? Let's go! 🚀    

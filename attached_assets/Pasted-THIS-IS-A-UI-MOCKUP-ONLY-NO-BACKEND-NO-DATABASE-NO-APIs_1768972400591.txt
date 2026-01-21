@@ -1,0 +1,66 @@
+THIS IS A UI MOCKUP ONLY - NO BACKEND, NO DATABASE, NO APIs                                                                                                                    
+                                                                                                                                                                                    
+  You are building a CLICKABLE UI PROTOTYPE with mock data.                                                                                                                         
+                                                                                                                                                                                    
+  ✅ WHAT TO BUILD:                                                                                                                                                                 
+  - UI components (buttons, cards, forms, navigation)                                                                                                                               
+  - 3-pane responsive layout (left sidebar + center + right sidebar)                                                                                                                
+  - Light + Dark mode theme toggle                                                                                                                                                  
+  - 8 static pages with mock data                                                                                                                                                   
+  - Design system following THEME_CONTRACT_V2.md                                                                                                                                    
+                                                                                                                                                                                    
+  ❌ WHAT NOT TO BUILD:                                                                                                                                                             
+  - NO database (no Supabase, no PostgreSQL, no setup)                                                                                                                              
+  - NO authentication (show login UI, use localStorage flag)                                                                                                                        
+  - NO API calls (no OpenAI, no VAPI, no external services)                                                                                                                         
+  - NO backend (no Express, no API routes)                                                                                                                                          
+  - NO environment variables for APIs                                                                                                                                               
+                                                                                                                                                                                    
+  📁 READ THESE IN ORDER:                                                                                                                                                           
+  1. REPLIT_DESIGN_BRIEF.md - Overview + key decisions                                                                                                                              
+  2. THEME_CONTRACT_V2.md - Design tokens (colors, spacing, fonts)                                                                                                                  
+  3. UI_DEVELOPER_HANDOFF_V3.md - Complete UI spec                                                                                                                                  
+                                                                                                                                                                                    
+  🎯 KEY REQUIREMENTS:                                                                                                                                                              
+  - Mobile-first responsive (hamburger menu <768px)                                                                                                                                 
+  - Light + Dark mode (both required)                                                                                                                                               
+  - Dual-density: 13px data tables, 14px chat                                                                                                                                       
+  - Gradient ONLY on chat input (purple→blue→cyan)                                                                                                                                  
+  - Muted gray icons (use Lucide)                                                                                                                                                   
+  - 8 menu items: Main, Agents, Drive, Insights, Work Center, Activity, System, Profile                                                                                             
+                                                                                                                                                                                    
+  💾 USE MOCK DATA:                                                                                                                                                                 
+  Create /mocks/ folder with static files:                                                                                                                                          
+                                                                                                                                                                                    
+  // /mocks/users.ts                                                                                                                                                                
+  export const mockCurrentUser = {                                                                                                                                                  
+    id: '1',                                                                                                                                                                        
+    name: 'John Doe',                                                                                                                                                               
+    role: 'org_admin',                                                                                                                                                              
+    email: 'john@example.com'                                                                                                                                                       
+  };                                                                                                                                                                                
+                                                                                                                                                                                    
+  // /mocks/agents.ts                                                                                                                                                               
+  export const mockAgents = [                                                                                                                                                       
+    { id: '1', name: 'Sales Agent', status: 'active', channel: 'voice' },                                                                                                           
+    { id: '2', name: 'Support Agent', status: 'active', channel: 'chat' }                                                                                                           
+  ];                                                                                                                                                                                
+                                                                                                                                                                                    
+  // Use in components                                                                                                                                                              
+  import { mockAgents } from '@/mocks/agents';                                                                                                                                      
+  function AgentsList() {                                                                                                                                                           
+    const [agents] = useState(mockAgents);                                                                                                                                          
+    return <div>{/* Display agents */}</div>;                                                                                                                                       
+  }                                                                                                                                                                                 
+                                                                                                                                                                                    
+  🚀 SETUP:                                                                                                                                                                         
+  npx create-next-app@latest nexxus-mockup --typescript --tailwind                                                                                                                  
+  npm install lucide-react @radix-ui/react-dropdown-menu @tremor/react                                                                                                              
+                                                                                                                                                                                    
+  ⚠️ IF I ASK ABOUT:                                                                                                                                                                
+  - "Database connection?" → NO, use mock data                                                                                                                                      
+  - "API keys?" → NO, use mock data                                                                                                                                                 
+  - "Supabase setup?" → NO, use mock data                                                                                                                                           
+  - "Authentication?" → Show login UI only, set localStorage flag                                                                                                                   
+                                                                                                                                                                                    
+  TL;DR: Build a responsive UI prototype like a working Figma design. All data is fake. Focus on design system, layout, and components.
