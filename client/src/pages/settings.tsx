@@ -33,8 +33,8 @@ import { availableTools } from '@/mocks/agents';
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+    <div className="flex flex-col h-full items-center">
+      <div className="w-full max-w-4xl p-4 border-b border-border flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-foreground">System Settings</h1>
           <p className="text-sm text-muted-foreground">Configure your organization and application settings</p>
@@ -45,7 +45,7 @@ export default function SettingsPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="users" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs defaultValue="users" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
         <div className="px-4 border-b border-border">
           <TabsList className="bg-transparent h-10 p-0 gap-4">
             <TabsTrigger value="users" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-settings-users">
