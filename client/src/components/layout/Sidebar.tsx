@@ -67,7 +67,7 @@ export function Sidebar() {
       clearTimeout(leaveTimeoutRef.current);
       leaveTimeoutRef.current = null;
     }
-    if (item.hasPanel && !panelLocked) {
+    if (item.hasPanel) {
       setActivePanel(item.id);
     }
   };
