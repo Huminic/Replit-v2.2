@@ -62,20 +62,18 @@ export default function MainPage() {
     <div className="flex h-full overflow-hidden">
       {/* Left Panel - Favorites & Message History */}
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card/50 flex-shrink-0">
-        <div className="p-4 border-b border-border">
+        <div className="p-3 border-b border-border">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <Star className="h-4 w-4 text-amber-500" />
             Favorites
           </div>
-        </div>
-        <div className="p-2">
-          <p className="text-xs text-muted-foreground px-2 py-4 text-center">
+          <p className="text-xs text-muted-foreground mt-2">
             Star conversations to access them quickly
           </p>
         </div>
 
         <div className="flex-1 flex flex-col">
-          <div className="p-4 border-b border-border border-t">
+          <div className="p-3 border-b border-border">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <MessageSquare className="h-4 w-4 text-primary" />
               Message History
@@ -211,7 +209,7 @@ export default function MainPage() {
         {/* Input */}
         <div className="p-4 md:p-6 border-t border-border">
           <div className="max-w-3xl mx-auto">
-            <div className="chat-input-gradient rounded-2xl p-[2px]">
+            <div className="chat-input-gradient rounded-2xl p-[3px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
               <div className="bg-background rounded-[14px] flex items-end gap-2 p-4">
                 <Button
                   variant="ghost"
