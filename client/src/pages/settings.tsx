@@ -20,6 +20,7 @@ import {
   Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -73,6 +74,7 @@ const settingsTiles: SettingsTile[] = [
 ];
 
 export default function SettingsPage() {
+  const { toast } = useToast();
   const { currentRole } = useApp();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export default function SettingsPage() {
         <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
           Back
         </Button>
-        <Button size="sm" data-testid="button-add-user">
+        <Button size="sm" onClick={() => toast({ title: 'Add user', description: 'User creation is not available in demo mode.' })} data-testid="button-add-user">
           <Plus className="h-4 w-4 mr-1" />
           Add User
         </Button>
@@ -166,12 +168,12 @@ export default function SettingsPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => toast({ title: 'Edit user', description: `Editing ${user.name} is not available in demo mode.` })}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'User removed', description: `${user.name} has been removed.` })}>
                       <Trash2 className="h-4 w-4 mr-2" />
                       Remove
                     </DropdownMenuItem>
@@ -230,7 +232,7 @@ export default function SettingsPage() {
             </div>
           ))}
           <div className="pt-2">
-            <Button size="sm" data-testid={`button-save-${title.toLowerCase().replace(/\s/g, '-')}`}>Save Changes</Button>
+            <Button size="sm" onClick={() => toast({ title: 'Settings saved', description: 'Your changes have been applied.' })} data-testid={`button-save-${title.toLowerCase().replace(/\s/g, '-')}`}>Save Changes</Button>
           </div>
         </CardContent>
       </Card>

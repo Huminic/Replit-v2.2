@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { 
   User, 
   Settings, 
@@ -13,6 +12,7 @@ import {
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +29,7 @@ import { getRoleLabel } from '@/mocks/users';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function ProfilePage() {
+  const { toast } = useToast();
   const { currentUser, currentOrganization } = useApp();
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -83,7 +84,7 @@ export default function ProfilePage() {
                         </Badge>
                       </div>
                     </div>
-                    <Button variant="outline" data-testid="button-edit-profile">Edit Profile</Button>
+                    <Button variant="outline" onClick={() => toast({ title: 'Edit mode', description: 'Profile editing is not available in demo mode.' })} data-testid="button-edit-profile">Edit Profile</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -109,7 +110,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <Button data-testid="button-save-contact">Save Changes</Button>
+                  <Button onClick={() => toast({ title: 'Contact saved', description: 'Your contact information has been updated.' })} data-testid="button-save-contact">Save Changes</Button>
                 </CardContent>
               </Card>
             </div>
@@ -231,7 +232,7 @@ export default function ProfilePage() {
                     </div>
                     <Progress value={84} className="h-2" />
                   </div>
-                  <Button variant="outline" data-testid="button-upgrade-plan">Upgrade Plan</Button>
+                  <Button variant="outline" onClick={() => toast({ title: 'Upgrade plan', description: 'Plan upgrades are not available in demo mode.' })} data-testid="button-upgrade-plan">Upgrade Plan</Button>
                 </CardContent>
               </Card>
 
@@ -248,7 +249,7 @@ export default function ProfilePage() {
                         <p className="text-sm text-muted-foreground">Expires 12/2025</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" data-testid="button-update-payment">Update</Button>
+                    <Button variant="ghost" size="sm" onClick={() => toast({ title: 'Update payment', description: 'Payment updates are not available in demo mode.' })} data-testid="button-update-payment">Update</Button>
                   </div>
                 </CardContent>
               </Card>

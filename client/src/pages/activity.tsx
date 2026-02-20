@@ -7,6 +7,7 @@ import {
   Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ const filterOptions: { id: ActivityType | 'all'; label: string; icon: React.Elem
 ];
 
 export default function ActivityPage() {
+  const { toast } = useToast();
   const [filter, setFilter] = useState<ActivityType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -107,7 +109,7 @@ export default function ActivityPage() {
                 {filteredActivity.map((item) => {
                   const Icon = getActivityIcon(item.type);
                   return (
-                    <div key={item.id} className="relative flex gap-4" data-testid={`activity-row-${item.id}`}>
+                    <div key={item.id} className="relative flex gap-4 cursor-pointer hover-elevate rounded-lg p-2 -ml-2" onClick={() => toast({ title: item.description, description: `${item.actor} → ${item.target}` })} data-testid={`activity-row-${item.id}`}>
                       <Avatar className={cn('h-10 w-10 flex-shrink-0 z-10', getActivityColor(item.type))}>
                         <AvatarFallback className="text-white">
                           <Icon className="h-5 w-5" />

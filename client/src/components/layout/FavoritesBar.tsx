@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { Star, X } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { cn } from '@/lib/utils';
@@ -28,49 +28,50 @@ export function FavoritesBar({ currentPath, currentLabel }: FavoritesBarProps) {
     }
   };
 
+  const handleFavClick = (fav: { id: string; path: string }) => {
+    if (fav.path === currentPath) {
+      removeFavorite(fav.id);
+    } else {
+      setLocation(fav.path);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2 ml-auto">
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7"
         onClick={handleToggleFavorite}
+        title={isCurrentFavorite ? 'Remove from favorites' : 'Add to favorites'}
         data-testid="button-toggle-favorite"
       >
         <Star className={cn(
           "h-4 w-4",
-          isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+          isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40"
         )} />
       </Button>
       {favorites.length > 0 && (
-        <div className="flex items-center gap-1 border-l border-border pl-2">
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider mr-0.5">Favorites</span>
+          <div className="w-px h-3 bg-border mr-0.5" />
           {favorites.map((fav) => (
-            <div
+            <Button
               key={fav.id}
+              variant="ghost"
+              size="sm"
               className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-md text-xs group cursor-pointer hover-elevate",
-                fav.path === currentPath ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"
+                "text-xs gap-1",
+                fav.path === currentPath 
+                  ? "text-foreground font-medium" 
+                  : "text-muted-foreground"
               )}
+              onClick={() => handleFavClick(fav)}
+              title={fav.path === currentPath ? 'Click to unfavorite' : `Go to ${fav.label}`}
+              data-testid={`favorite-link-${fav.id}`}
             >
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-              <span 
-                className="truncate max-w-24"
-                onClick={() => setLocation(fav.path)}
-                data-testid={`favorite-link-${fav.id}`}
-              >
-                {fav.label}
-              </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFavorite(fav.id);
-                }}
-                className="opacity-0 group-hover:opacity-100 transition-opacity ml-1"
-                data-testid={`favorite-remove-${fav.id}`}
-              >
-                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-              </button>
-            </div>
+              <span className="truncate max-w-20">{fav.label}</span>
+            </Button>
           ))}
         </div>
       )}

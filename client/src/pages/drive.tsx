@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -64,6 +65,7 @@ const fileColors: Record<FileType, string> = {
 };
 
 export default function DrivePage() {
+  const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -95,7 +97,13 @@ export default function DrivePage() {
         <div
           key={file.id}
           className="group relative bg-card border border-border rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer hover-elevate"
-          onClick={() => file.type === 'folder' && setCurrentFolder(file.id)}
+          onClick={() => {
+            if (file.type === 'folder') {
+              setCurrentFolder(file.id);
+            } else {
+              toast({ title: 'File preview', description: `Opening "${file.name}" preview.` });
+            }
+          }}
           data-testid={`file-item-${file.id}`}
         >
           <div className="absolute top-3 right-3 flex items-center gap-1">
@@ -116,7 +124,7 @@ export default function DrivePage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem data-testid={`menu-download-${file.id}`}>
+                  <DropdownMenuItem onClick={() => toast({ title: 'Download started', description: `${file.name} is downloading.` })} data-testid={`menu-download-${file.id}`}>
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </DropdownMenuItem>
@@ -124,12 +132,12 @@ export default function DrivePage() {
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
                   </DropdownMenuItem>
-                  <DropdownMenuItem data-testid={`menu-star-${file.id}`}>
+                  <DropdownMenuItem onClick={() => toast({ title: file.starred ? 'Unstarred' : 'Starred', description: `${file.name} has been ${file.starred ? 'removed from' : 'added to'} favorites.` })} data-testid={`menu-star-${file.id}`}>
                     <Star className="h-4 w-4 mr-2" />
                     {file.starred ? 'Unstar' : 'Star'}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive" data-testid={`menu-delete-${file.id}`}>
+                  <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'File deleted', description: `${file.name} has been removed.` })} data-testid={`menu-delete-${file.id}`}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
                   </DropdownMenuItem>
@@ -159,7 +167,13 @@ export default function DrivePage() {
       <div
         key={file.id}
         className="group flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 cursor-pointer hover-elevate"
-        onClick={() => file.type === 'folder' && setCurrentFolder(file.id)}
+        onClick={() => {
+          if (file.type === 'folder') {
+            setCurrentFolder(file.id);
+          } else {
+            toast({ title: 'File preview', description: `Opening "${file.name}" preview.` });
+          }
+        }}
         data-testid={`file-item-${file.id}`}
       >
         <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center">
@@ -193,11 +207,11 @@ export default function DrivePage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem><Download className="h-4 w-4 mr-2" />Download</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast({ title: 'Download started', description: `${file.name} is downloading.` })}><Download className="h-4 w-4 mr-2" />Download</DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleShare(file)}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
-              <DropdownMenuItem><Star className="h-4 w-4 mr-2" />{file.starred ? 'Unstar' : 'Star'}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast({ title: file.starred ? 'Unstarred' : 'Starred', description: `${file.name} has been ${file.starred ? 'removed from' : 'added to'} favorites.` })}><Star className="h-4 w-4 mr-2" />{file.starred ? 'Unstar' : 'Star'}</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive"><Trash2 className="h-4 w-4 mr-2" />Delete</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'File deleted', description: `${file.name} has been removed.` })}><Trash2 className="h-4 w-4 mr-2" />Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -231,7 +245,7 @@ export default function DrivePage() {
           >
             <List className="h-4 w-4" />
           </Button>
-          <Button data-testid="button-new-folder">
+          <Button onClick={() => toast({ title: 'New folder', description: 'Folder creation is not available in demo mode.' })} data-testid="button-new-folder">
             <Plus className="h-4 w-4 mr-2" />
             New Folder
           </Button>
@@ -303,7 +317,7 @@ export default function DrivePage() {
               </Button>
             </div>
 
-            <Button className="w-full" disabled={!shareInput} data-testid="button-send-share">
+            <Button className="w-full" disabled={!shareInput} onClick={() => { toast({ title: 'Share sent', description: `${shareMethod === 'email' ? 'Email' : 'SMS'} sent to ${shareInput}.` }); setShareModalOpen(false); }} data-testid="button-send-share">
               <Share2 className="h-4 w-4 mr-2" />
               Send {shareMethod === 'email' ? 'Email' : 'SMS'}
             </Button>

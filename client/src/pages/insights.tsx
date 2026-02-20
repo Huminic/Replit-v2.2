@@ -10,6 +10,14 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import { 
   mockMetrics, 
   mockLeadsChart, 
@@ -142,6 +150,33 @@ const libraryMetrics = [
   { id: 'lib-61', title: 'At-Risk Lead Count', value: '23', change: '-4', trend: 'up' as const, category: 'Forecast' },
 ];
 
+const reportDetailData: Record<string, { summary: string; metrics: { label: string; value: string }[]; generated: string }> = {
+  r1: { summary: 'Analysis of 142 lost deals in the past 90 days reveals pricing (34%), competitor offers (28%), and timing (18%) as top factors.', generated: 'Feb 20, 2026 10:30 AM', metrics: [
+    { label: 'Total Deals Lost', value: '142' }, { label: 'Revenue Impact', value: '$2.1M' }, { label: 'Top Reason: Price', value: '34%' }, { label: 'Avg Days Before Loss', value: '18' }, { label: 'Recovery Rate', value: '12%' }, { label: 'Win-Back Attempts', value: '47' },
+  ]},
+  r2: { summary: 'Website leads show highest ROI at 3.2x, followed by referrals at 2.8x. Social campaigns improving with 15% MoM growth.', generated: 'Feb 20, 2026 8:15 AM', metrics: [
+    { label: 'Website ROI', value: '3.2x' }, { label: 'Referral ROI', value: '2.8x' }, { label: 'Social Growth', value: '+15%' }, { label: 'Cost per Lead (Web)', value: '$42' }, { label: 'Cost per Lead (Social)', value: '$68' }, { label: 'Best Channel', value: 'Google Ads' },
+  ]},
+  r3: { summary: 'Pipeline velocity increasing 8% MoM. 30-day forecast shows 51 projected closes. Q2 outlook positive with 4.8x coverage ratio.', generated: 'Feb 19, 2026 4:00 PM', metrics: [
+    { label: '30-Day Forecast', value: '51 deals' }, { label: '60-Day Forecast', value: '94 deals' }, { label: '90-Day Forecast', value: '128 deals' }, { label: 'Coverage Ratio', value: '4.8x' }, { label: 'Confidence', value: '82%' }, { label: 'Trend', value: 'Upward' },
+  ]},
+  r4: { summary: 'AI agents handled 2,847 interactions this month. Lead Qualifier has highest accuracy at 92%. Response times avg 1.2 seconds.', generated: 'Feb 20, 2026 6:00 AM', metrics: [
+    { label: 'Total Interactions', value: '2,847' }, { label: 'Accuracy Rate', value: '89%' }, { label: 'Avg Response Time', value: '1.2s' }, { label: 'Escalation Rate', value: '14%' }, { label: 'Customer Satisfaction', value: '4.3/5' }, { label: 'Cost Savings', value: '$18.4K' },
+  ]},
+  r5: { summary: 'Average first response time is 4.2 hours, exceeding 2-hour SLA for 23% of leads. Weekend coverage remains a gap.', generated: 'Feb 19, 2026 2:00 PM', metrics: [
+    { label: 'Avg First Response', value: '4.2 hrs' }, { label: 'SLA Compliance', value: '77%' }, { label: 'Best Team', value: 'Team Alpha' }, { label: 'Weekend Gap', value: '6.8 hrs' }, { label: 'Auto-Response Rate', value: '45%' }, { label: 'Improvement MoM', value: '+12%' },
+  ]},
+  r6: { summary: 'Top performer Sarah M. with 18 closes this month. Team average is 8.4 closes. Training gaps identified in F&I process.', generated: 'Feb 17, 2026 9:00 AM', metrics: [
+    { label: 'Top Performer', value: 'Sarah M.' }, { label: 'Top Closes', value: '18' }, { label: 'Team Average', value: '8.4' }, { label: 'Calls per Rep/Day', value: '32' }, { label: 'Avg Deal Margin', value: '$1,420' }, { label: 'Training Score', value: '78%' },
+  ]},
+  r7: { summary: 'Total revenue of $3.76M this month. New vehicle sales lead at $2.1M, followed by used at $890K. Service revenue growing 8%.', generated: 'Feb 20, 2026 12:00 AM', metrics: [
+    { label: 'Total Revenue', value: '$3.76M' }, { label: 'New Sales', value: '$2.1M' }, { label: 'Used Sales', value: '$890K' }, { label: 'Service', value: '$450K' }, { label: 'F&I', value: '$320K' }, { label: 'MoM Growth', value: '+5.2%' },
+  ]},
+  r8: { summary: 'Front-end gross averaging $1,840 per unit. SUVs and trucks showing strongest margins. Used vehicle gross up 12% from Q4.', generated: 'Feb 18, 2026 3:00 PM', metrics: [
+    { label: 'Avg Front Gross', value: '$1,840' }, { label: 'Avg Back Gross', value: '$1,220' }, { label: 'Best Segment', value: 'SUVs' }, { label: 'Used Gross Growth', value: '+12%' }, { label: 'Total Gross/Unit', value: '$3,060' }, { label: 'Units Sold', value: '142' },
+  ]},
+};
+
 const hunchesData = [
   { id: 'h1', title: 'Potential high-value lead detected', description: 'Customer viewed 3 luxury vehicles in the past week. Consider follow-up call.', type: 'opportunity' as const, confidence: 85, source: 'Sales Agent' },
   { id: 'h2', title: 'Service appointment cancelation pattern', description: '3 customers canceled appointments this week. Check for common issues.', type: 'threat' as const, confidence: 72, source: 'Service Reminder' },
@@ -163,6 +198,9 @@ export default function InsightsPage() {
   const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
   const [libraryFilter, setLibraryFilter] = useState('all');
   const [librarySearch, setLibrarySearch] = useState('');
+  const [selectedReport, setSelectedReport] = useState<typeof reportSections[0]['reports'][0] | null>(null);
+  const [selectedLibMetric, setSelectedLibMetric] = useState<typeof libraryMetrics[0] | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -223,6 +261,26 @@ export default function InsightsPage() {
                         <p className="text-xs opacity-80 mt-0.5">{alert.detail}</p>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-sm font-semibold text-foreground mb-3">Performance Scorecard</h2>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {scorecardItems.map((item, i) => (
+                    <Card key={i} data-testid={`scorecard-${i}`}>
+                      <CardContent className="p-4">
+                        <p className="text-xs text-muted-foreground">{item.metric}</p>
+                        <p className="text-xl font-bold text-foreground mt-1">{item.value}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="text-xs text-muted-foreground">Target: {item.target}</span>
+                          <Badge variant="secondary" className={cn('text-[10px]', item.status === 'on_track' ? 'text-green-600' : 'text-amber-600')}>
+                            {item.status === 'on_track' ? 'On Track' : 'At Risk'}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </section>
@@ -295,25 +353,6 @@ export default function InsightsPage() {
                 </Card>
               </div>
 
-              <section>
-                <h2 className="text-sm font-semibold text-foreground mb-3">Performance Scorecard</h2>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  {scorecardItems.map((item, i) => (
-                    <Card key={i} data-testid={`scorecard-${i}`}>
-                      <CardContent className="p-4">
-                        <p className="text-xs text-muted-foreground">{item.metric}</p>
-                        <p className="text-xl font-bold text-foreground mt-1">{item.value}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs text-muted-foreground">Target: {item.target}</span>
-                          <Badge variant="secondary" className={cn('text-[10px]', item.status === 'on_track' ? 'text-green-600' : 'text-amber-600')}>
-                            {item.status === 'on_track' ? 'On Track' : 'At Risk'}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </section>
             </div>
           </ScrollArea>
         </TabsContent>
@@ -328,7 +367,7 @@ export default function InsightsPage() {
                     {section.reports.map(report => {
                       const Icon = report.icon;
                       return (
-                        <Card key={report.id} className="hover-elevate cursor-pointer group" data-testid={`report-${report.id}`}>
+                        <Card key={report.id} className="hover-elevate cursor-pointer group" onClick={() => setSelectedReport(report)} data-testid={`report-${report.id}`}>
                           <CardContent className={cn('p-5 bg-gradient-to-br rounded-xl', report.gradient)}>
                             <div className="flex items-start gap-3">
                               <div className="w-10 h-10 rounded-lg bg-background/80 flex items-center justify-center flex-shrink-0">
@@ -339,7 +378,7 @@ export default function InsightsPage() {
                                 <p className="text-xs text-muted-foreground mt-1">{report.description}</p>
                                 <div className="flex items-center justify-between gap-2 mt-3 flex-wrap">
                                   <span className="text-[11px] text-muted-foreground">Last run: {report.lastRun}</span>
-                                  <Button variant="outline" size="sm" data-testid={`report-view-${report.id}`}>
+                                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }} data-testid={`report-view-${report.id}`}>
                                     View Report
                                   </Button>
                                 </div>
@@ -391,11 +430,11 @@ export default function InsightsPage() {
               </Button>
             </div>
           </div>
-          <ScrollArea className="flex-1 h-0">
+          <ScrollArea className="flex-1 min-h-0">
             <div className={cn('p-4', libraryView === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-2')}>
               {filteredLibrary.map(metric => (
                 libraryView === 'grid' ? (
-                  <Card key={metric.id} className="hover-elevate" data-testid={`lib-metric-${metric.id}`}>
+                  <Card key={metric.id} className="hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`lib-metric-${metric.id}`}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
@@ -411,7 +450,7 @@ export default function InsightsPage() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <div key={metric.id} className="flex items-center gap-4 p-3 rounded-lg border border-border hover-elevate" data-testid={`lib-metric-${metric.id}`}>
+                  <div key={metric.id} className="flex items-center gap-4 p-3 rounded-lg border border-border hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`lib-metric-${metric.id}`}>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground">{metric.title}</p>
                       <Badge variant="secondary" className="text-[10px] mt-1">{metric.category}</Badge>
@@ -458,8 +497,8 @@ export default function InsightsPage() {
                           </div>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
-                          <Button size="sm" variant="outline" data-testid={`hunch-dismiss-${hunch.id}`}>Dismiss</Button>
-                          <Button size="sm" data-testid={`hunch-act-${hunch.id}`}>Act</Button>
+                          <Button size="sm" variant="outline" onClick={() => toast({ title: 'Hunch dismissed', description: `"${hunch.title}" has been removed from your feed.` })} data-testid={`hunch-dismiss-${hunch.id}`}>Dismiss</Button>
+                          <Button size="sm" onClick={() => toast({ title: 'Action initiated', description: `Creating task for "${hunch.title}". Your team will be notified.` })} data-testid={`hunch-act-${hunch.id}`}>Act</Button>
                         </div>
                       </div>
                     </CardContent>
@@ -470,6 +509,90 @@ export default function InsightsPage() {
           </ScrollArea>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!selectedReport} onOpenChange={(open) => !open && setSelectedReport(null)}>
+        <DialogContent className="max-w-lg" data-testid="dialog-report-detail">
+          {selectedReport && (() => {
+            const detail = reportDetailData[selectedReport.id];
+            const Icon = selectedReport.icon;
+            return (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br', selectedReport.gradient)}>
+                      <Icon className="h-5 w-5 text-foreground/70" />
+                    </div>
+                    <div>
+                      <DialogTitle>{selectedReport.title}</DialogTitle>
+                      <DialogDescription>Last run: {selectedReport.lastRun}</DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+                {detail && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{detail.summary}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {detail.metrics.map((m, i) => (
+                        <div key={i} className="p-3 rounded-lg bg-muted/50 border border-border">
+                          <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                          <p className="text-lg font-bold text-foreground">{m.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Generated: {detail.generated}</p>
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" size="sm" onClick={() => toast({ title: 'Report exported', description: `${selectedReport.title} has been exported to PDF.` })} data-testid="button-export-report">
+                        Export PDF
+                      </Button>
+                      <Button size="sm" onClick={() => toast({ title: 'Report refreshed', description: `${selectedReport.title} is being regenerated with latest data.` })} data-testid="button-refresh-report">
+                        Refresh Data
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedLibMetric} onOpenChange={(open) => !open && setSelectedLibMetric(null)}>
+        <DialogContent className="max-w-sm" data-testid="dialog-metric-detail">
+          {selectedLibMetric && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedLibMetric.title}</DialogTitle>
+                <DialogDescription>Category: {selectedLibMetric.category}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">{selectedLibMetric.value}</p>
+                    <p className={cn('text-sm mt-1', selectedLibMetric.trend === 'up' ? 'text-green-500' : selectedLibMetric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                      {selectedLibMetric.change} vs last period
+                    </p>
+                  </div>
+                  <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', selectedLibMetric.trend === 'up' ? 'bg-green-500/10' : selectedLibMetric.trend === 'down' ? 'bg-red-500/10' : 'bg-muted')}>
+                    {selectedLibMetric.trend === 'up' && <TrendingUp className="h-6 w-6 text-green-500" />}
+                    {selectedLibMetric.trend === 'down' && <TrendingDown className="h-6 w-6 text-red-500" />}
+                    {selectedLibMetric.trend === 'neutral' && <Minus className="h-6 w-6 text-muted-foreground" />}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">7-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">30-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
+                    Pin to Dashboard
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
