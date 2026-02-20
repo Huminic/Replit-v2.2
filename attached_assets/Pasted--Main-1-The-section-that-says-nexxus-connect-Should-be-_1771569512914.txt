@@ -1,0 +1,88 @@
+
+
+=====Main=====
+
+1. The section that says “nexxus connect” Should be replaced with a metrics section with 4 tiles 
+2. Keep the chat on the main page as is
+
+top Metrics(4 TILES): 
+
+Partner:  all partner metrics will be system based:  
+
+1. # of sub orgs
+2.  # Customer logins last 24 hrs 
+3. # of actions taken 24 hours 
+4. Agent actions in 24 hours
+
+Org Admin: 
+
+Pipeline Health
+Lead Source Performance
+Lead Quality
+Market Demand Insight
+
+
+Sales person (Staff) : 
+
+1. Hot Opportunities (where to hunt)
+2. Buying Intelligence (what customers want)
+3. Threats (what's going wrong)
+4. Urgency (what's about to expire)
+5. 
+=====Insights=====
+
+Sub Menu Items: 
+
+📊 DASHBOARD (Real-time, Glanceable, Action-Oriented)
+├── 🔴 Command Center (default landing page)
+├── 📈 Pipeline Health
+└── 🎯 Performance Scorecard
+
+📑 REPORTS (Historical, Deep-Dive, Strategic)
+├── 💀 Loss & Quality Analysis
+├── 📊 Channel Intelligence
+└── 📅 Trend & Forecast Reports
+Library - Tiles with trend data for every metric we can see
+Hunches - See file for instructions
+Goals (Remove)
+
+Note: we should have the ability to view by grid or tiles where apprpriate and fliter by specific internal fields 
+
+=====Agents=====
+
+1. The new agent button should open a center page with the dialouge in the center and tiles with the tools that are available below it. Clicking on the tiles opens a modal to allow the user to describes what it does.  (see clickup screenshot)
+2. For all agents the right side pop out should show the config in the right side pop out, and should include a log of activities (similar to screenshot)
+3. Automa will not be listed on the agent page anymore, And being that the right pop-out is gonna represent agent configuration settings, automa slash dealer brain does not need a presence on the agents page. 
+4. Should be able to see triggers in right pane pop out
+5. Agent Prompt in right pane pop out
+6. Agent Knowledge in right pane pop out
+
+=====Hub=====
+
+When clicked it takes you to a page that has quick action button that for new message that opens modal (SMS, Email selection) , 
+Calendar - Opens calaendar and h
+Leads  - List of leads with a text button and a call button and a schedule button. 
+Inbox - Takes you to a unniversal inbox that shows you all communication with a prospect. From here you can create an sms, create an email,
+
+
+
+=====Drive=====
+
+The drive needs the ability to send a file via email or SMS. So it needs a share button for each file. 
+
+
+=====Settings =====
+
+These can be popup items but if someone clicks settings itself it should take to page with tiles
+
+Settings Sub Menu: 
+Accounts 
+Billing 
+System - System Prompt, System Instructions, Misc System Settings(Super admin only) 
+Tools - 3rd party api and mcp settings  (Super admin only) 
+—Org admin only—
+Users - full CRUD for adding / removing users (partner admin can see all, partner admin can see their orgs, org admins can see org currently selected 
+Knowledge - Data Uploads (ability to back out of uploads or delete), Data usage, Drive Data 
+Instructions - Organization instructions,Organizational Prompt Hunch Instructions,  (per org),  
+
+Staff cannot see settings
