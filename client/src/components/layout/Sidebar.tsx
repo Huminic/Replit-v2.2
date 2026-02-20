@@ -91,7 +91,7 @@ export function Sidebar() {
         if (!panelHovered) {
           setActivePanel(null);
         }
-      }, 150);
+      }, 800);
     }
   };
 

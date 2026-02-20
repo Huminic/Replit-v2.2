@@ -1,8 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
 import type { UserRole } from '@/mocks/users';
@@ -62,11 +75,57 @@ const tileIcons = [
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>,
 ];
 
+const metricDetails: Record<string, { breakdown: { label: string; value: string }[]; description: string }> = {
+  'Active Deals': { description: 'All currently active deals in your pipeline', breakdown: [
+    { label: 'New Leads', value: '42' }, { label: 'Qualified', value: '38' }, { label: 'Proposal Sent', value: '28' }, { label: 'Negotiation', value: '19' }, { label: 'Closing', value: '15' },
+  ]},
+  'Pipeline Value': { description: 'Total estimated value of active pipeline', breakdown: [
+    { label: 'Q1 Deals', value: '$1.2M' }, { label: 'Q2 Deals', value: '$890K' }, { label: 'Q3 Projected', value: '$650K' }, { label: 'Enterprise', value: '$1.8M' },
+  ]},
+  'Conversion Rate': { description: 'Lead-to-deal conversion performance', breakdown: [
+    { label: 'Web Leads', value: '34%' }, { label: 'Referrals', value: '52%' }, { label: 'Walk-ins', value: '28%' }, { label: 'Phone', value: '19%' },
+  ]},
+  'Avg Response Time': { description: 'Average time to first response', breakdown: [
+    { label: 'Chat', value: '45s' }, { label: 'Email', value: '2.3h' }, { label: 'Phone', value: '1.2m' }, { label: 'SMS', value: '3.5m' },
+  ]},
+  'System Orgs': { description: 'Total organizations on the platform', breakdown: [
+    { label: 'Active', value: '42' }, { label: 'Trial', value: '15' }, { label: 'Suspended', value: '3' }, { label: 'Pending', value: '8' },
+  ]},
+  'Total Users': { description: 'All users across the platform', breakdown: [
+    { label: 'Admins', value: '24' }, { label: 'Managers', value: '89' }, { label: 'Staff', value: '245' }, { label: 'Inactive', value: '18' },
+  ]},
+  'AI Tasks Today': { description: 'AI-processed tasks in the last 24 hours', breakdown: [
+    { label: 'Lead Scoring', value: '89' }, { label: 'Auto-Replies', value: '156' }, { label: 'Reports', value: '34' }, { label: 'Alerts', value: '12' },
+  ]},
+  'Uptime': { description: 'System availability this month', breakdown: [
+    { label: 'API', value: '99.99%' }, { label: 'Web App', value: '99.95%' }, { label: 'Database', value: '100%' }, { label: 'AI Services', value: '99.8%' },
+  ]},
+  'Partner Orgs': { description: 'Organizations in your partner group', breakdown: [
+    { label: 'Franchise A', value: '5' }, { label: 'Franchise B', value: '3' }, { label: 'Independent', value: '4' },
+  ]},
+  'Group Revenue': { description: 'Combined revenue across partner organizations', breakdown: [
+    { label: 'New Sales', value: '$2.1M' }, { label: 'Used Sales', value: '$890K' }, { label: 'Service', value: '$450K' }, { label: 'F&I', value: '$320K' },
+  ]},
+  'Leads Today': { description: 'New leads received today', breakdown: [
+    { label: 'Website', value: '12' }, { label: 'Phone', value: '8' }, { label: 'Walk-in', value: '5' }, { label: 'Referral', value: '3' },
+  ]},
+  'My Deals': { description: 'Your personally assigned deals', breakdown: [
+    { label: 'Hot', value: '3' }, { label: 'Warm', value: '5' }, { label: 'Cold', value: '4' }, { label: 'Follow-up', value: '6' },
+  ]},
+  'Calls Today': { description: 'Your call activity today', breakdown: [
+    { label: 'Outbound', value: '8' }, { label: 'Inbound', value: '4' }, { label: 'Missed', value: '1' }, { label: 'Voicemail', value: '2' },
+  ]},
+  'Tasks Due': { description: 'Tasks requiring your attention', breakdown: [
+    { label: 'Overdue', value: '2' }, { label: 'Today', value: '5' }, { label: 'This Week', value: '8' }, { label: 'Next Week', value: '4' },
+  ]},
+};
+
 export default function MainPage() {
   const { currentRole } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages.slice(0, 1));
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -122,9 +181,10 @@ export default function MainPage() {
               <div
                 key={i}
                 className={cn(
-                  'relative overflow-hidden rounded-xl border border-border bg-gradient-to-br cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg group',
+                  'relative rounded-xl border border-border bg-gradient-to-br cursor-pointer hover-elevate group',
                   metric.gradient
                 )}
+                onClick={() => setSelectedMetric(metric)}
                 data-testid={`metric-tile-${i}`}
               >
                 <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.07] -mr-4 -mt-4">
@@ -229,14 +289,28 @@ export default function MainPage() {
           <div className="max-w-3xl mx-auto">
             <div className="chat-input-gradient rounded-2xl p-[3px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
               <div className="bg-background rounded-[14px] flex items-end gap-2 p-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 flex-shrink-0 rounded-full"
-                  data-testid="button-main-chat-add"
-                >
-                  <Plus className="h-5 w-5 text-muted-foreground" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 flex-shrink-0 rounded-full"
+                      data-testid="button-main-chat-add"
+                    >
+                      <Plus className="h-5 w-5 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" side="top" className="w-48">
+                    <DropdownMenuItem data-testid="menu-item-upload-file">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload File
+                    </DropdownMenuItem>
+                    <DropdownMenuItem data-testid="menu-item-add-from-drive">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Add from Drive
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <textarea
                   ref={inputRef}
                   value={inputValue}
@@ -261,6 +335,51 @@ export default function MainPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
+        <DialogContent className="sm:max-w-md" data-testid="dialog-metric-detail">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+              {selectedMetric && (
+                <>
+                  {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                  {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                  {selectedMetric.label}
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedMetric && (
+            <div className="space-y-4">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+                <span className={cn(
+                  'text-sm font-medium',
+                  selectedMetric.trend === 'up' && 'text-green-600 dark:text-green-400',
+                  selectedMetric.trend === 'down' && 'text-red-600 dark:text-red-400',
+                  selectedMetric.trend === 'neutral' && 'text-muted-foreground'
+                )}>
+                  {selectedMetric.change}
+                </span>
+              </div>
+              <div className="border-t border-border pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Breakdown</h4>
+                <div className="space-y-2">
+                  {(metricDetails[selectedMetric.label]?.breakdown || []).map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-md hover-elevate" data-testid={`metric-breakdown-${idx}`}>
+                      <span className="text-sm text-muted-foreground">{item.label}</span>
+                      <span className="text-sm font-semibold text-foreground">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

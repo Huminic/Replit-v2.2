@@ -77,7 +77,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 800);
+      }, 1500);
     }
   };
 
@@ -286,10 +286,10 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {[
-                    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/insights' },
-                    { id: 'reports', label: 'Reports', icon: PieChart, path: '/insights' },
-                    { id: 'library', label: 'Library', icon: BookOpen, path: '/insights' },
-                    { id: 'hunches', label: 'Hunches', icon: Lightbulb, path: '/insights' },
+                    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/insights?tab=dashboard' },
+                    { id: 'reports', label: 'Reports', icon: PieChart, path: '/insights?tab=reports' },
+                    { id: 'library', label: 'Library', icon: BookOpen, path: '/insights?tab=library' },
+                    { id: 'hunches', label: 'Hunches', icon: Lightbulb, path: '/insights?tab=hunches' },
                     { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
                   ].map((item) => {
                     const Icon = item.icon;
@@ -326,15 +326,15 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {[
-                    { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
-                    { id: 'leads', label: 'Leads', icon: Users },
-                    { id: 'inbox', label: 'Inbox', icon: MessageSquare },
+                    { id: 'calendar', label: 'Calendar', icon: CalendarIcon, path: '/work-center?tab=calendar' },
+                    { id: 'leads', label: 'Leads', icon: Users, path: '/work-center?tab=leads' },
+                    { id: 'inbox', label: 'Inbox', icon: MessageSquare, path: '/work-center?tab=inbox' },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => !location.startsWith('/work-center') && setLocation('/work-center')}
+                        onClick={() => setLocation(item.path)}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
                         data-testid={`panel-wc-${item.id}`}
                       >
@@ -365,16 +365,16 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-1">
                   {[
                     { id: 'users', label: 'Users', icon: Users, desc: 'Manage team members and roles' },
-                    { id: 'app', label: 'Application', icon: Settings, desc: 'General app settings and config' },
+                    { id: 'organization', label: 'Organization', icon: Settings, desc: 'Company profile and branding' },
                     { id: 'tools', label: 'Tools', icon: Wrench, desc: 'Configure integrations and APIs' },
                     { id: 'knowledge', label: 'Knowledge', icon: BookOpen, desc: 'Manage knowledge base sources' },
-                    { id: 'hunches', label: 'Hunches', icon: Zap, desc: 'AI-generated insights settings' },
+                    { id: 'ai', label: 'AI Config', icon: Zap, desc: 'Hunches and AI behavior' },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => !location.startsWith('/settings') && setLocation('/settings/system')}
+                        onClick={() => setLocation(`/settings/system?section=${item.id}`)}
                         className="w-full flex items-start gap-2 px-2 py-2 rounded-md text-left hover-elevate"
                         data-testid={`panel-settings-${item.id}`}
                       >

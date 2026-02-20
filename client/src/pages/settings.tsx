@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { 
   Users, 
   Settings, 
@@ -73,7 +74,16 @@ const settingsTiles: SettingsTile[] = [
 
 export default function SettingsPage() {
   const { currentRole } = useApp();
+  const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section');
+    if (section) {
+      setActiveSection(section);
+    }
+  }, [location]);
 
   const accessibleTiles = settingsTiles.filter(tile => tile.minRole.includes(currentRole));
 
@@ -86,7 +96,7 @@ export default function SettingsPage() {
             <div
               key={tile.id}
               className={cn(
-                'relative overflow-hidden rounded-xl border border-border bg-gradient-to-br p-5 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg group',
+                'relative rounded-xl border border-border bg-gradient-to-br p-5 cursor-pointer hover-elevate group',
                 tile.gradient
               )}
               onClick={() => setActiveSection(tile.id)}
@@ -198,7 +208,7 @@ export default function SettingsPage() {
     </div>
   );
 
-  const renderGenericSection = (title: string, description: string) => (
+  const renderSectionPage = (title: string, description: string, items: { label: string; desc: string; type: 'toggle' | 'text' | 'select'; defaultValue?: boolean | string }[]) => (
     <div className="p-4 space-y-4">
       <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
         Back
@@ -209,19 +219,18 @@ export default function SettingsPage() {
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-foreground">Enable feature</p>
-              <p className="text-sm text-muted-foreground">Toggle this feature on or off</p>
+          {items.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between gap-4 py-1">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-foreground text-sm">{item.label}</p>
+                <p className="text-xs text-muted-foreground">{item.desc}</p>
+              </div>
+              {item.type === 'toggle' && <Switch defaultChecked={item.defaultValue as boolean} data-testid={`switch-${title.toLowerCase().replace(/\s/g, '-')}-${idx}`} />}
+              {item.type === 'text' && <Input defaultValue={item.defaultValue as string} className="max-w-[200px]" data-testid={`input-${title.toLowerCase().replace(/\s/g, '-')}-${idx}`} />}
             </div>
-            <Switch defaultChecked data-testid="switch-feature-toggle" />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-foreground">Auto-configure</p>
-              <p className="text-sm text-muted-foreground">Allow system to manage settings automatically</p>
-            </div>
-            <Switch data-testid="switch-auto-config" />
+          ))}
+          <div className="pt-2">
+            <Button size="sm" data-testid={`button-save-${title.toLowerCase().replace(/\s/g, '-')}`}>Save Changes</Button>
           </div>
         </CardContent>
       </Card>
@@ -232,14 +241,59 @@ export default function SettingsPage() {
     switch (activeSection) {
       case 'users': return renderUserManagement();
       case 'tools': return renderToolsSection();
-      case 'organization': return renderGenericSection('Organization Settings', 'Manage your company profile and branding');
-      case 'knowledge': return renderGenericSection('Knowledge Base', 'Upload documents and configure AI training data');
-      case 'ai': return renderGenericSection('AI Configuration', 'Configure hunches, agents, and AI behavior');
-      case 'security': return renderGenericSection('Security Settings', 'Authentication, SSO, and access policies');
-      case 'notifications': return renderGenericSection('Notification Settings', 'Configure alert preferences and delivery channels');
-      case 'data': return renderGenericSection('Data Management', 'Import, export, and data retention policies');
-      case 'appearance': return renderGenericSection('Appearance', 'Theme, layout, and display preferences');
-      case 'api': return renderGenericSection('API & Webhooks', 'Developer settings and external integrations');
+      case 'organization': return renderSectionPage('Organization Settings', 'Manage your company profile and branding', [
+        { label: 'Organization Name', desc: 'Your company display name', type: 'text', defaultValue: 'Sunset Motors' },
+        { label: 'Business Phone', desc: 'Primary contact number', type: 'text', defaultValue: '(555) 123-4567' },
+        { label: 'Business Email', desc: 'Primary contact email', type: 'text', defaultValue: 'info@sunsetmotors.com' },
+        { label: 'Public Listing', desc: 'Show in partner directory', type: 'toggle', defaultValue: true },
+        { label: 'Multi-Location', desc: 'Enable multi-location support', type: 'toggle', defaultValue: false },
+      ]);
+      case 'knowledge': return renderSectionPage('Knowledge Base', 'Upload documents and configure AI training data', [
+        { label: 'Auto-Index Files', desc: 'Automatically index uploaded documents for AI', type: 'toggle', defaultValue: true },
+        { label: 'Enable Web Scraping', desc: 'Allow AI to learn from linked web pages', type: 'toggle', defaultValue: false },
+        { label: 'Document Retention', desc: 'Days to keep processed documents', type: 'text', defaultValue: '90' },
+        { label: 'Smart Summarization', desc: 'Auto-generate summaries for uploaded docs', type: 'toggle', defaultValue: true },
+      ]);
+      case 'ai': return renderSectionPage('AI Configuration', 'Configure hunches, agents, and AI behavior', [
+        { label: 'Enable Hunches', desc: 'AI-generated business intelligence insights', type: 'toggle', defaultValue: true },
+        { label: 'Auto-Scoring', desc: 'Automatically score and prioritize leads', type: 'toggle', defaultValue: true },
+        { label: 'Confidence Threshold', desc: 'Minimum confidence for AI suggestions (%)', type: 'text', defaultValue: '75' },
+        { label: 'Learning Mode', desc: 'Allow AI to learn from user corrections', type: 'toggle', defaultValue: true },
+        { label: 'Daily Digest', desc: 'Send daily AI insights summary via email', type: 'toggle', defaultValue: false },
+      ]);
+      case 'security': return renderSectionPage('Security Settings', 'Authentication, SSO, and access policies', [
+        { label: 'Two-Factor Authentication', desc: 'Require 2FA for all users', type: 'toggle', defaultValue: false },
+        { label: 'SSO Provider', desc: 'Single sign-on provider URL', type: 'text', defaultValue: '' },
+        { label: 'Session Timeout', desc: 'Minutes before auto-logout', type: 'text', defaultValue: '30' },
+        { label: 'IP Allowlist', desc: 'Restrict access to specific IP ranges', type: 'toggle', defaultValue: false },
+        { label: 'Audit Logging', desc: 'Log all user actions for compliance', type: 'toggle', defaultValue: true },
+      ]);
+      case 'notifications': return renderSectionPage('Notification Settings', 'Configure alert preferences and delivery channels', [
+        { label: 'Email Notifications', desc: 'Receive alerts via email', type: 'toggle', defaultValue: true },
+        { label: 'SMS Notifications', desc: 'Receive alerts via SMS', type: 'toggle', defaultValue: false },
+        { label: 'Push Notifications', desc: 'Browser push notifications', type: 'toggle', defaultValue: true },
+        { label: 'Quiet Hours Start', desc: 'No notifications after this time', type: 'text', defaultValue: '22:00' },
+        { label: 'Quiet Hours End', desc: 'Resume notifications at this time', type: 'text', defaultValue: '07:00' },
+      ]);
+      case 'data': return renderSectionPage('Data Management', 'Import, export, and data retention policies', [
+        { label: 'Auto-Backup', desc: 'Enable daily automatic data backups', type: 'toggle', defaultValue: true },
+        { label: 'Data Retention', desc: 'Months to retain closed records', type: 'text', defaultValue: '24' },
+        { label: 'Export Format', desc: 'Default export file format', type: 'text', defaultValue: 'CSV' },
+        { label: 'GDPR Compliance', desc: 'Enable GDPR data handling rules', type: 'toggle', defaultValue: true },
+      ]);
+      case 'appearance': return renderSectionPage('Appearance', 'Theme, layout, and display preferences', [
+        { label: 'Compact Mode', desc: 'Use smaller spacing and fonts', type: 'toggle', defaultValue: false },
+        { label: 'Animations', desc: 'Enable UI animations and transitions', type: 'toggle', defaultValue: true },
+        { label: 'Default View', desc: 'Default page on login', type: 'text', defaultValue: 'Main' },
+        { label: 'Show Metric Tiles', desc: 'Display KPI tiles on home page', type: 'toggle', defaultValue: true },
+      ]);
+      case 'api': return renderSectionPage('API & Webhooks', 'Developer settings and external integrations', [
+        { label: 'API Access', desc: 'Enable REST API access for this org', type: 'toggle', defaultValue: true },
+        { label: 'API Key', desc: 'Your organization API key', type: 'text', defaultValue: 'nxs_sk_...redacted' },
+        { label: 'Rate Limit', desc: 'Requests per minute', type: 'text', defaultValue: '1000' },
+        { label: 'Webhook URL', desc: 'Endpoint for event webhooks', type: 'text', defaultValue: '' },
+        { label: 'Webhook Events', desc: 'Send webhooks for deal changes', type: 'toggle', defaultValue: false },
+      ]);
       default: return renderTileGrid();
     }
   };
