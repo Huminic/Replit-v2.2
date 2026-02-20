@@ -87,6 +87,18 @@ All data is mocked in `/client/src/mocks/`:
 ### Database Schema (Placeholder)
 The `shared/schema.ts` defines a basic users table with Drizzle ORM for PostgreSQL. This is scaffolding for future backend implementation - the current UI uses mock data exclusively.
 
+### Backend Integration Readiness
+A comprehensive `BACKEND_INTEGRATION_GUIDE.md` documents the complete wiring plan:
+- 17 database tables mapped from mock data interfaces
+- 55+ REST API endpoints across 16 resource groups
+- Page-by-page integration map showing every mock import to replace
+- AppContext rewiring plan (what stays client-side vs moves to API)
+- Layout component integration notes (TopBar, Sidebar, SubMenuManager, RightPane)
+- Authentication & RBAC implementation plan (session-based with express-session)
+- Real-time features plan (SSE for chat streaming, polling for notifications)
+- 7-phase migration sequence with checklist
+- Utility function extraction list (functions to keep when deleting mock files)
+
 ### Design System
 Custom theme tokens defined in `client/src/index.css`:
 - Dual-density typography: 13px for data tables, 14-15px for chat
