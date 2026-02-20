@@ -64,7 +64,7 @@ const tileIcons = [
 
 export default function MainPage() {
   const { currentRole } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages.slice(0, 1));
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -115,7 +115,9 @@ export default function MainPage() {
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-4 border-b border-border flex-shrink-0">
-          <div className="max-w-3xl mx-auto grid grid-cols-2 gap-3">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="text-ai-key-metrics-title">AI Key Metrics</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {metrics.map((metric, i) => (
               <div
                 key={i}
@@ -155,6 +157,7 @@ export default function MainPage() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
 
@@ -196,34 +199,31 @@ export default function MainPage() {
           </div>
         </ScrollArea>
 
-        {messages.length <= 3 && (
-          <div className="px-4 md:px-6 pb-2">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground font-medium">Try asking...</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {agentSuggestions.map((suggestion, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8 rounded-full"
-                    onClick={() => {
-                      setInputValue(suggestion);
-                      inputRef.current?.focus();
-                    }}
-                    data-testid={`main-suggestion-${i}`}
-                  >
-                    <Sparkles className="h-3 w-3 mr-1.5 text-primary" />
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
+        <div className="px-4 md:px-6 pb-2">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Sparkles className="h-3 w-3 text-primary" />
+              <span className="text-[11px] text-muted-foreground font-medium">Try asking...</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {agentSuggestions.map((suggestion, i) => (
+                <Button
+                  key={i}
+                  variant="outline"
+                  size="sm"
+                  className="text-[11px] h-7 rounded-full px-3"
+                  onClick={() => {
+                    setInputValue(suggestion);
+                    inputRef.current?.focus();
+                  }}
+                  data-testid={`main-suggestion-${i}`}
+                >
+                  {suggestion}
+                </Button>
+              ))}
             </div>
           </div>
-        )}
+        </div>
 
         <div className="p-4 md:p-6 border-t border-border">
           <div className="max-w-3xl mx-auto">

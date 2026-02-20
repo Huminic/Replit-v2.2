@@ -78,7 +78,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 400);
+      }, 800);
     }
   };
 
@@ -88,8 +88,8 @@ export function SubMenuManager() {
     if (location.startsWith('/agents')) return 'agents';
     if (location.startsWith('/drive')) return 'drive';
     if (location.startsWith('/insights')) return 'insights';
+    if (location.startsWith('/activity')) return 'insights';
     if (location.startsWith('/work-center')) return 'work-center';
-    if (location.startsWith('/activity')) return 'activity';
     if (location.startsWith('/settings')) return 'system';
     if (location.startsWith('/profile')) return 'profile';
     return null;
@@ -287,15 +287,17 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {[
-                    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-                    { id: 'goals', label: 'Goals', icon: Target },
-                    { id: 'reports', label: 'Reports', icon: PieChart },
+                    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/insights' },
+                    { id: 'reports', label: 'Reports', icon: PieChart, path: '/insights' },
+                    { id: 'library', label: 'Library', icon: BookOpen, path: '/insights' },
+                    { id: 'hunches', label: 'Hunches', icon: Lightbulb, path: '/insights' },
+                    { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => !location.startsWith('/insights') && setLocation('/insights')}
+                        onClick={() => setLocation(item.path)}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
                         data-testid={`panel-insights-${item.id}`}
                       >
@@ -346,48 +348,6 @@ export function SubMenuManager() {
                         {item.badge > 0 && (
                           <Badge variant="destructive" className="h-5 min-w-5 px-1 text-[10px]">{item.badge}</Badge>
                         )}
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
-            </ScrollArea>
-          </>
-        );
-
-      case 'activity':
-        return (
-          <>
-            <div className="p-3 border-b border-border">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold text-foreground">Activity</h2>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCollapsePanel} data-testid="button-collapse-activity-panel">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <ScrollArea className="flex-1">
-              <div className="p-2">
-                <nav className="flex flex-col gap-0.5">
-                  {[
-                    { id: 'all', label: 'All Activity', icon: Activity, count: mockActivityFeed.length },
-                    { id: 'user', label: 'User Activity', icon: UserIcon, count: mockActivityFeed.filter(a => a.type === 'user').length },
-                    { id: 'agent', label: 'Agent Activity', icon: Bot, count: mockActivityFeed.filter(a => a.type === 'agent').length },
-                    { id: 'system', label: 'System Activity', icon: Server, count: mockActivityFeed.filter(a => a.type === 'system').length },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => !location.startsWith('/activity') && setLocation('/activity')}
-                        className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
-                        data-testid={`panel-activity-${item.id}`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {item.label}
-                        </div>
-                        <span className="text-xs text-muted-foreground">{item.count}</span>
                       </button>
                     );
                   })}

@@ -12,8 +12,7 @@ import {
   CreditCard,
   LogOut,
   Building2,
-  Check,
-  Shield
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -69,8 +68,8 @@ export function TopBar() {
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <header className="h-14 min-h-14 flex items-center justify-between px-4 border-b border-border bg-background z-50">
-      <div className="flex items-center gap-3">
+    <header className="h-14 min-h-14 flex items-center px-4 border-b border-border bg-background z-50">
+      <div className="flex items-center gap-3 flex-shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -83,33 +82,37 @@ export function TopBar() {
         <span className="font-semibold text-foreground text-sm">Nexxus Connect<span className="text-muted-foreground">™</span></span>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2">
-        {/* Role Switcher (temporary dev tool) */}
+      <div className="flex-1 flex items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs hidden sm:flex" data-testid="button-role-switcher">
-              <Shield className="h-3.5 w-3.5" />
-              <span className="max-w-24 truncate">{getRoleLabel(currentRole)}</span>
-              <ChevronDown className="h-3 w-3" />
+            <Button variant="ghost" size="sm" className="gap-2 text-sm" data-testid="button-org-switcher">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium truncate max-w-40">{currentOrganization.name}</span>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48" data-testid="dropdown-role-switcher">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
+          <DropdownMenuContent align="center" className="w-56" data-testid="dropdown-org-switcher">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Organization</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {allRoles.map((role) => (
+            {organizations.map((org) => (
               <DropdownMenuItem
-                key={role}
-                onClick={() => setCurrentRole(role)}
+                key={org.id}
+                onClick={() => switchOrganization(org.id)}
                 className="flex items-center justify-between"
-                data-testid={`role-option-${role}`}
+                data-testid={`org-option-${org.id}`}
               >
-                <span>{getRoleLabel(role)}</span>
-                {currentRole === role && <Check className="h-4 w-4 text-primary" />}
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{org.name}</span>
+                </div>
+                {org.id === currentOrganization.id && <Check className="h-4 w-4 text-primary" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
 
+      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
         {/* Notifications */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>
@@ -236,30 +239,6 @@ export function TopBar() {
                 {getRoleLabel(currentRole)}
               </Badge>
             </div>
-            
-            {canSwitchOrgs(currentRole) && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Building2 className="h-3 w-3" />
-                  Switch Organization
-                </DropdownMenuLabel>
-                {organizations.map((org) => (
-                  <DropdownMenuItem
-                    key={org.id}
-                    onClick={() => switchOrganization(org.id)}
-                    className="flex items-center justify-between"
-                    data-testid={`org-switch-${org.id}`}
-                  >
-                    <span>{org.name}</span>
-                    {org.id === currentOrganization.id && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setLocation('/profile')} data-testid="menu-item-profile">
               <User className="h-4 w-4 mr-2" />
@@ -278,6 +257,30 @@ export function TopBar() {
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Role Switcher (tiny arrow dropdown) */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hidden sm:flex" data-testid="button-role-switcher">
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48" data-testid="dropdown-role-switcher">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {allRoles.map((role) => (
+              <DropdownMenuItem
+                key={role}
+                onClick={() => setCurrentRole(role)}
+                className="flex items-center justify-between"
+                data-testid={`role-option-${role}`}
+              >
+                <span>{getRoleLabel(role)}</span>
+                {currentRole === role && <Check className="h-4 w-4 text-primary" />}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
