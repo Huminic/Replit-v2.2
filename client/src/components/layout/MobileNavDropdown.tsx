@@ -210,77 +210,68 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
     );
   }
 
-  const hasDropdownContent = subMenu || favorites.length > 0;
-
   return (
     <div className="lg:hidden flex items-center gap-2">
-      {hasDropdownContent && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs gap-1.5" data-testid="dropdown-mobile-nav">
-              <span className="truncate max-w-[160px]">{subMenu?.label || 'Menu'}</span>
-              {favorites.length > 0 && (
-                <span className="flex items-center gap-0.5">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  <span className="text-muted-foreground">{favorites.length}</span>
-                </span>
-              )}
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-64">
-            {subMenu && (
-              <>
-                <DropdownMenuLabel className="text-xs text-muted-foreground">{subMenu.label}</DropdownMenuLabel>
-                {subMenu.items.map(item => {
-                  const Icon = item.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={item.id}
-                      onClick={() => setLocation(item.path)}
-                      data-testid={`dropdown-nav-${item.id}`}
-                    >
-                      <Icon className="h-3.5 w-3.5 mr-2 flex-shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </>
-            )}
-            {favorites.length > 0 && (
-              <>
-                {subMenu && <DropdownMenuSeparator />}
-                <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  Favorites
-                </DropdownMenuLabel>
-                {favorites.map(fav => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="text-sm h-9 px-4 gap-2 min-w-[140px] justify-between" data-testid="dropdown-mobile-nav">
+            <span>Menu</span>
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-72">
+          {subMenu && (
+            <>
+              <DropdownMenuLabel className="text-xs text-muted-foreground">{subMenu.label}</DropdownMenuLabel>
+              {subMenu.items.map(item => {
+                const Icon = item.icon;
+                return (
                   <DropdownMenuItem
-                    key={fav.id}
-                    onClick={() => handleFavClick(fav)}
-                    className={cn(fav.path === currentPath && "font-medium")}
-                    data-testid={`dropdown-fav-${fav.id}`}
+                    key={item.id}
+                    onClick={() => setLocation(item.path)}
+                    className="py-2"
+                    data-testid={`dropdown-nav-${item.id}`}
                   >
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-2 flex-shrink-0" />
-                    <span className="truncate">{fav.label}</span>
+                    <Icon className="h-4 w-4 mr-2.5 flex-shrink-0" />
+                    <span>{item.label}</span>
                   </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleToggleFavorite}
-              data-testid="button-toggle-favorite"
-            >
-              <Star className={cn(
-                "h-3.5 w-3.5 mr-2 flex-shrink-0",
-                isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
-              )} />
-              <span className="truncate">{isCurrentFavorite ? 'Remove from favorites' : 'Add to favorites'}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+                );
+              })}
+            </>
+          )}
+          {favorites.length > 0 && (
+            <>
+              {subMenu && <DropdownMenuSeparator />}
+              <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                Favorites
+              </DropdownMenuLabel>
+              {favorites.map(fav => (
+                <DropdownMenuItem
+                  key={fav.id}
+                  onClick={() => setLocation(fav.path)}
+                  className={cn("py-2", fav.path === currentPath && "font-medium")}
+                  data-testid={`dropdown-fav-${fav.id}`}
+                >
+                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 mr-2.5 flex-shrink-0" />
+                  <span className="truncate">{fav.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <button
+        onClick={handleToggleFavorite}
+        title={isCurrentFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        className="p-1"
+        data-testid="button-toggle-favorite"
+      >
+        <Star className={cn(
+          "h-5 w-5",
+          isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40"
+        )} />
+      </button>
     </div>
   );
 }
