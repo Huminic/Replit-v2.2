@@ -253,8 +253,10 @@ export default function DrivePage() {
         </div>
       </div>
 
-      <div className="px-4 py-2 border-b border-border flex items-center">
+      <div className="px-4 py-2 lg:hidden">
         <MobileNavDropdown currentPath="/drive" currentLabel="Drive" />
+      </div>
+      <div className="px-4 py-2 border-b border-border hidden lg:flex items-center">
         <FavoritesBar currentPath="/drive" currentLabel="Drive" />
       </div>
 

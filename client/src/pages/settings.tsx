@@ -310,8 +310,10 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="px-4 py-2 w-full max-w-5xl border-b border-border flex items-center">
+      <div className="px-4 py-2 w-full max-w-5xl lg:hidden">
         <MobileNavDropdown currentPath="/settings/system" currentLabel="System Settings" />
+      </div>
+      <div className="px-4 py-2 w-full max-w-5xl border-b border-border hidden lg:flex items-center">
         <FavoritesBar currentPath="/settings/system" currentLabel="System Settings" />
       </div>
 

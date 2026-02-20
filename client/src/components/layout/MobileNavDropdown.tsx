@@ -146,16 +146,18 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
       <div className="lg:hidden flex items-center gap-2 flex-1 min-w-0">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs gap-1.5 max-w-[240px]" data-testid="dropdown-mobile-agents">
-              <Bot className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{selectedAgent?.name || 'Select Agent'}</span>
-              {selectedAgent && (
-                <div className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', selectedAgent.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground/50')} />
-              )}
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 w-full justify-between" data-testid="dropdown-mobile-agents">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Bot className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="truncate">{selectedAgent?.name || 'Select Agent'}</span>
+                {selectedAgent && (
+                  <div className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', selectedAgent.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground/50')} />
+                )}
+              </div>
               <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuContent align="start" className="w-72">
             <DropdownMenuLabel className="text-xs text-muted-foreground">Agents</DropdownMenuLabel>
             {filteredAgents.map(agent => (
               <DropdownMenuItem
@@ -212,23 +214,11 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
 
   return (
     <div className="lg:hidden flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleToggleFavorite}
-        title={isCurrentFavorite ? 'Remove from favorites' : 'Add to favorites'}
-        data-testid="button-toggle-favorite"
-      >
-        <Star className={cn(
-          "h-4 w-4",
-          isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40"
-        )} />
-      </Button>
       {hasDropdownContent && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs gap-1.5" data-testid="dropdown-mobile-nav">
-              <span className="truncate max-w-[120px]">{subMenu?.label || 'Menu'}</span>
+              <span className="truncate max-w-[160px]">{subMenu?.label || 'Menu'}</span>
               {favorites.length > 0 && (
                 <span className="flex items-center gap-0.5">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -238,7 +228,7 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
               <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuContent align="start" className="w-64">
             {subMenu && (
               <>
                 <DropdownMenuLabel className="text-xs text-muted-foreground">{subMenu.label}</DropdownMenuLabel>
@@ -277,6 +267,17 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
                 ))}
               </>
             )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleToggleFavorite}
+              data-testid="button-toggle-favorite"
+            >
+              <Star className={cn(
+                "h-3.5 w-3.5 mr-2 flex-shrink-0",
+                isCurrentFavorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+              )} />
+              <span className="truncate">{isCurrentFavorite ? 'Remove from favorites' : 'Add to favorites'}</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
