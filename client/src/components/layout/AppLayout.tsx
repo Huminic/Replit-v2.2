@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
-import { MobileSidebar } from './MobileSidebar';
 import { RightPane } from './RightPane';
 import { SubMenuManager } from './SubMenuManager';
 import { useApp } from '@/contexts/AppContext';
@@ -41,7 +40,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <MobileSidebar />
         
         <SubMenuManager />
         

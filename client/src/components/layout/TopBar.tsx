@@ -5,7 +5,6 @@ import {
   Activity, 
   Sun, 
   Moon, 
-  Menu,
   ChevronDown,
   User,
   Settings,
@@ -58,8 +57,6 @@ export function TopBar() {
     unreadNotificationCount,
     markNotificationRead,
     switchOrganization,
-    setMobileMenuOpen,
-    mobileMenuOpen 
   } = useApp();
   const [, setLocation] = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -70,15 +67,6 @@ export function TopBar() {
   return (
     <header className="h-14 min-h-14 flex items-center px-4 border-b border-border bg-background z-50">
       <div className="flex items-center gap-3 flex-shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          data-testid="button-mobile-menu"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
         <span className="font-semibold text-foreground text-sm">Nexxus Connect<span className="text-muted-foreground">™</span></span>
       </div>
 
