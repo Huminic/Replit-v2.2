@@ -43,6 +43,7 @@ import {
 import { mockFiles, formatFileSize, type DriveFile, type FileType } from '@/mocks/files';
 import { formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 const fileIcons: Record<FileType, React.ElementType> = {
   folder: Folder,
@@ -253,6 +254,7 @@ export default function DrivePage() {
       </div>
 
       <div className="px-4 py-2 border-b border-border flex items-center">
+        <MobileNavDropdown currentPath="/drive" currentLabel="Drive" />
         <FavoritesBar currentPath="/drive" currentLabel="Drive" />
       </div>
 

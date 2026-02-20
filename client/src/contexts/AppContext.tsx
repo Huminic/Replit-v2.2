@@ -22,7 +22,6 @@ interface AppContextValue {
   sidebarVisible: boolean;
   rightPaneOpen: boolean;
   mobileMenuOpen: boolean;
-  mobileChatOpen: boolean;
   activePanel: string | null;
   subMenuExpanded: boolean;
   panelHovered: boolean;
@@ -30,7 +29,6 @@ interface AppContextValue {
   setSidebarVisible: (visible: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
   setMobileMenuOpen: (open: boolean) => void;
-  setMobileChatOpen: (open: boolean) => void;
   setActivePanel: (panel: string | null) => void;
   setSubMenuExpanded: (expanded: boolean) => void;
   setPanelHovered: (hovered: boolean) => void;
@@ -63,7 +61,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rightPaneOpen, setRightPaneOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
@@ -125,7 +122,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         sidebarVisible,
         rightPaneOpen,
         mobileMenuOpen,
-        mobileChatOpen,
         activePanel,
         subMenuExpanded,
         panelHovered,
@@ -133,7 +129,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSidebarVisible,
         setRightPaneOpen,
         setMobileMenuOpen,
-        setMobileChatOpen,
         setActivePanel,
         setSubMenuExpanded,
         setPanelHovered,

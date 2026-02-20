@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, Lightbulb, Filter, LayoutGrid, List, Search, BarChart3, LineChart, PieChart, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -242,6 +243,7 @@ export default function InsightsPage() {
               Hunches
             </TabsTrigger>
           </TabsList>
+          <MobileNavDropdown currentPath="/insights" currentLabel="Insights" />
           <FavoritesBar currentPath="/insights" currentLabel="Insights" />
         </div>
 

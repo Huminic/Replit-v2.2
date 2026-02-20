@@ -5,20 +5,20 @@
 Nexxus V2 is a ClickUp-inspired AI-powered dealership management platform. This is a **UI prototype/mockup** with client-side mock data only - no real backend functionality, authentication, or API integrations are implemented.
 
 The application features:
-- A 3-pane responsive layout (left sidebar, main content, right chat pane)
+- A responsive layout (left sidebar, main content, toggleable right pane)
 - Light and dark mode theming
 - Dual-density design system (compact data tables vs spacious chat interfaces)
 - RBAC role switcher (Super Admin, Partner Admin, Org Admin, Staff) - temporary dev tool in TopBar
 - 6 main pages: Main (chat), Insights, Agents, Hub, Drive, System Settings (+ Profile)
 - Activity stays as header-only dropdown (not in sidebar)
-- Mobile-first responsive design with hamburger menu for small screens
+- Mobile-first responsive design with MobileNavDropdown for sub-menu + favorites access
 
 ### V3 Redesign Summary
 - **RBAC**: currentRole state with localStorage persistence, tiny arrow dropdown on far-right of TopBar
 - **TopBar**: Logo left, org switcher center (Building2 icon + name + chevron), notifications/activity/theme/profile/role-arrow right
 - **Main Page**: 4-across gradient metric tiles (role-specific, responsive 4→2→1), "AI Key Metrics" title, 1 sample chat response, always-visible smaller suggestion bubbles, no chat avatars, wave-dot animation
 - **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches. Sub-menu includes Activity
-- **Agents**: ClickUp-style 3-pane (list 272px / detail / config pane 320px)
+- **Agents**: List panel (272px, desktop only) / detail center / config toggles via right pane (<< / >> button)
 - **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
 - **Drive**: Share button per file, share modal with Email/SMS tabs
 - **Settings**: Tile-based grid navigation, role-gated sections

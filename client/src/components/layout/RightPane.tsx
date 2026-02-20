@@ -1,30 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, X, Sparkles } from 'lucide-react';
+import { Send, Plus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
 
-/**
- * @component RightPane
- * @description Automa AI chat panel (inline or sheet mode for mobile)
- * @designConstraints
- *   - NO avatars/icons on messages - bot left, user right alignment only
- *   - Thinking animation: wave-dot CSS class (same as main page)
- *   - Input: gradient border wrapper (chat-input-gradient class)
- *   - Suggestions shown when conversation has ≤3 messages
- * @locked Chat bubble style, wave animation, gradient input border
- */
-
 interface RightPaneProps {
   className?: string;
-  mode?: 'inline' | 'sheet';
 }
 
-export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
-  const { currentUser, mobileChatOpen, setMobileChatOpen } = useApp();
+export function RightPane({ className }: RightPaneProps) {
+  const { currentUser } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -75,26 +62,15 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
     inputRef.current?.focus();
   };
 
-  const chatContent = (
+  return (
     <div className={cn('flex flex-col h-full bg-background', className)}>
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div>
           <h3 className="font-semibold text-foreground">Automa</h3>
           <p className="text-xs text-muted-foreground">AI Assistant</p>
         </div>
-        {mode === 'sheet' && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileChatOpen(false)}
-            data-testid="button-close-chat"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        )}
       </div>
 
-      {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="flex flex-col gap-4">
           {messages.map((message) => (
@@ -133,7 +109,6 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
         </div>
       </ScrollArea>
 
-      {/* Suggestions */}
       {messages.length <= 3 && (
         <div className="px-4 pb-2">
           <div className="flex items-center gap-2 mb-2">
@@ -157,7 +132,6 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
         </div>
       )}
 
-      {/* Input */}
       <div className="p-4 border-t border-border">
         <div className="chat-input-gradient rounded-xl p-[2px]">
           <div className="bg-background rounded-[10px] flex items-end gap-2 p-3">
@@ -193,16 +167,4 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
       </div>
     </div>
   );
-
-  if (mode === 'sheet') {
-    return (
-      <Sheet open={mobileChatOpen} onOpenChange={setMobileChatOpen}>
-        <SheetContent side="bottom" className="h-[70vh] p-0 rounded-t-xl">
-          {chatContent}
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  return chatContent;
 }

@@ -22,6 +22,7 @@ import {
 import { mockActivityFeed, getActivityColor, type ActivityType } from '@/mocks/activity';
 import { formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 const filterOptions: { id: ActivityType | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Activity', icon: Filter },
@@ -97,6 +98,7 @@ export default function ActivityPage() {
       </div>
 
       <div className="px-4 py-2 border-b border-border flex items-center">
+        <MobileNavDropdown currentPath="/activity" currentLabel="Activity" />
         <FavoritesBar currentPath="/activity" currentLabel="Activity" />
       </div>
 
