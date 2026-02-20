@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { PanelRightOpen } from 'lucide-react';
+import { PanelRightOpen, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -28,7 +28,7 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, selectedAgent, setSelectedAgent } = useApp();
+  const { rightPaneOpen, setRightPaneOpen, setMobileChatOpen } = useApp();
   
   const viewConfig = getViewConfig(location);
   const showRightPane = viewConfig !== 'chat-only' && rightPaneOpen;
@@ -74,6 +74,17 @@ export function AppLayout({ children }: AppLayoutProps) {
         )}
       </div>
 
+      {canShowRightPaneToggle && (
+        <Button
+          variant="default"
+          size="icon"
+          className="xl:hidden fixed right-4 bottom-4 z-40 rounded-full shadow-lg"
+          onClick={() => setMobileChatOpen(true)}
+          data-testid="button-open-mobile-chat"
+        >
+          <MessageCircle className="h-5 w-5" />
+        </Button>
+      )}
 
       <RightPane mode="sheet" />
     </div>

@@ -24,7 +24,8 @@ import {
   Upload,
   ToggleLeft,
   ToggleRight,
-  GripVertical
+  GripVertical,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -89,7 +90,8 @@ const configSections = [
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
   const { agents, updateAgent, selectedAgent, setSelectedAgent } = useApp();
-  const [configPaneOpen, setConfigPaneOpen] = useState(true);
+  const [configPaneOpen, setConfigPaneOpen] = useState(false);
+  const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
   const [activeConfigSection, setActiveConfigSection] = useState('instructions');
   const [agentSearch, setAgentSearch] = useState('');
 
@@ -305,7 +307,7 @@ export default function AgentsPage() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      <div className="w-72 border-r border-border flex flex-col flex-shrink-0">
+      <div className="w-72 border-r border-border hidden lg:flex flex-col flex-shrink-0">
         <div className="p-3 border-b border-border space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">Agents</h2>
@@ -333,7 +335,7 @@ export default function AgentsPage() {
                   'w-full text-left p-3 rounded-lg transition-colors flex items-center gap-3 hover-elevate',
                   selectedAgent?.id === agent.id ? 'bg-accent' : ''
                 )}
-                onClick={() => { setSelectedAgent(agent); setConfigPaneOpen(true); }}
+                onClick={() => { setSelectedAgent(agent); setConfigPaneOpen(true); setMobileConfigOpen(false); }}
                 data-testid={`agent-item-${agent.id}`}
               >
                 <Avatar className="h-9 w-9 flex-shrink-0">
@@ -360,122 +362,201 @@ export default function AgentsPage() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-2 border-b border-border flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2 flex-1 min-w-0">
+            <Select
+              value={selectedAgent?.id || ''}
+              onValueChange={(val) => {
+                const agent = agents.find(a => a.id === val);
+                if (agent) {
+                  setSelectedAgent(agent);
+                  setMobileConfigOpen(false);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full max-w-[220px]" data-testid="select-agent-mobile">
+                <SelectValue placeholder="Select an agent..." />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredAgents.map(agent => (
+                  <SelectItem key={agent.id} value={agent.id}>
+                    <span className="flex items-center gap-2">
+                      <span className="truncate">{agent.name}</span>
+                      <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className="capitalize text-[10px]">
+                        {agent.status}
+                      </Badge>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <FavoritesBar currentPath="/agents" currentLabel="Agents" />
         </div>
 
         {selectedAgent ? (
           <div className="flex flex-1 overflow-hidden">
-            <div className="flex-1 flex flex-col min-w-0">
-              <div className="p-6 border-b border-border">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14">
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg">
-                        <Bot className="h-7 w-7" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h1 className="text-xl font-bold text-foreground">{selectedAgent.name}</h1>
-                        <Badge
-                          variant={selectedAgent.status === 'active' ? 'default' : 'secondary'}
-                          className="capitalize"
+            {mobileConfigOpen && (
+              <div className="flex-1 flex flex-col min-w-0 lg:hidden">
+                <div className="p-3 border-b border-border flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => setMobileConfigOpen(false)} data-testid="button-back-from-config">
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Back
+                  </Button>
+                  <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
+                </div>
+                <div className="border-b border-border">
+                  <div className="flex flex-wrap gap-1 p-2">
+                    {configSections.map(section => {
+                      const Icon = section.icon;
+                      return (
+                        <button
+                          key={section.id}
+                          className={cn(
+                            'flex items-center gap-1.5 px-3 py-2 text-sm transition-colors hover-elevate rounded-md',
+                            activeConfigSection === section.id
+                              ? 'text-foreground bg-accent font-medium'
+                              : 'text-muted-foreground'
+                          )}
+                          onClick={() => setActiveConfigSection(section.id)}
+                          data-testid={`config-section-mobile-${section.id}`}
                         >
-                          {selectedAgent.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{selectedAgent.description}</p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span>Created by {selectedAgent.createdBy}</span>
-                        <span>Updated {formatDistanceToNow(new Date(selectedAgent.updatedAt), { addSuffix: true })}</span>
+                          <Icon className="h-4 w-4" />
+                          {section.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <ScrollArea className="flex-1">
+                  {renderConfigContent()}
+                </ScrollArea>
+              </div>
+            )}
+
+            <div className={cn(
+              'flex-1 flex flex-col min-w-0',
+              mobileConfigOpen ? 'hidden lg:flex' : 'flex'
+            )}>
+                <div className="p-6 border-b border-border">
+                  <div className="flex items-start justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-14 w-14">
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg">
+                          <Bot className="h-7 w-7" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h1 className="text-xl font-bold text-foreground">{selectedAgent.name}</h1>
+                          <Badge
+                            variant={selectedAgent.status === 'active' ? 'default' : 'secondary'}
+                            className="capitalize"
+                          >
+                            {selectedAgent.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{selectedAgent.description}</p>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                          <span>Created by {selectedAgent.createdBy}</span>
+                          <span>Updated {formatDistanceToNow(new Date(selectedAgent.updatedAt), { addSuffix: true })}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
-                      size="sm"
-                      onClick={() => handleToggleStatus(selectedAgent)}
-                      data-testid="button-toggle-agent-status"
-                    >
-                      {selectedAgent.status === 'active' ? (
-                        <>
-                          <Pause className="h-4 w-4 mr-1" />
-                          Deactivate
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-1" />
-                          Activate
-                        </>
-                      )}
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" data-testid="button-agent-menu">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem data-testid="menu-edit-agent">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Edit Agent
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive" data-testid="menu-delete-agent">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Agent
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="lg:hidden"
+                        onClick={() => setMobileConfigOpen(true)}
+                        data-testid="button-open-config-mobile"
+                      >
+                        <Settings className="h-4 w-4 mr-1" />
+                        Configure
+                      </Button>
+                      <Button
+                        variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
+                        size="sm"
+                        onClick={() => handleToggleStatus(selectedAgent)}
+                        data-testid="button-toggle-agent-status"
+                      >
+                        {selectedAgent.status === 'active' ? (
+                          <>
+                            <Pause className="h-4 w-4 mr-1" />
+                            Deactivate
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-1" />
+                            Activate
+                          </>
+                        )}
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" data-testid="button-agent-menu">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem data-testid="menu-edit-agent">
+                            <Settings className="h-4 w-4 mr-2" />
+                            Edit Agent
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive" data-testid="menu-delete-agent">
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Agent
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <ScrollArea className="flex-1 p-6">
-                <div className="space-y-6 max-w-2xl">
-                  <Card>
-                    <CardContent className="p-4">
-                      <h3 className="text-sm font-semibold text-foreground mb-2">Channel</h3>
-                      <div className="flex gap-3">
-                        {(() => {
-                          const Icon = channelIcons[selectedAgent.channel];
-                          return (
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${selectedAgent.channel}`}>
-                              <Icon className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm capitalize text-foreground">{selectedAgent.channel}</span>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </CardContent>
-                  </Card>
+                <ScrollArea className="flex-1 p-6">
+                  <div className="space-y-6 max-w-2xl">
+                    <Card>
+                      <CardContent className="p-4">
+                        <h3 className="text-sm font-semibold text-foreground mb-2">Channel</h3>
+                        <div className="flex gap-3">
+                          {(() => {
+                            const Icon = channelIcons[selectedAgent.channel];
+                            return (
+                              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${selectedAgent.channel}`}>
+                                <Icon className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm capitalize text-foreground">{selectedAgent.channel}</span>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  <Card>
-                    <CardContent className="p-4">
-                      <h3 className="text-sm font-semibold text-foreground mb-2">Performance</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Interactions</p>
-                          <p className="text-lg font-bold text-foreground">247</p>
+                    <Card>
+                      <CardContent className="p-4">
+                        <h3 className="text-sm font-semibold text-foreground mb-2">Performance</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Interactions</p>
+                            <p className="text-lg font-bold text-foreground">247</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Resolution Rate</p>
+                            <p className="text-lg font-bold text-foreground">89%</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Avg Response</p>
+                            <p className="text-lg font-bold text-foreground">1.2s</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Resolution Rate</p>
-                          <p className="text-lg font-bold text-foreground">89%</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Avg Response</p>
-                          <p className="text-lg font-bold text-foreground">1.2s</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </ScrollArea>
             </div>
 
             {configPaneOpen && (
-              <div className="w-80 border-l border-border flex flex-col flex-shrink-0 bg-background">
+              <div className="w-80 border-l border-border hidden lg:flex flex-col flex-shrink-0 bg-background">
                 <div className="p-3 border-b border-border flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
                   <Button size="icon" variant="ghost" onClick={() => setConfigPaneOpen(false)} data-testid="button-close-config">
