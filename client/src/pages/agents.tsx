@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, 
@@ -26,7 +26,10 @@ import {
   ToggleRight,
   GripVertical,
   ArrowLeft,
-  ChevronsRight
+  ChevronsRight,
+  Send,
+  Sparkles,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -74,7 +77,25 @@ const agentActivities = [
   { id: 'act5', text: 'Triggered service reminder campaign', time: '12 hours ago' },
 ];
 
+interface AgentChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const initialAgentChat: AgentChatMessage[] = [
+  { id: 'ac-1', role: 'assistant', content: "I'm ready to help manage your sales pipeline. I can handle inbound inquiries, qualify leads, and schedule follow-ups automatically. What would you like me to focus on?" },
+];
+
+const agentSuggestions = [
+  "Show today's lead activity",
+  "Draft a follow-up email",
+  "Summarize pipeline status",
+  "Schedule callbacks for hot leads",
+];
+
 const configSections = [
+  { id: 'performance', label: 'Performance', icon: BarChart3 },
   { id: 'instructions', label: 'Instructions', icon: FileText },
   { id: 'triggers', label: 'Triggers', icon: Zap },
   { id: 'tools', label: 'Tools & Skills', icon: Wrench },
@@ -85,7 +106,12 @@ const configSections = [
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
   const { agents, updateAgent, selectedAgent, setSelectedAgent, rightPaneOpen, setRightPaneOpen } = useApp();
-  const [activeConfigSection, setActiveConfigSection] = useState('instructions');
+  const [activeConfigSection, setActiveConfigSection] = useState('performance');
+  const [agentMessages, setAgentMessages] = useState<AgentChatMessage[]>(initialAgentChat);
+  const [agentInput, setAgentInput] = useState('');
+  const [agentTyping, setAgentTyping] = useState(false);
+  const agentInputRef = useRef<HTMLTextAreaElement>(null);
+  const agentScrollRef = useRef<HTMLDivElement>(null);
   const [agentSearch, setAgentSearch] = useState('');
 
   const [instructionsModalOpen, setInstructionsModalOpen] = useState(false);
@@ -160,10 +186,92 @@ export default function AgentsPage() {
     setEditTools(prev => prev.map((t, i) => i === index ? { ...t, enabled: !t.enabled } : t));
   };
 
+  const handleAgentSend = () => {
+    if (!agentInput.trim()) return;
+    const userMsg: AgentChatMessage = { id: `ac-${Date.now()}`, role: 'user', content: agentInput.trim() };
+    setAgentMessages(prev => [...prev, userMsg]);
+    setAgentInput('');
+    setAgentTyping(true);
+    setTimeout(() => {
+      setAgentTyping(false);
+      const botMsg: AgentChatMessage = {
+        id: `ac-${Date.now() + 1}`,
+        role: 'assistant',
+        content: "I've noted that. Let me pull the latest data and get back to you with actionable insights shortly.",
+      };
+      setAgentMessages(prev => [...prev, botMsg]);
+    }, 1800);
+  };
+
+  const handleAgentKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAgentSend();
+    }
+  };
+
+  useEffect(() => {
+    if (agentScrollRef.current) {
+      const el = agentScrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [agentMessages, agentTyping]);
+
   const renderConfigContent = () => {
     if (!selectedAgent) return null;
 
     switch (activeConfigSection) {
+      case 'performance':
+        return (
+          <div className="p-4 space-y-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Channel</p>
+              <div className="flex gap-3">
+                {(() => {
+                  const Icon = channelIcons[selectedAgent.channel];
+                  return (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${selectedAgent.channel}`}>
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm capitalize text-foreground">{selectedAgent.channel}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Metrics</p>
+              <div className="grid grid-cols-1 gap-3">
+                <Card>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Interactions</p>
+                      <p className="text-lg font-bold text-foreground">247</p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">+12% this week</Badge>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Resolution Rate</p>
+                      <p className="text-lg font-bold text-foreground">89%</p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs text-green-600">On target</Badge>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Avg Response</p>
+                      <p className="text-lg font-bold text-foreground">1.2s</p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs text-green-600">Under SLA</Badge>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        );
       case 'instructions':
         return (
           <div className="p-4">
@@ -414,46 +522,96 @@ export default function AgentsPage() {
                   <MobileNavDropdown currentPath="/agents" currentLabel="Agents" />
                 </div>
 
-                <ScrollArea className="flex-1 p-6">
-                  <div className="space-y-6 max-w-2xl">
-                    <Card>
-                      <CardContent className="p-4">
-                        <h3 className="text-sm font-semibold text-foreground mb-2">Channel</h3>
-                        <div className="flex gap-3">
-                          {(() => {
-                            const Icon = channelIcons[selectedAgent.channel];
-                            return (
-                              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${selectedAgent.channel}`}>
-                                <Icon className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm capitalize text-foreground">{selectedAgent.channel}</span>
-                              </div>
-                            );
-                          })()}
+                <ScrollArea className="flex-1" ref={agentScrollRef}>
+                  <div className="p-4 md:p-6 flex flex-col gap-4 max-w-3xl mx-auto">
+                    {agentMessages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={cn(
+                          'flex',
+                          message.role === 'user' ? 'justify-end' : 'justify-start'
+                        )}
+                        data-testid={`agent-chat-message-${message.id}`}
+                      >
+                        <div
+                          className={cn(
+                            'density-chat rounded-2xl px-5 py-4 max-w-[80%]',
+                            message.role === 'assistant'
+                              ? 'bg-card border border-border'
+                              : 'bg-primary text-primary-foreground'
+                          )}
+                        >
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
                         </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-4">
-                        <h3 className="text-sm font-semibold text-foreground mb-2">Performance</h3>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Interactions</p>
-                            <p className="text-lg font-bold text-foreground">247</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Resolution Rate</p>
-                            <p className="text-lg font-bold text-foreground">89%</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Avg Response</p>
-                            <p className="text-lg font-bold text-foreground">1.2s</p>
+                      </div>
+                    ))}
+                    {agentTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-card border border-border rounded-2xl px-5 py-4">
+                          <div className="flex gap-1 items-center h-5">
+                            <span className="wave-dot" />
+                            <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
+                            <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
+
+                <div className="px-4 md:px-6 pb-2">
+                  <div className="max-w-3xl mx-auto">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sparkles className="h-3 w-3 text-primary" />
+                      <span className="text-[11px] text-muted-foreground font-medium">Try asking...</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {agentSuggestions.map((suggestion, i) => (
+                        <Button
+                          key={i}
+                          variant="outline"
+                          size="sm"
+                          className="text-[11px] h-7 rounded-full px-3"
+                          onClick={() => {
+                            setAgentInput(suggestion);
+                            agentInputRef.current?.focus();
+                          }}
+                          data-testid={`agent-suggestion-${i}`}
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 md:p-6 border-t border-border">
+                  <div className="max-w-3xl mx-auto">
+                    <div className="chat-input-gradient rounded-2xl p-[3px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                      <div className="bg-background rounded-[14px] flex items-end gap-2 p-4">
+                        <textarea
+                          ref={agentInputRef}
+                          value={agentInput}
+                          onChange={(e) => setAgentInput(e.target.value)}
+                          onKeyDown={handleAgentKeyDown}
+                          placeholder={`Ask ${selectedAgent.name} anything...`}
+                          className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[28px] max-h-40 py-1.5"
+                          rows={1}
+                          data-testid="input-agent-chat"
+                        />
+                        <Button
+                          size="icon"
+                          className="h-9 w-9 flex-shrink-0 rounded-full"
+                          onClick={handleAgentSend}
+                          disabled={!agentInput.trim()}
+                          data-testid="button-agent-send"
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
             )}
 
