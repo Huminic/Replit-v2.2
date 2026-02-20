@@ -29,28 +29,23 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import { getNotificationIcon, getNotificationColor } from '@/mocks/notifications';
 import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
-import { getRoleLabel, canSwitchOrgs, type UserRole } from '@/mocks/users';
+import { getRoleLabel } from '@/mocks/users';
 import { formatDistanceToNow } from 'date-fns';
 
 /**
  * @component TopBar
- * @description Top navigation bar with logo, search, role switcher, notifications, and activity feed
+ * @description Top navigation bar with logo, org switcher, notifications, and activity feed
  * @designConstraints
  *   - Logo: Text-only "Nexxus Connect" with trademark symbol, NO icon
- *   - Role switcher: Shield icon button opening dropdown with 4 roles (temporary dev tool)
  *   - Activity feed: Dropdown with recent activity items (stays in header, NOT in sidebar)
- * @rbac Role switcher available to all (dev tool)
- * @locked Logo format (text-only), role switcher position, activity feed location
+ * @locked Logo format (text-only), activity feed location
  */
-
-const allRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'org_staff'];
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { 
     currentUser,
     currentRole,
-    setCurrentRole,
     currentOrganization, 
     organizations, 
     notifications, 
@@ -245,30 +240,6 @@ export function TopBar() {
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Role Switcher (tiny arrow dropdown) */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7 hidden sm:flex" data-testid="button-role-switcher">
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48" data-testid="dropdown-role-switcher">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {allRoles.map((role) => (
-              <DropdownMenuItem
-                key={role}
-                onClick={() => setCurrentRole(role)}
-                className="flex items-center justify-between"
-                data-testid={`role-option-${role}`}
-              >
-                <span>{getRoleLabel(role)}</span>
-                {currentRole === role && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
