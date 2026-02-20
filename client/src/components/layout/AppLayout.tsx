@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { MessageSquare, Menu, PanelRightOpen } from 'lucide-react';
+import { PanelRightOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -29,7 +29,7 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, setMobileChatOpen, setMobileMenuOpen, selectedAgent, setSelectedAgent } = useApp();
+  const { rightPaneOpen, setRightPaneOpen, selectedAgent, setSelectedAgent } = useApp();
   
   const viewConfig = getViewConfig(location);
   const showRightPane = viewConfig !== 'chat-only' && rightPaneOpen;
@@ -71,26 +71,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         )}
       </div>
 
-      <nav className="lg:hidden flex items-center justify-around p-2 border-t border-border bg-background" data-testid="nav-mobile-bottom">
-        <Button
-          variant="ghost"
-          className="flex-1 flex flex-col gap-1 h-auto py-2"
-          onClick={() => setMobileChatOpen(true)}
-          data-testid="button-mobile-chat"
-        >
-          <MessageSquare className="h-5 w-5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">Chat</span>
-        </Button>
-        <Button
-          variant="ghost"
-          className="flex-1 flex flex-col gap-1 h-auto py-2"
-          onClick={() => setMobileMenuOpen(true)}
-          data-testid="button-mobile-menu-bottom"
-        >
-          <Menu className="h-5 w-5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">Menu</span>
-        </Button>
-      </nav>
 
       <RightPane mode="sheet" />
     </div>

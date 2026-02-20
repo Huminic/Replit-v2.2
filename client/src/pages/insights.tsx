@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, Lightbulb, Filter, LayoutGrid, List, Search, BarChart3, LineChart, PieChart, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -51,11 +52,30 @@ const scorecardItems = [
   { metric: 'Lead Response', value: '2.3s', target: '2.0s', status: 'at_risk' as const },
 ];
 
-const reportCards = [
-  { id: 'r1', title: 'Loss Analysis', description: 'Why deals are lost and patterns to address', icon: PieChart, gradient: 'from-red-500/10 to-orange-500/5' },
-  { id: 'r2', title: 'Channel Intelligence', description: 'Lead source effectiveness and ROI breakdown', icon: BarChart3, gradient: 'from-blue-500/10 to-cyan-500/5' },
-  { id: 'r3', title: 'Trend Forecasts', description: 'Predictive models for next 30/60/90 days', icon: LineChart, gradient: 'from-violet-500/10 to-purple-500/5' },
-  { id: 'r4', title: 'Agent Effectiveness', description: 'AI agent performance and optimization areas', icon: FileText, gradient: 'from-emerald-500/10 to-teal-500/5' },
+const reportSections = [
+  {
+    title: 'Sales Reports',
+    reports: [
+      { id: 'r1', title: 'Loss Analysis', description: 'Why deals are lost and patterns to address', icon: PieChart, gradient: 'from-red-500/10 to-orange-500/5', lastRun: '2 hours ago' },
+      { id: 'r2', title: 'Channel Intelligence', description: 'Lead source effectiveness and ROI breakdown', icon: BarChart3, gradient: 'from-blue-500/10 to-cyan-500/5', lastRun: '4 hours ago' },
+      { id: 'r3', title: 'Trend Forecasts', description: 'Predictive models for next 30/60/90 days', icon: LineChart, gradient: 'from-violet-500/10 to-purple-500/5', lastRun: '1 day ago' },
+    ],
+  },
+  {
+    title: 'Operations Reports',
+    reports: [
+      { id: 'r4', title: 'Agent Effectiveness', description: 'AI agent performance and optimization areas', icon: FileText, gradient: 'from-emerald-500/10 to-teal-500/5', lastRun: '6 hours ago' },
+      { id: 'r5', title: 'Response Time Analysis', description: 'Team response metrics and SLA compliance', icon: BarChart3, gradient: 'from-amber-500/10 to-yellow-500/5', lastRun: '1 day ago' },
+      { id: 'r6', title: 'Staff Performance', description: 'Individual and team productivity metrics', icon: LineChart, gradient: 'from-sky-500/10 to-blue-500/5', lastRun: '3 days ago' },
+    ],
+  },
+  {
+    title: 'Financial Reports',
+    reports: [
+      { id: 'r7', title: 'Revenue Summary', description: 'Monthly revenue breakdown by department', icon: BarChart3, gradient: 'from-green-500/10 to-emerald-500/5', lastRun: '12 hours ago' },
+      { id: 'r8', title: 'Gross Profit Analysis', description: 'Front and back-end gross by vehicle type', icon: PieChart, gradient: 'from-indigo-500/10 to-violet-500/5', lastRun: '2 days ago' },
+    ],
+  },
 ];
 
 const libraryMetrics = [
@@ -138,9 +158,19 @@ const hunchTypeConfig = {
 };
 
 export default function InsightsPage() {
+  const [location] = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
   const [libraryFilter, setLibraryFilter] = useState('all');
   const [librarySearch, setLibrarySearch] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ['dashboard', 'reports', 'library', 'hunches'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location]);
 
   const categories = ['all', ...Array.from(new Set(libraryMetrics.map(m => m.category)))];
   const filteredLibrary = libraryMetrics.filter(m => {
@@ -158,7 +188,7 @@ export default function InsightsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border flex items-center">
           <TabsList className="bg-transparent h-10 p-0 flex-shrink-0">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
@@ -290,30 +320,38 @@ export default function InsightsPage() {
 
         <TabsContent value="reports" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {reportCards.map(report => {
-                  const Icon = report.icon;
-                  return (
-                    <Card key={report.id} className="hover-elevate cursor-pointer group" data-testid={`report-${report.id}`}>
-                      <CardContent className={cn('p-6 bg-gradient-to-br rounded-xl', report.gradient)}>
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-6 w-6 text-foreground/70" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-foreground">{report.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{report.description}</p>
-                            <Button variant="outline" size="sm" className="mt-3" data-testid={`report-view-${report.id}`}>
-                              View Report
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+            <div className="p-4 space-y-6">
+              {reportSections.map((section, sIdx) => (
+                <section key={sIdx}>
+                  <h2 className="text-sm font-semibold text-foreground mb-3" data-testid={`text-report-section-${sIdx}`}>{section.title}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {section.reports.map(report => {
+                      const Icon = report.icon;
+                      return (
+                        <Card key={report.id} className="hover-elevate cursor-pointer group" data-testid={`report-${report.id}`}>
+                          <CardContent className={cn('p-5 bg-gradient-to-br rounded-xl', report.gradient)}>
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-background/80 flex items-center justify-center flex-shrink-0">
+                                <Icon className="h-5 w-5 text-foreground/70" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-foreground text-sm">{report.title}</h3>
+                                <p className="text-xs text-muted-foreground mt-1">{report.description}</p>
+                                <div className="flex items-center justify-between gap-2 mt-3 flex-wrap">
+                                  <span className="text-[11px] text-muted-foreground">Last run: {report.lastRun}</span>
+                                  <Button variant="outline" size="sm" data-testid={`report-view-${report.id}`}>
+                                    View Report
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           </ScrollArea>
         </TabsContent>

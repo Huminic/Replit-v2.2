@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { 
   Calendar as CalendarIcon, 
   Plus,
@@ -39,7 +40,17 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function WorkCenterPage() {
+  const [location] = useLocation();
+  const [activeTab, setActiveTab] = useState('calendar');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ['calendar', 'leads', 'inbox'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location]);
   const [dialerOpen, setDialerOpen] = useState(false);
   const [dialerNumber, setDialerNumber] = useState('');
   const [selectedContact, setSelectedContact] = useState<{ name: string; phone: string } | null>(null);
@@ -94,7 +105,7 @@ export default function WorkCenterPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="calendar" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border flex items-center">
           <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="calendar" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-calendar">
