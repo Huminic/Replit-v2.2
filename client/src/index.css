@@ -334,3 +334,17 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes wave {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+.wave-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: hsl(var(--muted-foreground));
+  display: inline-block;
+  animation: wave 1.4s ease-in-out infinite;
+}

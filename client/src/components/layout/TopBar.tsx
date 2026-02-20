@@ -12,7 +12,8 @@ import {
   CreditCard,
   LogOut,
   Building2,
-  Check
+  Check,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -30,13 +31,17 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import { getNotificationIcon, getNotificationColor } from '@/mocks/notifications';
 import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
-import { getRoleLabel, canSwitchOrgs } from '@/mocks/users';
+import { getRoleLabel, canSwitchOrgs, type UserRole } from '@/mocks/users';
 import { formatDistanceToNow } from 'date-fns';
+
+const allRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'org_staff'];
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { 
-    currentUser, 
+    currentUser,
+    currentRole,
+    setCurrentRole,
     currentOrganization, 
     organizations, 
     notifications, 
@@ -64,15 +69,36 @@ export function TopBar() {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">N</span>
-          </div>
-          <span className="font-semibold text-foreground hidden sm:block">Nexxus</span>
-        </div>
+        <span className="font-semibold text-foreground text-sm">Nexxus Connect<span className="text-muted-foreground">™</span></span>
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
+        {/* Role Switcher (temporary dev tool) */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs hidden sm:flex" data-testid="button-role-switcher">
+              <Shield className="h-3.5 w-3.5" />
+              <span className="max-w-24 truncate">{getRoleLabel(currentRole)}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48" data-testid="dropdown-role-switcher">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {allRoles.map((role) => (
+              <DropdownMenuItem
+                key={role}
+                onClick={() => setCurrentRole(role)}
+                className="flex items-center justify-between"
+                data-testid={`role-option-${role}`}
+              >
+                <span>{getRoleLabel(role)}</span>
+                {currentRole === role && <Check className="h-4 w-4 text-primary" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* Notifications */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>
@@ -196,11 +222,11 @@ export function TopBar() {
               <p className="font-medium">{currentUser.name}</p>
               <p className="text-xs text-muted-foreground">{currentUser.email}</p>
               <Badge variant="secondary" className="mt-1 text-xs">
-                {getRoleLabel(currentUser.role)}
+                {getRoleLabel(currentRole)}
               </Badge>
             </div>
             
-            {canSwitchOrgs(currentUser.role) && (
+            {canSwitchOrgs(currentRole) && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="flex items-center gap-2 text-xs text-muted-foreground">

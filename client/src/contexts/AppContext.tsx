@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { mockCurrentUser, mockOrganizations, type User, type Organization } from '@/mocks/users';
+import { mockCurrentUser, mockOrganizations, type User, type Organization, type UserRole } from '@/mocks/users';
 import { mockAgents, type Agent } from '@/mocks/agents';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
 
@@ -11,6 +11,8 @@ export interface FavoriteItem {
 
 interface AppContextValue {
   currentUser: User;
+  currentRole: UserRole;
+  setCurrentRole: (role: UserRole) => void;
   currentOrganization: Organization;
   organizations: Organization[];
   agents: Agent[];
@@ -47,6 +49,14 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser] = useState<User>(mockCurrentUser);
+  const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+    const saved = localStorage.getItem('nexxus-current-role');
+    return (saved as UserRole) || mockCurrentUser.role;
+  });
+  const handleSetCurrentRole = (role: UserRole) => {
+    setCurrentRole(role);
+    localStorage.setItem('nexxus-current-role', role);
+  };
   const [currentOrganization, setCurrentOrganization] = useState<Organization>(mockOrganizations[0]);
   const [agents, setAgents] = useState<Agent[]>(mockAgents);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
@@ -104,6 +114,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         currentUser,
+        currentRole,
+        setCurrentRole: handleSetCurrentRole,
         currentOrganization,
         organizations: mockOrganizations,
         agents,
