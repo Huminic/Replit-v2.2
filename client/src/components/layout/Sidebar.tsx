@@ -6,7 +6,6 @@ import {
   Folder, 
   BarChart3, 
   Briefcase, 
-  Activity, 
   Settings,
   ChevronsRight,
   LogOut
@@ -28,11 +27,10 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 'main', label: 'Main', icon: Home, path: '/', hasPanel: false },
-  { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
-  { id: 'drive', label: 'Drive', icon: Folder, path: '/drive', hasPanel: true },
   { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
+  { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
   { id: 'work-center', label: 'Hub', icon: Briefcase, path: '/work-center', hasPanel: true },
-  { id: 'activity', label: 'Activity', icon: Activity, path: '/activity', hasPanel: true },
+  { id: 'drive', label: 'Drive', icon: Folder, path: '/drive', hasPanel: true },
 ];
 
 const bottomItems: MenuItem[] = [
@@ -42,7 +40,7 @@ const bottomItems: MenuItem[] = [
 export function Sidebar() {
   const [location, setLocation] = useLocation();
   const { 
-    currentUser, 
+    currentRole, 
     sidebarVisible, 
     setSidebarVisible,
     activePanel,
@@ -102,7 +100,7 @@ export function Sidebar() {
   const currentPageHasPanel = getCurrentPagePanel() !== null;
 
   const renderMenuItem = (item: MenuItem) => {
-    if (item.adminOnly && !canAccessSystem(currentUser.role)) {
+    if (item.adminOnly && !canAccessSystem(currentRole)) {
       return null;
     }
 
