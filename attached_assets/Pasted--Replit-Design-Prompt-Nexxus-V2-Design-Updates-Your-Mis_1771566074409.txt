@@ -1,0 +1,1203 @@
+# Replit Design Prompt - Nexxus V2 Design Updates
+
+**Your Mission:** Update the Nexxus V2 design implementation based on the provided specification files and design notes. You have full creative freedom to implement these changes in the way that makes the most architectural sense. After implementation, you MUST output comprehensive metadata, design tokens documentation, and updated contracts to constrain future Claude Code modifications.
+
+---
+
+## 📋 What You've Been Given
+
+**Specification Files (READ ALL THOROUGHLY):**
+- `—Org admin Metrics - Main - org admin.md` - Main page metrics for Org Admin
+- `—Staff Metrics.md` - Main page metrics for Staff
+- `—Hunches.md` - Hunches page structure and sample data
+- `—Insights Layout.md` - Complete Insights page restructure
+- `—Reports.md` - Reports page design and sample data
+- `—Tiles - Available data..md` - Library tiles specifications
+- `REPLIT_DESIGN_BRIEF.md` - Original design context
+- `THEME_CONTRACT_V2.md` - Current theme system
+- `UI_DEVELOPER_HANDOFF_V3.md` - Current architecture
+
+**Context:**
+The original design was bastardized by Claude during iterative development. Design drift occurred because there wasn't sufficient metadata and constraints embedded in the code to prevent modifications. This update returns to the original design contract with specified enhancements.
+
+---
+
+## 🎯 Required Implementations
+
+### 1. MAIN PAGE
+
+#### Replace "Nexxus Connect" Section with 4 Metric Tiles
+
+**Keep the chat interface as-is below the tiles.**
+
+**Partner Admin Tiles (System-Based Metrics):**
+1. # of sub orgs
+2. # Customer logins last 24 hrs  
+3. # of actions taken 24 hours
+4. Agent actions in 24 hours
+
+**Org Admin Tiles:**
+Use specifications from `—Org admin Metrics - Main - org admin.md`:
+1. Pipeline Health
+2. Lead Source Performance
+3. Lead Quality
+4. Market Demand Insight
+
+**Staff Tiles:**
+Use specifications from `—Staff Metrics.md`:
+1. Hot Opportunities (where to hunt)
+2. Buying Intelligence (what customers want)
+3. Threats (what's going wrong)
+4. Urgency (what's about to expire)
+
+**Each tile should:**
+- Display differently based on current user role
+- Show primary metric/score prominently
+- Include trend indicator
+- Be clickable to show modal breakdown (detailed specifications in the metric files)
+- Use sample data from the spec files
+
+**Chat Interface on Main Page:**
+- Keep existing chat design
+- Dialogue: Bot messages LEFT, User messages RIGHT
+- NO bot icons or user avatars needed
+- Thinking animation: Flat line that rolls like a wave (NOT spinning icons or bouncing dots)
+- Display name: "Automa" (remove all "Dealer Brain" references)
+
+---
+
+### 2. INSIGHTS PAGE - Complete Restructure
+
+**Remove:**
+- "Goals" tab completely
+
+**New Tab Structure:**
+
+**📊 DASHBOARD** (Real-time, Glanceable, Action-Oriented)
+- Command Center (default landing page)
+- Pipeline Health
+- Performance Scorecard
+
+**📑 REPORTS** (Historical, Deep-Dive, Strategic)
+- Loss & Quality Analysis
+- Channel Intelligence
+- Trend & Forecast Reports
+
+**📚 LIBRARY**
+- Tiles with trend data for every metric we can see
+- Use specifications from `—Tiles - Available data..md`
+- Grid or tile view toggle
+- Filter by specific internal fields
+
+**💡 HUNCHES**
+- Use specifications from `—Hunches.md`
+- Card-based layout
+- Sample hunch data from spec file
+- Color-coded by type (opportunity/threat/insight)
+- Action buttons (Dismiss/Take Action)
+
+**📊 ACTIVITY** (NEW - moved from header)
+- Timeline layout with user color-coding
+- Lead activity for the org
+
+**Implementation Details:**
+
+**Dashboard Section:**
+- Use sample data from `—Insights Layout.md` for all three sub-sections
+- Command Center: 3-zone alert system
+- Pipeline Health: with sample data
+- Performance Scorecard: with sample data
+- Follow EXACT layout specifications from the file
+
+**Reports Section:**
+- Use sample data and table structures from `—Reports.md`
+- Loss & Quality Analysis: with sample data and tables
+- Channel Intelligence: with sample data and visualizations
+- Trend & Forecast Reports: with sample data
+- Use EXACT table structures specified
+
+**Library:**
+- Each tile shows: Metric name, Current value, Trend indicator (sparkline or arrow/percentage)
+- Grid layout (responsive)
+- View toggle (grid/tiles)
+- Filter functionality
+
+**Hunches:**
+- Card structure: Icon, Title, Description, Agent badge, Confidence %, Dismiss/Action buttons
+- Color coding: opportunity=green, threat=red, insight=blue
+- Use sample data from `—Hunches.md`
+
+**Activity:**
+- Moved from header to Insights tab
+- Show lead activity for org
+- Color-coded by user
+- Timeline/feed layout
+
+---
+
+### 3. AGENTS PAGE
+
+**Agent Creation Flow:**
+- "New Agent" button opens center-page modal/view
+- Center: Dialogue interface
+- Bottom: Tiles showing available tools
+- Clicking tool tile opens modal: "What does this do?" + description input
+
+**Agent Configuration (Right-Side Pop-Out):**
+
+For all agents, show:
+1. Instructions section (editable textarea for system prompt)
+2. Triggers section (list with toggles)
+3. Tools & Skills section (selected tools)
+4. Knowledge section (connected data sources)
+5. Activity Log (recent agent actions)
+
+**IMPORTANT:**
+- Automa is NOT listed on the Agents page
+- Automa does not appear in the agent list
+- Agent configuration right pane is for custom user-created agents only
+
+---
+
+### 4. HUB PAGE
+
+**Tab Structure:**
+- Calendar
+- Tasks
+- Hunches
+- Approvals
+- Communication
+- Open Leads
+
+**Quick Actions:**
+- "New Message" button (opens modal with SMS/Email selection)
+
+**Calendar Tab:**
+- Opens calendar view
+
+**Leads Tab:**
+- List of leads
+- Each lead has: Text button, Call button, Schedule button
+
+**Inbox Tab:**
+- Universal inbox showing all communication with prospects
+- Can create SMS from here
+- Can create email from here
+
+---
+
+### 5. DRIVE PAGE
+
+**Add Functionality:**
+- Share button for each file
+- Clicking share opens modal: Email or SMS selection
+- Ability to send file via email or SMS
+
+---
+
+### 6. SETTINGS PAGE
+
+**Layout:**
+- Clicking "Settings" takes to page with tiles
+- Each tile represents a settings section
+
+**Settings Sections:**
+
+**Accounts** (All roles except Staff)
+
+**Billing** (All roles except Staff)
+
+**System** (Super Admin Only)
+- System Prompt
+- System Instructions
+- Misc System Settings
+
+**Tools** (Super Admin Only)
+- 3rd party API settings
+- MCP settings
+
+**Users** (Org Admin and above)
+- Full CRUD for adding/removing users
+- Partner admin can see all
+- Partner admin can see their orgs
+- Org admins can see org currently selected
+
+**Knowledge** (Org Admin Only)
+- Data Uploads (ability to back out of uploads or delete)
+- Data usage
+- Drive Data
+
+**Instructions** (Org Admin Only)
+- Organization instructions
+- Organizational Prompt
+- Hunch Instructions (per org)
+
+**IMPORTANT:**
+- Staff role cannot see Settings at all
+
+---
+
+### 7. OVERALL DESIGN REQUIREMENTS
+
+**Navigation:**
+- Left side menu order (FIXED): Main, Insights, Agents, Hub, Drive
+- Navigation order cannot be changed
+
+**Logo:**
+- Remove icon from the logo
+- Keep text only
+
+**Activity Feed:**
+- Move from header to Insights > Activity tab
+- Show lead activity for org
+
+**Notifications:**
+- Source from Hunches
+- Header notification icon should show Hunches alerts
+
+**Chat/Dialogue Standards (Everywhere):**
+- Bot on LEFT, User on RIGHT
+- No bot icons or user avatars
+- Thinking animation: Flat line rolling like a wave
+- Name: "Automa" (remove "Dealer Brain" everywhere)
+
+**Agent Configuration:**
+- Build out configuration screen for agents
+- Agents and Automa have a place to insert instructions
+- Right-side pop-out shows configuration
+
+---
+
+### 8. RBAC VIEW SWITCHER (NEW FEATURE - CRITICAL FOR TESTING)
+
+**Problem:** No way to test different role views without changing user account.
+
+**Solution:** Add a developer/admin view switcher.
+
+**Implementation Options:**
+- Hidden keyboard shortcut (e.g., Ctrl+Shift+R)
+- Developer panel in header (toggle on/off)
+- Dropdown showing: Super Admin, Partner Admin, Org Admin, Staff
+- Current role clearly displayed
+- Persists in session/local storage
+
+**This switcher affects:**
+- Main page metric tiles (3 different versions)
+- Insights Activity tab display
+- Settings page visibility and sections
+- Agent page visibility (Automa should never show)
+- Hub activity filtering
+- Any role-gated UI elements
+
+---
+
+## 🛡️ CRITICAL: Design Drift Prevention System
+
+**This is your MOST IMPORTANT task after implementing the design changes.**
+
+### Comprehensive Metadata System
+
+**In EVERY component file, add detailed header comments:**
+
+```javascript
+/**
+ * ============================================================================
+ * COMPONENT: [Component Name]
+ * PAGE: [Which page(s) this appears on]
+ * DESIGN CONTRACT REF: [Section in UI_DEVELOPER_HANDOFF_V3.md]
+ * ============================================================================
+ * 
+ * DESIGN CONSTRAINTS - DO NOT MODIFY WITHOUT DESIGN APPROVAL:
+ * - Layout: [e.g., "2x2 grid, cannot be changed to 3 columns"]
+ * - Colors: [e.g., "Must use theme tokens only: --color-primary, --color-bg"]
+ * - Typography: [e.g., "Title: --font-size-xl, Body: --font-size-base"]
+ * - Spacing: [e.g., "Gap between tiles: --spacing-lg (24px)"]
+ * - Animation: [e.g., "Thinking animation must be flat rolling wave"]
+ * 
+ * LOCKED ELEMENTS (CANNOT CHANGE):
+ * - [List specific elements that are frozen]
+ * - [e.g., "Tile order is role-specific and fixed"]
+ * - [e.g., "Chat dialogue: bot LEFT, user RIGHT - no icons"]
+ * 
+ * RBAC RULES:
+ * - Roles: [List which roles can see this component]
+ * - Data filtering: [Describe role-based data restrictions]
+ * - Visibility rules: [When component shows/hides]
+ * 
+ * DATA SOURCE:
+ * - File: [Which spec file contains data structure]
+ * - Sample data: [Reference to sample data location]
+ * - API endpoint: [If applicable]
+ * 
+ * MODIFICATION RULES:
+ * ✅ CAN CHANGE: [Data values, text content, minor styling tweaks]
+ * ⚠️  REQUIRES REVIEW: [Layout changes, new features, color changes]
+ * ❌ FORBIDDEN: [Removing elements, changing structure, reordering]
+ * 
+ * DEPENDENCIES:
+ * - Parent: [Parent component if nested]
+ * - Children: [Child components]
+ * - Related: [Related components that share state/data]
+ * 
+ * LAST VERIFIED: [Date]
+ * DESIGN VERSION: V3
+ * ============================================================================
+ */
+```
+
+### Inline Design Locks
+
+**Add constraint comments throughout code:**
+
+```html
+<!-- 
+  DESIGN LOCK: 2x2 Grid Layout
+  DO NOT change to 3 columns, 1 row, or any other configuration
+  This layout is specified in UI_DEVELOPER_HANDOFF_V3.md Section 4.2
+-->
+<div class="metric-tiles-grid">
+  
+  <!-- 
+    DESIGN LOCK: Tile Order is Role-Specific
+    Partner: [subOrgs, logins, actions, agentActions]
+    OrgAdmin: [pipeline, leadSource, quality, marketDemand]
+    Staff: [hotOpps, buyingIntel, threats, urgency]
+    DO NOT reorder, add, or remove tiles
+  -->
+  <div class="tile" data-role="partner-admin" data-position="1">
+    <!-- Tile 1 content -->
+  </div>
+  
+</div>
+
+<!-- 
+  DESIGN LOCK: Chat Dialogue Layout
+  Bot messages: LEFT side
+  User messages: RIGHT side
+  NO avatars or icons
+  Thinking animation: Flat rolling wave (see animation spec in theme contract)
+-->
+<div class="chat-container">
+  <div class="message bot-message">...</div>
+  <div class="message user-message">...</div>
+</div>
+```
+
+### CSS/Style Token Comments
+
+```css
+/**
+ * DESIGN TOKEN: --spacing-tile-gap
+ * VALUE: 24px
+ * USAGE: Main page metric tiles, Insights library grid
+ * SOURCE: THEME_CONTRACT_V2.md Section 3.4
+ * 
+ * DO NOT modify this value without:
+ * 1. Updating THEME_CONTRACT_V2.md
+ * 2. Verifying impact on all usage locations
+ * 3. Getting design approval
+ */
+:root {
+  --spacing-tile-gap: 24px;
+}
+
+/**
+ * DESIGN LOCK: Metric Tile Grid
+ * Must remain 2x2 on desktop, 1 column on mobile
+ * Gap spacing locked to --spacing-tile-gap
+ */
+.metric-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* LOCKED: Do not change to 3 or 4 */
+  gap: var(--spacing-tile-gap); /* LOCKED: Use token only */
+}
+```
+
+### Component Data Attributes for Validation
+
+```html
+<!-- Add data attributes for automated validation -->
+<div 
+  class="main-page"
+  data-design-version="v3"
+  data-design-contract="UI_DEVELOPER_HANDOFF_V3.md"
+  data-last-verified="2026-01-21"
+  data-locked-elements="nav-order,tile-grid,chat-layout"
+>
+  <!-- Page content -->
+</div>
+```
+
+---
+
+## 📄 Required Deliverables
+
+After completing implementation, you MUST generate/update these documents:
+
+### 1. UPDATED: THEME_CONTRACT_V2.md
+
+**Add/Update:**
+- Any new design tokens for metric tiles
+- Color tokens for Hunches cards (green/red/blue coding)
+- Spacing tokens for new layouts
+- Animation token for "flat rolling wave" thinking animation
+- RBAC switcher styling tokens
+- Complete token usage map (which components use which tokens)
+- Token modification rules and approval process
+
+**Add New Section:**
+```
+## Design Token Modification Protocol
+1. Identify token to change
+2. Find all usage locations (see Token Usage Map)
+3. Update this contract first
+4. Update COMPONENT_METADATA_INDEX.md
+5. Update actual code
+6. Verify no visual regressions
+7. Update UI_DEVELOPER_HANDOFF_V3.md if needed
+```
+
+---
+
+### 2. UPDATED: UI_DEVELOPER_HANDOFF_V3.md
+
+**Add/Update:**
+
+**Section: Main Page Specifications**
+- Complete specifications for all 3 role variations
+- Tile structure, modal breakdowns
+- Sample data schemas
+- RBAC switching behavior
+
+**Section: Insights Page Restructure**
+- 5-tab structure documentation
+- Dashboard sub-sections with layouts
+- Reports sub-sections with table structures
+- Library tile specifications
+- Hunches card specifications
+- Activity tab specifications
+
+**Section: Agents Page**
+- Agent creation flow (center dialogue + tool tiles)
+- Agent configuration right-pane structure
+- Automa visibility rules (NOT on Agents page)
+
+**Section: Navigation & Structure**
+- Fixed navigation order: Main, Insights, Agents, Hub, Drive
+- Page existence requirements (all pages must exist)
+- Logo specifications (text only, no icon)
+
+**Section: Chat/Dialogue Standards**
+- Bot left, user right
+- No avatars/icons
+- Flat rolling wave animation
+- "Automa" naming (no "Dealer Brain")
+
+**Section: RBAC View Switcher**
+- How it works
+- What it affects
+- Implementation details
+
+**Section: Design Drift Prevention**
+- Metadata system explanation
+- Validation data attributes
+- Forbidden modifications list
+- Approval requirements matrix
+
+---
+
+### 3. NEW: DESIGN_CONSTRAINTS_REFERENCE.md
+
+**Create a comprehensive "law" document:**
+
+```markdown
+# Design Constraints Reference - Nexxus V2
+
+**Purpose:** This document defines ABSOLUTE constraints that cannot be modified without formal design approval. This is the "law" that prevents design drift.
+
+---
+
+## 🚫 FORBIDDEN MODIFICATIONS
+
+### Navigation
+❌ **NEVER change navigation order:** Main, Insights, Agents, Hub, Drive
+❌ **NEVER remove pages:** All 5 pages must exist
+❌ **NEVER add pages** without design contract update
+
+### Main Page
+❌ **NEVER change tile grid from 2x2**
+❌ **NEVER reorder tiles** (order is role-specific and locked)
+❌ **NEVER remove chat interface** from Main page
+❌ **NEVER add bot/user icons** to chat dialogue
+❌ **NEVER change chat layout** (bot left, user right)
+
+### Insights Page
+❌ **NEVER re-add "Goals" tab** (removed permanently)
+❌ **NEVER change tab order:** Dashboard, Reports, Library, Hunches, Activity
+❌ **NEVER remove Activity tab** (moved from header, locked here)
+
+### Agents Page
+❌ **NEVER add Automa** to the Agents list
+❌ **NEVER show Automa** on Agents page
+
+### Branding
+❌ **NEVER add icon back to logo** (text only)
+❌ **NEVER use "Dealer Brain"** terminology (use "Automa")
+
+### Chat/Dialogue (Anywhere)
+❌ **NEVER add bot icons or avatars**
+❌ **NEVER change dialogue sides** (bot left, user right locked)
+❌ **NEVER use spinning/bouncing animations** (flat rolling wave only)
+
+---
+
+## ⚠️ REQUIRES DESIGN APPROVAL
+
+### Layout Changes
+- Changing grid structures
+- Adding/removing sections
+- Reordering major elements
+- Changing responsive breakpoints
+
+### Visual Changes
+- New colors outside theme tokens
+- Font changes
+- Animation changes
+- Icon usage (minimal, approved only)
+
+### Feature Changes
+- New tabs or navigation items
+- New page sections
+- RBAC role changes
+- Data visualization types
+
+---
+
+## ✅ ALLOWED WITHOUT APPROVAL
+
+### Content Changes
+- Text copy updates
+- Sample data values
+- Help text and tooltips
+- Error messages
+
+### Minor Styling
+- Adjusting spacing by ±4px within same token tier
+- Opacity changes for hover states
+- Border radius adjustments ±2px
+- Shadow intensity tweaks
+
+### Data Display
+- Updating metric values
+- Refreshing sample data
+- Adding filter options (within existing filter UI)
+- Sorting options
+
+---
+
+## 📋 Design Approval Process
+
+1. **Identify proposed change**
+2. **Check this document** - is it forbidden or requires approval?
+3. **If requires approval:**
+   - Document the change reason
+   - Show mockups/examples
+   - Submit to design lead
+   - Wait for approval before implementing
+4. **If approved:**
+   - Update design contracts first
+   - Update this document if needed
+   - Implement change
+   - Update metadata in components
+   - Document in changelog
+
+---
+
+## 🔍 Design Drift Detection Checklist
+
+Run this checklist before any deployment:
+
+- [ ] Navigation order: Main, Insights, Agents, Hub, Drive ✓
+- [ ] All 5 pages exist ✓
+- [ ] Main page has 4 metric tiles in 2x2 grid ✓
+- [ ] Chat dialogue: bot left, user right, no icons ✓
+- [ ] Logo is text only (no icon) ✓
+- [ ] No "Dealer Brain" references exist ✓
+- [ ] Only "Automa" terminology used ✓
+- [ ] Insights has 5 tabs: Dashboard, Reports, Library, Hunches, Activity ✓
+- [ ] "Goals" tab does not exist ✓
+- [ ] Automa is NOT on Agents page ✓
+- [ ] Thinking animation is flat rolling wave ✓
+- [ ] Activity Feed is in Insights, not header ✓
+- [ ] Notifications come from Hunches ✓
+- [ ] All design tokens match THEME_CONTRACT_V2.md ✓
+- [ ] All components have metadata headers ✓
+- [ ] All locked elements have inline comments ✓
+
+---
+
+## 📏 Component-Specific Constraints
+
+### Main Page Metric Tiles
+- **Grid:** 2x2 (desktop), 1 column (mobile)
+- **Tile count:** Exactly 4
+- **Tile order:** Role-specific, see UI_DEVELOPER_HANDOFF_V3.md
+- **Click behavior:** Opens modal with breakdown
+- **Trend indicators:** Required on each tile
+
+### Insights Dashboard
+- **Tabs:** Dashboard, Reports, Library, Hunches, Activity (FIXED)
+- **Default landing:** Command Center (under Dashboard)
+- **Command Center:** 3-zone alert system (Red/Yellow/Green)
+
+### Agent Configuration
+- **Right-pane sections:** Instructions, Triggers, Tools, Knowledge, Activity Log
+- **Automa:** Never appears in agent list
+- **Agent creation:** Center dialogue + tool tiles below
+
+### Chat Interface (All Locations)
+- **Layout:** Bot left, user right
+- **Icons:** None (forbidden)
+- **Animation:** Flat rolling wave
+- **Name:** "Automa"
+
+---
+
+## 🏗️ Structural Invariants
+
+These cannot change under any circumstances:
+
+1. **Page Count:** Exactly 5 pages
+2. **Navigation Order:** Main, Insights, Agents, Hub, Drive
+3. **3-Pane Layout:** Left nav, center content, right contextual
+4. **RBAC Roles:** Super Admin, Partner Admin, Org Admin, Staff
+5. **Chat Paradigm:** Conversational AI ("Automa") as primary interface
+```
+
+---
+
+### 4. NEW: COMPONENT_METADATA_INDEX.md
+
+**Create comprehensive component catalog:**
+
+```markdown
+# Component Metadata Index - Nexxus V2
+
+**Purpose:** Complete catalog of every component with constraints, relationships, and RBAC rules.
+
+---
+
+## Component Catalog
+
+### MAIN PAGE COMPONENTS
+
+#### MetricTilesGrid
+- **File:** `src/components/Main/MetricTilesGrid.jsx`
+- **Used On:** Main page (above chat)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Theme Tokens:** `--spacing-tile-gap`, `--color-tile-bg`, `--font-size-metric-primary`
+- **RBAC:** Displays different content per role (Partner/OrgAdmin/Staff)
+- **Locked Elements:**
+  - 2x2 grid structure (cannot change to 3 columns)
+  - Tile count (exactly 4)
+  - Tile order (role-specific, see spec)
+- **Children:** MetricTile (4 instances)
+- **Related:** MetricModal (opens on tile click)
+- **Data Source:** `—Org admin Metrics - Main - org admin.md`, `—Staff Metrics.md`
+- **Validation Attributes:** `data-locked-elements="grid-structure,tile-count"`
+
+#### MetricTile
+- **File:** `src/components/Main/MetricTile.jsx`
+- **Used On:** Main page (inside MetricTilesGrid)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Theme Tokens:** `--color-tile-bg`, `--font-size-metric-primary`, `--color-trend-positive`, `--color-trend-negative`
+- **RBAC:** Content varies by role
+- **Locked Elements:**
+  - Layout structure (title, primary metric, trend, secondary)
+  - Click behavior (must open modal)
+- **Parent:** MetricTilesGrid
+- **Related:** MetricModal
+- **Props:** `title`, `primaryValue`, `trend`, `trendDirection`, `secondaryText`, `modalData`
+
+#### AutomaChat
+- **File:** `src/components/Main/AutomaChat.jsx`
+- **Used On:** Main page (below metric tiles)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Theme Tokens:** `--color-chat-bot-bg`, `--color-chat-user-bg`, `--font-size-chat`
+- **RBAC:** All roles can use
+- **Locked Elements:**
+  - Dialogue layout: bot left, user right (FORBIDDEN to change)
+  - No avatars/icons (FORBIDDEN)
+  - Thinking animation: flat rolling wave only
+  - Display name: "Automa" (no "Dealer Brain")
+- **Children:** ChatMessage, ThinkingAnimation
+- **Related:** AgentConfigPane (right-side pop-out)
+- **Validation Attributes:** `data-locked-elements="dialogue-layout,no-icons,animation-type"`
+
+#### ThinkingAnimation
+- **File:** `src/components/Chat/ThinkingAnimation.jsx`
+- **Used On:** AutomaChat, AgentChat (anywhere chat exists)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Theme Tokens:** `--color-thinking-wave`, `--animation-wave-duration`
+- **Locked Elements:**
+  - Animation type: Flat rolling wave (FORBIDDEN: spinning, bouncing, pulsing)
+- **Animation Spec:** Horizontal line with sine wave motion, smooth roll
+- **Validation Attributes:** `data-locked-elements="animation-type"`
+
+---
+
+### INSIGHTS PAGE COMPONENTS
+
+#### InsightsNavTabs
+- **File:** `src/components/Insights/InsightsNavTabs.jsx`
+- **Used On:** Insights page (top navigation)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Theme Tokens:** `--color-tab-active`, `--color-tab-inactive`, `--spacing-tab-gap`
+- **Locked Elements:**
+  - Tab order: Dashboard, Reports, Library, Hunches, Activity (FORBIDDEN to change)
+  - Tab count: Exactly 5 (FORBIDDEN to add/remove)
+  - "Goals" tab: Does not exist (FORBIDDEN to re-add)
+- **Children:** TabButton (5 instances)
+- **Related:** DashboardView, ReportsView, LibraryView, HunchesView, ActivityView
+- **Validation Attributes:** `data-locked-elements="tab-order,tab-count"`
+
+#### DashboardView
+- **File:** `src/components/Insights/Dashboard/DashboardView.jsx`
+- **Used On:** Insights > Dashboard tab
+- **Sub-Tabs:** Command Center (default), Pipeline Health, Performance Scorecard
+- **Data Source:** `—Insights Layout.md`
+- **Children:** CommandCenter, PipelineHealth, PerformanceScorecard
+- **Default Landing:** CommandCenter
+
+#### CommandCenter
+- **File:** `src/components/Insights/Dashboard/CommandCenter.jsx`
+- **Used On:** Insights > Dashboard > Command Center
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Locked Elements:**
+  - 3-zone alert system (Red/Yellow/Green)
+  - Zone order and color coding
+- **Data Source:** `—Insights Layout.md` (3-zone alert system sample data)
+
+#### HunchesView
+- **File:** `src/components/Insights/Hunches/HunchesView.jsx`
+- **Used On:** Insights > Hunches tab
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Data Source:** `—Hunches.md`
+- **Theme Tokens:** `--color-hunch-opportunity`, `--color-hunch-threat`, `--color-hunch-insight`
+- **Locked Elements:**
+  - Card structure: Icon, Title, Description, Agent badge, Confidence %, Actions
+  - Color coding: opportunity=green, threat=red, insight=blue
+- **Children:** HunchCard (multiple instances)
+- **Related:** NotificationCenter (header - hunches feed notifications)
+
+#### ActivityView
+- **File:** `src/components/Insights/Activity/ActivityView.jsx`
+- **Used On:** Insights > Activity tab
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Notes:** Moved from header to Insights tab
+- **Locked Elements:**
+  - Timeline layout
+  - User color-coding system
+- **RBAC:** 
+  - Staff: See only their activity
+  - OrgAdmin/PartnerAdmin: See all, can filter by user
+- **Validation Attributes:** `data-moved-from="header"`
+
+---
+
+### AGENTS PAGE COMPONENTS
+
+#### AgentsListView
+- **File:** `src/components/Agents/AgentsListView.jsx`
+- **Used On:** Agents page
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Locked Elements:**
+  - Automa NEVER appears in this list (FORBIDDEN)
+- **Children:** AgentCard (multiple), NewAgentButton
+- **Validation Attributes:** `data-forbidden-items="automa"`
+
+#### NewAgentModal
+- **File:** `src/components/Agents/NewAgentModal.jsx`
+- **Used On:** Opens from "New Agent" button
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Layout:** Center dialogue + tool tiles below
+- **Children:** AgentDialogue, ToolTileGrid
+- **Related:** ToolDescriptionModal (opens when clicking tool tile)
+
+#### AgentConfigPane
+- **File:** `src/components/Agents/AgentConfigPane.jsx`
+- **Used On:** Right-side pop-out when agent selected
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Sections:** Instructions, Triggers, Tools, Knowledge, Activity Log
+- **Locked Elements:**
+  - Section order and presence (all 5 required)
+- **Related:** AgentCard, AutomaChat (Automa has config pane too)
+
+---
+
+### GLOBAL COMPONENTS
+
+#### AppLogo
+- **File:** `src/components/Global/AppLogo.jsx`
+- **Used On:** Header (all pages)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Locked Elements:**
+  - Text only (FORBIDDEN: icon)
+- **Validation Attributes:** `data-locked-elements="no-icon"`
+
+#### Navigation
+- **File:** `src/components/Global/Navigation.jsx`
+- **Used On:** Left sidebar (all pages)
+- **Design Contract:** UI_DEVELOPER_HANDOFF_V3.md Section [X]
+- **Locked Elements:**
+  - Order: Main, Insights, Agents, Hub, Drive (FORBIDDEN to change)
+  - Count: Exactly 5 items (FORBIDDEN to add/remove)
+- **RBAC:** Settings visibility (hidden for Staff)
+- **Validation Attributes:** `data-locked-elements="nav-order,nav-count"`
+
+#### RBACViewSwitcher
+- **File:** `src/components/Dev/RBACViewSwitcher.jsx`
+- **Used On:** Header (dev mode) or keyboard shortcut
+- **Purpose:** Switch between role views for testing
+- **Roles:** Super Admin, Partner Admin, Org Admin, Staff
+- **Affects:** MetricTilesGrid, ActivityView, SettingsPage, and any RBAC-gated components
+
+---
+
+## Component Relationships Map
+
+```
+Main Page
+├── MetricTilesGrid
+│   └── MetricTile (×4)
+│       └── MetricModal
+└── AutomaChat
+    ├── ChatMessage
+    └── ThinkingAnimation
+
+Insights Page
+├── InsightsNavTabs
+│   └── TabButton (×5)
+├── DashboardView
+│   ├── CommandCenter (3-zone alerts)
+│   ├── PipelineHealth
+│   └── PerformanceScorecard
+├── ReportsView
+│   ├── LossQualityAnalysis
+│   ├── ChannelIntelligence
+│   └── TrendForecastReports
+├── LibraryView
+│   └── MetricTileLibrary (grid of trend tiles)
+├── HunchesView
+│   └── HunchCard (multiple)
+└── ActivityView (moved from header)
+
+Agents Page
+├── AgentsListView (Automa NOT here)
+│   ├── AgentCard (multiple)
+│   └── NewAgentButton
+├── NewAgentModal
+│   ├── AgentDialogue
+│   └── ToolTileGrid
+│       └── ToolTile (multiple)
+│           └── ToolDescriptionModal
+└── AgentConfigPane (right-side)
+    ├── InstructionsSection
+    ├── TriggersSection
+    ├── ToolsSection
+    ├── KnowledgeSection
+    └── ActivityLogSection
+
+Global
+├── AppLogo (text only, no icon)
+├── Navigation (5 items, fixed order)
+├── NotificationCenter (fed by Hunches)
+└── RBACViewSwitcher (dev tool)
+```
+
+---
+
+## RBAC Component Matrix
+
+| Component | Super Admin | Partner Admin | Org Admin | Staff |
+|-----------|-------------|---------------|-----------|-------|
+| MetricTilesGrid | ✅ (Partner data) | ✅ (Partner data) | ✅ (OrgAdmin data) | ✅ (Staff data) |
+| AutomaChat | ✅ | ✅ | ✅ | ✅ |
+| Insights (all tabs) | ✅ | ✅ | ✅ | ✅ |
+| ActivityView | ✅ (see all) | ✅ (see all) | ✅ (see all) | ✅ (self only) |
+| AgentsPage | ✅ | ✅ | ✅ | ✅ |
+| AgentConfigPane | ✅ | ✅ | ✅ | ✅ |
+| SettingsPage | ✅ (all sections) | ✅ (no System/Tools) | ✅ (Org sections) | ❌ (no access) |
+| RBACViewSwitcher | ✅ | ✅ (dev mode) | ✅ (dev mode) | ❌ |
+
+---
+
+## Validation Data Attributes Reference
+
+All components should include these attributes for automated validation:
+
+```html
+data-design-version="v3"
+data-design-contract="[section reference]"
+data-locked-elements="[comma-separated list]"
+data-forbidden-items="[comma-separated list]"
+data-rbac-rules="[role restrictions]"
+data-last-verified="[date]"
+```
+
+**Example:**
+```html
+<div 
+  class="metric-tiles-grid"
+  data-design-version="v3"
+  data-design-contract="UI_DEVELOPER_HANDOFF_V3.md#main-page-metrics"
+  data-locked-elements="grid-structure,tile-count,tile-order"
+  data-rbac-rules="partner,org-admin,staff"
+  data-last-verified="2026-01-21"
+>
+```
+```
+
+---
+
+### 5. NEW: DESIGN_CHANGELOG.md
+
+**Create a changelog to track all design decisions:**
+
+```markdown
+# Design Changelog - Nexxus V2
+
+All significant design changes must be documented here with rationale.
+
+---
+
+## [V3.0] - 2026-01-21 - Return to Original Design + Enhancements
+
+### Added
+- **Main Page:** 4 metric tiles (role-specific) above chat
+  - Rationale: Provide at-a-glance KPIs without navigating away from main chat interface
+  - Partner metrics: system-level (sub orgs, logins, actions, agent actions)
+  - Org Admin metrics: operational (pipeline health, lead source, quality, market demand)
+  - Staff metrics: actionable (hot opportunities, buying intelligence, threats, urgency)
+
+- **Insights Page:** Activity tab (moved from header)
+  - Rationale: Activity feed was cluttering header; belongs with analytics content
+  - Shows lead activity for org with user color-coding
+
+- **Insights Page:** Hunches tab
+  - Rationale: AI-generated insights need dedicated space with action buttons
+  - Card-based layout with confidence scores and dismiss/action options
+
+- **Insights Page:** Library tab
+  - Rationale: Centralized location for all available metrics with trends
+  - Grid layout with sparklines and trend indicators
+
+- **RBAC View Switcher:** Dev tool to switch between role views
+  - Rationale: Testing role-specific UI was impossible without multiple accounts
+  - Keyboard shortcut or dev panel toggle
+
+- **Comprehensive Metadata System:** Component headers, inline locks, validation attributes
+  - Rationale: Previous design was bastardized by Claude due to lack of constraints
+  - Prevents future design drift through embedded documentation
+
+### Changed
+- **Logo:** Removed icon, text only
+  - Rationale: Simplified branding, cleaner header
+
+- **Chat Thinking Animation:** Changed to flat rolling wave
+  - Rationale: Consistent with minimalist design language
+
+- **Terminology:** "Automa" replaces "Dealer Brain"
+  - Rationale: "Dealer Brain" caused confusion; "Automa" is clearer
+
+- **Insights Structure:** Reorganized into Dashboard/Reports/Library/Hunches/Activity
+  - Rationale: Better information architecture separating real-time vs historical data
+
+- **Reports Section:** Moved under Insights
+  - Rationale: Reports are analytical, belong with Insights
+
+### Removed
+- **Insights "Goals" Tab:** Deleted completely
+  - Rationale: Feature was not being used and cluttered navigation
+
+- **"Dealer Brain" Terminology:** Removed everywhere
+  - Rationale: Confusing, inconsistent with "Automa" naming
+
+- **Automa from Agents Page:** No longer listed
+  - Rationale: Automa is system-wide, not a custom agent; listing it was confusing
+
+- **Activity Feed from Header:** Moved to Insights > Activity
+  - Rationale: Header was cluttered; activity belongs with analytics
+
+### Locked
+- **Navigation Order:** Main, Insights, Agents, Hub, Drive (FIXED)
+  - Rationale: This order was in original design contract; cannot change
+
+- **Chat Dialogue Layout:** Bot left, user right, no icons (FIXED)
+  - Rationale: Established pattern that users are accustomed to
+
+- **Main Page Tile Grid:** 2x2 layout (FIXED)
+  - Rationale: Optimal information density for at-a-glance metrics
+
+---
+
+## Design Decision Log Format
+
+For future changes, document using this format:
+
+### [Version] - [Date] - [Change Title]
+
+**What Changed:**
+- Describe the change
+
+**Rationale:**
+- Why was this changed?
+- What problem does it solve?
+- What user need does it address?
+
+**Impact:**
+- Which components are affected?
+- Which pages are affected?
+- Are there RBAC implications?
+
+**Contract Updates:**
+- Which design contracts were updated?
+- Which metadata was added/changed?
+
+**Approval:**
+- Who approved this change?
+- When was it approved?
+
+**Validation:**
+- How can this change be verified?
+- What tests should be run?
+```
+
+---
+
+## ✅ Implementation Validation Checklist
+
+Before you consider this complete, verify every item:
+
+### Design Implementation
+- [ ] Main page: "Nexxus Connect" replaced with 4 metric tiles
+- [ ] Main page: Chat interface kept as-is below tiles
+- [ ] Main page: All 3 role variations implemented (Partner/OrgAdmin/Staff)
+- [ ] Main page: Sample data populated from spec files
+- [ ] Main page: Metric modals implemented with breakdowns
+- [ ] Insights: "Goals" tab completely removed
+- [ ] Insights: 5 tabs present (Dashboard, Reports, Library, Hunches, Activity)
+- [ ] Insights: Activity moved from header to Insights tab
+- [ ] Insights: Dashboard sub-sections implemented with sample data
+- [ ] Insights: Reports sub-sections implemented with sample data
+- [ ] Insights: Library grid implemented with trend tiles
+- [ ] Insights: Hunches cards implemented with sample data
+- [ ] Agents: Agent creation opens center page with dialogue + tool tiles
+- [ ] Agents: Automa NOT listed on Agents page
+- [ ] Agents: Right-side config pane shows Instructions/Triggers/Tools/Knowledge/Activity
+- [ ] Hub: Structure matches specification (Calendar, Tasks, Hunches, Approvals, Communication, Leads)
+- [ ] Drive: Share button added to each file
+- [ ] Settings: Tile-based layout when clicking Settings
+- [ ] Settings: All sections present with RBAC restrictions
+
+### Design Standards
+- [ ] Logo: Icon removed, text only
+- [ ] Chat: Bot left, user right everywhere
+- [ ] Chat: No avatars/icons anywhere
+- [ ] Chat: Thinking animation is flat rolling wave
+- [ ] Terminology: "Automa" used, "Dealer Brain" removed everywhere
+- [ ] Navigation: Order is Main, Insights, Agents, Hub, Drive
+- [ ] Navigation: All 5 pages exist
+- [ ] Activity: Moved from header to Insights tab
+- [ ] Notifications: Come from Hunches
+
+### RBAC System
+- [ ] RBAC view switcher implemented and functional
+- [ ] Switcher affects Main page tiles (3 versions)
+- [ ] Switcher affects Insights Activity display
+- [ ] Switcher affects Settings visibility
+- [ ] Switcher clearly shows current active role
+- [ ] Switcher persists in session/local storage
+
+### Metadata System
+- [ ] Every component file has comprehensive header comment
+- [ ] All locked elements have inline constraint comments
+- [ ] All CSS/style tokens have documentation comments
+- [ ] All components have validation data attributes
+- [ ] Component relationships documented in code
+- [ ] RBAC rules documented in component headers
+
+### Documentation Deliverables
+- [ ] THEME_CONTRACT_V2.md updated with new tokens
+- [ ] THEME_CONTRACT_V2.md includes token modification protocol
+- [ ] UI_DEVELOPER_HANDOFF_V3.md updated with all new specifications
+- [ ] UI_DEVELOPER_HANDOFF_V3.md includes RBAC switcher docs
+- [ ] DESIGN_CONSTRAINTS_REFERENCE.md created (comprehensive)
+- [ ] DESIGN_CONSTRAINTS_REFERENCE.md includes forbidden modifications list
+- [ ] DESIGN_CONSTRAINTS_REFERENCE.md includes design drift checklist
+- [ ] COMPONENT_METADATA_INDEX.md created (complete catalog)
+- [ ] COMPONENT_METADATA_INDEX.md includes all components
+- [ ] COMPONENT_METADATA_INDEX.md includes component relationships map
+- [ ] COMPONENT_METADATA_INDEX.md includes RBAC matrix
+- [ ] DESIGN_CHANGELOG.md created with V3.0 entry
+
+### Quality Checks
+- [ ] All sample data from spec files is populated
+- [ ] No placeholder or lorem ipsum text
+- [ ] All interactive elements functional (tiles, modals, tabs)
+- [ ] All RBAC variations tested via switcher
+- [ ] Responsive behavior intact (mobile/desktop)
+- [ ] Theme tokens used consistently (no hardcoded colors/spacing)
+- [ ] No console errors
+- [ ] No broken layouts
+
+---
+
+## 🎯 Success Criteria
+
+This implementation is complete when:
+
+1. **All visual changes are implemented** exactly as specified in the provided files
+2. **All sample data is populated** from the specification files
+3. **RBAC view switcher works** and affects all role-specific components
+4. **Every component has comprehensive metadata** preventing future modifications
+5. **All 5 design documents are created/updated** and complete
+6. **Design drift checklist passes 100%** - nothing forbidden exists
+7. **A developer reading the metadata can understand**:
+   - What this component does
+   - What cannot be changed
+   - Why it was designed this way
+   - What the consequences of changes would be
+8. **Claude Code receiving these files** will have NO ambiguity about constraints and will be forced to comply with the design system
+
+---
+
+## 📦 Final Deliverable Package
+
+When you're done, provide:
+
+1. **Complete Updated Codebase** with all changes implemented
+2. **THEME_CONTRACT_V2.md** (updated)
+3. **UI_DEVELOPER_HANDOFF_V3.md** (updated)
+4. **DESIGN_CONSTRAINTS_REFERENCE.md** (new)
+5. **COMPONENT_METADATA_INDEX.md** (new)
+6. **DESIGN_CHANGELOG.md** (new)
+7. **Implementation Summary Report** listing:
+   - All files changed
+   - All components added/modified
+   - All metadata added
+   - All validation checks passed
+   - Any issues encountered
+   - Screenshots of all role variations
+
+---
+
+## 🚨 Remember
+
+You have FULL CREATIVE FREEDOM to implement this in the way that makes the most architectural sense.
+
+Your PRIMARY MISSION is not just the visual changes—it's creating an IMPENETRABLE FORTRESS OF METADATA that will prevent Claude Code from ever bastardizing this design again.
+
+Every component should scream: "THIS IS LOCKED. HERE'S WHY. DON'T TOUCH IT."
+
+Good luck! 🚀
