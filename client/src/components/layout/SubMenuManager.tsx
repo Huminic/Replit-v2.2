@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
-  Calendar as CalendarIcon, CheckSquare, Lightbulb, ClipboardCheck, Activity, User as UserIcon,
+  Calendar as CalendarIcon, CheckSquare, Lightbulb, Activity, User as UserIcon,
   Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor, type Agent } from '@/mocks/agents';
 import { mockActivityFeed } from '@/mocks/activity';
-import { mockApprovals } from '@/mocks/tasks';
 import { mockConversations } from '@/mocks/messages';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -313,7 +312,6 @@ export function SubMenuManager() {
         );
 
       case 'work-center':
-        const pendingApprovals = mockApprovals.filter(a => a.status === 'pending').length;
         return (
           <>
             <div className="p-3 border-b border-border">
@@ -328,26 +326,20 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {[
-                    { id: 'calendar', label: 'Calendar', icon: CalendarIcon, badge: 0 },
-                    { id: 'approvals', label: 'Approvals', icon: ClipboardCheck, badge: pendingApprovals },
-                    { id: 'communication', label: 'Communication', icon: MessageSquare, badge: 0 },
-                    { id: 'leads', label: 'Open Leads', icon: Users, badge: 0 },
+                    { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
+                    { id: 'leads', label: 'Leads', icon: Users },
+                    { id: 'inbox', label: 'Inbox', icon: MessageSquare },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
                         onClick={() => !location.startsWith('/work-center') && setLocation('/work-center')}
-                        className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
                         data-testid={`panel-wc-${item.id}`}
                       >
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {item.label}
-                        </div>
-                        {item.badge > 0 && (
-                          <Badge variant="destructive" className="h-5 min-w-5 px-1 text-[10px]">{item.badge}</Badge>
-                        )}
+                        <Icon className="h-4 w-4" />
+                        {item.label}
                       </button>
                     );
                   })}

@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { 
   Calendar as CalendarIcon, 
-  ClipboardCheck,
   Plus,
   User,
-  Check,
-  X,
   MessageSquare,
   Users,
   Phone,
   Mail,
   Voicemail,
-  MessageCircle
+  MessageCircle,
+  CalendarPlus,
+  Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,6 @@ import {
 } from '@/components/ui/dialog';
 import { 
   mockCalendarEvents, 
-  mockApprovals,
   mockLeads,
   mockInboxMessages,
   getLeadStatusColor
@@ -39,23 +38,15 @@ import {
 import { format, formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
-/**
- * @component HubPage (WorkCenter)
- * @description Central hub with 4 tabs: Calendar, Approvals, Communication, Open Leads
- * @designConstraints
- *   - Calendar: Side-by-side calendar widget + event list
- *   - Approvals: Card list with approve/reject actions
- *   - Communication: Inbox with email/sms/voicemail types, dialer modal
- *   - Open Leads: Contact cards with call/email actions
- * @rbac Visible to all roles
- * @locked Tab order (Calendar/Approvals/Communication/Open Leads), Tasks and Hunches REMOVED
- */
-
 export default function WorkCenterPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [dialerOpen, setDialerOpen] = useState(false);
   const [dialerNumber, setDialerNumber] = useState('');
   const [selectedContact, setSelectedContact] = useState<{ name: string; phone: string } | null>(null);
+  const [newMessageOpen, setNewMessageOpen] = useState(false);
+  const [messageType, setMessageType] = useState<'sms' | 'email'>('sms');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleLead, setScheduleLead] = useState<string>('');
 
   const todayEvents = mockCalendarEvents.filter(event => {
     const eventDate = new Date(event.startTime).toDateString();
@@ -63,7 +54,6 @@ export default function WorkCenterPage() {
     return eventDate === selected;
   });
 
-  const pendingApprovals = mockApprovals.filter(a => a.status === 'pending');
   const unreadMessages = mockInboxMessages.filter(m => !m.read).length;
 
   const handleDialerInput = (digit: string) => {
@@ -93,11 +83,15 @@ export default function WorkCenterPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="p-4 border-b border-border flex items-center justify-between gap-2 flex-wrap">
         <div>
           <h1 className="text-lg font-semibold text-foreground">Hub</h1>
-          <p className="text-sm text-muted-foreground">Calendar, approvals, communications, and leads</p>
+          <p className="text-sm text-muted-foreground">Calendar, leads, and communications</p>
         </div>
+        <Button size="sm" onClick={() => setNewMessageOpen(true)} data-testid="button-new-message">
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Message
+        </Button>
       </div>
 
       <Tabs defaultValue="calendar" className="flex-1 flex flex-col overflow-hidden">
@@ -107,27 +101,18 @@ export default function WorkCenterPage() {
               <CalendarIcon className="h-4 w-4" />
               Calendar
             </TabsTrigger>
-            <TabsTrigger value="approvals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative" data-testid="tab-wc-approvals">
-              <ClipboardCheck className="h-4 w-4" />
-              Approvals
-              {pendingApprovals.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-[10px]">
-                  {pendingApprovals.length}
-                </Badge>
-              )}
+            <TabsTrigger value="leads" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-leads">
+              <Users className="h-4 w-4" />
+              Leads
             </TabsTrigger>
-            <TabsTrigger value="communication" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative" data-testid="tab-wc-communication">
+            <TabsTrigger value="inbox" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2 relative" data-testid="tab-wc-inbox">
               <MessageSquare className="h-4 w-4" />
-              Communication
+              Inbox
               {unreadMessages > 0 && (
                 <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-[10px]">
                   {unreadMessages}
                 </Badge>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-leads">
-              <Users className="h-4 w-4" />
-              Open Leads
             </TabsTrigger>
           </TabsList>
           <FavoritesBar currentPath="/work-center" currentLabel="Hub" />
@@ -197,61 +182,87 @@ export default function WorkCenterPage() {
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="approvals" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="leads" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
-              {pendingApprovals.length === 0 ? (
-                <Card>
-                  <CardContent className="p-6 text-center">
-                    <ClipboardCheck className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
-                    <p className="text-muted-foreground">No pending approvals</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                pendingApprovals.map(approval => (
-                  <Card key={approval.id} className="hover-elevate" data-testid={`approval-${approval.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-4">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback>{approval.requestedBy.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-foreground">{approval.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">{approval.description}</p>
-                          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                            <span>Requested by {approval.requestedBy}</span>
-                            <span>•</span>
-                            <span>{format(new Date(approval.requestedAt), 'MMM d, yyyy')}</span>
-                          </div>
+              {mockLeads.map(lead => (
+                <Card key={lead.id} className="hover-elevate" data-testid={`lead-${lead.id}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>{lead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-medium text-foreground">{lead.name}</h4>
+                          <Badge className={getLeadStatusColor(lead.status)} variant="secondary">
+                            {lead.status}
+                          </Badge>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="text-destructive" data-testid={`approval-reject-${approval.id}`}>
-                            <X className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                          <Button size="sm" data-testid={`approval-approve-${approval.id}`}>
-                            <Check className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Interested in: {lead.interestedIn}
+                        </p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
+                          <span>{lead.phone}</span>
+                          <span>{lead.email}</span>
+                          {lead.lastContact && (
+                            <span>Last contact: {formatDistanceToNow(new Date(lead.lastContact), { addSuffix: true })}</span>
+                          )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                      <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setMessageType('sms');
+                          setNewMessageOpen(true);
+                        }} data-testid={`lead-text-${lead.id}`}>
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          Text
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleCall({ name: lead.name, phone: lead.phone })} data-testid={`lead-call-${lead.id}`}>
+                          <Phone className="h-4 w-4 mr-1" />
+                          Call
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setScheduleLead(lead.name);
+                          setScheduleOpen(true);
+                        }} data-testid={`lead-schedule-${lead.id}`}>
+                          <CalendarPlus className="h-4 w-4 mr-1" />
+                          Schedule
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="communication" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="inbox" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-foreground">Inbox</h3>
-                <Button size="sm" onClick={() => handleCall()} data-testid="button-make-call">
-                  <Phone className="h-4 w-4 mr-1" />
-                  Make Call
-                </Button>
+              <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+                <h3 className="font-medium text-foreground">Universal Inbox</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setMessageType('email');
+                    setNewMessageOpen(true);
+                  }} data-testid="button-compose-email">
+                    <Mail className="h-4 w-4 mr-1" />
+                    Email
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setMessageType('sms');
+                    setNewMessageOpen(true);
+                  }} data-testid="button-compose-sms">
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    SMS
+                  </Button>
+                  <Button size="sm" onClick={() => handleCall()} data-testid="button-make-call">
+                    <Phone className="h-4 w-4 mr-1" />
+                    Call
+                  </Button>
+                </div>
               </div>
               {mockInboxMessages.map(message => {
                 const Icon = getMessageIcon(message.type);
@@ -290,56 +301,6 @@ export default function WorkCenterPage() {
                   </Card>
                 );
               })}
-            </div>
-          </ScrollArea>
-        </TabsContent>
-
-        <TabsContent value="leads" className="flex-1 m-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 space-y-3">
-              {mockLeads.map(lead => (
-                <Card key={lead.id} className="hover-elevate" data-testid={`lead-${lead.id}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback>{lead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-medium text-foreground">{lead.name}</h4>
-                          <Badge className={getLeadStatusColor(lead.status)} variant="secondary">
-                            {lead.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Interested in: {lead.interestedIn}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                          <span>{lead.phone}</span>
-                          <span>•</span>
-                          <span>{lead.email}</span>
-                          {lead.lastContact && (
-                            <>
-                              <span>•</span>
-                              <span>Last contact: {formatDistanceToNow(new Date(lead.lastContact), { addSuffix: true })}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleCall({ name: lead.name, phone: lead.phone })} data-testid={`lead-call-${lead.id}`}>
-                          <Phone className="h-4 w-4 mr-1" />
-                          Call
-                        </Button>
-                        <Button size="sm" variant="outline" data-testid={`lead-email-${lead.id}`}>
-                          <Mail className="h-4 w-4 mr-1" />
-                          Email
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </ScrollArea>
         </TabsContent>
@@ -408,6 +369,105 @@ export default function WorkCenterPage() {
                 </div>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
+        <DialogContent className="sm:max-w-lg" data-testid="new-message-modal">
+          <DialogHeader>
+            <DialogTitle>New Message</DialogTitle>
+            <DialogDescription>Send an SMS or email to a prospect</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Button
+                variant={messageType === 'sms' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setMessageType('sms')}
+                className="flex-1"
+                data-testid="msg-type-sms"
+              >
+                <MessageCircle className="h-4 w-4 mr-1.5" />
+                SMS
+              </Button>
+              <Button
+                variant={messageType === 'email' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setMessageType('email')}
+                className="flex-1"
+                data-testid="msg-type-email"
+              >
+                <Mail className="h-4 w-4 mr-1.5" />
+                Email
+              </Button>
+            </div>
+            <Input
+              placeholder={messageType === 'sms' ? 'Phone number' : 'Recipient email'}
+              data-testid="msg-recipient"
+            />
+            {messageType === 'email' && (
+              <Input
+                placeholder="Subject"
+                data-testid="msg-subject"
+              />
+            )}
+            <Textarea
+              placeholder={messageType === 'sms' ? 'Type your message...' : 'Compose your email...'}
+              className="min-h-[120px] resize-none"
+              data-testid="msg-body"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setNewMessageOpen(false)} data-testid="msg-cancel">
+                Cancel
+              </Button>
+              <Button data-testid="msg-send">
+                <Send className="h-4 w-4 mr-1.5" />
+                Send {messageType === 'sms' ? 'SMS' : 'Email'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="schedule-modal">
+          <DialogHeader>
+            <DialogTitle>Schedule Appointment</DialogTitle>
+            <DialogDescription>
+              {scheduleLead ? `Schedule with ${scheduleLead}` : 'Schedule a new appointment'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Appointment title"
+              defaultValue={scheduleLead ? `Meeting with ${scheduleLead}` : ''}
+              data-testid="schedule-title"
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Date</label>
+                <Input type="date" data-testid="schedule-date" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Time</label>
+                <Input type="time" data-testid="schedule-time" />
+              </div>
+            </div>
+            <Textarea
+              placeholder="Notes (optional)"
+              className="min-h-[80px] resize-none"
+              data-testid="schedule-notes"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setScheduleOpen(false)} data-testid="schedule-cancel">
+                Cancel
+              </Button>
+              <Button onClick={() => setScheduleOpen(false)} data-testid="schedule-confirm">
+                <CalendarPlus className="h-4 w-4 mr-1.5" />
+                Schedule
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
