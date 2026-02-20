@@ -14,14 +14,17 @@ The application features:
 - Mobile-first responsive design with hamburger menu for small screens
 
 ### V3 Redesign Summary
-- **RBAC**: currentRole state with localStorage persistence, role switcher in TopBar
-- **Main Page**: 2x2 gradient metric tiles (role-specific), no chat avatars, wave-dot animation
-- **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches
+- **RBAC**: currentRole state with localStorage persistence, tiny arrow dropdown on far-right of TopBar
+- **TopBar**: Logo left, org switcher center (Building2 icon + name + chevron), notifications/activity/theme/profile/role-arrow right
+- **Main Page**: 4-across gradient metric tiles (role-specific, responsive 4→2→1), "AI Key Metrics" title, 1 sample chat response, always-visible smaller suggestion bubbles, no chat avatars, wave-dot animation
+- **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches. Sub-menu includes Activity
 - **Agents**: ClickUp-style 3-pane (list 272px / detail / config pane 320px)
 - **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
 - **Drive**: Share button per file, share modal with Email/SMS tabs
 - **Settings**: Tile-based grid navigation, role-gated sections
 - **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere
+- **Activity**: Moved into Insights sub-menu (no longer standalone sidebar item)
+- **SubMenu timeout**: 800ms leave timeout for better usability
 
 ## User Preferences
 
