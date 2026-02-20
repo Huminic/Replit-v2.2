@@ -41,8 +41,12 @@ export default function ProfilePage() {
         <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
       </div>
 
+      <div className="px-4 py-2 lg:hidden w-full max-w-4xl">
+        <MobileNavDropdown currentPath="/profile" currentLabel="Profile" />
+      </div>
+
       <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
-        <div className="px-4 border-b border-border flex items-center">
+        <div className="px-4 border-b border-border hidden lg:flex items-center">
           <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="profile" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-main">
               <User className="h-4 w-4" />
@@ -57,7 +61,6 @@ export default function ProfilePage() {
               Billing
             </TabsTrigger>
           </TabsList>
-          <MobileNavDropdown currentPath="/profile" currentLabel="Profile" />
           <FavoritesBar currentPath="/profile" currentLabel="Profile" />
         </div>
 

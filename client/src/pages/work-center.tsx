@@ -108,8 +108,12 @@ export default function WorkCenterPage() {
         </Button>
       </div>
 
+      <div className="px-4 py-2 lg:hidden">
+        <MobileNavDropdown currentPath="/work-center" currentLabel="Hub" />
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-4 border-b border-border flex items-center">
+        <div className="px-4 border-b border-border hidden lg:flex items-center">
           <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="calendar" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-wc-calendar">
               <CalendarIcon className="h-4 w-4" />
@@ -129,7 +133,6 @@ export default function WorkCenterPage() {
               )}
             </TabsTrigger>
           </TabsList>
-          <MobileNavDropdown currentPath="/work-center" currentLabel="Hub" />
           <FavoritesBar currentPath="/work-center" currentLabel="Hub" />
         </div>
 

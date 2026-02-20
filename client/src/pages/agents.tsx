@@ -354,8 +354,7 @@ export default function AgentsPage() {
       </div>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-4 py-2 border-b border-border flex items-center gap-2">
-          <MobileNavDropdown currentPath="/agents" currentLabel="Agents" />
+        <div className="px-4 py-2 border-b border-border hidden lg:flex items-center gap-2">
           <FavoritesBar currentPath="/agents" currentLabel="Agents" />
         </div>
 
@@ -409,6 +408,10 @@ export default function AgentsPage() {
                       </DropdownMenu>
                     </div>
                   </div>
+                </div>
+
+                <div className="px-6 py-3 lg:hidden">
+                  <MobileNavDropdown currentPath="/agents" currentLabel="Agents" />
                 </div>
 
                 <ScrollArea className="flex-1 p-6">

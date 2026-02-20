@@ -227,8 +227,12 @@ export default function InsightsPage() {
         </div>
       </div>
 
+      <div className="px-4 py-2 lg:hidden">
+        <MobileNavDropdown currentPath="/insights" currentLabel="Insights" />
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-4 border-b border-border flex items-center">
+        <div className="px-4 border-b border-border hidden lg:flex items-center">
           <TabsList className="bg-transparent h-10 p-0 flex-shrink-0">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
               Dashboard
@@ -243,7 +247,6 @@ export default function InsightsPage() {
               Hunches
             </TabsTrigger>
           </TabsList>
-          <MobileNavDropdown currentPath="/insights" currentLabel="Insights" />
           <FavoritesBar currentPath="/insights" currentLabel="Insights" />
         </div>
 
