@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
   Calendar as CalendarIcon, CheckSquare, Lightbulb, Activity, User as UserIcon,
-  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare
+  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare, Layout
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -366,6 +366,8 @@ export function SubMenuManager() {
                   {[
                     { id: 'users', label: 'Users', icon: Users, desc: 'Manage team members and roles' },
                     { id: 'organization', label: 'Organization', icon: Settings, desc: 'Company profile and branding' },
+                    { id: 'widgets', label: 'Widgets', icon: MessageSquare, desc: 'Embeddable chat widgets' },
+                    { id: 'landing-pages', label: 'Landing Pages', icon: Layout, desc: 'Hosted page experiences' },
                     { id: 'tools', label: 'Tools', icon: Wrench, desc: 'Configure integrations and APIs' },
                     { id: 'knowledge', label: 'Knowledge', icon: BookOpen, desc: 'Manage knowledge base sources' },
                     { id: 'ai', label: 'AI Config', icon: Zap, desc: 'Hunches and AI behavior' },
