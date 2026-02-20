@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useApp } from '@/contexts/AppContext';
 import { getRoleLabel } from '@/mocks/users';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 export default function ProfilePage() {
   const { toast } = useToast();
@@ -56,6 +57,7 @@ export default function ProfilePage() {
               Billing
             </TabsTrigger>
           </TabsList>
+          <MobileNavDropdown currentPath="/profile" currentLabel="Profile" />
           <FavoritesBar currentPath="/profile" currentLabel="Profile" />
         </div>
 

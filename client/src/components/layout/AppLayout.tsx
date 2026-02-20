@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { PanelRightOpen, MessageCircle } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -28,11 +28,11 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, setMobileChatOpen } = useApp();
+  const { rightPaneOpen, setRightPaneOpen } = useApp();
   
   const viewConfig = getViewConfig(location);
-  const showRightPane = viewConfig !== 'chat-only' && rightPaneOpen;
-  const canShowRightPaneToggle = viewConfig !== 'chat-only';
+  const canToggleRightPane = viewConfig !== 'chat-only';
+  const isAgentsPage = location.startsWith('/agents');
 
   return (
     <div className="flex flex-col h-screen w-full bg-background">
@@ -43,50 +43,54 @@ export function AppLayout({ children }: AppLayoutProps) {
         
         <SubMenuManager />
         
-        <main className={cn(
-          'flex-1 overflow-hidden flex flex-col relative',
-          viewConfig === 'chat-only' && 'max-w-4xl mx-auto w-full'
-        )}>
-          {viewConfig !== 'chat-only' && (
-            <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-transparent to-purple-500/[0.03] dark:to-purple-400/[0.04]" />
+        <div className="flex-1 flex overflow-hidden relative">
+          {canToggleRightPane && rightPaneOpen && !isAgentsPage ? (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-end p-1 border-b border-border">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setRightPaneOpen(false)}
+                  data-testid="button-close-right-pane"
+                >
+                  <ChevronsRight className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <RightPane />
+              </div>
+            </div>
+          ) : (
+            <>
+              <main className={cn(
+                'flex-1 overflow-hidden flex flex-col relative',
+                viewConfig === 'chat-only' && 'max-w-4xl mx-auto w-full'
+              )}>
+                {viewConfig !== 'chat-only' && (
+                  <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-transparent to-purple-500/[0.03] dark:to-purple-400/[0.04]" />
+                )}
+                <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
+                  {children}
+                </div>
+              </main>
+
+              {canToggleRightPane && !rightPaneOpen && (
+                <div className="flex flex-col items-center justify-start pt-2 pr-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setRightPaneOpen(true)}
+                    title={isAgentsPage ? 'Open configuration' : 'Open chat'}
+                    data-testid="button-open-right-pane"
+                  >
+                    <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-          <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
-            {children}
-          </div>
-        </main>
-
-        {showRightPane && (
-          <aside className="hidden xl:flex w-80 border-l border-border flex-shrink-0">
-            <RightPane />
-          </aside>
-        )}
-
-        {canShowRightPaneToggle && !rightPaneOpen && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden xl:flex fixed right-4 top-1/2 -translate-y-1/2 z-30 h-10 w-10 rounded-full bg-background border border-border shadow-md"
-            onClick={() => setRightPaneOpen(true)}
-            data-testid="button-open-right-pane"
-          >
-            <PanelRightOpen className="h-5 w-5 text-muted-foreground" />
-          </Button>
-        )}
+        </div>
       </div>
-
-      {canShowRightPaneToggle && (
-        <Button
-          variant="default"
-          size="icon"
-          className="xl:hidden fixed right-4 bottom-4 z-40 rounded-full shadow-lg"
-          onClick={() => setMobileChatOpen(true)}
-          data-testid="button-open-mobile-chat"
-        >
-          <MessageCircle className="h-5 w-5" />
-        </Button>
-      )}
-
-      <RightPane mode="sheet" />
     </div>
   );
 }

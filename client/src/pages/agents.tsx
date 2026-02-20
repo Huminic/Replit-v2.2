@@ -25,7 +25,8 @@ import {
   ToggleLeft,
   ToggleRight,
   GripVertical,
-  ArrowLeft
+  ArrowLeft,
+  ChevronsRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -52,16 +53,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor, availableTools, type Agent, type AgentChannel, type AgentTrigger, type AgentTool } from '@/mocks/agents';
 import { formatDistanceToNow } from 'date-fns';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 const channelIcons: Record<AgentChannel, React.ElementType> = {
@@ -89,9 +84,7 @@ const configSections = [
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
-  const { agents, updateAgent, selectedAgent, setSelectedAgent } = useApp();
-  const [configPaneOpen, setConfigPaneOpen] = useState(false);
-  const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
+  const { agents, updateAgent, selectedAgent, setSelectedAgent, rightPaneOpen, setRightPaneOpen } = useApp();
   const [activeConfigSection, setActiveConfigSection] = useState('instructions');
   const [agentSearch, setAgentSearch] = useState('');
 
@@ -335,7 +328,7 @@ export default function AgentsPage() {
                   'w-full text-left p-3 rounded-lg transition-colors flex items-center gap-3 hover-elevate',
                   selectedAgent?.id === agent.id ? 'bg-accent' : ''
                 )}
-                onClick={() => { setSelectedAgent(agent); setConfigPaneOpen(true); setMobileConfigOpen(false); }}
+                onClick={() => { setSelectedAgent(agent); }}
                 data-testid={`agent-item-${agent.id}`}
               >
                 <Avatar className="h-9 w-9 flex-shrink-0">
@@ -362,81 +355,14 @@ export default function AgentsPage() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-2 border-b border-border flex items-center gap-2">
-          <div className="lg:hidden flex items-center gap-2 flex-1 min-w-0">
-            <Select
-              value={selectedAgent?.id || ''}
-              onValueChange={(val) => {
-                const agent = agents.find(a => a.id === val);
-                if (agent) {
-                  setSelectedAgent(agent);
-                  setMobileConfigOpen(false);
-                }
-              }}
-            >
-              <SelectTrigger className="w-full max-w-[220px]" data-testid="select-agent-mobile">
-                <SelectValue placeholder="Select an agent..." />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredAgents.map(agent => (
-                  <SelectItem key={agent.id} value={agent.id}>
-                    <span className="flex items-center gap-2">
-                      <span className="truncate">{agent.name}</span>
-                      <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className="capitalize text-[10px]">
-                        {agent.status}
-                      </Badge>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <MobileNavDropdown currentPath="/agents" currentLabel="Agents" />
           <FavoritesBar currentPath="/agents" currentLabel="Agents" />
         </div>
 
         {selectedAgent ? (
           <div className="flex flex-1 overflow-hidden">
-            {mobileConfigOpen && (
-              <div className="flex-1 flex flex-col min-w-0 lg:hidden">
-                <div className="p-3 border-b border-border flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setMobileConfigOpen(false)} data-testid="button-back-from-config">
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back
-                  </Button>
-                  <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
-                </div>
-                <div className="border-b border-border">
-                  <div className="flex flex-wrap gap-1 p-2">
-                    {configSections.map(section => {
-                      const Icon = section.icon;
-                      return (
-                        <button
-                          key={section.id}
-                          className={cn(
-                            'flex items-center gap-1.5 px-3 py-2 text-sm transition-colors hover-elevate rounded-md',
-                            activeConfigSection === section.id
-                              ? 'text-foreground bg-accent font-medium'
-                              : 'text-muted-foreground'
-                          )}
-                          onClick={() => setActiveConfigSection(section.id)}
-                          data-testid={`config-section-mobile-${section.id}`}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {section.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <ScrollArea className="flex-1">
-                  {renderConfigContent()}
-                </ScrollArea>
-              </div>
-            )}
-
-            <div className={cn(
-              'flex-1 flex flex-col min-w-0',
-              mobileConfigOpen ? 'hidden lg:flex' : 'flex'
-            )}>
+            {!rightPaneOpen && (
+            <div className="flex-1 flex flex-col min-w-0">
                 <div className="p-6 border-b border-border">
                   <div className="flex items-start justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-4">
@@ -463,34 +389,6 @@ export default function AgentsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="lg:hidden"
-                        onClick={() => setMobileConfigOpen(true)}
-                        data-testid="button-open-config-mobile"
-                      >
-                        <Settings className="h-4 w-4 mr-1" />
-                        Configure
-                      </Button>
-                      <Button
-                        variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
-                        size="sm"
-                        onClick={() => handleToggleStatus(selectedAgent)}
-                        data-testid="button-toggle-agent-status"
-                      >
-                        {selectedAgent.status === 'active' ? (
-                          <>
-                            <Pause className="h-4 w-4 mr-1" />
-                            Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-1" />
-                            Activate
-                          </>
-                        )}
-                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" data-testid="button-agent-menu">
@@ -554,14 +452,35 @@ export default function AgentsPage() {
                   </div>
                 </ScrollArea>
             </div>
+            )}
 
-            {configPaneOpen && (
-              <div className="w-80 border-l border-border hidden lg:flex flex-col flex-shrink-0 bg-background">
+            {rightPaneOpen && selectedAgent && (
+              <div className="flex-1 flex flex-col min-w-0 border-l border-border bg-background">
                 <div className="p-3 border-b border-border flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
-                  <Button size="icon" variant="ghost" onClick={() => setConfigPaneOpen(false)} data-testid="button-close-config">
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
+                      size="sm"
+                      onClick={() => handleToggleStatus(selectedAgent)}
+                      data-testid="button-toggle-agent-status"
+                    >
+                      {selectedAgent.status === 'active' ? (
+                        <>
+                          <Pause className="h-3.5 w-3.5 mr-1" />
+                          Deactivate
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-3.5 w-3.5 mr-1" />
+                          Activate
+                        </>
+                      )}
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => setRightPaneOpen(false)} data-testid="button-close-config">
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="border-b border-border">
                   <div className="flex flex-col">

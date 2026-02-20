@@ -38,6 +38,7 @@ import {
 import { mockUsers, getRoleLabel, type UserRole } from '@/mocks/users';
 import { availableTools } from '@/mocks/agents';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
 
 /**
@@ -310,6 +311,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="px-4 py-2 w-full max-w-5xl border-b border-border flex items-center">
+        <MobileNavDropdown currentPath="/settings/system" currentLabel="System Settings" />
         <FavoritesBar currentPath="/settings/system" currentLabel="System Settings" />
       </div>
 

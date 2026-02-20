@@ -39,6 +39,7 @@ import {
 } from '@/mocks/tasks';
 import { format, formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
+import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 export default function WorkCenterPage() {
   const { toast } = useToast();
@@ -128,6 +129,7 @@ export default function WorkCenterPage() {
               )}
             </TabsTrigger>
           </TabsList>
+          <MobileNavDropdown currentPath="/work-center" currentLabel="Hub" />
           <FavoritesBar currentPath="/work-center" currentLabel="Hub" />
         </div>
 
