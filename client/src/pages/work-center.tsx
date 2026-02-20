@@ -14,6 +14,7 @@ import {
   Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +41,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 export default function WorkCenterPage() {
+  const { toast } = useToast();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -156,7 +158,7 @@ export default function WorkCenterPage() {
                     </Card>
                   ) : (
                     todayEvents.map(event => (
-                      <Card key={event.id} className="hover-elevate" data-testid={`event-${event.id}`}>
+                      <Card key={event.id} className="hover-elevate cursor-pointer" onClick={() => toast({ title: event.title, description: `${format(new Date(event.startTime), 'h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}${event.description ? '. ' + event.description : ''}` })} data-testid={`event-${event.id}`}>
                         <CardContent className="p-4">
                           <div className="flex items-start gap-4">
                             <div className="text-center">
@@ -278,7 +280,7 @@ export default function WorkCenterPage() {
               {mockInboxMessages.map(message => {
                 const Icon = getMessageIcon(message.type);
                 return (
-                  <Card key={message.id} className={cn("hover-elevate", !message.read && "border-primary/50")} data-testid={`inbox-${message.id}`}>
+                  <Card key={message.id} className={cn("hover-elevate cursor-pointer", !message.read && "border-primary/50")} onClick={() => toast({ title: message.subject, description: `From: ${message.from}. ${message.preview}` })} data-testid={`inbox-${message.id}`}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className={cn(
@@ -350,7 +352,7 @@ export default function WorkCenterPage() {
               <Button variant="outline" className="flex-1" onClick={handleClearDialer} data-testid="dialer-clear">
                 Clear
               </Button>
-              <Button className="flex-1 bg-green-600 hover:bg-green-700" disabled={!dialerNumber} data-testid="dialer-call">
+              <Button className="flex-1 bg-green-600 hover:bg-green-700" disabled={!dialerNumber} onClick={() => { toast({ title: 'Calling...', description: `Dialing ${dialerNumber}${selectedContact ? ` (${selectedContact.name})` : ''}.` }); setDialerOpen(false); }} data-testid="dialer-call">
                 <Phone className="h-4 w-4 mr-2" />
                 Call
               </Button>
@@ -432,7 +434,7 @@ export default function WorkCenterPage() {
               <Button variant="outline" onClick={() => setNewMessageOpen(false)} data-testid="msg-cancel">
                 Cancel
               </Button>
-              <Button data-testid="msg-send">
+              <Button onClick={() => { toast({ title: 'Message sent', description: `Your ${messageType === 'sms' ? 'SMS' : 'email'} has been sent.` }); setNewMessageOpen(false); }} data-testid="msg-send">
                 <Send className="h-4 w-4 mr-1.5" />
                 Send {messageType === 'sms' ? 'SMS' : 'Email'}
               </Button>
@@ -474,7 +476,7 @@ export default function WorkCenterPage() {
               <Button variant="outline" onClick={() => setScheduleOpen(false)} data-testid="schedule-cancel">
                 Cancel
               </Button>
-              <Button onClick={() => setScheduleOpen(false)} data-testid="schedule-confirm">
+              <Button onClick={() => { toast({ title: 'Appointment scheduled', description: `${scheduleLead ? `Meeting with ${scheduleLead}` : 'Appointment'} has been scheduled.` }); setScheduleOpen(false); }} data-testid="schedule-confirm">
                 <CalendarPlus className="h-4 w-4 mr-1.5" />
                 Schedule
               </Button>

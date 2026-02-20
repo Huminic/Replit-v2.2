@@ -46,10 +46,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         <SubMenuManager />
         
         <main className={cn(
-          'flex-1 overflow-hidden flex flex-col',
+          'flex-1 overflow-hidden flex flex-col relative',
           viewConfig === 'chat-only' && 'max-w-4xl mx-auto w-full'
         )}>
-          {children}
+          {viewConfig !== 'chat-only' && (
+            <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-transparent to-purple-500/[0.03] dark:to-purple-400/[0.04]" />
+          )}
+          <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
+            {children}
+          </div>
         </main>
 
         {showRightPane && (
