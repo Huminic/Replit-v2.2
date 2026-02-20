@@ -1,4 +1,5 @@
-import { TrendingUp, TrendingDown, Minus, Target, CheckCircle, AlertTriangle, AlertCircle, PieChart, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, Lightbulb, Filter, LayoutGrid, List, Search, BarChart3, LineChart, PieChart, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { cn } from '@/lib/utils';
@@ -7,29 +8,105 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { 
   mockMetrics, 
-  mockGoals, 
   mockLeadsChart, 
   mockConversionsChart,
   mockAgentPerformance,
-  getGoalStatusColor,
-  getGoalProgress
 } from '@/mocks/insights';
+import { mockHunches } from '@/mocks/tasks';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+/**
+ * @component InsightsPage
+ * @description Analytics dashboard with 4 tabs: Dashboard, Reports, Library, Hunches
+ * @designConstraints
+ *   - Dashboard: Command Center alerts (red/amber/blue), Pipeline funnel, Charts, Scorecard
+ *   - Reports: Card grid with gradient backgrounds and icons
+ *   - Library: Filterable metric grid/list with category badges
+ *   - Hunches: Color-coded cards (green=opportunity, red=threat, blue=insight)
+ * @rbac Visible to all roles
+ * @locked Tab order (Dashboard/Reports/Library/Hunches), Hunch type color coding
+ */
+
+const commandCenterAlerts = [
+  { id: 'alert-1', zone: 'critical', label: 'Pipeline stall detected', detail: '3 deals stuck >14 days in proposal stage', color: 'text-red-500 bg-red-500/10 border-red-500/20' },
+  { id: 'alert-2', zone: 'warning', label: 'Response time degrading', detail: 'Avg response up 0.8s in last 24h', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+  { id: 'alert-3', zone: 'info', label: 'New lead surge', detail: '12 new leads from social campaign', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+];
+
+const pipelineStages = [
+  { stage: 'New', count: 47, value: '$142K', pct: 100 },
+  { stage: 'Contacted', count: 32, value: '$98K', pct: 68 },
+  { stage: 'Qualified', count: 18, value: '$72K', pct: 38 },
+  { stage: 'Proposal', count: 8, value: '$45K', pct: 17 },
+  { stage: 'Won', count: 5, value: '$31K', pct: 11 },
+];
+
+const scorecardItems = [
+  { metric: 'Close Rate', value: '18.5%', target: '20%', status: 'at_risk' as const },
+  { metric: 'Avg Deal Size', value: '$6,200', target: '$5,500', status: 'on_track' as const },
+  { metric: 'Time to Close', value: '12 days', target: '14 days', status: 'on_track' as const },
+  { metric: 'Lead Response', value: '2.3s', target: '2.0s', status: 'at_risk' as const },
+];
+
+const reportCards = [
+  { id: 'r1', title: 'Loss Analysis', description: 'Why deals are lost and patterns to address', icon: PieChart, gradient: 'from-red-500/10 to-orange-500/5' },
+  { id: 'r2', title: 'Channel Intelligence', description: 'Lead source effectiveness and ROI breakdown', icon: BarChart3, gradient: 'from-blue-500/10 to-cyan-500/5' },
+  { id: 'r3', title: 'Trend Forecasts', description: 'Predictive models for next 30/60/90 days', icon: LineChart, gradient: 'from-violet-500/10 to-purple-500/5' },
+  { id: 'r4', title: 'Agent Effectiveness', description: 'AI agent performance and optimization areas', icon: FileText, gradient: 'from-emerald-500/10 to-teal-500/5' },
+];
+
+const libraryMetrics = [
+  { id: 'lib-1', title: 'Total Leads', value: '247', change: '+12%', trend: 'up' as const, category: 'Sales' },
+  { id: 'lib-2', title: 'Conversion Rate', value: '18.5%', change: '+2.3%', trend: 'up' as const, category: 'Sales' },
+  { id: 'lib-3', title: 'Agent Interactions', value: '1,842', change: '-5%', trend: 'down' as const, category: 'Operations' },
+  { id: 'lib-4', title: 'Avg Response Time', value: '2.3s', change: '-0.5s', trend: 'up' as const, category: 'Operations' },
+  { id: 'lib-5', title: 'Customer Satisfaction', value: '4.8', change: '+0.2', trend: 'up' as const, category: 'Customer' },
+  { id: 'lib-6', title: 'Tasks Completed', value: '89', change: '+15%', trend: 'up' as const, category: 'Operations' },
+  { id: 'lib-7', title: 'Revenue Pipeline', value: '$284K', change: '+14%', trend: 'up' as const, category: 'Sales' },
+  { id: 'lib-8', title: 'Active Agents', value: '3', change: '0', trend: 'neutral' as const, category: 'Operations' },
+  { id: 'lib-9', title: 'Email Open Rate', value: '34%', change: '+5%', trend: 'up' as const, category: 'Marketing' },
+  { id: 'lib-10', title: 'Service Appointments', value: '24', change: '+3', trend: 'up' as const, category: 'Service' },
+  { id: 'lib-11', title: 'Inventory Turns', value: '4.2x', change: '+0.3', trend: 'up' as const, category: 'Inventory' },
+  { id: 'lib-12', title: 'Website Visitors', value: '3.2K', change: '+22%', trend: 'up' as const, category: 'Marketing' },
+];
+
+const hunchesData = [
+  { id: 'h1', title: 'Potential high-value lead detected', description: 'Customer viewed 3 luxury vehicles in the past week. Consider follow-up call.', type: 'opportunity' as const, confidence: 85, source: 'Sales Agent' },
+  { id: 'h2', title: 'Service appointment cancelation pattern', description: '3 customers canceled appointments this week. Check for common issues.', type: 'threat' as const, confidence: 72, source: 'Service Reminder' },
+  { id: 'h3', title: 'Inventory optimization opportunity', description: 'SUV sales trending up 15%. Consider adjusting inventory mix.', type: 'insight' as const, confidence: 91, source: 'Analytics Engine' },
+  { id: 'h4', title: 'Cross-sell opportunity in service queue', description: 'Customers with vehicles >5 years old may be interested in trade-in offers.', type: 'opportunity' as const, confidence: 78, source: 'CRM Analysis' },
+  { id: 'h5', title: 'Competitor pricing undercut detected', description: 'Premier Motors dropped sedan prices 8% across the board.', type: 'threat' as const, confidence: 94, source: 'Market Intel' },
+  { id: 'h6', title: 'Seasonal demand shift incoming', description: 'Historical data shows 23% truck demand increase starting next month.', type: 'insight' as const, confidence: 88, source: 'Trend Analysis' },
+];
+
+const hunchTypeConfig = {
+  opportunity: { color: 'text-green-600 dark:text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20', label: 'Opportunity' },
+  threat: { color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Threat' },
+  insight: { color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'Insight' },
+};
+
 export default function InsightsPage() {
+  const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
+  const [libraryFilter, setLibraryFilter] = useState('all');
+  const [librarySearch, setLibrarySearch] = useState('');
+
+  const categories = ['all', ...Array.from(new Set(libraryMetrics.map(m => m.category)))];
+  const filteredLibrary = libraryMetrics.filter(m => {
+    const matchesCategory = libraryFilter === 'all' || m.category === libraryFilter;
+    const matchesSearch = !librarySearch || m.title.toLowerCase().includes(librarySearch.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="p-4 border-b border-border flex items-center justify-between gap-2">
         <div>
           <h1 className="text-lg font-semibold text-foreground">Insights</h1>
-          <p className="text-sm text-muted-foreground">Track your performance and achieve your goals</p>
+          <p className="text-sm text-muted-foreground">Analytics, reports, and AI-generated intelligence</p>
         </div>
-        <Button size="sm" data-testid="button-add-goal">
-          <Plus className="h-4 w-4 mr-1" />
-          New Goal
-        </Button>
       </div>
 
       <Tabs defaultValue="dashboard" className="flex-1 flex flex-col overflow-hidden">
@@ -38,11 +115,14 @@ export default function InsightsPage() {
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-dashboard">
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="goals" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-goals">
-              Goals
-            </TabsTrigger>
             <TabsTrigger value="reports" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-reports">
               Reports
+            </TabsTrigger>
+            <TabsTrigger value="library" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-library">
+              Library
+            </TabsTrigger>
+            <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-hunches">
+              Hunches
             </TabsTrigger>
           </TabsList>
           <FavoritesBar currentPath="/insights" currentLabel="Insights" />
@@ -51,29 +131,42 @@ export default function InsightsPage() {
         <TabsContent value="dashboard" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {mockMetrics.map((metric) => (
-                  <Card key={metric.id} className="hover-elevate" data-testid={`metric-${metric.id}`}>
-                    <CardContent className="p-4">
-                      <p className="text-xs text-muted-foreground font-medium">{metric.title}</p>
-                      <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
-                      <div className="flex items-center gap-1 mt-2">
-                        {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                        {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
-                        {metric.trend === 'neutral' && <Minus className="h-3 w-3 text-muted-foreground" />}
-                        <span className={cn(
-                          'text-xs',
-                          metric.trend === 'up' && 'text-green-500',
-                          metric.trend === 'down' && 'text-red-500',
-                          metric.trend === 'neutral' && 'text-muted-foreground'
-                        )}>
-                          {metric.change > 0 ? '+' : ''}{metric.change}%
-                        </span>
+              <section>
+                <h2 className="text-sm font-semibold text-foreground mb-3">Command Center</h2>
+                <div className="space-y-2">
+                  {commandCenterAlerts.map(alert => (
+                    <div key={alert.id} className={cn('flex items-start gap-3 p-3 rounded-lg border', alert.color)} data-testid={`alert-${alert.id}`}>
+                      {alert.zone === 'critical' && <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />}
+                      {alert.zone === 'warning' && <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />}
+                      {alert.zone === 'info' && <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />}
+                      <div>
+                        <p className="text-sm font-medium">{alert.label}</p>
+                        <p className="text-xs opacity-80 mt-0.5">{alert.detail}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-sm font-semibold text-foreground mb-3">Pipeline Health</h2>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {pipelineStages.map((stage, i) => (
+                        <div key={stage.stage} className="flex items-center gap-4" data-testid={`pipeline-${stage.stage}`}>
+                          <span className="text-sm text-muted-foreground w-20">{stage.stage}</span>
+                          <div className="flex-1">
+                            <Progress value={stage.pct} className="h-2" />
+                          </div>
+                          <span className="text-sm font-medium text-foreground w-8 text-right">{stage.count}</span>
+                          <span className="text-xs text-muted-foreground w-16 text-right">{stage.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card data-testid="chart-leads">
@@ -82,7 +175,7 @@ export default function InsightsPage() {
                     <CardDescription>Daily lead generation trends</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64">
+                    <div className="h-52">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={mockLeadsChart}>
                           <defs>
@@ -94,20 +187,8 @@ export default function InsightsPage() {
                           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                           <XAxis dataKey="label" className="text-xs" />
                           <YAxis className="text-xs" />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: 'hsl(var(--card))', 
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
-                            }}
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="value" 
-                            stroke="hsl(var(--primary))" 
-                            fillOpacity={1}
-                            fill="url(#leadGradient)"
-                          />
+                          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
+                          <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#leadGradient)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -120,19 +201,13 @@ export default function InsightsPage() {
                     <CardDescription>This month's performance</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64">
+                    <div className="h-52">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={mockConversionsChart}>
                           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                           <XAxis dataKey="label" className="text-xs" />
                           <YAxis className="text-xs" />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: 'hsl(var(--card))', 
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
-                            }}
-                          />
+                          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
                           <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -141,59 +216,164 @@ export default function InsightsPage() {
                 </Card>
               </div>
 
-              <Card data-testid="agent-performance">
-                <CardHeader>
-                  <CardTitle className="text-base">Agent Performance</CardTitle>
-                  <CardDescription>Interactions by agent this week</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockAgentPerformance.map((agent, index) => (
-                      <div key={index} className="flex items-center gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-foreground">{agent.date}</span>
-                            <span className="text-sm text-muted-foreground">{agent.value} interactions</span>
-                          </div>
-                          <Progress value={Math.min(100, (agent.value / 250) * 100)} className="h-2" />
+              <section>
+                <h2 className="text-sm font-semibold text-foreground mb-3">Performance Scorecard</h2>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {scorecardItems.map((item, i) => (
+                    <Card key={i} data-testid={`scorecard-${i}`}>
+                      <CardContent className="p-4">
+                        <p className="text-xs text-muted-foreground">{item.metric}</p>
+                        <p className="text-xl font-bold text-foreground mt-1">{item.value}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs text-muted-foreground">Target: {item.target}</span>
+                          <Badge variant="secondary" className={cn('text-[10px]', item.status === 'on_track' ? 'text-green-600' : 'text-amber-600')}>
+                            {item.status === 'on_track' ? 'On Track' : 'At Risk'}
+                          </Badge>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
             </div>
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="goals" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="reports" className="flex-1 m-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-4">
-              {mockGoals.map((goal) => {
-                const progress = getGoalProgress(goal);
-                const statusColor = getGoalStatusColor(goal.status);
-                return (
-                  <Card key={goal.id} className="hover-elevate" data-testid={`goal-${goal.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          {goal.status === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
-                          {goal.status === 'on_track' && <Target className="h-5 w-5 text-blue-500" />}
-                          {goal.status === 'at_risk' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
-                          {goal.status === 'behind' && <AlertCircle className="h-5 w-5 text-red-500" />}
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reportCards.map(report => {
+                  const Icon = report.icon;
+                  return (
+                    <Card key={report.id} className="hover-elevate cursor-pointer group" data-testid={`report-${report.id}`}>
+                      <CardContent className={cn('p-6 bg-gradient-to-br rounded-xl', report.gradient)}>
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-background/80 flex items-center justify-center flex-shrink-0">
+                            <Icon className="h-6 w-6 text-foreground/70" />
+                          </div>
                           <div>
-                            <h3 className="font-medium text-foreground">{goal.title}</h3>
-                            <p className="text-sm text-muted-foreground">{goal.description}</p>
+                            <h3 className="font-semibold text-foreground">{report.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{report.description}</p>
+                            <Button variant="outline" size="sm" className="mt-3" data-testid={`report-view-${report.id}`}>
+                              View Report
+                            </Button>
                           </div>
                         </div>
-                        <Badge className={statusColor}>{goal.status.replace('_', ' ')}</Badge>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="library" className="flex-1 m-0 overflow-hidden">
+          <div className="p-4 border-b border-border flex items-center gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-48 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search metrics..."
+                value={librarySearch}
+                onChange={e => setLibrarySearch(e.target.value)}
+                className="pl-9"
+                data-testid="input-library-search"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              {categories.map(cat => (
+                <Button
+                  key={cat}
+                  variant={libraryFilter === cat ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs capitalize"
+                  onClick={() => setLibraryFilter(cat)}
+                  data-testid={`filter-${cat}`}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1 ml-auto">
+              <Button variant={libraryView === 'grid' ? 'secondary' : 'ghost'} size="icon" onClick={() => setLibraryView('grid')} data-testid="button-library-grid">
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button variant={libraryView === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setLibraryView('list')} data-testid="button-library-list">
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <ScrollArea className="flex-1 h-0">
+            <div className={cn('p-4', libraryView === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-2')}>
+              {filteredLibrary.map(metric => (
+                libraryView === 'grid' ? (
+                  <Card key={metric.id} className="hover-elevate" data-testid={`lib-metric-${metric.id}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
+                        {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
+                        {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
+                        {metric.trend === 'neutral' && <Minus className="h-3 w-3 text-muted-foreground" />}
                       </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-medium">{goal.current} / {goal.target} {goal.unit}</span>
+                      <p className="text-xs text-muted-foreground mt-3">{metric.title}</p>
+                      <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
+                      <p className={cn('text-xs mt-1', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {metric.change}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div key={metric.id} className="flex items-center gap-4 p-3 rounded-lg border border-border hover-elevate" data-testid={`lib-metric-${metric.id}`}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{metric.title}</p>
+                      <Badge variant="secondary" className="text-[10px] mt-1">{metric.category}</Badge>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">{metric.value}</p>
+                    <div className="flex items-center gap-1 w-20 justify-end">
+                      {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
+                      {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
+                      {metric.trend === 'neutral' && <Minus className="h-3 w-3 text-muted-foreground" />}
+                      <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {metric.change}
+                      </span>
+                    </div>
+                  </div>
+                )
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="hunches" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              {hunchesData.map(hunch => {
+                const config = hunchTypeConfig[hunch.type];
+                return (
+                  <Card key={hunch.id} className={cn('border', config.border)} data-testid={`hunch-${hunch.id}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', config.bg)}>
+                          <Lightbulb className={cn('h-5 w-5', config.color)} />
                         </div>
-                        <Progress value={progress} className="h-2" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-medium text-foreground">{hunch.title}</h4>
+                            <Badge variant="secondary" className={cn('text-[10px]', config.color)}>
+                              {config.label}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">{hunch.description}</p>
+                          <div className="flex items-center gap-3 mt-3">
+                            <Badge variant="secondary" className="text-[10px]">{hunch.source}</Badge>
+                            <span className="text-xs text-muted-foreground">Confidence: {hunch.confidence}%</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button size="sm" variant="outline" data-testid={`hunch-dismiss-${hunch.id}`}>Dismiss</Button>
+                          <Button size="sm" data-testid={`hunch-act-${hunch.id}`}>Act</Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -201,16 +381,6 @@ export default function InsightsPage() {
               })}
             </div>
           </ScrollArea>
-        </TabsContent>
-
-        <TabsContent value="reports" className="flex-1 m-0 overflow-hidden">
-          <div className="flex-1 flex flex-col items-center justify-center p-8">
-            <PieChart className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <p className="text-lg font-medium text-foreground">Reports Coming Soon</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Advanced analytics and custom reports are in development
-            </p>
-          </div>
         </TabsContent>
       </Tabs>
     </div>

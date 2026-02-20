@@ -14,11 +14,24 @@ import {
   Share2,
   Trash2,
   Download,
-  Users
+  Users,
+  Mail,
+  MessageCircle,
+  Copy,
+  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,8 +66,25 @@ const fileColors: Record<FileType, string> = {
 export default function DrivePage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareFile, setShareFile] = useState<DriveFile | null>(null);
+  const [shareMethod, setShareMethod] = useState<'email' | 'sms'>('email');
+  const [shareInput, setShareInput] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const displayedFiles = mockFiles.filter(f => f.parentId === currentFolder);
+
+  const handleShare = (file: DriveFile) => {
+    setShareFile(file);
+    setShareModalOpen(true);
+    setShareInput('');
+    setCopied(false);
+  };
+
+  const handleCopyLink = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const renderFileItem = (file: DriveFile) => {
     const Icon = fileIcons[file.type];
@@ -68,33 +98,44 @@ export default function DrivePage() {
           onClick={() => file.type === 'folder' && setCurrentFolder(file.id)}
           data-testid={`file-item-${file.id}`}
         >
-          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem data-testid={`menu-download-${file.id}`}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid={`menu-share-${file.id}`}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid={`menu-star-${file.id}`}>
-                  <Star className="h-4 w-4 mr-2" />
-                  {file.starred ? 'Unstar' : 'Star'}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive" data-testid={`menu-delete-${file.id}`}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="absolute top-3 right-3 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 invisible group-hover:visible"
+              onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+              data-testid={`share-btn-${file.id}`}
+            >
+              <Share2 className="h-3.5 w-3.5" />
+            </Button>
+            <div className="invisible group-hover:visible">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={e => e.stopPropagation()}>
+                    <MoreVertical className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem data-testid={`menu-download-${file.id}`}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare(file)} data-testid={`menu-share-${file.id}`}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid={`menu-star-${file.id}`}>
+                    <Star className="h-4 w-4 mr-2" />
+                    {file.starred ? 'Unstar' : 'Star'}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" data-testid={`menu-delete-${file.id}`}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           
           <div className="flex flex-col items-center">
@@ -136,15 +177,24 @@ export default function DrivePage() {
           <span className="text-xs text-muted-foreground w-16 text-right">
             {file.type === 'folder' ? 'Folder' : formatFileSize(file.size || 0)}
           </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 invisible group-hover:visible"
+            onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+            data-testid={`share-btn-${file.id}`}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+              <Button variant="ghost" size="icon" className="h-8 w-8 invisible group-hover:visible" onClick={e => e.stopPropagation()}>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem><Download className="h-4 w-4 mr-2" />Download</DropdownMenuItem>
-              <DropdownMenuItem><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleShare(file)}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
               <DropdownMenuItem><Star className="h-4 w-4 mr-2" />{file.starred ? 'Unstar' : 'Star'}</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive"><Trash2 className="h-4 w-4 mr-2" />Delete</DropdownMenuItem>
@@ -213,6 +263,53 @@ export default function DrivePage() {
           )}
         </div>
       </ScrollArea>
+
+      <Dialog open={shareModalOpen} onOpenChange={setShareModalOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="share-modal">
+          <DialogHeader>
+            <DialogTitle>Share File</DialogTitle>
+            <DialogDescription>
+              {shareFile ? `Share "${shareFile.name}" via email or SMS` : 'Share this file'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Tabs value={shareMethod} onValueChange={(v) => setShareMethod(v as 'email' | 'sms')}>
+              <TabsList className="w-full">
+                <TabsTrigger value="email" className="flex-1 gap-2" data-testid="share-tab-email">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </TabsTrigger>
+                <TabsTrigger value="sms" className="flex-1 gap-2" data-testid="share-tab-sms">
+                  <MessageCircle className="h-4 w-4" />
+                  SMS
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Input
+              placeholder={shareMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
+              value={shareInput}
+              onChange={e => setShareInput(e.target.value)}
+              data-testid="input-share-recipient"
+            />
+
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+              <div className="flex-1 text-xs text-muted-foreground truncate font-mono">
+                https://nexxus.connect/share/{shareFile?.id || '...'}
+              </div>
+              <Button size="sm" variant="outline" onClick={handleCopyLink} data-testid="button-copy-link">
+                {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                {copied ? 'Copied' : 'Copy'}
+              </Button>
+            </div>
+
+            <Button className="w-full" disabled={!shareInput} data-testid="button-send-share">
+              <Share2 className="h-4 w-4 mr-2" />
+              Send {shareMethod === 'email' ? 'Email' : 'SMS'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -34,6 +34,17 @@ import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
 import { getRoleLabel, canSwitchOrgs, type UserRole } from '@/mocks/users';
 import { formatDistanceToNow } from 'date-fns';
 
+/**
+ * @component TopBar
+ * @description Top navigation bar with logo, search, role switcher, notifications, and activity feed
+ * @designConstraints
+ *   - Logo: Text-only "Nexxus Connect" with trademark symbol, NO icon
+ *   - Role switcher: Shield icon button opening dropdown with 4 roles (temporary dev tool)
+ *   - Activity feed: Dropdown with recent activity items (stays in header, NOT in sidebar)
+ * @rbac Role switcher available to all (dev tool)
+ * @locked Logo format (text-only), role switcher position, activity feed location
+ */
+
 const allRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'org_staff'];
 
 export function TopBar() {
