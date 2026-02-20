@@ -1,0 +1,196 @@
+ Here is the complete widget system explained:                                                                                                                                                                           
+                                                                                                              
+  ---                                                                                                                                                                                                                     
+  Architecture Overview                                                                                                                                                                                                   
+                                                                                                                                                                                                                          
+  The widget has two deployment modes:                                                                                                                                                                                    
+                                                                                                                                                                                                                          
+  1. Embeddable Widget — A floating button + popup panel that dealers embed on their own websites via a <script> tag
+  2. Hosted Landing Pages — Full-page standalone experiences at /w/:slug URLs hosted on Nexxus itself                                                                                                                     
+
+  Both share the same backend APIs and channel infrastructure.
+
+  ---
+  The Embeddable Widget
+
+  How It's Embedded
+
+  Dealers add two script blocks to their website:
+
+  <script>
+    window.nexxusConfig = {
+      orgId: "org-uuid",
+      widgetId: "widget_abc123",
+      position: "bottom-right",
+      primaryColor: "#0070f3",
+      greeting: "Hi there!",
+      message: "How can we help?",
+      phoneNumber: "+1-555-1234"
+    };
+  </script>
+  <script src="https://nexxusv2.huminicdev.com/widget/nexxus-widget.js" async></script>
+
+  The embed code is auto-generated per widget via WidgetConfigService.generateEmbedCode().
+
+  Initialization Flow
+
+  1. Script loads → reads window.nexxusConfig
+  2. Calls POST /api/widgets/validate to check the domain whitelist and fetch the full server-side config
+  3. Creates a Shadow DOM (isolated from the host site's CSS — no style conflicts)
+  4. Injects scoped CSS with the dealer's color theme as CSS variables
+  5. Mounts the Preact Widget component
+
+  Default Closed State
+
+  A floating circle button (60px diameter) in the dealer's primaryColor, positioned bottom-right (or bottom-left). It shows a chevron-down icon and has a pulse animation to attract attention. The label text defaults to
+   "Chat with us."
+
+  When You Click It
+
+  The chevron rotates 90° and a panel slides up (380px wide, max 580px tall) with three zones:
+
+  ┌─────────────────────────────────┐
+  │  Header (dealer's primary color) │
+  │  [Back]     Title      [Close]   │
+  ├─────────────────────────────────┤
+  │  Welcome Screen                  │
+  │                                  │
+  │  "Hi there!"                     │
+  │  "How can we help?"              │
+  │                                  │
+  │  ┌──────────┐  ┌──────────┐     │
+  │  │ Chat Now │  │  Video   │     │
+  │  │          │  │  Agent   │     │
+  │  └──────────┘  └──────────┘     │
+  │  ┌──────────┐  ┌──────────┐     │
+  │  │ Call Us  │  │ Call Me  │     │
+  │  │          │  │  Back    │     │
+  │  └──────────┘  └──────────┘     │
+  │  ┌──────────┐  ┌──────────┐     │
+  │  │  Voice   │  │  Send   │     │
+  │  │  Agent   │  │  Text    │     │
+  │  └──────────┘  └──────────┘     │
+  ├─────────────────────────────────┤
+  │  "Powered by Nexxus"            │
+  └─────────────────────────────────┘
+
+  Only enabled channels appear. The grid dynamically filters to show only channels the dealer has turned on in their config. By default, only textChat is enabled — the other 5 are off until configured.
+
+  ---
+  The 6 Channels
+
+  ┌──────────────┬────────────┬────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────┐
+  │   Channel    │ Config Key │                                  What It Does                                  │                Requirements                 │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Chat Now     │ textChat   │ AI-powered text chat with SSE streaming, tool calling, and channel suggestions │ Enabled by default                          │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Video Agent  │ videoAgent │ Live 2-way video via Tavus AI persona embedded in iframe                       │ Requires personaId from Tavus               │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Call Us      │ callUs     │ Shows dealer phone number with a tel: link                                     │ Requires phoneNumber                        │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Call Me Back │ callYou    │ Form: name, phone, preferred time → queued as callback request                 │ Requires VAPI assistantId for auto-callback │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Voice Agent  │ webAudio   │ Browser-based voice conversation via VAPI Web SDK                              │ Requires VAPI assistantId + publicKey       │
+  ├──────────────┼────────────┼────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────┤
+  │ Send Text    │ sendText   │ Form: name, phone, message → sent as SMS via TextMagic                         │ SMS integration must be configured          │
+  └──────────────┴────────────┴────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────┘
+
+  Chat Flow Detail
+
+  1. Creates visitor session → stored in widget_visitors table
+  2. Loads chat history (returning visitors see previous messages via localStorage nexxus_visitor_id)
+  3. Messages streamed via SSE (POST /api/widgets/public/chat/stream)
+  4. AI can show tool status ("Searching inventory...") during tool execution
+  5. AI can suggest switching channels mid-conversation ("Would you like to schedule a video call?")
+  6. Messages saved to widget_chat_messages table and also fire into the staff messaging inbox
+
+  ---
+  Widget Configuration
+
+  Stored per-organization in the widget_configs table with 4 JSONB columns:
+
+  config_appearance
+
+  - colorTheme: primaryColor, secondaryColor, textColor, backgroundColor
+  - branding: logoUrl, showLogo, organizationName
+  - minimizedState: position (bottom-right/left), animation (pulse), icon, label
+  - welcomeScreen: heading, message, avatarUrl, ctaText
+
+  config_channels
+
+  Each of the 6 channels has enabled: boolean plus channel-specific fields (phoneNumber, personaId, assistantId, displayName).
+
+  config_targeting
+
+  - audience: all, leads, returning
+  - pageRules: include/exclude URL patterns
+  - deviceTargeting: desktop, mobile, tablet toggles
+  - businessHoursOnly: show only during configured hours
+  - behaviorTriggers: delaySeconds, scrollDepthPercent, exitIntent, idleSeconds
+
+  allowed_domains
+
+  Domain whitelist for security. Empty = allow all (for testing). Supports wildcards (*.serrahonda.com).
+
+  ---
+  Hosted Landing Pages
+
+  Full-page experiences at https://nexxusv2.huminicdev.com/w/:slug. No embedding needed.
+
+  4 Page Types
+
+  ┌──────────┬─────────────────────────────────────────────────────────────────────────┐
+  │   Type   │                              What It Shows                              │
+  ├──────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ multi    │ Channel selector — cards for Chat, Video, Callback. Customer picks one. │
+  ├──────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ chat     │ Full-screen text chat (same AI backend as widget chat)                  │
+  ├──────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ video    │ Full-screen Tavus video agent session                                   │
+  ├──────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ callback │ Full-screen callback request form                                       │
+  └──────────┴─────────────────────────────────────────────────────────────────────────┘
+
+  Appearance
+
+  Each hosted page has its own config_appearance (header color, logo, background) with fallback to the linked widget config's appearance, then to defaults.
+
+  Current Deployed Pages
+
+  5 pages deployed (one per dealer), accessible at /w/{slug}. Each is linked to a widget_configs record which controls which channels appear.
+
+  ---
+  Admin Configuration UI
+
+  Org Admins configure widgets at /settings/system → Widget tab:
+  - Create/edit widgets
+  - Toggle channels on/off and set channel-specific IDs (VAPI assistant, Tavus persona, phone number)
+  - Set colors, branding, welcome text
+  - Manage domain whitelist
+  - Copy embed code or tracking pixel code
+  - Create/manage hosted pages with custom slugs
+
+  ---
+  Technical Details
+
+  ┌─────────────────────┬─────────────────────────────────────────────────────┐
+  │       Aspect        │                        Value                        │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Widget bundle       │ Preact + TypeScript, Shadow DOM isolated            │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Widget code format  │ widget_ + 8 random hex chars                        │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Panel size          │ 380px wide, 580px max height (responsive on mobile) │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Chat context        │ Last 40 messages sent to AI                         │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ History limit       │ 100 messages loadable                               │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Rate limiting       │ 100 req/hour per visitor IP                         │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Session persistence │ nexxus_visitor_id in localStorage                   │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ CORS                │ Dynamic — allows the requesting origin              │
+  ├─────────────────────┼─────────────────────────────────────────────────────┤
+  │ Domain limit        │ 50 domains per widget                               │
+  └─────────────────────┴─────────────────────────────────────────────

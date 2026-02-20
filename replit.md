@@ -83,6 +83,7 @@ All data is mocked in `/client/src/mocks/`:
 - `files.ts`: Drive files and folders
 - `tasks.ts`: Work center tasks, calendar events, approvals
 - `insights.ts`: Metrics, goals, charts
+- `widgets.ts`: Widget configs (3 widgets), landing pages (5 pages), channel types, appearance/targeting/domain configs
 
 ### Database Schema (Placeholder)
 The `shared/schema.ts` defines a basic users table with Drizzle ORM for PostgreSQL. This is scaffolding for future backend implementation - the current UI uses mock data exclusively.
