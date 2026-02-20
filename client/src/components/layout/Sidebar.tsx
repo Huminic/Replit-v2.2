@@ -16,6 +16,18 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useApp } from '@/contexts/AppContext';
 import { canAccessSystem } from '@/mocks/users';
 
+/**
+ * @component Sidebar
+ * @description ClickUp-style thin sidebar with icon+label navigation
+ * @designConstraints
+ *   - Fixed 64px width (w-16), icon + label per item
+ *   - Navigation order: Main → Insights → Agents → Hub → Drive (Activity removed)
+ *   - Settings hidden from org_staff role via adminOnly flag
+ *   - Sub-menu panel support via activePanel/subMenuExpanded context
+ * @rbac Settings visibility gated by canAccessSystem(currentRole)
+ * @locked Navigation order, sidebar width, adminOnly gating
+ */
+
 interface MenuItem {
   id: string;
   label: string;
@@ -26,7 +38,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'main', label: 'Main', icon: Home, path: '/', hasPanel: false },
+  { id: 'main', label: 'Main', icon: Home, path: '/', hasPanel: true },
   { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
   { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
   { id: 'work-center', label: 'Hub', icon: Briefcase, path: '/work-center', hasPanel: true },

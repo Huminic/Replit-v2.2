@@ -1,12 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Bot, X, Sparkles } from 'lucide-react';
+import { Send, Plus, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
+
+/**
+ * @component RightPane
+ * @description Automa AI chat panel (inline or sheet mode for mobile)
+ * @designConstraints
+ *   - NO avatars/icons on messages - bot left, user right alignment only
+ *   - Thinking animation: wave-dot CSS class (same as main page)
+ *   - Input: gradient border wrapper (chat-input-gradient class)
+ *   - Suggestions shown when conversation has ≤3 messages
+ * @locked Chat bubble style, wave animation, gradient input border
+ */
 
 interface RightPaneProps {
   className?: string;
@@ -20,8 +30,6 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -69,16 +77,10 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
 
   const chatContent = (
     <div className={cn('flex flex-col h-full bg-background', className)}>
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 flex items-center justify-center">
-            <Bot className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground">Automa</h3>
-            <p className="text-xs text-muted-foreground">AI Assistant</p>
-          </div>
+        <div>
+          <h3 className="font-semibold text-foreground">Automa</h3>
+          <p className="text-xs text-muted-foreground">AI Assistant</p>
         </div>
         {mode === 'sheet' && (
           <Button
@@ -99,21 +101,11 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
             <div
               key={message.id}
               className={cn(
-                'flex gap-3',
-                message.role === 'user' && 'flex-row-reverse'
+                'flex',
+                message.role === 'user' ? 'justify-end' : 'justify-start'
               )}
               data-testid={`chat-message-${message.id}`}
             >
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className={cn(
-                  'text-xs',
-                  message.role === 'assistant' 
-                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' 
-                    : 'bg-primary text-primary-foreground'
-                )}>
-                  {message.role === 'assistant' ? <Bot className="h-4 w-4" /> : userInitials}
-                </AvatarFallback>
-              </Avatar>
               <div
                 className={cn(
                   'density-chat rounded-xl px-4 py-3 max-w-[85%]',
@@ -128,17 +120,12 @@ export function RightPane({ className, mode = 'inline' }: RightPaneProps) {
           ))}
 
           {isTyping && (
-            <div className="flex gap-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+            <div className="flex justify-start">
               <div className="bg-card border border-border rounded-xl px-4 py-3">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="flex items-center gap-1">
+                  <span className="wave-dot" style={{ animationDelay: '0s' }} />
+                  <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
+                  <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
                 </div>
               </div>
             </div>

@@ -15,6 +15,8 @@ import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor, type Agent } from '@/mocks/agents';
 import { mockActivityFeed } from '@/mocks/activity';
 import { mockApprovals } from '@/mocks/tasks';
+import { mockConversations } from '@/mocks/messages';
+import { formatDistanceToNow } from 'date-fns';
 
 export function SubMenuManager() {
   const [location, setLocation] = useLocation();
@@ -27,7 +29,8 @@ export function SubMenuManager() {
     agents,
     currentUser,
     selectedAgent,
-    setSelectedAgent
+    setSelectedAgent,
+    favorites
   } = useApp();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -81,6 +84,7 @@ export function SubMenuManager() {
 
   const getCurrentPanelId = () => {
     if (activePanel) return activePanel;
+    if (location === '/') return 'main';
     if (location.startsWith('/agents')) return 'agents';
     if (location.startsWith('/drive')) return 'drive';
     if (location.startsWith('/insights')) return 'insights';
@@ -100,6 +104,75 @@ export function SubMenuManager() {
 
   const renderPanelContent = () => {
     switch (panelId) {
+      case 'main':
+        return (
+          <>
+            <div className="p-3 border-b border-border">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Star className="h-4 w-4 text-amber-500" />
+                  Favorites
+                </div>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCollapsePanel} data-testid="button-collapse-main-panel">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            {favorites.length > 0 ? (
+              <div className="p-2 flex flex-col gap-0.5">
+                {favorites.map((fav) => (
+                  <button
+                    key={fav.id}
+                    onClick={() => setLocation(fav.path)}
+                    className="w-full text-left p-2 rounded-md transition-colors hover-elevate flex items-center gap-2"
+                    data-testid={`panel-favorite-${fav.id}`}
+                  >
+                    <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+                    <span className="text-xs font-medium text-foreground truncate">{fav.label}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground px-3 py-2">
+                Star pages to access them quickly
+              </p>
+            )}
+            <div className="border-t border-border">
+              <div className="p-3 border-b border-border">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  Message History
+                </div>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="p-2 flex flex-col gap-0.5">
+                  {mockConversations.map((conv) => (
+                    <button
+                      key={conv.id}
+                      onClick={() => {
+                        if (!location.startsWith('/')) setLocation('/');
+                      }}
+                      className="w-full text-left p-2 rounded-md transition-colors hover-elevate"
+                      data-testid={`panel-conversation-${conv.id}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-medium text-foreground truncate">{conv.title}</p>
+                        {conv.unread && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1" />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+                      <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                        {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </>
+        );
+
       case 'agents':
         return (
           <>
@@ -254,8 +327,6 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {[
                     { id: 'calendar', label: 'Calendar', icon: CalendarIcon, badge: 0 },
-                    { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: 0 },
-                    { id: 'hunches', label: 'Hunches', icon: Lightbulb, badge: 0 },
                     { id: 'approvals', label: 'Approvals', icon: ClipboardCheck, badge: pendingApprovals },
                     { id: 'communication', label: 'Communication', icon: MessageSquare, badge: 0 },
                     { id: 'leads', label: 'Open Leads', icon: Users, badge: 0 },

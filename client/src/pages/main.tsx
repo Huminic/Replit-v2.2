@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Star, MessageSquare, Sparkles, ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent } from '@/components/ui/card';
-import { mockChatMessages, mockConversations, agentSuggestions, type ChatMessage } from '@/mocks/messages';
+import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
-import { formatDistanceToNow } from 'date-fns';
-import { useLocation } from 'wouter';
 import type { UserRole } from '@/mocks/users';
+
+/**
+ * @component MainPage
+ * @description Primary chat interface with role-based metric tiles and Automa AI conversation
+ * @designConstraints
+ *   - Metric tiles: 2x2 grid with gradient backgrounds, decorative SVG patterns, icon badges
+ *   - Chat: Bot messages left-aligned, user messages right-aligned, NO avatars/icons
+ *   - Thinking animation: flat rolling wave (.wave-dot CSS class), 3 dots with staggered timing
+ *   - Input: gradient border wrapper (chat-input-gradient class)
+ * @rbac All roles see different metric tiles based on currentRole
+ * @locked Metric tile gradient themes per role, wave animation timing (0s/0.15s/0.3s delays)
+ */
 
 interface MetricTile {
   label: string;
@@ -54,13 +63,10 @@ const tileIcons = [
 ];
 
 export default function MainPage() {
-  const { currentUser, currentRole, favorites, removeFavorite } = useApp();
-  const [, setLocation] = useLocation();
+  const { currentRole } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [activeConversation, setActiveConversation] = useState<string | null>(null);
-  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -107,94 +113,6 @@ export default function MainPage() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {leftPanelOpen && (
-        <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card/50 flex-shrink-0">
-          <div className="p-3 border-b border-border flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Star className="h-4 w-4 text-amber-500" />
-              Favorites
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-muted-foreground"
-              onClick={() => setLeftPanelOpen(false)}
-              data-testid="button-collapse-home-panel"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </div>
-          {favorites.length > 0 ? (
-            <div className="p-2 flex flex-col gap-1">
-              {favorites.map((fav) => (
-                <button
-                  key={fav.id}
-                  onClick={() => setLocation(fav.path)}
-                  className="w-full text-left p-2 rounded-lg transition-colors hover-elevate flex items-center gap-2"
-                  data-testid={`home-favorite-${fav.id}`}
-                >
-                  <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
-                  <span className="text-sm text-foreground truncate">{fav.label}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground px-3 py-2">
-              Star pages to access them quickly
-            </p>
-          )}
-
-          <div className="flex-1 flex flex-col">
-            <div className="p-3 border-b border-border">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                Message History
-              </div>
-            </div>
-            <ScrollArea className="flex-1">
-              <div className="p-2 flex flex-col gap-1">
-                {mockConversations.map((conv) => (
-                  <button
-                    key={conv.id}
-                    onClick={() => setActiveConversation(conv.id)}
-                    className={cn(
-                      'w-full text-left p-3 rounded-lg transition-colors hover-elevate',
-                      activeConversation === conv.id ? 'bg-accent' : 'hover:bg-accent/50'
-                    )}
-                    data-testid={`conversation-${conv.id}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-foreground truncate">{conv.title}</p>
-                      {conv.unread && (
-                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate mt-1">{conv.lastMessage}</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">
-                      {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </aside>
-      )}
-      
-      {!leftPanelOpen && (
-        <div className="hidden md:flex items-start pt-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground"
-            onClick={() => setLeftPanelOpen(true)}
-            data-testid="button-expand-home-panel"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-4 border-b border-border flex-shrink-0">
           <div className="max-w-3xl mx-auto grid grid-cols-2 gap-3">

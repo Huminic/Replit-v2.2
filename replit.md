@@ -8,8 +8,20 @@ The application features:
 - A 3-pane responsive layout (left sidebar, main content, right chat pane)
 - Light and dark mode theming
 - Dual-density design system (compact data tables vs spacious chat interfaces)
-- 8 main pages: Main (chat), Agents, Drive, Insights, Work Center, Activity, System Settings, and Profile
+- RBAC role switcher (Super Admin, Partner Admin, Org Admin, Staff) - temporary dev tool in TopBar
+- 6 main pages: Main (chat), Insights, Agents, Hub, Drive, System Settings (+ Profile)
+- Activity stays as header-only dropdown (not in sidebar)
 - Mobile-first responsive design with hamburger menu for small screens
+
+### V3 Redesign Summary
+- **RBAC**: currentRole state with localStorage persistence, role switcher in TopBar
+- **Main Page**: 2x2 gradient metric tiles (role-specific), no chat avatars, wave-dot animation
+- **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches
+- **Agents**: ClickUp-style 3-pane (list 272px / detail / config pane 320px)
+- **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
+- **Drive**: Share button per file, share modal with Email/SMS tabs
+- **Settings**: Tile-based grid navigation, role-gated sections
+- **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere
 
 ## User Preferences
 
