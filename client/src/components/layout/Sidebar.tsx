@@ -158,7 +158,7 @@ export function Sidebar() {
 
   if (!sidebarVisible) {
     return (
-      <aside className="hidden lg:flex flex-col items-center border-r border-border bg-sidebar w-10 py-2">
+      <aside className="flex flex-col items-center border-r border-border bg-sidebar w-10 py-2">
         <Button
           variant="ghost"
           size="icon"
@@ -174,7 +174,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col border-r border-border bg-sidebar w-16"
+      className="flex flex-col border-r border-border bg-sidebar w-16"
       onMouseLeave={handleMouseLeave}
     >
       {currentPageHasPanel && (
