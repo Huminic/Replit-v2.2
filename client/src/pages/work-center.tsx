@@ -14,7 +14,11 @@ import {
   Send,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Activity,
+  Clock,
+  Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -37,7 +41,9 @@ import {
   mockCalendarEvents, 
   mockLeads,
   mockInboxMessages,
-  getLeadStatusColor
+  getLeadStatusColor,
+  type Lead,
+  type LeadActivity
 } from '@/mocks/tasks';
 import { format, formatDistanceToNow, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, addDays, addWeeks, addMonths, addYears, subDays, subWeeks, subMonths, subYears, isSameDay, isSameMonth, getDay } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -140,6 +146,8 @@ export default function WorkCenterPage() {
   const [messageType, setMessageType] = useState<'sms' | 'email'>('sms');
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleLead, setScheduleLead] = useState<string>('');
+  const [leadDetailOpen, setLeadDetailOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const unreadMessages = mockInboxMessages.filter(m => !m.read).length;
 
@@ -440,7 +448,7 @@ export default function WorkCenterPage() {
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
               {mockLeads.map(lead => (
-                <Card key={lead.id} className="hover-elevate" data-testid={`lead-${lead.id}`}>
+                <Card key={lead.id} className="hover-elevate cursor-pointer" data-testid={`lead-${lead.id}`} onClick={() => { setSelectedLead(lead); setLeadDetailOpen(true); }}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-10 w-10">
@@ -452,6 +460,10 @@ export default function WorkCenterPage() {
                           <Badge className={getLeadStatusColor(lead.status)} variant="secondary">
                             {lead.status}
                           </Badge>
+                          <div className="flex items-center gap-1 ml-auto" data-testid={`lead-score-${lead.id}`}>
+                            <Target className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className={cn("text-xs font-semibold", lead.score >= 75 ? "text-green-600 dark:text-green-400" : lead.score >= 50 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>{lead.score}</span>
+                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           Interested in: {lead.interestedIn}
@@ -465,18 +477,20 @@ export default function WorkCenterPage() {
                         </div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0 flex-wrap">
-                        <Button size="sm" variant="outline" onClick={() => {
+                        <Button size="sm" variant="outline" onClick={(e) => {
+                          e.stopPropagation();
                           setMessageType('sms');
                           setNewMessageOpen(true);
                         }} data-testid={`lead-text-${lead.id}`}>
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Text
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleCall({ name: lead.name, phone: lead.phone })} data-testid={`lead-call-${lead.id}`}>
+                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleCall({ name: lead.name, phone: lead.phone }); }} data-testid={`lead-call-${lead.id}`}>
                           <Phone className="h-4 w-4 mr-1" />
                           Call
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => {
+                        <Button size="sm" variant="outline" onClick={(e) => {
+                          e.stopPropagation();
                           setScheduleLead(lead.name);
                           setScheduleOpen(true);
                         }} data-testid={`lead-schedule-${lead.id}`}>
@@ -723,6 +737,139 @@ export default function WorkCenterPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={leadDetailOpen} onOpenChange={setLeadDetailOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col" data-testid="lead-detail-modal">
+          {selectedLead && (
+            <>
+              <DialogHeader className="flex-shrink-0">
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback className="text-lg">{selectedLead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <DialogTitle className="text-lg">{selectedLead.name}</DialogTitle>
+                    <DialogDescription className="mt-1">
+                      {selectedLead.interestedIn} &middot; {selectedLead.source}
+                    </DialogDescription>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0" data-testid="lead-detail-score">
+                    <div className={cn(
+                      "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold border-2",
+                      selectedLead.score >= 75 ? "border-green-500 dark:border-green-400 text-green-600 dark:text-green-400 bg-green-500/10" :
+                      selectedLead.score >= 50 ? "border-amber-500 dark:border-amber-400 text-amber-600 dark:text-amber-400 bg-amber-500/10" :
+                      "border-muted text-muted-foreground bg-muted/30"
+                    )}>
+                      {selectedLead.score}
+                    </div>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Score</span>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-y border-border flex-shrink-0">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Status</p>
+                  <Badge className={cn(getLeadStatusColor(selectedLead.status), "mt-1")} variant="secondary">{selectedLead.status}</Badge>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Phone</p>
+                  <p className="text-sm text-foreground mt-1">{selectedLead.phone}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Email</p>
+                  <p className="text-sm text-foreground mt-1 truncate">{selectedLead.email}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Created</p>
+                  <p className="text-sm text-foreground mt-1">{format(new Date(selectedLead.createdAt), 'MMM d, yyyy')}</p>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="flex items-center gap-2 py-2 flex-shrink-0">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium text-foreground">Activity Timeline</h3>
+                  <span className="text-xs text-muted-foreground">({selectedLead.activities.length} events)</span>
+                </div>
+                <ScrollArea className="h-[calc(100%-2rem)]">
+                  <div className="relative pl-6 pb-4">
+                    <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
+                    {[...selectedLead.activities].reverse().map((activity, idx) => {
+                      const activityIcon = {
+                        call: Phone,
+                        email: Mail,
+                        sms: MessageCircle,
+                        note: FileText,
+                        status_change: Target,
+                        meeting: CalendarIcon,
+                      }[activity.type];
+                      const ActivityIcon = activityIcon;
+                      const activityColor = {
+                        call: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+                        email: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30',
+                        sms: 'bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/30',
+                        note: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+                        status_change: 'bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30',
+                        meeting: 'bg-pink-500/15 text-pink-600 dark:text-pink-400 border-pink-500/30',
+                      }[activity.type];
+
+                      return (
+                        <div key={activity.id} className="relative mb-4 last:mb-0" data-testid={`activity-${activity.id}`}>
+                          <div className={cn("absolute -left-6 w-[18px] h-[18px] rounded-full border flex items-center justify-center", activityColor)}>
+                            <ActivityIcon className="h-2.5 w-2.5" />
+                          </div>
+                          <div className="ml-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm text-foreground">{activity.description}</p>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Clock className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">{format(new Date(activity.timestamp), 'MMM d, yyyy h:mm a')}</p>
+                            </div>
+                            {activity.details && (
+                              <p className="text-xs text-muted-foreground mt-1 bg-muted/50 rounded p-2 border border-border/50">{activity.details}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-border flex-shrink-0">
+                <Button size="sm" variant="outline" onClick={(e) => {
+                  e.stopPropagation();
+                  setLeadDetailOpen(false);
+                  setMessageType('sms');
+                  setNewMessageOpen(true);
+                }} data-testid="lead-detail-text">
+                  <MessageCircle className="h-4 w-4 mr-1" />
+                  Text
+                </Button>
+                <Button size="sm" variant="outline" onClick={(e) => {
+                  e.stopPropagation();
+                  setLeadDetailOpen(false);
+                  handleCall({ name: selectedLead.name, phone: selectedLead.phone });
+                }} data-testid="lead-detail-call">
+                  <Phone className="h-4 w-4 mr-1" />
+                  Call
+                </Button>
+                <Button size="sm" variant="outline" onClick={(e) => {
+                  e.stopPropagation();
+                  setLeadDetailOpen(false);
+                  setScheduleLead(selectedLead.name);
+                  setScheduleOpen(true);
+                }} data-testid="lead-detail-schedule">
+                  <CalendarPlus className="h-4 w-4 mr-1" />
+                  Schedule
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
