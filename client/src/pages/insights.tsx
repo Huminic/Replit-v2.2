@@ -300,7 +300,7 @@ export default function InsightsPage() {
                   <p className="text-2xl font-bold text-foreground mt-1">{m.value}</p>
                   <div className="flex items-center gap-1.5 mt-2">
                     <TrendIcon trend={m.trend} />
-                    <span className={cn('text-xs', m.trend === 'up' ? 'text-green-500' : m.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                    <span className={cn('text-xs', m.trend === 'up' ? 'text-green-500' : (m.trend as string) === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
                       {m.change}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export default function InsightsPage() {
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4">
           {reportCategory === 'loss' && renderLossReports()}
           {reportCategory === 'channel' && renderChannelReports()}
@@ -745,7 +745,7 @@ export default function InsightsPage() {
                 <div className="p-3 rounded-lg bg-muted/50 border border-border">
                   <p className="text-[11px] text-muted-foreground">Capture Rate</p>
                   <p className="text-lg font-bold text-foreground">{serviceLaneAnalysis.opportunitySizing.captureRate}%</p>
-                  <p className="text-[11px] text-muted-foreground">{serviceLaneAnalysis.opportunitySizing.leads} of {serviceLaneAnalysis.opportunitySizing.monthlyServiceCustomers}</p>
+                  <p className="text-[11px] text-muted-foreground">{Math.round(serviceLaneAnalysis.opportunitySizing.monthlyServiceCustomers * serviceLaneAnalysis.opportunitySizing.captureRate / 100)} of {serviceLaneAnalysis.opportunitySizing.monthlyServiceCustomers}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/50 border border-border">
                   <p className="text-[11px] text-muted-foreground">Monthly Sales</p>
@@ -1144,19 +1144,19 @@ export default function InsightsPage() {
           <FavoritesBar currentPath="/insights" currentLabel="Insights" />
         </div>
 
-        <TabsContent value="dashboard" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="dashboard" className="flex-1 min-h-0 m-0 overflow-hidden">
           {renderDashboard()}
         </TabsContent>
 
-        <TabsContent value="reports" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="reports" className="flex-1 min-h-0 m-0 overflow-hidden">
           {renderReports()}
         </TabsContent>
 
-        <TabsContent value="library" className="flex-1 m-0 overflow-hidden flex flex-col">
+        <TabsContent value="library" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col">
           {renderLibrary()}
         </TabsContent>
 
-        <TabsContent value="hunches" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden">
           {renderHunches()}
         </TabsContent>
       </Tabs>
