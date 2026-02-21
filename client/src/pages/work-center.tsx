@@ -54,6 +54,17 @@ export default function WorkCenterPage() {
       setActiveTab(tab);
     }
   }, [location]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const tab = (e as CustomEvent).detail;
+      if (tab && ['calendar', 'leads', 'inbox'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    };
+    window.addEventListener('hub-tab-change', handler);
+    return () => window.removeEventListener('hub-tab-change', handler);
+  }, []);
   const [dialerOpen, setDialerOpen] = useState(false);
   const [dialerNumber, setDialerNumber] = useState('');
   const [selectedContact, setSelectedContact] = useState<{ name: string; phone: string } | null>(null);

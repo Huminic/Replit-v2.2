@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { 
   Home, 
   Bot, 
@@ -63,6 +63,14 @@ export function Sidebar() {
   } = useApp();
   
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (leaveTimeoutRef.current) {
+        clearTimeout(leaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const isActive = (path: string) => {
     if (path === '/') return location === '/';
