@@ -49,20 +49,20 @@ Every distinct component in the design system, documenting what to build each pi
 | **Variants** | Per-page sub-menus: agents, drive, insights, settings, profile, work-center |
 | **States** | hidden, previewing (hover), pinned (expanded) |
 | **Sizes** | Fixed position, left-16 top-14 z-40 |
-| **Test ID Pattern** | `button-collapse-{page}-panel` |
-| **Notes** | 800ms leave timeout for usability. Renders appropriate sub-menu based on `activePanel`. Home page has its own internal panel (not part of SubMenuManager). |
+| **Test ID Pattern** | `button-collapse-{page}-panel`, `panel-insights-{tab}`, `panel-wc-{tab}`, `panel-conversation-{id}`, `button-conv-menu-{id}`, `menu-resume-{id}`, `menu-delete-{id}` |
+| **Notes** | 800ms leave timeout for usability (with proper cleanup on unmount). Renders appropriate sub-menu based on `activePanel`. Home page has its own internal panel (not part of SubMenuManager). Chat history items have hover-reveal 3-dot menu (Resume/Delete) and keyboard accessibility (`role="button"`, `tabIndex`, `onKeyDown`). Insights and Hub tabs use custom events (`insights-tab-change`, `hub-tab-change`) to switch tabs when already on the page (workaround for wouter not detecting query-only URL changes). Active tab is tracked via local state (`activeInsightsTab`, `activeHubTab`) for proper highlight rendering. |
 
 ---
 
 | Property | Value |
 |----------|-------|
 | **Component Name** | RightPane |
-| **shadcn/ui Base** | Custom (Sheet on mobile) |
-| **Variants** | expanded, collapsed |
+| **shadcn/ui Base** | Custom |
+| **Variants** | desktop-panel (side-by-side), mobile-overlay (full-screen) |
 | **States** | open, closed |
-| **Sizes** | 360px desktop, full-width sheet overlay on mobile |
-| **Test ID Pattern** | `button-open-right-pane`, `button-close-right-pane` |
-| **Notes** | Persistent AI chat interface (Automa). Defaults closed. Mobile uses FAB access. |
+| **Sizes** | Desktop: w-80 (320px) / lg:w-96 (384px) fixed-width panel. Mobile: full-screen overlay (`fixed inset-0 z-50`). |
+| **Test ID Pattern** | `button-open-right-pane`, `button-close-right-pane`, `button-close-right-pane-mobile` |
+| **Notes** | Persistent AI chat interface (Automa). Defaults closed. On desktop (md+), opens as a side panel to the RIGHT of main content — both visible simultaneously. On mobile (<md), opens as full-screen overlay covering all content. Rendered AFTER main content in DOM order to appear on the right side. |
 
 ---
 
@@ -159,8 +159,20 @@ Every distinct component in the design system, documenting what to build each pi
 | **Variants** | bot (left-aligned), user (right-aligned) |
 | **States** | sent, sending (wave-dot animation), error |
 | **Sizes** | density-chat (14px font, spacious padding) |
-| **Test ID Pattern** | - |
-| **Notes** | No avatars per design spec. Bot messages left, user messages right. Wave-dot animation for "typing" state. Max-width 65ch. |
+| **Test ID Pattern** | `main-chat-message-{id}` |
+| **Notes** | No avatars per design spec. Bot messages left, user messages right. Wave-dot animation for "typing" state. Max-width 65ch. Bot messages may contain an optional ThinkingCard (see below). |
+
+---
+
+| Property | Value |
+|----------|-------|
+| **Component Name** | ThinkingCard |
+| **shadcn/ui Base** | Custom |
+| **Variants** | collapsed (summary only), expanded (full reasoning) |
+| **States** | collapsed, expanded |
+| **Sizes** | Full width within message bubble |
+| **Test ID Pattern** | `thinking-card`, `button-toggle-thinking` |
+| **Notes** | Collapsible info card showing AI reasoning process. Brain icon + summary text. Purple left border (`border-l-2 border-purple-400`). ChevronDown/ChevronRight toggle icon. Expanded state reveals detailed reasoning steps as bullet points. Data driven by optional `thinking` field on ChatMessage interface (`ThinkingBlock`). |
 
 ---
 

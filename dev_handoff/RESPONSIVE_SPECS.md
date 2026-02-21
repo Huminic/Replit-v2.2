@@ -14,7 +14,7 @@ Breakpoint behavior, touch targets, and mobile-specific patterns for every layou
 | Sub-menu panel | Overlay or pinned (user toggle) | Overlay or pinned | Hidden, MobileNavDropdown | Hidden, MobileNavDropdown |
 | TopBar | Full width, all controls visible | Full width, all controls | Full width, condensed | Full width, hamburger + logo + profile |
 | Content area | Full width minus sidebar (minus sub-menu if pinned) | Full width minus sidebar | Full width | Full width |
-| Right pane (Automa) | Inline panel if toggled (360px) | Inline panel if toggled | Sheet overlay (full width) | Sheet overlay + FAB access |
+| Right pane (Automa) | Side-by-side panel (w-96, 384px) | Side-by-side panel (w-80, 320px) | Full-screen overlay (fixed inset-0 z-50) | Full-screen overlay (fixed inset-0 z-50) |
 
 ### Main Page
 
@@ -119,7 +119,7 @@ Breakpoint behavior, touch targets, and mobile-specific patterns for every layou
 | Dropdown menus | Bottom sheets (via Radix Sheet, side="bottom") |
 | Modal dialogs (small) | Full-width dialog with larger padding |
 | Modal dialogs (large) | Full-screen or bottom sheet |
-| Side panels (right pane) | Full-screen sheet overlay with FAB trigger |
+| Side panels (right pane) | Full-screen overlay (`fixed inset-0 z-50`) with close button |
 | Horizontal tab bar | Horizontally scrollable tab bar |
 | Multi-column forms | Single column, stacked fields |
 | Data tables | Card stacks with key fields visible |
@@ -155,11 +155,9 @@ When tables transform to cards on mobile, show these fields:
 - Close: X button or tap outside
 - Z-index: z-50 (above all content)
 
-### Mobile Right Pane (Automa Chat)
-- Trigger: Floating Action Button (FAB) in bottom-right corner
-- Opens as full-screen sheet overlay
-- Close: X button or swipe down
-- FAB hidden when pane is open
+### Right Pane (Automa Chat)
+- **Desktop (md+):** Opens as a fixed-width side panel (w-80 / lg:w-96) to the RIGHT of main content. Both main content and pane are visible simultaneously. Uses `border-l border-border` separator. Close via ChevronsRight button (`button-close-right-pane`).
+- **Mobile (<md):** Opens as full-screen overlay (`fixed inset-0 z-50 bg-background`). Covers entire viewport. Close via ChevronsRight button (`button-close-right-pane-mobile`).
 
 ### Mobile Bottom Sheet Specs
 - Max height: 85vh

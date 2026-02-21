@@ -43,7 +43,7 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 
 ### Scenario: Send Chat Message on Main Page
 **Precondition**: On home page
-1. Verify `input-chat-message` is visible
+1. Verify `input-chat-message` is visible with placeholder "Ask me anything about your business"
 2. Click `input-chat-message`
 3. Type "What are today's top leads?"
 4. Click `button-main-send`
@@ -51,16 +51,50 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 6. Verify wave-dot typing animation appears
 7. Verify bot response appears left-aligned
 
-### Scenario: Right Pane AI Chat (Automa)
-**Precondition**: On any page with right pane access
+### Scenario: Thinking Card Expand/Collapse
+**Precondition**: On home page, first bot message visible
+1. Verify `thinking-card` is visible within the first bot message
+2. Verify thinking card shows summary text containing "Analyzed your dealership profile"
+3. Click `button-toggle-thinking`
+4. Verify expanded details are visible (text like "247 active leads", "Close rate up 2.3%")
+5. Click `button-toggle-thinking` again
+6. Verify expanded details are hidden (collapsed state)
+
+### Scenario: Chat History Hover Menu
+**Precondition**: On home page with sub-menu pinned, Message History section visible
+1. Hover over a conversation item in Message History (e.g., `panel-conversation-{id}`)
+2. Verify 3-dot menu icon (`button-conv-menu-{id}`) appears on hover
+3. Click `button-conv-menu-{id}`
+4. Verify dropdown menu appears with "Resume" and "Delete" options
+5. Click `menu-resume-{id}`
+6. Verify navigation to home page (or stays on home page)
+
+### Scenario: Chat History Keyboard Navigation
+**Precondition**: On home page with sub-menu pinned
+1. Tab to a conversation item in Message History
+2. Verify focus ring is visible on the item
+3. Press Enter
+4. Verify navigation occurs (same as clicking the item)
+
+### Scenario: Right Pane AI Chat (Automa) — Desktop
+**Precondition**: On any page with right pane access, viewport >= 768px
 1. Click `button-open-right-pane`
-2. Verify right pane is visible with chat interface
-3. Click `input-agent-chat`
-4. Type "Show me recent activity"
-5. Click `button-agent-send`
-6. Verify message appears in chat
-7. Click `button-close-right-pane`
-8. Verify right pane is hidden
+2. Verify right pane is visible with "Automa" header on the RIGHT side of screen
+3. Verify main page content is still visible alongside the right pane (side-by-side layout)
+4. Click `input-agent-chat`
+5. Type "Show me recent activity"
+6. Click `button-agent-send`
+7. Verify message appears in chat
+8. Click `button-close-right-pane`
+9. Verify right pane is hidden and main content fills the width
+
+### Scenario: Right Pane AI Chat (Automa) — Mobile
+**Precondition**: On any page with right pane access, viewport < 768px
+1. Click `button-open-right-pane`
+2. Verify right pane opens as full-screen overlay (covers entire viewport)
+3. Verify main page content is NOT visible behind the overlay
+4. Click `button-close-right-pane-mobile`
+5. Verify right pane is closed and main content is visible again
 
 ---
 
@@ -122,6 +156,31 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 8. Verify metric cards grid is visible
 9. Click `tab-insights-hunches`
 10. Verify hunches content is visible
+
+### Scenario: Insights Sub-Menu Tab Switching
+**Precondition**: On Insights page with sub-menu pinned
+1. Click `button-toggle-submenu` to pin the sub-menu
+2. Verify Insights sub-menu items are visible
+3. Click `panel-insights-reports`
+4. Verify Reports tab content is displayed on the main page
+5. Verify "Reports" sub-menu item has active/highlighted styling (bg-accent)
+6. Click `panel-insights-library`
+7. Verify Library tab content is displayed
+8. Verify "Library" item is highlighted, "Reports" is not
+9. Click `panel-insights-dashboard`
+10. Verify Dashboard tab content is displayed again
+
+### Scenario: Hub Sub-Menu Tab Switching
+**Precondition**: On Hub (Work Center) page with sub-menu pinned
+1. Navigate to `/work-center`
+2. Verify Calendar tab content is visible
+3. Click `panel-wc-leads` in sub-menu
+4. Verify Leads tab content is displayed
+5. Verify "Leads" sub-menu item has active/highlighted styling
+6. Click `panel-wc-inbox` in sub-menu
+7. Verify Inbox tab content is displayed
+8. Click `panel-wc-calendar` in sub-menu
+9. Verify Calendar tab content is displayed again
 
 ### Scenario: Search and Filter Metrics Library
 **Precondition**: On Insights page, Library tab active
@@ -217,6 +276,16 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 6. Click `button-send-share`
 7. Verify toast "Shared successfully" appears
 8. Verify modal closes
+
+### Scenario: Copy Share Link
+**Precondition**: On Drive page, share modal open
+1. Click share button on a file
+2. Verify share modal opens
+3. Click `button-copy-link`
+4. Verify toast "Link copied" appears (clipboard copy via `navigator.clipboard.writeText`)
+5. Verify button text changes to "Copied" with check icon
+6. Wait 2 seconds
+7. Verify button text reverts to "Copy"
 
 ### Scenario: Share via SMS
 **Precondition**: Share modal open
@@ -410,12 +479,19 @@ Mark these regions for Playwright screenshot capture:
 [snapshot-region: sidebar-navigation]
 [snapshot-region: topbar-full]
 [snapshot-region: main-page-metric-tiles]
+[snapshot-region: main-page-thinking-card]
+[snapshot-region: chat-history-hover-menu]
 [snapshot-region: insights-dashboard-charts]
+[snapshot-region: insights-submenu-active-tab]
 [snapshot-region: agents-list-panel]
 [snapshot-region: drive-file-list]
+[snapshot-region: drive-copy-link-toast]
 [snapshot-region: settings-tile-grid]
 [snapshot-region: widget-preview-modal]
 [snapshot-region: landing-page-channels]
 [snapshot-region: toast-notification]
 [snapshot-region: chat-input-gradient]
+[snapshot-region: right-pane-desktop-side-by-side]
+[snapshot-region: right-pane-mobile-overlay]
+[snapshot-region: hub-submenu-active-tab]
 ```

@@ -82,9 +82,13 @@ ARIA requirements, focus management, keyboard shortcuts, and contrast requiremen
 | **Toast appear** | Focus is NOT stolen — `aria-live` announces instead |
 | **Sub-menu hover** | No focus change on hover (mouse-only interaction) |
 | **Sub-menu pin** | No focus change; content shifts but focus stays |
+| **Chat history item** | Items have `role="button"`, `tabIndex={0}`, and `onKeyDown` handler supporting Enter and Space keys to navigate |
+| **Chat history 3-dot menu** | DropdownMenu trigger is a focusable Button; keyboard-accessible via Radix primitives |
+| **Thinking card toggle** | Focusable button with `data-testid="button-toggle-thinking"`; toggles expanded/collapsed state |
 | **Command palette open** | Focus moves to search input inside palette |
 | **Command palette close** | Focus returns to previous element |
-| **Right pane open** | Focus moves to chat input inside pane |
+| **Right pane open (desktop)** | Focus moves to chat input inside pane. Main content remains visible and interactive. |
+| **Right pane open (mobile)** | Focus moves to chat input inside full-screen overlay. Focus trapped within overlay. |
 | **Right pane close** | Focus returns to toggle button |
 
 ### Focus Ring Styling

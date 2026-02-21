@@ -29,7 +29,7 @@ This document defines the binding design rules, component standards, layout cons
 | Sidebar | 64px (w-16) | Collapsible to 40px (w-10) via hide button. Scrolls internally. |
 | Sub-Menu | ~240px overlay | Not in document flow (position: fixed, left-16 top-14 z-40). Hover or pin. |
 | Center Content | `flex-1` | Fills remaining space. Scrolls internally. |
-| Right Pane | ~320-400px | Replaces center content when open (not side-by-side). |
+| Right Pane | w-80 (320px) / lg:w-96 (384px) | Desktop: side-by-side panel to the right of main content (both visible). Mobile (<md): full-screen overlay. |
 
 ### 1.2 View Configurations
 
@@ -88,7 +88,9 @@ Applied as a `pointer-events-none` absolute overlay behind content.
 
 - **Closed state:** `ChevronsLeft` (<<) icon button, positioned at top-right of center area
 - **Open state:** `ChevronsRight` (>>) icon button in a top border bar above the right pane
-- **Effect:** Right pane replaces center content entirely (not a side panel)
+- **Desktop effect (md+):** Right pane opens as a fixed-width side panel (w-80 / lg:w-96) to the RIGHT of main content. Main content remains visible and usable alongside. Separated by `border-l border-border`.
+- **Mobile effect (<md):** Right pane opens as a full-screen overlay (`fixed inset-0 z-50 bg-background`), covering all content. Close via `button-close-right-pane-mobile`.
+- **DOM order:** Main content rendered first, right pane rendered after (ensures right-side placement in flex layout).
 - **Disabled on:** Home page (`chat-only` view config)
 
 ---
