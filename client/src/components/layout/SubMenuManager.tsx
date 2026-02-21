@@ -3,12 +3,19 @@ import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
   Calendar as CalendarIcon, CheckSquare, Lightbulb, Activity, User as UserIcon,
-  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare, Layout
+  Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare, Layout,
+  MoreVertical, Play, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
@@ -146,25 +153,50 @@ export function SubMenuManager() {
               <ScrollArea className="flex-1">
                 <div className="p-2 flex flex-col gap-0.5">
                   {mockConversations.map((conv) => (
-                    <button
+                    <div
                       key={conv.id}
+                      className="group relative w-full text-left p-2 rounded-md transition-colors hover-elevate cursor-pointer"
                       onClick={() => {
                         if (!location.startsWith('/')) setLocation('/');
                       }}
-                      className="w-full text-left p-2 rounded-md transition-colors hover-elevate"
                       data-testid={`panel-conversation-${conv.id}`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-medium text-foreground truncate">{conv.title}</p>
-                        {conv.unread && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1" />
-                        )}
+                        <p className="text-xs font-medium text-foreground truncate flex-1">{conv.title}</p>
+                        <div className="flex items-center gap-1">
+                          {conv.unread && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                                data-testid={`button-conv-menu-${conv.id}`}
+                              >
+                                <MoreVertical className="h-3 w-3 text-muted-foreground" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" side="bottom" className="w-36">
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setLocation('/'); }} data-testid={`menu-resume-${conv.id}`}>
+                                <Play className="h-3.5 w-3.5 mr-2" />
+                                Resume
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive" onClick={(e) => e.stopPropagation()} data-testid={`menu-delete-${conv.id}`}>
+                                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                       <p className="text-[10px] text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
                       <p className="text-[10px] text-muted-foreground/70 mt-0.5">
                         {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
                       </p>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </ScrollArea>
@@ -293,11 +325,22 @@ export function SubMenuManager() {
                     { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
                   ].map((item) => {
                     const Icon = item.icon;
+                    const isInsightsTab = item.path.startsWith('/insights?tab=');
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setLocation(item.path)}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
+                        onClick={() => {
+                          if (isInsightsTab && location.startsWith('/insights')) {
+                            window.history.replaceState(null, '', item.path);
+                            window.dispatchEvent(new CustomEvent('insights-tab-change', { detail: item.id }));
+                          } else {
+                            setLocation(item.path);
+                          }
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate",
+                          isInsightsTab && location.startsWith('/insights') && window.location.search === `?tab=${item.id}` && 'bg-accent text-foreground'
+                        )}
                         data-testid={`panel-insights-${item.id}`}
                       >
                         <Icon className="h-4 w-4" />

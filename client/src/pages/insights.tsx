@@ -211,6 +211,17 @@ export default function InsightsPage() {
     }
   }, [location]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const tab = (e as CustomEvent).detail;
+      if (tab && ['dashboard', 'reports', 'library', 'hunches'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    };
+    window.addEventListener('insights-tab-change', handler);
+    return () => window.removeEventListener('insights-tab-change', handler);
+  }, []);
+
   const categories = ['all', ...Array.from(new Set(libraryMetrics.map(m => m.category)))];
   const filteredLibrary = libraryMetrics.filter(m => {
     const matchesCategory = libraryFilter === 'all' || m.category === libraryFilter;
