@@ -1042,15 +1042,19 @@ export default function InsightsPage() {
             libraryView === 'grid' ? (
               <Card key={metric.id} className="hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`lib-metric-${metric.id}`}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
-                    <TrendIcon trend={metric.trend} />
-                  </div>
+                  <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
                   <p className="text-xs text-muted-foreground mt-3">{metric.title}</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
-                  <p className={cn('text-xs mt-1', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                    {metric.change}
-                  </p>
+                  <div className="flex items-center justify-between mt-1">
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">{metric.value}</p>
+                      <p className={cn('text-xs mt-1', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {metric.change}
+                      </p>
+                    </div>
+                    {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
+                    {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
+                    {metric.trend === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
+                  </div>
                 </CardContent>
               </Card>
             ) : (
@@ -1059,12 +1063,16 @@ export default function InsightsPage() {
                   <p className="text-sm font-medium text-foreground">{metric.title}</p>
                   <Badge variant="secondary" className="text-[10px] mt-1">{metric.category}</Badge>
                 </div>
-                <p className="text-lg font-bold text-foreground">{metric.value}</p>
-                <div className="flex items-center gap-1 w-20 justify-end">
-                  <TrendIcon trend={metric.trend} />
-                  <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                    {metric.change}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-foreground">{metric.value}</p>
+                    <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                      {metric.change}
+                    </span>
+                  </div>
+                  {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
+                  {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
+                  {metric.trend === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
                 </div>
               </div>
             )
