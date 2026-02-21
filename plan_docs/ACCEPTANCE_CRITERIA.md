@@ -34,7 +34,7 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | Element | Description | Expected Behavior |
 |---|---|---|
 | **Width** | Fixed 64px (w-16). | Never resizes. Shows icon + small label per item. |
-| **Toggle Arrows** | Double-chevron button at top of sidebar. Only visible when the current page has a sub-menu. | Clicking toggles the `subMenuExpanded` global state, which pins or unpins the sub-menu panel. When pinned, the button shows as active/rotated. Hidden on the Home page (which has its own internal panel). |
+| **Toggle Arrows** | Double-chevron button at top of sidebar. Visible on all pages that have a sub-menu panel (including Main/Home). | Clicking toggles the `subMenuExpanded` global state, which pins or unpins the sub-menu panel. When pinned, the button shows as active/rotated. |
 | **Navigation Items** | Main, Insights, Agents, Hub, Drive (top section). System Settings (bottom section). | Clicking navigates to the page. Active page item shows a purple left-edge indicator bar and highlighted icon/label. Hovering shows the sub-menu preview panel on a 800ms leave timeout. |
 | **System Settings Visibility** | Gated by role. | Hidden when current role is "Staff" (org_staff). Visible for Super Admin, Partner Admin, and Org Admin. |
 | **Logout Button** | At the very bottom. | Displays as icon + "Logout" label. Click is simulated (no actual logout). |
@@ -96,7 +96,7 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | **Plus (+) Button** | Inside the input area, left side. | Opens a dropdown with "Upload File" and "Add from Drive" options. Both show toast notifications in demo mode. |
 | **Send Button** | Circular button with arrow icon, right side of input. | Disabled when input is empty. Clicking sends the message, clears input, shows typing animation, then delivers a simulated bot response. |
 | **Initial State** | One pre-loaded bot message. | The chat starts with one assistant message welcoming the user. |
-| **Thinking Card** | Collapsible info card embedded within the first bot message. | Shows a Brain icon + "Analyzed your dealership profile" summary text. Purple left border (`border-l-2 border-purple-400`). Click to expand/collapse with ChevronDown/ChevronRight toggle. Expanded state reveals detailed reasoning steps (pipeline data, performance review, priority follow-ups). Uses `data-testid="thinking-card"` and `data-testid="button-toggle-thinking"`. |
+| **Thinking Card** | Collapsible info card embedded within the first bot message. | Shows a Brain icon + "Analyzed your dealership profile" summary text. Subtle purple border and tint (`border border-purple-500/20 bg-purple-500/5`). Click to expand/collapse with ChevronDown/ChevronRight toggle. Expanded state reveals detailed reasoning steps (pipeline data, performance review, priority follow-ups). Uses `data-testid="thinking-card"` and `data-testid="button-toggle-thinking"`. |
 | **Placeholder Text** | Chat input placeholder. | "Ask me anything about your business" |
 
 ### 2.3 Sub-Menu Panel Content (Main)
@@ -185,14 +185,16 @@ Accessible via the Insights sub-menu panel.
 **Route:** `/agents`
 **View Config:** `heavy-chat`
 
-### 4.1 Agent List Panel (Desktop Only)
+### 4.1 Agent List (via SubMenuManager Panel)
+
+The agent list is accessed exclusively through the SubMenuManager hover/pin system (not a built-in page panel). The SubMenuManager agents panel provides the agent list.
 
 | Element | Description | Expected Behavior |
 |---|---|---|
-| **Width** | 272px (w-72), left side. Hidden on mobile (lg:hidden). | Desktop-only panel listing all agents. |
-| **Header** | "Agents" title + Plus button to create new agent. | Plus button navigates to `/agents/create`. |
-| **Search** | Text input with search icon. | Filters agent list by name in real-time. |
-| **Agent Items** | Each shows: Bot avatar (purple-blue gradient), name, status dot (green=active, gray=inactive), status label, chevron arrow. | Clicking selects the agent and loads its detail in the center area. Selected agent has highlighted background. "Automa" agent is filtered out of the list. Hover applies `hover-elevate`. |
+| **Panel Source** | SubMenuManager `agents` case. Same hover/pin behavior as all other pages. | Appears on sidebar hover or global pin. |
+| **Header** | "Agents" title + "New" button to create new agent + ChevronLeft collapse. | "New" button navigates to `/agents/create`. |
+| **Search** | Text input with search icon below header. | Filters agent list by name in real-time. |
+| **Agent Items** | Each shows: Bot avatar (purple-blue gradient, 28px), name, status dot (green=active, gray=inactive), channel label. | Clicking selects the agent and loads its detail in the center area. Selected agent has highlighted background (bg-accent). "Automa" agent is filtered out of the list. Hover applies `hover-elevate`. |
 
 ### 4.2 Agent Detail Header
 
@@ -208,10 +210,10 @@ Accessible via the Insights sub-menu panel.
 
 | Element | Description | Expected Behavior |
 |---|---|---|
-| **Chat Messages** | Bot messages left-aligned, user messages right-aligned. NO avatars. | Same styling standards as Main page chat. Messages have rounded bubbles, max width 80%. |
-| **Typing Animation** | Wave-dot animation (3 dots). | Appears when agent is "processing." ~1.8 second simulated delay before response. |
-| **Suggestion Bubbles** | 4 pill buttons: "Show today's lead activity", "Draft a follow-up email", "Summarize pipeline status", "Schedule callbacks for hot leads." | Clicking populates the input and focuses it. Sparkle icon + "Try asking..." label above. |
-| **Chat Input** | Textarea with glowing gradient border. Placeholder text dynamically says "Ask [Agent Name] anything..." | Same gradient glow as Main page. Enter sends, Shift+Enter newlines. |
+| **Chat Messages** | Bot messages left-aligned, user messages right-aligned. NO avatars. | Same styling standards as Main page chat. Bot bubbles use `bg-card border border-border`. User bubbles use `bg-primary text-primary-foreground`. Messages have rounded bubbles, max width 80%. |
+| **Typing Animation** | Wave-dot animation (3 dots, `wave-dot` CSS class). | Appears when agent is "processing." ~1.8 second simulated delay before response. Same wave-dot class as Main page (staggered delays 0s, 0.15s, 0.3s). |
+| **Suggestion Bubbles** | 4 pill buttons: "Show today's lead activity", "Draft a follow-up email", "Summarize pipeline status", "Schedule callbacks for hot leads." | Clicking populates the input and focuses it. Sparkle icon prefix per button. |
+| **Chat Input** | Textarea with glowing gradient border (`chat-input-gradient` wrapper). Placeholder: "Ask me anything about your business" (static). | Same gradient glow as Main page. Enter sends, Shift+Enter newlines. Rounded send button (h-9 w-9 rounded-full). |
 | **Send Button** | Circular send icon button. | Disabled when empty. Sends message, shows typing, delivers simulated response. |
 | **Initial State** | One pre-loaded assistant message specific to the agent. | "I'm ready to help manage your sales pipeline..." |
 

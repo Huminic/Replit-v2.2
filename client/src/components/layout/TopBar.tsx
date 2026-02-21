@@ -11,7 +11,8 @@ import {
   CreditCard,
   LogOut,
   Building2,
-  Check
+  Check,
+  ArrowDownRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -46,6 +47,7 @@ export function TopBar() {
   const { 
     currentUser,
     currentRole,
+    setCurrentRole,
     currentOrganization, 
     organizations, 
     notifications, 
@@ -240,6 +242,33 @@ export function TopBar() {
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8" data-testid="button-role-switcher">
+              <ArrowDownRight className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52" data-testid="dropdown-role-switcher">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {([
+              { value: 'super_admin' as const, label: 'Super Admin' },
+              { value: 'partner_admin' as const, label: 'Partner Admin' },
+              { value: 'org_admin' as const, label: 'Org Admin' },
+              { value: 'org_staff' as const, label: 'Staff' },
+            ]).map((role) => (
+              <DropdownMenuItem
+                key={role.value}
+                onClick={() => setCurrentRole(role.value)}
+                className="flex items-center justify-between"
+                data-testid={`role-option-${role.value}`}
+              >
+                <span>{role.label}</span>
+                {currentRole === role.value && <Check className="h-4 w-4 text-primary" />}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

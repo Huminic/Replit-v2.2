@@ -40,6 +40,7 @@ export function SubMenuManager() {
   } = useApp();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [agentSearch, setAgentSearch] = useState('');
   const [activeInsightsTab, setActiveInsightsTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('tab') || 'dashboard';
@@ -108,7 +109,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 1500);
+      }, 800);
     }
   };
 
@@ -236,7 +237,11 @@ export function SubMenuManager() {
           </>
         );
 
-      case 'agents':
+      case 'agents': {
+        const filteredAgents = agents.filter(a => a.name.toLowerCase() !== 'automa');
+        const searchedAgents = agentSearch.trim()
+          ? filteredAgents.filter(a => a.name.toLowerCase().includes(agentSearch.toLowerCase()))
+          : filteredAgents;
         return (
           <>
             <div className="p-3 border-b border-border">
@@ -252,10 +257,20 @@ export function SubMenuManager() {
                   </Button>
                 </div>
               </div>
+              <div className="relative mt-2">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={agentSearch}
+                  onChange={(e) => setAgentSearch(e.target.value)}
+                  placeholder="Search agents..."
+                  className="h-7 pl-7 text-xs"
+                  data-testid="input-agent-search"
+                />
+              </div>
             </div>
             <ScrollArea className="flex-1">
               <div className="p-2 flex flex-col gap-0.5">
-                {agents.map((agent) => (
+                {searchedAgents.map((agent) => (
                   <button
                     key={agent.id}
                     onClick={() => {
@@ -288,6 +303,7 @@ export function SubMenuManager() {
             </ScrollArea>
           </>
         );
+      }
 
       case 'drive':
         return (

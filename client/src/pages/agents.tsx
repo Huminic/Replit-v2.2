@@ -152,9 +152,9 @@ export default function AgentsPage() {
                 <div
                   key={msg.id}
                   className={cn(
-                    'max-w-[85%] rounded-2xl px-4 py-3',
+                    'max-w-[80%] rounded-2xl px-4 py-3',
                     msg.role === 'assistant'
-                      ? 'self-start bg-muted text-foreground'
+                      ? 'self-start bg-card border border-border text-foreground'
                       : 'self-end bg-primary text-primary-foreground'
                   )}
                   data-testid={`agent-message-${msg.id}`}
@@ -163,11 +163,11 @@ export default function AgentsPage() {
                 </div>
               ))}
               {agentTyping && (
-                <div className="self-start bg-muted rounded-2xl px-4 py-3">
-                  <div className="flex gap-1.5 items-center h-5">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:-0.3s]" />
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:-0.15s]" />
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" />
+                <div className="self-start bg-card border border-border rounded-2xl px-4 py-3">
+                  <div className="flex gap-1 items-center h-5">
+                    <span className="wave-dot" />
+                    <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
+                    <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
                   </div>
                 </div>
               )}
@@ -189,25 +189,28 @@ export default function AgentsPage() {
                   </button>
                 ))}
               </div>
-              <div className="flex items-end gap-2">
-                <Textarea
-                  ref={agentInputRef}
-                  value={agentInput}
-                  onChange={e => setAgentInput(e.target.value)}
-                  onKeyDown={handleAgentKeyDown}
-                  placeholder="Ask me anything about your business"
-                  className="resize-none min-h-[44px] max-h-[120px] text-sm"
-                  rows={1}
-                  data-testid="input-agent-chat"
-                />
-                <Button
-                  size="icon"
-                  onClick={handleAgentSend}
-                  disabled={!agentInput.trim()}
-                  data-testid="button-agent-send"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+              <div className="chat-input-gradient rounded-2xl p-[3px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                <div className="bg-background rounded-[14px] flex items-end gap-2 p-3">
+                  <Textarea
+                    ref={agentInputRef}
+                    value={agentInput}
+                    onChange={e => setAgentInput(e.target.value)}
+                    onKeyDown={handleAgentKeyDown}
+                    placeholder="Ask me anything about your business"
+                    className="resize-none min-h-[44px] max-h-[120px] text-sm border-0 shadow-none focus-visible:ring-0 p-0"
+                    rows={1}
+                    data-testid="input-agent-chat"
+                  />
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0 rounded-full"
+                    onClick={handleAgentSend}
+                    disabled={!agentInput.trim()}
+                    data-testid="button-agent-send"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
