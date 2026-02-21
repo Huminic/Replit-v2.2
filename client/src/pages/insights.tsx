@@ -483,7 +483,7 @@ export default function InsightsPage() {
               <CardDescription>December 2025 | 128 Losses | 95 Bad Leads</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-56">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={lossReasonBreakdown} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -1083,7 +1083,7 @@ export default function InsightsPage() {
   );
 
   const renderHunches = () => (
-    <ScrollArea className="h-full">
+    <ScrollArea className="flex-1">
       <div className="p-4 space-y-3">
         {hunchesData.map(hunch => {
           const config = hunchTypeConfig[hunch.type];
@@ -1164,7 +1164,7 @@ export default function InsightsPage() {
           {renderLibrary()}
         </TabsContent>
 
-        <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden">
+        <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col">
           {renderHunches()}
         </TabsContent>
       </Tabs>
