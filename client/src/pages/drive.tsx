@@ -85,8 +85,14 @@ export default function DrivePage() {
   };
 
   const handleCopyLink = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const link = shareFile ? `https://nexxusv2.app/drive/shared/${shareFile.id}` : '';
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      toast({ title: 'Link copied', description: 'Share link copied to clipboard.' });
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      toast({ title: 'Copy failed', description: 'Unable to copy link. Please try again.', variant: 'destructive' });
+    });
   };
 
   const renderFileItem = (file: DriveFile) => {

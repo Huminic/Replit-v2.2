@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
@@ -40,6 +40,22 @@ export function SubMenuManager() {
   } = useApp();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [activeInsightsTab, setActiveInsightsTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'dashboard';
+  });
+  const [activeHubTab, setActiveHubTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'calendar';
+  });
+
+  // Sync active tabs from URL on location change
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (location.startsWith('/insights') && tab) setActiveInsightsTab(tab);
+    if (location.startsWith('/work-center') && tab) setActiveHubTab(tab);
+  }, [location]);
   
   // Responsive: collapse sub-menu when window is resized smaller
   useEffect(() => {
@@ -53,6 +69,14 @@ export function SubMenuManager() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [subMenuExpanded, setSubMenuExpanded, setActivePanel]);
+
+  useEffect(() => {
+    return () => {
+      if (panelLeaveTimeoutRef.current) {
+        clearTimeout(panelLeaveTimeoutRef.current);
+      }
+    };
+  }, []);
   
   const isVisible = activePanel !== null || subMenuExpanded;
 
@@ -155,9 +179,17 @@ export function SubMenuManager() {
                   {mockConversations.map((conv) => (
                     <div
                       key={conv.id}
+                      role="button"
+                      tabIndex={0}
                       className="group relative w-full text-left p-2 rounded-md transition-colors hover-elevate cursor-pointer"
                       onClick={() => {
                         if (!location.startsWith('/')) setLocation('/');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          if (!location.startsWith('/')) setLocation('/');
+                        }
                       }}
                       data-testid={`panel-conversation-${conv.id}`}
                     >
@@ -333,13 +365,14 @@ export function SubMenuManager() {
                           if (isInsightsTab && location.startsWith('/insights')) {
                             window.history.replaceState(null, '', item.path);
                             window.dispatchEvent(new CustomEvent('insights-tab-change', { detail: item.id }));
+                            setActiveInsightsTab(item.id);
                           } else {
                             setLocation(item.path);
                           }
                         }}
                         className={cn(
                           "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate",
-                          isInsightsTab && location.startsWith('/insights') && window.location.search === `?tab=${item.id}` && 'bg-accent text-foreground'
+                          isInsightsTab && location.startsWith('/insights') && activeInsightsTab === item.id && 'bg-accent text-foreground'
                         )}
                         data-testid={`panel-insights-${item.id}`}
                       >
@@ -374,11 +407,23 @@ export function SubMenuManager() {
                     { id: 'inbox', label: 'Inbox', icon: MessageSquare, path: '/work-center?tab=inbox' },
                   ].map((item) => {
                     const Icon = item.icon;
+                    const isHubTab = item.path.startsWith('/work-center?tab=');
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setLocation(item.path)}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate"
+                        onClick={() => {
+                          if (isHubTab && location.startsWith('/work-center')) {
+                            window.history.replaceState(null, '', item.path);
+                            window.dispatchEvent(new CustomEvent('hub-tab-change', { detail: item.id }));
+                            setActiveHubTab(item.id);
+                          } else {
+                            setLocation(item.path);
+                          }
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover-elevate",
+                          isHubTab && location.startsWith('/work-center') && activeHubTab === item.id && 'bg-accent text-foreground'
+                        )}
                         data-testid={`panel-wc-${item.id}`}
                       >
                         <Icon className="h-4 w-4" />
