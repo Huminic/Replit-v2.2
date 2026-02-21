@@ -64,6 +64,10 @@ export default function ActivityPage() {
         <MobileNavDropdown currentPath="/activity" currentLabel="Activity" />
       </div>
 
+      <div className="px-4 py-2 border-b border-border hidden lg:flex items-center">
+        <FavoritesBar currentPath="/activity" currentLabel="Activity" />
+      </div>
+
       <div className="flex items-center gap-4 p-4 border-b border-border">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -99,10 +103,6 @@ export default function ActivityPage() {
             })}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-
-      <div className="px-4 py-2 border-b border-border hidden lg:flex items-center">
-        <FavoritesBar currentPath="/activity" currentLabel="Activity" />
       </div>
 
       <ScrollArea className="flex-1">
