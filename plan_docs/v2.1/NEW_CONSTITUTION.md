@@ -293,12 +293,22 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 - Feature branches for development, master for deployment
 - Three proofs required per feature (Section 3.4)
 - All metric formulas must have automated verification tests
+- **3 deltas of proof (config, functional, integration) with screenshots per sprint**, then full E2E
+- **Safe testing only:** SMS tests loop back to system (TextMagic), outbound emails to `neoweaver@gmail.com` only
+- Test agent **"Elliot"** (VAPI) is the designated test agent for voice workflows
 
 ### 8.3 Code Organization
 - Shared types in `shared/schema.ts` (Drizzle ORM + Zod schemas)
 - Mock data preserved in `client/src/mocks/` as reference during migration
 - API routes in `server/routes.ts` using storage interface
 - Context providers for global state (theme, app state)
+
+### 8.4 Live Environment Constraints
+- **Tavus and VAPI webhooks are live** — they must never be disrupted during development
+- **Existing users must be preserved** — no destructive migrations on user data
+- **Uploaded data store** is separate from third-party synced data — the context router must reference both
+- **Diff the plan against the codebase** before starting any sprint to resolve conflicts
+- The current working **UI is the immutable source of truth** — backend serves the UI, never the reverse
 
 ---
 
@@ -308,3 +318,4 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 |------|---------|---------|
 | 2026-02-18 | 1.0 | Original Constitution |
 | 2026-02-21 | 2.1 | Added UI source of truth principle, metric formulas (Org Admin + Staff), expanded RBAC spec, naming conventions, integration rules, cross-document references. Supersedes v1.0. |
+| 2026-02-21 | 2.1.1 | Added §8.4 Live Environment Constraints (webhook safety, user preservation, uploaded data store, codebase diff). Extended testing rules with safe testing protocols, Elliot test agent, 3-delta evidence requirements. |

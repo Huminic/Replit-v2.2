@@ -618,8 +618,47 @@ Every UI behavior documented in ACCEPTANCE_CRITERIA.md (Part I) maps to a functi
 
 ---
 
+---
+
+## 8. Live Environment & Data Safety
+
+### 8.1 Live Integrations
+
+The following integrations are **actively serving real users** and must remain operational during all development:
+
+| Service | Type | Safety Rule |
+|---------|------|-------------|
+| **Tavus** | Video AI, live webhooks | Never disrupt webhook endpoints. Atomic swap only. |
+| **VAPI** | Voice AI, live webhooks | Never modify agent configs without approval. Test agent "Elliot" available. |
+| **TextMagic** | SMS | Test by sending back to self only. Never SMS real customers during testing. |
+
+### 8.2 Testing Contacts
+
+| Channel | Test Destination |
+|---------|-----------------|
+| Outbound Email | `neoweaver@gmail.com` |
+| Outbound SMS | Loop back to system (TextMagic self-send) |
+| Voice Calls | Use test agent "Elliot" to call existing agents |
+
+### 8.3 Data Separation
+
+The system maintains two distinct data stores:
+1. **Synced Data** — Data pulled from third-party integrations (VIN Solutions, TextMagic, Tavus, VAPI). Managed by sync services, overwritten on refresh.
+2. **Uploaded Data** — Data uploaded directly by users (files, custom data, manual entries). Managed by user CRUD endpoints. **Never overwritten by sync operations.**
+
+The **context router** must be able to reference both stores when providing AI responses, building reports, and generating hunches.
+
+### 8.4 User Data Preservation
+
+- Existing users in the system must be preserved through all migrations
+- Use additive schema migrations only (add columns/tables, never drop without backup)
+- Verify user data integrity after every migration step
+
+---
+
 ## Document Change Log
 
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial comprehensive SRS with 63 API endpoints, 17 database tables, 91 library metrics, 6 report specs, hunch engine spec, complete non-functional requirements. |
+| 2026-02-21 | 2.1.1 | Added §8 Live Environment & Data Safety: live integration rules (Tavus/VAPI/TextMagic), testing contacts, data separation (synced vs uploaded), user data preservation requirements. |
