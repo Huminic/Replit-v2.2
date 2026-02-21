@@ -99,7 +99,7 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | MAIN-01 | 4 metric tiles with role-specific content per Constitution §5 formulas | P0 |
-| MAIN-02 | Tile click opens modal with metric breakdown (real data from API) | P0 |
+| MAIN-02 | Tile click opens modal with metric breakdown (real data from API), including Key Insights | P0 |
 | MAIN-03 | AI chat interface with Automa (SSE streaming responses) | P0 |
 | MAIN-04 | Chat history persisted per user in database | P1 |
 | MAIN-05 | Thinking Card with collapsible AI reasoning steps | P0 |
@@ -107,6 +107,8 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 | MAIN-07 | File upload via Plus button (stored in Drive) | P2 |
 | MAIN-08 | Wave-dot typing animation during AI response generation | P0 |
 | MAIN-09 | Gradient input border with chat-input-gradient CSS | P0 |
+| MAIN-10 | Window-blind collapse: tiles animate up after first chat message sent, toggle to re-expand | P0 |
+| MAIN-11 | Metric detail modals show formula description, breakdown rows with sub-details, and Key Insights section | P0 |
 
 ### 2.4 Insights
 
@@ -119,11 +121,12 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 | INS-05 | Reports tab: 6 priority reports (Deal Death Autopsy, Lead Source Quality, Channel Performance, Pipeline Velocity, Active Lead Triage, Deal Status Snapshot) | P0 |
 | INS-06 | Reports: each report computed from VIN Solutions lead data using formulas from reference docs | P0 |
 | INS-07 | Library tab: Full metrics library (all metrics from Tiles reference doc) with category filters and search | P1 |
-| INS-08 | Library tab: Grid/List view toggle, metric detail modal on click | P1 |
-| INS-09 | Hunches tab: AI-generated pattern detections per Hunch Instructions prompt | P1 |
-| INS-10 | Hunches: confidence score, type badge (Opportunity/Threat/Insight), source label | P1 |
-| INS-11 | Hunches: automated weekly generation (Monday 6AM) with lifecycle tracking | P2 |
-| INS-12 | Activity page: filterable activity feed with search and type filters | P1 |
+| INS-08 | Library tab: Grid/List view toggle, metric detail modal on click with rich sample data breakdown | P1 |
+| INS-09 | Automa pop-out button (MessageCircle) on right side for contextual data discussion | P0 |
+| INS-10 | Hunches tab: AI-generated pattern detections per Hunch Instructions prompt | P1 |
+| INS-11 | Hunches: confidence score, type badge (Opportunity/Threat/Insight), source label | P1 |
+| INS-12 | Hunches: automated weekly generation (Monday 6AM) with lifecycle tracking | P2 |
+| INS-13 | Activity page: filterable activity feed with search and type filters | P1 |
 
 ### 2.5 Agents
 

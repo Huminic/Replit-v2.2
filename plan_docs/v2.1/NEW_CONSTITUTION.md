@@ -126,6 +126,9 @@ The current UI prototype represents validated design decisions. During backend i
 - Component styling must remain identical
 - Interaction patterns (hover, click, animations) must be preserved
 - Only the data source changes (mock → API)
+- The Automa pop-out button (MessageCircle icon, primary-tinted) on data-display pages must remain
+- Main page metric tile window-blind collapse animation must remain
+- Metric detail modals must show real breakdown data with Key Insights, not generic placeholders
 
 ---
 
@@ -134,7 +137,7 @@ The current UI prototype represents validated design decisions. During backend i
 | Concept | Internal Name | User-Facing Name | Notes |
 |---------|--------------|-----------------|-------|
 | Platform | Nexxus | Nexxus Connect™ | Logo text, no icon |
-| Master AI agent | Automa | Automa | Right pane chat header, always available |
+| Master AI agent | Automa | Automa | Right pane chat header, always available. Pop-out button on all data-display pages for contextual discussion. |
 | AI reasoning layer | DealerBrain | (not shown) | Underlying concept, not displayed |
 | Voice AI calls | VAPI integration | Voice Agent | Never expose "VAPI" to users |
 | Video AI sessions | Tavus integration | Video Agent | Never expose "Tavus" to users |

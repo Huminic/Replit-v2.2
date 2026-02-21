@@ -109,6 +109,96 @@ const hunchTypeConfig = {
 
 const CHART_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#DC2626', '#8B5CF6'];
 
+const libMetricSampleData: Record<string, { rows: { label: string; value: string; detail?: string }[]; insight?: string }> = {
+  'lib-1': { rows: [
+    { label: 'NEW status', value: '62', detail: 'Avg age: 1.8 days' },
+    { label: 'ACTIVE - Contacted', value: '98', detail: 'Avg age: 8.4 days' },
+    { label: 'HOT - Showroom/Trade', value: '34', detail: 'Avg age: 4.2 days' },
+    { label: 'PENDING - Finance/Closing', value: '28', detail: 'Avg age: 12.1 days' },
+    { label: 'WAITING - No Response', value: '25', detail: 'Avg age: 18.6 days' },
+  ], insight: '25 WAITING leads are aging rapidly — consider a re-engagement campaign or archive stale ones to keep pipeline healthy.' },
+  'lib-2': { rows: [
+    { label: 'AutoTrader', value: '6 leads', detail: 'Avg quality score: 7.2' },
+    { label: 'Website (Organic)', value: '4 leads', detail: 'Avg quality score: 8.1' },
+    { label: 'Cars.com', value: '3 leads', detail: 'Avg quality score: 6.8' },
+    { label: 'Walk-In', value: '3 leads', detail: 'Highest close rate: 31%' },
+    { label: 'Phone / Referral', value: '2 leads' },
+  ], insight: 'Today\'s lead volume is 18 — above your 30-day avg of 15.2/day. Website organic leads trending up.' },
+  'lib-5': { rows: [
+    { label: 'This Week', value: '16.2/day', detail: 'Mon: 14, Tue: 18, Wed: 19, Thu: 15, Fri: 12' },
+    { label: 'Last Week', value: '14.4/day' },
+    { label: '4-Week Avg', value: '15.1/day' },
+    { label: 'Best Day This Month', value: '22 (Feb 8)' },
+    { label: 'Slowest Day', value: '9 (Feb 3, Monday)' },
+  ], insight: 'Mid-week (Tue-Wed) consistently generates 20-30% more leads. Adjust staffing for peak intake.' },
+  'lib-8': { rows: [
+    { label: 'This Month SOLD', value: '74 units', detail: 'vs 67 last month (+10.4%)' },
+    { label: 'This Month LOST', value: '326 leads', detail: 'LOST_NO_RESPONSE: 89, LOST_PURCHASED_ELSEWHERE: 142' },
+    { label: 'Win Rate Trend', value: '' },
+    { label: '  Jan', value: '16.2%' },
+    { label: '  Feb (MTD)', value: '18.5%' },
+    { label: '  Projected Mar', value: '19.1%' },
+  ], insight: 'Win rate improving 2.3% MoM. If LOST_NO_RESPONSE (89 leads) were contacted, potential +12 sales.' },
+  'lib-10': { rows: [
+    { label: 'Walk-Ins This Month', value: '64', detail: '18 SOLD (28.7%)' },
+    { label: 'Avg Time on Lot', value: '42 min' },
+    { label: 'Trade-In Walk-Ins', value: '24 (38%)', detail: 'Close rate: 39% (vs 21% no trade)' },
+    { label: 'Weekend Walk-Ins', value: '28 (44%)', detail: 'Close rate: 33% (higher traffic, lower conversion)' },
+    { label: 'Top Salesperson (Walk-In)', value: 'Marcus T. — 7 SOLD' },
+  ], insight: 'Walk-in close rate dipped 0.9% — weekend traffic quality declining. Consider pre-qualifying Saturday walk-ins.' },
+  'lib-12': { rows: [
+    { label: 'HOT Leads Total', value: '41', detail: '14 SOLD (34.1%)' },
+    { label: 'HOT → SOLD avg time', value: '3.2 days' },
+    { label: 'HOT → LOST reasons', value: '' },
+    { label: '  Bought elsewhere', value: '11 leads' },
+    { label: '  Price disagreement', value: '8 leads' },
+    { label: '  Financing fell through', value: '5 leads' },
+  ], insight: 'HOT leads that go unseen for >48h drop to 12% close rate. Respond within 2 hours for best results.' },
+  'lib-16': { rows: [
+    { label: 'Contacted Within 1hr', value: '38%', detail: '94 of 247 active leads' },
+    { label: 'Contacted Within 4hr', value: '58%' },
+    { label: 'Contacted Within 24hr', value: '72%' },
+    { label: 'Never Contacted (>48h)', value: '14 leads', detail: 'Losing ~5% close probability per hour' },
+    { label: 'Best Contact Channel', value: 'Phone (67% connect rate)' },
+  ], insight: '14 leads haven\'t been contacted in 48+ hours. Immediate outreach could recover 3-4 potential sales.' },
+  'lib-21': { rows: [
+    { label: 'Internet Leads', value: '4.2 hrs', detail: 'Industry benchmark: 1.5 hrs' },
+    { label: 'Phone Leads', value: '0.8 hrs' },
+    { label: 'Walk-In', value: 'Immediate' },
+    { label: 'After-Hours Leads', value: '11.4 hrs', detail: 'Auto-response sent, but human follow-up delayed' },
+    { label: 'Weekend Response', value: '6.1 hrs' },
+  ], insight: 'Internet lead response (4.2h) is 2.8x slower than benchmark. After-hours auto-nurture could cut this in half.' },
+  'lib-22': { rows: [
+    { label: 'Website', value: '34% (84 leads)', detail: 'Win rate: 19%, BAD rate: 6%' },
+    { label: 'AutoTrader', value: '28% (69 leads)', detail: 'Win rate: 24%, BAD rate: 9%' },
+    { label: 'Cars.com', value: '18% (44 leads)', detail: 'Win rate: 16%, BAD rate: 12%' },
+    { label: 'Walk-In', value: '12% (30 leads)', detail: 'Win rate: 31%, BAD rate: 3%' },
+    { label: 'Referral', value: '8% (20 leads)', detail: 'Win rate: 32%, BAD rate: 2%' },
+  ], insight: 'Website drives most volume but referrals have 32% win rate — a referral program could be your highest ROI channel.' },
+  'lib-27': { rows: [
+    { label: 'Digital Sources', value: '58% (143 leads)' },
+    { label: '  Website', value: '84 leads' },
+    { label: '  3rd Party (AutoTrader/Cars.com)', value: '59 leads' },
+    { label: 'Physical Sources', value: '42% (104 leads)' },
+    { label: '  Walk-In', value: '64 leads' },
+    { label: '  Phone', value: '40 leads' },
+  ], insight: 'Digital lead share growing (+4% MoM) but physical leads close 1.7x higher. Balance both channels.' },
+  'lib-31': { rows: [
+    { label: 'Units Sold This Week', value: '17', detail: '3.4/day avg across 5 business days' },
+    { label: 'Last Week', value: '15 (3.0/day)' },
+    { label: 'Avg Days to Close', value: '8.4 days', detail: 'Down from 9.1 days last month' },
+    { label: 'Fastest Close', value: '1 day (walk-in trade-up)' },
+    { label: 'Avg Deal Value', value: '$34,200' },
+  ], insight: 'Sales velocity up 13% week-over-week. Speed improvement is driven by better follow-up on HOT leads.' },
+  'lib-33': { rows: [
+    { label: 'Current MTD Sales', value: '38 units', detail: '14 business days elapsed' },
+    { label: 'Projected Month-End', value: '51 units', detail: 'Based on current velocity + pipeline' },
+    { label: 'Last Month Total', value: '43 units' },
+    { label: 'Pipeline Support', value: '247 active leads', detail: '4.8x coverage ratio (healthy)' },
+    { label: 'Confidence Level', value: '78%', detail: 'Based on historical close patterns' },
+  ], insight: 'On track to beat last month by 8 units (+19%). Pipeline coverage is strong at 4.8x.' },
+};
+
 type DrillDownModal = null | 'hotLeads' | 'newLeads' | 'showroom' | 'staleLeads' | 'pendingFinance' | 'pipelineHealth' | 'scorecardDetail';
 type ReportCategory = 'loss' | 'channel' | 'trend';
 
@@ -1589,38 +1679,63 @@ export default function InsightsPage() {
 
       {/* Library Metric Detail */}
       <Dialog open={!!selectedLibMetric} onOpenChange={(open) => !open && setSelectedLibMetric(null)}>
-        <DialogContent className="max-w-sm" data-testid="dialog-metric-detail">
-          {selectedLibMetric && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selectedLibMetric.title}</DialogTitle>
-                <DialogDescription>Category: {selectedLibMetric.category}</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
-                  <div>
-                    <p className="text-3xl font-bold text-foreground">{selectedLibMetric.value}</p>
-                    <p className={cn('text-sm mt-1', selectedLibMetric.trend === 'up' ? 'text-green-500' : selectedLibMetric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                      {selectedLibMetric.change} vs last period
-                    </p>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
+          {selectedLibMetric && (() => {
+            const sampleData = libMetricSampleData[selectedLibMetric.id] || null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{selectedLibMetric.title}</DialogTitle>
+                  <DialogDescription>Category: {selectedLibMetric.category}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
+                    <div>
+                      <p className="text-3xl font-bold text-foreground">{selectedLibMetric.value}</p>
+                      <p className={cn('text-sm mt-1', selectedLibMetric.trend === 'up' ? 'text-green-500' : selectedLibMetric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {selectedLibMetric.change} vs last period
+                      </p>
+                    </div>
+                    <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', selectedLibMetric.trend === 'up' ? 'bg-green-500/10' : selectedLibMetric.trend === 'down' ? 'bg-red-500/10' : 'bg-muted')}>
+                      <TrendIcon trend={selectedLibMetric.trend} />
+                    </div>
                   </div>
-                  <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', selectedLibMetric.trend === 'up' ? 'bg-green-500/10' : selectedLibMetric.trend === 'down' ? 'bg-red-500/10' : 'bg-muted')}>
-                    <TrendIcon trend={selectedLibMetric.trend} />
+                  {sampleData ? (
+                    <>
+                      <div className="space-y-1">
+                        {sampleData.rows.map((row, idx) => (
+                          <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">{row.label}</span>
+                              <span className="text-sm font-semibold text-foreground">{row.value}</span>
+                            </div>
+                            {row.detail && <p className="text-[11px] text-muted-foreground mt-0.5">{row.detail}</p>}
+                          </div>
+                        ))}
+                      </div>
+                      {sampleData.insight && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
+                          <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                          <span className="text-xs text-foreground">{sampleData.insight}</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">7-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">30-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                    </div>
+                  )}
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
+                      Pin to Dashboard
+                    </Button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">7-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">30-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
-                    Pin to Dashboard
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>

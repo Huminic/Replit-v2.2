@@ -54,10 +54,12 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | Element | Description | Expected Behavior |
 |---|---|---|
 | **Toggle Button** | ChevronsLeft (<<) icon when closed. ChevronsRight (>>) when open. | Clicking << opens the right pane as a side-by-side panel on desktop (w-80 / lg:w-96). Main content remains visible alongside. On mobile (<md), opens as a full-screen overlay. Clicking >> closes it. |
+| **Automa Pop-out Button** | Purple-tinted round MessageCircle button below the toggle chevrons (desktop). Only on data-display pages (Insights, Drive, Activity). | Visible when right pane is closed on data-display view pages only. Not shown on Home, Agents, or sub-menu pages (Settings, Profile, Hub). Clicking opens the right pane to discuss on-screen data with Automa. Has `border-primary/30 bg-primary/5` styling. `data-testid="button-automa-popout"`. |
+| **Mobile Automa FAB** | Floating action button (bottom-right, `fixed bottom-20 right-4 z-40`). Primary-colored circle with MessageCircle icon. | Visible on mobile when right pane is closed on data-display pages only (Insights, Drive, Activity). Opens the right pane overlay. `data-testid="button-automa-fab-mobile"`. |
 | **Desktop Behavior** | Right pane appears to the RIGHT of the main content area. | Main content and right pane are visible simultaneously on desktop. The pane has a left border separator (`border-l border-border`). |
 | **Mobile Behavior** | Full-screen overlay (`fixed inset-0 z-50`). | Covers entire screen on mobile with a close button. Main content is hidden behind the overlay. |
-| **Not Available On** | Main (Home) page. | The toggle button and right pane are hidden on the home page since chat is the center content. |
-| **Right Pane Content (Non-Agents)** | Automa AI chat interface. | Shows "Automa - AI Assistant" header. Full chat interface with message history, typing animation, suggestion bubbles, glowing gradient input. Same chat standards as Main page. |
+| **Not Available On** | Main (Home) page. | The toggle button, Automa pop-out, and right pane are hidden on the home page since chat is the center content. |
+| **Right Pane Content (Non-Agents)** | Automa AI chat interface for contextual data discussion. | Shows "Automa - AI Assistant" header. Full chat interface with message history, typing animation, suggestion bubbles, glowing gradient input. Same chat standards as Main page. Users can discuss any on-screen metrics or data in context. |
 | **Right Pane Content (Agents)** | Agent configuration panel. | Shows config sections: Performance, Instructions, Triggers, Tools & Skills, Knowledge, Activity. See Agents section for details. |
 
 ### 1.5 Favorites System
@@ -79,11 +81,13 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 
 | Element | Description | Expected Behavior |
 |---|---|---|
-| **Title** | "AI Key Metrics" label above the tile grid. | Always visible. |
+| **Title** | "AI Key Metrics" label above the tile grid with optional Show/Hide toggle. | Title always visible. Show/Hide button appears only after the user sends their first chat message. |
 | **Grid Layout** | 2x2 on mobile (sm), 4-across on xl+ screens. | Responsive: 1 column on smallest, 2 columns on sm, 4 columns on xl+. |
 | **Tile Content** | Each tile shows: label, large value, change indicator with trend arrow (green up / red down), gradient background, decorative SVG circles, icon badge. | Content changes based on the current RBAC role. |
 | **Role-Specific Tiles** | **Super Admin:** Partner Orgs, Total Logins, Platform Actions, Agent Actions. **Partner Admin:** Sub Orgs, Total Logins, User Actions, Agent Actions. **Org Admin:** Pipeline Value, Lead Source, Lead Quality, Demand Score. **Staff:** Hot Opportunities, Buying Intel, Threats, Urgency Score. | Switching roles via the role switcher immediately updates the tile content. |
-| **Tile Click** | Each tile is clickable. | Opens a modal dialog showing the metric's detailed breakdown: large value display, change badge, and a list of sub-metrics with labels and values. Hover applies the `hover-elevate` effect. |
+| **Window-Blind Collapse** | After the user sends their first chat message, the 4 metric tiles animate upward ("window blind") and collapse. A Show/Hide toggle button appears next to the title. | Collapse uses CSS `max-h-0 opacity-0` transition (500ms ease-in-out). Expand uses `max-h-[500px] opacity-100`. Toggle button shows ChevronDown + "Show" when collapsed, ChevronUp + "Hide" when expanded. `data-testid="button-toggle-metrics"`. |
+| **Tile Click** | Each tile is clickable. | Opens a modal dialog (max-w-lg, scrollable) showing: metric formula description, large value display, change badge, detailed breakdown rows with sub-detail text, and a "Key Insights" section with actionable bullet points. Hover applies the `hover-elevate` effect. |
+| **Modal Sample Data** | Each role's metric modals show realistic dealership data. | **Org Admin:** Pipeline Value shows win rate, pipeline quality, freshness scores. Lead Source shows top sources (AutoTrader, Website, Cars.com) with win rates and lead counts. Lead Quality shows BAD lead reasons and trade-in penetration. Demand Score shows make/model demand and price ranges. **Staff:** Hot Opportunities shows specific leads by name, showroom visitors, trade-in values. Buying Intel shows top selling models with prices. Threats shows competitor activity and loss reasons. Urgency Score shows overdue leads by status with time windows. **Super/Partner Admin:** Show org/user counts, login patterns, agent action breakdowns. |
 
 ### 2.2 Chat Interface
 
@@ -145,7 +149,8 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | **View Toggle** | Grid/List icon buttons. | Switches between card grid and compact list layout. |
 | **Category Filter** | Horizontal scrolling pill buttons: All, Pipeline, Conversion, Response, Lead Source, Channel, Vehicle, Lifecycle, Status, Priority, Composite, Forecast. | Clicking a category filters the metric list. "All" shows everything. |
 | **Search** | Text input with search icon. | Filters metrics by title in real-time. Combines with category filter. |
-| **Metric Cards (Grid)** | Each card shows: title, large value, change with trend arrow, category badge. | 61 total metrics across all categories. Clicking a metric card opens a detail modal showing the metric name, value, change, and category. Hover applies `hover-elevate`. |
+| **Metric Cards (Grid)** | Each card shows: title, large value, change with trend arrow, category badge. | 61 total metrics across all categories. Clicking a metric card opens a detail modal (max-w-md, scrollable). Hover applies `hover-elevate`. |
+| **Metric Detail Modal** | Shows metric value, change vs last period, trend icon, and detailed breakdown rows. | Key metrics (Total Active Pipeline, Daily New Lead Volume, Lead Velocity Rate, Overall Win Rate, Walk-In Close Rate, Hot Lead Conversion, Contact Rate, Avg Time to 1st Contact, Top Source: Website, Digital Lead %, Sales Velocity, Projected Month Close) show rich sample data: breakdown rows with sub-detail text and a Lightbulb "insight" callout. Other metrics show 7/30/90-Day averages. Pin to Dashboard button available on all. |
 | **Metric Rows (List)** | Compact rows with metric name, value, change, and trend indicator. | Same data as grid view, different layout. |
 
 ### 3.5 Hunches Tab
