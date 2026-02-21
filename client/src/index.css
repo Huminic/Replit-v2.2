@@ -148,7 +148,7 @@
 
   /* Secondary - Cyan (Lighter for dark mode) */
   --secondary: 187 94% 58%; /* Cyan 400 #22d3ee */
-  --secondary-foreground: 222 47% 11%; /* Slate 900 */
+  --secondary-foreground: 0 0% 100%; /* White - light text on teal badges */
 
   /* Muted - Slate */
   --muted: 217 33% 17%; /* Slate 700 #334155 */

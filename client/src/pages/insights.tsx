@@ -443,9 +443,9 @@ export default function InsightsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
-                        {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                        {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
-                        {metric.trend === 'neutral' && <Minus className="h-3 w-3 text-muted-foreground" />}
+                        {metric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                        {metric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                        {metric.trend === 'neutral' && <Minus className="h-5 w-5 text-muted-foreground" />}
                       </div>
                       <p className="text-xs text-muted-foreground mt-3">{metric.title}</p>
                       <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
