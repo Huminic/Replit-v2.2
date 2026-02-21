@@ -1152,19 +1152,19 @@ export default function InsightsPage() {
           <FavoritesBar currentPath="/insights" currentLabel="Insights" />
         </div>
 
-        <TabsContent value="dashboard" className="flex-1 min-h-0 m-0 overflow-hidden">
+        <TabsContent value="dashboard" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
           {renderDashboard()}
         </TabsContent>
 
-        <TabsContent value="reports" className="flex-1 min-h-0 m-0 overflow-hidden">
+        <TabsContent value="reports" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
           {renderReports()}
         </TabsContent>
 
-        <TabsContent value="library" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col">
+        <TabsContent value="library" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col data-[state=inactive]:hidden">
           {renderLibrary()}
         </TabsContent>
 
-        <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col">
+        <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col data-[state=inactive]:hidden">
           {renderHunches()}
         </TabsContent>
       </Tabs>
