@@ -6,6 +6,7 @@ import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { RightPane } from './RightPane';
 import { SubMenuManager } from './SubMenuManager';
+import { AgentConfigPane } from '@/components/AgentConfigPane';
 import { useApp } from '@/contexts/AppContext';
 
 type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat';
@@ -34,6 +35,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   const canToggleRightPane = viewConfig !== 'chat-only';
   const isAgentsPage = location.startsWith('/agents');
 
+  const renderRightPaneContent = () => {
+    if (isAgentsPage) {
+      return <AgentConfigPane />;
+    }
+    return <RightPane />;
+  };
+
   return (
     <div className="flex flex-col h-screen w-full bg-background">
       <TopBar />
@@ -56,7 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </main>
 
-          {canToggleRightPane && !isAgentsPage && (
+          {canToggleRightPane && (
             rightPaneOpen ? (
               <>
                 <div className="hidden md:flex flex-col overflow-hidden w-80 lg:w-96 border-l border-border flex-shrink-0">
@@ -71,7 +79,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Button>
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <RightPane />
+                    {renderRightPaneContent()}
                   </div>
                 </div>
                 <div className="fixed inset-0 z-50 bg-background flex flex-col md:hidden">
@@ -86,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Button>
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <RightPane />
+                    {renderRightPaneContent()}
                   </div>
                 </div>
               </>
@@ -96,7 +104,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => setRightPaneOpen(true)}
-                  title="Open chat"
+                  title={isAgentsPage ? "Open configuration" : "Open chat"}
                   data-testid="button-open-right-pane"
                 >
                   <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
