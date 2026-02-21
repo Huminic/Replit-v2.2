@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -119,6 +119,35 @@ const metricDetails: Record<string, { breakdown: { label: string; value: string 
     { label: 'Overdue', value: '2' }, { label: 'Today', value: '5' }, { label: 'This Week', value: '8' }, { label: 'Next Week', value: '4' },
   ]},
 };
+
+function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!thinking) return null;
+
+  return (
+    <div className="mt-2 rounded-lg border border-purple-500/20 bg-purple-500/5 overflow-hidden" data-testid="thinking-card">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 transition-colors"
+        data-testid="button-toggle-thinking"
+      >
+        <Brain className="h-3.5 w-3.5 flex-shrink-0" />
+        <span className="font-medium flex-1 text-left">{thinking.summary}</span>
+        {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+      </button>
+      {expanded && (
+        <div className="px-3 pb-2.5 space-y-1 border-t border-purple-500/10">
+          {thinking.details.map((detail, i) => (
+            <div key={i} className="flex items-start gap-2 pt-1.5">
+              <div className="w-1 h-1 rounded-full bg-purple-400 mt-1.5 flex-shrink-0" />
+              <span className="text-[11px] text-muted-foreground leading-relaxed">{detail}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MainPage() {
   const { currentRole } = useApp();
@@ -241,6 +270,7 @@ export default function MainPage() {
                   )}
                 >
                   <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                  {message.thinking && <ThinkingCard thinking={message.thinking} />}
                 </div>
               </div>
             ))}

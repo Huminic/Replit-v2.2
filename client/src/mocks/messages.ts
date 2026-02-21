@@ -2,11 +2,17 @@
 
 export type MessageRole = 'user' | 'assistant';
 
+export interface ThinkingBlock {
+  summary: string;
+  details: string[];
+}
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
   content: string;
   timestamp: string;
+  thinking?: ThinkingBlock;
 }
 
 export interface Conversation {
@@ -54,6 +60,14 @@ export const mockChatMessages: ChatMessage[] = [
     role: 'assistant',
     content: "Hello! I'm Automa, your AI assistant for Nexxus V2. How can I help you today?",
     timestamp: '2026-01-21T09:00:00Z',
+    thinking: {
+      summary: 'Analyzed your dealership profile and recent activity',
+      details: [
+        'Checked current pipeline: 247 active leads across 4 sources',
+        'Reviewed recent performance: Close rate up 2.3% this month',
+        'Identified 3 priority follow-ups due today',
+      ],
+    },
   },
   {
     id: 'msg-2',
