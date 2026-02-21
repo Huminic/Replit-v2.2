@@ -1,0 +1,213 @@
+  NEXXUS V2 — Widget Configuration UI + Dealer-Facing Widget Design Brief                                                                                                                                                 
+                                                                                                                                                                                                                          
+  Context                                                                                                                                                                                                                 
+                                                                                                                                                                                                                          
+  Nexxus V2 is an AI-powered automotive dealership platform. Dealerships embed a "unified widget" on their websites that gives prospects multiple ways to connect: voice, video, chat, SMS, and callbacks. The platform
+  also hosts standalone landing pages per dealer.
+
+  You are designing two things:
+  1. The admin configuration UI where dealership managers customize their widget (lives inside the app at /settings/system → "Widgets" tab)
+  2. The dealer-facing web elements that prospects see (the floating widget button, the popup menu, the contact options, and the hosted landing pages)
+
+  PART 1: Admin Widget Configuration UI
+
+  Location
+
+  Settings page → "Widgets" tab (alongside existing tabs: Users, Organizations, Integrations, Tools, Knowledge, Email)
+
+  Requirements
+
+  Widget List View
+  - Table/card list of all widgets for the organization
+  - Each row shows: widget name, status (active/inactive), created date, domain count
+  - "Create Widget" button
+  - Click a widget to open its configuration
+
+  Widget Configuration View (Tabbed or Sectioned)
+
+  The config editor should have a live preview panel on the right side that updates in real-time as the admin changes settings. The preview should show an actual rendering of the widget at roughly 40-50% scale.
+
+  Section 1: Appearance
+  - Color theme: primary color picker, secondary color, text color, background color
+  - Branding: logo upload, organization name, show/hide logo toggle
+  - Minimized state: position (bottom-right / bottom-left), animation style (pulse / bounce / none), button label text
+  - Welcome screen: heading text, subtitle text, avatar/icon upload, CTA button text
+
+  Section 2: Channels
+  6 toggleable channels, each with its own sub-config when enabled:
+
+  ┌──────────────────────────────────┬──────────────┬──────────────────────────────────────────────────────────┐
+  │             Channel              │ Display Name │                Config Fields When Enabled                │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Chat Now                         │ Customizable │ AI instructions, agent name, enabled tools               │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Live Video Chat                  │ Customizable │ Tavus persona selector (dropdown of configured personas) │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Call Me Now                      │ Customizable │ VAPI assistant selector, phone number display            │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Web Call                         │ Customizable │ VAPI assistant selector for browser-based voice          │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Receive a Text                   │ Customizable │ SMS phone number                                         │
+  ├──────────────────────────────────┼──────────────┼──────────────────────────────────────────────────────────┤
+  │ Contact Form / Inventory Request │ Customizable │ Form fields configuration                                │
+  └──────────────────────────────────┴──────────────┴──────────────────────────────────────────────────────────┘
+
+  Each channel has: enabled toggle, display name override, icon selector
+
+  Section 3: Targeting
+  - Audience: all visitors / returning visitors only / leads only
+  - Page rules: include URLs, exclude URLs (pattern input)
+  - Device targeting: desktop / mobile / tablet toggles
+  - Business hours: toggle + day-by-day schedule with start/end times
+  - Behavior triggers: delay (seconds), scroll depth (%), exit intent (toggle), idle time (seconds)
+
+  Section 4: Domains
+  - Domain whitelist table with add/remove
+  - Wildcard support indicator (e.g., *.serrahonda.com)
+  - "Allow all" toggle for testing
+
+  Section 5: Embed Code
+  - Read-only code block with copy button showing the <script> embed snippet
+  - Tracking pixel code block with copy button
+  - Instructions text for the dealer's web developer
+
+  Section 6: Hosted Pages
+  - List of hosted pages linked to this widget
+  - Create/edit hosted page: slug, title, page type (multi-channel / chat only / video only / callback only), appearance overrides
+  - Preview link for each page
+
+  Live Preview Panel (RIGHT SIDE)
+  - Shows the widget button in its configured position
+  - Click the button in preview to see the popup open
+  - Shows the welcome screen with configured heading, message, and enabled channels
+  - Updates colors, branding, and channel list in real-time as admin makes changes
+  - Scale: ~40-50% of actual size, in a simulated browser chrome frame
+  - Toggle between "desktop" and "mobile" preview
+
+  Design Characteristics
+
+  - Clean, professional admin UI consistent with shadcn/ui component library
+  - Tailwind CSS utility classes
+  - Dark mode compatible (the app supports light/dark themes)
+  - No clutter — progressive disclosure (show channel sub-config only when that channel is toggled on)
+  - Form validation indicators (required fields, invalid formats)
+
+  ---
+  PART 2: Dealer-Facing Web Elements
+
+  These are what the customer/prospect sees on the dealer's website or hosted page.
+
+  Element A: The Floating Widget Button (Closed State)
+
+  - Circular button, 56-64px diameter
+  - Positioned bottom-right (or bottom-left, configurable)
+  - Dealer's primary color as background
+  - Icon: chat bubble or custom icon
+  - Subtle pulse animation to draw attention (configurable)
+  - Optional label tooltip on hover: "Chat with us"
+  - Shadow for depth: 0 4px 12px rgba(0,0,0,0.15)
+  - On mobile: slightly smaller (48px), respects safe areas
+
+  Element B: The Widget Popup (Open State)
+
+  When the prospect clicks the button, a panel slides up from the button position:
+
+  - Width: 380px (100% minus padding on mobile)
+  - Max height: 580px
+  - Border radius: 16px top corners
+  - Shadow: elevated card shadow
+  - Three zones:
+
+  Header Bar
+  - Dealer's primary color background
+  - Back arrow (when in a channel view, returns to menu)
+  - Title: dealer name or "How can we help?"
+  - Close X button
+
+  Channel Menu (Welcome Screen)
+  - Greeting: "Hi there!" (customizable)
+  - Subtitle: "Choose how you'd like to connect" (customizable)
+  - 6 channel cards in a 2-column grid layout:
+
+  ┌───────────────────┬────────────────────────┬───────────────────────┐
+  │       Card        │          Icon          │         Label         │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Call Me Now       │ Phone (incoming arrow) │ "We'll call you"      │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Web Call          │ Microphone             │ "Talk now in browser" │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Receive a Text    │ Message bubble         │ "Get a text from us"  │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Inventory Request │ Search/Car             │ "Check our inventory" │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Contact Form      │ Clipboard/Form         │ "Send us a message"   │
+  ├───────────────────┼────────────────────────┼───────────────────────┤
+  │ Live Video Chat   │ Video camera           │ "Face-to-face video"  │
+  └───────────────────┴────────────────────────┴───────────────────────┘
+
+  - Each card: icon + label + brief description
+  - Hover: subtle lift/scale with primary color border
+  - Only enabled channels appear (grid reflows)
+  - Cards should feel tappable on mobile
+
+  Footer
+  - "Powered by Nexxus" in subtle gray text
+  - Link to nexxus website
+
+  Element C: Channel Views (After Selecting an Option)
+
+  Design each channel's interior view:
+
+  Chat View: Message bubbles (prospect right-aligned in primary color, AI left-aligned in gray), typing indicator (3 dots), text input with send button, tool status indicator ("Searching inventory...")
+
+  Video Chat View: Full-panel video iframe with end-call button overlay, connection status indicator, camera/mic permission prompt state
+
+  Call Me Now View: Form with name, phone number, preferred callback time dropdown. Success confirmation state with checkmark animation.
+
+  Web Call View: Microphone visualization (audio waveform or pulsing circle), mute button, end call button, connection status text
+
+  Receive a Text View: Form with name, phone number, optional message. Success state.
+
+  Contact Form / Inventory Request View: Form with name, email, phone, message/vehicle interest textarea. Success state.
+
+  Element D: Dealer Hosted Landing Page
+
+  Full-page experience at https://platform.com/w/dealer-slug. No widget embedding — this IS the page.
+
+  Layout:
+  - Full viewport height
+  - Dealer logo + name in header bar (dealer's primary color)
+  - Center content area with the same 6 channel cards as the widget, but larger (card-based layout, 2 or 3 columns on desktop, 1 column on mobile)
+  - Each card: large icon, channel name, 1-line description, "Start" button
+  - Clicking a card expands to full-screen version of that channel view
+  - Clean white/light background with dealer's primary color as accent
+  - Footer: "Powered by Nexxus" + privacy link
+  - Mobile-first responsive design
+  - Page should feel like a modern SaaS landing page, not a form dump
+
+  Page Variants:
+  - multi — Shows all enabled channel cards (default)
+  - chat — Full-screen chat only (no channel selector)
+  - video — Full-screen video only
+  - callback — Full-screen callback form only
+
+  ---
+  Design Deliverables
+
+  1. Admin Widget Config UI: Wireframes/mockups for the Settings → Widgets tab showing the list view, config editor with all sections, and the live preview panel
+  2. Floating Widget Button: Closed state design (circle, color, icon, animation)
+  3. Widget Popup: Open state with channel menu grid
+  4. Channel Interior Views: All 6 channel views inside the popup
+  5. Hosted Landing Page: Multi-channel landing page layout + single-channel variants
+  6. Responsive Variants: Mobile versions of widget popup and landing page
+  7. State Designs: Loading, error, success, empty, and disabled states for each element
+
+  Design System Constraints
+
+  - Component library: shadcn/ui (Radix primitives + Tailwind CSS)
+  - Colors: dealer-configurable via CSS custom properties
+  - Typography: system font stack (-apple-system, BlinkMacSystemFont, 'Segoe UI', ...)
+  - Border radius: 16px for the popup, 12px for cards, 8px for buttons
+  - Dark mode: the admin UI supports it; the dealer-facing widget uses the configured colors (not system dark mode)
+  - Animations: subtle, purposeful (no gratuitous motion). 200-250ms transitions.
+  - Accessibility: WCAG 2.1 AA — focus indicators, keyboard navigation, sufficient contrast ratios

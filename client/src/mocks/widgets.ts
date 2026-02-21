@@ -1,75 +1,51 @@
 export type WidgetPosition = 'bottom-right' | 'bottom-left';
 export type WidgetAnimation = 'pulse' | 'bounce' | 'none';
+export type WidgetType = 'video' | 'text' | 'voice' | 'unified';
 export type LandingPageType = 'multi' | 'chat' | 'video' | 'callback';
 export type AudienceType = 'all' | 'leads' | 'returning';
 
-export interface ChannelConfig {
-  textChat: { enabled: boolean; displayName: string };
-  videoAgent: { enabled: boolean; displayName: string; personaId: string };
-  callUs: { enabled: boolean; displayName: string; phoneNumber: string };
-  callYou: { enabled: boolean; displayName: string; assistantId: string };
-  webAudio: { enabled: boolean; displayName: string; assistantId: string; publicKey: string };
-  sendText: { enabled: boolean; displayName: string };
+export interface WidgetAppearance {
+  primaryColor: string;
+  secondaryColor: string;
+  textColor: string;
+  backgroundColor: string;
+  organizationName: string;
+  showLogo: boolean;
+  position: WidgetPosition;
+  animation: WidgetAnimation;
+  buttonLabel: string;
+  welcomeHeading: string;
+  welcomeMessage: string;
 }
 
-export interface AppearanceConfig {
-  colorTheme: {
-    primaryColor: string;
-    secondaryColor: string;
-    textColor: string;
-    backgroundColor: string;
-  };
-  branding: {
-    logoUrl: string;
-    showLogo: boolean;
-    organizationName: string;
-  };
-  minimizedState: {
-    position: WidgetPosition;
-    animation: WidgetAnimation;
-    icon: string;
-    label: string;
-  };
-  welcomeScreen: {
-    heading: string;
-    message: string;
-    avatarUrl: string;
-    ctaText: string;
-  };
-}
-
-export interface TargetingConfig {
+export interface WidgetTargeting {
   audience: AudienceType;
-  pageRules: {
-    include: string[];
-    exclude: string[];
-  };
-  deviceTargeting: {
-    desktop: boolean;
-    mobile: boolean;
-    tablet: boolean;
-  };
+  includePages: string;
+  excludePages: string;
+  desktop: boolean;
+  mobile: boolean;
+  tablet: boolean;
   businessHoursOnly: boolean;
-  behaviorTriggers: {
-    delaySeconds: number;
-    scrollDepthPercent: number;
-    exitIntent: boolean;
-    idleSeconds: number;
-  };
+  delaySeconds: number;
+  scrollDepthPercent: number;
+  exitIntent: boolean;
 }
 
-export interface WidgetConfig {
+export interface IndividualWidget {
   id: string;
+  type: WidgetType;
   widgetCode: string;
   name: string;
-  organizationId: string;
+  description: string;
   status: 'active' | 'inactive' | 'draft';
-  appearance: AppearanceConfig;
-  channels: ChannelConfig;
-  targeting: TargetingConfig;
+  appearance: WidgetAppearance;
+  targeting: WidgetTargeting;
   allowedDomains: string[];
+  config: Record<string, string>;
   createdAt: string;
   updatedAt: string;
+  impressions: number;
+  interactions: number;
 }
 
 export interface LandingPage {
@@ -77,11 +53,10 @@ export interface LandingPage {
   slug: string;
   name: string;
   type: LandingPageType;
-  widgetConfigId: string;
+  linkedWidgetId: string;
   status: 'active' | 'inactive' | 'draft';
   appearance: {
     headerColor: string;
-    logoUrl: string;
     backgroundColor: string;
     heading: string;
     subheading: string;
@@ -92,190 +67,111 @@ export interface LandingPage {
   conversions: number;
 }
 
-export const defaultChannels: ChannelConfig = {
-  textChat: { enabled: true, displayName: 'Chat Now' },
-  videoAgent: { enabled: false, displayName: 'Video Agent', personaId: '' },
-  callUs: { enabled: false, displayName: 'Call Us', phoneNumber: '' },
-  callYou: { enabled: false, displayName: 'Call Me Back', assistantId: '' },
-  webAudio: { enabled: false, displayName: 'Voice Agent', assistantId: '', publicKey: '' },
-  sendText: { enabled: false, displayName: 'Send Text' },
+export const widgetTypeConfig: Record<WidgetType, { label: string; description: string; icon: string; gradient: string }> = {
+  text: { label: 'Text Chat Widget', description: 'AI-powered text chat for customer inquiries', icon: 'MessageSquare', gradient: 'from-blue-500/15 to-cyan-500/5' },
+  video: { label: 'Live Video Widget', description: 'Face-to-face video chat via Tavus AI persona', icon: 'Video', gradient: 'from-purple-500/15 to-violet-500/5' },
+  voice: { label: 'Voice Call Widget', description: 'Browser-based voice calls via VAPI', icon: 'Mic', gradient: 'from-emerald-500/15 to-teal-500/5' },
+  unified: { label: 'Unified Widget', description: 'All channels in one — chat, video, voice, SMS, callback', icon: 'LayoutGrid', gradient: 'from-amber-500/15 to-orange-500/5' },
 };
 
-export const defaultAppearance: AppearanceConfig = {
-  colorTheme: {
-    primaryColor: '#0070f3',
-    secondaryColor: '#7928ca',
-    textColor: '#ffffff',
-    backgroundColor: '#ffffff',
-  },
-  branding: {
-    logoUrl: '',
-    showLogo: true,
-    organizationName: '',
-  },
-  minimizedState: {
-    position: 'bottom-right',
-    animation: 'pulse',
-    icon: 'chat',
-    label: 'Chat with us',
-  },
-  welcomeScreen: {
-    heading: 'Hi there!',
-    message: 'How can we help you today?',
-    avatarUrl: '',
-    ctaText: 'Start a conversation',
-  },
+const defaultAppearance: WidgetAppearance = {
+  primaryColor: '#8b5cf6',
+  secondaryColor: '#3b82f6',
+  textColor: '#ffffff',
+  backgroundColor: '#ffffff',
+  organizationName: 'Cage Automotive',
+  showLogo: true,
+  position: 'bottom-right',
+  animation: 'pulse',
+  buttonLabel: 'Chat with us',
+  welcomeHeading: 'Hi there!',
+  welcomeMessage: 'How can we help you today?',
 };
 
-export const defaultTargeting: TargetingConfig = {
+const defaultTargeting: WidgetTargeting = {
   audience: 'all',
-  pageRules: { include: [], exclude: [] },
-  deviceTargeting: { desktop: true, mobile: true, tablet: true },
+  includePages: '/*',
+  excludePages: '/admin/*',
+  desktop: true,
+  mobile: true,
+  tablet: true,
   businessHoursOnly: false,
-  behaviorTriggers: {
-    delaySeconds: 0,
-    scrollDepthPercent: 0,
-    exitIntent: false,
-    idleSeconds: 0,
-  },
+  delaySeconds: 3,
+  scrollDepthPercent: 0,
+  exitIntent: false,
 };
 
-export const mockWidgetConfigs: WidgetConfig[] = [
+export const mockWidgets: IndividualWidget[] = [
   {
-    id: 'widget-1',
-    widgetCode: 'widget_a1b2c3d4',
-    name: 'Main Website Widget',
-    organizationId: 'org-1',
+    id: 'w-text',
+    type: 'text',
+    widgetCode: 'widget_txt_a1b2c3',
+    name: 'Text Chat Widget',
+    description: 'AI-powered text chat for website visitors',
     status: 'active',
-    appearance: {
-      colorTheme: {
-        primaryColor: '#8b5cf6',
-        secondaryColor: '#3b82f6',
-        textColor: '#ffffff',
-        backgroundColor: '#ffffff',
-      },
-      branding: {
-        logoUrl: '',
-        showLogo: true,
-        organizationName: 'Cage Automotive',
-      },
-      minimizedState: {
-        position: 'bottom-right',
-        animation: 'pulse',
-        icon: 'chat',
-        label: 'Chat with us',
-      },
-      welcomeScreen: {
-        heading: 'Welcome to Cage Automotive!',
-        message: 'How can we help you today?',
-        avatarUrl: '',
-        ctaText: 'Start chatting',
-      },
-    },
-    channels: {
-      textChat: { enabled: true, displayName: 'Chat Now' },
-      videoAgent: { enabled: true, displayName: 'Video Agent', personaId: 'tavus_persona_123' },
-      callUs: { enabled: true, displayName: 'Call Us', phoneNumber: '+1-555-0100' },
-      callYou: { enabled: false, displayName: 'Call Me Back', assistantId: '' },
-      webAudio: { enabled: false, displayName: 'Voice Agent', assistantId: '', publicKey: '' },
-      sendText: { enabled: true, displayName: 'Send Text' },
-    },
-    targeting: {
-      audience: 'all',
-      pageRules: { include: ['/*'], exclude: ['/admin/*'] },
-      deviceTargeting: { desktop: true, mobile: true, tablet: true },
-      businessHoursOnly: false,
-      behaviorTriggers: { delaySeconds: 3, scrollDepthPercent: 0, exitIntent: false, idleSeconds: 0 },
-    },
+    appearance: { ...defaultAppearance, primaryColor: '#3b82f6', buttonLabel: 'Chat with us' },
+    targeting: defaultTargeting,
     allowedDomains: ['cageautomotive.com', '*.cageautomotive.com'],
+    config: { agentName: 'Cage AI Assistant', aiInstructions: 'You are a helpful automotive sales assistant for Cage Automotive.' },
     createdAt: '2026-01-10T08:00:00Z',
     updatedAt: '2026-02-15T14:30:00Z',
+    impressions: 12847,
+    interactions: 3421,
   },
   {
-    id: 'widget-2',
-    widgetCode: 'widget_e5f6g7h8',
-    name: 'Service Department Widget',
-    organizationId: 'org-1',
+    id: 'w-video',
+    type: 'video',
+    widgetCode: 'widget_vid_d4e5f6',
+    name: 'Live Video Widget',
+    description: 'Face-to-face video consultation with AI persona',
     status: 'active',
-    appearance: {
-      colorTheme: {
-        primaryColor: '#10b981',
-        secondaryColor: '#059669',
-        textColor: '#ffffff',
-        backgroundColor: '#f0fdf4',
-      },
-      branding: {
-        logoUrl: '',
-        showLogo: true,
-        organizationName: 'Cage Automotive Service',
-      },
-      minimizedState: {
-        position: 'bottom-right',
-        animation: 'pulse',
-        icon: 'wrench',
-        label: 'Need service help?',
-      },
-      welcomeScreen: {
-        heading: 'Service Department',
-        message: 'Schedule an appointment or ask about your vehicle.',
-        avatarUrl: '',
-        ctaText: 'Get help now',
-      },
-    },
-    channels: {
-      textChat: { enabled: true, displayName: 'Chat Now' },
-      videoAgent: { enabled: false, displayName: 'Video Agent', personaId: '' },
-      callUs: { enabled: true, displayName: 'Call Service', phoneNumber: '+1-555-0101' },
-      callYou: { enabled: true, displayName: 'Request Callback', assistantId: 'vapi_svc_456' },
-      webAudio: { enabled: false, displayName: 'Voice Agent', assistantId: '', publicKey: '' },
-      sendText: { enabled: false, displayName: 'Send Text' },
-    },
-    targeting: {
-      audience: 'all',
-      pageRules: { include: ['/service/*'], exclude: [] },
-      deviceTargeting: { desktop: true, mobile: true, tablet: true },
-      businessHoursOnly: true,
-      behaviorTriggers: { delaySeconds: 5, scrollDepthPercent: 30, exitIntent: true, idleSeconds: 0 },
-    },
+    appearance: { ...defaultAppearance, primaryColor: '#8b5cf6', buttonLabel: 'Video chat' },
+    targeting: { ...defaultTargeting, delaySeconds: 5 },
     allowedDomains: ['cageautomotive.com'],
+    config: { tavusPersonaId: 'tavus_persona_cage_001', tavusPersonaName: 'Sarah (AI Concierge)' },
     createdAt: '2026-01-15T10:00:00Z',
     updatedAt: '2026-02-10T09:15:00Z',
+    impressions: 5632,
+    interactions: 891,
   },
   {
-    id: 'widget-3',
-    widgetCode: 'widget_i9j0k1l2',
-    name: 'After Hours Bot',
-    organizationId: 'org-1',
-    status: 'draft',
-    appearance: {
-      ...defaultAppearance,
-      colorTheme: {
-        primaryColor: '#6366f1',
-        secondaryColor: '#818cf8',
-        textColor: '#ffffff',
-        backgroundColor: '#eef2ff',
-      },
-      branding: {
-        logoUrl: '',
-        showLogo: false,
-        organizationName: 'Cage Automotive',
-      },
-      welcomeScreen: {
-        heading: 'We\'re currently closed',
-        message: 'Leave us a message and we\'ll get back to you!',
-        avatarUrl: '',
-        ctaText: 'Leave a message',
-      },
-    },
-    channels: {
-      ...defaultChannels,
-      callYou: { enabled: true, displayName: 'Request Callback', assistantId: '' },
-      sendText: { enabled: true, displayName: 'Text Us' },
-    },
+    id: 'w-voice',
+    type: 'voice',
+    widgetCode: 'widget_vox_g7h8i9',
+    name: 'Voice Call Widget',
+    description: 'Browser-based voice calls powered by VAPI',
+    status: 'active',
+    appearance: { ...defaultAppearance, primaryColor: '#10b981', buttonLabel: 'Call now' },
+    targeting: { ...defaultTargeting, businessHoursOnly: true },
+    allowedDomains: ['cageautomotive.com'],
+    config: { vapiAssistantId: 'vapi_asst_cage_001', vapiPublicKey: 'pk_cage_live_001', phoneDisplay: '+1 (555) 234-5678' },
+    createdAt: '2026-01-20T12:00:00Z',
+    updatedAt: '2026-02-12T16:45:00Z',
+    impressions: 3219,
+    interactions: 567,
+  },
+  {
+    id: 'w-unified',
+    type: 'unified',
+    widgetCode: 'widget_uni_j0k1l2',
+    name: 'Unified Widget',
+    description: 'All channels — chat, video, voice, SMS, callback, contact form',
+    status: 'active',
+    appearance: { ...defaultAppearance, primaryColor: '#8b5cf6', buttonLabel: 'Connect with us' },
     targeting: defaultTargeting,
-    allowedDomains: [],
-    createdAt: '2026-02-01T16:00:00Z',
-    updatedAt: '2026-02-01T16:00:00Z',
+    allowedDomains: ['cageautomotive.com', '*.cageautomotive.com'],
+    config: {
+      agentName: 'Cage AI Assistant',
+      tavusPersonaId: 'tavus_persona_cage_001',
+      vapiAssistantId: 'vapi_asst_cage_001',
+      vapiPublicKey: 'pk_cage_live_001',
+      phoneNumber: '+1 (555) 234-5678',
+      smsNumber: '+1 (555) 234-5679',
+    },
+    createdAt: '2026-01-05T08:00:00Z',
+    updatedAt: '2026-02-18T11:00:00Z',
+    impressions: 18493,
+    interactions: 6214,
   },
 ];
 
@@ -283,89 +179,84 @@ export const mockLandingPages: LandingPage[] = [
   {
     id: 'lp-1',
     slug: 'cage-auto',
-    name: 'Cage Automotive Chat',
+    name: 'Cage Automotive Connect',
     type: 'multi',
-    widgetConfigId: 'widget-1',
+    linkedWidgetId: 'w-unified',
     status: 'active',
     appearance: {
       headerColor: '#8b5cf6',
-      logoUrl: '',
       backgroundColor: '#faf5ff',
       heading: 'Welcome to Cage Automotive',
       subheading: 'Choose how you\'d like to connect with us',
     },
     createdAt: '2026-01-12T08:00:00Z',
     updatedAt: '2026-02-14T11:00:00Z',
-    views: 1247,
-    conversions: 389,
+    views: 4738,
+    conversions: 1247,
   },
   {
     id: 'lp-2',
     slug: 'cage-chat',
-    name: 'Direct Chat',
+    name: 'Direct Chat Page',
     type: 'chat',
-    widgetConfigId: 'widget-1',
+    linkedWidgetId: 'w-text',
     status: 'active',
     appearance: {
-      headerColor: '#8b5cf6',
-      logoUrl: '',
+      headerColor: '#3b82f6',
       backgroundColor: '#ffffff',
       heading: 'Chat with Cage Automotive',
-      subheading: 'Our AI assistant is ready to help',
+      subheading: 'Our AI assistant is ready to help you find the perfect vehicle',
     },
     createdAt: '2026-01-20T10:00:00Z',
     updatedAt: '2026-02-12T15:30:00Z',
-    views: 856,
-    conversions: 312,
+    views: 2856,
+    conversions: 912,
   },
   {
     id: 'lp-3',
     slug: 'cage-video',
     name: 'Video Consultation',
     type: 'video',
-    widgetConfigId: 'widget-1',
+    linkedWidgetId: 'w-video',
     status: 'active',
     appearance: {
-      headerColor: '#3b82f6',
-      logoUrl: '',
+      headerColor: '#8b5cf6',
       backgroundColor: '#eff6ff',
       heading: 'Video Consultation',
-      subheading: 'Speak face-to-face with our AI agent',
+      subheading: 'Speak face-to-face with our AI concierge',
     },
     createdAt: '2026-01-25T12:00:00Z',
     updatedAt: '2026-02-08T09:00:00Z',
-    views: 423,
-    conversions: 98,
+    views: 1423,
+    conversions: 298,
   },
   {
     id: 'lp-4',
     slug: 'cage-callback',
     name: 'Request Callback',
     type: 'callback',
-    widgetConfigId: 'widget-2',
-    status: 'inactive',
+    linkedWidgetId: 'w-voice',
+    status: 'active',
     appearance: {
       headerColor: '#10b981',
-      logoUrl: '',
       backgroundColor: '#f0fdf4',
       heading: 'Request a Callback',
-      subheading: 'Leave your details and we\'ll call you back',
+      subheading: 'Leave your details and we\'ll call you right back',
     },
     createdAt: '2026-02-01T14:00:00Z',
     updatedAt: '2026-02-05T10:00:00Z',
-    views: 156,
-    conversions: 42,
+    views: 956,
+    conversions: 342,
   },
   {
     id: 'lp-5',
     slug: 'cage-service',
     name: 'Service Booking',
     type: 'multi',
-    widgetConfigId: 'widget-2',
+    linkedWidgetId: 'w-unified',
     status: 'draft',
     appearance: {
       headerColor: '#10b981',
-      logoUrl: '',
       backgroundColor: '#ffffff',
       heading: 'Book a Service Appointment',
       subheading: 'Schedule maintenance or repairs online',
@@ -377,7 +268,7 @@ export const mockLandingPages: LandingPage[] = [
   },
 ];
 
-export function getWidgetStatusColor(status: WidgetConfig['status']): string {
+export function getWidgetStatusColor(status: IndividualWidget['status']): string {
   switch (status) {
     case 'active': return 'bg-emerald-500';
     case 'inactive': return 'bg-gray-400';
@@ -394,19 +285,16 @@ export function getLandingPageTypeLabel(type: LandingPageType): string {
   }
 }
 
-export function getEnabledChannelCount(channels: ChannelConfig): number {
-  return Object.values(channels).filter(ch => ch.enabled).length;
-}
-
-export function generateEmbedCode(widget: WidgetConfig): string {
+export function generateWidgetEmbedCode(widget: IndividualWidget): string {
   return `<script>
   window.nexxusConfig = {
-    orgId: "${widget.organizationId}",
+    orgId: "org-cage-auto",
     widgetId: "${widget.widgetCode}",
-    position: "${widget.appearance.minimizedState.position}",
-    primaryColor: "${widget.appearance.colorTheme.primaryColor}",
-    greeting: "${widget.appearance.welcomeScreen.heading}",
-    message: "${widget.appearance.welcomeScreen.message}"
+    type: "${widget.type}",
+    position: "${widget.appearance.position}",
+    primaryColor: "${widget.appearance.primaryColor}",
+    greeting: "${widget.appearance.welcomeHeading}",
+    message: "${widget.appearance.welcomeMessage}"
   };
 </script>
 <script src="https://nexxusv2.huminicdev.com/widget/nexxus-widget.js" async></script>`;
