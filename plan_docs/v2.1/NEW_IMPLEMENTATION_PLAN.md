@@ -273,21 +273,28 @@ This plan is structured for **modular, parallel development** — not monolithic
 1. Implement MetricEngine service with all formulas from Constitution §5
 2. Implement time-bucketed caching (metrics_cache table, TTL-based)
 3. Build Main page tile computations per role (Org Admin + Staff + Super Admin + Partner Admin)
-4. Build Dashboard tab: Command Center alerts from lead triage data
-5. Build Dashboard tab: Performance Scorecard with live metrics
-6. Build Dashboard tab: Pipeline Health with VIN pipeline data
-7. Build Dashboard tab: Charts with real lead data
-8. Build Reports tab: implement all 6 report computations
-9. Build Library tab: serve all 91 metrics with category/search filtering
-10. Replace all mock data in insights.tsx with API data
-11. Replace mock metric tiles on Main page with API data
+4. Build metric detail modal API: return breakdown rows with sub-details and Key Insights per metric
+5. Preserve window-blind collapse behavior: tiles collapse after first chat message, toggle to re-expand
+6. Build Dashboard tab: Command Center alerts from lead triage data
+7. Build Dashboard tab: Performance Scorecard with live metrics
+8. Build Dashboard tab: Pipeline Health with VIN pipeline data
+9. Build Dashboard tab: Charts with real lead data
+10. Build Reports tab: implement all 6 report computations
+11. Build Library tab: serve all 91 metrics with category/search filtering
+12. Build Library metric detail modal with breakdown rows, sub-details, and insight callout
+13. Preserve Automa pop-out button (MessageCircle) on right side of all data-display pages
+14. Replace all mock data in insights.tsx with API data
+15. Replace mock metric tiles on Main page with API data
 
 **Verification:**
 - [ ] Org Admin tiles compute correct scores per formula
 - [ ] Staff tiles compute correct scores per formula
+- [ ] Metric detail modals show real breakdown data with Key Insights
+- [ ] Window-blind collapse works after first message
+- [ ] Automa pop-out button visible on Insights/Drive/Activity pages
 - [ ] Dashboard shows real-time data from VIN leads
 - [ ] All 6 reports generate correct data
-- [ ] Library shows all metrics with correct values
+- [ ] Library shows all metrics with correct values, detail modals with sample data
 - [ ] Metric caching works (TTL invalidation)
 
 ### Track F: Hunches & AI Intelligence

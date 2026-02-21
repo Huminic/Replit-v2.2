@@ -30,8 +30,10 @@ Supporting files:
 ### V3 Redesign Summary
 - **RBAC**: currentRole state with localStorage persistence, tiny arrow dropdown on far-right of TopBar
 - **TopBar**: Logo left, org switcher center (Building2 icon + name + chevron), notifications/activity/theme/profile/role-arrow right
-- **Main Page**: 4-across gradient metric tiles (role-specific, responsive 4→2→1), "AI Key Metrics" title, 1 sample chat response, always-visible smaller suggestion bubbles, no chat avatars, wave-dot animation
+- **Main Page**: 4-across gradient metric tiles (role-specific, responsive 4→2→1), "AI Key Metrics" title, window-blind collapse after first chat (tiles animate up, Show/Hide toggle), 1 sample chat response, always-visible smaller suggestion bubbles, no chat avatars, wave-dot animation. Metric modals show rich breakdown data with Key Insights section.
 - **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches. Sub-menu includes Activity
+- **Right Pane**: Desktop (md+) = side-by-side panel (w-80/lg:w-96) alongside main content. Mobile (<md) = full-screen overlay. Main content always rendered first in DOM order.
+- **Automa Pop-out**: MessageCircle button (primary-tinted circle) visible when right pane is closed on data-display pages (not Home, not Agents). Mobile FAB at bottom-right. Opens right pane for contextual data discussion.
 - **Agents**: List panel (272px, desktop only) / detail center / config toggles via right pane (<< / >> button)
 - **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
 - **Drive**: Share button per file, share modal with Email/SMS tabs

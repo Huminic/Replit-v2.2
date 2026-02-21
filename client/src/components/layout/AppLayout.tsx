@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -34,6 +34,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const viewConfig = getViewConfig(location);
   const canToggleRightPane = viewConfig !== 'chat-only';
   const isAgentsPage = location.startsWith('/agents');
+  const isDataDisplayPage = viewConfig === 'data-display';
 
   const renderRightPaneContent = () => {
     if (isAgentsPage) {
@@ -99,17 +100,42 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-start pt-2 pr-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setRightPaneOpen(true)}
-                  title={isAgentsPage ? "Open configuration" : "Open chat"}
-                  data-testid="button-open-right-pane"
-                >
-                  <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              </div>
+              <>
+                <div className="hidden md:flex flex-col items-center justify-start pt-2 pr-1 gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setRightPaneOpen(true)}
+                    title={isAgentsPage ? "Open configuration" : "Discuss with Automa"}
+                    data-testid="button-open-right-pane"
+                  >
+                    <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  {isDataDisplayPage && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full border-primary/30 bg-primary/5"
+                      onClick={() => setRightPaneOpen(true)}
+                      title="Discuss this data with Automa"
+                      data-testid="button-automa-popout"
+                    >
+                      <MessageCircle className="h-4 w-4 text-primary" />
+                    </Button>
+                  )}
+                </div>
+                {isDataDisplayPage && (
+                  <Button
+                    size="icon"
+                    className="md:hidden fixed bottom-20 right-4 z-40 rounded-full shadow-lg"
+                    onClick={() => setRightPaneOpen(true)}
+                    title="Discuss with Automa"
+                    data-testid="button-automa-fab-mobile"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                  </Button>
+                )}
+              </>
             )
           )}
         </div>

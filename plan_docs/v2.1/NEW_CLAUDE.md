@@ -39,12 +39,12 @@ These are the output of validated design decisions. Do not modify them:
 | **TopBar** | Logo text "Nexxus Connect™" (no icon, not clickable), org switcher center, icons right |
 | **Sidebar** | 64px width, icon+label items, purple active indicator (w-0.5 h-8 bg-purple-500) |
 | **SubMenuManager** | Hover/pin system, 800ms leave timeout, ChevronLeft collapse, auto-collapse <1024px |
-| **Right Pane** | w-80/lg:w-96, full-screen mobile overlay, AgentConfigPane on agents page |
+| **Right Pane** | w-80/lg:w-96, full-screen mobile overlay, AgentConfigPane on agents page. Automa pop-out button (MessageCircle, primary-tinted circle) visible when closed on data-display pages. Mobile FAB at bottom-right. |
 | **Chat bubbles** | Bot left (bg-card border border-border), user right (bg-primary), NO avatars, max-w-[80%] |
 | **Typing animation** | wave-dot CSS class, 3 dots, delays 0s/0.15s/0.3s |
 | **Chat input** | chat-input-gradient wrapper, gradient glow, Enter sends, Shift+Enter newline |
 | **Thinking Card** | Brain icon, border-purple-500/20 bg-purple-500/5, collapsible |
-| **Metric tiles** | 4-across grid, gradient backgrounds, SVG circles, hover-elevate, click opens modal |
+| **Metric tiles** | 4-across grid, gradient backgrounds, SVG circles, hover-elevate, click opens modal. Window-blind collapse (max-h transition, 500ms) after first chat message sent. Toggle button appears: ChevronDown "Show" / ChevronUp "Hide". |
 | **Suggestion bubbles** | Sparkle icon, pill-shaped, populate input on click |
 
 ### 2.2 Locked Design Tokens

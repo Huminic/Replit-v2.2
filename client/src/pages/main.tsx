@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, Brain } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -75,49 +75,116 @@ const tileIcons = [
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>,
 ];
 
-const metricDetails: Record<string, { breakdown: { label: string; value: string }[]; description: string }> = {
-  'Active Deals': { description: 'All currently active deals in your pipeline', breakdown: [
-    { label: 'New Leads', value: '42' }, { label: 'Qualified', value: '38' }, { label: 'Proposal Sent', value: '28' }, { label: 'Negotiation', value: '19' }, { label: 'Closing', value: '15' },
-  ]},
-  'Pipeline Value': { description: 'Total estimated value of active pipeline', breakdown: [
-    { label: 'Q1 Deals', value: '$1.2M' }, { label: 'Q2 Deals', value: '$890K' }, { label: 'Q3 Projected', value: '$650K' }, { label: 'Enterprise', value: '$1.8M' },
-  ]},
-  'Conversion Rate': { description: 'Lead-to-deal conversion performance', breakdown: [
-    { label: 'Web Leads', value: '34%' }, { label: 'Referrals', value: '52%' }, { label: 'Walk-ins', value: '28%' }, { label: 'Phone', value: '19%' },
-  ]},
-  'Avg Response Time': { description: 'Average time to first response', breakdown: [
-    { label: 'Chat', value: '45s' }, { label: 'Email', value: '2.3h' }, { label: 'Phone', value: '1.2m' }, { label: 'SMS', value: '3.5m' },
-  ]},
-  'System Orgs': { description: 'Total organizations on the platform', breakdown: [
-    { label: 'Active', value: '42' }, { label: 'Trial', value: '15' }, { label: 'Suspended', value: '3' }, { label: 'Pending', value: '8' },
-  ]},
-  'Total Users': { description: 'All users across the platform', breakdown: [
-    { label: 'Admins', value: '24' }, { label: 'Managers', value: '89' }, { label: 'Staff', value: '245' }, { label: 'Inactive', value: '18' },
-  ]},
-  'AI Tasks Today': { description: 'AI-processed tasks in the last 24 hours', breakdown: [
-    { label: 'Lead Scoring', value: '89' }, { label: 'Auto-Replies', value: '156' }, { label: 'Reports', value: '34' }, { label: 'Alerts', value: '12' },
-  ]},
-  'Uptime': { description: 'System availability this month', breakdown: [
-    { label: 'API', value: '99.99%' }, { label: 'Web App', value: '99.95%' }, { label: 'Database', value: '100%' }, { label: 'AI Services', value: '99.8%' },
-  ]},
-  'Partner Orgs': { description: 'Organizations in your partner group', breakdown: [
-    { label: 'Franchise A', value: '5' }, { label: 'Franchise B', value: '3' }, { label: 'Independent', value: '4' },
-  ]},
-  'Group Revenue': { description: 'Combined revenue across partner organizations', breakdown: [
-    { label: 'New Sales', value: '$2.1M' }, { label: 'Used Sales', value: '$890K' }, { label: 'Service', value: '$450K' }, { label: 'F&I', value: '$320K' },
-  ]},
-  'Leads Today': { description: 'New leads received today', breakdown: [
-    { label: 'Website', value: '12' }, { label: 'Phone', value: '8' }, { label: 'Walk-in', value: '5' }, { label: 'Referral', value: '3' },
-  ]},
-  'My Deals': { description: 'Your personally assigned deals', breakdown: [
-    { label: 'Hot', value: '3' }, { label: 'Warm', value: '5' }, { label: 'Cold', value: '4' }, { label: 'Follow-up', value: '6' },
-  ]},
-  'Calls Today': { description: 'Your call activity today', breakdown: [
-    { label: 'Outbound', value: '8' }, { label: 'Inbound', value: '4' }, { label: 'Missed', value: '1' }, { label: 'Voicemail', value: '2' },
-  ]},
-  'Tasks Due': { description: 'Tasks requiring your attention', breakdown: [
-    { label: 'Overdue', value: '2' }, { label: 'Today', value: '5' }, { label: 'This Week', value: '8' }, { label: 'Next Week', value: '4' },
-  ]},
+const metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> = {
+  'Pipeline Value': { description: 'Pipeline Health Score — Win Rate × 50pts + Active Pipeline Quality × 30pts + Pipeline Freshness × 20pts', breakdown: [
+    { label: 'Win Rate (SOLD/SOLD+LOST)', value: '18.5%', detail: '74 SOLD / 326 LOST in last 90 days' },
+    { label: 'Active Pipeline Quality (1 - BAD/Total)', value: '91.3%', detail: '87% leads non-BAD across 842 total' },
+    { label: 'Pipeline Freshness (<30d)', value: '64%', detail: '158 of 247 active leads are under 30 days' },
+    { label: 'Composite Score', value: '72/100' },
+  ], highlights: ['Win rate up 2.3% from last month', '31 stale leads (>30d) need attention', 'Fresh lead ratio improving week-over-week'] },
+  'Lead Source': { description: 'Lead Source Performance — Top Sources Win Rate × 40pts + Diversity × 30pts + Concentration Risk × 30pts', breakdown: [
+    { label: 'AutoTrader.com', value: '24% win rate', detail: '142 leads, 34 SOLD, 12 BAD' },
+    { label: 'Website (Organic)', value: '19% win rate', detail: '98 leads, 19 SOLD, 8 BAD' },
+    { label: 'Cars.com', value: '16% win rate', detail: '87 leads, 14 SOLD, 11 BAD' },
+    { label: 'Facebook Ads', value: '12% win rate', detail: '64 leads, 8 SOLD, 9 BAD' },
+    { label: 'Walk-In (No Source)', value: '31% win rate', detail: '52 leads, 16 SOLD, 2 BAD' },
+    { label: 'Source Diversity Score', value: '7/10 sources active' },
+    { label: 'Concentration Risk', value: '34% (AutoTrader)' },
+  ], highlights: ['Walk-ins have highest conversion but lowest volume', 'Facebook BAD rate (14%) needs investigation', 'Consider increasing referral marketing (32% win rate, only 4% volume)'] },
+  'Lead Quality': { description: 'Lead Quality Score — (1 - BAD Rate) × 40pts + Trade-In Penetration × 30pts + In-Stock Match × 30pts', breakdown: [
+    { label: 'BAD Lead Rate', value: '8.7%', detail: '73 BAD of 842 total leads' },
+    { label: 'Top BAD Reasons', value: '' },
+    { label: '  BAD_DUPLICATE', value: '28 leads (38%)' },
+    { label: '  BAD_NO_VALID_CONTACT', value: '19 leads (26%)' },
+    { label: '  BAD_WRONG_DEALER', value: '14 leads (19%)' },
+    { label: 'Trade-In Penetration', value: '23%', detail: '57 of 247 active leads have trade-ins' },
+    { label: 'In-Stock Match (VIN populated)', value: '41%', detail: '101 leads matched to inventory' },
+  ], highlights: ['Duplicate detection could reduce BAD rate by 3.3%', 'Trade-in leads close at 35% (vs 18% overall)', 'In-stock matches close 2.1x faster'] },
+  'Demand Score': { description: 'Market Demand — Demand Trend × 50pts + New/Used Balance × 25pts + Make Diversity × 25pts', breakdown: [
+    { label: '30-Day Lead Growth', value: '+14%', detail: '478 leads this month vs 419 last month' },
+    { label: 'New vs Used Split', value: '62% New / 38% Used' },
+    { label: 'Top Makes in Demand', value: '' },
+    { label: '  Honda', value: '23% of inquiries', detail: '89 leads, top model: CR-V' },
+    { label: '  Toyota', value: '19% of inquiries', detail: '74 leads, top model: Camry' },
+    { label: '  Ford', value: '15% of inquiries', detail: '58 leads, top model: F-150' },
+    { label: 'Price Range: $30K-$45K', value: '54% of inquiries' },
+  ], highlights: ['SUV demand up 22% month-over-month', 'Used vehicle inquiries trending up (was 32% → now 38%)', 'Luxury segment ($60K+) growing: 47 leads (+18%)'] },
+  'Partner Orgs': { description: 'Total organizations under your partner group', breakdown: [
+    { label: 'Serra Automotive Group', value: '5 stores', detail: '3 active, 2 onboarding' },
+    { label: 'Hyundai of Columbia', value: '2 stores', detail: 'Both fully active' },
+    { label: 'Metro Honda Alliance', value: '3 stores', detail: '2 active, 1 trial' },
+    { label: 'Pinnacle Motors', value: '2 stores', detail: 'Both in trial period' },
+    { label: 'Total Active Users', value: '147 across all orgs' },
+    { label: 'Avg Monthly Logins', value: '1,847' },
+  ], highlights: ['2 new orgs onboarded this month', 'Serra group has highest engagement (89% weekly active)', 'Pinnacle trial conversion likely (85% feature adoption)'] },
+  'Total Logins': { description: 'User login activity across all organizations', breakdown: [
+    { label: 'Daily Active Users', value: '89', detail: '61% of total user base' },
+    { label: 'Weekly Active Users', value: '124', detail: '84% of total user base' },
+    { label: 'Peak Login Hour', value: '9:00-10:00 AM', detail: 'Avg 34 concurrent users' },
+    { label: 'Mobile Logins', value: '38%', detail: '702 of 1,847 total logins' },
+    { label: 'Desktop Logins', value: '62%', detail: '1,145 of 1,847 total logins' },
+  ], highlights: ['Login rate up 18% month-over-month', 'Mobile usage growing (was 31% last month)', 'Monday has highest login activity (avg 312)'] },
+  'Platform Actions': { description: 'Total actions performed across the platform', breakdown: [
+    { label: 'Chat Messages Sent', value: '8,412', detail: '346 unique conversations' },
+    { label: 'Reports Generated', value: '1,284', detail: '214 unique report types' },
+    { label: 'Agent Interactions', value: '5,891', detail: 'Across 12 active agents' },
+    { label: 'File Uploads', value: '892' },
+    { label: 'Calendar Events Created', value: '2,341' },
+    { label: 'Settings Changes', value: '156' },
+  ], highlights: ['Chat usage up 22% from last month', 'Report generation doubled since onboarding', 'Peak activity: Tuesday-Thursday'] },
+  'Agent Actions': { description: 'Actions performed by AI agents', breakdown: [
+    { label: 'Lead Follow-ups Sent', value: '3,247', detail: '38.6% auto-approved by managers' },
+    { label: 'Appointment Reminders', value: '1,892', detail: '92% delivery rate' },
+    { label: 'Lead Scoring Updates', value: '1,456', detail: 'Avg 17 rescores per lead' },
+    { label: 'Alert Notifications', value: '891', detail: '67% acted upon within 2 hours' },
+    { label: 'Report Summaries', value: '426', detail: 'Daily digest for 89 users' },
+  ], highlights: ['Agent efficiency up 22% this month', 'Follow-up automation saving est. 14 hrs/week', 'Lead scoring accuracy: 87% (validated against outcomes)'] },
+  'Sub Orgs': { description: 'Organizations under your partner administration', breakdown: [
+    { label: 'Active Organizations', value: '5', detail: 'All with live data connections' },
+    { label: 'Trial Organizations', value: '1', detail: 'Metro Honda - Day 12 of 30' },
+    { label: 'Total Users Across Orgs', value: '89' },
+    { label: 'Avg Leads/Org/Month', value: '142' },
+    { label: 'Top Performing Org', value: 'Serra Downtown', detail: '24% win rate' },
+  ], highlights: ['All active orgs renewed last quarter', 'Metro Honda trial trending toward conversion', 'Consider expanding to 2 pending partner inquiries'] },
+  'User Actions': { description: 'User engagement across your partner organizations', breakdown: [
+    { label: 'Chat Conversations', value: '2,104', detail: '24 avg per user this month' },
+    { label: 'Reports Viewed', value: '891', detail: 'Most popular: Pipeline Velocity' },
+    { label: 'Agent Configs Modified', value: '234' },
+    { label: 'Leads Contacted via Platform', value: '1,456' },
+    { label: 'Dashboard Views', value: '3,892' },
+  ], highlights: ['Engagement up 7% from last month', 'Report usage correlates with higher close rates', 'Users avg 3.2 sessions per day'] },
+  'Hot Opportunities': { description: 'Hot Opportunities Score — Hot Leads Awaiting Contact × 40pts + Showroom Today × 30pts + Fresh Trade-Ins × 30pts', breakdown: [
+    { label: 'Hot Leads Needing Contact', value: '7 leads', detail: 'Oldest: 8 hours ago (Mark S. - 2024 CR-V)' },
+    { label: 'Showroom Visitors Now', value: '3 customers', detail: 'Bay 2: James R. (F-150), Bay 5: Lisa M. (Accord), Bay 7: David K. (Tucson)' },
+    { label: 'Fresh Trade-In Leads (<24h)', value: '4 leads', detail: 'Avg trade value: $18,500' },
+    { label: 'Highest Value Opportunity', value: '$62,400 MSRP', detail: 'Robert T. - 2024 BMW X5 - HOT, showroom today' },
+  ], highlights: ['3 hot leads have been waiting >6 hours — contact NOW', 'Showroom visitors convert at 41% vs 18% overall', 'Trade-in leads expire after 14 days (35% → 12% win rate)'] },
+  'Buying Intel': { description: 'What Customers Are Buying — Model Concentration × 50pts + New/Used Clarity × 30pts + Price Clarity × 20pts', breakdown: [
+    { label: 'Top Selling Models This Month', value: '' },
+    { label: '  1. Honda CR-V', value: '23 inquiries, 8 sold', detail: 'Avg selling price: $34,200' },
+    { label: '  2. Toyota Camry', value: '18 inquiries, 5 sold', detail: 'Avg selling price: $28,900' },
+    { label: '  3. Ford F-150', value: '15 inquiries, 6 sold', detail: 'Avg selling price: $48,700' },
+    { label: '  4. Hyundai Tucson', value: '12 inquiries, 4 sold' },
+    { label: '  5. Honda Civic', value: '10 inquiries, 3 sold' },
+    { label: 'New vs Used Split', value: '68% NEW, 32% USED', detail: 'Trending toward NEW (was 62/38)' },
+    { label: 'Hot Price Range', value: '$30K-$45K (62%)' },
+  ], highlights: ['SUV demand surging — CR-V + Tucson up 31% combined', 'F-150 has highest gross per unit ($4,200 avg front)', 'Budget segment ($0-$25K) shrinking: down 8% this month'] },
+  'Threats': { description: 'Competitive Threat Alert — (1 - Lost Elsewhere Rate) × 50pts + (1 - Loss Growth) × 30pts + (1 - Waiting Ratio) × 20pts', breakdown: [
+    { label: 'Lost to Competitors', value: '18 leads', detail: 'LOST_PURCHASED_DIFFERENT_BRAND up 25% vs last month' },
+    { label: 'Lost - No Agreement', value: '12 leads', detail: 'Primarily pricing issues ($2K avg gap)' },
+    { label: 'Lost - No Response', value: '8 leads', detail: 'We were too slow — avg 18hr response time' },
+    { label: 'Ghosting Rate', value: '23 leads', detail: 'In WAITING status >7 days, gone cold' },
+    { label: 'Internet Lead Loss Rate', value: '35%', detail: 'vs 18% walk-in loss rate — digital follow-up failing' },
+  ], highlights: ['Premier Motors pricing 8% below on sedans — losing deals', 'Response time >4hrs kills 60% of internet leads', '23 ghosted leads could be re-engaged with price drop offer'] },
+  'Urgency Score': { description: 'Pipeline Urgency — (1 - Overdue New Ratio) × 40pts + (1 - Stale Active Ratio) × 35pts + (1 - Cooling Hot Ratio) × 25pts', breakdown: [
+    { label: 'URGENT - Need Contact NOW', value: '' },
+    { label: '  NEW leads >24 hours', value: '7 leads', detail: 'Losing 5% close probability per hour' },
+    { label: '  HOT leads >48 hours', value: '3 leads', detail: 'No longer hot — cooling rapidly' },
+    { label: 'WARNING - Stale Deals', value: '' },
+    { label: '  ACTIVE >14 days, no update', value: '18 leads', detail: 'Dying on the vine' },
+    { label: '  ACTIVE >30 days', value: '12 leads', detail: '89% will statistically be lost' },
+    { label: 'Pipeline Aging Trend', value: '+3.2 days faster than last month' },
+  ], highlights: ['7 NEW leads need immediate contact (6+ hours overdue)', '3 hot leads cooling — win rate drops from 41% to 12% after 48h', '12 leads >30 days old should be triaged: save or archive'] },
 };
 
 function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
@@ -155,6 +222,8 @@ export default function MainPage() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);
+  const [tilesCollapsed, setTilesCollapsed] = useState(false);
+  const [hasSentMessage, setHasSentMessage] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -180,6 +249,11 @@ export default function MainPage() {
     setInputValue('');
     setIsTyping(true);
 
+    if (!hasSentMessage) {
+      setHasSentMessage(true);
+      setTilesCollapsed(true);
+    }
+
     setTimeout(() => {
       const assistantMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
@@ -202,50 +276,80 @@ export default function MainPage() {
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-4 py-4 border-b border-border flex-shrink-0">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="text-ai-key-metrics-title">AI Key Metrics</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-            {metrics.map((metric, i) => (
-              <div
-                key={i}
-                className={cn(
-                  'relative rounded-xl border border-border bg-gradient-to-br cursor-pointer hover-elevate group',
-                  metric.gradient
-                )}
-                onClick={() => setSelectedMetric(metric)}
-                data-testid={`metric-tile-${i}`}
-              >
-                <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.07] -mr-4 -mt-4">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground" />
-                    <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                    <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" strokeWidth="1" className="text-foreground" />
-                  </svg>
-                </div>
-                <div className="relative p-4 flex items-start gap-3">
-                  <div className={cn('flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-foreground/70', metric.iconBg)}>
-                    {tileIcons[i]}
+        <div className="border-b border-border flex-shrink-0">
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="flex items-center justify-between py-3">
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider" data-testid="text-ai-key-metrics-title">AI Key Metrics</h2>
+              {hasSentMessage && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+                  onClick={() => setTilesCollapsed(!tilesCollapsed)}
+                  data-testid="button-toggle-metrics"
+                >
+                  {tilesCollapsed ? (
+                    <>
+                      <ChevronDown className="h-3 w-3" />
+                      Show
+                    </>
+                  ) : (
+                    <>
+                      <ChevronUp className="h-3 w-3" />
+                      Hide
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            <div
+              className={cn(
+                'overflow-hidden transition-all duration-500 ease-in-out',
+                tilesCollapsed ? 'max-h-0 opacity-0 pb-0' : 'max-h-[500px] opacity-100 pb-4'
+              )}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+              {metrics.map((metric, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'relative rounded-xl border border-border bg-gradient-to-br cursor-pointer hover-elevate group',
+                    metric.gradient
+                  )}
+                  onClick={() => setSelectedMetric(metric)}
+                  data-testid={`metric-tile-${i}`}
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.07] -mr-4 -mt-4">
+                    <svg viewBox="0 0 100 100" className="w-full h-full">
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground" />
+                      <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
+                      <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" strokeWidth="1" className="text-foreground" />
+                    </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground font-medium truncate">{metric.label}</p>
-                    <p className="text-2xl font-bold text-foreground mt-0.5 tracking-tight">{metric.value}</p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                      {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
-                      <span className={cn(
-                        'text-[11px] font-medium',
-                        metric.trend === 'up' && 'text-green-600 dark:text-green-400',
-                        metric.trend === 'down' && 'text-red-600 dark:text-red-400',
-                        metric.trend === 'neutral' && 'text-muted-foreground'
-                      )}>
-                        {metric.change}
-                      </span>
+                  <div className="relative p-4 flex items-start gap-3">
+                    <div className={cn('flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-foreground/70', metric.iconBg)}>
+                      {tileIcons[i]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground font-medium truncate">{metric.label}</p>
+                      <p className="text-2xl font-bold text-foreground mt-0.5 tracking-tight">{metric.value}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
+                        {metric.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
+                        <span className={cn(
+                          'text-[11px] font-medium',
+                          metric.trend === 'up' && 'text-green-600 dark:text-green-400',
+                          metric.trend === 'down' && 'text-red-600 dark:text-red-400',
+                          metric.trend === 'neutral' && 'text-muted-foreground'
+                        )}>
+                          {metric.change}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
               </div>
-            ))}
             </div>
           </div>
         </div>
@@ -367,7 +471,7 @@ export default function MainPage() {
       </div>
 
       <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
-        <DialogContent className="sm:max-w-md" data-testid="dialog-metric-detail">
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
               {selectedMetric && (
@@ -378,7 +482,7 @@ export default function MainPage() {
                 </>
               )}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
             </DialogDescription>
           </DialogHeader>
@@ -397,15 +501,33 @@ export default function MainPage() {
               </div>
               <div className="border-t border-border pt-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Breakdown</h4>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {(metricDetails[selectedMetric.label]?.breakdown || []).map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-md hover-elevate" data-testid={`metric-breakdown-${idx}`}>
-                      <span className="text-sm text-muted-foreground">{item.label}</span>
-                      <span className="text-sm font-semibold text-foreground">{item.value}</span>
+                    <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50" data-testid={`metric-breakdown-${idx}`}>
+                      <div className="flex items-center justify-between">
+                        <span className={cn('text-sm', item.label.startsWith('  ') ? 'text-foreground pl-3' : 'text-muted-foreground font-medium')}>{item.label}</span>
+                        {item.value && <span className="text-sm font-semibold text-foreground">{item.value}</span>}
+                      </div>
+                      {item.detail && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5 pl-0">{item.detail}</p>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
+              {metricDetails[selectedMetric.label]?.highlights && (
+                <div className="border-t border-border pt-3">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Key Insights</h4>
+                  <div className="space-y-1.5">
+                    {metricDetails[selectedMetric.label]!.highlights!.map((insight, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                        <span className="text-xs text-foreground leading-relaxed">{insight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
