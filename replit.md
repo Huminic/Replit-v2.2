@@ -13,6 +13,20 @@ The application features:
 - Activity stays as header-only dropdown (not in sidebar)
 - Mobile-first responsive design with MobileNavDropdown for sub-menu + favorites access
 
+### Governing Documentation (v2.1)
+Four interdependent documents in `plan_docs/v2.1/` serve as the single source of truth for backend development:
+1. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
+2. **NEW_SRS.md** — Full system requirements: 63 API endpoints, 17 database tables, 91 library metrics, 6 report specs, hunch engine spec
+3. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan (4 sprints, 9 parallel tracks), dependency graph, gate criteria, file ownership map
+4. **NEW_CLAUDE.md** — Direct guidance for Claude Code implementation agents: locked UI elements, mock→API replacement patterns, technical patterns, RBAC matrix, testing requirements
+
+**Document priority:** ACCEPTANCE_CRITERIA.md (UI truth) > Constitution (principles) > SRS (requirements) > Implementation Plan (sequencing) > Claude Guide (how-to)
+
+Supporting files:
+- `plan_docs/ACCEPTANCE_CRITERIA.md` — Pixel-level UI behavior spec (updated 2026-02-21)
+- `replit_reference/Metrics/` — Exact metric formulas for Org Admin, Staff, Reports, Library
+- `replit_reference/new_instructions/` — Agent Instructions (team protocol) and Hunch Instructions (AI prompt)
+
 ### V3 Redesign Summary
 - **RBAC**: currentRole state with localStorage persistence, tiny arrow dropdown on far-right of TopBar
 - **TopBar**: Logo left, org switcher center (Building2 icon + name + chevron), notifications/activity/theme/profile/role-arrow right
