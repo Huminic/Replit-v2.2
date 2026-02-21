@@ -50,10 +50,12 @@ These states apply to any view that fetches/displays data:
 
 | State | Trigger | Visual Treatment |
 |-------|---------|-----------------|
-| Default | Page load | "AI Key Metrics" title, 4 gradient metric tiles (role-specific), 1 sample AI response, suggestion bubbles visible |
+| Default | Page load | "AI Key Metrics" title, 4 gradient metric tiles (role-specific), 1 sample AI response with thinking card, suggestion bubbles visible |
 | Loading | Metrics loading | Skeleton rectangles in metric tile positions (pulse animation) |
 | Chat Active | User sends message | User message right-aligned, wave-dot animation, then bot response left-aligned |
 | Chat Typing | Waiting for AI response | Wave-dot animation (3 dots bouncing): `wave-dot` CSS class with 1.4s ease-in-out infinite |
+| Thinking Collapsed | Default state of thinking card | Brain icon + summary text ("Analyzed your dealership profile"), purple left border, ChevronRight icon |
+| Thinking Expanded | User clicks thinking card toggle | Expands to show detailed reasoning steps (pipeline data, performance review, priority follow-ups). ChevronDown icon |
 | Role Changed | RBAC role switched | Metric tiles update to show role-specific metrics with smooth transition |
 | Empty Chat | No messages sent yet | Sample response + suggestion bubbles visible. No "empty state" — always has suggestions |
 
@@ -225,3 +227,25 @@ Used whenever AI is "thinking" or generating a response:
 - Animation: `wave` keyframes (translateY bounce, staggered 0.2s delay per dot)
 - Duration: 1.4s ease-in-out infinite
 - Applied via `.wave-dot` CSS class
+
+---
+
+## SubMenuManager Local State
+
+The SubMenuManager tracks active sub-menu tabs via local state (not context) to ensure proper re-rendering when only query parameters change:
+
+| State Variable | Type | Initial Value | Purpose |
+|---|---|---|---|
+| `activeInsightsTab` | `string` | From URL `?tab=` or `'dashboard'` | Tracks which Insights sub-menu item is highlighted |
+| `activeHubTab` | `string` | From URL `?tab=` or `'calendar'` | Tracks which Hub sub-menu item is highlighted |
+
+These are synchronized with the URL on route changes via `useEffect([location])` and updated immediately on click via local `setState` calls.
+
+## Custom Events for Tab Switching
+
+| Event Name | Dispatched By | Listened By | Detail Payload |
+|---|---|---|---|
+| `insights-tab-change` | `SubMenuManager.tsx` | `insights.tsx` | Tab ID string (e.g., `'reports'`, `'library'`) |
+| `hub-tab-change` | `SubMenuManager.tsx` | `work-center.tsx` | Tab ID string (e.g., `'calendar'`, `'leads'`, `'inbox'`) |
+
+Both listeners validate the tab ID against an allowed list before updating state, and properly remove the event listener on unmount.

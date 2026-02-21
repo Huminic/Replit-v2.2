@@ -155,7 +155,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 | **R-RESP-03** | The `MobileNavDropdown` component replaces desktop tabs on mobile. It uses `lg:hidden` to show only on small screens. |
 | **R-RESP-04** | The Agents list panel (left side) uses `hidden lg:block`. On mobile, an agent selector dropdown replaces it. |
 | **R-RESP-05** | The sub-menu panel auto-collapses below 1024px and is not available on mobile. |
-| **R-RESP-06** | The Right Pane replaces center content entirely when open (never shown side-by-side). This applies to all breakpoints. |
+| **R-RESP-06** | Desktop (md+): Right Pane opens as a side-by-side panel (w-80/lg:w-96) to the RIGHT of main content — both visible simultaneously. Mobile (<md): Right Pane opens as a full-screen overlay (`fixed inset-0 z-50`). |
 | **R-RESP-07** | Grid layouts adapt responsively: `grid-cols-1` → `sm:grid-cols-2` → `lg:grid-cols-3` → `xl:grid-cols-4`. |
 | **R-RESP-08** | The role switcher (tiny arrow) is hidden on small screens via `hidden sm:flex`. |
 | **R-RESP-09** | The FavoritesBar is desktop-only (`hidden lg:flex`). |

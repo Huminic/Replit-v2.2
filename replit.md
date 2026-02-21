@@ -24,9 +24,13 @@ The application features:
 - **Settings**: Tile-based grid navigation, role-gated sections. "Tools & Integrations" tile has 3 tabs: Tools, Widgets, Landing Pages
 - **Widgets**: 4 fixed widget types (Text Chat, Live Video, Voice Call, Unified) under Tools → Widgets tab. Each has Settings, Appearance, Targeting, Domains, Embed sub-tabs. Preview modals per widget. Unified widget links to /w/demo landing page
 - **Widget Landing Page**: /w/demo route (outside AppLayout) — standalone customer service page with 6 channel cards, contact form, "Launch Live Video Chat" button. Powered by Nexxus footer
-- **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere
+- **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere. Thinking card (collapsible AI reasoning) in first bot message. Chat input placeholder: "Ask me anything about your business"
 - **Activity**: Moved into Insights sub-menu (no longer standalone sidebar item)
-- **SubMenu timeout**: 800ms leave timeout for better usability
+- **SubMenu timeout**: 800ms leave timeout for better usability (with proper cleanup on unmount)
+- **Right Pane**: Desktop (md+) = side-by-side panel (w-80/lg:w-96) alongside main content. Mobile (<md) = full-screen overlay. Main content always rendered first in DOM order.
+- **Sub-menu tab switching**: Uses custom events (`insights-tab-change`, `hub-tab-change`) to handle query-param-only URL changes that wouter doesn't detect. Active tab tracked via local state for immediate highlight updates.
+- **Chat history**: Hover-reveal 3-dot menu (Resume/Delete) on conversation items. Keyboard accessible (role="button", tabIndex, Enter/Space).
+- **Drive copy link**: Uses `navigator.clipboard.writeText()` with toast feedback
 
 ## User Preferences
 

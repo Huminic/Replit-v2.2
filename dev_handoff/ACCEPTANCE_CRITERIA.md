@@ -61,7 +61,9 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 
 | Element | Description | Expected Behavior |
 |---|---|---|
-| **Toggle Button** | ChevronsLeft (<<) icon when closed. ChevronsRight (>>) when open. | Clicking << opens the right pane and replaces the center content area. Clicking >> closes it and restores the center content. |
+| **Toggle Button** | ChevronsLeft (<<) icon when closed. ChevronsRight (>>) when open. | Clicking << opens the right pane as a side-by-side panel on desktop (w-80 / lg:w-96). Main content remains visible alongside. On mobile (<md), opens as a full-screen overlay. Clicking >> closes it. |
+| **Desktop Behavior** | Right pane appears to the RIGHT of the main content area. | Main content and right pane are visible simultaneously on desktop. The pane has a left border separator (`border-l border-border`). |
+| **Mobile Behavior** | Full-screen overlay (`fixed inset-0 z-50`). | Covers entire screen on mobile with a close button. Main content is hidden behind the overlay. |
 | **Not Available On** | Main (Home) page. | The toggle button and right pane are hidden on the home page since chat is the center content. |
 | **Right Pane Content (Non-Agents)** | Automa AI chat interface. | Shows "Automa - AI Assistant" header. Full chat interface with message history, typing animation, suggestion bubbles, glowing gradient input. Same chat standards as Main page. |
 | **Right Pane Content (Agents)** | Agent configuration panel. | Shows config sections: Performance, Instructions, Triggers, Tools & Skills, Knowledge, Activity. See Agents section for details. |
@@ -102,13 +104,15 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | **Plus (+) Button** | Inside the input area, left side. | Opens a dropdown with "Upload File" and "Add from Drive" options. Both show toast notifications in demo mode. |
 | **Send Button** | Circular button with arrow icon, right side of input. | Disabled when input is empty. Clicking sends the message, clears input, shows typing animation, then delivers a simulated bot response. |
 | **Initial State** | One pre-loaded bot message. | The chat starts with one assistant message welcoming the user. |
+| **Thinking Card** | Collapsible info card embedded within the first bot message. | Shows a Brain icon + "Analyzed your dealership profile" summary text. Purple left border (`border-l-2 border-purple-400`). Click to expand/collapse with ChevronDown/ChevronRight toggle. Expanded state reveals detailed reasoning steps (pipeline data, performance review, priority follow-ups). Uses `data-testid="thinking-card"` and `data-testid="button-toggle-thinking"`. |
+| **Placeholder Text** | Chat input placeholder. | "Ask me anything about your business" |
 
 ### 2.3 Sub-Menu Panel Content (Main)
 
 | Section | Content |
 |---|---|
 | **Favorites** | Star icon + "Favorites" header. Lists all favorited pages as clickable items. Empty state text if no favorites. |
-| **Message History** | MessageSquare icon + "Message History" header. Lists recent conversations with title, last message preview, timestamp, and unread dot indicator. Clicking loads the Main page. |
+| **Message History** | MessageSquare icon + "Message History" header. Lists recent conversations with title, last message preview, timestamp, and unread dot indicator. Clicking loads the Main page. Each item has a hover-reveal 3-dot menu (MoreVertical) with "Resume" and "Delete" options. Items have `role="button"`, `tabIndex={0}`, and keyboard support (Enter/Space). |
 
 ---
 
@@ -330,7 +334,7 @@ Opened by clicking the << toggle button. Replaces center content. Contains 6 con
 | **Title** | "Share File" with file name in description. | |
 | **Email/SMS Tabs** | Full-width tab switcher. | Switches between email and SMS input modes. |
 | **Recipient Input** | Text field: "Enter email address" or "Enter phone number." | |
-| **Copy Link** | Display box showing shareable URL + Copy button. | Clicking Copy changes button text to "Copied" with check icon for 2 seconds. |
+| **Copy Link** | Display box showing shareable URL + Copy button. | Clicking Copy uses `navigator.clipboard.writeText()` to copy the link, shows a "Link copied" toast on success, and changes button text to "Copied" with check icon for 2 seconds. Shows error toast on clipboard failure. |
 | **Send Button** | Full-width button: "Send Email" or "Send SMS." | Disabled when recipient is empty. Sends toast confirmation and closes modal. |
 
 ### 6.6 Sub-Menu Panel Content (Drive)
@@ -487,13 +491,13 @@ All Save buttons show a confirmation toast: "Settings saved - Your changes have 
 | **Tab Rows** | All desktop tab rows use `hidden lg:flex`. Only visible on desktop. |
 | **FavoritesBar** | Desktop-only (`hidden lg:flex`). On mobile, favorites appear inside MobileNavDropdown. |
 
-### 10.3 Right Pane on Mobile
+### 10.3 Right Pane Responsive Behavior
 
 | Behavior | Description |
 |---|---|
+| **Desktop (md+)** | Right pane opens as a fixed-width side panel (w-80 / lg:w-96) to the RIGHT of main content. Main content remains visible alongside the pane. Uses `border-l border-border` separator. |
+| **Mobile (<md)** | Right pane opens as a full-screen overlay (`fixed inset-0 z-50 bg-background`). Covers the entire viewport. Close button (ChevronsRight) at top-right. |
 | **Toggle Available** | Same << / >> toggle on all breakpoints. |
-| **Replaces Content** | When open, the right pane replaces the center content area entirely (not a slide-over). |
-| **No Side-by-Side** | Never shows center + right pane simultaneously on any breakpoint. |
 
 ### 10.4 Layout Adaptations by Page
 

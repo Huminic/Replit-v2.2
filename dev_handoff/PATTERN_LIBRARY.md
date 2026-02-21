@@ -220,6 +220,30 @@ Used in: **All pages with sub-menus** (Agents, Drive, Insights, Settings, Profil
 - Border: `border-r border-border`
 - Contains: section title, navigation links, favorites section
 
+### Tab Switching via Custom Events
+When the user is already on a page (e.g., `/insights`) and clicks a sub-menu tab link (e.g., Reports), wouter's `setLocation` won't detect query-param-only changes. The workaround pattern:
+1. Check if already on the target route (e.g., `location.startsWith('/insights')`)
+2. If yes: use `window.history.replaceState(null, '', targetPath)` to update the URL
+3. Dispatch a custom event: `window.dispatchEvent(new CustomEvent('insights-tab-change', { detail: tabId }))`
+4. Update local state (`setActiveInsightsTab(tabId)`) to re-render active highlight
+5. The target page listens for this event in a `useEffect` and updates its own tab state
+
+Events in use:
+- `insights-tab-change` — listened by `insights.tsx`
+- `hub-tab-change` — listened by `work-center.tsx`
+
+### Active Tab Highlighting
+Sub-menu items for Insights and Hub use local state (`activeInsightsTab`, `activeHubTab`) rather than `window.location.search` for active styling. This ensures the highlight re-renders immediately on click without waiting for a route change.
+
+### Chat History Hover Menu
+Home sub-menu "Message History" items have a hover-reveal 3-dot menu:
+- Trigger: `MoreVertical` icon, `opacity-0 group-hover:opacity-100`
+- Menu items: "Resume" (Play icon) and "Delete" (Trash2 icon, `text-destructive`)
+- Uses `e.stopPropagation()` on menu trigger and items to prevent parent click
+
+### Timeout Cleanup
+Both `Sidebar.tsx` and `SubMenuManager.tsx` use `useRef` for hover-leave timeouts. Both include `useEffect` cleanup that clears the timeout ref on unmount to prevent state updates on unmounted components.
+
 ### Mobile
 - Sub-menus rendered via MobileNavDropdown (full-width overlay)
 - Accessible via hamburger menu
