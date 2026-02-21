@@ -29,9 +29,14 @@ import {
   ChevronsRight,
   Send,
   Sparkles,
-  BarChart3
+  BarChart3,
+  Globe,
+  Link2,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -105,6 +110,7 @@ const configSections = [
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const { agents, updateAgent, selectedAgent, setSelectedAgent, rightPaneOpen, setRightPaneOpen } = useApp();
   const [activeConfigSection, setActiveConfigSection] = useState('performance');
   const [agentMessages, setAgentMessages] = useState<AgentChatMessage[]>(initialAgentChat);
@@ -236,6 +242,63 @@ export default function AgentsPage() {
                     </div>
                   );
                 })()}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Agent Information</p>
+              <div className="space-y-2">
+                {selectedAgent.customerLink && (
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid="agent-customer-link">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Customer Link</p>
+                        <p className="text-sm text-foreground truncate">{selectedAgent.customerLink}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(selectedAgent.customerLink!); toast({ title: 'Link copied', description: 'Customer link copied to clipboard.' }); }} data-testid="button-copy-customer-link">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.customerLink, '_blank')} data-testid="button-open-customer-link">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {selectedAgent.assignedPhone && (
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid="agent-assigned-phone">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Assigned Phone</p>
+                        <p className="text-sm text-foreground">{selectedAgent.assignedPhone}</p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => { navigator.clipboard.writeText(selectedAgent.assignedPhone!); toast({ title: 'Phone copied', description: 'Phone number copied to clipboard.' }); }} data-testid="button-copy-phone">
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )}
+                {selectedAgent.chatLink && (
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid="agent-chat-link">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Text Chat Link</p>
+                        <p className="text-sm text-foreground truncate">{selectedAgent.chatLink}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(selectedAgent.chatLink!); toast({ title: 'Link copied', description: 'Chat link copied to clipboard.' }); }} data-testid="button-copy-chat-link">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.chatLink, '_blank')} data-testid="button-open-chat-link">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -496,6 +559,10 @@ export default function AgentsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setRightPaneOpen(true)} data-testid="button-open-agent-config">
+                        <Settings className="h-3.5 w-3.5 mr-1.5" />
+                        Configure
+                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" data-testid="button-agent-menu">

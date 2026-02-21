@@ -30,6 +30,9 @@ export interface Agent {
   instructions: string;
   triggers: AgentTrigger[];
   tools: AgentTool[];
+  customerLink?: string;
+  assignedPhone?: string;
+  chatLink?: string;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -66,6 +69,9 @@ export const mockAgents: Agent[] = [
       { ...availableTools[1], enabled: true },
       { ...availableTools[4], enabled: true },
     ],
+    customerLink: 'https://nexxus.ai/a/sales-agent',
+    assignedPhone: '(800) 555-0101',
+    chatLink: 'https://nexxus.ai/chat/sales-agent',
     createdAt: '2026-01-15T10:30:00Z',
     updatedAt: '2026-01-20T14:45:00Z',
     createdBy: 'user-1',
@@ -88,6 +94,9 @@ export const mockAgents: Agent[] = [
       { ...availableTools[2], enabled: true },
       { ...availableTools[3], enabled: true },
     ],
+    customerLink: 'https://nexxus.ai/a/support-agent',
+    assignedPhone: '(800) 555-0102',
+    chatLink: 'https://nexxus.ai/chat/support-agent',
     createdAt: '2026-01-10T09:00:00Z',
     updatedAt: '2026-01-19T11:20:00Z',
     createdBy: 'user-1',
@@ -110,6 +119,9 @@ export const mockAgents: Agent[] = [
       { ...availableTools[2], enabled: true },
       { ...availableTools[7], enabled: true },
     ],
+    customerLink: 'https://nexxus.ai/a/service-reminder',
+    assignedPhone: '(800) 555-0103',
+    chatLink: 'https://nexxus.ai/chat/service-reminder',
     createdAt: '2026-01-05T14:00:00Z',
     updatedAt: '2026-01-18T16:30:00Z',
     createdBy: 'user-1',
@@ -133,6 +145,8 @@ export const mockAgents: Agent[] = [
       { ...availableTools[4], enabled: true },
       { ...availableTools[5], enabled: true },
     ],
+    customerLink: 'https://nexxus.ai/a/lead-qualifier',
+    chatLink: 'https://nexxus.ai/chat/lead-qualifier',
     createdAt: '2026-01-20T08:00:00Z',
     updatedAt: '2026-01-20T08:00:00Z',
     createdBy: 'user-1',
@@ -157,6 +171,9 @@ export const mockAgents: Agent[] = [
       { ...availableTools[4], enabled: true },
       { ...availableTools[5], enabled: true },
     ],
+    customerLink: 'https://nexxus.ai/a/video-concierge',
+    assignedPhone: '(800) 555-0105',
+    chatLink: 'https://nexxus.ai/chat/video-concierge',
     createdAt: '2026-01-12T11:00:00Z',
     updatedAt: '2026-01-17T09:15:00Z',
     createdBy: 'user-1',

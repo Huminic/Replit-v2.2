@@ -324,6 +324,14 @@ export const getTaskPriorityColor = (priority: TaskPriority): string => {
 // Lead types and mock data
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal' | 'won' | 'lost';
 
+export interface LeadActivity {
+  id: string;
+  type: 'call' | 'email' | 'sms' | 'note' | 'status_change' | 'meeting';
+  description: string;
+  timestamp: string;
+  details?: string;
+}
+
 export interface Lead {
   id: string;
   name: string;
@@ -335,6 +343,8 @@ export interface Lead {
   interestedIn: string;
   lastContact?: string;
   createdAt: string;
+  score: number;
+  activities: LeadActivity[];
 }
 
 export interface InboxMessage {
@@ -358,6 +368,11 @@ export const mockLeads: Lead[] = [
     source: 'Website',
     interestedIn: '2024 Toyota Camry',
     createdAt: '2026-01-21T08:00:00Z',
+    score: 42,
+    activities: [
+      { id: 'a1-1', type: 'status_change', description: 'Lead created from website inquiry', timestamp: '2026-01-21T08:00:00Z' },
+      { id: 'a1-2', type: 'email', description: 'Auto-response sent with Camry details', timestamp: '2026-01-21T08:01:00Z', details: 'Automated welcome email with vehicle spec sheet and pricing.' },
+    ],
   },
   {
     id: 'lead-2',
@@ -370,6 +385,15 @@ export const mockLeads: Lead[] = [
     interestedIn: '2024 Ford F-150',
     lastContact: '2026-01-20T14:30:00Z',
     createdAt: '2026-01-19T10:00:00Z',
+    score: 61,
+    activities: [
+      { id: 'a2-1', type: 'status_change', description: 'Lead created from phone inquiry', timestamp: '2026-01-19T10:00:00Z' },
+      { id: 'a2-2', type: 'call', description: 'Inbound call — asked about F-150 XLT trim', timestamp: '2026-01-19T10:05:00Z', details: 'Customer interested in towing package. Needs fleet pricing for 3 trucks.' },
+      { id: 'a2-3', type: 'email', description: 'Sent fleet pricing proposal', timestamp: '2026-01-19T15:00:00Z', details: 'Included XLT and Lariat trim comparisons with fleet discount.' },
+      { id: 'a2-4', type: 'status_change', description: 'Status changed: New → Contacted', timestamp: '2026-01-19T15:01:00Z' },
+      { id: 'a2-5', type: 'sms', description: 'Follow-up text sent', timestamp: '2026-01-20T09:00:00Z', details: 'Checking if he had questions about the proposal.' },
+      { id: 'a2-6', type: 'call', description: 'Outbound call — discussed financing options', timestamp: '2026-01-20T14:30:00Z', details: '15-minute call. Interested in 60-month financing. Will visit Saturday.' },
+    ],
   },
   {
     id: 'lead-3',
@@ -381,6 +405,17 @@ export const mockLeads: Lead[] = [
     interestedIn: '2024 Honda CR-V',
     lastContact: '2026-01-21T09:15:00Z',
     createdAt: '2026-01-18T11:00:00Z',
+    score: 78,
+    activities: [
+      { id: 'a3-1', type: 'status_change', description: 'Lead created from referral (David Chen)', timestamp: '2026-01-18T11:00:00Z' },
+      { id: 'a3-2', type: 'call', description: 'Introductory call — referral follow-up', timestamp: '2026-01-18T14:00:00Z', details: 'Referred by her brother who purchased last month. Looking for CR-V EX-L.' },
+      { id: 'a3-3', type: 'email', description: 'Sent CR-V inventory options', timestamp: '2026-01-18T16:00:00Z', details: '3 matching vehicles in stock with photos and pricing.' },
+      { id: 'a3-4', type: 'status_change', description: 'Status changed: Contacted → Qualified', timestamp: '2026-01-19T10:00:00Z' },
+      { id: 'a3-5', type: 'meeting', description: 'Test drive scheduled', timestamp: '2026-01-20T11:00:00Z', details: 'Test drove Platinum White CR-V EX-L. Very interested.' },
+      { id: 'a3-6', type: 'note', description: 'Added internal note', timestamp: '2026-01-20T11:45:00Z', details: 'Strong buyer. Prefers white or silver. Budget ~$38K. Has pre-approval from credit union.' },
+      { id: 'a3-7', type: 'sms', description: 'Sent thank-you text after test drive', timestamp: '2026-01-20T12:00:00Z' },
+      { id: 'a3-8', type: 'call', description: 'Follow-up call — discussed trade-in', timestamp: '2026-01-21T09:15:00Z', details: 'Wants to trade 2019 Civic. Offered $18,500 estimate. She will confirm tomorrow.' },
+    ],
   },
   {
     id: 'lead-4',
@@ -392,6 +427,19 @@ export const mockLeads: Lead[] = [
     interestedIn: '2024 BMW X5',
     lastContact: '2026-01-20T16:00:00Z',
     createdAt: '2026-01-15T13:00:00Z',
+    score: 91,
+    activities: [
+      { id: 'a4-1', type: 'status_change', description: 'Lead created from walk-in visit', timestamp: '2026-01-15T13:00:00Z' },
+      { id: 'a4-2', type: 'meeting', description: 'Walk-in showroom visit', timestamp: '2026-01-15T13:00:00Z', details: 'Test drove X5 xDrive40i. Very enthusiastic. Currently drives 2020 X3.' },
+      { id: 'a4-3', type: 'status_change', description: 'Status changed: New → Contacted', timestamp: '2026-01-15T14:30:00Z' },
+      { id: 'a4-4', type: 'email', description: 'Sent X5 configuration options', timestamp: '2026-01-16T09:00:00Z', details: 'Custom build options for M Sport package with premium interior.' },
+      { id: 'a4-5', type: 'call', description: 'Financing discussion', timestamp: '2026-01-17T11:00:00Z', details: 'Pre-approved for $72K. Discussing lease vs. finance options.' },
+      { id: 'a4-6', type: 'status_change', description: 'Status changed: Contacted → Qualified', timestamp: '2026-01-17T11:30:00Z' },
+      { id: 'a4-7', type: 'note', description: 'Manager note added', timestamp: '2026-01-18T09:00:00Z', details: 'High-value prospect. Authorize additional $1,500 trade-in bonus if needed.' },
+      { id: 'a4-8', type: 'email', description: 'Sent formal proposal with trade-in value', timestamp: '2026-01-19T10:00:00Z', details: 'Proposal includes M Sport X5, trade-in for 2020 X3 at $28,000, 48-month lease at $899/mo.' },
+      { id: 'a4-9', type: 'status_change', description: 'Status changed: Qualified → Proposal', timestamp: '2026-01-19T10:05:00Z' },
+      { id: 'a4-10', type: 'call', description: 'Proposal review call', timestamp: '2026-01-20T16:00:00Z', details: 'Reviewed lease terms. Wants to negotiate monthly payment. Follow up Wednesday.' },
+    ],
   },
   {
     id: 'lead-5',
@@ -402,6 +450,11 @@ export const mockLeads: Lead[] = [
     source: 'Social Media',
     interestedIn: '2024 Tesla Model 3',
     createdAt: '2026-01-21T07:30:00Z',
+    score: 28,
+    activities: [
+      { id: 'a5-1', type: 'status_change', description: 'Lead created from Instagram DM', timestamp: '2026-01-21T07:30:00Z' },
+      { id: 'a5-2', type: 'sms', description: 'Received SMS inquiry about Model 3 availability', timestamp: '2026-01-21T07:45:00Z', details: 'Asked if Tesla Model 3 Long Range is in stock.' },
+    ],
   },
 ];
 
