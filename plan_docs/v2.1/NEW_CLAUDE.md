@@ -437,86 +437,7 @@ Each implementer has exclusive modification rights to their module's files (see 
 
 ---
 
-## 10. Live Environment Safety Rules
-
-This is a **live production environment** with real users and active integrations. Follow these rules without exception.
-
-### 10.1 Live Webhooks — Do Not Disrupt
-
-Tavus and VAPI have **live webhooks actively sending data to users**. These webhook endpoints must remain functional at all times during development. If you need to modify webhook handlers:
-1. Create new handlers alongside existing ones
-2. Test the new handlers independently
-3. Swap atomically only after verification
-4. Never take down a webhook endpoint for refactoring
-
-### 10.2 Tavus & VAPI — Live Environment Caution
-
-When working on any Tavus or VAPI integration code, remember this is a **live environment with real users**. Do not:
-- Reset or delete Tavus conversation histories
-- Modify VAPI agent configurations without explicit approval
-- Change webhook URLs or authentication tokens
-- Run destructive tests against these services
-
-### 10.3 Preserve Existing Users
-
-The system has existing users that **must be preserved**. During database migrations:
-- Always use additive migrations (add columns/tables, never drop)
-- Back up user data before any schema changes
-- Verify user data integrity after every migration
-- Never truncate or drop the users table
-
-### 10.4 Safe Testing Protocols
-
-When testing functions that interact with external services:
-- **SMS Testing (TextMagic API):** Always test by sending back to the system itself — do NOT send test messages to real customer numbers
-- **Email Testing:** Use `neoweaver@gmail.com` for all outbound email tests — do NOT use customer email addresses
-- **Voice/Video Testing:** Use the test agent "Elliot" (see §10.5)
-- **Never use production customer data for test scenarios**
-
-### 10.5 Test Agent: Elliot
-
-There is a VAPI agent named **"Elliot"** that exists solely for testing purposes. Elliot can make calls to the existing agents for testing voice workflows. Use Elliot for:
-- Testing agent-to-agent call flows
-- Verifying VAPI webhook handling
-- Testing voice conversation routing
-- Do NOT delete or reconfigure Elliot without explicit approval
-
-### 10.6 Testing Evidence Requirements
-
-Every sprint requires **at least 3 deltas of proof with screenshots** for each completed feature, followed by a full end-to-end test suite:
-
-1. **Delta 1 — Configuration Proof:** Screenshot showing the feature is properly configured (database records, API responses, environment setup)
-2. **Delta 2 — Functional Proof:** Screenshot showing the feature works as intended (data flowing, calculations correct, UI rendering)
-3. **Delta 3 — Integration Proof:** Screenshot showing the feature works correctly with other modules (cross-module data flow, RBAC enforcement, error handling)
-4. **Full E2E:** Playwright test covering the complete user journey for the sprint's features
-
-### 10.7 Context Router & Uploaded Data Store
-
-Pay special attention to the **context router** — it is the intelligence layer that routes conversations and data to the correct agents and services.
-
-There is an **additional data store for user-uploaded content** that exists separately from data synced from third-party integrations (VIN Solutions, TextMagic, etc.). This uploaded data store must:
-- Be clearly separated in the schema from synced data
-- Have its own CRUD endpoints
-- Not be overwritten by third-party sync operations
-- Support the context router's ability to reference both uploaded and synced data
-
-### 10.8 Codebase Diff Requirement
-
-Before starting any sprint, **diff the implementation plan against the existing codebase** to identify:
-- Files that already exist and may conflict with planned changes
-- Existing functionality that overlaps with planned features
-- Naming conflicts between existing code and planned modules
-- Dependencies that are already installed vs. those that need adding
-
-Resolve all questions from the diff before writing new code.
-
-### 10.9 UI Is Source of Truth
-
-The current working UI is the **definitive source of truth** for all visual design, layout, interaction patterns, and user flows. The backend exists to power the UI — not the other way around. If any documentation conflicts with what the UI currently does, the UI wins. See Document Hierarchy in §1.2.
-
----
-
-## 11. Checklist: Before Marking Any Task Complete
+## 10. Checklist: Before Marking Any Task Complete
 
 - [ ] Code compiles without TypeScript errors
 - [ ] No ESLint warnings
@@ -529,10 +450,6 @@ The current working UI is the **definitive source of truth** for all visual desi
 - [ ] Loading states shown while data fetches
 - [ ] Naming conventions followed (Constitution §4)
 - [ ] Metric formulas exactly match Constitution §5 (if applicable)
-- [ ] Live webhooks (Tavus, VAPI) verified still functional
-- [ ] No test messages sent to real customer numbers/emails
-- [ ] 3 deltas of proof captured with screenshots
-- [ ] Existing users preserved and data intact
 
 ---
 
@@ -541,4 +458,3 @@ The current working UI is the **definitive source of truth** for all visual desi
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial Claude Code guide with document hierarchy, locked UI elements, replacement patterns, technical patterns (API routes, storage, SSE, metrics, TanStack Query), RBAC matrix, agent team protocol, testing requirements. |
-| 2026-02-21 | 2.1.1 | Added §10 Live Environment Safety Rules: webhook preservation, Tavus/VAPI caution, user preservation, safe testing protocols (TextMagic/email), test agent Elliot, 3-delta evidence requirements, context router & uploaded data store guidance, codebase diff requirement, UI source of truth reaffirmation. Updated completion checklist. |

@@ -110,20 +110,17 @@ All data is mocked in `/client/src/mocks/`:
 ### Database Schema (Placeholder)
 The `shared/schema.ts` defines a basic users table with Drizzle ORM for PostgreSQL. This is scaffolding for future backend implementation - the current UI uses mock data exclusively.
 
-### Backend Integration Plan
-The v2.1 governing documents in `plan_docs/v2.1/` contain the complete backend wiring plan:
-- **NEW_SRS.md**: 63 API endpoints, 17 database tables, full schema definitions
-- **NEW_IMPLEMENTATION_PLAN.md**: 4 sprints, 9 parallel tracks, file ownership map, gate criteria
-- **NEW_CLAUDE.md**: Mock→API replacement patterns, technical patterns, RBAC matrix, live environment safety rules
-- **NEW_CONSTITUTION.md**: Metric formulas, naming conventions, immutable constraints
-
-### Live Environment Notes
-- Tavus and VAPI webhooks are live and must not be disrupted
-- Test agent "Elliot" (VAPI) available for voice workflow testing
-- SMS testing via TextMagic: loop back to self only
-- Email testing: outbound to `neoweaver@gmail.com` only
-- Existing users must be preserved through all migrations
-- Uploaded data store is separate from third-party synced data
+### Backend Integration Readiness
+A comprehensive `BACKEND_INTEGRATION_GUIDE.md` documents the complete wiring plan:
+- 17 database tables mapped from mock data interfaces
+- 55+ REST API endpoints across 16 resource groups
+- Page-by-page integration map showing every mock import to replace
+- AppContext rewiring plan (what stays client-side vs moves to API)
+- Layout component integration notes (TopBar, Sidebar, SubMenuManager, RightPane)
+- Authentication & RBAC implementation plan (session-based with express-session)
+- Real-time features plan (SSE for chat streaming, polling for notifications)
+- 7-phase migration sequence with checklist
+- Utility function extraction list (functions to keep when deleting mock files)
 
 ### Design System
 Custom theme tokens defined in `client/src/index.css`:
