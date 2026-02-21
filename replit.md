@@ -21,7 +21,9 @@ The application features:
 - **Agents**: List panel (272px, desktop only) / detail center / config toggles via right pane (<< / >> button)
 - **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
 - **Drive**: Share button per file, share modal with Email/SMS tabs
-- **Settings**: Tile-based grid navigation, role-gated sections
+- **Settings**: Tile-based grid navigation, role-gated sections. "Tools & Integrations" tile has 3 tabs: Tools, Widgets, Landing Pages
+- **Widgets**: 4 fixed widget types (Text Chat, Live Video, Voice Call, Unified) under Tools → Widgets tab. Each has Settings, Appearance, Targeting, Domains, Embed sub-tabs. Preview modals per widget. Unified widget links to /w/demo landing page
+- **Widget Landing Page**: /w/demo route (outside AppLayout) — standalone customer service page with 6 channel cards, contact form, "Launch Live Video Chat" button. Powered by Nexxus footer
 - **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere
 - **Activity**: Moved into Insights sub-menu (no longer standalone sidebar item)
 - **SubMenu timeout**: 800ms leave timeout for better usability
@@ -83,7 +85,7 @@ All data is mocked in `/client/src/mocks/`:
 - `files.ts`: Drive files and folders
 - `tasks.ts`: Work center tasks, calendar events, approvals
 - `insights.ts`: Metrics, goals, charts
-- `widgets.ts`: Widget configs (3 widgets), landing pages (5 pages), channel types, appearance/targeting/domain configs
+- `widgets.ts`: 4 widget types (IndividualWidget: text/video/voice/unified), landing pages (5 pages), widget appearance/targeting configs, embed code generation
 
 ### Database Schema (Placeholder)
 The `shared/schema.ts` defines a basic users table with Drizzle ORM for PostgreSQL. This is scaffolding for future backend implementation - the current UI uses mock data exclusively.

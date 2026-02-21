@@ -16,25 +16,31 @@ import WorkCenterPage from "@/pages/work-center";
 import ActivityPage from "@/pages/activity";
 import SettingsPage from "@/pages/settings";
 import ProfilePage from "@/pages/profile";
+import WidgetLandingPage from "@/pages/widget-landing";
 
 function Router() {
   return (
-    <AppLayout>
-      <Switch>
-        <Route path="/" component={MainPage} />
-        <Route path="/agents" component={AgentsPage} />
-        <Route path="/agents/create" component={AgentCreatePage} />
-        <Route path="/drive" component={DrivePage} />
-        <Route path="/insights" component={InsightsPage} />
-        <Route path="/work-center" component={WorkCenterPage} />
-        <Route path="/activity" component={ActivityPage} />
-        <Route path="/settings/system" component={SettingsPage} />
-        <Route path="/profile" component={ProfilePage} />
-        <Route path="/profile/preferences" component={ProfilePage} />
-        <Route path="/profile/billing" component={ProfilePage} />
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+    <Switch>
+      <Route path="/w/demo" component={WidgetLandingPage} />
+      <Route>
+        <AppLayout>
+          <Switch>
+            <Route path="/" component={MainPage} />
+            <Route path="/agents" component={AgentsPage} />
+            <Route path="/agents/create" component={AgentCreatePage} />
+            <Route path="/drive" component={DrivePage} />
+            <Route path="/insights" component={InsightsPage} />
+            <Route path="/work-center" component={WorkCenterPage} />
+            <Route path="/activity" component={ActivityPage} />
+            <Route path="/settings/system" component={SettingsPage} />
+            <Route path="/profile" component={ProfilePage} />
+            <Route path="/profile/preferences" component={ProfilePage} />
+            <Route path="/profile/billing" component={ProfilePage} />
+            <Route component={NotFound} />
+          </Switch>
+        </AppLayout>
+      </Route>
+    </Switch>
   );
 }
 
