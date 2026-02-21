@@ -555,10 +555,50 @@ Sprint 4 (Polish & Certification)
 | SSE streaming complexity | Chat features delayed | Start with polling fallback, upgrade to SSE |
 | RLS performance on large datasets | Slow queries | Add proper indexes, test with production-scale data early |
 | Module interface conflicts | Integration failures | Interface-first development (Sprint 0), shared types |
+| **Live webhook disruption** | **Users lose real-time data** | **Never modify Tavus/VAPI webhook handlers without atomic swap strategy** |
+| **Existing user data loss** | **Production data destroyed** | **Additive-only migrations, mandatory backups before schema changes** |
+| **Test messages to real customers** | **Customer confusion/complaints** | **SMS loops back to self (TextMagic), emails to neoweaver@gmail.com only** |
+
+### 10.1 Pre-Sprint Codebase Diff
+
+Before starting any sprint, every implementing agent must:
+1. **Diff the plan against the existing codebase** — identify files that already exist, overlapping functionality, naming conflicts
+2. **Resolve all questions** from the diff before writing new code
+3. **Document conflicts** and their resolutions in the sprint's verification notes
 
 ---
 
-## 11. File Ownership Map
+## 11. Sprint Evidence Requirements
+
+Each sprint requires the following evidence before the sprint gate review:
+
+| Evidence Type | Description | Example |
+|---|---|---|
+| **Delta 1: Configuration** | Screenshots proving feature is configured correctly | DB records, API responses, env setup |
+| **Delta 2: Functional** | Screenshots proving feature works as intended | Data flowing, calculations, UI rendering |
+| **Delta 3: Integration** | Screenshots proving cross-module correctness | RBAC enforcement, error handling, data flow |
+| **Full E2E** | Playwright test suite covering sprint's user journeys | Automated pass/fail report |
+
+### 11.1 Live Environment Safety
+
+- Tavus & VAPI webhooks are live — never take them down for refactoring
+- Test agent **"Elliot"** (VAPI) is available for voice workflow testing
+- SMS testing: send back to the system itself via TextMagic API
+- Email testing: outbound emails to `neoweaver@gmail.com` only
+- Preserve all existing users during every migration
+
+### 11.2 Context Router & Uploaded Data Store
+
+The context router is the intelligence layer that routes conversations and data. Pay special attention to:
+- **Uploaded data store** exists separately from third-party synced data (VIN Solutions, TextMagic, etc.)
+- Schema must clearly separate uploaded vs. synced data
+- Uploaded data needs its own CRUD endpoints
+- Third-party sync operations must never overwrite uploaded data
+- Context router must reference both uploaded and synced data sources
+
+---
+
+## 12. File Ownership Map
 
 | Module | Owned Files (exclusive modification rights) |
 |--------|---------------------------------------------|
@@ -586,3 +626,4 @@ Sprint 4 (Polish & Certification)
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial modular implementation plan with 4 sprints, 9 tracks, gate criteria, dependency graph, file ownership map. |
+| 2026-02-21 | 2.1.1 | Added §10.1 pre-sprint codebase diff requirement, §11 sprint evidence requirements (3-delta proof), §11.1 live environment safety (webhooks, Elliot, testing protocols), §11.2 context router & uploaded data store guidance. Added live environment risks to register. |
