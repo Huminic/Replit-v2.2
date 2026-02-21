@@ -1,0 +1,376 @@
+# Functional Acceptance Criteria - Comprehensive Edition
+
+## 1. OVERALL SYSTEM CAPABILITIES
+
+### 1.1 Authentication & Access Control
+- **Password Reset Functionality**: Complete password reset workflow with email verification, secure token generation, and expiration handling
+- **Login Interface**: Fully functional authentication screen with input validation, error handling, and session management
+
+### 1.2 User Interface Quality Assurance
+- **Zero UI Errors**: No console errors, broken layouts, or visual inconsistencies across all supported browsers and screen sizes
+- **Complete Functional Testing**: Every interactive element (buttons, links, forms, modals, dropdowns) must be tested with documented evidence of proper operation
+- **Responsive Design Verification**: Confirm proper rendering and functionality across desktop, tablet, and mobile viewports
+
+### 1.3 Agent Configuration & Behavior
+- **Instruction Sets**: All agents and assistants must have complete, well-documented instruction sets and behavioral prompts
+- **Specialty Demonstration**: Conduct and document 5-10 turn conversations with each agent, showcasing their domain expertise and conversational capabilities
+- **Cross-Channel Identity Consistency**: Verify that the video agent (Tavus), inbound call agent, outbound call agent, and text chat agent all present with the same assigned name and identity
+
+### 1.4 Metrics & Analytics Transparency
+- **Drill-Down Capability**: All aggregated scores and metrics must be clickable to reveal underlying data sources
+- **Calculation Transparency**: Display the methodology and data inputs used to calculate each metric or score
+- **Data Lineage**: Provide clear traceability from raw data to final displayed metrics
+
+### 1.5 CRM Integration
+- **VinSolutions Data Insertion**: Validate that new calls and leads are correctly formatted and successfully inserted into VinSolutions with all required fields populated
+- **Data Synchronization**: Confirm bidirectional data flow and real-time updates between Nexxus and VinSolutions
+
+---
+
+## 2. ROLE-BASED ACCESS CONTROL (RBAC) ARCHITECTURE
+
+### 2.1 Super Admin Capabilities
+
+**Organization Management**
+- Create, read, update, and delete Partner accounts with full configuration control
+- Provision and manage Organization accounts with customizable settings
+- Switch between organizations with a "Nexxus System" view option to see configurations as end-users experience them
+
+**System-Wide Configuration**
+- Add and manage tools available within the entire system
+- Create and manage template packages that define feature sets and tool access for organizations
+- Configure global system settings and behaviors
+
+**User Management**
+- Reset passwords for any user across all organizations
+- Manage user permissions and role assignments system-wide
+
+**Financial & Usage Oversight**
+- Audit usage of third-party metered tools across all partners and organizations
+- Manage credit allocation and consumption tracking
+- Configure markup percentages on third-party vendor costs
+- Monitor and adjust economic models and pricing structures
+
+### 2.2 Partner Admin Capabilities
+
+**Organization Management**
+- Create, read, update, and delete Organization accounts within their partnership
+- Switch between organizations with a "[customer name slug]" view option to see configurations as that organization experiences them
+
+**Configuration Rights**
+- Access to similar settings as Super Admin, excluding system-wide configurations
+- Manage partner-level settings and preferences
+- Configure features and tools within the constraints of assigned template packages
+
+### 2.3 Organization Admin Capabilities
+
+**Analytics & Metrics**
+- View accurate, real-time metrics specific to their organization
+- Access detailed transcripts of Vapi chat and Tavus video interactions
+- Monitor agent performance and interaction quality
+
+**Widget & Integration Management**
+- Configure and customize widgets for various channels
+- Copy and manage embedded code snippets for website integration
+- Test and verify inbound lead calls routing correctly to Vapi through the unified widget
+
+**Agent Management**
+- Share organization-level agents down to staff users
+- Configure agent behaviors and access permissions
+
+**User Administration**
+- Create, read, update, and delete Staff user accounts
+- Promote staff accounts to Organization Admin role
+- View and audit complete chat session history for all staff members
+
+**Content & Behavior Controls**
+- Upload data to fortification stores for agent knowledge enhancement
+- Provide prompt instructions in settings to filter or restrict certain staff chat activities
+- Define organizational guardrails and compliance requirements
+
+### 2.4 Staff User Capabilities
+
+**Lead Interaction Tools**
+- Manually trigger outbound calls, emails, and SMS messages to leads
+- Access lead information and interaction history
+- Initiate two-way text conversations between dealership assistant and customers
+
+**Assistant Functionality (Automa)**
+- Use Automa as a comprehensive LLM replacement for standard query tasks
+- Generate lead reports from data queries with automatic storage to Drive
+- Access organizational knowledge bases and fortification stores
+
+**Communication Capabilities**
+- Engage in authenticated two-way text conversations with customers
+- Maintain context and continuity across multi-turn interactions
+- Access relevant customer history during conversations
+
+### 2.5 Product Tour & Onboarding
+
+**Role-Based Guidance**
+- Reactivate and configure the product tour with RBAC integration
+- Customize tour experience based on user role (Super Admin, Partner Admin, Org Admin, Staff)
+- Provide contextual help and feature discovery appropriate to permission levels
+
+---
+
+## 3. DATA HANDLING & ARCHITECTURE
+
+### 3.1 Data Source Integration
+- **Third-Party Tool Queries**: Ability to query and retrieve data from integrated third-party services
+- **Fortification Stores**: Access to uploaded and web-scraped data repositories
+- **Real-Time Data Access**: Query execution with appropriate caching and performance optimization
+
+### 3.2 Memory Management
+- **Short-Term Memory**: Conversation context maintained across current session
+- **Long-Term Memory**: Persistent storage of user preferences, historical interactions, and learned patterns
+- **Memory Segmentation**: Separate storage mechanisms for different data types and access patterns
+
+### 3.3 Data Storage Architecture
+- **Memory Stores**: Dedicated storage for conversational context and user preferences
+- **Third-Party Data Synchronization**: Real-time or scheduled sync with external systems
+- **Uploaded Data (Fortification)**: Secure storage and indexing of user-uploaded files and documents
+- **Data Segmentation**: Logical separation of data by organization, user, and purpose
+
+---
+
+## 4. AGENT SYSTEM ARCHITECTURE
+
+### 4.1 Agent Creation & Configuration
+
+**Natural Language Agent Builder**
+- Create agents by combining triggers, skills, and third-party tools using natural language descriptions
+- Configure agent behaviors without requiring technical expertise
+
+**Prompt Engineering Interface**
+- Add and modify agent-specific prompts and instructions
+- Version control for prompt iterations with rollback capability
+
+**Trigger Management**
+- Define and manage agent triggers using natural language processing
+- Support for time-based, event-based, and condition-based triggers
+
+### 4.2 Agent Quality Configuration (Qualia)
+
+**System-Level Qualia**
+- Adjust Automa's baseline personality and response style in system settings
+- Configure using text prompts or predefined personality templates
+
+**Agent-Level Qualia**
+- Customize individual agent personalities in agent-specific settings
+- Override system defaults for specialized agent behaviors
+
+### 4.3 Default Agent Architecture
+
+**Communications Agent (Caroline)**
+- Static configuration controlled by Super Admin
+- Pre-configured and available out-of-the-box for all organizations
+- Unified identity across all channels (Tavus video, Vapi voice, text chat)
+- This represents one of two system-controlled agents available by default
+
+**Agent Naming Convention**
+- External-facing name: "Caroline" (or organization-configured name)
+- Internal system reference: Uses the same identifier across Tavus and Vapi integrations
+- Consistent identity presentation across all customer touchpoints
+
+### 4.4 Agent Capabilities & Interface
+
+**Communication Functions**
+- Send SMS to individual customers or bulk recipients
+- Send email to individual customers or bulk recipients
+- Attach artifacts from Drive or upload files directly in chat for inclusion in messages
+
+**Agent Information Pane**
+- Display customer-facing link for direct agent interaction
+- Show assigned phone number for voice interactions
+- Provide link to customer text chat interface
+- Display contextual instructions and prompts with inline editing capability
+
+**Data Access**
+- Full access to organizational data and fortification stores
+- Integration with CRM data (VinSolutions)
+- Real-time access to lead information and interaction history
+
+---
+
+## 5. AUTOMA CHAT CAPABILITIES
+
+### 5.1 Core LLM Functionality
+*(Reference: Chat Checklist Document)*
+
+**Full-Featured Chat Experience**
+- Multi-turn conversational capability with context retention
+- Intent parsing to determine appropriate system components and responses
+- Natural language understanding across diverse query types
+
+### 5.2 File & Data Handling
+
+**File Upload & Processing**
+- Accept and parse various file formats (PDF, DOCX, XLS, CSV, images)
+- Extract and index content for searchability
+- Store uploaded files in appropriate fortification stores
+
+**Memory Architecture**
+- Short-term memory for current session context
+- Long-term memory for persistent user preferences and history
+- Contextual recall of previous interactions and decisions
+
+### 5.3 Content Generation & Export
+
+**Document Creation**
+- Generate PDF documents with professional formatting
+- Create Excel spreadsheets with data and formulas
+- Export CSV files for data exchange
+- Generate hosted HTML pages for web sharing
+
+**Drive Integration**
+- Automatically store generated documents in Drive
+- Create shareable links with appropriate permissions
+- Organize outputs in user-defined folder structures
+
+### 5.4 Data Query & Analysis
+
+**Data Store Queries**
+- Query fortification stores to answer questions
+- Access CRM data with appropriate permissions
+- Perform cross-referencing across multiple data sources
+
+**VinSolutions Limitations**
+- Clearly communicate query limitations imposed by VinSolutions API
+- Explain data availability constraints to users
+- Provide alternative approaches when direct queries are not possible
+
+### 5.5 User Guidance & System Management
+
+**Post-Turn Suggestions**
+- Provide next-step recommendations after each interaction
+- Coach users through complex workflows
+- Offer proactive tips based on usage patterns
+
+**Settings Management**
+- Modify system settings through conversational interface
+- Provide step-by-step instructions for configuration changes users must complete manually
+- Explain implications of settings changes before execution
+
+---
+
+## 6. MAIN DASHBOARD
+
+### 6.1 Landing Page Experience
+- Serves as the default view for all authenticated users
+- Personalized content based on user role and permissions
+
+### 6.2 Key Metrics Display
+- Four primary metrics displayed at the top of the dashboard
+- Metrics dynamically filtered and calculated based on RBAC permissions
+- Real-time or near-real-time data updates
+
+---
+
+## 7. INSIGHTS MODULE
+
+### 7.1 Analytics & Reporting
+*(Reference: Attached Insights Documentation)*
+
+- Comprehensive analytics dashboard with drill-down capabilities
+- Customizable reporting based on organizational needs
+- Visual data representation with charts, graphs, and trend analysis
+
+---
+
+## 8. AGENTS MODULE
+
+### 8.1 Default Agent Suite
+
+**[Organization Slug] Communications Agent**
+- Answer questions about lead interactions
+- Provide updates on customer engagement activities
+- Access and discuss lead information
+- Send messages to leads directly from chat interface
+
+**Sales Coach Agent**
+- Provide guidance on deal handling strategies
+- Access lead information to inform recommendations
+- Query database for relevant precedents and best practices
+- Offer personalized coaching based on specific scenarios
+
+**Messaging Coach Agent**
+- Help construct effective customer replies
+- Recommend optimal communication channels for specific scenarios
+- Offer strategies for deal closure and objection handling
+- Provide templates and examples for various situations
+
+---
+
+## 9. HUB MODULE
+
+### 9.1 Inbox (Unified Communications)
+- Consolidated view of SMS, email, and widget-based customer requests
+- Unified interface for responding across all channels
+- Priority and filtering capabilities for efficient triage
+
+### 9.2 Leads Management
+- Comprehensive list of open leads with status indicators
+- Modal-based detail view showing complete activity history
+- Quick action buttons for SMS, email, and Vapi-based calling
+- Lead scoring and prioritization indicators
+
+### 9.3 Calendar
+- Display of appointments scheduled through various widgets
+- Support for video chat and audio call appointments
+- Integration with staff calendars and availability
+- Appointment management and rescheduling capabilities
+
+---
+
+## 10. DRIVE MODULE
+
+### 10.1 Folder Structure & Organization
+
+**CRUD Operations**
+- Create, read, update, and delete folders and documents
+- Nested folder hierarchies for logical organization
+- Drag-and-drop file management
+
+**Sharing & Collaboration**
+- Generate shareable links for chat-created landing pages
+- Share files with permission controls (view, edit, admin)
+- Track link usage and access analytics
+
+**Template Management**
+- Create reusable templates for reports and documents
+- Store templates in dedicated template library
+- Apply templates to generate new documents quickly
+
+**Organization Shared Folder**
+- Move files to organization-wide shared folder
+- All organization users can access shared resources
+- Permission controls for editing vs. viewing shared content
+
+---
+
+## 11. ACCEPTANCE TESTING REQUIREMENTS
+
+### 11.1 Documentation Standards
+- Provide written evidence for all test scenarios
+- Include screenshots or video recordings of key functionality
+- Document any edge cases or limitations discovered during testing
+
+### 11.2 Performance Benchmarks
+- Define and measure response time expectations for key operations
+- Establish acceptable load times for data-heavy views
+- Verify system performance under concurrent user loads
+
+### 11.3 Integration Validation
+- Confirm all third-party integrations are functioning correctly
+- Validate data integrity across system boundaries
+- Test error handling and retry logic for external service failures
+
+---
+
+## 12. OUTSTANDING CONFIGURATION ITEMS
+
+- Reactivate and configure role-based product tour
+- Finalize VinSolutions data insertion field mapping
+- Complete testing of cross-channel identity consistency for all agent types
+- Validate metrics drill-down functionality across all dashboard views

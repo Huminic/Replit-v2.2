@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Calendar as CalendarIcon, 
@@ -11,7 +11,10 @@ import {
   Voicemail,
   MessageCircle,
   CalendarPlus,
-  Send
+  Send,
+  Search,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +24,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -37,15 +39,81 @@ import {
   mockInboxMessages,
   getLeadStatusColor
 } from '@/mocks/tasks';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, addDays, addWeeks, addMonths, addYears, subDays, subWeeks, subMonths, subYears, isSameDay, isSameMonth, getDay } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
+
+type CalendarViewMode = 'year' | 'month' | 'week' | 'day';
 
 export default function WorkCenterPage() {
   const { toast } = useToast();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState('calendar');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [calendarView, setCalendarView] = useState<CalendarViewMode>('week');
+  const [calendarSearch, setCalendarSearch] = useState('');
+  const [viewDate, setViewDate] = useState(new Date());
+
+  const navigateCalendar = (direction: 'prev' | 'next') => {
+    const fn = direction === 'prev'
+      ? { year: subYears, month: subMonths, week: subWeeks, day: subDays }
+      : { year: addYears, month: addMonths, week: addWeeks, day: addDays };
+    setViewDate(prev => fn[calendarView](prev, 1));
+  };
+
+  const getViewLabel = () => {
+    switch (calendarView) {
+      case 'year': return format(viewDate, 'yyyy');
+      case 'month': return format(viewDate, 'MMMM yyyy');
+      case 'week': {
+        const start = startOfWeek(viewDate, { weekStartsOn: 0 });
+        const end = endOfWeek(viewDate, { weekStartsOn: 0 });
+        return `${format(start, 'MMM d')} – ${format(end, 'MMM d, yyyy')}`;
+      }
+      case 'day': return format(viewDate, 'EEEE, MMMM d, yyyy');
+    }
+  };
+
+  const getEventsForDay = (date: Date) => {
+    return mockCalendarEvents.filter(event => {
+      const eventDate = new Date(event.startTime);
+      return isSameDay(eventDate, date);
+    });
+  };
+
+  const filteredCalendarEvents = useMemo(() => {
+    if (!calendarSearch.trim()) return mockCalendarEvents;
+    const q = calendarSearch.toLowerCase();
+    return mockCalendarEvents.filter(e =>
+      e.title.toLowerCase().includes(q) ||
+      e.description.toLowerCase().includes(q) ||
+      e.attendees.some(a => a.toLowerCase().includes(q))
+    );
+  }, [calendarSearch]);
+
+  const weekDays = useMemo(() => {
+    const start = startOfWeek(viewDate, { weekStartsOn: 0 });
+    return eachDayOfInterval({ start, end: addDays(start, 6) });
+  }, [viewDate]);
+
+  const monthDays = useMemo(() => {
+    const start = startOfMonth(viewDate);
+    const end = endOfMonth(viewDate);
+    const calStart = startOfWeek(start, { weekStartsOn: 0 });
+    const calEnd = endOfWeek(end, { weekStartsOn: 0 });
+    return eachDayOfInterval({ start: calStart, end: calEnd });
+  }, [viewDate]);
+
+  const hours = Array.from({ length: 14 }, (_, i) => i + 7);
+
+  const eventTypeColor = (type: string) => {
+    switch (type) {
+      case 'meeting': return 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300';
+      case 'appointment': return 'bg-green-500/15 border-green-500/40 text-green-700 dark:text-green-300';
+      case 'task': return 'bg-orange-500/15 border-orange-500/40 text-orange-700 dark:text-orange-300';
+      case 'reminder': return 'bg-purple-500/15 border-purple-500/40 text-purple-700 dark:text-purple-300';
+      default: return 'bg-muted border-border text-foreground';
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -72,12 +140,6 @@ export default function WorkCenterPage() {
   const [messageType, setMessageType] = useState<'sms' | 'email'>('sms');
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleLead, setScheduleLead] = useState<string>('');
-
-  const todayEvents = mockCalendarEvents.filter(event => {
-    const eventDate = new Date(event.startTime).toDateString();
-    const selected = selectedDate?.toDateString();
-    return eventDate === selected;
-  });
 
   const unreadMessages = mockInboxMessages.filter(m => !m.read).length;
 
@@ -148,67 +210,230 @@ export default function WorkCenterPage() {
         </div>
 
         <TabsContent value="calendar" className="flex-1 m-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-1">
-                  <CardContent className="p-4">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      className="rounded-md"
-                    />
-                  </CardContent>
-                </Card>
-                <div className="lg:col-span-2 space-y-4">
-                  <h3 className="font-medium text-foreground">
-                    {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : 'Select a date'}
-                  </h3>
-                  {todayEvents.length === 0 ? (
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <CalendarIcon className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
-                        <p className="text-muted-foreground">No events scheduled</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    todayEvents.map(event => (
-                      <Card key={event.id} className="hover-elevate cursor-pointer" onClick={() => toast({ title: event.title, description: `${format(new Date(event.startTime), 'h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}${event.description ? '. ' + event.description : ''}` })} data-testid={`event-${event.id}`}>
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-4">
-                            <div className="text-center">
-                              <p className="text-lg font-bold text-primary">
-                                {format(new Date(event.startTime), 'HH:mm')}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {format(new Date(event.endTime), 'HH:mm')}
-                              </p>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-medium text-foreground">{event.title}</h4>
-                              {event.description && (
-                                <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
-                              )}
-                              {event.attendees && (
-                                <div className="flex items-center gap-2 mt-2">
-                                  <User className="h-3 w-3 text-muted-foreground" />
-                                  <span className="text-xs text-muted-foreground">
-                                    {event.attendees.join(', ')}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <Badge variant="secondary">{event.type}</Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </div>
+          <div className="flex flex-col h-full">
+            <div className="p-3 border-b border-border flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-1">
+                {(['year', 'month', 'week', 'day'] as CalendarViewMode[]).map(v => (
+                  <Button
+                    key={v}
+                    variant={calendarView === v ? 'default' : 'ghost'}
+                    size="sm"
+                    className="capitalize text-xs"
+                    onClick={() => setCalendarView(v)}
+                    data-testid={`cal-view-${v}`}
+                  >
+                    {v}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => navigateCalendar('prev')} data-testid="cal-prev">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="font-medium text-sm whitespace-nowrap" onClick={() => setViewDate(new Date())} data-testid="cal-today">
+                  {getViewLabel()}
+                </Button>
+                <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => navigateCalendar('next')} data-testid="cal-next">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="relative w-full sm:w-56 flex-shrink-0">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search events..."
+                  className="pl-8 text-sm"
+                  value={calendarSearch}
+                  onChange={e => setCalendarSearch(e.target.value)}
+                  data-testid="input-search-calendar"
+                />
               </div>
             </div>
-          </ScrollArea>
+
+            {calendarSearch.trim() ? (
+              <ScrollArea className="flex-1">
+                <div className="p-4 space-y-2">
+                  <p className="text-xs text-muted-foreground mb-3">{filteredCalendarEvents.length} result{filteredCalendarEvents.length !== 1 ? 's' : ''}</p>
+                  {filteredCalendarEvents.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+                      <p className="text-muted-foreground text-sm">No events match your search</p>
+                    </div>
+                  ) : filteredCalendarEvents.map(event => (
+                    <Card key={event.id} className="hover-elevate cursor-pointer" onClick={() => toast({ title: event.title, description: `${format(new Date(event.startTime), 'MMM d, h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}` })} data-testid={`event-${event.id}`}>
+                      <CardContent className="p-3 flex items-center gap-3">
+                        <div className={cn('w-1 self-stretch rounded-full flex-shrink-0', event.type === 'meeting' ? 'bg-blue-500' : event.type === 'appointment' ? 'bg-green-500' : event.type === 'task' ? 'bg-orange-500' : 'bg-purple-500')} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{event.title}</p>
+                          <p className="text-xs text-muted-foreground">{format(new Date(event.startTime), 'EEE, MMM d · h:mm a')} – {format(new Date(event.endTime), 'h:mm a')}</p>
+                        </div>
+                        <Badge variant="secondary" className="text-[10px] capitalize flex-shrink-0">{event.type}</Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : calendarView === 'day' ? (
+              <ScrollArea className="flex-1">
+                <div className="p-4">
+                  <div className="relative">
+                    {hours.map(hour => {
+                      const dayEvents = getEventsForDay(viewDate).filter(e => {
+                        const h = new Date(e.startTime).getHours();
+                        return h >= hour && h < hour + 1;
+                      });
+                      return (
+                        <div key={hour} className="flex min-h-[60px] border-b border-border/50">
+                          <div className="w-16 flex-shrink-0 text-xs text-muted-foreground pt-1 pr-3 text-right">
+                            {format(new Date(2026, 0, 1, hour), 'h a')}
+                          </div>
+                          <div className="flex-1 relative pl-3 border-l border-border">
+                            {dayEvents.map(event => (
+                              <div
+                                key={event.id}
+                                className={cn('rounded-md border px-2 py-1 mb-1 cursor-pointer text-xs', eventTypeColor(event.type))}
+                                onClick={() => toast({ title: event.title, description: `${format(new Date(event.startTime), 'h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}. ${event.description}` })}
+                                data-testid={`event-${event.id}`}
+                              >
+                                <p className="font-medium truncate">{event.title}</p>
+                                <p className="opacity-70">{format(new Date(event.startTime), 'h:mm a')} – {format(new Date(event.endTime), 'h:mm a')}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </ScrollArea>
+            ) : calendarView === 'week' ? (
+              <ScrollArea className="flex-1">
+                <div className="min-w-[700px]">
+                  <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-border sticky top-0 bg-background z-10">
+                    <div className="p-2" />
+                    {weekDays.map(day => (
+                      <div key={day.toISOString()} className={cn('p-2 text-center border-l border-border', isSameDay(day, new Date()) && 'bg-primary/5')}>
+                        <p className="text-xs text-muted-foreground">{format(day, 'EEE')}</p>
+                        <p className={cn('text-sm font-medium', isSameDay(day, new Date()) ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {hours.map(hour => (
+                    <div key={hour} className="grid grid-cols-[64px_repeat(7,1fr)] min-h-[52px] border-b border-border/50">
+                      <div className="text-xs text-muted-foreground pt-1 pr-3 text-right">
+                        {format(new Date(2026, 0, 1, hour), 'h a')}
+                      </div>
+                      {weekDays.map(day => {
+                        const dayEvents = getEventsForDay(day).filter(e => {
+                          const h = new Date(e.startTime).getHours();
+                          return h >= hour && h < hour + 1;
+                        });
+                        return (
+                          <div key={day.toISOString()} className={cn('border-l border-border p-0.5 relative', isSameDay(day, new Date()) && 'bg-primary/5')}>
+                            {dayEvents.map(event => (
+                              <div
+                                key={event.id}
+                                className={cn('rounded border px-1.5 py-0.5 cursor-pointer text-[11px] leading-tight mb-0.5', eventTypeColor(event.type))}
+                                onClick={() => toast({ title: event.title, description: `${format(new Date(event.startTime), 'h:mm a')} - ${format(new Date(event.endTime), 'h:mm a')}. ${event.description}` })}
+                                data-testid={`event-${event.id}`}
+                              >
+                                <p className="font-medium truncate">{event.title}</p>
+                                <p className="opacity-70 truncate">{format(new Date(event.startTime), 'h:mm')} – {format(new Date(event.endTime), 'h:mm')}</p>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : calendarView === 'month' ? (
+              <ScrollArea className="flex-1">
+                <div className="p-4">
+                  <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden border border-border">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                      <div key={d} className="bg-muted/50 p-2 text-center text-xs font-medium text-muted-foreground">{d}</div>
+                    ))}
+                    {monthDays.map(day => {
+                      const dayEvents = getEventsForDay(day);
+                      const isCurrentMonth = isSameMonth(day, viewDate);
+                      return (
+                        <div
+                          key={day.toISOString()}
+                          className={cn(
+                            'bg-background min-h-[80px] p-1.5 cursor-pointer hover:bg-accent/30 transition-colors',
+                            !isCurrentMonth && 'opacity-40',
+                            isSameDay(day, new Date()) && 'ring-1 ring-primary ring-inset'
+                          )}
+                          onClick={() => { setViewDate(day); setCalendarView('day'); }}
+                        >
+                          <p className={cn('text-xs font-medium mb-1', isSameDay(day, new Date()) ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
+                          <div className="space-y-0.5">
+                            {dayEvents.slice(0, 3).map(event => (
+                              <div key={event.id} className={cn('rounded px-1 py-0.5 text-[10px] leading-tight truncate border', eventTypeColor(event.type))} data-testid={`event-${event.id}`}>
+                                {event.title}
+                              </div>
+                            ))}
+                            {dayEvents.length > 3 && (
+                              <p className="text-[10px] text-muted-foreground pl-1">+{dayEvents.length - 3} more</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </ScrollArea>
+            ) : (
+              <ScrollArea className="flex-1">
+                <div className="p-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const monthDate = new Date(viewDate.getFullYear(), i, 1);
+                      const monthEnd = endOfMonth(monthDate);
+                      const monthEvents = mockCalendarEvents.filter(e => {
+                        const d = new Date(e.startTime);
+                        return d >= monthDate && d <= monthEnd;
+                      });
+                      const isCurrentMonth = i === new Date().getMonth() && viewDate.getFullYear() === new Date().getFullYear();
+                      return (
+                        <Card
+                          key={i}
+                          className={cn('cursor-pointer hover-elevate', isCurrentMonth && 'ring-1 ring-primary')}
+                          onClick={() => { setViewDate(new Date(viewDate.getFullYear(), i, 1)); setCalendarView('month'); }}
+                        >
+                          <CardContent className="p-3">
+                            <p className={cn('text-sm font-medium mb-2', isCurrentMonth ? 'text-primary' : 'text-foreground')}>{format(monthDate, 'MMMM')}</p>
+                            <div className="grid grid-cols-7 gap-px">
+                              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                                <div key={idx} className="text-[8px] text-muted-foreground text-center">{d}</div>
+                              ))}
+                              {Array.from({ length: getDay(monthDate) }, (_, k) => (
+                                <div key={`blank-${k}`} />
+                              ))}
+                              {eachDayOfInterval({ start: monthDate, end: monthEnd }).map(day => {
+                                const hasEvents = getEventsForDay(day).length > 0;
+                                return (
+                                  <div key={day.toISOString()} className="text-center">
+                                    <span className={cn('text-[9px]', isSameDay(day, new Date()) ? 'text-primary font-bold' : 'text-muted-foreground', hasEvents && 'underline decoration-primary')}>
+                                      {format(day, 'd')}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {monthEvents.length > 0 && (
+                              <p className="text-[10px] text-muted-foreground mt-2">{monthEvents.length} event{monthEvents.length !== 1 ? 's' : ''}</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              </ScrollArea>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="leads" className="flex-1 m-0 overflow-hidden">
