@@ -316,7 +316,7 @@ export default function MainPage() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Give Nexxus Connect responsibilities, workflows, or projects to manage"
+                  placeholder="Ask me anything about your business"
                   className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[28px] max-h-40 py-1.5"
                   rows={1}
                   data-testid="input-main-chat"
