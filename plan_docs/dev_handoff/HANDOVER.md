@@ -25,6 +25,11 @@ This document provides everything a new developer or team needs to understand, m
 - Settings and profile management
 - Favorites system
 - Mobile responsive design with adaptive navigation
+- Billing management with usage views and invoice builder
+- Organization creation wizard (7-step)
+- 20-skill AI skills catalog with category filtering
+- Per-user hunch preferences
+- PDF download conversion for supported file types
 
 ---
 
@@ -70,6 +75,7 @@ nexxus-v2/
 │       │   │   ├── FavoritesBar.tsx   # Desktop favorites strip
 │       │   │   ├── MobileNavDropdown.tsx  # Mobile sub-menu + favorites
 │       │   │   └── MobileSidebar.tsx  # Mobile sidebar variant
+│       │   ├── AgentConfigPane.tsx       # Agent configuration panel (6 sections)
 │       │   └── ui/                    # ~47 shadcn/ui components
 │       ├── contexts/
 │       │   ├── ThemeContext.tsx        # Light/dark mode management
@@ -98,6 +104,8 @@ nexxus-v2/
 │           ├── drive.tsx              # File management (route: /drive)
 │           ├── activity.tsx           # Activity feed (route: /activity)
 │           ├── settings.tsx           # System settings (route: /settings/system)
+│           ├── billing-management.tsx  # Billing management (route: /settings/billing)
+│           ├── org-wizard.tsx          # Org creation wizard (route: /settings/org-wizard)
 │           ├── profile.tsx            # User profile (route: /profile)
 │           └── not-found.tsx          # 404 page
 ├── server/
@@ -166,7 +174,7 @@ nexxus-v2/
 | Role ID | Display Label | Access Level |
 |---|---|---|
 | `super_admin` | Super Admin | Full access to everything |
-| `partner_admin` | Partner Admin | All except Data Management, API & Webhooks |
+| `partner_admin` | Partner Admin | All except Data Management; read-only AI Config |
 | `org_admin` | Organization Admin | Standard org-level access |
 | `org_staff` | Staff | No Settings access, limited metrics |
 
@@ -190,7 +198,12 @@ canSwitchOrgs(role: UserRole): boolean
 | AI Configuration settings | Yes | Yes | No | No |
 | Security settings | Yes | Yes | No | No |
 | Data Management settings | Yes | No | No | No |
-| API & Webhooks settings | Yes | No | No | No |
+| Billing Management | Yes | Yes | No | No |
+| Org Creation Wizard | Yes | Yes | No | No |
+| Skills catalog (AI Config) | Yes | No | No | No |
+| Kill switch | Yes | No | No | No |
+| New Organization button | Yes | No | No | No |
+| Tools API Keys/Webhooks tabs | Yes | No | No | No |
 | Metric tile content | Platform-level | Partner-level | Org-level | Staff-level |
 
 ---
@@ -207,6 +220,9 @@ canSwitchOrgs(role: UserRole): boolean
 | `/drive` | DrivePage | `data-display` |
 | `/activity` | ActivityPage | `data-display` |
 | `/settings/system` | SettingsPage | `sub-menu` |
+| `/settings/billing` | BillingManagementPage | `sub-menu` |
+| `/settings/org-wizard` | OrgWizardPage | `sub-menu` |
+| `/settings` | SettingsPage | `sub-menu` |
 | `/profile` | ProfilePage | `sub-menu` |
 | `/profile/preferences` | ProfilePage | `sub-menu` |
 | `/profile/billing` | ProfilePage | `sub-menu` |

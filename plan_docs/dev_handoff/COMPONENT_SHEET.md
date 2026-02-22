@@ -50,7 +50,7 @@ Every distinct component in the design system, documenting what to build each pi
 | **States** | hidden, previewing (hover), pinned (expanded) |
 | **Sizes** | Fixed position, left-16 top-14 z-40 |
 | **Test ID Pattern** | `button-collapse-{page}-panel`, `panel-insights-{tab}`, `panel-wc-{tab}`, `panel-conversation-{id}`, `button-conv-menu-{id}`, `menu-resume-{id}`, `menu-delete-{id}` |
-| **Notes** | 800ms leave timeout for usability (with proper cleanup on unmount). Renders appropriate sub-menu based on `activePanel`. Home page has its own internal panel (not part of SubMenuManager). Chat history items have hover-reveal 3-dot menu (Resume/Delete) and keyboard accessibility (`role="button"`, `tabIndex`, `onKeyDown`). Insights and Hub tabs use custom events (`insights-tab-change`, `hub-tab-change`) to switch tabs when already on the page (workaround for wouter not detecting query-only URL changes). Active tab is tracked via local state (`activeInsightsTab`, `activeHubTab`) for proper highlight rendering. |
+| **Notes** | 800ms leave timeout for usability (with proper cleanup on unmount). Renders appropriate sub-menu based on `activePanel`. Home page has its own internal panel (not part of SubMenuManager). Chat history items have hover-reveal 3-dot menu (Resume/Delete) and keyboard accessibility (`role="button"`, `tabIndex`, `onKeyDown`). Insights and Hub tabs use custom events (`insights-tab-change`, `hub-tab-change`) to switch tabs when already on the page (workaround for wouter not detecting query-only URL changes). Active tab is tracked via local state (`activeInsightsTab`, `activeHubTab`) for proper highlight rendering. Settings sub-menu now has 10 RBAC-filtered entries (Users, Organization, Tools, Knowledge, AI Config, Security, Notifications, Data Management, Appearance, Billing). Billing entry visible only to super_admin and partner_admin, navigates to /settings/billing. |
 
 ---
 
@@ -386,7 +386,7 @@ Every distinct component in the design system, documenting what to build each pi
 |----------|-------|
 | **Component Name** | HubTabs |
 | **shadcn/ui Base** | Tabs |
-| **Variants** | Calendar, Approvals, Communication, Open Leads |
+| **Variants** | Calendar, Leads, Inbox |
 | **States** | - |
 | **Sizes** | - |
 | **Test ID Pattern** | `tab-wc-calendar`, `tab-wc-leads`, `tab-wc-inbox` |
@@ -455,3 +455,53 @@ Every distinct component in the design system, documenting what to build each pi
 | **Sizes** | Full viewport, responsive |
 | **Test ID Pattern** | `channel-chat-view`, `channel-video-view`, `channel-voice-view`, `button-launch-video`, `button-landing-submit` |
 | **Notes** | Route: /w/demo. Outside AppLayout (no sidebar/topbar). 6 interactive channel cards, contact form, "Launch Live Video Chat" button. "Powered by Nexxus" footer. All interactions are simulated client-side. |
+
+---
+
+## New Feature Components
+
+| Property | Value |
+|----------|-------|
+| **Component Name** | BillingManagementPage |
+| **shadcn/ui Base** | Card, Table, Input, Select, Badge, Button |
+| **Variants** | super_admin (full dashboard + invoice builder), partner_admin (simplified org view) |
+| **States** | loaded, access-denied |
+| **Sizes** | Full page, max-w-5xl centered |
+| **Test ID Pattern** | `text-revenue-title`, `button-send-invoice`, `button-add-addon`, `button-add-organization` |
+| **Notes** | Super Admin: 6 revenue metric cards, org billing table (expandable rows with config), invoice builder. Partner Admin: My Organizations table, Total MRR + Active Accounts summary. Access denied for org_admin and org_staff. Navigates to /settings/org-wizard for new org creation. |
+
+---
+
+| Property | Value |
+|----------|-------|
+| **Component Name** | OrgWizardPage |
+| **shadcn/ui Base** | Card, Input, Select, Switch, Textarea, Checkbox, Label, Button |
+| **Variants** | - |
+| **States** | step-1 through step-7, validation-error, success |
+| **Sizes** | Full page, max-w-4xl centered |
+| **Test ID Pattern** | `text-wizard-title`, `button-wizard-next`, `button-wizard-back`, `button-wizard-create`, `input-org-name`, `select-industry` |
+| **Notes** | 7-step wizard: Org Details → Contact → Admin Setup → Configuration → Tools → Default Agent → Review. Step indicator with completed/current/future states. Clickable completed steps for back-navigation. Required field validation per step. Auto-generated admin password with copy. Access restricted to super_admin and partner_admin. |
+
+---
+
+| Property | Value |
+|----------|-------|
+| **Component Name** | HunchPreferencesSheet |
+| **shadcn/ui Base** | Sheet, Switch, Select, Slider, Input, Label, Button |
+| **Variants** | - |
+| **States** | open, closed |
+| **Sizes** | Sheet width ~400px from right |
+| **Test ID Pattern** | `button-hunch-preferences`, `switch-show-hunches`, `select-default-view`, `slider-min-confidence`, `button-save-hunch-prefs` |
+| **Notes** | Per-user preferences (separate from system-wide AI Config > Hunches). Toggles for In-App/Email/SMS notifications. Default View dropdown (All/Opportunities/Threats/Insights). Confidence threshold slider. Auto-dismiss days input. Scope note distinguishing from system settings. |
+
+---
+
+| Property | Value |
+|----------|-------|
+| **Component Name** | SkillsCatalogModal |
+| **shadcn/ui Base** | Dialog, Checkbox, Badge, ScrollArea, Button |
+| **Variants** | - |
+| **States** | open (with current assignments), closed |
+| **Sizes** | max-w-md dialog |
+| **Test ID Pattern** | `button-manage-skills`, `checkbox-skill-{id}`, `button-save-skills` |
+| **Notes** | Shows 20 skills across 4 categories (Sales/Finance/Operations/General). Each skill has name, category badge, and checkbox. Used in Agent Config pane for per-agent skill assignment. Separate from the Settings > AI Config > Skills tab which manages the catalog itself. |

@@ -269,6 +269,8 @@ These contain static mock data used during development. They are NOT integration
 | `client/src/mocks/agents.ts` | Mock agent data | **REPLACEABLE** |
 | `client/src/mocks/tasks.ts` | Mock task data | **REPLACEABLE** |
 | `client/src/mocks/notifications.ts` | Mock notification data | **REPLACEABLE** |
+| `client/src/pages/billing-management.tsx` | Billing management page with mock revenue data and invoice builder | **REPLACEABLE** |
+| `client/src/pages/org-wizard.tsx` | 7-step org creation wizard with mock form data | **REPLACEABLE** |
 
 ---
 
@@ -285,7 +287,8 @@ These contain static mock data used during development. They are NOT integration
 | UI Utility Hooks | 0 | 1 | 2 |
 | Shared Schema | 1 | 0 | 0 |
 | Mocks | 0 | 0 | 9 |
-| **Total** | **32** | **8** | **11** |
+| Prototype Pages | 0 | 0 | 2 |
+| **Total** | **32** | **8** | **13** |
 
 ---
 

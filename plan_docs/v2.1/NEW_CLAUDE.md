@@ -46,6 +46,11 @@ These are the output of validated design decisions. Do not modify them:
 | **Thinking Card** | Brain icon, border-purple-500/20 bg-purple-500/5, collapsible |
 | **Metric tiles** | 4-across grid, gradient backgrounds, SVG circles, hover-elevate, click opens modal. Window-blind collapse (max-h transition, 500ms) after first chat message sent. Toggle button appears: ChevronDown "Show" / ChevronUp "Hide". |
 | **Suggestion bubbles** | Sparkle icon, pill-shaped, populate input on click |
+| **Settings** | 9 tiles (API & Webhooks removed). Sub-menu has 10 entries with RBAC gating including Billing (Super Admin + Partner Admin). |
+| **Tools & Integrations** | 5 tabs for most roles (MCP/API/Other/Widgets/Landing Pages) + 2 Super Admin tabs (API Keys/Webhooks) = 7 total. |
+| **AI Configuration** | 4 tabs: System Prompt, Agent Behavior, Skills, Hunches. Skills tab has 20-skill catalog with category filtering + emergency kill switch (Super Admin only). |
+| **Drive sharing** | Share modal includes Download and Download as PDF buttons. |
+| **Agent Config Pane** | Per-agent triggers, skills catalog selection, and reference storage. |
 
 ### 2.2 Locked Design Tokens
 
@@ -69,7 +74,10 @@ These are the output of validated design decisions. Do not modify them:
 /agents/create       → Agent creation
 /work-center         → Hub (sub-menu, tabs: calendar/leads/inbox)
 /drive               → Drive (data-display)
+/settings            → SettingsPage (tile grid — 9 tiles, no API & Webhooks)
 /settings/system     → System Settings (sub-menu, role-gated)
+/settings/billing    → BillingManagementPage (Super Admin + Partner Admin only)
+/settings/org-wizard → OrgWizardPage (7-step wizard, Super Admin + Partner Admin only)
 /profile             → Profile (sub-menu, tabs: profile/preferences/billing)
 /w/:slug             → Widget landing page (standalone, no AppLayout)
 /login               → Login page (NEW — standalone, no AppLayout)
@@ -310,6 +318,11 @@ super_admin > partner_admin > org_admin > org_staff
 | System Settings | ✅ | ✅ | ✅ | ❌ |
 | User Management | ✅ | ✅ | ✅ | ❌ |
 | Org Management | ✅ | ✅ | Read only | ❌ |
+| Billing Management | ✅ | ✅ | ❌ | ❌ |
+| Org Creation Wizard | ✅ | ✅ | ❌ | ❌ |
+| AI Config Skills (kill switch) | ✅ | ❌ | ❌ | ❌ |
+| Tools API Keys/Webhooks tabs | ✅ | ❌ | ❌ | ❌ |
+| New Organization button | ✅ | ❌ | ❌ | ❌ |
 | VIN Sync | ✅ | ✅ | ✅ | ❌ |
 | Webhooks | System | System | System | System |
 
@@ -450,6 +463,8 @@ Each implementer has exclusive modification rights to their module's files (see 
 | Add webhook handler | `server/webhooks/*.ts` |
 | Replace mock data on a page | The page file in `client/src/pages/*.tsx` |
 | Add a new page | `client/src/pages/*.tsx` + register in `client/src/App.tsx` |
+| Billing management (Super/Partner Admin) | `client/src/pages/billing-management.tsx` |
+| Org creation wizard (Super/Partner Admin) | `client/src/pages/org-wizard.tsx` |
 | Modify global state | `client/src/contexts/AppContext.tsx` (minimize changes) |
 | Add auth state | `client/src/contexts/AuthContext.tsx` |
 | Style a component | Use existing Tailwind classes + design tokens in `client/src/index.css` |
@@ -478,3 +493,4 @@ Each implementer has exclusive modification rights to their module's files (see 
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial Claude Code guide with document hierarchy, locked UI elements, replacement patterns, technical patterns (API routes, storage, SSE, metrics, TanStack Query), RBAC matrix, agent team protocol, testing requirements. |
 | 2026-02-22 | 2.1.1 | Added Section 6.5 Live Environment Safety with VAPI/Tavus webhook protection, user preservation, testing protocols (Elliot agent, SMS loopback, email to neoweaver@gmail.com), sprint proof requirements, context router guidance, codebase diff requirement. |
+| 2026-02-22 | 2.1.2 | Updated locked UI elements with Settings (9 tiles), Tools & Integrations (5/7 tabs), AI Config (4 tabs + skills catalog + kill switch), Drive sharing (Download + PDF), Agent Config Pane details. Added routes for /settings, /settings/billing, /settings/org-wizard. Added billing-management.tsx and org-wizard.tsx to file reference. |
