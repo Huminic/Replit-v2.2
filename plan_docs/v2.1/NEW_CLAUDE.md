@@ -356,6 +356,23 @@ super_admin > partner_admin > org_admin > org_staff
 - Log errors server-side with context (user, org, endpoint, timestamp)
 - Graceful degradation: if VIN API is down, show cached data with staleness indicator
 
+### 6.5 Live Environment Safety (READ THIS FIRST)
+
+**This is a live production environment with real paying customers.**
+
+- **VAPI webhooks are LIVE** — actively sending data to real users. Do not modify webhook handlers without explicit approval.
+- **Tavus webhooks are LIVE** — actively sending data to real users. Do not modify webhook handlers without explicit approval.
+- **Preserve existing users** — never drop, truncate, or destructively migrate user data. All migrations must be additive.
+- **Testing protocols:**
+  - SMS: send test messages back to the system itself (loopback via TextMagic API) — never to real customers
+  - Email: use `neoweaver@gmail.com` for all outbound email tests
+  - Voice: use the "Elliot" test-only VAPI agent to make calls to other agents for verification — never test against production agents
+  - Video: use test sessions only, never production Tavus sessions
+- **Proof requirements:** every sprint requires at least 3 deltas of proof with screenshots, then a full E2E test at sprint completion
+- **Context router:** pay special attention to the context router and the additional data store for user-uploaded data. This store exists **separately** from data synced from 3rd parties (VIN Solutions, VAPI, Tavus). Do not conflate these data sources.
+- **Before starting work:** diff this implementation plan against the existing codebase. Identify any conflicts, ask questions, and resolve ambiguity before writing code.
+- **The UI is the source of truth** — if any document contradicts the working UI, the UI wins
+
 ---
 
 ## 7. Testing Requirements
@@ -367,6 +384,8 @@ Every feature requires three proofs:
 1. **Configuration test** — env vars, database connection, API keys work
 2. **Functional test** — the feature produces correct output (unit/integration test)
 3. **Visual/E2E test** — the UI renders correctly with real data (Playwright)
+
+**Per-Sprint Proof Requirements:** Each sprint must produce at least 3 deltas of proof with screenshots showing incremental progress. Sprint 4 requires a comprehensive full E2E pass covering all features.
 
 ### 7.2 Metric Verification
 
@@ -458,3 +477,4 @@ Each implementer has exclusive modification rights to their module's files (see 
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial Claude Code guide with document hierarchy, locked UI elements, replacement patterns, technical patterns (API routes, storage, SSE, metrics, TanStack Query), RBAC matrix, agent team protocol, testing requirements. |
+| 2026-02-22 | 2.1.1 | Added Section 6.5 Live Environment Safety with VAPI/Tavus webhook protection, user preservation, testing protocols (Elliot agent, SMS loopback, email to neoweaver@gmail.com), sprint proof requirements, context router guidance, codebase diff requirement. |
