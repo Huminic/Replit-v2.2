@@ -1,0 +1,40 @@
+                                                                                                                                                                                                                         
+● All 8 fixes applied. Here's the summary of what was changed:                                                                                                                                                             
+                                       
+  ---                                                                                                                                                                                                                      
+  Spec updated to v1.1. All 8 designer issues resolved:                                                                                                                                                                    
+                                                                                                                                                                                                                           
+  #: 1                                                                                                                                                                                                                     
+  Issue: Hub tabs inconsistency                                                                                                                                                                                            
+  Resolution: Added bold CRITICAL CLARIFICATION section at the very top of the document. 3 tabs (Calendar, Leads, Inbox). Any older doc saying 4 is contaminated.
+  ────────────────────────────────────────
+  #: 2
+  Issue: Billing page location
+  Resolution: Added explicit navigation table: Org Admin/Staff access via /profile/billing (Profile sub-menu), Super Admin/Partner Admin access via /settings/billing (new Settings sub-menu item). Updated Settings
+    sub-menu list.
+  ────────────────────────────────────────
+  #: 3
+  Issue: Data Management content
+  Resolution: Verified Section 9 is fully present (lines 630-790) with both tabs, upload dialog, field mapping step, Data Health dashboard, and all grayed items. The designer likely had a truncated view — no spec
+  changes
+    needed.
+  ────────────────────────────────────────
+  #: 4
+  Issue: Agent Config Pane sections
+  Resolution: Added complete 6-section ordered table at the top of Section 12, showing all sections with status (UNCHANGED vs MODIFIED) so the designer knows the full structure.
+  ────────────────────────────────────────
+  #: 5
+  Issue: Partner Admin AI Config access
+  Resolution: Replaced single-line footnote with detailed 5-line breakdown: System Prompt (read-only), Agent Behavior (read-only), Skills (HIDDEN), Hunches (read-only), Kill Switch (NOT visible).
+  ────────────────────────────────────────
+  #: 6
+  Issue: Hunch popout vs AI Config scope
+  Resolution: Added "Scope Clarification" table before the popout layout: AI Config > Hunches = system-wide (Super Admin), Insights page popout = per-user preferences. Explicitly states they are NOT duplicates.
+  ────────────────────────────────────────
+  #: 7
+  Issue: Drive PDF vagueness
+  Resolution: Replaced single "Download as PDF (if applicable)" with two buttons ([Download] always, [Download as PDF] for specific types) and listed exact file extensions supported for PDF conversion.
+  ────────────────────────────────────────
+  #: 8
+  Issue: Economy-to-invoice connection
+  Resolution: Added "Economy-to-Invoice Data Flow" section with ASCII diagram showing how tool card rates flow into invoice line items, plus 4-step explanation of the UI connection points.
