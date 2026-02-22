@@ -19,7 +19,12 @@ import {
   Link2,
   Copy,
   ExternalLink,
-  ChevronsRight
+  ChevronsRight,
+  Plus,
+  Trash2,
+  Info,
+  Sparkles,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +43,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useApp } from '@/contexts/AppContext';
 import { availableTools, type AgentChannel, type AgentTrigger, type AgentTool } from '@/mocks/agents';
 
@@ -54,6 +60,47 @@ const agentActivities = [
   { id: 'act3', text: 'Qualified 3 new leads via web form', time: '6 hours ago' },
   { id: 'act4', text: 'Updated CRM records for 12 contacts', time: '8 hours ago' },
   { id: 'act5', text: 'Triggered service reminder campaign', time: '12 hours ago' },
+];
+
+const agentTriggersMock = [
+  { id: 'trg-1', name: 'New lead 5min', schedule: 'Event', enabled: true },
+  { id: 'trg-2', name: 'Daily follow-up', schedule: '9:00 AM', enabled: true },
+  { id: 'trg-3', name: 'Stale lead check', schedule: '*/4h', enabled: false },
+];
+
+const assignedSkillsMock = [
+  { id: 'sk-1', name: 'Lead Qualifier', active: true },
+  { id: 'sk-2', name: 'Follow-Up Sequencer', active: true },
+  { id: 'sk-3', name: 'Email Responder', active: true },
+];
+
+const skillsCatalog = [
+  { id: 'cat-1', name: 'Lead Qualifier', category: 'Sales', enabled: true },
+  { id: 'cat-2', name: 'Payment Calculator', category: 'Sales', enabled: false },
+  { id: 'cat-3', name: 'Follow-Up Sequencer', category: 'Sales', enabled: true },
+  { id: 'cat-4', name: 'Objection Handler', category: 'Sales', enabled: false },
+  { id: 'cat-5', name: 'Trade-In Evaluator', category: 'Sales', enabled: false },
+  { id: 'cat-6', name: 'Deal Structurer', category: 'Finance', enabled: false },
+  { id: 'cat-7', name: 'Credit App Processor', category: 'Finance', enabled: false },
+  { id: 'cat-8', name: 'Lease vs Buy Advisor', category: 'Finance', enabled: false },
+  { id: 'cat-9', name: 'Rate Shopper', category: 'Finance', enabled: false },
+  { id: 'cat-10', name: 'Rebate Finder', category: 'Finance', enabled: false },
+  { id: 'cat-11', name: 'Inventory Tracker', category: 'Operations', enabled: false },
+  { id: 'cat-12', name: 'Service Scheduler', category: 'Operations', enabled: false },
+  { id: 'cat-13', name: 'Parts Lookup', category: 'Operations', enabled: false },
+  { id: 'cat-14', name: 'Recall Checker', category: 'Operations', enabled: false },
+  { id: 'cat-15', name: 'Lot Management', category: 'Operations', enabled: false },
+  { id: 'cat-16', name: 'Email Composer', category: 'General', enabled: true },
+  { id: 'cat-17', name: 'FAQ Responder', category: 'General', enabled: true },
+  { id: 'cat-18', name: 'Appointment Setter', category: 'General', enabled: false },
+  { id: 'cat-19', name: 'Language Translator', category: 'General', enabled: false },
+  { id: 'cat-20', name: 'Sentiment Analyzer', category: 'General', enabled: false },
+];
+
+const knowledgeReferencesMock = [
+  { id: 'ref-1', name: 'Product FAQ', items: 45, status: 'Stored' },
+  { id: 'ref-2', name: 'Pricing Guide', items: 12, status: 'Stored' },
+  { id: 'ref-3', name: 'Inventory CSV', items: 1200, status: 'Stored' },
 ];
 
 const configSections = [
@@ -78,6 +125,10 @@ export function AgentConfigPane() {
 
   const [toolsModalOpen, setToolsModalOpen] = useState(false);
   const [editTools, setEditTools] = useState<AgentTool[]>([]);
+
+  const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [editSkillsCatalog, setEditSkillsCatalog] = useState(skillsCatalog.map(s => ({ ...s })));
+  const [agentTriggers, setAgentTriggers] = useState(agentTriggersMock.map(t => ({ ...t })));
 
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
   const [knowledgeUploadOpen, setKnowledgeUploadOpen] = useState(false);
@@ -274,101 +325,130 @@ export function AgentConfigPane() {
       case 'triggers':
         return (
           <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Triggers</p>
-              <Button variant="outline" size="sm" onClick={openTriggersModal} data-testid="button-edit-triggers">
-                <Settings className="h-3 w-3 mr-1.5" />
-                Configure
-              </Button>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Agent Triggers</p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => toast({ title: 'Add Trigger', description: 'Trigger editor not available in demo mode.' })} data-testid="button-add-trigger">
+                  <Plus className="h-3 w-3 mr-1.5" />
+                  Add Trigger
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configure', description: 'Trigger editor not available in demo mode.' })} data-testid="button-configure-triggers">
+                  <Settings className="h-3 w-3 mr-1.5" />
+                  Configure
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
-              {selectedAgent.triggers.map((trigger) => (
-                <div key={trigger.type} className="flex items-center justify-between p-3 rounded-lg border border-border">
-                  <div>
-                    <p className="text-sm font-medium text-foreground capitalize">
-                      {trigger.type.replace('_', ' ')}
-                    </p>
-                    {trigger.config?.schedule && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{trigger.config.schedule}</p>
-                    )}
-                    {trigger.config?.condition && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{trigger.config.condition}</p>
-                    )}
+              {agentTriggers.map((trigger) => (
+                <div key={trigger.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`trigger-row-${trigger.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{trigger.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{trigger.schedule}</p>
                   </div>
-                  <Badge variant={trigger.enabled ? 'default' : 'secondary'}>
-                    {trigger.enabled ? 'On' : 'Off'}
-                  </Badge>
+                  <Switch
+                    checked={trigger.enabled}
+                    onCheckedChange={() => setAgentTriggers(prev => prev.map(t => t.id === trigger.id ? { ...t, enabled: !t.enabled } : t))}
+                    data-testid={`trigger-toggle-${trigger.id}`}
+                  />
                 </div>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5">
+              <Info className="h-3 w-3 flex-shrink-0" />
+              Triggers are configured per-agent
+            </p>
           </div>
         );
       case 'tools':
         return (
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Enabled Tools</p>
-              <Button variant="outline" size="sm" onClick={openToolsModal} data-testid="button-edit-tools">
-                <Wrench className="h-3 w-3 mr-1.5" />
-                Manage
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {selectedAgent.tools.map((tool) => (
-                <div key={tool.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`tool-${tool.id}`}>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{tool.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+          <div className="p-4 space-y-5">
+            <div>
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tools</p>
+                <Button variant="outline" size="sm" onClick={openToolsModal} data-testid="button-edit-tools">
+                  <Wrench className="h-3 w-3 mr-1.5" />
+                  Manage
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {selectedAgent.tools.map((tool) => (
+                  <div key={tool.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`tool-${tool.id}`}>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{tool.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+                    </div>
+                    <Badge variant={tool.enabled ? 'default' : 'secondary'}>
+                      {tool.enabled ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
-                  <Badge variant={tool.enabled ? 'default' : 'secondary'}>
-                    {tool.enabled ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              ))}
-              {selectedAgent.tools.length === 0 && (
-                <div className="text-center py-6">
-                  <Wrench className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
-                  <p className="text-sm text-muted-foreground">No tools configured</p>
-                  <Button variant="outline" size="sm" className="mt-3" onClick={openToolsModal} data-testid="button-add-tools">
-                    Add Tools
-                  </Button>
-                </div>
-              )}
+                ))}
+                {selectedAgent.tools.length === 0 && (
+                  <div className="text-center py-6">
+                    <Wrench className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                    <p className="text-sm text-muted-foreground">No tools configured</p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={openToolsModal} data-testid="button-add-tools">
+                      Add Tools
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Skills</p>
+                <Button variant="outline" size="sm" onClick={() => { setEditSkillsCatalog(skillsCatalog.map(s => ({ ...s }))); setSkillsModalOpen(true); }} data-testid="button-manage-skills">
+                  <Sparkles className="h-3 w-3 mr-1.5" />
+                  Manage
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {assignedSkillsMock.map((skill) => (
+                  <div key={skill.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`skill-${skill.id}`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Sparkles className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <p className="text-sm font-medium text-foreground">{skill.name}</p>
+                    </div>
+                    <Badge variant="default">Active</Badge>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
       case 'knowledge':
         return (
           <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Knowledge Sources</p>
-              <Button variant="outline" size="sm" onClick={() => setKnowledgeModalOpen(true)} data-testid="button-manage-knowledge">
-                <BookOpen className="h-3 w-3 mr-1.5" />
-                Manage
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">References</p>
+              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Upload Reference', description: 'File upload not available in demo mode.' })} data-testid="button-upload-reference">
+                <Plus className="h-3 w-3 mr-1.5" />
+                Upload Reference
               </Button>
             </div>
-            <div className="space-y-3">
-              {[
-                { id: 'kb-1', name: 'Product Catalog', count: '248 items indexed', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                { id: 'kb-2', name: 'FAQ & Policies', count: '42 documents', color: 'text-purple-500', bg: 'bg-purple-500/10' },
-                { id: 'kb-3', name: 'Training Scripts', count: '15 conversation flows', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-              ].map(kb => (
-                <Card key={kb.id}>
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', kb.bg)}>
-                      <BookOpen className={cn('h-5 w-5', kb.color)} />
+            <div className="space-y-2">
+              {knowledgeReferencesMock.map((ref) => (
+                <div key={ref.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`reference-${ref.id}`}>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground">{ref.name}</p>
+                      <p className="text-xs text-muted-foreground">{ref.items.toLocaleString()} items</p>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{kb.name}</p>
-                      <p className="text-xs text-muted-foreground">{kb.count}</p>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => setKnowledgeModalOpen(true)} data-testid={`kb-edit-${kb.id}`}>
-                      <Pencil className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge variant="secondary">{ref.status}</Badge>
+                    <Button variant="ghost" size="icon" onClick={() => toast({ title: 'Delete Reference', description: 'Delete not available in demo mode.' })} data-testid={`reference-delete-${ref.id}`}>
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground mt-3 flex items-start gap-1.5">
+              <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              References stored for agent context. Auto-indexing controlled by Knowledge Base settings.
+            </p>
           </div>
         );
       case 'activity':
@@ -618,6 +698,59 @@ export function AgentConfigPane() {
             <Button variant="outline" onClick={() => setKnowledgeModalOpen(false)} data-testid="button-close-knowledge">
               Close
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={skillsModalOpen} onOpenChange={setSkillsModalOpen}>
+        <DialogContent className="sm:max-w-lg" data-testid="modal-manage-skills">
+          <DialogHeader>
+            <DialogTitle>Manage Skills</DialogTitle>
+            <DialogDescription>
+              Assign skills from the catalog to {selectedAgent?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[400px]">
+            <div className="space-y-2 pr-2">
+              {editSkillsCatalog.map((skill, i) => (
+                <div
+                  key={skill.id}
+                  className={cn(
+                    'flex items-center justify-between p-4 rounded-lg border transition-colors',
+                    skill.enabled ? 'border-primary/30 bg-primary/5' : 'border-border'
+                  )}
+                  data-testid={`skill-catalog-${skill.id}`}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <Checkbox
+                      checked={skill.enabled}
+                      onCheckedChange={() => setEditSkillsCatalog(prev => prev.map((s, idx) => idx === i ? { ...s, enabled: !s.enabled } : s))}
+                      data-testid={`skill-checkbox-${skill.id}`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{skill.name}</p>
+                      <Badge variant="secondary" className="text-[10px] mt-0.5">{skill.category}</Badge>
+                    </div>
+                  </div>
+                  {skill.enabled && (
+                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <div className="flex items-center justify-between w-full">
+              <p className="text-xs text-muted-foreground">{editSkillsCatalog.filter(s => s.enabled).length} skills selected</p>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setSkillsModalOpen(false)} data-testid="button-cancel-skills">
+                  Cancel
+                </Button>
+                <Button onClick={() => { setSkillsModalOpen(false); toast({ title: 'Skills updated', description: `Skill assignments saved for ${selectedAgent?.name}.` }); }} data-testid="button-save-skills">
+                  Save Skills
+                </Button>
+              </div>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

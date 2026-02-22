@@ -48,9 +48,11 @@ Supporting files:
 - **Right Pane**: Desktop (md+) = side-by-side panel (w-80/lg:w-96) alongside main content. Mobile (<md) = full-screen overlay. Main content always rendered first in DOM order.
 - **Automa Pop-out**: MessageCircle button (primary-tinted circle) visible when right pane is closed on data-display pages (not Home, not Agents). Mobile FAB at bottom-right. Opens right pane for contextual data discussion.
 - **Agents**: List panel (272px, desktop only) / detail center / config toggles via right pane (<< / >> button)
-- **Hub**: 4 tabs - Calendar, Approvals, Communication, Open Leads (Tasks/Hunches removed)
-- **Drive**: Share button per file, share modal with Email/SMS tabs
-- **Settings**: Tile-based grid navigation, role-gated sections. "Tools & Integrations" tile has 3 tabs: Tools, Widgets, Landing Pages
+- **Hub**: 3 tabs - Calendar, Leads, Inbox
+- **Drive**: Share button per file, share modal with Email/SMS tabs, two download buttons (Download always + Download as PDF for .doc/.xls/.csv/.png/.jpg etc.)
+- **Settings**: Tile-based grid navigation (9 tiles), role-gated sections. Sub-menu has 10 entries including Billing (Super Admin/Partner Admin only). "Tools & Integrations" has 5 tabs (MCP/API/Other/Widgets/Landing Pages) + 2 Super Admin tabs (API Keys/Webhooks). Knowledge Base has 4 tabs (Documents/Web Pages/Databases/Settings). AI Configuration has 4 tabs (System Prompt/Agent Behavior/Skills/Hunches) with Partner Admin read-only. Security all grayed. Data Management 2 tabs (Database Uploads/Data Health). API & Webhooks tile removed.
+- **Billing**: Dual access — Profile billing tab (Org Admin/Staff usage view with progress bars), Settings billing (/settings/billing for Super Admin/Partner Admin revenue dashboard + invoice builder)
+- **Org Wizard**: 7-step wizard at /settings/org-wizard (Org Details, Contact, Admin Setup, Configuration, Tools, Default Agent, Review). Super Admin/Partner Admin only.
 - **Widgets**: 4 fixed widget types (Text Chat, Live Video, Voice Call, Unified) under Tools → Widgets tab. Each has Settings, Appearance, Targeting, Domains, Embed sub-tabs. Preview modals per widget. Unified widget links to /w/demo landing page
 - **Widget Landing Page**: /w/demo route (outside AppLayout) — standalone customer service page with 6 channel cards, contact form, "Launch Live Video Chat" button. Powered by Nexxus footer
 - **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere. Thinking card (collapsible AI reasoning) in first bot message. Chat input placeholder: "Ask me anything about your business"
