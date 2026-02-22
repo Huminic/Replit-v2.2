@@ -1,0 +1,84 @@
+ Okay, here's my situation. I need you to give me some very, very, very important advice. I realized a lot of things during this last development session. We both learned some things. When I went back to the           
+  original UI contract, I realized that we have made all kinds of changes, lost all kinds of UI, candy and got away from the core functionality. My intention is to deliver to you a completely revised UI with          
+  metrics, settings, and components that we added since the last UI contract was delivered. I've gone through and cleaned up a whole lot of stuff and my intention is to basically start a new two point one               
+  development cycle. I have a init dash project skill that is in the system. My plan was to upload a folder. It contains the UI, the handoff documents, the instructions and the prompt and then start a new coding        
+  session and use the project skill to point it to the folder that has the new UI, the new governance docs, the new development handoff from the designer and a lot of other notes with instructions to disregard the      
+  current EI completely and use it as a source of truth along with the information that I'm providing. Do you think that is the best approach to this?                                                                     
+                                                                                                                                  
+● This is a significant architectural decision. Let me give you honest analysis rather than just validation.                                                                                                               
+                                                                                                                                                                                                                           
+  Analysis                                                                                                                                                                                                                 
+                                                                                                                                                                                                                           
+  What you're describing:                                                                                                                                                                                                  
+  - Fresh UI from designer (new source of truth)                                                                                                                                                                           
+  - New governance docs replacing current ones                                                                                                                                                                             
+  - init-project skill to bootstrap a new dev cycle
+  - Disregard current frontend, rebuild against new spec
+
+  What the Reverse SRS tells us about why this makes sense:
+  - The client layer has 105 components, 21 pages — but no route-level RBAC, dual-layer state management that grew organically, and documented drift from the original UI contract
+  - The backend is solid: 237 endpoints, 40 services, 53 tables with RLS, 747 E2E tests
+  - The drift happened in the frontend, not the backend
+
+  The Core Question
+
+  Are you replacing just the frontend, or starting the entire project over?
+
+  Because the answer changes everything:
+
+  ┌──────────────────────────────────────┬────────┬─────────────┬──────────────────────┐
+  │               Approach               │  Risk  │   Effort    │    Recommendation    │
+  ├──────────────────────────────────────┼────────┼─────────────┼──────────────────────┤
+  │ Replace frontend only (keep backend) │ Low    │ Medium      │ Strongly recommended │
+  ├──────────────────────────────────────┼────────┼─────────────┼──────────────────────┤
+  │ Replace everything (new project)     │ High   │ Very High   │ Not recommended      │
+  ├──────────────────────────────────────┼────────┼─────────────┼──────────────────────┤
+  │ Incremental page-by-page overhaul    │ Lowest │ Medium-High │ Safe but slower      │
+  └──────────────────────────────────────┴────────┴─────────────┴──────────────────────┘
+
+  My Honest Advice
+
+  Your instinct is right, but with one refinement:
+
+  1. Keep the backend. It works. 237 endpoints, 40 services, 8 scheduled jobs, 7 integrations — all wired and tested. Rebuilding this would be months of rework for zero new capability.
+  2. Replace the frontend against the new design. This is where the drift happened. A clean client rebuild against the designer's handoff, wired to the existing API, is the right move.
+  3. The Reverse SRS + audit files are your bridge. They document exactly what the backend exposes, so the new frontend knows what to connect to. Include docs/REVERSE_SRS.md and docs/audit/server-audit.md in your
+  handoff folder — they're the API contract.
+  4. init-project could work, but verify what it actually sets up. If it creates a brand new project structure, you'd lose the backend. If it can be pointed at just the client/ directory with new governance, that's
+  ideal.
+
+  Suggested Handoff Folder Contents
+
+  What I'd include in the folder you upload:
+
+  handoff/
+  ├── NEW_UI_DESIGNS/          # Designer's screens/specs
+  ├── UI_HANDOFF.md            # Designer's component specs, tokens, patterns
+  ├── DEVELOPMENT_BRIEF.md     # Your instructions to the next session
+  ├── REVERSE_SRS.md           # Copy from docs/ (what exists today)
+  ├── server-audit.md          # Copy from docs/audit/ (API contract)
+  ├── CONSTITUTION.md           # Updated governance
+  ├── ACCEPTANCE_CRITERIA.md   # AC-1 through AC-5 (unchanged)
+  └── NOTES.md                 # Your observations about what drifted and why
+
+  One Risk to Flag
+
+  "Disregard the current UI completely" is emotionally satisfying but practically dangerous. Some things in the current frontend are load-bearing:
+
+  - fetchApi() wrapper with JWT refresh logic
+  - TanStack Query hooks (26 of them) that know the API contract
+  - SSE streaming for DealerBrain
+  - Organization context switching for Partner Admins
+  - Webhook event handling
+
+  These aren't "UI" — they're integration plumbing. A new frontend still needs all of this. The designer's screens won't include it.
+
+  Recommendation: Frame it as "new UI shell and components, preserve integration plumbing" rather than "disregard everything."
+
+  Bottom Line
+
+  Your approach is sound with two adjustments:
+  1. Scope it as a frontend rebuild, not a full project reset
+  2. Carry forward the integration layer (hooks, API client, auth flow) even if every visible component gets replaced
+
+  Want me to help you structure the handoff folder, or do you want to discuss the scope further first?
