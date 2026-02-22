@@ -228,6 +228,22 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 | REL-02 | Graceful error handling: user-friendly error messages, no stack traces exposed |
 | REL-03 | Webhook idempotency: duplicate events do not create duplicate records |
 | REL-04 | Session storage in PostgreSQL (survives server restarts) |
+| REL-05 | Existing users must be preserved — migrations must be non-destructive (additive columns, not destructive table drops) |
+| REL-06 | VAPI and Tavus webhooks are live in production — handlers must not be modified without explicit approval |
+
+### 3.5 Live Environment Safety
+
+| ID | Requirement |
+|----|-------------|
+| LIVE-01 | VAPI webhooks are actively sending data to real users — do not disrupt |
+| LIVE-02 | Tavus webhooks are actively sending data to real users — do not disrupt |
+| LIVE-03 | Existing users and their data must be preserved through all migrations |
+| LIVE-04 | SMS testing: use TextMagic API loopback (send to self), never to real customers |
+| LIVE-05 | Email testing: use neoweaver@gmail.com for all outbound email tests |
+| LIVE-06 | Voice testing: use "Elliot" test-only VAPI agent to call other agents for verification |
+| LIVE-07 | Context router and uploaded data store exist separately from 3rd-party synced data — must not be conflated |
+| LIVE-08 | Every sprint requires at least 3 deltas of proof with screenshots, plus full E2E at sprint end |
+| LIVE-09 | Diff implementation plan against existing codebase before starting — resolve conflicts first |
 
 ### 3.4 Scalability
 
@@ -381,7 +397,7 @@ The Express middleware sets `app.organization_id` on every request from the auth
 **Activity (1 endpoint)**
 - GET /api/activity
 
-**Webhooks (3 endpoints)**
+**Webhooks (3 endpoints)** — CAUTION: VAPI and Tavus webhooks are LIVE in production, actively sending data to real users. Do not modify without explicit approval.
 - POST /api/webhooks/vapi
 - POST /api/webhooks/tavus
 - POST /api/webhooks/textmagic
@@ -623,3 +639,4 @@ Every UI behavior documented in ACCEPTANCE_CRITERIA.md (Part I) maps to a functi
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial comprehensive SRS with 63 API endpoints, 17 database tables, 91 library metrics, 6 report specs, hunch engine spec, complete non-functional requirements. |
+| 2026-02-22 | 2.1.1 | Added Section 3.5 Live Environment Safety (LIVE-01 through LIVE-09), REL-05/REL-06 reliability requirements, webhook production warnings. |

@@ -244,8 +244,12 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 6. **NEVER** deploy from a feature branch — main/master only
 7. **NEVER** cache derived metrics as authoritative truth — recompute on demand
 8. **NEVER** show placeholder UI for blocked features — if it can't be delivered, don't show it
-9. **NEVER** modify VAPI webhook handlers without explicit approval
+9. **NEVER** modify VAPI or Tavus webhook handlers without explicit approval — these are live in production and actively sending data to users
 10. **ALWAYS** use "Skills" (not "Tools") in customer-facing UI for agent capabilities
+11. **ALWAYS** preserve existing users in the system — never drop, truncate, or destructively migrate user data
+12. **ALWAYS** treat VAPI and Tavus as live production environments — test against staging/test agents only, never against production agents
+13. **ALWAYS** diff the implementation plan against the existing codebase before starting work — identify conflicts, ask questions, resolve ambiguity before writing code
+14. **The UI is the source of truth** — if any document contradicts the working UI, the UI wins
 
 ---
 
@@ -259,19 +263,23 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 - Cache TTL: 5 minutes for leads
 
 ### 7.2 VAPI (Voice)
-- Webhooks for inbound call data
+- **LIVE PRODUCTION** — Webhooks are actively sending data to real users. Do not modify webhook handlers without explicit approval.
 - TriggerService for outbound calls
 - Org isolation via `metadata.organizationId` or `assistantId` lookup
 - Idempotency guards on all webhook handlers
+- Test agent "Elliot" exists as a VAPI test-only agent — use Elliot to make test calls to other agents for verification
+- Never test against production voice agents directly
 
 ### 7.3 Tavus (Video)
-- Webhooks for video session data
+- **LIVE PRODUCTION** — Webhooks are actively sending data to real users. Do not modify webhook handlers without explicit approval.
 - HMAC verification on inbound
 - Cache TTL: 1 hour
+- Never test against production video sessions directly
 
 ### 7.4 TextMagic (SMS)
 - One unique phone number per store
 - AI SMS responses powered by DealerBrain (Claude API), not VAPI
+- **Testing protocol:** When testing SMS functions, send test messages back to the system itself (loopback test). Use `neoweaver@gmail.com` for testing outbound emails. Never send test messages to real customers.
 
 ### 7.5 All Webhooks
 - Must have idempotency guards — duplicate events must not create duplicate records
@@ -293,6 +301,11 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 - Feature branches for development, master for deployment
 - Three proofs required per feature (Section 3.4)
 - All metric formulas must have automated verification tests
+- **Every sprint requires at least 3 deltas of proof with screenshots**, then a full end-to-end test at sprint completion
+- SMS testing: loopback to itself using TextMagic API (never to real customers)
+- Email testing: use `neoweaver@gmail.com` for outbound email tests
+- Voice testing: use the "Elliot" test agent to make calls to other agents for verification
+- Video testing: use test sessions only, never production Tavus sessions
 
 ### 8.3 Code Organization
 - Shared types in `shared/schema.ts` (Drizzle ORM + Zod schemas)
@@ -308,3 +321,4 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 |------|---------|---------|
 | 2026-02-18 | 1.0 | Original Constitution |
 | 2026-02-21 | 2.1 | Added UI source of truth principle, metric formulas (Org Admin + Staff), expanded RBAC spec, naming conventions, integration rules, cross-document references. Supersedes v1.0. |
+| 2026-02-22 | 2.1.1 | Added live environment safety rules: VAPI/Tavus webhook protection, user preservation, testing protocols (Elliot agent, SMS loopback, neoweaver@gmail.com), sprint proof requirements, context router guidance, codebase diff requirement. |

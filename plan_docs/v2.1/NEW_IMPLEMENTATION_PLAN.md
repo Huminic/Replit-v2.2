@@ -20,8 +20,26 @@ This plan is structured for **modular, parallel development** — not monolithic
 3. Shared infrastructure (auth, RLS, storage interface) is built first and consumed by all modules
 4. Mock data is replaced incrementally — each module replaces its own mocks while others continue using theirs
 5. No module may modify another module's files without explicit coordination
+6. **Existing users must be preserved** — all migrations are additive, never destructive
+7. **VAPI and Tavus webhooks are LIVE in production** — do not modify handlers without explicit approval
+8. **Before starting any sprint**, diff the plan against the existing codebase to identify conflicts and resolve questions first
 
-### 1.3 Sprint Structure
+### 1.3 Live Environment Rules
+
+This is a **live production environment** with real customers. The following rules are non-negotiable:
+
+- **VAPI webhooks** are actively sending data to users — do not disrupt
+- **Tavus webhooks** are actively sending data to users — do not disrupt
+- **Existing users** in the database must be preserved through all migrations
+- **SMS testing**: use TextMagic API loopback (send to self), never to real customers
+- **Email testing**: use `neoweaver@gmail.com` for all outbound email tests
+- **Voice testing**: use the "Elliot" test-only VAPI agent to make calls to other agents for verification
+- **Video testing**: use test sessions only, never production Tavus sessions
+- **Context router**: pay special attention to the context router and the additional data store for user-uploaded data — this store exists separately from data synced from 3rd parties (VIN Solutions, VAPI, Tavus)
+- **Proof requirements**: every sprint requires at least 3 deltas of proof with screenshots, followed by a full E2E test at sprint completion
+- **The UI is the source of truth** — if any document contradicts the working UI, the UI wins
+
+### 1.4 Sprint Structure
 
 | Sprint | Duration | Theme | Parallel Tracks |
 |--------|----------|-------|-----------------|
@@ -405,23 +423,29 @@ This plan is structured for **modular, parallel development** — not monolithic
 **Depends on:** Sprint 0, Track D
 **Files:** `server/webhooks/`, `server/routes.ts`
 
+**⚠️ CRITICAL: VAPI and Tavus webhooks are LIVE in production and actively sending data to real users. Exercise extreme caution. Do not modify existing webhook handler behavior without explicit approval.**
+
 **Endpoints:**
 - POST /api/webhooks/vapi
 - POST /api/webhooks/tavus
 - POST /api/webhooks/textmagic
 
 **Tasks:**
-1. Implement VAPI webhook handler with idempotency guards
-2. Implement Tavus webhook handler with HMAC verification
+1. Implement VAPI webhook handler with idempotency guards — preserve any existing handler logic
+2. Implement Tavus webhook handler with HMAC verification — preserve any existing handler logic
 3. Implement TextMagic webhook handler
 4. Create notification triggers from webhook events
 5. Map webhook data to agent activities and notification records
+6. Use "Elliot" test agent (VAPI test-only) to verify voice call flows — never test against production agents
+7. For SMS testing, send test messages back to the system itself (loopback) — never to real customers
+8. For email testing, use `neoweaver@gmail.com` as the test recipient
 
 **Verification:**
-- [ ] VAPI webhooks create correct records
+- [ ] VAPI webhooks create correct records (test via Elliot agent)
 - [ ] Duplicate webhooks are rejected (idempotency)
 - [ ] Tavus HMAC verification works
-- [ ] TextMagic messages trigger AI responses via Claude
+- [ ] TextMagic messages trigger AI responses via Claude (test via loopback)
+- [ ] Existing webhook behavior is not disrupted (regression test)
 
 ---
 
@@ -454,6 +478,8 @@ This plan is structured for **modular, parallel development** — not monolithic
 
 ### Module P3: End-to-End Testing & Certification
 
+**Proof Requirement:** Every sprint must produce at least 3 deltas of proof with screenshots. Sprint 4 requires a full E2E pass.
+
 **Tasks:**
 1. Run Playwright E2E tests against all pages
 2. Verify all ACCEPTANCE_CRITERIA.md Part I behaviors with real data
@@ -461,6 +487,9 @@ This plan is structured for **modular, parallel development** — not monolithic
 4. Security audit: RLS, auth, input validation, XSS, CSRF
 5. Performance testing: API response times, database query times
 6. Fix all critical/major issues found
+7. Verify existing users are preserved and functional after all migrations
+8. Verify VAPI and Tavus webhook handlers still function correctly (regression test)
+9. Verify context router and uploaded data store remain independent from 3rd-party synced data
 
 ### Module P4: Mock Data Removal
 
@@ -586,3 +615,4 @@ Sprint 4 (Polish & Certification)
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial modular implementation plan with 4 sprints, 9 tracks, gate criteria, dependency graph, file ownership map. |
+| 2026-02-22 | 2.1.1 | Added Section 1.3 Live Environment Rules, Track I webhook safety warnings, Elliot test agent protocol, sprint proof requirements, codebase diff requirement, P3 regression tests. |
