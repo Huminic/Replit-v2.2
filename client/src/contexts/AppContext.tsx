@@ -48,6 +48,13 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser] = useState<User>(mockCurrentUser);
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+    const validRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'org_staff'];
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role') as UserRole | null;
+    if (roleParam && validRoles.includes(roleParam)) {
+      localStorage.setItem('nexxus-current-role', roleParam);
+      return roleParam;
+    }
     const saved = localStorage.getItem('nexxus-current-role');
     return (saved as UserRole) || mockCurrentUser.role;
   });
