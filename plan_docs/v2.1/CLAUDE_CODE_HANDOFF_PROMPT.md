@@ -138,6 +138,16 @@ cat replit_reference/App\ Audit/DATA_ACCURACY_REPORT.md  # VAPI/Tavus/VIN data i
 
 Role mapping (numeric → string): Level 1 → `super_admin`, Level 2 → `partner_admin`, Level 3 → `org_admin`, Level 4 → `org_staff`
 
+#### Prototype RBAC Gates (as of 2026-02-22)
+
+| Feature | super_admin | partner_admin | org_admin | org_staff |
+|---------|:-----------:|:-------------:|:---------:|:---------:|
+| Billing Management (`/settings/billing`) | ✅ | ✅ | ❌ | ❌ |
+| Org Creation Wizard (`/settings/org-wizard`) | ✅ | ✅ | ❌ | ❌ |
+| AI Config Skills tab (kill switch) | ✅ | ❌ | ❌ | ❌ |
+| Tools API Keys/Webhooks tabs | ✅ | ❌ | ❌ | ❌ |
+| New Organization button (User Management) | ✅ | ❌ | ❌ | ❌ |
+
 ### 1.5 Real-Time Features
 
 - **SSE streaming**: `POST /api/conversations/:id/stream` — DealerBrain AI responses via Server-Sent Events
@@ -173,6 +183,8 @@ nexxus-v2/
 │   │   │   └── utils.ts              # CARRY FORWARD — cn() utility
 │   │   ├── mocks/                     # DELETE — no longer needed (real API exists)
 │   │   └── pages/                     # REBUILD — new page components from design
+│   │       ├── billing-management.tsx # Billing management for Super/Partner Admin
+│   │       ├── org-wizard.tsx         # 7-step org creation wizard
 │   └── public/
 ├── server/                          # DO NOT MODIFY (unless new endpoint needed for new UI)
 │   ├── index.ts                     # Server entry point
@@ -354,6 +366,28 @@ Real-time webhook ingestion is partially broken. `call.started` events are not b
 ### 5.4 Tavus Integration Gap
 
 Zero real Tavus sessions have been captured by V2. No video agents are registered with `tavus_persona_id` in their config. The Tavus webhook callback URL has never been configured to point to V2. See `DATA_ACCURACY_REPORT.md` for details.
+
+---
+
+## 5.5 Current Prototype Coverage (as of 2026-02-22)
+
+The new UI prototype now covers the following features with mock data. These serve as the visual reference for the V2.1 frontend rebuild:
+
+- **Settings** — 9 tiles (API & Webhooks tile removed). Sub-menu has 10 entries with RBAC gating.
+- **Tools & Integrations** — 5 tabs for most roles (MCP/API/Other/Widgets/Landing Pages) + 2 additional tabs for Super Admin (API Keys/Webhooks) = 7 tabs total.
+- **Knowledge Base** — 4 tabs: Documents, Web Pages, Databases, Settings.
+- **AI Configuration** — 4 tabs: System Prompt, Agent Behavior, Skills, Hunches. Skills tab includes a 20-skill catalog with category filtering and an emergency kill switch (Super Admin only). RBAC controls per tab.
+- **Security** — All fields grayed out (non-interactive) except functional password reset.
+- **Data Management** — 2 tabs: Database Uploads, Data Health.
+- **Billing Management** — Standalone page at `/settings/billing` (Super Admin + Partner Admin only). Revenue charts, invoice builder, payment history.
+- **Organization Creation Wizard** — 7-step wizard at `/settings/org-wizard` (Super Admin + Partner Admin only). Org details, branding, users, integrations, billing, review, confirmation.
+- **Profile billing tab** — Usage progress bars and invoice history.
+- **Drive sharing** — Download and Download as PDF buttons in share modal.
+- **Hunch preferences** — Per-user hunch settings popout sheet.
+- **Agent Config** — Per-agent triggers, skills catalog selection, and reference storage in AgentConfigPane.
+- **User Management** — New Organization button (Super Admin only).
+- **Notifications** — Global toggles and quiet hours configuration.
+- **Appearance** — Organization-wide theme and branding settings.
 
 ---
 

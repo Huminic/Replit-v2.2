@@ -160,6 +160,8 @@ The global shell wraps every page and consists of a Top Bar, Left Sidebar, optio
 | **Hunch Cards** | Each card shows: title, description, type badge, confidence percentage, source label. | 6 hunch items. Color-coded by type: Opportunity (green), Threat (red), Insight (blue). Each card has matching background tint and border color. |
 | **Confidence** | Numeric percentage per hunch. | Display-only. Values range from 72% to 94%. |
 | **Source** | Text label showing which AI system generated the hunch. | Values: Sales Agent, Service Reminder, Analytics Engine, CRM Analysis, Market Intel, Trend Analysis. |
+| **Settings Button** | SlidersHorizontal icon button in the tab header area. | Opens a right-side Sheet panel titled "My Hunch Preferences." |
+| **My Hunch Preferences Sheet** | Per-user preference toggles: Show Hunches (on/off), In-App Notifications, Email Notifications, SMS Notifications, Default View selector, Confidence Threshold slider, Auto-Dismiss toggle. | All toggles are functional within the session. Changes apply to the current user's hunch display preferences. Sheet closes via X button or clicking outside. |
 
 ### 3.6 Activity Page
 
@@ -230,9 +232,9 @@ Opened by clicking the << toggle button. Contains 6 config sections navigated by
 |---|---|---|---|
 | **Performance** | BarChart3 | Channel badge (shows agent's channel type with icon). 3 metric cards: Interactions (247, +12%), Resolution Rate (89%, On target), Avg Response (1.2s, Under SLA). | Display-only. Default active section. |
 | **Instructions** | FileText | System prompt text (agent's full instructions). Edit button. | Clicking "Edit" opens a modal with a textarea pre-filled with current instructions and Save/Cancel buttons. Saving updates the agent's instructions. |
-| **Triggers** | Zap | List of trigger items showing: type name (formatted), schedule/condition details, On/Off badge. Configure button. | Clicking "Configure" opens a modal listing all triggers with toggle switches. Toggling enables/disables individual triggers. Save button persists changes. |
-| **Tools & Skills** | Wrench | List of enabled tools showing: tool name, description, Active/Inactive badge. Manage button. | Clicking "Manage" opens a modal showing all available tools with toggle switches. Toggling enables/disables tools. Save button persists changes. Empty state shows "No tools configured" with an "Add Tools" button. |
-| **Knowledge** | BookOpen | 3 knowledge source cards: Product Catalog (248 items, blue), FAQ & Policies (42 docs, purple), Training Scripts (15 flows, green). Manage button per card. | Clicking "Manage" or the edit icon opens a knowledge management modal. Upload button opens an upload dialog. All simulated. |
+| **Triggers** | Zap | Per-agent trigger table with columns: Trigger Name, Type, Schedule, Status (On/Off toggle). | Each trigger row shows a toggle to enable/disable. Schedule column displays cron or interval text. Configure button opens a detail modal for editing trigger conditions. Save persists changes. |
+| **Tools & Skills** | Wrench | Split into two sub-sections: **Tools** — list of enabled tools showing tool name, description, Active/Inactive badge, Manage button. **Skills** — catalog of 20 available skills with Manage modal for enabling/disabling. | Tools: Clicking "Manage" opens a modal with toggle switches per tool. Skills: Clicking "Manage Skills" opens a modal showing the full 20-skill catalog with search, category filters, and enable/disable toggles. Save button persists changes. Empty state shows "No tools configured" with an "Add Tools" button. |
+| **Knowledge** | BookOpen | Reference storage table with columns: Source Name, Items count, Status badge. Manage button per source. | Clicking "Manage" or the edit icon opens a knowledge management modal. Upload button opens an upload dialog. All simulated. |
 | **Activity** | Activity | Timeline of 5 recent agent activities with dot indicators, description text, and relative timestamps. | Display-only. Shows actions like "Handled inbound chat," "Sent follow-up email," etc. |
 
 ### 4.5 Mobile Agents Navigation
@@ -354,6 +356,8 @@ Opened by clicking the << toggle button. Contains 6 config sections navigated by
 | **Recipient Input** | Text field: "Enter email address" or "Enter phone number." | |
 | **Copy Link** | Display box showing shareable URL + Copy button. | Clicking Copy uses `navigator.clipboard.writeText()` to copy the link, shows a "Link copied" toast on success, and changes button text to "Copied" with check icon for 2 seconds. Shows error toast on clipboard failure. |
 | **Send Button** | Full-width button: "Send Email" or "Send SMS." | Disabled when recipient is empty. Sends toast confirmation and closes modal. |
+| **Download Button** | "Download" button below the share methods. | Always visible for non-folder file types. Clicking triggers file download (toast in demo mode). |
+| **Download as PDF Button** | "Download as PDF" button below the Download button. | Only visible for document, spreadsheet, and image file types. Clicking triggers PDF conversion download (toast in demo mode). |
 
 ### 6.6 Sub-Menu Panel Content (Drive)
 
@@ -382,6 +386,8 @@ Opened by clicking the << toggle button. Contains 6 config sections navigated by
 
 ### 7.2 Settings Tile Grid (Landing View)
 
+9 tiles total (API & Webhooks removed as a standalone tile; functionality moved into Tools & Integrations tabs).
+
 | Tile | Gradient | Min Role | Description |
 |---|---|---|---|
 | User Management | Blue→Cyan | Super/Partner/Org Admin | Manage users, roles, and permissions |
@@ -393,7 +399,6 @@ Opened by clicking the << toggle button. Contains 6 config sections navigated by
 | Notifications | Sky→Blue | Super/Partner/Org Admin | Alert preferences and delivery channels |
 | Data Management | Indigo→Violet | Super Admin only | Imports, exports, and data retention |
 | Appearance | Teal→Emerald | Super/Partner/Org Admin | Theme, layout, and display preferences |
-| API & Webhooks | Orange→Amber | Super Admin only | Developer settings and external integrations |
 
 Each tile shows an icon, title, description, gradient background, and decorative SVG circles. Clicking navigates to the section detail view. Tiles not accessible to the current role are hidden entirely.
 
@@ -403,20 +408,73 @@ Each section has a Back button returning to the tile grid. Sections use a standa
 
 | Section | Fields (Type) |
 |---|---|
-| **User Management** | Search input, user list with avatar, name, role badge, email, three-dot menu (Edit, Remove). Add User button. |
+| **User Management** | Search input, user list with avatar, name, role badge, email, three-dot menu (Edit, Remove). Add User button. "+ New Organization" button visible to Super Admin only — navigates to `/settings/org-wizard`. |
 | **Organization** | Org Name (text), Business Phone (text), Business Email (text), Public Listing (toggle), Multi-Location (toggle). Save button. |
-| **Tools & Integrations** | Grid of tool cards with name, description, and enable/disable switch. Has 3 tabs: Tools, Widgets, Landing Pages. |
-| **Knowledge Base** | Auto-Index Files (toggle), Enable Web Scraping (toggle), Document Retention (text, days), Smart Summarization (toggle). Save button. |
-| **AI Configuration** | Enable Hunches (toggle), Auto-Scoring (toggle), Confidence Threshold (text, %), Learning Mode (toggle), Daily Digest (toggle). Save button. |
-| **Security** | Two-Factor Auth (toggle), SSO Provider (text), Session Timeout (text, minutes), IP Allowlist (toggle), Audit Logging (toggle). Save button. |
-| **Notifications** | Email Notifications (toggle), SMS Notifications (toggle), Push Notifications (toggle), Quiet Hours Start (text), Quiet Hours End (text). Save button. |
-| **Data Management** | Auto-Backup (toggle), Data Retention (text, months), Export Format (text), GDPR Compliance (toggle). Save button. |
+| **Tools & Integrations** | 7 tabs total. 5 tabs visible to all roles: MCP, API, Other, Widgets, Landing Pages. 2 additional tabs visible to Super Admin only: API Keys, Webhooks. **MCP tab:** empty state placeholder. **API tab:** 5 tool cards — CRM / VIN Solutions (locked), Voice / VAPI (locked), Video / Tavus (locked), Auth / Google Auth (locked), SMS / TextMagic (enabled). **Other tab:** Document Generator (enabled). Each card shows: icon, friendly name, description, enable/disable toggle, status badge, technical name (Super Admin only), economy section (Super Admin only). |
+| **Knowledge Base** | 4 tabs: **Documents** — upload button, search input, table with Name / Type / Size / Date / Delete columns. **Web Pages** — Add URL button, table with URL / Status / Last Crawled / Delete columns. **Databases** — grayed-out placeholder (coming soon). **Settings** — Auto-Index ON, Web Scraping OFF, Retention 90 days, Smart Summarization ON, Learning Mode ON (grayed / non-interactive). |
+| **AI Configuration** | 4 tabs: **System Prompt** — 3 textareas (System Prompt, System Information, Rules & Exclusions). **Agent Behavior** — behavior context textarea + 6 action checkboxes. **Skills** (Super Admin only) — search input, category filters, 20-skill list with edit panel and emergency kill switch. **Hunches** — Enable Hunches toggle, grayed settings (Auto-Scoring, Confidence Threshold, Temperature), Daily Digest toggle. Partner Admin sees System Prompt / Agent Behavior / Hunches as read-only; Skills tab is hidden for Partner Admin. |
+| **Security** | All items displayed grayed out in ON state (non-interactive): Two-Factor Auth, SSO, Session Timeout 60 min, IP Allowlist, Audit Logging. Only functional element: Password Reset button. |
+| **Notifications** | Global Settings section at top: Email ON, SMS OFF, Push ON, Quiet Hours 22:00–07:00. Per-event notification preferences below. Save button. |
+| **Data Management** | 2 tabs: **Database Uploads** — category filters, upload/scrape buttons, expandable rows, upload dialog. **Data Health** — dashboard cards (14,892 records / 2.3 GB / 8 uploads), grayed-out settings. |
 | **Appearance** | Compact Mode (toggle), Animations (toggle), Default View (text), Show Metric Tiles (toggle). Save button. |
-| **API & Webhooks** | API Access (toggle), API Key (text, redacted), Rate Limit (text), Webhook URL (text), Webhook Events (toggle). Save button. |
 
 All Save buttons show a confirmation toast: "Settings saved - Your changes have been applied."
 
-### 7.4 Widgets (Under Tools & Integrations → Widgets Tab)
+### 7.4 Settings Sub-Menu Panel Content
+
+| Items | Destination |
+|---|---|
+| Users | `/settings/system?section=users` |
+| Organization | `/settings/system?section=organization` |
+| Tools | `/settings/system?section=tools` |
+| Knowledge | `/settings/system?section=knowledge` |
+| AI Config | `/settings/system?section=ai` |
+| Security | `/settings/system?section=security` |
+| Notifications | `/settings/system?section=notifications` |
+| Data Management | `/settings/system?section=data` |
+| Appearance | `/settings/system?section=appearance` |
+| Billing | `/settings/billing` (Super Admin + Partner Admin only) |
+
+### 7.5 Billing Management
+
+**Route:** `/settings/billing`
+**Access:** Super Admin, Partner Admin only
+
+#### Super Admin View
+
+| Element | Description | Expected Behavior |
+|---|---|---|
+| **Revenue Overview** | 6 summary cards: MRR $12,450, Active Accounts 24, Avg Revenue/Account $518.75, Overage Revenue $1,847, Outstanding Invoices 3 / $890, Collected This Month $11,560. | Display-only metric cards. |
+| **Org Billing Status Table** | Table listing all organizations with columns: Org Name, Plan, MRR, Status, Last Payment, Actions. | Sortable/filterable. Actions include view details and manage. |
+| **Invoice Builder** | Create and send invoices to organizations. | Form with line items, totals, and send action. |
+
+#### Partner Admin View
+
+| Element | Description | Expected Behavior |
+|---|---|---|
+| **My Organizations Table** | Table listing partner's organizations with billing summary columns. | Scoped to partner's orgs only. |
+| **Add Organization Button** | Button to add a new organization. | Navigates to org creation flow. |
+| **Summary Cards** | Aggregate billing summary for partner's portfolio. | Display-only. |
+
+### 7.6 Organization Creation Wizard
+
+**Route:** `/settings/org-wizard`
+**Access:** Super Admin, Partner Admin only
+
+| Element | Description | Expected Behavior |
+|---|---|---|
+| **Step Indicator** | Visual step progress showing 7 steps with completed / current / future states. | Steps highlight as user progresses. Completed steps show checkmark. |
+| **Step 1: Org Details** | Organization name, type, industry fields. | Required field validation. |
+| **Step 2: Contact** | Business phone, email, address fields. | Required field validation. |
+| **Step 3: Admin Setup** | Admin user name, email, temporary password fields. | Required field validation. |
+| **Step 4: Configuration** | Default settings, timezone, locale preferences. | Optional fields. |
+| **Step 5: Tools** | Select which tools/integrations to enable for the new org. | Toggle switches per tool. |
+| **Step 6: Default Agent** | Configure the default agent name and behavior. | Text inputs for agent setup. |
+| **Step 7: Review** | Summary of all entered data across steps 1–6. | Read-only review. Confirm button to create. |
+| **Navigation** | Back / Next buttons per step. | Back returns to previous step. Next validates current step before advancing. |
+| **Success** | On successful creation, navigates to `/settings/system?section=users`. | Toast confirmation: "Organization created successfully." |
+
+### 7.7 Widgets (Under Tools & Integrations → Widgets Tab)
 
 | Element | Description | Expected Behavior |
 |---|---|---|
@@ -425,7 +483,7 @@ All Save buttons show a confirmation toast: "Settings saved - Your changes have 
 | **Preview Modals** | Each widget has a preview button. | Opens a modal showing a live preview of how the widget would appear on a customer-facing page. |
 | **Unified Widget** | Links to the widget landing page at `/w/demo`. | See Widget Landing Page section below. |
 
-### 7.5 Widget Landing Page
+### 7.8 Widget Landing Page
 
 **Route:** `/w/demo` (outside AppLayout — standalone page)
 
@@ -464,7 +522,11 @@ All Save buttons show a confirmation toast: "Settings saved - Your changes have 
 
 | Section | Fields | Expected Behavior |
 |---|---|---|
-| **Current Plan** | "Pro Plan" display with price ($99/month), Active badge. API usage progress bar (8,432 / 10,000 at 84%). Upgrade Plan button. | Upgrade shows demo mode toast. |
+| **Current Plan** | "Pro Plan" display with price ($99/month), Active badge, Anniversary date March 15. | Display-only plan info. |
+| **Usage Progress Bars** | 4 bars: Voice 847/1000 min (85%), Video 123/500 min (25%), SMS 2,340/3,600 (~65%), Documents 89/1,000 (~10%). | Color-coded progress bars with usage labels. |
+| **Overage** | Current overage amount: $12.50. | Display-only. |
+| **Add-Ons** | Table: Extra SMS Bundle $25/Monthly, Setup Fee $150/One-time. | Display-only add-on list. |
+| **Invoice History** | Table: Feb 15 — $136.50 — Sent (badge), Jan 15 — $124.00 — Paid (badge). | Display-only invoice rows with status badges. |
 | **Payment Method** | Visa ending 4242, expiry 12/2025. Update button. | Update shows demo mode toast. |
 
 ---
@@ -622,7 +684,7 @@ This section defines the full functional acceptance criteria for the production-
 |---|---|---|
 | **Organization CRUD** | Partner Admin can create, view, edit, and delete Organizations within their partnership only. Cannot see or modify other partners' organizations. | Prototype gates Settings visibility by role (hidden for Staff). Production must enforce partner-scoped org management. |
 | **"[Customer Slug]" View Switch** | Organization Switcher must show the partner's organizations with a "[customer name slug]" view option. Selecting it renders the UI exactly as that organization's admin would see it. | Prototype org switcher shows mock orgs. Production must filter to partner-scoped orgs only. |
-| **Configuration Rights** | Partner Admin has access to: User Management, Organization, Tools & Integrations, Knowledge Base, AI Configuration, Security, Notifications, Appearance. Cannot access: Data Management, API & Webhooks. | Prototype hides Data Management and API & Webhooks tiles for Partner Admin. AI Configuration and Security show for Super/Partner only. Verified via tile visibility rules. |
+| **Configuration Rights** | Partner Admin has access to: User Management, Organization, Tools & Integrations (5 tabs; API Keys and Webhooks tabs hidden), Knowledge Base, AI Configuration (read-only on System Prompt / Agent Behavior / Hunches; Skills tab hidden), Security, Notifications, Appearance, Billing. Cannot access: Data Management. | Prototype hides Data Management tile for Partner Admin. API Keys and Webhooks tabs within Tools & Integrations are Super Admin only. AI Configuration and Security show for Super/Partner only. Billing accessible to Super Admin and Partner Admin. Verified via tile and tab visibility rules. |
 
 ### 12.3 Organization Admin Capabilities
 

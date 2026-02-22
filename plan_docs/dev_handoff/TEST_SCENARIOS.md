@@ -140,6 +140,16 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 3. Verify status badge changes (active ↔ inactive)
 4. Verify toast notification confirms status change
 
+### Scenario: Agent Config Skills Management
+**Precondition**: Agent selected, config pane open on Tools & Skills section
+1. Verify assigned skills list is visible
+2. Click `button-manage-skills`
+3. Verify skills catalog modal opens
+4. Verify skills with checkboxes are listed
+5. Toggle a skill checkbox
+6. Click "Save" button
+7. Verify modal closes
+
 ---
 
 ## Insights Scenarios
@@ -215,6 +225,15 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 2. Verify toast "Metric pinned" appears
 3. Click `button-pin-metric` again on same card
 4. Verify toast "Metric unpinned" appears
+
+### Scenario: Hunch Preferences Sheet
+**Precondition**: On Insights > Hunches tab
+1. Click `button-hunch-preferences` (settings icon)
+2. Verify "My Hunch Preferences" Sheet opens from right
+3. Verify toggle switches for notifications are visible
+4. Verify "Save Preferences" button is visible
+5. Click "Save Preferences"
+6. Verify toast notification
 
 ---
 
@@ -303,6 +322,13 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 4. Press Enter to confirm
 5. Verify new folder appears in file list
 
+### Scenario: Drive Download Buttons
+**Precondition**: On Drive page, file selected and share modal open
+1. Verify `button-download-file` (Download) button is visible
+2. For a document-type file, verify `button-download-pdf` (Download as PDF) is visible
+3. Click Download button
+4. Verify download toast appears
+
 ---
 
 ## Settings Scenarios
@@ -356,6 +382,79 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 2. Verify landing page list is visible
 3. Click `button-preview-landing-detail` on a landing page
 4. Verify new tab opens with /w/demo route (or preview dialog)
+
+### Scenario: Navigate Tools & Integrations Tabs (Super Admin)
+**Precondition**: Authenticated as super_admin, on Settings > Tools & Integrations
+1. Verify "MCP" tab is visible
+2. Click "API" tab
+3. Verify tool card "CRM Integration" is visible
+4. Verify tool card "SMS & Text Sending" is visible with enabled status
+5. Click "API Keys" tab (Super Admin only)
+6. Verify API Key field is visible
+7. Click "Webhooks" tab
+8. Verify webhook URL input is visible
+
+### Scenario: AI Configuration Skills Catalog (Super Admin)
+**Precondition**: Authenticated as super_admin, on Settings > AI Configuration
+1. Click "Skills" tab
+2. Verify skill list is visible
+3. Click category filter "Sales"
+4. Verify filtered skills shown
+5. Click a skill name (e.g., "Lead Qualifier")
+6. Verify edit panel opens with name, category, description, prompt fields
+7. Scroll to bottom
+8. Verify "DISABLE ALL AGENTS" kill switch button is visible (red-bordered)
+9. Click kill switch button
+10. Verify confirmation dialog appears
+
+### Scenario: Knowledge Base Tabs
+**Precondition**: Authenticated, on Settings > Knowledge Base
+1. Verify "Documents" tab is active by default
+2. Verify documents table is visible
+3. Click "Web Pages" tab
+4. Verify web pages table is visible
+5. Click "Databases" tab
+6. Verify grayed placeholder is visible
+7. Click "Settings" tab
+8. Verify settings toggles are visible
+
+---
+
+## Billing Management Scenarios
+
+### Scenario: Billing Management Access Control
+**Precondition**: Authenticated
+1. Navigate to /settings/billing?role=super_admin
+2. Verify revenue overview cards are visible
+3. Verify organization billing table is visible
+4. Navigate to /settings/billing?role=org_admin
+5. Verify "Access Denied" message is displayed
+
+### Scenario: Partner Admin Billing View
+**Precondition**: Authenticated as partner_admin
+1. Navigate to /settings/billing
+2. Verify "My Organizations" table is visible
+3. Verify "Add Organization" button is visible
+4. Click "Add Organization"
+5. Verify navigation to /settings/org-wizard
+
+---
+
+## Org Wizard Scenarios
+
+### Scenario: Organization Creation Wizard
+**Precondition**: Authenticated as super_admin, on /settings/org-wizard
+1. Verify step indicator shows Step 1 "Org Details" as current
+2. Fill in `input-org-name` with "Test Dealership"
+3. Select industry from `select-industry`
+4. Click `button-wizard-next`
+5. Verify step indicator shows Step 2 as current
+6. Fill in primary phone and email
+7. Click `button-wizard-next` through remaining steps
+8. On Step 7 (Review), verify summary shows "Test Dealership"
+9. Click `button-wizard-create`
+10. Verify success toast appears
+11. Verify redirect to /settings/system?section=users
 
 ---
 
@@ -427,6 +526,12 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 3. Verify `button-upgrade-plan` is visible
 4. Verify `button-update-payment` is visible
 
+### Scenario: Profile Billing Usage View
+**Precondition**: Authenticated as org_admin, on Profile > Billing tab
+1. Verify "Pro Plan" text is visible
+2. Verify usage progress bars are visible (Voice, Video, SMS, Documents)
+3. Verify invoice history section shows entries
+
 ---
 
 ## RBAC Role-Switching Scenarios
@@ -494,4 +599,12 @@ Mark these regions for Playwright screenshot capture:
 [snapshot-region: right-pane-desktop-side-by-side]
 [snapshot-region: right-pane-mobile-overlay]
 [snapshot-region: hub-submenu-active-tab]
+[snapshot-region: billing-management-table]
+[snapshot-region: org-wizard-step-indicator]
+[snapshot-region: knowledge-base-tabs]
+[snapshot-region: tools-integrations-tabs]
+[snapshot-region: ai-config-skills-catalog]
+[snapshot-region: hunch-preferences-sheet]
+[snapshot-region: drive-download-buttons]
+[snapshot-region: agent-skills-modal]
 ```

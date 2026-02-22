@@ -31,7 +31,7 @@ Used in: **Agents**, **Drive**, **Hub Communication**, **Insights Library**
 
 ## 4B. Form Pattern
 
-Used in: **Settings**, **Profile**, **Widget Config**, **Agent Config**, **Landing Pages**
+Used in: **Settings**, **Profile**, **Widget Config**, **Agent Config**, **Landing Pages**, **Org Wizard**, **Billing Config**
 
 ### Label Position
 - Labels **above** inputs (block layout)
@@ -275,3 +275,73 @@ Used in: **System Settings page**
 ### Back Navigation
 - "Back to Settings" button (ArrowLeft + text) at top of detail view
 - Returns to tile grid
+
+---
+
+## 4I. Multi-Step Wizard Pattern
+
+Used in: **Org Creation Wizard**
+
+### Layout
+- **Step Indicator**: Horizontal numbered circles connected by lines at the top
+  - Completed: Primary color filled circle with checkmark
+  - Current: Primary color ring (outline only)
+  - Future: Muted gray circle
+- **Content Area**: Card containing form fields for current step
+- **Navigation**: Back/Next buttons at bottom, Next validates required fields
+
+### Step Validation
+- Required fields checked on Next click
+- Red border + "Required" text on invalid fields
+- Next button disabled until required fields filled (or shows validation error)
+
+### Mobile Behavior
+- Steps stack vertically or wrap as needed
+- Same card layout but full-width
+- Back/Next buttons stick to bottom
+
+### Review Step (Final)
+- Summary of all entered data organized by step
+- Key-value pair layout with section headers
+- Validation warnings for any missing required fields
+- Primary action button ("Create Organization")
+
+---
+
+## 4J. Grayed/Locked State Pattern
+
+Used in: **Security**, **Data Health**, **Tool Cards (locked)**
+
+### Visual Treatment
+- `opacity-50` on the entire row/card
+- `cursor-not-allowed` on interactive elements
+- Toggle switches in ON position but non-interactive
+- No hover effects applied
+- Muted text color for values
+
+### Purpose
+- Shows feature exists but is not configurable in demo mode
+- Demonstrates default production state
+- Prevents accidental modification
+
+---
+
+## 4K. Tab-Based Settings Pattern
+
+Used in: **Tools & Integrations**, **Knowledge Base**, **AI Configuration**, **Data Management**
+
+### Tab Structure
+- Tab buttons in a horizontal row below the section header
+- Active tab: primary text color, underline indicator
+- Inactive tabs: muted text, no underline
+- RBAC-filtered: some tabs only visible to certain roles
+
+### Content Area
+- Each tab renders its own content below the tab bar
+- Content transitions on tab click (no animation, instant swap)
+- Tab state stored in local component state (not URL)
+
+### Role Gating
+- Tabs can be conditionally rendered based on currentRole
+- Example: "API Keys" and "Webhooks" only visible to Super Admin
+- Example: "Skills" tab only visible to Super Admin in AI Config

@@ -96,6 +96,8 @@ These states apply to any view that fetches/displays data:
 |-------|---------|-----------------|
 | Loaded | Hunches available | List of AI-generated insights with Lightbulb icon |
 | Empty | No hunches | "No hunches yet — AI is analyzing your data" + Sparkles icon |
+| Preferences Open | Click settings icon | Right-side Sheet opens with per-user hunch preferences |
+| Preferences Save | Click Save | Toast "Preferences saved", Sheet closes |
 
 ### Agents Page
 
@@ -107,7 +109,9 @@ These states apply to any view that fetches/displays data:
 | Agent Active | Agent status = active | Green StatusBadge "Active" |
 | Agent Inactive | Agent status = inactive | Gray StatusBadge "Inactive" |
 | Chat Active | User sends message to agent | Chat interface in detail panel with wave-dot typing animation |
-| Config Open | Right pane toggled open | Agent configuration panels visible (Instructions, Triggers, Tools, Knowledge) |
+| Config Open | Right pane toggled open | Agent configuration panels visible (Performance, Instructions, Triggers, Tools & Skills, Knowledge, Activity) |
+| Skills Modal | Click Manage skills | Modal with 20-skill catalog, category filters, checkboxes |
+| Trigger Config | View triggers | Per-agent trigger table with schedule and toggles |
 | Empty List | No agents | "No agents yet" + "Create Agent" CTA button |
 | Creating | "New Agent" clicked | New agent form in detail panel |
 | Mobile | < 768px | List hidden, dropdown access, detail full-width |
@@ -121,15 +125,16 @@ These states apply to any view that fetches/displays data:
 | Schedule Modal | Click "Schedule" or click time slot | ScheduleModal opens with date/time/title/notes fields |
 | Event Hover | Mouse over event | Tooltip with event details |
 
-### Hub — Approvals Tab
+### Hub — Leads Tab
 
 | State | Trigger | Visual Treatment |
 |-------|---------|-----------------|
-| Loaded | Approvals available | List of approval items with status badges |
-| Empty | No pending approvals | "All caught up! No pending approvals" + CheckCircle icon |
-| Approve/Reject | Click approve or reject | Confirmation dialog → toast notification |
+| Loaded | Leads available | Table view with lead name, phone, status, date |
+| Empty | No leads | "No open leads" + "Import Leads" CTA |
+| Searching | User types in search | Real-time filter of leads table |
+| Filtered Empty | Search with no matches | "No leads match your search" |
 
-### Hub — Communication Tab
+### Hub — Inbox Tab
 
 | State | Trigger | Visual Treatment |
 |-------|---------|-----------------|
@@ -139,15 +144,6 @@ These states apply to any view that fetches/displays data:
 | Compose SMS | Click compose SMS | New message modal with to/message fields |
 | Dialer Open | Click phone icon | DialerModal with number pad |
 | Message Selected | Click message in list | Message detail view in right portion |
-
-### Hub — Open Leads Tab
-
-| State | Trigger | Visual Treatment |
-|-------|---------|-----------------|
-| Loaded | Leads available | Table view with lead name, phone, status, date |
-| Empty | No leads | "No open leads" + "Import Leads" CTA |
-| Searching | User types in search | Real-time filter of leads table |
-| Filtered Empty | Search with no matches | "No leads match your search" |
 
 ### Drive Page
 
@@ -161,18 +157,49 @@ These states apply to any view that fetches/displays data:
 | Share Modal | Click share button on file | ShareModal with Email/SMS tabs |
 | Folder Navigation | Click folder | Navigate into folder, breadcrumb updates |
 | New Folder | Click new folder | Inline rename input for folder name |
+| Download | Click Download button | Toast "Downloading file..." |
+| Download PDF | Click Download as PDF | Toast "Converting to PDF..." (only for document/spreadsheet/image types) |
 
 ### Settings Page
 
 | State | Trigger | Visual Treatment |
 |-------|---------|-----------------|
-| Tile Grid | Initial load | Grid of settings tiles based on current role |
+| Tile Grid | Initial load | Grid of 9 settings tiles based on current role (was 10, API & Webhooks removed) |
 | Section Open | Click tile | Navigate to section detail with back button |
+| Tools Config | Open Tools | 5/7-tab interface (MCP/API/Other/Widgets/Landing Pages + API Keys/Webhooks for Super Admin) |
+| Knowledge Base | Open Knowledge | 4-tab interface (Documents/Web Pages/Databases/Settings) |
+| AI Configuration | Open AI Config | 4-tab interface (System Prompt/Agent Behavior/Skills/Hunches). Partner Admin read-only |
+| Skills Catalog | Open Skills tab | Searchable/filterable list of 20 skills with category buttons (All/Sales/Finance/Operations/General) |
+| Skills Edit | Click skill | Edit panel with name, category, description, prompt, temperature, status |
+| Kill Switch | Click DISABLE ALL | Confirmation dialog, then simulated emergency shutdown |
+| Security | Open Security | All items grayed out in ON state, only Password Reset button functional |
+| Data Management | Open Data | 2-tab interface (Database Uploads / Data Health). Upload dialog with field mapping |
 | Widget Config | Open widget | 5-tab interface (Settings/Appearance/Targeting/Domains/Embed) |
 | Widget Preview | Click preview | WidgetPreviewModal at 85% scale |
 | Landing Page Edit | Click landing page | Edit form with title, content, linked widget |
 | Save Success | Save settings | Toast "Settings saved successfully" |
 | Role Restricted | Insufficient role | Tile not visible in grid |
+
+### Billing Management Page (/settings/billing)
+
+| State | Trigger | Visual Treatment |
+|-------|---------|-----------------|
+| Super Admin View | Role = super_admin | Revenue Overview (6 metric cards), Org Billing Status table, Invoice Builder |
+| Partner Admin View | Role = partner_admin | My Organizations table, summary cards |
+| Access Denied | Role = org_admin/staff | Card with "Access Denied" message |
+| Org Expand | Click org row | Billing configuration form expands for that org |
+| Invoice Builder | Build invoice | Line items table, total calculation, Preview/Send buttons |
+
+### Organization Creation Wizard (/settings/org-wizard)
+
+| State | Trigger | Visual Treatment |
+|-------|---------|-----------------|
+| Step Active | Navigate wizard | Step indicator shows completed (checkmark), current (ring), future (gray) |
+| Validation Error | Missing required field | Red border on field, "Required" text shown |
+| Step 1-6 | Progress through wizard | Form content updates per step, Next/Back buttons |
+| Review (Step 7) | Final step | Summary of all entered data, validation warnings, Create button |
+| Success | Click Create | Toast "Organization created successfully", redirect to User Management |
+| Access Denied | Non Super/Partner Admin | Redirect to /settings with toast |
 
 ### Profile Page
 
@@ -181,7 +208,7 @@ These states apply to any view that fetches/displays data:
 | Loaded | User data available | Profile tab: name, email, phone, avatar |
 | Editing | Click edit button | Fields become editable inputs |
 | Preferences | Tab to preferences | Toggle switches for notifications, dark mode, timezone select |
-| Billing | Tab to billing | Plan info card + payment method + upgrade button |
+| Billing | Tab to billing | Usage progress bars (Voice/Video/SMS/Documents), Overage display, Add-Ons table, Invoice History |
 
 ### Widget Landing Page (/w/demo)
 

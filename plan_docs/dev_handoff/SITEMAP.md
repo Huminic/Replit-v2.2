@@ -28,7 +28,8 @@ Nexxus Connect
 │   ├── ?tab=library            Library
 │   │   └── 61 Metrics (filterable by 12 categories)
 │   ├── ?tab=hunches            Hunches
-│   │   └── 6 AI-Generated Intelligence Cards
+│   │   ├── 6 AI-Generated Intelligence Cards
+│   │   └── Hunch Preferences Sheet (per-user settings)
 │   └── Sub-Menu Panel: Dashboard, Reports, Library, Hunches, Activity
 │
 ├── /activity                   ACTIVITY FEED
@@ -42,9 +43,9 @@ Nexxus Connect
 │   ├── Right Pane: Agent Configuration
 │   │   ├── Performance (metrics)
 │   │   ├── Instructions (system prompt)
-│   │   ├── Triggers (toggle switches)
-│   │   ├── Tools & Skills (enable/disable)
-│   │   ├── Knowledge (source management)
+│   │   ├── Triggers (per-agent trigger table with schedule column)
+│   │   ├── Tools & Skills (tool toggles + skills catalog modal with 20 skills)
+│   │   ├── Knowledge (reference storage table: Source Name/Items/Status)
 │   │   └── Activity (timeline)
 │   └── Sub-Menu Panel: Agent list with status indicators
 │
@@ -68,23 +69,31 @@ Nexxus Connect
 ├── /drive                      DRIVE
 │   ├── File Browser (Grid / List toggle)
 │   ├── Folder Navigation
-│   ├── File Actions (Download, Share, Star, Delete)
-│   ├── Share Modal (Email/SMS tabs + Copy Link)
+│   ├── File Actions (Download, Download as PDF, Share, Star, Delete)
+│   ├── Share Modal (Email/SMS tabs + Copy Link + Download buttons)
 │   └── Sub-Menu Panel: My Files, Shared, Starred, Recent, Templates
 │
 ├── /settings/system            SYSTEM SETTINGS (role-gated)
-│   ├── Settings Tile Grid (landing)
-│   ├── ?section=users          User Management
+│   ├── Settings Tile Grid (landing, 9 tiles)
+│   ├── ?section=users          User Management (+ New Org button for Super Admin)
 │   ├── ?section=organization   Organization
-│   ├── ?section=tools          Tools & Integrations
-│   ├── ?section=knowledge      Knowledge Base
-│   ├── ?section=ai             AI Configuration (Super/Partner only)
-│   ├── ?section=security       Security (Super/Partner only)
-│   ├── ?section=notifications  Notifications
-│   ├── ?section=data           Data Management (Super only)
+│   ├── ?section=tools          Tools & Integrations (5/7 tabs: MCP/API/Other/Widgets/Landing Pages + API Keys/Webhooks)
+│   ├── ?section=knowledge      Knowledge Base (4 tabs: Documents/Web Pages/Databases/Settings)
+│   ├── ?section=ai             AI Configuration (4 tabs: System Prompt/Agent Behavior/Skills/Hunches)
+│   ├── ?section=security       Security & Privacy (all grayed, password reset only)
+│   ├── ?section=notifications  Notifications (global toggles + quiet hours)
+│   ├── ?section=data           Data Management (2 tabs: Database Uploads/Data Health)
 │   ├── ?section=appearance     Appearance
-│   ├── ?section=api            API & Webhooks (Super only)
-│   └── Sub-Menu Panel: Section shortcuts
+│   └── Sub-Menu Panel: 10 section shortcuts including Billing
+│
+├── /settings/billing           BILLING MANAGEMENT (Super/Partner Admin)
+│   ├── Super Admin: Revenue dashboard + Invoice builder + Org config
+│   └── Partner Admin: My Organizations table + summary
+│
+├── /settings/org-wizard        ORGANIZATION CREATION WIZARD (Super/Partner Admin)
+│   └── 7-step wizard (Org Details → Contact → Admin → Config → Tools → Agent → Review)
+│
+├── /settings                   SETTINGS (redirects to tile grid)
 │
 ├── /profile                    PROFILE
 │   ├── My Profile Tab (avatar, contact info)
@@ -110,6 +119,9 @@ Nexxus Connect
 | `/work-center` | WorkCenterPage | `sub-menu` | Tab shortcuts | Automa Chat | None |
 | `/drive` | DrivePage | `data-display` | File categories | Automa Chat | None |
 | `/settings/system` | SettingsPage | `sub-menu` | Section shortcuts | Automa Chat | `canAccessSystem()` |
+| `/settings/billing` | BillingManagementPage | `sub-menu` | Section shortcuts | Automa Chat | Super/Partner Admin |
+| `/settings/org-wizard` | OrgWizardPage | `sub-menu` | Section shortcuts | Automa Chat | Super/Partner Admin |
+| `/settings` | SettingsPage | `sub-menu` | Section shortcuts | Automa Chat | `canAccessSystem()` |
 | `/profile` | ProfilePage | `sub-menu` | Profile sections | Automa Chat | None |
 | `/profile/preferences` | ProfilePage | `sub-menu` | Profile sections | Automa Chat | None |
 | `/profile/billing` | ProfilePage | `sub-menu` | Profile sections | Automa Chat | None |
@@ -201,7 +213,7 @@ Favorite Chip Click (current page) → Unfavorite
 - Insights: Dashboard, Reports, Library, Hunches
 - Hub: Calendar, Leads, Inbox
 - Profile: My Profile, Preferences, Billing
-- Settings: 10 section tiles
+- Settings: 9 section tiles, Billing Management, Org Wizard
 
 ### Tier 4: Modals & Overlays
 - Metric Detail Modal
@@ -214,3 +226,8 @@ Favorite Chip Click (current page) → Unfavorite
 - Organization Switcher
 - Profile Menu
 - Role Switcher
+- Billing Invoice Builder Modal
+- Org Creation Wizard (7-step)
+- Hunch Preferences Sheet
+- Skills Management Modal (Agent Config)
+- Kill Switch Confirmation Dialog
