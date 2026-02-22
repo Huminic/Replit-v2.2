@@ -120,7 +120,6 @@ ARIA requirements, focus management, keyboard shortcuts, and contrast requiremen
 | `Arrow Up/Down` | Navigate menu items, table rows, list items | Dropdowns, tables, lists |
 | `Arrow Left/Right` | Navigate tabs | Tab components |
 | `Delete` / `Backspace` | Remove selected item (with confirmation dialog) | File list, selected items |
-| `⌘S` / `Ctrl+S` | Save current form (when applicable) | Settings, profile edit |
 
 ### Navigation Shortcuts (Future Enhancement)
 
@@ -179,6 +178,5 @@ Apply this checklist to every page before release:
 - [ ] Text resizes without breaking layout (up to 200% zoom)
 - [ ] No auto-playing media
 - [ ] All interactive elements have minimum 44x44px touch target on mobile
-- [ ] Skip-to-content link is available (or main content is immediately after nav)
 - [ ] ARIA roles match component behavior
 - [ ] Dynamic content changes are announced via `aria-live` regions

@@ -53,11 +53,7 @@ The application uses **icon-based empty states** (Lucide icons) rather than cust
 
 ### User Avatar
 - **Component**: Radix Avatar with fallback
-- **Sizes**: 
-  - xs: 24px (inline mentions, small lists)
-  - sm: 32px (list items, compact views)
-  - md: 40px (TopBar profile, cards)
-  - lg: 64px (profile page, detail views)
+- **Sizes**: Avatar sizes are defined per-component in source code. Common sizes: 24px (inline/small), 32px (list items), 40px (cards/headers), 64px (profile). See component source for exact sizing.
 - **Shape**: Circular (`rounded-full`)
 - **Fallback**: Initials on colored background
   - Color derived from name hash (deterministic — same name always gets same color)
@@ -88,10 +84,7 @@ Uses CSS custom properties from theme (adapts to light/dark mode):
 | `--chart-4` | Green 500 `#10b981` | Green 400 `#34d399` | Positive/success series |
 | `--chart-5` | Amber 500 `#f59e0b` | Amber 400 `#fbbf24` | Warning/attention series |
 
-**Extended palette** (if more than 5 series needed):
-- Rose 500 `#f43f5e` / Rose 400 `#fb7185`
-- Violet 500 `#8b5cf6` / Violet 400 `#a78bfa`
-- Orange 500 `#f97316` / Orange 400 `#fb923c`
+Only colors defined in the theme contract (`THEME_CONTRACT.md`) are used. Do not add color extensions without updating the theme contract.
 
 ### Axis Label Formatting
 - **X-axis**: `text-xs text-muted-foreground`, rotated 0° (horizontal) unless space-constrained

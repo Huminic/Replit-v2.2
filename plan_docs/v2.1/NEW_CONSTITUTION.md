@@ -308,7 +308,7 @@ These tiles use platform-level aggregates (org counts, login counts, action coun
 - Video testing: use test sessions only, never production Tavus sessions
 
 ### 8.3 Code Organization
-- Shared types in `shared/schema.ts` (Drizzle ORM + Zod schemas)
+- Shared types in `shared/schema.ts` (Zod schemas for validation)
 - Mock data preserved in `client/src/mocks/` as reference during migration
 - API routes in `server/routes.ts` using storage interface
 - Context providers for global state (theme, app state)

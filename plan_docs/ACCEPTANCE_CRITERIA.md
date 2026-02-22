@@ -9,7 +9,7 @@
 
 # PART I — UI PROTOTYPE ACCEPTANCE CRITERIA
 
-This section defines every verifiable behavior in the current UI prototype. All interactions are simulated client-side with mock data. No backend, no database, no real API integrations.
+This section defines every verifiable behavior in the current UI prototype. All interactions are simulated client-side with mock data. This prototype uses client-side mock data. The production backend has 175+ API endpoints and 53 database tables.
 
 ---
 
@@ -218,7 +218,7 @@ The agent list is accessed exclusively through the SubMenuManager hover/pin syst
 | Element | Description | Expected Behavior |
 |---|---|---|
 | **Chat Messages** | Bot messages left-aligned, user messages right-aligned. NO avatars. | Same styling standards as Main page chat. Bot bubbles use `bg-card border border-border`. User bubbles use `bg-primary text-primary-foreground`. Messages have rounded bubbles, max width 80%. |
-| **Typing Animation** | Wave-dot animation (3 dots, `wave-dot` CSS class). | Appears when agent is "processing." ~1.8 second simulated delay before response. Same wave-dot class as Main page (staggered delays 0s, 0.15s, 0.3s). |
+| **Typing Animation** | Wave-dot animation (3 dots, `wave-dot` CSS class). | Appears when agent is "processing." Prototype uses simulated delay; production uses real API response times. Same wave-dot class as Main page (staggered delays 0s, 0.15s, 0.3s). |
 | **Suggestion Bubbles** | 4 pill buttons: "Show today's lead activity", "Draft a follow-up email", "Summarize pipeline status", "Schedule callbacks for hot leads." | Clicking populates the input and focuses it. Sparkle icon prefix per button. |
 | **Chat Input** | Textarea with glowing gradient border (`chat-input-gradient` wrapper). Placeholder: "Ask me anything about your business" (static). | Same gradient glow as Main page. Enter sends, Shift+Enter newlines. Rounded send button (h-9 w-9 rounded-full). |
 | **Send Button** | Circular send icon button. | Disabled when empty. Sends message, shows typing, delivers simulated response. |
@@ -818,7 +818,7 @@ This section defines the full functional acceptance criteria for the production-
 | Criteria | Measurable Standard | UI Prototype Status |
 |---|---|---|
 | **Role-Personalized Landing** | Main page content adapts to the authenticated user's role. Super Admin sees system-wide metrics; Staff sees personal lead-focused metrics. All 4 tile values must be calculated from real data, not hardcoded. | Prototype shows 4 role-specific metric tiles that change when switching roles via dev tool. Values are mock data. Production must calculate from real data sources. |
-| **Real-Time Updates** | Metric tile values must update within 60 seconds of underlying data changes. Chat responses must stream in real-time (SSE or WebSocket) rather than appearing all at once. | Prototype uses simulated delays (1.5s for Main, 1.8s for Agents). Production must implement streaming responses. |
+| **Real-Time Updates** | Metric tile values must update within 60 seconds of underlying data changes. Chat responses must stream in real-time (SSE or WebSocket) rather than appearing all at once. | Prototype uses simulated delays. Production implements SSE streaming responses via DealerBrainService. |
 
 ---
 

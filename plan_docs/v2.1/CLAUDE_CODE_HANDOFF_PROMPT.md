@@ -200,7 +200,7 @@ nexxus-v2/
 │   ├── migrations/                  # 33 SQL migration files (001-033)
 │   └── seed.sql                     # Development seed data
 ├── shared/
-│   └── schema.ts                    # Drizzle ORM schema (18 lines — minimal placeholder)
+│   └── schema.ts                    # Schema definitions (placeholder in prototype — production uses Supabase)
 ├── tests/
 │   └── e2e/                         # 46 Playwright spec files (747 tests)
 ├── plan_docs/                       # Governing documentation
@@ -413,7 +413,7 @@ The new UI prototype now covers the following features with mock data. These ser
 2. Wire Insights page to existing insight hooks (`useInsights`, `useHunches`, `useReports`)
 3. Wire Agents page to `useAgents` hook (list, detail, CRUD)
 4. Wire Drive page to `useDrive` hook (files, folders, upload/download)
-5. Wire Hub/Work Center to `useTasks`, `useAppointments`, `useApprovals`, `useInbox`
+5. Wire Hub to `useAppointments`, `useLeads`, `useInbox`
 6. Wire Activity page to `useActivity` hook
 
 **Gate:** Every data page displays real data. No mock data imports remain.

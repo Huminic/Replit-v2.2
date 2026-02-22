@@ -60,12 +60,12 @@ This is a **live production environment** with real customers. The following rul
 ### Module F1: Database & Schema
 
 **Owner:** Single implementer
-**Files:** `shared/schema.ts`, `server/storage.ts`, `drizzle.config.ts`
+**Files:** `shared/schema.ts`, `server/storage.ts` (database handled by Supabase)
 **Tables:** users, organizations, sessions
 
 **Tasks:**
-1. Define Drizzle schema for users, organizations, sessions tables
-2. Create insert schemas with drizzle-zod
+1. Define schema for users, organizations tables (Supabase manages the database)
+2. Create insert schemas with Zod validation
 3. Run `npm run db:push` to create tables
 4. Create IStorage interface with CRUD methods for users and organizations
 5. Implement PgStorage class
@@ -83,7 +83,7 @@ This is a **live production environment** with real customers. The following rul
 **Endpoints:** POST /api/auth/login, POST /api/auth/register, POST /api/auth/logout, GET /api/auth/me
 
 **Tasks:**
-1. Set up express-session with connect-pg-simple
+1. JWT authentication already implemented
 2. Create auth middleware (requireAuth, requireRole)
 3. Implement login endpoint with bcrypt password verification
 4. Implement register endpoint (admin-only initially)

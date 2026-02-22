@@ -100,15 +100,8 @@ Breakpoint behavior, touch targets, and mobile-specific patterns for every layou
 | List row minimum height | 48px (for tap targets) |
 | Toggle/switch tap area | 44x44px around the switch control |
 
-### Swipe Gestures
-
-| Gesture | Action | Context |
-|---------|--------|---------|
-| Swipe right | Open sidebar / sub-menu | Main content area (future enhancement) |
-| Swipe left | Close sidebar / sub-menu | Sidebar overlay (future enhancement) |
-| Swipe down | Pull to refresh | List views (future enhancement) |
-
-**Note**: No swipe gestures are currently implemented. All navigation is via tap.
+### Touch Interactions
+All navigation is via tap. No swipe gestures are implemented or planned. Navigation uses the sidebar, sub-menu, and tab components.
 
 ---
 
@@ -162,6 +155,5 @@ When tables transform to cards on mobile, show these fields:
 ### Mobile Bottom Sheet Specs
 - Max height: 85vh
 - Handle bar at top (visual drag indicator)
-- Snap points: 50%, 85% (if applicable)
 - Backdrop: semi-transparent black overlay
 - Border radius: `rounded-t-2xl` (16px top corners)

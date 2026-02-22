@@ -126,7 +126,7 @@ Dark mode shadows use higher alpha for visibility against dark backgrounds.
 |---|---|---|
 | `rounded-sm` | 3px (0.1875rem) | Small badges, toggles |
 | `rounded-md` | 6px (0.375rem) | Inputs, buttons |
-| `rounded-lg` | 9px (0.5625rem) | Cards, modals |
+| `rounded-lg` | Use Tailwind default | Cards, modals |
 | `rounded-xl` | Tailwind default (12px) | Chat bubbles, gradient input container |
 | `--radius` | 0.5rem (8px) | Base radius variable |
 
@@ -221,7 +221,7 @@ These are fixed colors not affected by theme switching:
 | `status-online` | `rgb(34 197 94)` (Green 500) | Online presence, active agents |
 | `status-away` | `rgb(245 158 11)` (Amber 500) | Away/idle status |
 | `status-busy` | `rgb(239 68 68)` (Red 500) | Busy/DND status |
-| `status-offline` | `rgb(156 163 175)` (Gray 400) | Offline status |
+| `status-offline` | `rgb(156 163 175)` (Gray 400) | Offline status (not currently used) |
 
 ---
 

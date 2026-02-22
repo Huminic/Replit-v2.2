@@ -292,7 +292,7 @@ Background jobs that run on intervals. They process queues, refresh tokens, gene
 
 | File | Purpose |
 |------|---------|
-| `shared/schema.ts` | Drizzle ORM schema definitions shared between server and client. Defines table shapes, insert schemas, and TypeScript types. Both `server/` and `client/` import from this file via the `@shared/*` path alias. |
+| `shared/schema.ts` | Schema definitions shared between server and client. Defines table shapes, insert schemas, and TypeScript types. Both `server/` and `client/` import from this file via the `@shared/*` path alias. |
 
 **Why it must not be touched:** Changing the schema changes the TypeScript types that the server expects. The server compiles against this schema. Modifying it without corresponding server changes will cause type errors and build failures.
 
@@ -345,7 +345,7 @@ The build system compiles both the frontend (Vite) and backend (esbuild) into `d
 | `package.json` | Dependencies for both server and client, npm scripts (`dev`, `build`, `start`, `check`) | Server dependencies must not change. See note below. |
 | `package-lock.json` | Locked dependency tree | Must stay in sync with package.json |
 | `tsconfig.json` | TypeScript config for entire monorepo (includes `client/`, `server/`, `shared/`). Defines path aliases `@/*` and `@shared/*`. | Server compilation depends on this config. |
-| `drizzle.config.ts` | Drizzle ORM / drizzle-kit configuration. Points to `shared/schema.ts` and `DATABASE_URL`. | Database tooling config |
+| `drizzle.config.ts` | Database tooling configuration. Points to `shared/schema.ts` and `DATABASE_URL`. | Database tooling config |
 | `vite.config.ts` | Vite config for the main client build. Defines path aliases, output directory (`dist/public`), React plugin. | Changing build output path breaks `server/static.ts` serving. |
 | `tailwind.config.ts` | Tailwind CSS configuration with custom theme | Theme tokens are referenced by components. See Section 20 for guidance. |
 | `postcss.config.js` | PostCSS configuration (Tailwind + autoprefixer) | Build pipeline dependency |

@@ -16,7 +16,7 @@ These states apply to any view that fetches/displays data:
 | Filtered Empty | Filters active, zero matches | "No results match your filters" + "Clear filters" link |
 | Error | API failure / network error | Error card: AlertCircle icon + error message + "Retry" button |
 | Stale | Data older than TTL | Normal render + "Last updated X ago" subtitle + RefreshCw icon |
-| Offline | Network down | Gray banner at top: "You're offline — changes will sync when reconnected" |
+
 
 ## Global Interactive States
 
@@ -28,7 +28,7 @@ These states apply to any view that fetches/displays data:
 | Focused | Tab key / keyboard nav | 2px ring in `--ring` color, offset 2px |
 | Selected | Click to select | Background: `bg-accent`, optional left border `border-l-2 border-primary` |
 | Disabled | Condition met | 50% opacity, `cursor-not-allowed`, no hover effect |
-| Dragging | Drag start | Elevated shadow, ghost placeholder at original position |
+
 
 ## Global Form States
 

@@ -1,5 +1,7 @@
 # Nexxus V2 — Test Scenarios
 
+> **Note:** These scenarios describe prototype behavior using mock data. Production test scenarios may differ due to real API responses, authentication flows, and data persistence. Consult the development team for current E2E test coverage (979 tests across 46 spec files).
+
 Numbered interaction sequences using data-testid values for Playwright E2E testing.
 
 ---
@@ -181,7 +183,7 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 10. Verify Dashboard tab content is displayed again
 
 ### Scenario: Hub Sub-Menu Tab Switching
-**Precondition**: On Hub (Work Center) page with sub-menu pinned
+**Precondition**: On Hub page with sub-menu pinned
 1. Navigate to `/work-center`
 2. Verify Calendar tab content is visible
 3. Click `panel-wc-leads` in sub-menu
@@ -263,8 +265,8 @@ Numbered interaction sequences using data-testid values for Playwright E2E testi
 7. Click send button
 8. Verify toast "Message sent" appears
 
-### Scenario: Open Leads Search
-**Precondition**: On Hub page, Open Leads tab active
+### Scenario: Leads Search
+**Precondition**: On Hub page, Leads tab active
 1. Click `tab-wc-leads`
 2. Verify leads table is visible
 3. Click search input

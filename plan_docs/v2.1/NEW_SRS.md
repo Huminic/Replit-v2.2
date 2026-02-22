@@ -70,7 +70,7 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| AUTH-01 | Session-based authentication using express-session with connect-pg-simple | P0 |
+| AUTH-01 | JWT authentication with access/refresh tokens (1-hour expiry, 60-second auto-refresh) | P0 |
 | AUTH-02 | Login page with email/password form | P0 |
 | AUTH-03 | Session cookie with secure, httpOnly, sameSite flags | P0 |
 | AUTH-04 | Session expiry: 24 hours idle, 7 days absolute max | P1 |
@@ -213,7 +213,7 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 | SEC-02 | Row-Level Security (RLS) on all multi-tenant tables |
 | SEC-03 | CSRF protection via SameSite cookies |
 | SEC-04 | Input validation with Zod on all API endpoints |
-| SEC-05 | SQL injection prevention via Drizzle ORM parameterized queries |
+| SEC-05 | SQL injection prevention via SecureQueryBuilder parameterized queries |
 | SEC-06 | XSS prevention via React's default escaping + CSP headers |
 | SEC-07 | Rate limiting on auth endpoints (5 attempts/minute) |
 | SEC-08 | Secrets stored in environment variables, never in code |
@@ -264,7 +264,7 @@ Nexxus Connect™ is a ClickUp-inspired AI-powered dealership management platfor
 -- Core
 users (id, name, email, password_hash, role, organization_id, avatar_url, phone, preferences, created_at, updated_at)
 organizations (id, name, industry, plan, settings, logo_url, created_at, updated_at)
-sessions (sid, sess, expire)  -- connect-pg-simple
+sessions managed via JWT tokens (stateless, no session table)
 
 -- Agents
 agents (id, name, description, status, channel, system_prompt, organization_id, created_by, triggers, tools, knowledge_sources, created_at, updated_at)

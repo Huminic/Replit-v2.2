@@ -280,7 +280,7 @@ Every distinct component in the design system, documenting what to build each pi
 | **States** | open, closed, sending, sent |
 | **Sizes** | max-w-md |
 | **Test ID Pattern** | `share-modal`, `share-tab-email`, `share-tab-sms`, `button-send-share` |
-| **Notes** | Used in Drive for file sharing. Two tabs: Email and SMS. Input for recipient + optional message. |
+| **Notes** | Used in Drive for file sharing. Share functionality uses real public links. Two tabs: Email and SMS. Input for recipient + optional message. |
 
 ---
 
@@ -304,7 +304,7 @@ Every distinct component in the design system, documenting what to build each pi
 | **States** | idle, dialing, connected, ended |
 | **Sizes** | max-w-sm |
 | **Test ID Pattern** | `dialer-modal`, `dialer-input`, `dialer-call`, `dialer-clear` |
-| **Notes** | Phone dialer with number pad. Used from Hub Communication tab. |
+| **Notes** | Part of the Leads tab in Hub, not a standalone modal. Renders inline within the Leads tab view. |
 
 ---
 
