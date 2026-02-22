@@ -4,7 +4,7 @@ import {
   Bot, Plus, Search, Folder, Star, Users, Clock, FileBox, BarChart3, Target, PieChart,
   Calendar as CalendarIcon, CheckSquare, Lightbulb, Activity, User as UserIcon,
   Server, Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft, Upload, MessageSquare, Layout,
-  MoreVertical, Play, Trash2
+  MoreVertical, Play, Trash2, Building2, Lock, Bell, Database, Palette
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,7 @@ export function SubMenuManager() {
     setPanelHovered,
     agents,
     currentUser,
+    currentRole,
     selectedAgent,
     setSelectedAgent,
     favorites
@@ -453,7 +454,20 @@ export function SubMenuManager() {
           </>
         );
 
-      case 'system':
+      case 'system': {
+        const settingsItems = [
+          { id: 'users', label: 'Users', icon: Users, desc: 'Manage team members and roles', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=users' },
+          { id: 'organization', label: 'Organization', icon: Building2, desc: 'Company profile and branding', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=organization' },
+          { id: 'tools', label: 'Tools & Integrations', icon: Wrench, desc: 'Configure integrations and APIs', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=tools' },
+          { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, desc: 'Manage knowledge base sources', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=knowledge' },
+          { id: 'ai', label: 'AI Configuration', icon: Zap, desc: 'AI behavior and configuration', roles: ['super_admin', 'partner_admin'], path: '/settings/system?section=ai' },
+          { id: 'security', label: 'Security & Privacy', icon: Lock, desc: 'Security settings and policies', roles: ['super_admin', 'partner_admin'], path: '/settings/system?section=security' },
+          { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Notification preferences', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=notifications' },
+          { id: 'data', label: 'Data Management', icon: Database, desc: 'Data import, export, and retention', roles: ['super_admin'], path: '/settings/system?section=data' },
+          { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Theme and display settings', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=appearance' },
+          { id: 'billing', label: 'Billing', icon: CreditCard, desc: 'Billing and invoicing', roles: ['super_admin', 'partner_admin'], path: '/settings/billing' },
+        ];
+        const visibleItems = settingsItems.filter(item => item.roles.includes(currentRole));
         return (
           <>
             <div className="p-3 border-b border-border">
@@ -467,20 +481,12 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-1">
-                  {[
-                    { id: 'users', label: 'Users', icon: Users, desc: 'Manage team members and roles' },
-                    { id: 'organization', label: 'Organization', icon: Settings, desc: 'Company profile and branding' },
-                    { id: 'widgets', label: 'Widgets', icon: MessageSquare, desc: 'Embeddable chat widgets' },
-                    { id: 'landing-pages', label: 'Landing Pages', icon: Layout, desc: 'Hosted page experiences' },
-                    { id: 'tools', label: 'Tools', icon: Wrench, desc: 'Configure integrations and APIs' },
-                    { id: 'knowledge', label: 'Knowledge', icon: BookOpen, desc: 'Manage knowledge base sources' },
-                    { id: 'ai', label: 'AI Config', icon: Zap, desc: 'Hunches and AI behavior' },
-                  ].map((item) => {
+                  {visibleItems.map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setLocation(`/settings/system?section=${item.id}`)}
+                        onClick={() => setLocation(item.path)}
                         className="w-full flex items-start gap-2 px-2 py-2 rounded-md text-left hover-elevate"
                         data-testid={`panel-settings-${item.id}`}
                       >
@@ -497,6 +503,7 @@ export function SubMenuManager() {
             </ScrollArea>
           </>
         );
+      }
 
       case 'profile':
         return (

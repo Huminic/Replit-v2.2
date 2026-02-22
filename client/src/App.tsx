@@ -17,6 +17,8 @@ import ActivityPage from "@/pages/activity";
 import SettingsPage from "@/pages/settings";
 import ProfilePage from "@/pages/profile";
 import WidgetLandingPage from "@/pages/widget-landing";
+import BillingManagementPage from "@/pages/billing-management";
+import OrgWizardPage from "@/pages/org-wizard";
 
 function Router() {
   return (
@@ -33,6 +35,9 @@ function Router() {
             <Route path="/work-center" component={WorkCenterPage} />
             <Route path="/activity" component={ActivityPage} />
             <Route path="/settings/system" component={SettingsPage} />
+            <Route path="/settings/billing" component={BillingManagementPage} />
+            <Route path="/settings/org-wizard" component={OrgWizardPage} />
+            <Route path="/settings" component={SettingsPage} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/profile/preferences" component={ProfilePage} />
             <Route path="/profile/billing" component={ProfilePage} />

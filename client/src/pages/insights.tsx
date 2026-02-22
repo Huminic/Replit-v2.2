@@ -4,7 +4,7 @@ import {
   TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, Lightbulb, 
   Filter, LayoutGrid, List, Search, BarChart3, LineChart, PieChart, FileText, 
   Phone, UserPlus, Eye, Download, ChevronRight, ArrowRight, Flame, Clock, Building2, 
-  Target, Activity, Zap, X
+  Target, Activity, Zap, X, SlidersHorizontal, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -23,6 +23,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
   mockLeadsChart, 
@@ -232,6 +250,14 @@ export default function InsightsPage() {
   const [drillDown, setDrillDown] = useState<DrillDownModal>(null);
   const [reportCategory, setReportCategory] = useState<ReportCategory>('loss');
   const [reportSubTab, setReportSubTab] = useState('tab1');
+  const [hunchPrefsOpen, setHunchPrefsOpen] = useState(false);
+  const [showHunches, setShowHunches] = useState(true);
+  const [notifInApp, setNotifInApp] = useState(true);
+  const [notifEmail, setNotifEmail] = useState(false);
+  const [notifSms, setNotifSms] = useState(false);
+  const [defaultView, setDefaultView] = useState('all');
+  const [minConfidence, setMinConfidence] = useState([50]);
+  const [autoDismissDays, setAutoDismissDays] = useState(7);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -1175,6 +1201,12 @@ export default function InsightsPage() {
   const renderHunches = () => (
     <ScrollArea className="flex-1">
       <div className="p-4 space-y-3">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-sm font-semibold text-foreground">AI-Generated Hunches</h3>
+          <Button variant="ghost" size="icon" onClick={() => setHunchPrefsOpen(true)} data-testid="button-hunch-preferences">
+            <SlidersHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
         {hunchesData.map(hunch => {
           const config = hunchTypeConfig[hunch.type];
           return (
@@ -1258,6 +1290,93 @@ export default function InsightsPage() {
           {renderHunches()}
         </TabsContent>
       </Tabs>
+
+      <Sheet open={hunchPrefsOpen} onOpenChange={setHunchPrefsOpen}>
+        <SheetContent side="right" className="w-[380px] sm:w-[420px]" data-testid="sheet-hunch-preferences">
+          <SheetHeader>
+            <SheetTitle>My Hunch Preferences</SheetTitle>
+            <SheetDescription>
+              These settings apply to your view only. System-wide hunch settings are managed in AI Configuration.
+            </SheetDescription>
+          </SheetHeader>
+          <ScrollArea className="flex-1 mt-6">
+            <div className="space-y-6 pr-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-hunches" className="text-sm font-medium text-foreground">Show Hunches</Label>
+                <Switch id="show-hunches" checked={showHunches} onCheckedChange={setShowHunches} data-testid="switch-show-hunches" />
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Notification Preferences</p>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notif-in-app" className="text-sm text-foreground">In-App</Label>
+                  <Switch id="notif-in-app" checked={notifInApp} onCheckedChange={setNotifInApp} data-testid="switch-notif-in-app" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notif-email" className="text-sm text-foreground">Email</Label>
+                  <Switch id="notif-email" checked={notifEmail} onCheckedChange={setNotifEmail} data-testid="switch-notif-email" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notif-sms" className="text-sm text-foreground">SMS</Label>
+                  <Switch id="notif-sms" checked={notifSms} onCheckedChange={setNotifSms} data-testid="switch-notif-sms" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground">Default View</Label>
+                <Select value={defaultView} onValueChange={setDefaultView}>
+                  <SelectTrigger data-testid="select-default-view">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="opportunities">Opportunities</SelectItem>
+                    <SelectItem value="threats">Threats</SelectItem>
+                    <SelectItem value="insights">Insights</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-foreground">Minimum Confidence</Label>
+                  <span className="text-sm text-muted-foreground" data-testid="text-min-confidence-value">{minConfidence[0]}%</span>
+                </div>
+                <Slider
+                  value={minConfidence}
+                  onValueChange={setMinConfidence}
+                  min={0}
+                  max={100}
+                  step={5}
+                  data-testid="slider-min-confidence"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="auto-dismiss" className="text-sm font-medium text-foreground">Auto-Dismiss After</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="auto-dismiss"
+                    type="number"
+                    min={1}
+                    max={90}
+                    value={autoDismissDays}
+                    onChange={(e) => setAutoDismissDays(Number(e.target.value))}
+                    className="w-20"
+                    data-testid="input-auto-dismiss-days"
+                  />
+                  <span className="text-sm text-muted-foreground">days</span>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+          <SheetFooter className="mt-6">
+            <Button className="w-full" onClick={() => { setHunchPrefsOpen(false); toast({ title: 'Preferences saved', description: 'Your hunch preferences have been updated.' }); }} data-testid="button-save-hunch-preferences">
+              Save Preferences
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {/* DRILL-DOWN MODALS */}
 

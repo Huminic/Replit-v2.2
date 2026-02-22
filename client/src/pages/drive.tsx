@@ -18,7 +18,8 @@ import {
   Mail,
   MessageCircle,
   Copy,
-  Check
+  Check,
+  FileDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -40,6 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 import { mockFiles, formatFileSize, type DriveFile, type FileType } from '@/mocks/files';
 import { formatDistanceToNow } from 'date-fns';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -331,6 +333,38 @@ export default function DrivePage() {
               <Share2 className="h-4 w-4 mr-2" />
               Send {shareMethod === 'email' ? 'Email' : 'SMS'}
             </Button>
+
+            {shareFile && shareFile.type !== 'folder' && (
+              <>
+                <Separator />
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      toast({ title: 'Download started', description: `Downloading "${shareFile.name}" in original format.` });
+                    }}
+                    data-testid="button-download-file"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  {(['document', 'spreadsheet', 'image'] as FileType[]).includes(shareFile.type) && (
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        toast({ title: 'PDF conversion started', description: `Converting "${shareFile.name}" to PDF and downloading.` });
+                      }}
+                      data-testid="button-download-pdf"
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Download as PDF
+                    </Button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>

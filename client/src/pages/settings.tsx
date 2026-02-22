@@ -33,6 +33,17 @@ import {
   X,
   Eye,
   ExternalLink,
+  AlertTriangle,
+  FileUp,
+  HardDrive,
+  KeyRound,
+  Webhook,
+  Brain,
+  ChevronDown,
+  Upload,
+  FileText,
+  Phone,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -46,12 +57,16 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -103,7 +118,6 @@ const settingsTiles: SettingsTile[] = [
   { id: 'notifications', title: 'Notifications', description: 'Alert preferences and delivery channels', icon: Bell, gradient: 'from-sky-500/15 to-blue-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'data', title: 'Data Management', description: 'Imports, exports, and data retention', icon: Database, gradient: 'from-indigo-500/15 to-violet-500/5', minRole: ['super_admin'] },
   { id: 'appearance', title: 'Appearance', description: 'Theme, layout, and display preferences', icon: Palette, gradient: 'from-teal-500/15 to-emerald-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
-  { id: 'api', title: 'API & Webhooks', description: 'Developer settings and external integrations', icon: Globe, gradient: 'from-orange-500/15 to-amber-500/5', minRole: ['super_admin'] },
 ];
 
 const widgetTypeIcons: Record<WidgetType, React.ElementType> = {
@@ -112,6 +126,47 @@ const widgetTypeIcons: Record<WidgetType, React.ElementType> = {
   voice: Mic,
   unified: LayoutGrid,
 };
+
+interface ToolCardData {
+  id: string;
+  friendlyName: string;
+  technicalName: string;
+  description: string;
+  enabled: boolean;
+  locked: boolean;
+  category: 'mcp' | 'api' | 'other';
+  icon: React.ElementType;
+}
+
+const toolCards: ToolCardData[] = [
+  { id: 'crm', friendlyName: 'CRM Integration', technicalName: 'VIN Solutions', description: 'Connect to your CRM for lead and customer data sync', enabled: false, locked: true, category: 'api', icon: Users },
+  { id: 'voice', friendlyName: 'Voice Calling', technicalName: 'VAPI', description: 'Browser-based voice calls powered by VAPI', enabled: false, locked: true, category: 'api', icon: Phone },
+  { id: 'video-calling', friendlyName: 'Video Calling', technicalName: 'Tavus', description: 'Face-to-face video chat via Tavus AI persona', enabled: false, locked: true, category: 'api', icon: Video },
+  { id: 'auth', friendlyName: 'Authentication', technicalName: 'Google Auth', description: 'Single sign-on via Google authentication', enabled: false, locked: true, category: 'api', icon: ShieldCheck },
+  { id: 'sms', friendlyName: 'SMS & Text Sending', technicalName: 'TextMagic', description: 'Send SMS and text messages to customers', enabled: true, locked: false, category: 'api', icon: MessageSquare },
+  { id: 'doc-gen', friendlyName: 'Document Generator', technicalName: 'Document Generator', description: 'Generate sales documents and contracts', enabled: true, locked: false, category: 'other', icon: FileText },
+];
+
+interface SkillItem {
+  id: string;
+  name: string;
+  category: 'Sales' | 'Finance' | 'Operations' | 'General';
+  description: string;
+  prompt: string;
+  temperature: number;
+  enabled: boolean;
+}
+
+const mockSkills: SkillItem[] = [
+  { id: 's1', name: 'Lead Qualifier', category: 'Sales', description: 'Qualify incoming leads based on criteria and budget', prompt: 'You are a lead qualification specialist...', temperature: 0.3, enabled: true },
+  { id: 's2', name: 'Payment Calculator', category: 'Sales', description: 'Calculate monthly payments and financing options', prompt: 'Calculate vehicle payments based on...', temperature: 0.1, enabled: true },
+  { id: 's3', name: 'Deal Structurer', category: 'Finance', description: 'Structure deals with optimal terms for customer and dealer', prompt: 'Structure the deal considering...', temperature: 0.2, enabled: true },
+  { id: 's4', name: 'Credit Application Processor', category: 'Finance', description: 'Process and evaluate credit applications', prompt: 'Review the credit application...', temperature: 0.1, enabled: false },
+  { id: 's5', name: 'Inventory Tracker', category: 'Operations', description: 'Track and manage vehicle inventory status', prompt: 'Monitor inventory levels and...', temperature: 0.2, enabled: true },
+  { id: 's6', name: 'Service Scheduler', category: 'Operations', description: 'Schedule service appointments and manage bay allocation', prompt: 'Schedule service appointments...', temperature: 0.2, enabled: true },
+  { id: 's7', name: 'Email Composer', category: 'General', description: 'Compose professional emails for various scenarios', prompt: 'Compose a professional email...', temperature: 0.5, enabled: true },
+  { id: 's8', name: 'FAQ Responder', category: 'General', description: 'Answer frequently asked questions about products and services', prompt: 'Answer the following FAQ...', temperature: 0.3, enabled: true },
+];
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -126,7 +181,16 @@ export default function SettingsPage() {
   const [widgetConfigTab, setWidgetConfigTab] = useState('settings');
   const [newDomain, setNewDomain] = useState('');
   const [previewWidget, setPreviewWidget] = useState<IndividualWidget | null>(null);
-  const [toolsTab, setToolsTab] = useState('tools');
+  const [toolsTab, setToolsTab] = useState('mcp');
+  const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null);
+  const [skillFilter, setSkillFilter] = useState('All');
+  const [showKillConfirm, setShowKillConfirm] = useState(false);
+  const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+
+  const isSuperAdmin = currentRole === 'super_admin';
+  const isPartnerAdmin = currentRole === 'partner_admin';
+  const isReadOnlyAI = isPartnerAdmin;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -230,15 +294,23 @@ export default function SettingsPage() {
 
   const renderUserManagement = () => (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
-        <Button size="sm" onClick={() => toast({ title: 'Add user', description: 'User creation is not available in demo mode.' })} data-testid="button-add-user">
-          <Plus className="h-4 w-4 mr-1" />
-          Add User
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => toast({ title: 'Add user', description: 'User creation is not available in demo mode.' })} data-testid="button-add-user">
+            <Plus className="h-4 w-4 mr-1" />
+            Add User
+          </Button>
+          {isSuperAdmin && (
+            <Button size="sm" variant="outline" onClick={() => setLocation('/settings/org-wizard')} data-testid="button-new-organization">
+              <Plus className="h-4 w-4 mr-1" />
+              New Organization
+            </Button>
+          )}
+        </div>
       </div>
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1442,55 +1514,812 @@ export default function SettingsPage() {
     );
   };
 
-  const renderToolsSection = () => (
+  const renderToolCard = (tool: ToolCardData) => {
+    const TIcon = tool.icon;
+    return (
+      <Card key={tool.id} className={cn('hover-elevate', tool.locked && 'opacity-60')} data-testid={`tool-card-${tool.id}`}>
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <TIcon className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-medium text-foreground">{tool.friendlyName}</p>
+                <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode.' })} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+              {isSuperAdmin && (
+                <p className="text-[10px] text-muted-foreground/70 font-mono mt-1">Technical: {tool.technicalName}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={tool.enabled ? 'default' : 'secondary'} className="text-[10px]">
+              {tool.enabled ? 'Enabled' : 'Disabled'}
+            </Badge>
+            {tool.locked && <Badge variant="outline" className="text-[10px]">Locked</Badge>}
+          </div>
+          {isSuperAdmin && (
+            <details className="text-xs">
+              <summary className="cursor-pointer text-muted-foreground flex items-center gap-1">
+                <ChevronDown className="h-3 w-3" /> Economy Settings
+              </summary>
+              <div className="mt-2 space-y-2 pl-4 border-l-2 border-border">
+                <div className="flex items-center gap-2">
+                  <Checkbox id={`economy-${tool.id}`} data-testid={`checkbox-economy-${tool.id}`} />
+                  <Label htmlFor={`economy-${tool.id}`} className="text-xs">Add to billing economy</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs w-20">Base Rate:</Label>
+                  <Input defaultValue="0.00" className="h-7 text-xs w-24" data-testid={`input-base-rate-${tool.id}`} />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs w-20">Markup Rate:</Label>
+                  <Input defaultValue="0.00" className="h-7 text-xs w-24" data-testid={`input-markup-rate-${tool.id}`} />
+                </div>
+              </div>
+            </details>
+          )}
+          <details className="text-xs opacity-50">
+            <summary className="cursor-pointer text-muted-foreground flex items-center gap-1">
+              <ChevronDown className="h-3 w-3" /> Tool Instructions
+            </summary>
+            <div className="mt-2 p-3 bg-muted/50 rounded-lg text-muted-foreground">
+              Future: instructions for tool-database connections
+            </div>
+          </details>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderToolsSection = () => {
+    const apiTools = toolCards.filter(t => t.category === 'api');
+    const otherTools = toolCards.filter(t => t.category === 'other');
+
+    const currentTab = selectedWidget ? 'widgets' : selectedLandingPage ? 'landing-pages' : toolsTab;
+
+    return (
+      <div className="p-4 space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => { setActiveSection(null); setSelectedWidget(null); setSelectedLandingPage(null); }} data-testid="button-back-settings">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+
+        <Tabs value={currentTab} onValueChange={(val) => { setToolsTab(val); setSelectedWidget(null); setSelectedLandingPage(null); }}>
+          <TabsList className={cn('w-full max-w-2xl', isSuperAdmin ? 'grid grid-cols-7' : 'grid grid-cols-5')}>
+            <TabsTrigger value="mcp" data-testid="tab-mcp">MCP</TabsTrigger>
+            <TabsTrigger value="api" data-testid="tab-api-tools">API</TabsTrigger>
+            <TabsTrigger value="other" data-testid="tab-other">Other</TabsTrigger>
+            <TabsTrigger value="widgets" data-testid="tab-widgets">Widgets</TabsTrigger>
+            <TabsTrigger value="landing-pages" data-testid="tab-landing-pages">Landing Pages</TabsTrigger>
+            {isSuperAdmin && <TabsTrigger value="api-keys" data-testid="tab-api-keys">API Keys</TabsTrigger>}
+            {isSuperAdmin && <TabsTrigger value="webhooks" data-testid="tab-webhooks">Webhooks</TabsTrigger>}
+          </TabsList>
+
+          <TabsContent value="mcp" className="mt-4">
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Brain className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">No MCP tools configured.</p>
+                <p className="text-xs text-muted-foreground mt-1">MCP tools are added via backend configuration.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="api" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {apiTools.map(renderToolCard)}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="other" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {otherTools.map(renderToolCard)}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="widgets" className="mt-4">
+            {selectedWidget ? renderWidgetDetail(selectedWidget) : renderWidgetTypeCards()}
+          </TabsContent>
+
+          <TabsContent value="landing-pages" className="mt-4">
+            {selectedLandingPage ? renderLandingPageDetail(selectedLandingPage) : renderLandingPageList()}
+          </TabsContent>
+
+          {isSuperAdmin && (
+            <TabsContent value="api-keys" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">API Keys</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm text-foreground">API Access</p>
+                      <p className="text-xs text-muted-foreground">Enable REST API access for this org</p>
+                    </div>
+                    <Switch defaultChecked data-testid="switch-api-access" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">API Key</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input value="nxs_sk_••••••••••••4a2f" readOnly className="font-mono text-sm" data-testid="input-api-key" />
+                      <Button variant="outline" size="sm" onClick={() => toast({ title: 'Key rotated', description: 'A new API key has been generated.' })} data-testid="button-rotate-key">
+                        <KeyRound className="h-3.5 w-3.5 mr-1" />
+                        Rotate
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Rate Limit (requests/hour)</Label>
+                    <Input defaultValue="1000" type="number" className="mt-1 max-w-[200px]" data-testid="input-rate-limit" />
+                  </div>
+                  <Button onClick={() => toast({ title: 'API settings saved', description: 'API configuration updated.' })} data-testid="button-save-api-keys">
+                    Save
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
+            <TabsContent value="webhooks" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Webhooks</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="text-xs">Webhook URL</Label>
+                    <Input placeholder="https://your-server.com/webhook" className="mt-1" data-testid="input-webhook-url" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Events</Label>
+                    {['Lead Created', 'Call Completed', 'Appointment Booked', 'Agent Status Change'].map((evt, i) => (
+                      <div key={evt} className="flex items-center gap-2">
+                        <Checkbox id={`webhook-evt-${i}`} defaultChecked data-testid={`checkbox-webhook-${evt.toLowerCase().replace(/\s/g, '-')}`} />
+                        <Label htmlFor={`webhook-evt-${i}`} className="text-sm">{evt}</Label>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm text-foreground">Status</p>
+                      <p className="text-xs text-muted-foreground">Active / Inactive</p>
+                    </div>
+                    <Switch defaultChecked data-testid="switch-webhook-status" />
+                  </div>
+                  <Button onClick={() => toast({ title: 'Webhooks saved', description: 'Webhook configuration updated.' })} data-testid="button-save-webhooks">
+                    Save
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
+      </div>
+    );
+  };
+
+  const renderKnowledgeBase = () => (
     <div className="p-4 space-y-4">
-      <Button variant="ghost" size="sm" onClick={() => { setActiveSection(null); setSelectedWidget(null); setSelectedLandingPage(null); }} data-testid="button-back-settings">
+      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
         <ArrowLeft className="h-4 w-4 mr-1" />
         Back
       </Button>
-
-      <Tabs value={selectedWidget ? 'widgets' : selectedLandingPage ? 'landing-pages' : toolsTab} onValueChange={(val) => { setToolsTab(val); setSelectedWidget(null); setSelectedLandingPage(null); }}>
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="tools" data-testid="tab-tools">
-            <Wrench className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Tools
-          </TabsTrigger>
-          <TabsTrigger value="widgets" data-testid="tab-widgets">
-            <MessageSquare className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Widgets
-          </TabsTrigger>
-          <TabsTrigger value="landing-pages" data-testid="tab-landing-pages">
-            <Layout className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Landing Pages
-          </TabsTrigger>
+      <Tabs defaultValue="documents">
+        <TabsList className="grid grid-cols-4 w-full max-w-lg">
+          <TabsTrigger value="documents" data-testid="tab-kb-documents">Documents</TabsTrigger>
+          <TabsTrigger value="web-pages" data-testid="tab-kb-web-pages">Web Pages</TabsTrigger>
+          <TabsTrigger value="databases" data-testid="tab-kb-databases">Databases</TabsTrigger>
+          <TabsTrigger value="kb-settings" data-testid="tab-kb-settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tools" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {availableTools.map(tool => (
-              <Card key={tool.id} className="hover-elevate" data-testid={`tool-${tool.id}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{tool.name}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">{tool.description}</p>
-                    </div>
-                    <Switch defaultChecked={tool.enabled} data-testid={`tool-switch-${tool.id}`} />
+        <TabsContent value="documents" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <CardTitle className="text-sm">Documents</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input placeholder="Search..." className="pl-8 h-8 w-40" data-testid="input-search-documents" />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <Button size="sm" onClick={() => toast({ title: 'Upload', description: 'Document upload is not available in demo mode.' })} data-testid="button-upload-document">
+                    <Upload className="h-3.5 w-3.5 mr-1" />
+                    Upload
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 text-muted-foreground text-xs">
+                      <th className="text-left p-2 font-medium">Name</th>
+                      <th className="text-left p-2 font-medium">Type</th>
+                      <th className="text-left p-2 font-medium">Size</th>
+                      <th className="text-left p-2 font-medium">Date</th>
+                      <th className="p-2 w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t border-border" data-testid="doc-row-inventory">
+                      <td className="p-2 font-medium text-foreground">Inventory</td>
+                      <td className="p-2 text-muted-foreground">CSV</td>
+                      <td className="p-2 text-muted-foreground">2 MB</td>
+                      <td className="p-2 text-muted-foreground">2/20</td>
+                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'Document removed.' })} data-testid="button-delete-doc-inventory"><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                    </tr>
+                    <tr className="border-t border-border" data-testid="doc-row-pricing">
+                      <td className="p-2 font-medium text-foreground">Pricing</td>
+                      <td className="p-2 text-muted-foreground">PDF</td>
+                      <td className="p-2 text-muted-foreground">500 KB</td>
+                      <td className="p-2 text-muted-foreground">2/18</td>
+                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'Document removed.' })} data-testid="button-delete-doc-pricing"><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="widgets" className="mt-4">
-          {selectedWidget ? renderWidgetDetail(selectedWidget) : renderWidgetTypeCards()}
+        <TabsContent value="web-pages" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <CardTitle className="text-sm">Web Pages</CardTitle>
+                <Button size="sm" onClick={() => toast({ title: 'Add URL', description: 'URL addition is not available in demo mode.' })} data-testid="button-add-url">
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Add URL
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 text-muted-foreground text-xs">
+                      <th className="text-left p-2 font-medium">URL</th>
+                      <th className="text-left p-2 font-medium">Status</th>
+                      <th className="text-left p-2 font-medium">Last Crawled</th>
+                      <th className="p-2 w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t border-border" data-testid="web-row-dealer">
+                      <td className="p-2 font-mono text-xs text-foreground">dealer.com/inv</td>
+                      <td className="p-2"><Badge variant="secondary" className="text-[10px]">Indexed</Badge></td>
+                      <td className="p-2 text-muted-foreground">2/20</td>
+                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'URL removed.' })} data-testid="button-delete-url-dealer"><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="landing-pages" className="mt-4">
-          {selectedLandingPage ? renderLandingPageDetail(selectedLandingPage) : renderLandingPageList()}
+        <TabsContent value="databases" className="mt-4">
+          <Card>
+            <CardContent className="p-8 text-center opacity-50">
+              <Database className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">Database Connections</p>
+              <p className="text-xs text-muted-foreground mt-1">Future: connect external databases</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="kb-settings" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Knowledge Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Auto-Index Files</p><p className="text-xs text-muted-foreground">Automatically index uploaded documents</p></div><Switch defaultChecked data-testid="switch-auto-index" /></div>
+              <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Enable Web Scraping</p><p className="text-xs text-muted-foreground">Allow AI to learn from linked web pages</p></div><Switch data-testid="switch-web-scraping" /></div>
+              <div className="flex items-center justify-between gap-4"><div className="flex-1"><p className="font-medium text-sm text-foreground">Document Retention</p><p className="text-xs text-muted-foreground">Days to keep processed documents</p></div><Input defaultValue="90" className="max-w-[100px]" data-testid="input-doc-retention" /></div>
+              <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Smart Summarization</p><p className="text-xs text-muted-foreground">Auto-generate summaries for uploaded docs</p></div><Switch defaultChecked data-testid="switch-smart-summarization" /></div>
+              <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Learning Mode</p><p className="text-xs text-muted-foreground">Allow AI to learn from corrections</p></div><Switch checked disabled data-testid="switch-learning-mode" /></div>
+              <Button onClick={() => toast({ title: 'Settings saved', description: 'Knowledge base settings updated.' })} data-testid="button-save-kb-settings">Save</Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+
+  const renderAIConfiguration = () => {
+    const filteredSkills = skillFilter === 'All' ? mockSkills : mockSkills.filter(s => s.category === skillFilter);
+
+    return (
+      <div className="p-4 space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => { setActiveSection(null); setSelectedSkill(null); }} data-testid="button-back-settings">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+        <Tabs defaultValue="system-prompt">
+          <TabsList className={cn('w-full max-w-lg', isSuperAdmin ? 'grid grid-cols-4' : isPartnerAdmin ? 'grid grid-cols-3' : 'grid grid-cols-4')}>
+            <TabsTrigger value="system-prompt" data-testid="tab-system-prompt">System Prompt</TabsTrigger>
+            <TabsTrigger value="agent-behavior" data-testid="tab-agent-behavior">Agent Behavior</TabsTrigger>
+            {isSuperAdmin && <TabsTrigger value="skills" data-testid="tab-skills">Skills</TabsTrigger>}
+            <TabsTrigger value="hunches" data-testid="tab-hunches">Hunches</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="system-prompt" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">System Prompt</CardTitle>
+                {isReadOnlyAI && <CardDescription className="text-xs">Read-only view</CardDescription>}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-xs">System Prompt</Label>
+                  <Textarea rows={6} defaultValue="You are Automa, an AI assistant for automotive dealerships..." disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-prompt" />
+                </div>
+                <div>
+                  <Label className="text-xs">System Information</Label>
+                  <Textarea rows={3} defaultValue="" disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-info" />
+                </div>
+                <div>
+                  <Label className="text-xs">Rules & Exclusions</Label>
+                  <Textarea rows={3} defaultValue="" disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-rules-exclusions" />
+                </div>
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'System prompt updated.' })} data-testid="button-save-system-prompt">Save</Button>}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="agent-behavior" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Agent Behavior</CardTitle>
+                {isReadOnlyAI && <CardDescription className="text-xs">Read-only view</CardDescription>}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-xs">Overall Behavior Context</Label>
+                  <Textarea rows={5} defaultValue="Instructions for what agents are allowed to do and how they behave..." disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-behavior-context" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Allowed Actions</Label>
+                  {[
+                    { label: 'Initiate outbound calls', checked: true },
+                    { label: 'Send SMS messages', checked: true },
+                    { label: 'Create leads in CRM', checked: true },
+                    { label: 'Schedule appointments', checked: true },
+                    { label: 'Access financial data', checked: false },
+                    { label: 'Modify customer records', checked: false },
+                  ].map((action, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Checkbox defaultChecked={action.checked} disabled={isReadOnlyAI} id={`action-${i}`} data-testid={`checkbox-action-${action.label.toLowerCase().replace(/\s/g, '-')}`} />
+                      <Label htmlFor={`action-${i}`} className="text-sm">{action.label}</Label>
+                    </div>
+                  ))}
+                </div>
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'Agent behavior updated.' })} data-testid="button-save-agent-behavior">Save</Button>}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {isSuperAdmin && (
+            <TabsContent value="skills" className="mt-4 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input placeholder="Search skills..." className="pl-8" data-testid="input-search-skills" />
+                </div>
+                <Button size="sm" onClick={() => setSelectedSkill({ id: '', name: '', category: 'General', description: '', prompt: '', temperature: 0.5, enabled: true })} data-testid="button-new-skill">
+                  <Plus className="h-4 w-4 mr-1" />
+                  New Skill
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {['All', 'Sales', 'Finance', 'Operations', 'General'].map(cat => (
+                  <Button key={cat} variant={skillFilter === cat ? 'default' : 'outline'} size="sm" onClick={() => setSkillFilter(cat)} data-testid={`filter-skill-${cat.toLowerCase()}`}>
+                    {cat}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-0">
+                    <ScrollArea className="h-[400px]">
+                      <div className="divide-y divide-border">
+                        {filteredSkills.map(skill => (
+                          <div
+                            key={skill.id}
+                            className={cn('p-3 cursor-pointer hover-elevate', selectedSkill?.id === skill.id && 'bg-muted/50')}
+                            onClick={() => setSelectedSkill(skill)}
+                            data-testid={`skill-item-${skill.id}`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-medium text-sm text-foreground">{skill.name}</p>
+                              <Badge variant="outline" className="text-[10px]">{skill.category}</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{skill.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+
+                {selectedSkill && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">{selectedSkill.id ? 'Edit Skill' : 'New Skill'}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <Label className="text-xs">Name</Label>
+                        <Input defaultValue={selectedSkill.name} className="mt-1" data-testid="input-skill-name" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Category</Label>
+                        <Select defaultValue={selectedSkill.category}>
+                          <SelectTrigger className="mt-1" data-testid="select-skill-category">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Sales">Sales</SelectItem>
+                            <SelectItem value="Finance">Finance</SelectItem>
+                            <SelectItem value="Operations">Operations</SelectItem>
+                            <SelectItem value="General">General</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Description</Label>
+                        <Input defaultValue={selectedSkill.description} className="mt-1" data-testid="input-skill-description" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Skill Prompt</Label>
+                        <Textarea defaultValue={selectedSkill.prompt} rows={4} className="mt-1" data-testid="textarea-skill-prompt" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Temperature: {selectedSkill.temperature}</Label>
+                        <Slider defaultValue={[selectedSkill.temperature * 100]} max={100} step={5} className="mt-2" data-testid="slider-skill-temperature" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">System-Wide Status</Label>
+                        <Switch defaultChecked={selectedSkill.enabled} data-testid="switch-skill-status" />
+                      </div>
+                      <div className="flex items-center gap-2 pt-2">
+                        <Button size="sm" onClick={() => toast({ title: 'Skill saved', description: 'Skill configuration updated.' })} data-testid="button-save-skill">Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => setSelectedSkill(null)} data-testid="button-cancel-skill">Cancel</Button>
+                        {selectedSkill.id && <Button size="sm" variant="destructive" onClick={() => { setSelectedSkill(null); toast({ title: 'Skill deleted', description: 'Skill has been removed.' }); }} data-testid="button-delete-skill">Delete</Button>}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              <Card className="border-destructive">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm text-destructive flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Emergency Controls
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="destructive" onClick={() => setShowKillConfirm(true)} data-testid="button-kill-switch">
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    DISABLE ALL AGENTS
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Dialog open={showKillConfirm} onOpenChange={setShowKillConfirm}>
+                <DialogContent data-testid="dialog-kill-confirm">
+                  <DialogHeader>
+                    <DialogTitle className="text-destructive">Confirm: Disable All Agents</DialogTitle>
+                    <DialogDescription>This will immediately disable all active agents across all organizations. This action can be reversed but may disrupt service.</DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowKillConfirm(false)} data-testid="button-cancel-kill">Cancel</Button>
+                    <Button variant="destructive" onClick={() => { setShowKillConfirm(false); toast({ title: 'All agents disabled', description: 'Emergency kill switch activated.' }); }} data-testid="button-confirm-kill">Confirm Disable</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </TabsContent>
+          )}
+
+          <TabsContent value="hunches" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Hunches Configuration</CardTitle>
+                {isReadOnlyAI && <CardDescription className="text-xs">Read-only view</CardDescription>}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Enable Hunches</p><p className="text-xs text-muted-foreground">AI-generated business intelligence insights</p></div><Switch defaultChecked disabled={isReadOnlyAI} data-testid="switch-enable-hunches" /></div>
+                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Auto-Scoring</p><p className="text-xs text-muted-foreground">Automatically score and prioritize leads</p></div><Switch checked disabled data-testid="switch-auto-scoring" /></div>
+                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Confidence Threshold</p><p className="text-xs text-muted-foreground">Minimum confidence for AI suggestions (%)</p></div><Input value="70" disabled className="max-w-[80px]" data-testid="input-confidence-threshold" /></div>
+                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Temperature per Org</p><p className="text-xs text-muted-foreground">AI randomness setting</p></div><Input value="0.5" disabled className="max-w-[80px]" data-testid="input-temperature-org" /></div>
+                <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Daily Digest</p><p className="text-xs text-muted-foreground">Send daily AI insights summary via email</p></div><Switch disabled={isReadOnlyAI} data-testid="switch-daily-digest" /></div>
+                <div>
+                  <Label className="text-xs">Recipients</Label>
+                  <Input defaultValue="" placeholder="email1@example.com, email2@example.com" disabled={isReadOnlyAI} className="mt-1" data-testid="input-digest-recipients" />
+                </div>
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'Hunches configuration updated.' })} data-testid="button-save-hunches">Save</Button>}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
+  const renderSecurity = () => (
+    <div className="p-4 space-y-4">
+      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Back
+      </Button>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Security Settings</CardTitle>
+          <CardDescription>Authentication, SSO, and access policies</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Two-Factor Authentication</p><p className="text-xs text-muted-foreground">Require 2FA for all users</p></div><Switch checked disabled data-testid="switch-2fa" /></div>
+          <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">SSO Provider</p><p className="text-xs text-muted-foreground">Single sign-on provider</p></div><Switch checked disabled data-testid="switch-sso" /></div>
+          <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Session Timeout</p><p className="text-xs text-muted-foreground">Minutes before auto-logout</p></div><Input value="60" disabled className="max-w-[80px]" data-testid="input-session-timeout" /></div>
+          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">IP Allowlist</p><p className="text-xs text-muted-foreground">Restrict access to specific IP ranges</p></div><Switch checked disabled data-testid="switch-ip-allowlist" /></div>
+          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Audit Logging</p><p className="text-xs text-muted-foreground">Log all user actions for compliance</p></div><Switch checked disabled data-testid="switch-audit-logging" /></div>
+          <Separator />
+          <div>
+            <p className="font-medium text-sm text-foreground mb-2">Password Management</p>
+            <Button variant="outline" onClick={() => toast({ title: 'Password reset', description: 'Password reset email sent.' })} data-testid="button-reset-password">
+              <Lock className="h-3.5 w-3.5 mr-1" />
+              Reset Password
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderNotifications = () => (
+    <div className="p-4 space-y-4">
+      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Back
+      </Button>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Notification Settings</CardTitle>
+          <CardDescription>Configure alert preferences and delivery channels</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Global Settings</p>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Email Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via email</p></div><Switch defaultChecked data-testid="switch-email-notifications" /></div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">SMS Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via SMS</p></div><Switch data-testid="switch-sms-notifications" /></div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Push Notifications</p><p className="text-xs text-muted-foreground">Browser push notifications</p></div><Switch defaultChecked data-testid="switch-push-notifications" /></div>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div>
+              <Label className="text-xs">Quiet Hours Start</Label>
+              <Input defaultValue="22:00" className="mt-1 w-28" data-testid="input-quiet-start" />
+            </div>
+            <div>
+              <Label className="text-xs">Quiet Hours End</Label>
+              <Input defaultValue="07:00" className="mt-1 w-28" data-testid="input-quiet-end" />
+            </div>
+          </div>
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Per-Event Preferences</p>
+          {[
+            { label: 'New Lead', desc: 'When a new lead is created' },
+            { label: 'Appointment Booked', desc: 'When an appointment is scheduled' },
+            { label: 'Agent Alert', desc: 'When an agent needs attention' },
+            { label: 'Task Due', desc: 'When a task is approaching deadline' },
+          ].map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between gap-4 py-1">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-foreground text-sm">{item.label}</p>
+                <p className="text-xs text-muted-foreground">{item.desc}</p>
+              </div>
+              <Switch defaultChecked data-testid={`switch-notification-${item.label.toLowerCase().replace(/\s/g, '-')}`} />
+            </div>
+          ))}
+          <Button onClick={() => toast({ title: 'Settings saved', description: 'Notification preferences updated.' })} data-testid="button-save-notifications">Save</Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderDataManagement = () => {
+    const mockUploads = [
+      { id: 'u1', name: 'Jan Inventory', type: 'CSV', records: 1247, date: '1/15', category: 'Inventory', mapping: 'VIN -> vehicle_vin, Make -> make, Model -> model', interpretation: 'Vehicle inventory data with 1,247 active listings', prompt: 'Import as structured inventory data' },
+      { id: 'u2', name: 'Website Scrape', type: 'HTML', records: 342, date: '2/01', category: 'Other', mapping: 'URL -> source_url, Content -> body_text', interpretation: 'Web content scraped from dealer website', prompt: 'Extract product and pricing information' },
+    ];
+
+    return (
+      <div className="p-4 space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+        <Tabs defaultValue="uploads">
+          <TabsList className="grid grid-cols-2 w-full max-w-sm">
+            <TabsTrigger value="uploads" data-testid="tab-data-uploads">Database Uploads</TabsTrigger>
+            <TabsTrigger value="health" data-testid="tab-data-health">Data Health</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="uploads" className="mt-4 space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {['All', 'Inventory', 'Leads', 'Contacts', 'Other'].map(cat => (
+                <Button key={cat} variant="outline" size="sm" data-testid={`filter-data-${cat.toLowerCase()}`}>{cat}</Button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" onClick={() => setShowUploadDialog(true)} data-testid="button-upload-data">
+                <Upload className="h-3.5 w-3.5 mr-1" />
+                Upload Data
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => toast({ title: 'Scrape URL', description: 'URL scraping is not available in demo mode.' })} data-testid="button-scrape-url">
+                <Globe className="h-3.5 w-3.5 mr-1" />
+                Scrape URL
+              </Button>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                <div className="rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/50 text-muted-foreground text-xs">
+                        <th className="text-left p-2 font-medium">Name</th>
+                        <th className="text-left p-2 font-medium">Type</th>
+                        <th className="text-left p-2 font-medium">Records</th>
+                        <th className="text-left p-2 font-medium">Date</th>
+                        <th className="p-2 w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mockUploads.map(upload => (
+                        <>
+                          <tr key={upload.id} className="border-t border-border cursor-pointer hover-elevate" onClick={() => setExpandedUpload(expandedUpload === upload.id ? null : upload.id)} data-testid={`upload-row-${upload.id}`}>
+                            <td className="p-2 font-medium text-foreground">{upload.name}</td>
+                            <td className="p-2 text-muted-foreground">{upload.type}</td>
+                            <td className="p-2 text-muted-foreground">{upload.records.toLocaleString()}</td>
+                            <td className="p-2 text-muted-foreground">{upload.date}</td>
+                            <td className="p-2"><Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: 'Deleted', description: 'Upload removed.' }); }} data-testid={`button-delete-upload-${upload.id}`}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                          </tr>
+                          {expandedUpload === upload.id && (
+                            <tr key={`${upload.id}-detail`} className="border-t border-border bg-muted/30">
+                              <td colSpan={5} className="p-3 text-xs space-y-2">
+                                <div><span className="font-medium text-foreground">Field Mapping:</span> <span className="text-muted-foreground font-mono">{upload.mapping}</span></div>
+                                <div><span className="font-medium text-foreground">Interpretation:</span> <span className="text-muted-foreground">{upload.interpretation}</span></div>
+                                <div><span className="font-medium text-foreground">Processing Prompt:</span> <span className="text-muted-foreground">{upload.prompt}</span></div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex items-center justify-between opacity-50">
+              <div><p className="font-medium text-sm text-foreground">SOC2/Compliance</p><p className="text-xs text-muted-foreground">Data compliance checks enabled</p></div>
+              <Switch checked disabled data-testid="switch-soc2" />
+            </div>
+
+            <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+              <DialogContent data-testid="dialog-upload-data">
+                <DialogHeader>
+                  <DialogTitle>Upload Data</DialogTitle>
+                  <DialogDescription>Upload a file for processing and import</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-xs">Category</Label>
+                    <Select defaultValue="inventory">
+                      <SelectTrigger className="mt-1" data-testid="select-upload-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inventory">Inventory</SelectItem>
+                        <SelectItem value="leads">Leads</SelectItem>
+                        <SelectItem value="contacts">Contacts</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                    <FileUp className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
+                    <p className="text-xs text-muted-foreground mt-1">CSV, JSON, Excel, PDF</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Processing Instructions</Label>
+                    <Textarea rows={2} placeholder="Describe how this data should be processed..." className="mt-1" data-testid="textarea-processing-instructions" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Label className="text-xs">Data Type:</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="radio" name="dataType" value="structured" defaultChecked id="dt-structured" data-testid="radio-structured" />
+                      <Label htmlFor="dt-structured" className="text-xs">Structured</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="radio" name="dataType" value="unstructured" id="dt-unstructured" data-testid="radio-unstructured" />
+                      <Label htmlFor="dt-unstructured" className="text-xs">Unstructured</Label>
+                    </div>
+                  </div>
+                  <Button className="w-full" onClick={() => { setShowUploadDialog(false); toast({ title: 'Processing', description: 'Data upload started. Processing will complete shortly.' }); }} data-testid="button-upload-process">
+                    <Upload className="h-4 w-4 mr-1" />
+                    Upload & Process
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </TabsContent>
+
+          <TabsContent value="health" className="mt-4 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">14,892</p><p className="text-xs text-muted-foreground">Total Records</p></CardContent></Card>
+              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">2.3 GB</p><p className="text-xs text-muted-foreground">Storage Used</p></CardContent></Card>
+              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">8</p><p className="text-xs text-muted-foreground">Active Uploads</p></CardContent></Card>
+            </div>
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Auto-Backup</p><p className="text-xs text-muted-foreground">Daily automatic data backups</p></div><Switch checked disabled data-testid="switch-auto-backup" /></div>
+                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Data Retention</p><p className="text-xs text-muted-foreground">Months to retain closed records</p></div><Input value="24" disabled className="max-w-[80px]" data-testid="input-data-retention" /></div>
+                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Export Format</p><p className="text-xs text-muted-foreground">Default export file format</p></div><Input value="CSV" disabled className="max-w-[80px]" data-testid="input-export-format" /></div>
+                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">GDPR Compliance</p><p className="text-xs text-muted-foreground">GDPR data handling rules</p></div><Switch checked disabled data-testid="switch-gdpr" /></div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
+  const renderAppearance = () => (
+    <div className="p-4 space-y-4">
+      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Back
+      </Button>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Appearance</CardTitle>
+          <CardDescription>Theme, layout, and display preferences</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">These settings apply to all users in this organization.</p>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Compact Mode</p><p className="text-xs text-muted-foreground">Use smaller spacing and fonts</p></div><Switch data-testid="switch-compact-mode" /></div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Animations</p><p className="text-xs text-muted-foreground">Enable UI animations and transitions</p></div><Switch defaultChecked data-testid="switch-animations" /></div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="font-medium text-sm text-foreground">Default View</p>
+              <p className="text-xs text-muted-foreground">Default page on login</p>
+            </div>
+            <Select defaultValue="dashboard">
+              <SelectTrigger className="w-40" data-testid="select-default-view">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dashboard">Dashboard</SelectItem>
+                <SelectItem value="work-center">Hub</SelectItem>
+                <SelectItem value="insights">Insights</SelectItem>
+                <SelectItem value="agents">Agents</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Show Metric Tiles</p><p className="text-xs text-muted-foreground">Display KPI tiles on home page</p></div><Switch defaultChecked data-testid="switch-metric-tiles" /></div>
+          <Button onClick={() => toast({ title: 'Settings saved', description: 'Appearance preferences updated.' })} data-testid="button-save-appearance-settings">Save</Button>
+        </CardContent>
+      </Card>
     </div>
   );
 
@@ -1535,52 +2364,12 @@ export default function SettingsPage() {
         { label: 'Public Listing', desc: 'Show in partner directory', type: 'toggle', defaultValue: true },
         { label: 'Multi-Location', desc: 'Enable multi-location support', type: 'toggle', defaultValue: false },
       ]);
-      case 'knowledge': return renderSectionPage('Knowledge Base', 'Upload documents and configure AI training data', [
-        { label: 'Auto-Index Files', desc: 'Automatically index uploaded documents for AI', type: 'toggle', defaultValue: true },
-        { label: 'Enable Web Scraping', desc: 'Allow AI to learn from linked web pages', type: 'toggle', defaultValue: false },
-        { label: 'Document Retention', desc: 'Days to keep processed documents', type: 'text', defaultValue: '90' },
-        { label: 'Smart Summarization', desc: 'Auto-generate summaries for uploaded docs', type: 'toggle', defaultValue: true },
-      ]);
-      case 'ai': return renderSectionPage('AI Configuration', 'Configure hunches, agents, and AI behavior', [
-        { label: 'Enable Hunches', desc: 'AI-generated business intelligence insights', type: 'toggle', defaultValue: true },
-        { label: 'Auto-Scoring', desc: 'Automatically score and prioritize leads', type: 'toggle', defaultValue: true },
-        { label: 'Confidence Threshold', desc: 'Minimum confidence for AI suggestions (%)', type: 'text', defaultValue: '75' },
-        { label: 'Learning Mode', desc: 'Allow AI to learn from user corrections', type: 'toggle', defaultValue: true },
-        { label: 'Daily Digest', desc: 'Send daily AI insights summary via email', type: 'toggle', defaultValue: false },
-      ]);
-      case 'security': return renderSectionPage('Security Settings', 'Authentication, SSO, and access policies', [
-        { label: 'Two-Factor Authentication', desc: 'Require 2FA for all users', type: 'toggle', defaultValue: false },
-        { label: 'SSO Provider', desc: 'Single sign-on provider URL', type: 'text', defaultValue: '' },
-        { label: 'Session Timeout', desc: 'Minutes before auto-logout', type: 'text', defaultValue: '30' },
-        { label: 'IP Allowlist', desc: 'Restrict access to specific IP ranges', type: 'toggle', defaultValue: false },
-        { label: 'Audit Logging', desc: 'Log all user actions for compliance', type: 'toggle', defaultValue: true },
-      ]);
-      case 'notifications': return renderSectionPage('Notification Settings', 'Configure alert preferences and delivery channels', [
-        { label: 'Email Notifications', desc: 'Receive alerts via email', type: 'toggle', defaultValue: true },
-        { label: 'SMS Notifications', desc: 'Receive alerts via SMS', type: 'toggle', defaultValue: false },
-        { label: 'Push Notifications', desc: 'Browser push notifications', type: 'toggle', defaultValue: true },
-        { label: 'Quiet Hours Start', desc: 'No notifications after this time', type: 'text', defaultValue: '22:00' },
-        { label: 'Quiet Hours End', desc: 'Resume notifications at this time', type: 'text', defaultValue: '07:00' },
-      ]);
-      case 'data': return renderSectionPage('Data Management', 'Import, export, and data retention policies', [
-        { label: 'Auto-Backup', desc: 'Enable daily automatic data backups', type: 'toggle', defaultValue: true },
-        { label: 'Data Retention', desc: 'Months to retain closed records', type: 'text', defaultValue: '24' },
-        { label: 'Export Format', desc: 'Default export file format', type: 'text', defaultValue: 'CSV' },
-        { label: 'GDPR Compliance', desc: 'Enable GDPR data handling rules', type: 'toggle', defaultValue: true },
-      ]);
-      case 'appearance': return renderSectionPage('Appearance', 'Theme, layout, and display preferences', [
-        { label: 'Compact Mode', desc: 'Use smaller spacing and fonts', type: 'toggle', defaultValue: false },
-        { label: 'Animations', desc: 'Enable UI animations and transitions', type: 'toggle', defaultValue: true },
-        { label: 'Default View', desc: 'Default page on login', type: 'text', defaultValue: 'Main' },
-        { label: 'Show Metric Tiles', desc: 'Display KPI tiles on home page', type: 'toggle', defaultValue: true },
-      ]);
-      case 'api': return renderSectionPage('API & Webhooks', 'Developer settings and external integrations', [
-        { label: 'API Access', desc: 'Enable REST API access for this org', type: 'toggle', defaultValue: true },
-        { label: 'API Key', desc: 'Your organization API key', type: 'text', defaultValue: 'nxs_sk_...redacted' },
-        { label: 'Rate Limit', desc: 'Requests per minute', type: 'text', defaultValue: '1000' },
-        { label: 'Webhook URL', desc: 'Endpoint for event webhooks', type: 'text', defaultValue: '' },
-        { label: 'Webhook Events', desc: 'Send webhooks for deal changes', type: 'toggle', defaultValue: false },
-      ]);
+      case 'knowledge': return renderKnowledgeBase();
+      case 'ai': return renderAIConfiguration();
+      case 'security': return renderSecurity();
+      case 'notifications': return renderNotifications();
+      case 'data': return renderDataManagement();
+      case 'appearance': return renderAppearance();
       default: return renderTileGrid();
     }
   };
