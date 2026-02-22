@@ -2,25 +2,34 @@
 
 ## Overview
 
-Nexxus V2 is a ClickUp-inspired AI-powered dealership management platform. This is a **UI prototype/mockup** with client-side mock data only - no real backend functionality, authentication, or API integrations are implemented.
+Nexxus V2 is a ClickUp-inspired AI-powered dealership management platform. The project has two layers:
 
-The application features:
-- A responsive layout (left sidebar, main content, toggleable right pane)
-- Light and dark mode theming
-- Dual-density design system (compact data tables vs spacious chat interfaces)
-- RBAC role switcher (Super Admin, Partner Admin, Org Admin, Staff) - temporary dev tool in TopBar
-- 6 main pages: Main (chat), Insights, Agents, Hub, Drive, System Settings (+ Profile)
-- Activity stays as header-only dropdown (not in sidebar)
-- Mobile-first responsive design with MobileNavDropdown for sub-menu + favorites access
+1. **UI Prototype (this Replit)** — A validated frontend mockup with client-side mock data, used as the design reference for the new V2.1 frontend rebuild.
+2. **Production Backend (separate environment)** — A mature Express/PostgreSQL backend with 185+ API endpoints, 53 database tables, 7 third-party integrations, and 747 E2E tests running at `nexxusv2.huminicdev.com`.
+
+### Development Strategy (V2.1)
+The V2.1 cycle is a **frontend-only rebuild**. The existing backend stays untouched. The new UI from this prototype replaces the old frontend and gets wired to the existing API endpoints, hooks, and contexts.
+
+**What gets replaced:** Visual components (pages, layout, styling)
+**What gets preserved:** Backend (server/, database/, webhooks, jobs), integration plumbing (AuthContext, 26 TanStack Query hooks, API client, SSE streaming, ChatContext)
 
 ### Governing Documentation (v2.1)
-Four interdependent documents in `plan_docs/v2.1/` serve as the single source of truth for backend development:
-1. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
-2. **NEW_SRS.md** — Full system requirements: 63 API endpoints, 17 database tables, 91 library metrics, 6 report specs, hunch engine spec
-3. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan (4 sprints, 9 parallel tracks), dependency graph, gate criteria, file ownership map
-4. **NEW_CLAUDE.md** — Direct guidance for Claude Code implementation agents: locked UI elements, mock→API replacement patterns, technical patterns, RBAC matrix, testing requirements
+Four interdependent documents in `plan_docs/v2.1/` plus the handoff prompt:
+1. **CLAUDE_CODE_HANDOFF_PROMPT.md** — The primary handoff document for Claude Code. Contains project structure, API contract reference, integration plumbing carry-forward list, frontend rebuild phases, known bugs, and testing protocol. **Start here.**
+2. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
+3. **NEW_SRS.md** — Full system requirements: 91 library metrics, 6 report specs, hunch engine spec
+4. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan, dependency graph, gate criteria
+5. **NEW_CLAUDE.md** — Implementation patterns, RBAC matrix, testing requirements
 
-**Document priority:** ACCEPTANCE_CRITERIA.md (UI truth) > Constitution (principles) > SRS (requirements) > Implementation Plan (sequencing) > Claude Guide (how-to)
+**Document priority:** New UI Design > ACCEPTANCE_CRITERIA (UI truth) > Constitution (principles) > Audit Files (API contract) > SRS (requirements) > Implementation Plan (sequencing)
+
+### Existing Backend (documented in replit_reference/App Audit/)
+Five forensic audit files document the production backend:
+- `server-audit.md` — 185 endpoints across 34 route files, complete API catalog with auth/RBAC requirements
+- `database-audit.md` — 53 tables, 100+ RLS policies, 58 JSONB columns, 33 migration files
+- `client-audit.md` — 26 TanStack Query hooks, 4 context providers, 59 custom components, integration plumbing inventory
+- `health-audit.md` — 747 E2E tests, build system, PM2 deployment, dependency inventory
+- `DATA_ACCURACY_REPORT.md` — VAPI/Tavus/VIN data integrity findings, webhook gap analysis
 
 Supporting files:
 - `plan_docs/ACCEPTANCE_CRITERIA.md` — Pixel-level UI behavior spec (updated 2026-02-21)
@@ -96,31 +105,20 @@ View configurations auto-select based on route:
 - No external state library - React Context handles all global state
 
 ### Data Layer
-All data is mocked in `/client/src/mocks/`:
-- `users.ts`: User profiles, organizations, roles
-- `agents.ts`: AI agents with triggers and tools
-- `messages.ts`: Chat conversations
-- `notifications.ts`: Notification items
-- `activity.ts`: Activity feed
-- `files.ts`: Drive files and folders
-- `tasks.ts`: Work center tasks, calendar events, approvals
-- `insights.ts`: Metrics, goals, charts
-- `widgets.ts`: 4 widget types (IndividualWidget: text/video/voice/unified), landing pages (5 pages), widget appearance/targeting configs, embed code generation
+**This Replit (UI prototype):** All data is mocked in `/client/src/mocks/` — these files will be deleted during the V2.1 rebuild and replaced with TanStack Query hooks calling the existing API.
 
-### Database Schema (Placeholder)
-The `shared/schema.ts` defines a basic users table with Drizzle ORM for PostgreSQL. This is scaffolding for future backend implementation - the current UI uses mock data exclusively.
+**Production backend:** Real data served from PostgreSQL (Supabase-hosted) via 185+ API endpoints. JWT authentication, 4-tier RBAC with RLS, SSE streaming for AI chat, 7 third-party integrations. See `replit_reference/App Audit/` for complete documentation.
 
-### Backend Integration Readiness
-A comprehensive `BACKEND_INTEGRATION_GUIDE.md` documents the complete wiring plan:
-- 17 database tables mapped from mock data interfaces
-- 55+ REST API endpoints across 16 resource groups
-- Page-by-page integration map showing every mock import to replace
-- AppContext rewiring plan (what stays client-side vs moves to API)
-- Layout component integration notes (TopBar, Sidebar, SubMenuManager, RightPane)
-- Authentication & RBAC implementation plan (session-based with express-session)
-- Real-time features plan (SSE for chat streaming, polling for notifications)
-- 7-phase migration sequence with checklist
-- Utility function extraction list (functions to keep when deleting mock files)
+### Production Backend (Existing — Separate Environment)
+The production backend at `nexxusv2.huminicdev.com` includes:
+- **53 database tables** with 100+ RLS policies (33 migration files)
+- **185+ API endpoints** across 34 route files
+- **36+ service files** for business logic (DealerBrainService is 3,047 lines)
+- **JWT authentication** with access/refresh token management
+- **7 integrations**: VIN Solutions (OAuth2), VAPI (voice), Tavus (video), Resend (email), TextMagic (SMS), Claude API (AI), Google Calendar
+- **8 scheduled jobs**: VIN lead polling, token refresh, cache cleanup, etc.
+- **747 E2E tests** via Playwright
+- **Known issues**: RLS variable name mismatch in SecureQueryBuilder, VAPI webhook data gap (see DATA_ACCURACY_REPORT.md)
 
 ### Design System
 Custom theme tokens defined in `client/src/index.css`:
@@ -154,17 +152,28 @@ Custom theme tokens defined in `client/src/index.css`:
 - **Zod**: Schema validation
 - **@hookform/resolvers**: Zod integration for React Hook Form
 
-### Database (Scaffolded, Not Active)
-- **Drizzle ORM**: SQL query builder and ORM
-- **PostgreSQL**: Database (requires DATABASE_URL environment variable)
-- **connect-pg-simple**: Session storage for Express (future use)
+### Database (Production — Separate Environment)
+- **PostgreSQL** (Supabase-hosted): 53 tables, 100+ RLS policies
+- **pg** client library: Direct pool queries with RLS session variables
+- **Drizzle ORM**: Schema definition (minimal — most queries use raw pg)
+- **33 migration files**: Sequential SQL migrations (001-033)
 
-### Backend (Minimal, Serving Static)
-- **Express 5**: Web server framework
-- Server primarily serves the built Vite frontend
-- API routes placeholder in `server/routes.ts`
+### Backend (Production — Separate Environment)
+- **Express 5**: Web server framework (pre-release)
+- **JWT authentication**: bcrypt + jsonwebtoken
+- **7 third-party integrations**: VIN Solutions, VAPI, Tavus, Resend, TextMagic, Claude API, Google Calendar
+- **SSE streaming**: DealerBrain AI responses via Server-Sent Events
+- **Multer**: File uploads (50MB limit)
+- **Helmet + express-rate-limit**: Security headers and rate limiting
+- **PM2**: Process management in production
+
+### Backend (This Replit — Minimal)
+- **Express 5**: Serves the Vite frontend only
+- `server/routes.ts`: Placeholder — real routes are in the production environment
+- `shared/schema.ts`: Placeholder users table (18 lines)
 
 ### Development Tools
-- **TypeScript**: Type checking
+- **TypeScript**: Type checking (strict mode)
 - **Vite plugins**: Replit-specific dev banner and error overlay
 - **esbuild**: Server bundling for production
+- **Playwright** (production environment): 747 E2E tests across 46 spec files

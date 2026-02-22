@@ -1,255 +1,477 @@
 # Claude Code Handoff Prompt — Nexxus Connect™ V2.1
 
-Copy this entire prompt and give it to Claude Code when starting the backend implementation.
+Copy this entire prompt and give it to Claude Code when starting the frontend rebuild.
 
 ---
 
 ## START OF PROMPT
 
-You are taking over development of **Nexxus Connect™**, an AI-powered dealership management platform. The validated UI prototype is complete and running. Your job is to wire it to a real backend — database, authentication, API integrations, and AI services — without changing the UI.
+You are taking over development of **Nexxus Connect™**, an AI-powered dealership management platform. A mature backend already exists and is running in production. A new UI has been designed to replace the current frontend. Your job is to **rebuild the frontend** against the new design, wired to the existing backend — without touching the server, database, or integration layer.
 
-## ⚠️ CRITICAL: This is a LIVE Production Environment
+---
+
+## ⚠️ CRITICAL: Production Environment Rules
 
 Before you write any code, understand these non-negotiable facts:
 
-1. **VAPI webhooks are LIVE** — actively sending voice call data to real customers. Do not modify webhook handlers without explicit approval.
-2. **Tavus webhooks are LIVE** — actively sending video session data to real customers. Do not modify webhook handlers without explicit approval.
-3. **Existing users MUST be preserved** — never drop, truncate, or destructively migrate user data. All database migrations must be additive only.
-4. **The UI is the source of truth** — if any document contradicts the working UI code, the UI wins. You change data sources, not the UI.
+1. **The backend is LIVE and working** — 185+ API endpoints, 53 database tables, 100+ RLS policies, 7 third-party integrations, 8 scheduled jobs, 747 E2E tests. **Do not modify server code** unless explicitly required by the new UI.
+2. **VAPI webhooks are LIVE** — actively processing voice call data for real dealership customers. Do not modify `server/webhooks/vapi.ts`.
+3. **Tavus webhooks are LIVE** — actively processing video session data. Do not modify `server/webhooks/tavus.ts`.
+4. **Existing users and data MUST be preserved** — never drop, truncate, or destructively migrate. All database migrations must be additive only.
+5. **The new UI design is the source of truth** — if any document contradicts the designer's handoff, the design wins.
 
 ---
 
-## Step 0: Setup — Archive & Explode
+## Step 0: Setup — Archive & Install
 
-All the new governing documents have been uploaded into a folder called `nexxus_21_Revision/`. Before you begin:
+### 0.1 Backup the existing frontend (preserve for reference)
 
-1. **Backup the existing UI and old docs:**
-   ```bash
-   mkdir -p _archive/ui_backup
-   mkdir -p _archive/old_docs
-   cp -r client/ _archive/ui_backup/
-   cp -r server/ _archive/ui_backup/
-   cp -r shared/ _archive/ui_backup/
-   # If an old CLAUDE.md exists at root, back it up
-   [ -f CLAUDE.md ] && cp CLAUDE.md _archive/old_docs/CLAUDE.md
-   [ -d plan_docs ] && cp -r plan_docs/ _archive/old_docs/plan_docs/
-   ```
+```bash
+mkdir -p _archive/old_client
+cp -r client/ _archive/old_client/
+```
 
-2. **Explode the revision folder into the project root:**
-   ```bash
-   # Copy governing docs into place
-   mkdir -p plan_docs/v2.1
-   cp nexxus_21_Revision/NEW_CONSTITUTION.md plan_docs/v2.1/
-   cp nexxus_21_Revision/NEW_SRS.md plan_docs/v2.1/
-   cp nexxus_21_Revision/NEW_IMPLEMENTATION_PLAN.md plan_docs/v2.1/
-   cp nexxus_21_Revision/NEW_CLAUDE.md plan_docs/v2.1/
-   cp nexxus_21_Revision/ACCEPTANCE_CRITERIA.md plan_docs/
-   
-   # Copy this handoff prompt as your CLAUDE.md
-   cp nexxus_21_Revision/CLAUDE_CODE_HANDOFF_PROMPT.md CLAUDE.md
-   ```
+### 0.2 Install the new UI
 
-3. **Diff the plan against the existing codebase:**
-   ```bash
-   # Check what files already exist that might conflict
-   ls -la server/
-   ls -la shared/schema.ts
-   cat shared/schema.ts
-   cat server/routes.ts
-   cat server/storage.ts
-   ```
-   Review the existing server code. Note any existing routes, middleware, or database schema that the plan might conflict with. Resolve all questions before writing new code.
+The new UI code is in the uploaded folder. Replace the `client/` directory contents with the new designer UI, **except** for the integration plumbing files listed in Section 3 below — those must be carried forward from the old client.
+
+### 0.3 Verify the backend still works
+
+```bash
+# Ensure the server starts and responds
+curl -s http://localhost:5000/api/health
+# Verify auth endpoint is reachable
+curl -s http://localhost:5000/api/auth/me -H "Authorization: Bearer test" | head -c 200
+```
+
+### 0.4 Read the audit files
+
+Before writing any code, read these audit files that document what the backend exposes:
+
+```bash
+cat replit_reference/App\ Audit/server-audit.md    # 185 endpoints, full API contract
+cat replit_reference/App\ Audit/database-audit.md  # 53 tables, RLS policies, JSONB schemas
+cat replit_reference/App\ Audit/client-audit.md    # 26 hooks, 4 contexts, integration plumbing
+cat replit_reference/App\ Audit/health-audit.md    # Build system, dependencies, test inventory
+cat replit_reference/App\ Audit/DATA_ACCURACY_REPORT.md  # VAPI/Tavus/VIN data integrity findings
+```
 
 ---
 
-## Project Structure — Where Everything Lives
+## 1. What Already Exists (DO NOT REBUILD)
+
+### 1.1 Backend Infrastructure (server/)
+
+| Component | Count | Details |
+|-----------|-------|---------|
+| Route files | 34 | Registered in `server/routes.ts` in specific order |
+| API endpoints | ~185 | Full CRUD across 34 resource groups |
+| Service files | 36+ | Business logic layer (DealerBrainService is 3,047 lines) |
+| Middleware | 3 | `auth` (JWT), `enforceOrganizationContext` (RLS), `validateResourceOwnership` |
+| Webhook handlers | 2 | VAPI (`server/webhooks/vapi.ts`), Tavus (`server/webhooks/tavus.ts`) |
+| Scheduled jobs | 8 | VIN lead polling, token refresh, cache cleanup, etc. |
+| Database tables | 53 | With 100+ RLS policies across 33 migration files |
+| Third-party integrations | 7 | VIN Solutions, VAPI, Tavus, Resend, TextMagic, Claude API, Google Calendar |
+| E2E tests | 747 | Playwright specs across 46 files |
+
+### 1.2 API Route Groups (Complete Endpoint Catalog)
+
+```
+/api/webhooks/vapi          (before body parsers — DO NOT MOVE)
+/api/webhooks/tavus         (raw body capture for HMAC — DO NOT MOVE)
+/api/auth                   9 endpoints  (login, logout, refresh, register, me, forgot/reset password)
+/api/vin                    10 endpoints (VIN Solutions OAuth, lead sync, token management)
+/api/integrations           6 endpoints  (CRUD + test connection)
+/api/insights               15 endpoints (voice calls, video sessions, leads, dashboard, dealer pulse)
+/api/agents                 9 endpoints  (CRUD, seed, duplicate, status toggle)
+/api/credits                5 endpoints  (balance, usage, policies)
+/api/tasks                  9 endpoints  (CRUD, calendar format, status updates)
+/api/appointments           10 endpoints (CRUD, calendar, confirmation tokens, Google Calendar sync)
+/api/conversations          11 endpoints (CRUD, messages, SSE streaming, file upload)
+/api/admin                  14 endpoints (user/org CRUD, partner links, roles, locations)
+/api/admin/knowledge        4 endpoints  (CSV/XLSX upload, undo, templates)
+/api/settings               4 endpoints  (application settings, report upload)
+/api/email                  7 endpoints  (IMAP sync, send, folders, star/read)
+/api/user/integrations      (user-level integration settings)
+/api/dealerbrain            3 endpoints  (AI config get/set/reset)
+/api/notifications          8 endpoints  (CRUD, preferences, unread count)
+/api/sms                    7 endpoints  (TextMagic config, send, messages, opt-outs, webhook)
+/api/widgets/public         8 endpoints  (session, chat, video, callback — public, rate-limited)
+/api/widgets                9 endpoints  (CRUD, embed code, domain whitelist)
+/api/inbox                  8 endpoints  (unified inbox threads, messages, assignment)
+/api/tracking               6 endpoints  (pixel events, attribution, funnel, sources)
+/api/triggers               10 endpoints (automation rules CRUD, templates, executions)
+/api/activity               6 endpoints  (AI usage events, stats, artifacts, CSV export)
+/api/goals                  7 endpoints  (CRUD, progress tracking)
+/api/reports                5 endpoints  (catalog, preview, generate, download)
+/api/drive                  8 endpoints  (files, folders, upload/download, storage usage)
+/api/hunches                4 endpoints  (list, stats, review accept/dismiss)
+/api/approvals              5 endpoints  (CRUD, resolve approve/reject)
+/api/leads                  6 endpoints  (list, stats, mark-contacted, status, assign)
+/api/dashboard              1 endpoint   (Command Center data)
+/api/metrics                3 endpoints  (registry, summary, by category)
+/api/hosted-pages           5 endpoints  (CRUD for hosted widget pages)
+/api/pages                  1 endpoint   (public page by slug)
+/api/health                 1 endpoint   (health check)
+/api (google-calendar)      7 endpoints  (OAuth flow, sync, push appointment)
+```
+
+### 1.3 Authentication Architecture
+
+- **JWT-based** — access token + refresh token stored in `localStorage`
+- Access token keys: `nexxus_access_token`, `nexxus_refresh_token`, `nexxus_token_expiry`
+- Auto-refresh: checks every 60 seconds, refreshes when < 5 minutes to expiry
+- On refresh failure: automatic logout
+- Login: `POST /api/auth/login` returns `{ accessToken, refreshToken, expiresAt, user }`
+- Refresh: `POST /api/auth/refresh` with `{ refreshToken }` body
+- Protected routes: `Authorization: Bearer <accessToken>` header
+- Org switching (Partner Admin): `POST /api/auth/switch-org` — invalidates all cached queries
+
+### 1.4 RBAC Structure
+
+| Role | Level | Key Permissions |
+|------|-------|-----------------|
+| Super Admin | 1 | Full platform access, user/org CRUD, all settings |
+| Partner Admin | 2 | Multi-org access, manages assigned orgs |
+| Org Admin | 3 | Single org, manages users/settings within org |
+| Staff | 4 | Single org, own data only (leads, conversations, tasks) |
+
+Role mapping (numeric → string): Level 1 → `super_admin`, Level 2 → `partner_admin`, Level 3 → `org_admin`, Level 4 → `org_staff`
+
+### 1.5 Real-Time Features
+
+- **SSE streaming**: `POST /api/conversations/:id/stream` — DealerBrain AI responses via Server-Sent Events
+- **No active WebSocket**: Socket.io is installed but not actively used for production features
+- **Polling**: Notifications poll on interval, VIN leads poll every 60 minutes
+
+---
+
+## 2. Project Structure
 
 ```
 nexxus-v2/
-├── client/                          # React frontend (DO NOT MODIFY UI)
+├── client/                          # ⬅ YOUR WORKSPACE — Replace visual layer
 │   ├── src/
-│   │   ├── App.tsx                  # Route definitions (wouter)
+│   │   ├── App.tsx                  # Route definitions (wouter) — REBUILD with new routes
 │   │   ├── main.tsx                 # React entry point
-│   │   ├── index.css                # Design tokens, theme vars, animations
+│   │   ├── index.css                # Design tokens — UPDATE for new design
 │   │   ├── components/
-│   │   │   ├── AgentConfigPane.tsx   # Right pane agent config (6 sections)
-│   │   │   ├── layout/
-│   │   │   │   ├── AppLayout.tsx     # Main layout wrapper (sidebar + content + right pane)
-│   │   │   │   ├── TopBar.tsx        # Logo, org switcher, notifications, profile, role switcher
-│   │   │   │   ├── Sidebar.tsx       # 64px icon+label nav strip
-│   │   │   │   ├── SubMenuManager.tsx# Hover/pin sub-menu system (all pages)
-│   │   │   │   ├── RightPane.tsx     # Automa AI chat panel
-│   │   │   │   ├── FavoritesBar.tsx  # Favorites strip
-│   │   │   │   └── MobileNavDropdown.tsx
-│   │   │   └── ui/                   # Shadcn/Radix UI primitives (DO NOT MODIFY)
+│   │   │   ├── auth/
+│   │   │   │   └── ProtectedRoute.tsx  # CARRY FORWARD — auth guard
+│   │   │   ├── chat/                   # CARRY FORWARD — streaming, charts, panels
+│   │   │   ├── layout/                 # REBUILD — new design's layout system
+│   │   │   └── ui/                     # Shadcn/Radix primitives (keep or replace per design)
 │   │   ├── contexts/
-│   │   │   ├── AppContext.tsx        # Global state (panels, user, org, agents, notifications)
-│   │   │   └── ThemeContext.tsx      # Light/dark mode toggle
-│   │   ├── hooks/
-│   │   │   ├── use-mobile.tsx        # Mobile detection hook
-│   │   │   └── use-toast.ts         # Toast notifications
+│   │   │   ├── AuthContext.tsx         # CARRY FORWARD — JWT auth + org switching
+│   │   │   ├── AppContext.tsx          # ADAPT — keep role/org/panel logic, update for new layout
+│   │   │   ├── ChatContext.tsx         # CARRY FORWARD — floating chat state
+│   │   │   └── ThemeContext.tsx        # CARRY FORWARD — light/dark theme
+│   │   ├── hooks/                      # CARRY FORWARD — all 26 TanStack Query hooks
 │   │   ├── lib/
-│   │   │   ├── queryClient.ts       # TanStack Query client + apiRequest helper
-│   │   │   └── utils.ts             # cn() utility for Tailwind class merging
-│   │   ├── mocks/                   # ⬅ YOUR TARGET — replace these with API calls
-│   │   │   ├── activity.ts          # Activity feed mock data
-│   │   │   ├── agents.ts            # Agent definitions mock data
-│   │   │   ├── files.ts             # Drive files mock data
-│   │   │   ├── insights.ts          # Metrics, charts, reports mock data
-│   │   │   ├── messages.ts          # Chat messages mock data
-│   │   │   ├── notifications.ts     # Notification items mock data
-│   │   │   ├── tasks.ts             # Calendar events, tasks mock data
-│   │   │   ├── users.ts             # Users, orgs, roles mock data
-│   │   │   └── widgets.ts           # Widget configs mock data
-│   │   └── pages/                   # Page components (one per route)
-│   │       ├── main.tsx             # Home — AI chat + metric tiles (32KB)
-│   │       ├── insights.tsx         # Insights — Dashboard/Reports/Library/Hunches (106KB)
-│   │       ├── agents.tsx           # Agents — list/detail/chat (10KB)
-│   │       ├── agents-create.tsx    # Agent creation form (11KB)
-│   │       ├── work-center.tsx      # Hub — Calendar/Leads/Inbox (45KB)
-│   │       ├── drive.tsx            # Drive — file management (14KB)
-│   │       ├── settings.tsx         # System Settings — tile grid (74KB)
-│   │       ├── profile.tsx          # User profile (13KB)
-│   │       ├── activity.tsx         # Activity feed (7KB)
-│   │       ├── widget-landing.tsx   # Standalone widget page /w/:slug (19KB)
-│   │       └── not-found.tsx        # 404 page
+│   │   │   ├── queryClient.ts         # CARRY FORWARD — fetch wrapper + query client config
+│   │   │   ├── api.ts                 # CARRY FORWARD — fetchApi() with JWT refresh
+│   │   │   └── utils.ts              # CARRY FORWARD — cn() utility
+│   │   ├── mocks/                     # DELETE — no longer needed (real API exists)
+│   │   └── pages/                     # REBUILD — new page components from design
 │   └── public/
-│       └── favicon.png
-├── server/                          # Express backend (YOUR MAIN WORKSPACE)
+├── server/                          # DO NOT MODIFY (unless new endpoint needed for new UI)
 │   ├── index.ts                     # Server entry point
-│   ├── routes.ts                    # API route registration (currently minimal)
-│   ├── storage.ts                   # IStorage interface + MemStorage (replace with PgStorage)
-│   ├── static.ts                    # Static file serving
-│   └── vite.ts                      # Vite dev server integration (DO NOT MODIFY)
+│   ├── routes.ts                    # 34 route file registrations
+│   ├── routes/                      # 34 route files (auth, agents, insights, etc.)
+│   ├── services/                    # 36+ service files (business logic)
+│   ├── middleware/                   # Auth, RLS enforcement, ownership validation
+│   ├── webhooks/                    # VAPI + Tavus handlers (LIVE — DO NOT TOUCH)
+│   ├── jobs/                        # 8 scheduled jobs
+│   ├── db/                          # Database utilities, SecureQueryBuilder
+│   └── vite.ts                      # Vite dev integration (DO NOT MODIFY)
+├── database/
+│   ├── migrations/                  # 33 SQL migration files (001-033)
+│   └── seed.sql                     # Development seed data
 ├── shared/
-│   └── schema.ts                    # Drizzle ORM schema (currently just users table placeholder)
+│   └── schema.ts                    # Drizzle ORM schema (18 lines — minimal placeholder)
+├── tests/
+│   └── e2e/                         # 46 Playwright spec files (747 tests)
 ├── plan_docs/                       # Governing documentation
-│   ├── ACCEPTANCE_CRITERIA.md       # Pixel-level UI behavior spec (908 lines)
+│   ├── ACCEPTANCE_CRITERIA.md       # Pixel-level UI behavior spec
 │   └── v2.1/
-│       ├── NEW_CONSTITUTION.md      # Platform identity, principles, metric formulas
-│       ├── NEW_SRS.md               # 63 endpoints, 17 tables, 91 metrics, 6 reports
-│       ├── NEW_IMPLEMENTATION_PLAN.md# 4 sprints, 9 tracks, gate criteria
-│       └── NEW_CLAUDE.md            # Implementation patterns, RBAC matrix, testing reqs
+│       ├── NEW_CONSTITUTION.md      # Platform principles, metric formulas
+│       ├── NEW_SRS.md               # Requirements spec
+│       ├── NEW_IMPLEMENTATION_PLAN.md # Sprint structure
+│       └── NEW_CLAUDE.md            # Implementation patterns
 ├── replit_reference/                # Source material (read-only reference)
+│   ├── App Audit/                   # 5 forensic audit files (server, database, client, health, data accuracy)
 │   ├── Metrics/                     # Exact metric formulas (Org Admin, Staff, Reports, Library)
 │   ├── new_instructions/            # Agent Instructions, Hunch Instructions prompts
-│   ├── App Audit/                   # Codebase audit reports
 │   └── Old_Govering Docs/          # Previous version docs (superseded)
 ├── dev_handoff/                     # Legacy handoff docs (reference only)
-├── docs/                            # Design docs (reference only)
-├── drizzle.config.ts                # Drizzle Kit config (DO NOT MODIFY)
-├── package.json                     # Dependencies
-└── replit.md                        # Project overview and architecture summary
+└── widget/                          # Embeddable Preact widget (separate build)
 ```
 
 ---
 
-## Document Reading Order
+## 3. Integration Plumbing — MUST Carry Forward
 
-Read these documents **in this order** before writing any code:
+These files contain the wiring between the frontend and backend. They are **not visual components** — they are infrastructure. The new UI must use them (or equivalents that do the same thing).
 
-1. **`plan_docs/v2.1/NEW_CLAUDE.md`** — Your direct implementation guide. Start here.
-2. **`plan_docs/ACCEPTANCE_CRITERIA.md`** — The pixel-level truth for all UI behaviors. Skim Part I to understand what the UI does.
-3. **`plan_docs/v2.1/NEW_CONSTITUTION.md`** — Platform principles, naming rules, metric formulas (Section 5 is immutable).
-4. **`plan_docs/v2.1/NEW_SRS.md`** — Complete requirements: 63 endpoints, 17 tables, 91 metrics, 6 reports.
-5. **`plan_docs/v2.1/NEW_IMPLEMENTATION_PLAN.md`** — Sprint structure, module assignments, dependencies, gate criteria.
-6. **`replit_reference/new_instructions/Agent Instructions.md`** — Agent team development protocol (how multiple agents coordinate).
-7. **`replit_reference/new_instructions/Hunch Instructions.md`** — AI prompt used by the Hunch Engine to generate pattern detections.
-8. **`replit_reference/Metrics/`** — Exact metric formulas for Org Admin tiles, Staff tiles, Reports, and Library (91 total).
+### 3.1 Authentication Context
 
-When documents conflict: ACCEPTANCE_CRITERIA > Constitution > SRS > Implementation Plan > Claude Guide.
+**File:** `client/src/contexts/AuthContext.tsx`
+
+Provides: `user`, `accessToken`, `refreshToken`, `isAuthenticated`, `loading`, `isPartnerAdmin`, `accessibleOrganizations`, `login()`, `logout()`, `refreshToken()`, `switchOrganization()`, `clearError()`
+
+### 3.2 API Client
+
+**File:** `client/src/lib/api.ts` (or `queryClient.ts`)
+
+Provides: `fetchApi()` wrapper that:
+- Adds `Authorization: Bearer` header automatically
+- Handles 401 responses by attempting token refresh
+- Falls back to logout on refresh failure
+- Custom `getQueryFn` factory for TanStack Query
+
+### 3.3 TanStack Query Hooks (26 hooks)
+
+**Directory:** `client/src/hooks/`
+
+| Hook | Queries | Mutations | Purpose |
+|------|---------|-----------|---------|
+| `useActivity` | 2 | 0 | Activity feed + governance data |
+| `useAdmin` | 2+ | 3+ | Admin user/org management |
+| `useAgents` | 3 | 4 | Agent CRUD |
+| `useAppointments` | 2 | 3 | Calendar appointments |
+| `useApprovals` | 2 | 3 | Approval workflow |
+| `useConversations` | 3 | 2 | Chat conversations |
+| `useCredits` | 1 | 0 | Credit usage tracking |
+| `useDealerBrainConfig` | 1 | 0 | DealerBrain AI configuration |
+| `useDealerBrainStreaming` | 0 | 0 | SSE streaming for AI chat |
+| `useDrive` | 2+ | 4+ | File management |
+| `useGoals` | 2 | 3 | Goal CRUD + progress |
+| `useHunches` | 2 | 1 | Hunch list + accept/dismiss |
+| `useInbox` | 2+ | 2+ | Unified inbox threads |
+| `useInsights` | 3+ | 0 | Voice/video/lead insights |
+| `useIntegrations` | 1+ | 3+ | Integration management |
+| `useLeads` | 2 | 2 | Lead management |
+| `useMetrics` | 1+ | 0 | Certified metrics |
+| `useNotifications` | 2+ | 2+ | Notification CRUD |
+| `useProfile` | 1 | 1 | User profile |
+| `useReports` | 2 | 1 | Report catalog + generate |
+| `useSettings` | 1 | 1 | Application settings |
+| `useSMS` | 2+ | 2+ | SMS management |
+| `useTasks` | 2 | 3 | Task CRUD |
+| `useTriggers` | 2+ | 3+ | Trigger rules CRUD |
+| `useVIN` | 2+ | 2+ | VIN Solutions management |
+| `useWidgets` | 2+ | 3+ | Widget CRUD |
+
+### 3.4 Chat Streaming Components
+
+**Files:**
+- `client/src/components/chat/StreamingMessage.tsx` — Renders SSE streaming AI responses (thinking indicator, tool execution cards, progressive token display)
+- `client/src/components/chat/ChatChart.tsx` — Inline charts in chat messages (bar/line/pie via Recharts)
+- `client/src/components/chat/ChatPanel.tsx` — Reusable chat panel
+- `client/src/components/chat/SuggestedPrompts.tsx` — Clickable suggested prompts
+
+### 3.5 Context Providers
+
+**Provider hierarchy** (preserve this order in `App.tsx`):
+```
+QueryClientProvider
+  TooltipProvider
+    ThemeProvider
+      AuthProvider
+        AppProvider
+          ChatProvider
+            <Router />
+            <FloatingChat />
+            <ProductTour />
+            <Toaster />
+```
+
+### 3.6 Protected Route Guard
+
+**File:** `client/src/components/auth/ProtectedRoute.tsx`
+
+Shows spinner while auth loads, redirects to `/login` if unauthenticated.
 
 ---
 
-## Key Points That Need Special Attention
+## 4. Document Reading Order
 
-### 1. The Golden Rule
-**Change the data source, not the UI.** Every mock import in `client/src/mocks/` gets replaced with a TanStack Query API call. The page components, layout, animations, and interactions stay exactly as they are.
+Read these documents **in this order** before writing any code:
 
-### 2. Metric Formulas Are Immutable
-Constitution Section 5 defines exact formulas for 8 role-specific metric tiles (4 Org Admin + 4 Staff). These are mathematical formulas — implement them exactly as written. No approximations. See `replit_reference/Metrics/` for additional detail.
+1. **`replit_reference/App Audit/server-audit.md`** — The actual API contract. 185 endpoints with auth requirements, RBAC gates, and response details.
+2. **`replit_reference/App Audit/database-audit.md`** — 53 tables, RLS policies, JSONB column schemas, migration history.
+3. **`replit_reference/App Audit/client-audit.md`** — 26 hooks, 4 contexts, 59 custom components. Shows what integration plumbing exists.
+4. **`plan_docs/ACCEPTANCE_CRITERIA.md`** — Pixel-level UI behavior spec for the new design.
+5. **`plan_docs/v2.1/NEW_CLAUDE.md`** — Implementation patterns, RBAC matrix, testing requirements.
+6. **`plan_docs/v2.1/NEW_CONSTITUTION.md`** — Platform principles, naming rules, metric formulas (Section 5 is immutable).
+7. **`replit_reference/new_instructions/Agent Instructions.md`** — Agent team development protocol.
+8. **`replit_reference/new_instructions/Hunch Instructions.md`** — AI prompt for Hunch Engine pattern detection.
+9. **`replit_reference/Metrics/`** — Exact metric formulas for Org Admin, Staff, Reports, Library (91 total).
 
-### 3. Context Router & Uploaded Data Store
-There are TWO distinct data stores:
-- **Synced data** — pulled from 3rd parties (VIN Solutions leads, VAPI calls, Tavus sessions)
-- **Uploaded/internal data** — user-uploaded files, Nexxus-created records (agents, tasks, calendar events, preferences)
+When documents conflict: **New UI Design > ACCEPTANCE_CRITERIA > Constitution > Audit Files > SRS > Implementation Plan**
 
-These must remain separate. The context router decides which data source to query based on the request. Do not conflate synced CRM data with user-uploaded data.
+---
 
-### 4. RBAC Is Enforced at Two Levels
-- **UI layer**: Role switcher changes what tiles, settings, and menu items are visible
-- **Database layer**: RLS policies on every multi-tenant table enforce tenant isolation
+## 5. Known Bugs to Be Aware Of
 
-### 5. Webhook Safety
-VAPI and Tavus webhooks are live. Any existing webhook handlers must be preserved. New handlers should be additive, not replacement.
+### 5.1 CRITICAL: RLS Variable Name Mismatch
 
-### 6. Testing Protocol
+The `SecureQueryBuilder` (`server/db/SecureQueryBuilder.ts`) sets:
+```
+SET LOCAL app.current_organization_id = '...'
+```
+
+But **every RLS policy** in the database checks:
+```sql
+current_setting('app.current_org_id', true)
+```
+
+These are **different variable names**. The system works because most route handlers bypass SecureQueryBuilder and set `app.current_org_id` directly on the pool. But any code path through `req.db.query()` via SecureQueryBuilder sets the wrong variable.
+
+**Impact:** HIGH — RLS enforcement depends on each route handler manually calling `set_config('app.current_org_id', ...)` correctly.
+
+### 5.2 Secondary Variable Anomalies
+
+| Variable | Used In | Issue |
+|----------|---------|-------|
+| `app.current_organization_id` | SecureQueryBuilder only | Wrong name — not matched by any RLS policy |
+| `app.current_role` | dealer_pulse_cache, knowledge_uploads policies | Anomalous — checks string 'super_admin' instead of integer level |
+| `app.current_role_level` | `server/routes/triggers.ts` line 38 | Wrong name — should be `app.user_role_level` |
+
+### 5.3 VAPI Webhook Data Gap
+
+Real-time webhook ingestion is partially broken. `call.started` events are not being received for production calls, causing `end-of-call-report` UPDATEs to find no matching rows. All 137 real call records were bulk-imported, not webhook-created. See `DATA_ACCURACY_REPORT.md` for full root cause analysis and recommendations.
+
+### 5.4 Tavus Integration Gap
+
+Zero real Tavus sessions have been captured by V2. No video agents are registered with `tavus_persona_id` in their config. The Tavus webhook callback URL has never been configured to point to V2. See `DATA_ACCURACY_REPORT.md` for details.
+
+---
+
+## 6. Frontend Rebuild Phases
+
+### Phase 1: Foundation (Days 1-2)
+
+**Goal:** New UI shell loads, auth works, basic navigation functional.
+
+1. Install new UI component files into `client/src/`
+2. Carry forward all integration plumbing (Section 3)
+3. Wire `App.tsx` with new routes inside `ProtectedRoute` + `AppLayout`
+4. Verify login/logout/refresh cycle works with existing backend
+5. Verify org switching works for Partner Admin role
+
+**Gate:** User can log in, see the new layout, navigate between pages, and log out.
+
+### Phase 2: Data Pages (Days 3-5)
+
+**Goal:** All data-display pages show real data from existing API.
+
+1. Wire Dashboard page to `GET /api/dashboard`, `GET /api/metrics/registry`
+2. Wire Insights page to existing insight hooks (`useInsights`, `useHunches`, `useReports`)
+3. Wire Agents page to `useAgents` hook (list, detail, CRUD)
+4. Wire Drive page to `useDrive` hook (files, folders, upload/download)
+5. Wire Hub/Work Center to `useTasks`, `useAppointments`, `useApprovals`, `useInbox`
+6. Wire Activity page to `useActivity` hook
+
+**Gate:** Every data page displays real data. No mock data imports remain.
+
+### Phase 3: Interactive Features (Days 6-8)
+
+**Goal:** All interactive features work end-to-end.
+
+1. Wire DealerBrain chat with SSE streaming (carry forward `StreamingMessage.tsx`)
+2. Wire Settings page to appropriate hooks per tab (`useAdmin`, `useSettings`, `useSMS`, `useWidgets`, etc.)
+3. Wire Profile page to `useProfile` hook + Google Calendar integration
+4. Wire Notification bell + full notifications page
+5. Wire floating chat (carry forward `FloatingChat.tsx` + `ChatPanel.tsx`)
+6. Test all CRUD operations (create agent, create task, upload file, etc.)
+
+**Gate:** All interactive features work. Forms submit, data persists, streaming works.
+
+### Phase 4: Polish & Verification (Days 9-10)
+
+**Goal:** New UI matches design spec, all acceptance criteria pass.
+
+1. Verify every page against `ACCEPTANCE_CRITERIA.md`
+2. Test all 4 RBAC roles (Super Admin, Partner Admin, Org Admin, Staff)
+3. Verify responsive behavior (desktop, tablet, mobile)
+4. Verify light/dark theme works across all pages
+5. Run existing E2E test suite — fix any failures caused by UI changes
+6. Remove any remaining mock data files from `client/src/mocks/`
+7. Submit 3 deltas of proof with screenshots per phase
+
+**Gate:** All acceptance criteria pass with real data. No console errors. Responsive and themed correctly.
+
+---
+
+## 7. Testing Protocol
+
 - **Voice**: Use the "Elliot" test-only VAPI agent for all voice testing
 - **SMS**: Loopback to self via TextMagic API — never to real customers
 - **Email**: Use `neoweaver@gmail.com` for all outbound email tests
 - **Video**: Test sessions only — never production Tavus sessions
-- **Per sprint**: At least 3 deltas of proof with screenshots, then full E2E
-
-### 7. Data That Must Be Preserved
-- All existing user accounts
-- All existing webhook configurations
-- All existing VAPI agent configurations
+- **Per phase**: At least 3 deltas of proof with screenshots, then full E2E at phase completion
+- **Existing tests**: Run `npx playwright test` after each phase to catch regressions
 
 ---
 
-## Sprint Execution Summary
+## 8. Quick Reference: What To Do vs What Files
 
-### Sprint 0 (Week 1) — Foundation
-Build: Database schema (17 tables), authentication (express-session + bcrypt), RBAC middleware, RLS policies, frontend auth integration.
-**Gate**: Login works, RLS isolates tenants, API calls include auth credentials.
-
-### Sprint 1 (Weeks 2-3) — Core Features (3 parallel tracks)
-- **Track A**: Agents CRUD + config pane wiring
-- **Track B**: Chat + AI streaming (SSE + Claude API)
-- **Track C**: Profile + Settings shell
-**Gate**: Agent CRUD works, chat streams, profile edits persist.
-
-### Sprint 2 (Weeks 4-5) — Data & Intelligence (3 parallel tracks)
-- **Track D**: VIN Solutions integration (OAuth2, lead sync, 5-min cache)
-- **Track E**: Metrics engine (all formulas from Constitution §5) + Dashboard + Reports + Library
-- **Track F**: Hunch engine (AI-generated insights from lead data)
-**Gate**: VIN leads sync, tiles show real scores, 6 reports generate correctly.
-
-### Sprint 3 (Weeks 6-7) — Communication & Integration (3 parallel tracks)
-- **Track G**: Hub (Calendar CRUD, Leads tab with VIN data, Inbox)
-- **Track H**: Drive (file upload/download, S3-compatible storage)
-- **Track I**: Webhook integrations (VAPI, Tavus, TextMagic) — EXERCISE EXTREME CAUTION
-**Gate**: Calendar works, files upload, webhooks process events.
-
-### Sprint 4 (Week 8) — Polish & Certification
-Notifications, widgets, E2E testing, mock data removal, security audit, performance verification.
-**Gate**: All acceptance criteria pass with real data, no mock data in production paths.
-
----
-
-## Quick Reference: File Modifications
-
-| What to do | Files to modify |
+| What to do | Files to touch |
 |---|---|
-| Add database table | `shared/schema.ts` |
-| Add API endpoint | `server/routes.ts` (or module-specific route file) |
-| Add database operations | `server/storage.ts` |
-| Add business logic | `server/services/*.ts` (new directory) |
-| Add auth logic | `server/auth.ts` (new), `server/middleware.ts` (new) |
-| Add webhook handler | `server/webhooks/*.ts` (new directory) |
-| Replace mock data on a page | The page file in `client/src/pages/*.tsx` — change imports only |
-| Add auth context | `client/src/contexts/AuthContext.tsx` (new) |
-| Wire API calls | Change mock imports to `useQuery({ queryKey: ['/api/...'] })` |
+| Replace a page's visual layout | `client/src/pages/*.tsx` — new component, same hooks |
+| Replace the layout shell | `client/src/components/layout/*.tsx` — new design components |
+| Wire data to a page | Import the existing hook from `client/src/hooks/use*.ts` |
+| Add a new API call | Add to existing hook file, or create new hook in `client/src/hooks/` |
+| Modify auth behavior | `client/src/contexts/AuthContext.tsx` |
+| Change theme tokens | `client/src/index.css` |
+| Add a new route | `client/src/App.tsx` — add `<Route>` inside `<Switch>` |
+| Need a new backend endpoint | `server/routes/*.ts` + `server/services/*.ts` (RARE — most endpoints exist) |
+
+---
+
+## 9. Data That Must Be Preserved
+
+- All existing user accounts (organizations, roles, partner links)
+- All webhook configurations and handlers
+- All VAPI agent configurations (5 registered agents)
+- All VIN Solutions integration configs (3 active orgs)
+- All 53 database tables and their data
+- All 33 migration files (never modify — only add new ones)
+- All scheduled job configurations
+
+---
+
+## 10. Environment Variables
+
+The backend requires 33 environment variables (configured in `.env`, not committed to git). Key categories:
+
+| Category | Variables |
+|----------|-----------|
+| Database | `DATABASE_URL`, `SUPABASE_*` |
+| Auth | `JWT_SECRET`, `JWT_REFRESH_SECRET` |
+| AI | `ANTHROPIC_API_KEY` |
+| VIN Solutions | `VIN_CLIENT_ID`, `VIN_CLIENT_SECRET`, `VIN_API_KEY` |
+| VAPI | `VAPI_API_KEY`, `VAPI_WEBHOOK_SECRET` |
+| Tavus | `TAVUS_API_KEY` |
+| Email | `RESEND_API_KEY`, `IMAP_*` |
+| SMS | `TEXTMAGIC_USERNAME`, `TEXTMAGIC_API_KEY` |
+| Google Calendar | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| General | `SESSION_SECRET`, `ENCRYPTION_KEY`, `PUBLIC_API_URL` |
+
+No `.env.example` file exists. Ask the project owner for the values.
 
 ---
 
 ## Your First Actions
 
-1. Read `plan_docs/v2.1/NEW_CLAUDE.md` fully
-2. Read `plan_docs/v2.1/NEW_CONSTITUTION.md` Sections 5-7 (formulas, constraints, integrations)
-3. Diff the plan against `server/`, `shared/schema.ts`, and `server/routes.ts` — identify conflicts
-4. Begin Sprint 0: Database schema → Authentication → RLS → Frontend auth
-5. After Sprint 0, submit 3 deltas of proof with screenshots for gate review
+1. Read `replit_reference/App Audit/server-audit.md` — understand the API surface
+2. Read `replit_reference/App Audit/client-audit.md` — understand the integration plumbing
+3. Archive the old `client/` directory
+4. Install the new UI files
+5. Carry forward all files listed in Section 3
+6. Begin Phase 1: Get the new shell loading with auth working
+7. After Phase 1, submit 3 deltas of proof with screenshots
 
 ---
 
