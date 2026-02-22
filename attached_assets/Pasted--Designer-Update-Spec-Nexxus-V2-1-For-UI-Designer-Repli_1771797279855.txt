@@ -55,13 +55,13 @@ The settings page shows a grid of tiles. Each tile opens a detail view. The left
 
 ### Changes Needed
 
-**Sub-menu items MUST match settings tiles 1:1.** Every sub-menu entry has a tile on the grid, and vice versa.
-
 **Tile count changes:**
 - **REMOVE** standalone "API & Webhooks" tile — this moves INSIDE Tools & Integrations (see Tile 3)
-- Settings page now has **9 tiles** (was 10), but the sub-menu for Tools gets additional sub-items
+- Settings grid now has **9 tiles** (was 10)
 
-**Updated sub-menu (left panel for `/settings/system`):**
+**Settings sub-menu has 10 entries (9 tiles + Billing):**
+
+The sub-menu includes one extra item — **Billing** — which has NO corresponding tile on the grid. Billing is sub-menu-only and navigates to `/settings/billing` (visible to Super Admin and Partner Admin only). See Section 11 for full details.
 
 ```
 Users
@@ -73,6 +73,7 @@ Security & Privacy
 Notifications
 Data Management
 Appearance
+Billing              ← Sub-menu only, NO grid tile (Super Admin + Partner Admin)
 ```
 
 ### RBAC Visibility (Updated)
