@@ -14,12 +14,16 @@ The V2.1 cycle is a **frontend-only rebuild**. The existing backend stays untouc
 **What gets preserved:** Backend (server/, database/, webhooks, jobs), integration plumbing (AuthContext, 26 TanStack Query hooks, API client, SSE streaming, ChatContext)
 
 ### Governing Documentation (v2.1)
-Four interdependent documents in `plan_docs/v2.1/` plus the handoff prompt:
+Nine documents in `plan_docs/v2.1/` govern the frontend rebuild:
 1. **CLAUDE_CODE_HANDOFF_PROMPT.md** — The primary handoff document for Claude Code. Contains project structure, API contract reference, integration plumbing carry-forward list, frontend rebuild phases, known bugs, and testing protocol. **Start here.**
-2. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
-3. **NEW_SRS.md** — Full system requirements: 91 library metrics, 6 report specs, hunch engine spec
-4. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan, dependency graph, gate criteria
-5. **NEW_CLAUDE.md** — Implementation patterns, RBAC matrix, testing requirements
+2. **CARRY_FORWARD_MANIFEST.md** — Exact file-by-file inventory: 32 files to preserve (26 hooks, 4 contexts, API client, SSE streaming), 8 to reference, 11 replaceable mocks
+3. **DO_NOT_TOUCH.md** — Explicit freeze list for all backend files (server routes, services, webhooks, jobs, migrations, tests, docs)
+4. **REVERSE_SRS.md** — Documents actual vs. planned implementation (237 endpoints vs 63 planned, 53 tables vs 17 planned, 91 metrics, 747 E2E tests)
+5. **DEVELOPMENT_TEAM_BRIEFING.md** — Hard-won lessons, critical gotchas, and guidance from the original development team
+6. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
+7. **NEW_SRS.md** — Full system requirements: 91 library metrics, 6 report specs, hunch engine spec
+8. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan, dependency graph, gate criteria
+9. **NEW_CLAUDE.md** — Implementation patterns, RBAC matrix, testing requirements
 
 **Document priority:** New UI Design > ACCEPTANCE_CRITERIA (UI truth) > Constitution (principles) > Audit Files (API contract) > SRS (requirements) > Implementation Plan (sequencing)
 

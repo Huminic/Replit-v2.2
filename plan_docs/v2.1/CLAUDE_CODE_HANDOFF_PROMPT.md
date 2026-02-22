@@ -194,6 +194,11 @@ nexxus-v2/
 ├── plan_docs/                       # Governing documentation
 │   ├── ACCEPTANCE_CRITERIA.md       # Pixel-level UI behavior spec
 │   └── v2.1/
+│       ├── CLAUDE_CODE_HANDOFF_PROMPT.md  # THIS FILE — start here
+│       ├── CARRY_FORWARD_MANIFEST.md      # 32 files to preserve, 8 to reference, 11 to delete
+│       ├── DO_NOT_TOUCH.md                # Explicit freeze list — backend files never to modify
+│       ├── REVERSE_SRS.md                 # Actual vs planned implementation gap analysis
+│       ├── DEVELOPMENT_TEAM_BRIEFING.md   # Hard-won lessons from original team
 │       ├── NEW_CONSTITUTION.md      # Platform principles, metric formulas
 │       ├── NEW_SRS.md               # Requirements spec
 │       ├── NEW_IMPLEMENTATION_PLAN.md # Sprint structure
@@ -301,12 +306,16 @@ Read these documents **in this order** before writing any code:
 1. **`replit_reference/App Audit/server-audit.md`** — The actual API contract. 185 endpoints with auth requirements, RBAC gates, and response details.
 2. **`replit_reference/App Audit/database-audit.md`** — 53 tables, RLS policies, JSONB column schemas, migration history.
 3. **`replit_reference/App Audit/client-audit.md`** — 26 hooks, 4 contexts, 59 custom components. Shows what integration plumbing exists.
-4. **`plan_docs/ACCEPTANCE_CRITERIA.md`** — Pixel-level UI behavior spec for the new design.
-5. **`plan_docs/v2.1/NEW_CLAUDE.md`** — Implementation patterns, RBAC matrix, testing requirements.
-6. **`plan_docs/v2.1/NEW_CONSTITUTION.md`** — Platform principles, naming rules, metric formulas (Section 5 is immutable).
-7. **`replit_reference/new_instructions/Agent Instructions.md`** — Agent team development protocol.
-8. **`replit_reference/new_instructions/Hunch Instructions.md`** — AI prompt for Hunch Engine pattern detection.
-9. **`replit_reference/Metrics/`** — Exact metric formulas for Org Admin, Staff, Reports, Library (91 total).
+4. **`plan_docs/v2.1/CARRY_FORWARD_MANIFEST.md`** — Exact file-by-file inventory: 32 files to preserve, 8 to reference, 11 replaceable mocks. The definitive list of what crosses into the new UI.
+5. **`plan_docs/v2.1/DO_NOT_TOUCH.md`** — Explicit freeze list for all backend files. If a file is listed here, do not modify it under any circumstances.
+6. **`plan_docs/v2.1/REVERSE_SRS.md`** — Documents actual vs. planned implementation (237 endpoints vs 63 planned, 53 tables vs 17 planned, 91 metrics, 747 E2E tests). Shows how far the backend has grown beyond the original spec.
+7. **`plan_docs/v2.1/DEVELOPMENT_TEAM_BRIEFING.md`** — Hard-won lessons, critical gotchas, and guidance from the original development team. Read this to avoid repeating known mistakes.
+8. **`plan_docs/ACCEPTANCE_CRITERIA.md`** — Pixel-level UI behavior spec for the new design.
+9. **`plan_docs/v2.1/NEW_CLAUDE.md`** — Implementation patterns, RBAC matrix, testing requirements.
+10. **`plan_docs/v2.1/NEW_CONSTITUTION.md`** — Platform principles, naming rules, metric formulas (Section 5 is immutable).
+11. **`replit_reference/new_instructions/Agent Instructions.md`** — Agent team development protocol.
+12. **`replit_reference/new_instructions/Hunch Instructions.md`** — AI prompt for Hunch Engine pattern detection.
+13. **`replit_reference/Metrics/`** — Exact metric formulas for Org Admin, Staff, Reports, Library (91 total).
 
 When documents conflict: **New UI Design > ACCEPTANCE_CRITERIA > Constitution > Audit Files > SRS > Implementation Plan**
 
@@ -467,11 +476,14 @@ No `.env.example` file exists. Ask the project owner for the values.
 
 1. Read `replit_reference/App Audit/server-audit.md` — understand the API surface
 2. Read `replit_reference/App Audit/client-audit.md` — understand the integration plumbing
-3. Archive the old `client/` directory
-4. Install the new UI files
-5. Carry forward all files listed in Section 3
-6. Begin Phase 1: Get the new shell loading with auth working
-7. After Phase 1, submit 3 deltas of proof with screenshots
+3. Read `plan_docs/v2.1/CARRY_FORWARD_MANIFEST.md` — know exactly which files to preserve
+4. Read `plan_docs/v2.1/DO_NOT_TOUCH.md` — know exactly which files are frozen
+5. Read `plan_docs/v2.1/DEVELOPMENT_TEAM_BRIEFING.md` — learn from the original team's hard-won lessons
+6. Archive the old `client/` directory
+7. Install the new UI files
+8. Carry forward all files listed in CARRY_FORWARD_MANIFEST.md (Section 1: MUST Preserve)
+9. Begin Phase 1: Get the new shell loading with auth working
+10. After Phase 1, submit 3 deltas of proof with screenshots
 
 ---
 
