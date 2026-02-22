@@ -6,7 +6,7 @@ Recurring UI patterns used across multiple pages. Build these once, reuse everyw
 
 ## 4A. List + Detail Pattern
 
-Used in: **Agents**, **Drive**, **Hub Communication**, **Insights Library**
+Used in: **Agents**, **Drive**, **Hub Inbox**, **Insights Library**
 
 ### Desktop Layout
 - **Split**: List panel (272px fixed) | Detail panel (remaining width)
@@ -67,7 +67,7 @@ Used in: **Settings**, **Profile**, **Widget Config**, **Agent Config**, **Landi
 
 ## 4C. Table Pattern
 
-Used in: **Insights Library**, **Drive file list**, **Hub Open Leads**
+Used in: **Insights Library**, **Drive file list**, **Hub Leads**
 
 ### Header Style
 - Sticky on vertical scroll
@@ -81,11 +81,9 @@ Used in: **Insights Library**, **Drive file list**, **Hub Open Leads**
 
 ### Selection
 - Checkbox column on left (when applicable, e.g., Drive)
-- Bulk action bar appears above table when rows selected
 
 ### Pagination
 - Currently: client-side with all data loaded
-- Future: pagination component at bottom or infinite scroll
 
 ### Column Density
 - Compact by default (`density-data`)
@@ -174,7 +172,7 @@ Used in: **Main page metric tiles**, **Insights Dashboard Command Center**, **In
 Used in: **Toast notifications**, **Notification dropdown**, **Inline warnings**
 
 ### Toast Notifications
-- **Position**: Top-right (Toaster component from sonner)
+- **Position**: Bottom-right (Toaster component from sonner)
 - **Stack direction**: Newest on top
 - **Types**: success (green CheckCircle), error (red AlertCircle), warning (amber AlertTriangle), info (blue Info)
 - **Auto-dismiss**: 3 seconds for success/info, 5 seconds for warning, persistent for error
@@ -195,7 +193,7 @@ Used in: **Toast notifications**, **Notification dropdown**, **Inline warnings**
 ### Error Recovery
 - API errors: Error card with AlertCircle icon + message + "Retry" button
 - Form errors: red border on field + error text below + focus on first invalid field
-- Network errors: gray banner "You're offline" at top
+
 
 ---
 

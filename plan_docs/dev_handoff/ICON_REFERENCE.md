@@ -20,7 +20,7 @@ No custom SVGs are used. All icons are from the Lucide library.
 | User | `User` | Profile page |
 | Users | `Users` | User management |
 | Activity | `Activity` | Activity feed (in Insights sub-menu) |
-| Briefcase | `Briefcase` | Hub / Work Center |
+| Briefcase | `Briefcase` | Hub |
 | Sidebar | `Sidebar` | Sidebar toggle |
 | Menu | `Menu` | Mobile hamburger menu |
 

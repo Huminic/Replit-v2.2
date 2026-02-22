@@ -2,7 +2,7 @@
 
 **Version:** 1.0
 **Last Updated:** February 2026
-**Status:** UI Prototype (Mock Data Only)
+**Status:** UI Prototype (Visual Reference for V2.1 Frontend Rebuild)
 
 This document provides everything a new developer or team needs to understand, maintain, and extend the Nexxus Connect application.
 
@@ -10,7 +10,7 @@ This document provides everything a new developer or team needs to understand, m
 
 ## 1. Project Overview
 
-**Nexxus Connect** is a ClickUp-inspired AI-powered dealership management platform. The current build is a **UI prototype** with client-side mock data. There is no backend API, no database, no authentication, and no real AI integration. All interactions are simulated.
+**Nexxus Connect** is a ClickUp-inspired AI-powered dealership management platform. This Replit contains the visual UI prototype that serves as the design reference for the V2.1 frontend rebuild. The production application at nexxusv2.huminicdev.com has 345+ backend files, JWT authentication, 979 E2E tests, and 7 third-party integrations. This prototype demonstrates the target UI/UX while the production backend remains untouched.
 
 ### What This Prototype Demonstrates
 
@@ -50,7 +50,7 @@ This document provides everything a new developer or team needs to understand, m
 | **Dates** | date-fns | - | `formatDistanceToNow` for timestamps |
 | **Forms** | React Hook Form + Zod | - | Scaffolded, used in create agent |
 | **Server** | Express 5 | - | Static file serving only |
-| **ORM** | Drizzle | - | Schema scaffolded, not active |
+| **ORM** | Supabase + SecureQueryBuilder | - | Production uses RLS-enforced queries (not in prototype) |
 
 ---
 
@@ -249,7 +249,7 @@ All data lives in `client/src/mocks/`. Each file exports typed arrays and helper
 
 When transitioning to production:
 
-1. Create API routes in `server/routes.ts` for each data domain
+1. API routes already exist — see `replit_reference/App Audit/server-audit.md` for the complete catalog
 2. Implement storage methods in `server/storage.ts` using the `IStorage` interface
 3. Replace `useState(mockData)` with TanStack Query `useQuery()` calls
 4. Replace state mutations with `useMutation()` + cache invalidation
@@ -291,7 +291,7 @@ This starts both the Vite dev server (HMR) and the Express backend on the same p
 |---|---|
 | `vite.config.ts` | Pre-configured with aliases, plugins, and server setup |
 | `server/vite.ts` | Handles Vite-Express integration |
-| `drizzle.config.ts` | Database configuration for future use |
+| `drizzle.config.ts` | Database configuration (production uses Supabase, not Drizzle) |
 | `package.json` | Use package manager tools instead of manual edits |
 
 ---
@@ -300,14 +300,14 @@ This starts both the Vite dev server (HMR) and the Express backend on the same p
 
 | Area | Limitation |
 |---|---|
-| Authentication | No real auth. Role switcher is a dev tool. |
-| Data persistence | All state resets on page refresh (except theme and role). |
-| API calls | None. All data is hardcoded mock arrays. |
+| Authentication | Role switcher is a dev tool for previewing RBAC-gated UI. Production uses JWT auth with 4-tier RBAC. |
+| Data persistence | Prototype state resets on refresh (except theme and role). Production uses PostgreSQL with Supabase. |
+| API calls | Prototype uses mock data. Production has 175+ API endpoints. |
 | Search | Client-side string matching only. |
 | File upload | Simulated with toast messages. |
 | Real-time | No WebSocket or SSE connections. |
 | Accessibility | Basic keyboard nav. No ARIA labels on custom components. |
-| Testing | No unit or integration tests exist. |
+| Testing | Prototype has no tests. Production has 979 E2E tests across 46 spec files. |
 | i18n | English only. Language selector is non-functional. |
 
 ---
@@ -316,18 +316,18 @@ This starts both the Vite dev server (HMR) and the Express backend on the same p
 
 When moving from prototype to production, address these items:
 
-- [ ] Set up PostgreSQL database and run Drizzle migrations
-- [ ] Implement authentication (session-based via Express)
-- [ ] Build API routes for all data domains (users, agents, files, etc.)
-- [ ] Replace mock data with TanStack Query API calls
-- [ ] Implement real RBAC middleware on the server
+- [ ] Database and migrations already exist in production (53 tables, 33 migrations)
+- [ ] Authentication already exists (JWT, 4-tier RBAC)
+- [ ] 175+ API routes already exist across 34 route files
+- [ ] Wire prototype UI to existing 26 TanStack Query hooks
+- [ ] RBAC middleware already exists (auth, enforceOrganizationContext, validateResourceOwnership)
 - [ ] Add real AI integration (OpenAI/Anthropic) for chat interfaces
 - [ ] Implement file upload to object storage
 - [ ] Add WebSocket for real-time notifications
 - [ ] Set up proper error boundaries and error handling
 - [ ] Add accessibility improvements (ARIA labels, keyboard navigation)
 - [ ] Write unit tests for critical business logic
-- [ ] Write E2E tests for key user flows
+- [ ] 979 E2E tests already exist (Playwright, 46 spec files)
 - [ ] Configure environment variables for production secrets
 - [ ] Set up CI/CD pipeline
 - [ ] Performance audit (bundle size, lazy loading, code splitting)

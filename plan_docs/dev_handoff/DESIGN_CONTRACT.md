@@ -80,7 +80,7 @@ Applied as a `pointer-events-none` absolute overlay behind content.
 1. Mouse enters sidebar item → `activePanel` set to item's ID → sub-menu panel appears
 2. Mouse leaves sidebar → 800ms timeout starts
 3. If mouse enters sub-menu panel within 800ms → panel stays (timeout cleared)
-4. If mouse leaves sub-menu panel → 1500ms timeout for secondary hide
+4. If mouse leaves sub-menu panel → 800ms timeout for secondary hide
 5. If `subMenuExpanded` is true (pinned) → panel never auto-hides
 6. Window resize below 1024px → auto-collapse and clear pin state
 
@@ -103,7 +103,7 @@ Applied as a `pointer-events-none` absolute overlay behind content.
 |---|---|
 | Background | `bg-card` |
 | Border | `border border-border` (1px solid) |
-| Radius | `rounded-lg` (9px) |
+| Radius | `rounded-lg` (Tailwind default) |
 | Padding | `p-4` (16px) standard, `p-3` (12px) compact |
 | Hover | `hover-elevate` class (no scale transforms) |
 | Shadow | None by default (elevation system handles hover) |

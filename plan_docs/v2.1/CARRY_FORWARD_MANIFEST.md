@@ -213,7 +213,7 @@ Shared schema file:
 
 | File | What It Does | Verdict |
 |------|-------------|---------|
-| `shared/schema.ts` | Drizzle ORM schema for `users` table + Zod validation. **Not imported by client code.** | **PRESERVE** (backend dependency, but not client plumbing) |
+| `shared/schema.ts` | Schema definitions for `users` table + Zod validation. **Not imported by client code.** | **PRESERVE** (backend dependency, but not client plumbing) |
 
 ---
 

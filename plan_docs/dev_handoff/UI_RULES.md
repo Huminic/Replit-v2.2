@@ -27,7 +27,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 | **R-CLICK-02** | Clicking a sidebar item navigates to the page AND sets `activePanel` to the item's ID. It does NOT auto-pin the sub-menu. |
 | **R-CLICK-03** | Clicking the sub-menu toggle arrows (ChevronsRight) pins/unpins the sub-menu globally via `subMenuExpanded`. |
 | **R-CLICK-04** | Clicking a sub-menu panel's collapse button (ChevronLeft) closes the panel AND un-pins the global sub-menu state. |
-| **R-CLICK-05** | All simulated actions (save, delete, send, call, schedule, upload) must show a toast notification confirming the action. |
+| **R-CLICK-05** | All simulated actions (save, delete, send, call, schedule, upload) must show a toast notification confirming the action. (prototype only — production uses real API response times) |
 
 ### 1.3 Focus Behavior
 
@@ -56,7 +56,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 | Rule | Specification |
 |---|---|
 | **R-SUB-01** | The sub-menu panel is a fixed-position overlay (not in document flow). Position: `left-16 top-14 z-40`. |
-| **R-SUB-02** | Hover-to-show uses an 800ms leave timeout on the sidebar, and a 1500ms leave timeout on the panel itself. |
+| **R-SUB-02** | Hover-to-show uses an 800ms leave timeout on the sidebar and the panel. |
 | **R-SUB-03** | When pinned (`subMenuExpanded === true`), the sub-menu stays visible across all page navigations. |
 | **R-SUB-04** | When the window resizes below 1024px (lg breakpoint), the sub-menu auto-collapses and `subMenuExpanded` is set to false. |
 | **R-SUB-05** | Each page has distinct sub-menu content. The panel renders based on `activePanel` ID matching. |
@@ -82,7 +82,6 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 | **R-CHAT-04** | All chat bubbles use `rounded-xl` (12px radius). |
 | **R-CHAT-05** | Max width for chat bubbles is 80-85% of the container. |
 | **R-CHAT-06** | The typing indicator uses exactly 3 wave-dots with staggered delays (0s, 0.15s, 0.3s). |
-| **R-CHAT-07** | Simulated response delay is 1.5s for Automa, 1.8s for agent-specific chats. |
 | **R-CHAT-08** | The chat input always has a glowing gradient border (purple→blue→cyan→purple, 8s animation cycle). |
 | **R-CHAT-09** | Enter sends the message. Shift+Enter inserts a newline. |
 | **R-CHAT-10** | The send button is disabled when the input is empty or whitespace-only. |
@@ -114,7 +113,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 | **R-FAV-03** | On mobile, favorites appear inside the `MobileNavDropdown` as a separate section below sub-menu items. |
 | **R-FAV-04** | Clicking a favorited page's chip in the FavoritesBar navigates to it. Clicking the chip for the CURRENT page unfavorites it instead. |
 | **R-FAV-05** | The star icon is filled yellow (`fill-yellow-400 text-yellow-400`) when favorited, and empty gray (`text-muted-foreground/40`) when not. |
-| **R-FAV-06** | Favorites persist during the session but reset on page reload (no localStorage in prototype). |
+| **R-FAV-06** | Favorites persist during the session but reset on page reload (no localStorage in prototype). (prototype only) |
 | **R-FAV-07** | Default favorites on app load: "Insights Dashboard" (`/insights`) and "Hub Calendar" (`/work-center`). |
 
 ---
@@ -137,7 +136,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 
 | Rule | Specification |
 |---|---|
-| **R-TOAST-01** | All simulated backend actions show a toast notification. |
+| **R-TOAST-01** | All simulated backend actions show a toast notification. (prototype only) |
 | **R-TOAST-02** | Toasts appear in the bottom-right corner. |
 | **R-TOAST-03** | Toasts auto-dismiss after the default timeout. |
 | **R-TOAST-04** | Success toasts use the default variant. Error/destructive toasts use the destructive variant. |
@@ -179,7 +178,7 @@ This document defines the behavioral rules, interaction patterns, and UX constra
 
 | Rule | Specification |
 |---|---|
-| **R-PERF-01** | No external network requests in the prototype. All data is synchronous mock data. |
+| **R-PERF-01** | No external network requests in the prototype. All data is synchronous mock data. (prototype only) |
 | **R-PERF-02** | Charts use `ResponsiveContainer` to avoid layout recalculation on resize. |
 | **R-PERF-03** | ScrollArea (Radix) is used for all scrollable containers instead of native overflow scroll. |
 | **R-PERF-04** | Large lists should consider virtualization in production (not required in prototype). |

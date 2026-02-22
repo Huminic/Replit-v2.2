@@ -1,0 +1,106 @@
+Here's the specific contamination cleanup list for the designer. This is file-by-file, find-and-fix:                                                                                                                     
+                                                                                                                                                                                                                           
+  ---                                                                                                                                                                                                                      
+  CONTAMINATION CLEANUP — Give to Designer                                                                                                                                                                                 
+                                                                                                                                                                                                                           
+  LOW TRUST FILES (2 files — most dangerous)                                                                                                                                                                               
+                                                                                                                                                                                                                           
+  BACKEND_INTEGRATION_GUIDE.md:
+  - REMOVE all references to Drizzle ORM — V2 uses Supabase + Prisma-style queries via SecureQueryBuilder
+  - REMOVE all references to express-session and connect-pg-simple — V2 uses JWT authentication
+  - REMOVE the proposed backend architecture — it was never implemented
+  - If this file can't be cleaned, DELETE IT ENTIRELY. It describes a system that does not exist.
+
+  HANDOVER.md:
+  - REMOVE the statement that the app has "no backend, no auth, no tests" — V2 has 345+ backend files, JWT auth, and 979 E2E tests
+  - REMOVE any characterization of this as a "prototype" or "frontend-only" — it is a full-stack production application
+  - If this file can't be cleaned, DELETE IT ENTIRELY.
+
+  ---
+  MEDIUM TRUST FILES (8 files — specific lines to remove)
+
+  COMPONENT_SHEET.md:
+  - REMOVE DialerModal as a standalone component (it's part of the Leads tab, not a separate modal)
+  - REMOVE ScheduleModal if described as incomplete — it exists and works
+  - REMOVE ShareModal if described as mock — share functionality is real (public links)
+
+  RESPONSIVE_SPECS.md:
+  - REMOVE all references to swipe gestures — not implemented, not planned
+  - REMOVE all references to snap points — not implemented, not planned
+
+  PATTERN_LIBRARY.md:
+  - REMOVE bulk actions pattern — not implemented
+  - REMOVE "future" pagination references — pagination is either implemented or not needed
+  - FIX toast position: must say bottom-right (not top-right)
+
+  UI_RULES.md:
+  - REMOVE simulated delays (1.5s/1.8s) — these are prototype-specific, not production rules
+  - REMOVE any rules that only apply to a non-functional prototype
+
+  ACCESSIBILITY_CONTRACT.md:
+  - REMOVE Vim keyboard shortcuts — not implemented, not planned
+  - REMOVE Ctrl+S save shortcut — not implemented
+  - REMOVE skip-to-content link — not implemented (can be added later as real accessibility work)
+
+  ASSET_SPECS.md:
+  - FIX avatar sizing — do not specify a single "default" size. Sizes are per-component as defined in source code
+  - REMOVE "future" color extensions — only document colors that exist in the theme contract
+
+  STATE_CATALOG.md:
+  - REMOVE offline mode states — not implemented, not planned
+  - REMOVE stale indicators — not implemented
+  - REMOVE dragging states — not implemented
+
+  TEST_SCENARIOS.md:
+  - ADD a note at the top: "These scenarios describe prototype behavior. Production test scenarios may differ. Consult development team for current E2E test coverage."
+
+  ---
+  CROSS-DOCUMENT FIXES (apply to ANY file that mentions these)
+
+  ┌─────────────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────┐
+  │                            Find This                            │                       Replace With                        │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Hub has 4 tabs (Calendar, Approvals, Communication, Open Leads) │ Hub has 3 tabs (Calendar, Leads, Inbox)                   │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ "Work Center" as a label                                        │ "Hub"                                                     │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Toast position: top-right                                       │ Toast position: bottom-right                              │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Sub-menu leave timeout: 1500ms                                  │ Sub-menu leave timeout: 800ms                             │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Card border-radius: 9px                                         │ Use Tailwind classes (rounded-lg, rounded-xl)             │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Activity as an Insights tab                                     │ Activity is a sub-menu item navigating to /activity route │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Dealer Pulse as a separate tab                                  │ Dealer Pulse content lives within the Dashboard tab       │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Goals tab in Insights                                           │ REMOVE — Goals tab does not exist                         │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Tasks tab in Hub                                                │ REMOVE — Tasks tab does not exist                         │
+  ├─────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Hunches tab in Hub                                              │ REMOVE — Hunches is in Insights, not Hub                  │
+  └─────────────────────────────────────────────────────────────────┴───────────────────────────────────────────────────────────┘
+
+  ---
+  TECHNOLOGY STACK — must be correct everywhere
+
+  ┌──────────────────────┬───────────────────────────────────────────────────────────────────┐
+  │ Wrong (Contaminated) │                              Correct                              │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ Drizzle ORM          │ Supabase + SecureQueryBuilder (RLS-enforced)                      │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ express-session      │ JWT authentication (1-hour expiry, 60s auto-refresh)              │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ connect-pg-simple    │ Not used — sessions are stateless JWT                             │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ "No backend"         │ 345+ backend files, 175+ API endpoints                            │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ "No auth"            │ JWT + RBAC (4-tier: Super Admin, Partner Admin, Org Admin, Staff) │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ "No tests"           │ 979 E2E tests (Playwright)                                        │
+  ├──────────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ WebRTC for dialer    │ VAPI handles all calls (browser-based, no WebRTC)                 │
+  └──────────────────────┴───────────────────────────────────────────────────────────────────┘
+
+  ---
+  This covers every specific contamination point we identified during the 3-agent forensic analysis. If the designer applies these fixes, the reference docs will be clean going forward.
