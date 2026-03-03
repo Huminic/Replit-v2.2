@@ -12,7 +12,8 @@ import {
   LogOut,
   Building2,
   Check,
-  ArrowDownRight
+  ArrowDownRight,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -25,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
@@ -98,6 +100,22 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/w/demo')}
+              data-testid="button-public-page"
+            >
+              <Globe className="h-5 w-5 text-muted-foreground" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span>View public page</span>
+          </TooltipContent>
+        </Tooltip>
+
         {/* Notifications */}
         <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
           <DropdownMenuTrigger asChild>

@@ -1,8 +1,7 @@
-// Mock agent data for Nexxus V2 UI prototype
-
 export type AgentStatus = 'active' | 'inactive' | 'draft';
-export type AgentChannel = 'voice' | 'chat' | 'video' | 'email';
+export type AgentChannel = 'voice' | 'chat' | 'video' | 'email' | 'sms';
 export type TriggerType = 'mention' | 'direct_message' | 'assign_task' | 'scheduled' | 'automated';
+export type AgentDepartment = 'sales' | 'service' | 'marketing' | 'system';
 
 export interface AgentTrigger {
   type: TriggerType;
@@ -26,6 +25,7 @@ export interface Agent {
   description: string;
   status: AgentStatus;
   channel: AgentChannel;
+  department: AgentDepartment;
   avatar?: string;
   instructions: string;
   triggers: AgentTrigger[];
@@ -56,7 +56,8 @@ export const mockAgents: Agent[] = [
     description: 'Handles inbound sales inquiries and qualifies leads',
     status: 'active',
     channel: 'voice',
-    instructions: 'You are a friendly sales agent for a car dealership. Help customers find the right vehicle for their needs.',
+    department: 'sales',
+    instructions: 'You are a friendly sales agent for a car dealership. Help customers find the right vehicle for their needs. Qualify leads by understanding their budget, preferences, and timeline.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
@@ -78,104 +79,130 @@ export const mockAgents: Agent[] = [
   },
   {
     id: 'agent-2',
-    name: 'Support Agent',
-    description: 'Provides customer support and answers common questions',
+    name: 'Communications Agent',
+    description: 'Manages outbound SMS, email, and call campaigns across all departments',
     status: 'active',
-    channel: 'chat',
-    instructions: 'You are a helpful customer support agent. Answer questions about service, maintenance, and vehicle features.',
+    channel: 'sms',
+    department: 'sales',
+    instructions: 'You manage outbound communications for the dealership. Send follow-up messages, appointment reminders, and promotional campaigns. Always respect opt-out preferences and communication schedules.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
       { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: false },
-      { type: 'automated', enabled: true, config: { condition: 'New support ticket created' } },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Based on campaign schedule' } },
+      { type: 'automated', enabled: true, config: { condition: 'New lead or status change' } },
     ],
     tools: [
       { ...availableTools[2], enabled: true },
-      { ...availableTools[3], enabled: true },
+      { ...availableTools[7], enabled: true },
     ],
-    customerLink: 'https://nexxus.ai/a/support-agent',
+    customerLink: 'https://nexxus.ai/a/comms-agent',
     assignedPhone: '(800) 555-0102',
-    chatLink: 'https://nexxus.ai/chat/support-agent',
+    chatLink: 'https://nexxus.ai/chat/comms-agent',
     createdAt: '2026-01-10T09:00:00Z',
     updatedAt: '2026-01-19T11:20:00Z',
     createdBy: 'user-1',
   },
   {
     id: 'agent-3',
-    name: 'Service Reminder',
-    description: 'Sends automated service reminders to customers',
+    name: 'CRM Data Agent',
+    description: 'Answers questions about CRM data, runs reports, and provides data insights',
     status: 'active',
-    channel: 'email',
-    instructions: 'Send friendly service reminders to customers based on their vehicle maintenance schedule.',
+    channel: 'chat',
+    department: 'sales',
+    instructions: 'You are the CRM Guru. Answer questions about VinSolutions data, run reports on pipeline health, lead scoring, and conversion metrics. Never fabricate data - if you dont have the information, say so clearly.',
     triggers: [
-      { type: 'mention', enabled: false },
-      { type: 'direct_message', enabled: false },
+      { type: 'mention', enabled: true },
+      { type: 'direct_message', enabled: true },
       { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: true, config: { schedule: 'Every Monday at 9:00 AM' } },
-      { type: 'automated', enabled: true, config: { condition: 'Service due within 7 days' } },
+      { type: 'scheduled', enabled: false },
+      { type: 'automated', enabled: false },
     ],
     tools: [
       { ...availableTools[2], enabled: true },
-      { ...availableTools[7], enabled: true },
+      { ...availableTools[6], enabled: true },
     ],
-    customerLink: 'https://nexxus.ai/a/service-reminder',
-    assignedPhone: '(800) 555-0103',
-    chatLink: 'https://nexxus.ai/chat/service-reminder',
+    customerLink: 'https://nexxus.ai/a/crm-guru',
+    chatLink: 'https://nexxus.ai/chat/crm-guru',
     createdAt: '2026-01-05T14:00:00Z',
     updatedAt: '2026-01-18T16:30:00Z',
     createdBy: 'user-1',
   },
   {
     id: 'agent-4',
-    name: 'Lead Qualifier',
-    description: 'Qualifies incoming leads and routes to sales team',
-    status: 'draft',
+    name: 'Service Guru',
+    description: 'Handles service department communications and appointment management',
+    status: 'active',
     channel: 'chat',
-    instructions: 'Engage with website visitors, qualify their interest level, and gather contact information.',
-    triggers: [
-      { type: 'mention', enabled: false },
-      { type: 'direct_message', enabled: false },
-      { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: false },
-      { type: 'automated', enabled: true, config: { condition: 'New website visitor' } },
-    ],
-    tools: [
-      { ...availableTools[1], enabled: true },
-      { ...availableTools[4], enabled: true },
-      { ...availableTools[5], enabled: true },
-    ],
-    customerLink: 'https://nexxus.ai/a/lead-qualifier',
-    chatLink: 'https://nexxus.ai/chat/lead-qualifier',
-    createdAt: '2026-01-20T08:00:00Z',
-    updatedAt: '2026-01-20T08:00:00Z',
-    createdBy: 'user-1',
-  },
-  {
-    id: 'agent-5',
-    name: 'Video Concierge',
-    description: 'Provides personalized video tours of vehicles',
-    status: 'inactive',
-    channel: 'video',
-    instructions: 'Conduct virtual vehicle tours and answer questions in real-time via video call.',
+    department: 'service',
+    instructions: 'You manage service department interactions. Schedule appointments, send service reminders, handle customer inquiries about maintenance and repairs. Upsell recommended services when appropriate.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
       { type: 'assign_task', enabled: true },
-      { type: 'scheduled', enabled: true, config: { schedule: 'On demand' } },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Every Monday at 9:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Service due within 7 days' } },
+    ],
+    tools: [
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[3], enabled: true },
+      { ...availableTools[7], enabled: true },
+    ],
+    customerLink: 'https://nexxus.ai/a/service-guru',
+    assignedPhone: '(800) 555-0104',
+    chatLink: 'https://nexxus.ai/chat/service-guru',
+    createdAt: '2026-01-12T11:00:00Z',
+    updatedAt: '2026-01-17T09:15:00Z',
+    createdBy: 'user-1',
+  },
+  {
+    id: 'agent-5',
+    name: 'Sales Guru',
+    description: 'Coaches salespeople through deals and prioritizes follow-ups',
+    status: 'active',
+    channel: 'chat',
+    department: 'sales',
+    instructions: 'You are a sales coaching agent. Help salespeople prioritize their leads, suggest next actions, and coach them through deals. Monitor overdue follow-ups and alert when opportunities are at risk.',
+    triggers: [
+      { type: 'mention', enabled: true },
+      { type: 'direct_message', enabled: true },
+      { type: 'assign_task', enabled: false },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Lead overdue > 48 hours' } },
+    ],
+    tools: [
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[1], enabled: true },
+      { ...availableTools[4], enabled: true },
+    ],
+    chatLink: 'https://nexxus.ai/chat/sales-guru',
+    createdAt: '2026-01-08T10:00:00Z',
+    updatedAt: '2026-01-20T08:00:00Z',
+    createdBy: 'user-1',
+  },
+  {
+    id: 'agent-6',
+    name: 'Marketing Agent',
+    description: 'Manages marketing campaigns and tracks performance metrics',
+    status: 'active',
+    channel: 'email',
+    department: 'marketing',
+    instructions: 'You manage marketing campaigns. Track campaign performance, monitor widget interactions, and report on landing page visits. Generate marketing reports and suggest optimization strategies.',
+    triggers: [
+      { type: 'mention', enabled: true },
+      { type: 'direct_message', enabled: true },
+      { type: 'assign_task', enabled: false },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Weekly on Monday' } },
       { type: 'automated', enabled: false },
     ],
     tools: [
-      { ...availableTools[0], enabled: true },
-      { ...availableTools[1], enabled: true },
-      { ...availableTools[4], enabled: true },
-      { ...availableTools[5], enabled: true },
+      { ...availableTools[6], enabled: true },
+      { ...availableTools[7], enabled: true },
     ],
-    customerLink: 'https://nexxus.ai/a/video-concierge',
-    assignedPhone: '(800) 555-0105',
-    chatLink: 'https://nexxus.ai/chat/video-concierge',
-    createdAt: '2026-01-12T11:00:00Z',
-    updatedAt: '2026-01-17T09:15:00Z',
+    customerLink: 'https://nexxus.ai/a/marketing-agent',
+    chatLink: 'https://nexxus.ai/chat/marketing-agent',
+    createdAt: '2026-01-14T13:00:00Z',
+    updatedAt: '2026-01-19T15:30:00Z',
     createdBy: 'user-1',
   },
 ];
@@ -195,6 +222,11 @@ export const getChannelIcon = (channel: AgentChannel): string => {
     chat: 'MessageSquare',
     video: 'Video',
     email: 'Mail',
+    sms: 'Smartphone',
   };
   return icons[channel];
+};
+
+export const getAgentsByDepartment = (agents: Agent[], department: AgentDepartment): Agent[] => {
+  return agents.filter(a => a.department === department);
 };

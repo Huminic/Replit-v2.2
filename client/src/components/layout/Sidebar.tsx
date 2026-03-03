@@ -1,11 +1,13 @@
 import { useLocation } from 'wouter';
 import { useRef, useEffect } from 'react';
 import { 
-  Home, 
-  Bot, 
-  Folder, 
-  BarChart3, 
-  Briefcase, 
+  MessageSquare,
+  Inbox,
+  User,
+  ShoppingCart,
+  Wrench,
+  Megaphone,
+  LayoutDashboard,
   Settings,
   ChevronsRight,
   LogOut
@@ -14,19 +16,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
-import { canAccessSystem } from '@/mocks/users';
-
-/**
- * @component Sidebar
- * @description ClickUp-style thin sidebar with icon+label navigation
- * @designConstraints
- *   - Fixed 64px width (w-16), icon + label per item
- *   - Navigation order: Main → Insights → Agents → Hub → Drive (Activity removed)
- *   - Settings hidden from org_staff role via adminOnly flag
- *   - Sub-menu panel support via activePanel/subMenuExpanded context
- * @rbac Settings visibility gated by canAccessSystem(currentRole)
- * @locked Navigation order, sidebar width, adminOnly gating
- */
+import { canAccessSection } from '@/mocks/users';
 
 interface MenuItem {
   id: string;
@@ -34,19 +24,21 @@ interface MenuItem {
   icon: React.ElementType;
   path: string;
   hasPanel?: boolean;
-  adminOnly?: boolean;
+  section?: string;
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'main', label: 'Main', icon: Home, path: '/', hasPanel: true },
-  { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
-  { id: 'agents', label: 'Agents', icon: Bot, path: '/agents', hasPanel: true },
-  { id: 'work-center', label: 'Hub', icon: Briefcase, path: '/work-center', hasPanel: true },
-  { id: 'drive', label: 'Drive', icon: Folder, path: '/drive', hasPanel: true },
+  { id: 'ai-chat', label: 'AI Chat', icon: MessageSquare, path: '/', hasPanel: true, section: 'ai-chat' },
+  { id: 'teambox', label: 'TeamBox', icon: Inbox, path: '/teambox', hasPanel: true, section: 'teambox' },
+  { id: 'my-work', label: 'My Work', icon: User, path: '/my-work', hasPanel: true, section: 'my-work' },
+  { id: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', hasPanel: true, section: 'sales' },
+  { id: 'service', label: 'Service', icon: Wrench, path: '/service', hasPanel: true, section: 'service' },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/marketing', hasPanel: true, section: 'marketing' },
+  { id: 'management', label: 'Manage', icon: LayoutDashboard, path: '/management', hasPanel: true, section: 'management' },
 ];
 
 const bottomItems: MenuItem[] = [
-  { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, adminOnly: true },
+  { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, section: 'system' },
 ];
 
 export function Sidebar() {
@@ -108,7 +100,6 @@ export function Sidebar() {
     if (item.hasPanel) {
       setActivePanel(item.id);
     } else {
-      // Clear sub-menu state when navigating to home
       setActivePanel(null);
       if (subMenuExpanded) {
         toggleSubMenuExpanded();
@@ -116,11 +107,10 @@ export function Sidebar() {
     }
   };
   
-  // Check if current page has a sub-menu
   const currentPageHasPanel = getCurrentPagePanel() !== null;
 
   const renderMenuItem = (item: MenuItem) => {
-    if (item.adminOnly && !canAccessSystem(currentRole)) {
+    if (item.section && !canAccessSection(currentRole, item.section)) {
       return null;
     }
 

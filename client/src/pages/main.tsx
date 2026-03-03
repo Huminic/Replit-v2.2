@@ -217,7 +217,7 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
 }
 
 export default function MainPage() {
-  const { currentRole } = useApp();
+  const { currentRole, personaName } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages.slice(0, 1));
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -258,7 +258,7 @@ export default function MainPage() {
       const assistantMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'assistant',
-        content: "I understand your request. Let me help you with that. This is the main chat interface where you can interact with Automa for any task. Would you like me to help you create an agent, analyze data, or assist with something else?",
+        content: `I understand your request. Let me help you with that. This is the main chat interface where you can interact with ${personaName} for any task. Would you like me to analyze data, review your pipeline, or assist with something else?`,
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMessage]);
@@ -439,9 +439,9 @@ export default function MainPage() {
                       <Upload className="h-4 w-4 mr-2" />
                       Upload File
                     </DropdownMenuItem>
-                    <DropdownMenuItem data-testid="menu-item-add-from-drive">
+                    <DropdownMenuItem data-testid="menu-item-add-document">
                       <FileText className="h-4 w-4 mr-2" />
-                      Add from Drive
+                      Add Document
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

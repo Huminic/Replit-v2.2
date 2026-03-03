@@ -44,6 +44,9 @@ import {
   FileText,
   Phone,
   ShieldCheck,
+  Send,
+  Power,
+  PowerOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -60,6 +63,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -170,7 +187,7 @@ const mockSkills: SkillItem[] = [
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const { currentRole } = useApp();
+  const { currentRole, communicationGateEnabled, setCommunicationGateEnabled, personaName } = useApp();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [widgets, setWidgets] = useState<IndividualWidget[]>(mockWidgets);
@@ -182,6 +199,7 @@ export default function SettingsPage() {
   const [newDomain, setNewDomain] = useState('');
   const [previewWidget, setPreviewWidget] = useState<IndividualWidget | null>(null);
   const [toolsTab, setToolsTab] = useState('mcp');
+  const [widgetSearch, setWidgetSearch] = useState('');
   const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null);
   const [skillFilter, setSkillFilter] = useState('All');
   const [showKillConfirm, setShowKillConfirm] = useState(false);
@@ -362,66 +380,191 @@ export default function SettingsPage() {
     </div>
   );
 
-  const renderWidgetTypeCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {widgets.map((widget) => {
-        const typeConf = widgetTypeConfig[widget.type];
-        const Icon = widgetTypeIcons[widget.type];
-        return (
-          <div
-            key={widget.id}
-            className={cn(
-              'relative rounded-xl border border-border bg-gradient-to-br p-5 cursor-pointer hover-elevate group',
-              typeConf.gradient
-            )}
-            onClick={() => { setSelectedWidget(widget); setWidgetConfigTab('settings'); }}
-            data-testid={`widget-type-card-${widget.id}`}
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-background/60 flex items-center justify-center flex-shrink-0">
-                <Icon className="h-5 w-5 text-foreground/70" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-foreground">{widget.name}</p>
-                  <Badge className={cn('text-white text-[10px] px-1.5', getWidgetStatusColor(widget.status))}>
-                    {widget.status}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{typeConf.description}</p>
-                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span>{widget.impressions.toLocaleString()} impressions</span>
-                  <span>{widget.interactions.toLocaleString()} interactions</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 mt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => { e.stopPropagation(); setPreviewWidget(widget); }}
-                data-testid={`button-preview-widget-${widget.id}`}
-              >
-                <Eye className="h-3.5 w-3.5 mr-1" />
-                Preview
-              </Button>
-              {widget.type === 'unified' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); window.open('/w/demo', '_blank'); }}
-                  data-testid={`button-preview-landing-${widget.id}`}
-                >
-                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                  Preview Landing Page
-                </Button>
-              )}
-            </div>
+  const handleCreateWidget = () => {
+    const newWidget: IndividualWidget = {
+      id: `wgt-${Date.now()}`,
+      type: 'text',
+      widgetCode: `NXW-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+      name: 'New Widget',
+      description: 'New text chat widget',
+      status: 'draft',
+      appearance: {
+        primaryColor: '#8b5cf6',
+        secondaryColor: '#3b82f6',
+        textColor: '#ffffff',
+        backgroundColor: '#ffffff',
+        organizationName: 'Cage Automotive',
+        showLogo: true,
+        position: 'bottom-right',
+        animation: 'pulse',
+        buttonLabel: 'Chat with us',
+        welcomeHeading: 'Hi there!',
+        welcomeMessage: 'How can we help you today?',
+      },
+      targeting: {
+        audience: 'all',
+        includePages: '/*',
+        excludePages: '/admin/*',
+        desktop: true,
+        mobile: true,
+        tablet: true,
+        businessHoursOnly: false,
+        delaySeconds: 3,
+        scrollDepthPercent: 0,
+        exitIntent: false,
+      },
+      allowedDomains: [],
+      config: {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      impressions: 0,
+      interactions: 0,
+    };
+    setWidgets(prev => [...prev, newWidget]);
+    setSelectedWidget(newWidget);
+    toast({ title: 'Widget created', description: 'Configure your new widget.' });
+  };
+
+  const renderWidgetTypeCards = () => {
+    const filtered = widgets.filter(w =>
+      w.name.toLowerCase().includes(widgetSearch.toLowerCase()) ||
+      w.widgetCode.toLowerCase().includes(widgetSearch.toLowerCase())
+    );
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <Button size="sm" onClick={handleCreateWidget} data-testid="button-new-widget">
+            <Plus className="h-4 w-4 mr-1" />
+            New widget
+          </Button>
+          <div className="relative max-w-xs flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search widgets..."
+              className="pl-9"
+              value={widgetSearch}
+              onChange={(e) => setWidgetSearch(e.target.value)}
+              data-testid="input-search-widgets"
+            />
           </div>
-        );
-      })}
-    </div>
-  );
+        </div>
+
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[300px]">Name</TableHead>
+                <TableHead>Embed Code</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last Updated</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((widget) => {
+                const Icon = widgetTypeIcons[widget.type];
+                return (
+                  <TableRow
+                    key={widget.id}
+                    className="cursor-pointer"
+                    onClick={() => { setSelectedWidget(widget); setWidgetConfigTab('settings'); }}
+                    data-testid={`widget-row-${widget.id}`}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground text-sm">{widget.name}</p>
+                          <p className="text-xs text-muted-foreground">{widgetTypeConfig[widget.type].label}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <code className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">{widget.widgetCode}</code>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => { e.stopPropagation(); handleCopyEmbed(generateWidgetEmbedCode(widget)); }}
+                          data-testid={`button-copy-code-${widget.id}`}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={cn('text-white text-[10px] px-1.5', getWidgetStatusColor(widget.status))}>
+                        {widget.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(widget.updatedAt).toLocaleDateString()}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewWidget(widget)}
+                          data-testid={`button-test-page-${widget.id}`}
+                        >
+                          <Eye className="h-3.5 w-3.5 mr-1" />
+                          View test page
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" data-testid={`widget-menu-${widget.id}`}>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => { setSelectedWidget(widget); setWidgetConfigTab('settings'); }}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopyEmbed(generateWidgetEmbedCode(widget))}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy embed code
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive" onClick={() => {
+                              setWidgets(prev => prev.filter(w => w.id !== widget.id));
+                              toast({ title: 'Widget deleted', description: 'The widget has been removed.' });
+                            }}>
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {filtered.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    <MessageSquare className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                    <p className="text-muted-foreground text-sm">No widgets found</p>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Showing {filtered.length} of {widgets.length} widgets</span>
+        </div>
+      </div>
+    );
+  };
 
   const renderWidgetSettingsTab = (widget: IndividualWidget) => {
     const updateConfig = (key: string, value: string) => {
@@ -893,17 +1036,82 @@ export default function SettingsPage() {
     );
   };
 
-  const renderWidgetDetail = (widget: IndividualWidget) => (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <Button variant="ghost" size="sm" onClick={() => setSelectedWidget(null)} data-testid="button-back-widget-list">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Widgets
-        </Button>
-        <div className="flex items-center gap-2">
+  const renderWidgetInlinePreview = (widget: IndividualWidget) => {
+    const Icon = widgetTypeIcons[widget.type];
+    return (
+      <div className="sticky top-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Live Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-full max-w-[280px] rounded-2xl border border-border shadow-lg overflow-hidden bg-background" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+                <div
+                  className="px-3 py-2.5 flex items-center justify-between rounded-t-2xl"
+                  style={{ backgroundColor: widget.appearance.primaryColor }}
+                >
+                  <span className="text-white font-semibold text-xs">
+                    {widget.appearance.organizationName || 'Your Business'}
+                  </span>
+                  <span className="text-white/70 text-xs">&times;</span>
+                </div>
+                <div className="p-3 text-center">
+                  <p className="font-semibold text-foreground text-xs">{widget.appearance.welcomeHeading}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{widget.appearance.welcomeMessage}</p>
+                </div>
+                <div className="space-y-1.5 p-2">
+                  <div className="bg-muted rounded-lg px-2.5 py-1.5 text-[10px] max-w-[80%]">
+                    How can I help you today?
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="rounded-lg px-2.5 py-1.5 text-[10px] text-white max-w-[80%]" style={{ backgroundColor: widget.appearance.primaryColor }}>
+                      I'm looking for an SUV
+                    </div>
+                  </div>
+                </div>
+                <div className="px-3 py-1.5 border-t border-border text-center">
+                  <span className="text-[8px] text-muted-foreground">Powered by Nexxus</span>
+                </div>
+              </div>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+                style={{ backgroundColor: widget.appearance.primaryColor }}
+              >
+                <Icon className="h-4 w-4 text-white" />
+              </div>
+              <p className="text-[10px] text-muted-foreground">{widget.appearance.buttonLabel}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  const renderWidgetDetail = (widget: IndividualWidget) => {
+    const Icon = widgetTypeIcons[widget.type];
+    const embedCode = generateWidgetEmbedCode(widget);
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="ghost" size="sm" onClick={() => setSelectedWidget(null)} data-testid="button-back-widget-list">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+          <div className="flex-1" />
           <Badge className={cn('text-white text-xs', getWidgetStatusColor(widget.status))}>
             {widget.status}
           </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleCopyEmbed(embedCode)}
+            data-testid="button-copy-embed-top"
+          >
+            <Copy className="h-3.5 w-3.5 mr-1" />
+            Copy embed code
+          </Button>
           <Button
             size="sm"
             onClick={() => {
@@ -918,75 +1126,148 @@ export default function SettingsPage() {
           >
             {widget.status === 'active' ? 'Deactivate' : 'Activate'}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPreviewWidget(widget)}
-            data-testid="button-preview-detail"
-          >
-            <Eye className="h-3.5 w-3.5 mr-1" />
-            Preview
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" data-testid="button-widget-more">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setPreviewWidget(widget)}>
+                <Eye className="h-4 w-4 mr-2" />
+                Full Preview
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => window.open('/w/demo', '_blank')}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View test page
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive" onClick={() => {
+                setWidgets(prev => prev.filter(w => w.id !== widget.id));
+                setSelectedWidget(null);
+                toast({ title: 'Widget deleted' });
+              }}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete widget
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="flex items-center gap-3 px-1">
+          <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+            <Icon className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <Input
+              value={widget.name}
+              onChange={(e) => {
+                const updated = { ...widget, name: e.target.value };
+                setSelectedWidget(updated);
+                setWidgets(prev => prev.map(w => w.id === updated.id ? updated : w));
+              }}
+              className="font-semibold border-none p-0 h-auto text-base focus-visible:ring-0 shadow-none"
+              data-testid="input-widget-name"
+            />
+            <p className="text-xs text-muted-foreground">Code: {widget.widgetCode} · {widgetTypeConfig[widget.type].label}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Accordion type="multiple" defaultValue={['appearance', 'channels', 'targeting', 'embed']} className="space-y-2">
+              <AccordionItem value="appearance" className="border rounded-lg px-4">
+                <AccordionTrigger className="text-sm font-semibold" data-testid="accordion-appearance">
+                  <div className="flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-muted-foreground" />
+                    Appearance
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {renderWidgetAppearanceTab(widget)}
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="channels" className="border rounded-lg px-4">
+                <AccordionTrigger className="text-sm font-semibold" data-testid="accordion-channels">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    Channels & Configuration
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {renderWidgetSettingsTab(widget)}
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="targeting" className="border rounded-lg px-4">
+                <AccordionTrigger className="text-sm font-semibold" data-testid="accordion-targeting">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    Targeting & Domains
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {renderWidgetTargetingTab(widget)}
+                  <Separator className="my-4" />
+                  {renderWidgetDomainsTab(widget)}
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="embed" className="border rounded-lg px-4">
+                <AccordionTrigger className="text-sm font-semibold" data-testid="accordion-embed">
+                  <div className="flex items-center gap-2">
+                    <Code className="h-4 w-4 text-muted-foreground" />
+                    Embed Code
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <pre className="bg-muted rounded-lg p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap border border-border">
+                        {embedCode}
+                      </pre>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        onClick={() => handleCopyEmbed(embedCode)}
+                        data-testid="button-copy-code"
+                      >
+                        {copiedEmbed ? <><Check className="h-3.5 w-3.5 mr-1" /> Copied</> : <><Copy className="h-3.5 w-3.5 mr-1" /> Copy code</>}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open('/w/demo', '_blank')}
+                        data-testid="button-view-test-page"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                        View test page
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toast({ title: 'Instructions sent', description: 'Embed instructions sent to your developer.' })}
+                        data-testid="button-send-instructions"
+                      >
+                        <Send className="h-3.5 w-3.5 mr-1" />
+                        Send instructions
+                      </Button>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
+          <div className="hidden lg:block">
+            {renderWidgetInlinePreview(widget)}
+          </div>
         </div>
       </div>
-
-      <div className="mb-4">
-        <Label className="text-xs text-muted-foreground">Widget Name</Label>
-        <Input
-          value={widget.name}
-          onChange={(e) => {
-            const updated = { ...widget, name: e.target.value };
-            setSelectedWidget(updated);
-            setWidgets(prev => prev.map(w => w.id === updated.id ? updated : w));
-          }}
-          className="mt-1"
-          data-testid="input-widget-name"
-        />
-        <p className="text-xs text-muted-foreground mt-1">Code: {widget.widgetCode}</p>
-      </div>
-
-      <Tabs value={widgetConfigTab} onValueChange={setWidgetConfigTab}>
-        <TabsList className="grid grid-cols-5 w-full">
-          <TabsTrigger value="settings" data-testid="tab-widget-settings">
-            <Settings className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Settings
-          </TabsTrigger>
-          <TabsTrigger value="appearance" data-testid="tab-appearance">
-            <Palette className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Appearance
-          </TabsTrigger>
-          <TabsTrigger value="targeting" data-testid="tab-targeting">
-            <Target className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Targeting
-          </TabsTrigger>
-          <TabsTrigger value="domains" data-testid="tab-domains">
-            <Link2 className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Domains
-          </TabsTrigger>
-          <TabsTrigger value="embed" data-testid="tab-embed">
-            <Code className="h-3.5 w-3.5 mr-1 hidden sm:block" />
-            Embed
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="settings" className="mt-4">
-          {renderWidgetSettingsTab(widget)}
-        </TabsContent>
-        <TabsContent value="appearance" className="mt-4">
-          {renderWidgetAppearanceTab(widget)}
-        </TabsContent>
-        <TabsContent value="targeting" className="mt-4">
-          {renderWidgetTargetingTab(widget)}
-        </TabsContent>
-        <TabsContent value="domains" className="mt-4">
-          {renderWidgetDomainsTab(widget)}
-        </TabsContent>
-        <TabsContent value="embed" className="mt-4">
-          {renderWidgetEmbedTab(widget)}
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+    );
+  };
 
   const renderWidgetPreviewModal = () => {
     if (!previewWidget) return null;
@@ -2357,13 +2638,111 @@ export default function SettingsPage() {
     switch (activeSection) {
       case 'users': return renderUserManagement();
       case 'tools': return renderToolsSection();
-      case 'organization': return renderSectionPage('Organization Settings', 'Manage your company profile and branding', [
-        { label: 'Organization Name', desc: 'Your company display name', type: 'text', defaultValue: 'Sunset Motors' },
-        { label: 'Business Phone', desc: 'Primary contact number', type: 'text', defaultValue: '(555) 123-4567' },
-        { label: 'Business Email', desc: 'Primary contact email', type: 'text', defaultValue: 'info@sunsetmotors.com' },
-        { label: 'Public Listing', desc: 'Show in partner directory', type: 'toggle', defaultValue: true },
-        { label: 'Multi-Location', desc: 'Enable multi-location support', type: 'toggle', defaultValue: false },
-      ]);
+      case 'organization': return (
+        <div className="p-4 space-y-4">
+          <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Organization Settings</CardTitle>
+              <CardDescription>Manage your company profile and branding</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Organization Name</p>
+                  <p className="text-xs text-muted-foreground">Your company display name</p>
+                </div>
+                <Input defaultValue="Cage Automotive" className="max-w-[200px]" data-testid="input-org-name" />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">AI Persona Name</p>
+                  <p className="text-xs text-muted-foreground">The name your AI assistant presents to customers</p>
+                </div>
+                <Input defaultValue={personaName} className="max-w-[200px]" data-testid="input-persona-name" />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Business Phone</p>
+                  <p className="text-xs text-muted-foreground">Primary contact number</p>
+                </div>
+                <Input defaultValue="(555) 123-4567" className="max-w-[200px]" data-testid="input-org-phone" />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Business Email</p>
+                  <p className="text-xs text-muted-foreground">Primary contact email</p>
+                </div>
+                <Input defaultValue="info@cageautomotive.com" className="max-w-[200px]" data-testid="input-org-email" />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Public Listing</p>
+                  <p className="text-xs text-muted-foreground">Show in partner directory</p>
+                </div>
+                <Switch defaultChecked data-testid="switch-public-listing" />
+              </div>
+              <div className="pt-2">
+                <Button size="sm" onClick={() => toast({ title: 'Settings saved', description: 'Your changes have been applied.' })} data-testid="button-save-org">Save Changes</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={cn('border-2', communicationGateEnabled ? 'border-green-500/30' : 'border-red-500/30')}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                {communicationGateEnabled ? (
+                  <Power className="h-5 w-5 text-green-500" />
+                ) : (
+                  <PowerOff className="h-5 w-5 text-red-500" />
+                )}
+                <CardTitle className="text-base">Communication Gate</CardTitle>
+              </div>
+              <CardDescription>
+                Master switch that controls ALL outbound automated communications (SMS, Email, Campaigns).
+                Disable this to immediately halt all AI-initiated messages.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    {communicationGateEnabled ? 'Communications Active' : 'Communications Paused'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {communicationGateEnabled
+                      ? 'All outbound automated communications are enabled'
+                      : 'All outbound automated communications are stopped'}
+                  </p>
+                </div>
+                <Switch
+                  checked={communicationGateEnabled}
+                  onCheckedChange={setCommunicationGateEnabled}
+                  className={cn(
+                    communicationGateEnabled
+                      ? 'data-[state=checked]:bg-green-500'
+                      : 'data-[state=unchecked]:bg-red-500'
+                  )}
+                  data-testid="switch-communication-gate"
+                />
+              </div>
+              {!communicationGateEnabled && (
+                <div className="mt-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-700 dark:text-red-300">
+                      All automated communications are currently stopped. No campaigns, follow-ups, or AI-initiated messages will be sent until this gate is re-enabled.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
       case 'knowledge': return renderKnowledgeBase();
       case 'ai': return renderAIConfiguration();
       case 'security': return renderSecurity();

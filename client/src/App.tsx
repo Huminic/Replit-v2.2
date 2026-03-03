@@ -9,11 +9,13 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import NotFound from "@/pages/not-found";
 import MainPage from "@/pages/main";
 import AgentsPage from "@/pages/agents";
-import AgentCreatePage from "@/pages/agents-create";
-import DrivePage from "@/pages/drive";
 import InsightsPage from "@/pages/insights";
-import WorkCenterPage from "@/pages/work-center";
-import ActivityPage from "@/pages/activity";
+import TeamboxPage from "@/pages/teambox";
+import MyWorkPage from "@/pages/my-work";
+import SalesPage from "@/pages/sales";
+import ServicePage from "@/pages/service";
+import MarketingPage from "@/pages/marketing";
+import ManagementPage from "@/pages/management";
 import SettingsPage from "@/pages/settings";
 import ProfilePage from "@/pages/profile";
 import WidgetLandingPage from "@/pages/widget-landing";
@@ -28,12 +30,14 @@ function Router() {
         <AppLayout>
           <Switch>
             <Route path="/" component={MainPage} />
+            <Route path="/teambox" component={TeamboxPage} />
+            <Route path="/my-work" component={MyWorkPage} />
+            <Route path="/sales" component={SalesPage} />
+            <Route path="/service" component={ServicePage} />
+            <Route path="/marketing" component={MarketingPage} />
+            <Route path="/management" component={ManagementPage} />
             <Route path="/agents" component={AgentsPage} />
-            <Route path="/agents/create" component={AgentCreatePage} />
-            <Route path="/drive" component={DrivePage} />
             <Route path="/insights" component={InsightsPage} />
-            <Route path="/work-center" component={WorkCenterPage} />
-            <Route path="/activity" component={ActivityPage} />
             <Route path="/settings/system" component={SettingsPage} />
             <Route path="/settings/billing" component={BillingManagementPage} />
             <Route path="/settings/org-wizard" component={OrgWizardPage} />

@@ -1,6 +1,3 @@
-// Mock user data for Nexxus V2 UI prototype
-// All data is client-side only, no real authentication
-
 export type UserRole = 'super_admin' | 'partner_admin' | 'org_admin' | 'org_staff';
 
 export interface User {
@@ -18,6 +15,7 @@ export interface Organization {
   logo?: string;
   primaryColor: string;
   secondaryColor: string;
+  personaName: string;
 }
 
 export const mockOrganizations: Organization[] = [
@@ -26,18 +24,21 @@ export const mockOrganizations: Organization[] = [
     name: 'Cage Automotive',
     primaryColor: '#8b5cf6',
     secondaryColor: '#3b82f6',
+    personaName: 'Serra',
   },
   {
     id: 'org-2',
     name: 'Premier Motors',
     primaryColor: '#10b981',
     secondaryColor: '#3b82f6',
+    personaName: 'Aria',
   },
   {
     id: 'org-3',
     name: 'Elite Auto Group',
     primaryColor: '#f59e0b',
     secondaryColor: '#ef4444',
+    personaName: 'Nova',
   },
 ];
 
@@ -74,13 +75,30 @@ export const mockUsers: User[] = [
   },
 ];
 
-// Helper to check if a user can access certain features
 export const canAccessSystem = (role: UserRole): boolean => {
   return role === 'super_admin' || role === 'partner_admin' || role === 'org_admin';
 };
 
 export const canSwitchOrgs = (role: UserRole): boolean => {
   return role === 'super_admin' || role === 'partner_admin';
+};
+
+export const canAccessManagement = (role: UserRole): boolean => {
+  return role === 'super_admin' || role === 'partner_admin' || role === 'org_admin';
+};
+
+export const canAccessSection = (role: UserRole, section: string): boolean => {
+  const sectionAccess: Record<string, UserRole[]> = {
+    'ai-chat': ['super_admin', 'partner_admin', 'org_admin', 'org_staff'],
+    'teambox': ['super_admin', 'partner_admin', 'org_admin', 'org_staff'],
+    'my-work': ['super_admin', 'partner_admin', 'org_admin', 'org_staff'],
+    'sales': ['super_admin', 'partner_admin', 'org_admin', 'org_staff'],
+    'service': ['super_admin', 'partner_admin', 'org_admin', 'org_staff'],
+    'marketing': ['super_admin', 'partner_admin', 'org_admin'],
+    'management': ['super_admin', 'partner_admin', 'org_admin'],
+    'system': ['super_admin', 'partner_admin', 'org_admin'],
+  };
+  return sectionAccess[section]?.includes(role) ?? false;
 };
 
 export const getRoleLabel = (role: UserRole): string => {

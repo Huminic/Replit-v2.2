@@ -1,185 +1,157 @@
-# Nexxus V2 - AI-Powered Dealership Platform
+# Nexxus Connect v2.2 — AI-Powered Dealership Platform
 
 ## Overview
 
-Nexxus V2 is a ClickUp-inspired AI-powered dealership management platform. The project has two layers:
+Nexxus Connect is an AI-powered dealership management platform with persona/department-based navigation. The project has two layers:
 
-1. **UI Prototype (this Replit)** — A validated frontend mockup with client-side mock data, used as the design reference for the new V2.1 frontend rebuild.
+1. **UI Prototype (this Replit)** — A validated frontend with client-side mock data, structured around a 4-wave product roadmap. Persona-based navigation replaces the previous feature-based layout.
 2. **Production Backend (separate environment)** — A mature Express/PostgreSQL backend with 185+ API endpoints, 53 database tables, 7 third-party integrations, and 747 E2E tests running at `nexxusv2.huminicdev.com`.
 
-### Development Strategy (V2.1)
-The V2.1 cycle is a **frontend-only rebuild**. The existing backend stays untouched. The new UI from this prototype replaces the old frontend and gets wired to the existing API endpoints, hooks, and contexts.
+### Development Strategy (v2.2)
+The v2.2 cycle restructures the UI from feature-based navigation (Main/Insights/Agents/Hub/Drive) to persona/department-based navigation (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). The existing backend stays untouched until Wave 2.
 
-**What gets replaced:** Visual components (pages, layout, styling)
-**What gets preserved:** Backend (server/, database/, webhooks, jobs), integration plumbing (AuthContext, 26 TanStack Query hooks, API client, SSE streaming, ChatContext)
+### Documentation Suite
+Six documents in the project root govern the rebuild:
+1. **CLAUDE.md** — Agent rules, truth hierarchy, forbidden actions, naming conventions
+2. **PRD.md** — Product requirements, target users, business goals, 4-wave vision
+3. **SRS.md** — System requirements, functional specs, business rules, integrations
+4. **SPEC.md** — Architecture document, file structure, component hierarchy, RBAC matrix
+5. **PLAN.md** — 4-wave marching orders, current phase status, completion criteria
+6. **ACCEPTANCE_CRITERIA.md** — Testable statements organized by wave
 
-### Governing Documentation (v2.1)
-Nine documents in `plan_docs/v2.1/` govern the frontend rebuild:
-1. **CLAUDE_CODE_HANDOFF_PROMPT.md** — The primary handoff document for Claude Code. Contains project structure, API contract reference, integration plumbing carry-forward list, frontend rebuild phases, known bugs, and testing protocol. **Start here.**
-2. **CARRY_FORWARD_MANIFEST.md** — Exact file-by-file inventory: 32 files to preserve (26 hooks, 4 contexts, API client, SSE streaming), 8 to reference, 11 replaceable mocks
-3. **DO_NOT_TOUCH.md** — Explicit freeze list for all backend files (server routes, services, webhooks, jobs, migrations, tests, docs)
-4. **REVERSE_SRS.md** — Documents actual vs. planned implementation (237 endpoints vs 63 planned, 53 tables vs 17 planned, 91 metrics, 747 E2E tests)
-5. **DEVELOPMENT_TEAM_BRIEFING.md** — Hard-won lessons, critical gotchas, and guidance from the original development team
-6. **NEW_CONSTITUTION.md** — Platform identity, principles, metric formulas (immutable), RBAC, naming conventions, non-negotiable constraints
-7. **NEW_SRS.md** — Full system requirements: 91 library metrics, 6 report specs, hunch engine spec
-8. **NEW_IMPLEMENTATION_PLAN.md** — Modular sprint-based plan, dependency graph, gate criteria
-9. **NEW_CLAUDE.md** — Implementation patterns, RBAC matrix, testing requirements
+**Truth hierarchy:** UI Design > Acceptance Criteria > Constitution > API Contract > SRS > Plan
 
-**Document priority:** New UI Design > ACCEPTANCE_CRITERIA (UI truth) > Constitution (principles) > Audit Files (API contract) > SRS (requirements) > Implementation Plan (sequencing)
+## Navigation Structure (v2.2)
 
-### Existing Backend (documented in replit_reference/App Audit/)
-Five forensic audit files document the production backend:
-- `server-audit.md` — 185 endpoints across 34 route files, complete API catalog with auth/RBAC requirements
-- `database-audit.md` — 53 tables, 100+ RLS policies, 58 JSONB columns, 33 migration files
-- `client-audit.md` — 26 TanStack Query hooks, 4 context providers, 59 custom components, integration plumbing inventory
-- `health-audit.md` — 747 E2E tests, build system, PM2 deployment, dependency inventory
-- `DATA_ACCURACY_REPORT.md` — VAPI/Tavus/VIN data integrity findings, webhook gap analysis
+### Sidebar Items (top to bottom)
+| Section | Icon | Route | RBAC | Description |
+|---------|------|-------|------|-------------|
+| AI Chat | MessageSquare | `/` | All | Main AI chat with persona name from org config |
+| TeamBox | Inbox | `/teambox` | All | CommBox-inspired 3-column conversation inbox |
+| My Work | User | `/my-work` | All | Personal dashboard, tasks, assistant |
+| Sales | TrendingUp | `/sales` | Sales + Admin | Pipeline, leads, agents, calendar |
+| Service | Wrench | `/service` | Service + Admin | Campaigns, appointments, agents |
+| Marketing | Megaphone | `/marketing` | Marketing + Admin | Campaigns, studio, widget insights |
+| Management | BarChart3 | `/management` | Manager + Admin | Cross-section KPIs, ROI, hunches |
+| System | Settings | `/settings/*` | Admin | Settings, users, tools, widgets |
 
-Supporting files:
-- `plan_docs/ACCEPTANCE_CRITERIA.md` — Pixel-level UI behavior spec (updated 2026-02-21)
-- `replit_reference/Metrics/` — Exact metric formulas for Org Admin, Staff, Reports, Library
-- `replit_reference/new_instructions/` — Agent Instructions (team protocol) and Hunch Instructions (AI prompt)
+### Removed Features (not in MVP contract)
+- Drive (file storage/sharing)
+- Custom Agent creation (non-Super Admin)
+- Standalone Activity page
+- Skills references in agent config
+- Artifact sharing
 
-### V3 Redesign Summary
-- **RBAC**: currentRole state with localStorage persistence, tiny arrow dropdown on far-right of TopBar
-- **TopBar**: Logo left, org switcher center (Building2 icon + name + chevron), notifications/activity/theme/profile/role-arrow right
-- **Main Page**: 4-across gradient metric tiles (role-specific, responsive 4→2→1), "AI Key Metrics" title, window-blind collapse after first chat (tiles animate up, Show/Hide toggle), 1 sample chat response, always-visible smaller suggestion bubbles, no chat avatars, wave-dot animation. Metric modals show rich breakdown data with Key Insights section.
-- **Insights**: 4 tabs - Dashboard (Command Center/Pipeline/Charts/Scorecard), Reports, Library, Hunches. Sub-menu includes Activity
-- **Right Pane**: Desktop (md+) = side-by-side panel (w-80/lg:w-96) alongside main content. Mobile (<md) = full-screen overlay. Main content always rendered first in DOM order.
-- **Automa Pop-out**: MessageCircle button (primary-tinted circle) visible when right pane is closed on data-display pages (not Home, not Agents). Mobile FAB at bottom-right. Opens right pane for contextual data discussion.
-- **Agents**: List panel (272px, desktop only) / detail center / config toggles via right pane (<< / >> button)
-- **Hub**: 3 tabs - Calendar, Leads, Inbox
-- **Drive**: Share button per file, share modal with Email/SMS tabs, two download buttons (Download always + Download as PDF for .doc/.xls/.csv/.png/.jpg etc.)
-- **Settings**: Tile-based grid navigation (9 tiles), role-gated sections. Sub-menu has 10 entries including Billing (Super Admin/Partner Admin only). "Tools & Integrations" has 5 tabs (MCP/API/Other/Widgets/Landing Pages) + 2 Super Admin tabs (API Keys/Webhooks). Knowledge Base has 4 tabs (Documents/Web Pages/Databases/Settings). AI Configuration has 4 tabs (System Prompt/Agent Behavior/Skills/Hunches) with Partner Admin read-only. Security all grayed. Data Management 2 tabs (Database Uploads/Data Health). API & Webhooks tile removed.
-- **Billing**: Dual access — Profile billing tab (Org Admin/Staff usage view with progress bars), Settings billing (/settings/billing for Super Admin/Partner Admin revenue dashboard + invoice builder)
-- **Org Wizard**: 7-step wizard at /settings/org-wizard (Org Details, Contact, Admin Setup, Configuration, Tools, Default Agent, Review). Super Admin/Partner Admin only.
-- **Widgets**: 4 fixed widget types (Text Chat, Live Video, Voice Call, Unified) under Tools → Widgets tab. Each has Settings, Appearance, Targeting, Domains, Embed sub-tabs. Preview modals per widget. Unified widget links to /w/demo landing page
-- **Widget Landing Page**: /w/demo route (outside AppLayout) — standalone customer service page with 6 channel cards, contact form, "Launch Live Video Chat" button. Powered by Nexxus footer
-- **Chat standard**: Bot left / user right, no avatars, wave-dot animation everywhere. Thinking card (collapsible AI reasoning) in first bot message. Chat input placeholder: "Ask me anything about your business"
-- **Activity**: Moved into Insights sub-menu (no longer standalone sidebar item)
-- **SubMenu timeout**: 800ms leave timeout for better usability (with proper cleanup on unmount)
-- **Right Pane**: Desktop (md+) = side-by-side panel (w-80/lg:w-96) alongside main content. Mobile (<md) = full-screen overlay. Main content always rendered first in DOM order.
-- **Sub-menu tab switching**: Uses custom events (`insights-tab-change`, `hub-tab-change`) to handle query-param-only URL changes that wouter doesn't detect. Active tab tracked via local state for immediate highlight updates.
-- **Chat history**: Hover-reveal 3-dot menu (Resume/Delete) on conversation items. Keyboard accessible (role="button", tabIndex, Enter/Space).
-- **Drive copy link**: Uses `navigator.clipboard.writeText()` with toast feedback
-
-## User Preferences
-
-Preferred communication style: Simple, everyday language.
+### Cardinal Layout Rules
+- **Data/information in center** → chat in the right pane
+- **Chat in center** → information/configuration in the right pane
+- **TeamBox** uses its own internal 3-column layout (not global right pane)
+- **Agent "Take Over"** navigates to TeamBox with that conversation selected
 
 ## System Architecture
 
 ### Frontend Stack
 - **React 18** with TypeScript
 - **Vite** for development and building
-- **Wouter** for client-side routing (lightweight alternative to React Router)
+- **Wouter** for client-side routing
 - **TanStack Query** for data fetching patterns (currently using mock data)
-- **Tailwind CSS** with custom design tokens for styling
-- **Shadcn/ui** component library (Radix UI primitives with custom styling)
+- **Tailwind CSS** with custom design tokens
+- **Shadcn/ui** component library (Radix UI primitives)
 
 ### Layout Architecture
-The app uses a context-aware multi-pane layout system with ClickUp-style navigation:
+Context-aware multi-pane layout with ClickUp-style navigation:
 
-**ClickUp-Style Navigation Pattern (6 key behaviors):**
-1. **Thin Sidebar**: Always-visible 64px icon+label strip with navigation icons
-2. **Hover Preview**: Hovering sidebar items shows sub-menu panel as preview
-3. **Click Navigates Only**: Clicking navigates to the page and sets activePanel (no auto-pin)
-4. **Double Arrow Pins Globally**: Toggle under logo controls `subMenuExpanded` state
-5. **Collapse in Panel Header**: ChevronLeft button in sub-menu header collapses panel
-6. **Global Persistence**: When pinned, sub-menu stays visible across all page navigations
+**Navigation Behaviors:**
+1. **Thin Sidebar**: Always-visible 64px icon+label strip
+2. **Hover Preview**: Hovering sidebar items shows sub-menu panel
+3. **Click Navigates**: Clicking navigates to the page and sets activePanel
+4. **Double Arrow Pins**: Toggle under logo controls `subMenuExpanded` state
+5. **Panel Collapse**: ChevronLeft button in sub-menu header collapses panel
+6. **Global Persistence**: When pinned, sub-menu stays visible across pages
 
 **Layout Components:**
-- **Left Sidebar** (`Sidebar.tsx`): Thin icon+label navigation strip (w-16, 64px). Toggle arrows only visible on pages with sub-menus (hidden on home page)
-- **Sub-Menu Manager** (`SubMenuManager.tsx`): Fixed-position overlay (left-16 top-14 z-40) that renders appropriate sub-menu based on `activePanel`. Uses 200ms timeout for hover-leave to hide
-- **Main Content**: Route-specific content area
-- **Right Pane**: Persistent AI chat interface (Automa), defaults closed, hidden on mobile with FAB access
-- **Home Page**: Has its own internal Favorites/Message History panel (not part of SubMenuManager system)
-
-View configurations auto-select based on route:
-- `chat-only`: Main page - centered chat, no right pane
-- `data-display`: Drive, Insights, Activity - data tables with right pane
-- `sub-menu`: Work Center, Settings, Profile - tabbed interfaces
-- `heavy-chat`: Agents - list/detail with chat
+- **Sidebar** (`Sidebar.tsx`): 64px icon navigation with RBAC gating via `canAccessSection()`
+- **SubMenuManager** (`SubMenuManager.tsx`): Panels for ai-chat, teambox, my-work, sales, service, marketing, management, system, profile
+- **AppLayout** (`AppLayout.tsx`): View config routing (chat-only, data-display, sub-menu, heavy-chat, teambox)
+- **RightPane** (`RightPane.tsx`): Contextual right panel (chat on data pages, info on chat pages)
+- **TopBar** (`TopBar.tsx`): Logo, org switcher, globe icon (landing page link), notifications, theme, profile
 
 ### State Management
-- **ThemeContext**: Light/dark mode with localStorage persistence and system preference detection
+- **ThemeContext**: Light/dark mode with localStorage persistence
 - **AppContext**: Global app state including:
-  - `activePanel`: Currently active/hovered sub-menu panel ID (null, 'agents', 'drive', etc.)
-  - `subMenuExpanded`: Global pin state for sub-menu (true = always show)
-  - `panelHovered`: Whether mouse is currently over sub-menu panel
-  - Current user, organization, agents, notifications
-- No external state library - React Context handles all global state
+  - `activePanel`: Currently active/hovered sub-menu panel
+  - `subMenuExpanded`: Global pin state for sub-menu
+  - `currentRole`: User role with RBAC gating
+  - `personaName`: AI persona name (configurable per org, default "Automa")
+  - `communicationGateEnabled`: Master switch for all outbound automated communications
+- No external state library — React Context handles all global state
 
-### Data Layer
-**This Replit (UI prototype):** All data is mocked in `/client/src/mocks/` — these files will be deleted during the V2.1 rebuild and replaced with TanStack Query hooks calling the existing API.
+### Routes
+```
+/                    → AI Chat (main.tsx)
+/teambox             → TeamBox inbox (teambox.tsx)
+/my-work             → My Work dashboard (my-work.tsx)
+/sales               → Sales section (sales.tsx)
+/service             → Service section (service.tsx)
+/marketing           → Marketing section (marketing.tsx)
+/management          → Management section (management.tsx)
+/agents              → Agent list (agents.tsx)
+/agents/:id          → Agent detail
+/insights            → Insights (insights.tsx)
+/settings/system     → System settings (settings.tsx)
+/settings/org-wizard → Organization wizard
+/settings/billing    → Billing (Super Admin)
+/profile/*           → Profile pages
+/w/demo              → Widget landing page (standalone, outside AppLayout)
+```
 
-**Production backend:** Real data served from PostgreSQL (Supabase-hosted) via 185+ API endpoints. JWT authentication, 4-tier RBAC with RLS, SSE streaming for AI chat, 7 third-party integrations. See `replit_reference/App Audit/` for complete documentation.
+### RBAC
+Roles: `super_admin`, `partner_admin`, `org_admin`, `org_staff`
 
-### Production Backend (Existing — Separate Environment)
+Section gating via `canAccessSection()` in `mocks/users.ts`:
+- AI Chat, TeamBox, My Work: All roles
+- Sales: org_staff (sales), org_admin, partner_admin, super_admin
+- Service: org_staff (service), org_admin, partner_admin, super_admin
+- Marketing: org_admin, partner_admin, super_admin (hidden from org_staff)
+- Management: org_admin, partner_admin, super_admin (hidden from org_staff)
+- System: `canAccessSystem()` — org_admin and above
+
+### Mock Data Layer
+All data is mocked in `/client/src/mocks/`:
+- `agents.ts` — Agents tagged by department (sales/service/marketing)
+- `campaigns.ts` — Campaign data with kill-switch state
+- `conversations.ts` — TeamBox conversations with channel/status metadata
+- `insights.ts` — Metrics tagged by section
+- `users.ts` — Users with RBAC helpers
+- `widgets.ts` — Widget configurations and landing pages
+
+### Campaign Safety System
+- **Per-campaign kill switch**: Toggle in Service/Marketing Campaigns tabs
+- **Per-conversation disconnect**: Button in TeamBox to stop AI for individual customers
+- **Global communication gate**: Master toggle in Settings → Organization that halts ALL outbound automated communications
+
+### Widget Configuration (Settings → Tools → Widgets)
+- **Widget list**: Table layout with name, embed code (copy icon), status, last updated, actions
+- **Widget detail**: Accordion sections (Appearance, Channels, Targeting, Embed) with live preview sidebar
+- **Landing page** (`/w/demo`): Clean split layout — sign-up form on left, branding on right
+
+## Production Backend (Separate Environment)
 The production backend at `nexxusv2.huminicdev.com` includes:
-- **53 database tables** with 100+ RLS policies (33 migration files)
+- **53 database tables** with 100+ RLS policies
 - **185+ API endpoints** across 34 route files
-- **36+ service files** for business logic (DealerBrainService is 3,047 lines)
 - **JWT authentication** with access/refresh token management
-- **7 integrations**: VIN Solutions (OAuth2), VAPI (voice), Tavus (video), Resend (email), TextMagic (SMS), Claude API (AI), Google Calendar
-- **8 scheduled jobs**: VIN lead polling, token refresh, cache cleanup, etc.
+- **7 integrations**: VinSolutions (OAuth2), VAPI (voice), Tavus (video), Resend (email), TextMagic (SMS), Claude API (AI), Google Calendar
 - **747 E2E tests** via Playwright
-- **Known issues**: RLS variable name mismatch in SecureQueryBuilder, VAPI webhook data gap (see DATA_ACCURACY_REPORT.md)
 
-### Design System
-Custom theme tokens defined in `client/src/index.css`:
-- Dual-density typography: 13px for data tables, 14-15px for chat
-- Slate color palette with purple primary accent
-- CSS custom properties for light/dark mode switching
-- Consistent spacing, radius, and shadow tokens
+## 4-Wave Product Roadmap
+- **Wave 1** (current): UI shell restructuring, persona-based nav, mock data, RBAC, campaign safety UI
+- **Wave 2**: Backend wiring to production API, real auth, real data, real-time updates
+- **Wave 3**: Credit/metering system (must ship before Studio), advanced reports, competitor intelligence
+- **Wave 4**: Studio (video/image/podcast creation), advanced AI features
 
-### Build Configuration
-- Development: `npm run dev` - Vite dev server with HMR
-- Production: `npm run build` - Vite builds client to `dist/public`, esbuild bundles server
-- Database: `npm run db:push` - Drizzle Kit for schema migrations (when backend is implemented)
+## Build Configuration
+- Development: `npm run dev` — Vite dev server with HMR
+- Production: `npm run build` — Vite builds client to `dist/public`, esbuild bundles server
 
-## External Dependencies
-
-### UI Components
-- **Radix UI**: Full primitive suite (dialog, dropdown, tabs, etc.)
-- **Lucide React**: Icon library (muted gray icons per design spec)
-- **Recharts**: Chart library for Insights dashboard
-- **date-fns**: Date formatting utilities
-- **cmdk**: Command palette component
-- **embla-carousel-react**: Carousel component
-
-### Styling
-- **Tailwind CSS**: Utility-first CSS framework
-- **class-variance-authority**: Component variant management
-- **tailwind-merge**: Intelligent class merging
-
-### Form Handling
-- **React Hook Form**: Form state management
-- **Zod**: Schema validation
-- **@hookform/resolvers**: Zod integration for React Hook Form
-
-### Database (Production — Separate Environment)
-- **PostgreSQL** (Supabase-hosted): 53 tables, 100+ RLS policies
-- **pg** client library: Direct pool queries with RLS session variables
-- **Drizzle ORM**: Schema definition (minimal — most queries use raw pg)
-- **33 migration files**: Sequential SQL migrations (001-033)
-
-### Backend (Production — Separate Environment)
-- **Express 5**: Web server framework (pre-release)
-- **JWT authentication**: bcrypt + jsonwebtoken
-- **7 third-party integrations**: VIN Solutions, VAPI, Tavus, Resend, TextMagic, Claude API, Google Calendar
-- **SSE streaming**: DealerBrain AI responses via Server-Sent Events
-- **Multer**: File uploads (50MB limit)
-- **Helmet + express-rate-limit**: Security headers and rate limiting
-- **PM2**: Process management in production
-
-### Backend (This Replit — Minimal)
-- **Express 5**: Serves the Vite frontend only
-- `server/routes.ts`: Placeholder — real routes are in the production environment
-- `shared/schema.ts`: Placeholder users table (18 lines)
-
-### Development Tools
-- **TypeScript**: Type checking (strict mode)
-- **Vite plugins**: Replit-specific dev banner and error overlay
-- **esbuild**: Server bundling for production
-- **Playwright** (production environment): 747 E2E tests across 46 spec files
+## User Preferences
+Preferred communication style: Simple, everyday language.
