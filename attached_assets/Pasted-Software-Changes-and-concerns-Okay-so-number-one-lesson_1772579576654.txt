@@ -1,0 +1,203 @@
+Software Changes and concerns
+
+
+Okay, so number one lesson is learned. I added a bunch of stuff on that the customer never asked for. I was trying to add some French pastry on top and things got out of control. I still want to add the French pastry, but I need to be more strategic about it. I'm thinking that we start with a fresh claude code session version 2.2 I'm going to make some changes and drop some features to make it simpler, 'cause some of those features were not features that the customer even asked for. Let me explain. And I know you're gonna push back on some of this, but I don't wanna talk it through with you. 
+
+So let's talk about the first category. The minimum viable product. Not from the standpoint of it being a startup MVP, but from a contract MVP. 
+
+The functions that the customer needs that I need to deliver are 
+1. metrics and insights that are correct that are basically limited to data that is relevant. For some reason the insights say that there's two hundred and forty seven active pipeline and that's not right. There's some criteria in there that is inflating the number. That's something we're gonna need to figure out. I might need to sit down with Duran on the other end of the phone and ask him how many leads are real and find out what criteria that he's using to see that. And that's okay. 
+2. The ability to add incoming leads from the voice calls and put them into bidding solutions with a link to the transcription and any notes. 
+3. The ability to put appointments into the calendar in the system when they come in from any third party source. 
+4. The universal widget with the ability to web chat web call Fill out a form. and start a two-way video session. The universal widget should be configurable to include or exclude any of those components. as well as individual embed code to put the video chat on the pages 
+5. The ability for the system to watch the data and trigger outbound SMS and phone calls and emails. 
+6. A chat experience that rivals Claude or ChatGPT with thinking cards and the ability to produce reports With message and chat history. 
+7. The ability to chat with the system and ask questions about the data as in vin solutions and get back accurate information.  8. A way to experience the customers experience inside the interface (video, unified widget etc)
+9.Hosted landing page that has the video embedded in it, and the unified widget 
+10. metering and billing is kind of required. I mean, we don't have enough usage yet to go over what they get with their monthly fee, but we're gonna be starting a lower cost entry version of this that does not have CRM integration or CRM analytics or some of the more advanced features. So we can bill externally right now until that's done. 
+
+Now, beyond that, they just sent me a requirement to provide service with their own section. They're gonna pay me for that. That includes a dashboard and two-way chat and And around calendar The ability to send messages to customers to remind them about service appointments and all this data is going to come from a CSV upload. For now until we integrate into our service system. 
+
+What's not included is the system-wide dealer brain, hunches, email, The ability to share reports. , The ability to upload files and have them analyzed. 
+
+What they would love to have.  
+SEO AIO Analysis and Reports. 
+competitor information like being able to look at what their competitors are doing from a marketing standpoint what specials they have and what inventories on their lot. 
+A studio to create images and videos. 
+An agent that will coach sells people through deals. 
+An agent that will coach salespeople on their priorities and overdue leads
+A sales management agent that will tell a sales manager everything that's wrong. 
+A personal assistant for every user.  
+So here's what I was thinking. We have a lot of stuff built already. Some stuff that's not finished is not important. Some stuff that they want is as simple as a plug-in. We have been building this with more sizzle than steak   ===Changes===
+Vin solutions data not needed in the chat, so we create an agent that is a dedicated CRM Guru
+Everything flows through agents all user functionality 
+Adding Communications Agent 
+Drop the drive
+Dropping Custom Agent
+Dropping Sharing 
+Dropping Artifacts
+Skills go away
+Setup nanoclaw for each user put assistant link in hub
+Configure agent link in right pane changes center pane for config (rbac controlled)
+Agent right pane shows link to web demo 
+Need to resolve chat history for agents
+
+Adding Agent Types: 
+
+
+
+===Agents===
+Communications Agent
+CRM Data Agent
+Sales Guru
+Service Guru 
+Marketing Agents
+Personal Assistant
+
+===Assistants===
+
+
+
+
+
+===System Agents===
+
+
+Automa 
+
+Personal Assistant DID Bound to Whatsapp
+
+
+
+====Navigation====
+
+AI Chat (Caroline)
+—Favorites
+—Chat History
+—Artifacts
+
+TeamBox
+
+—Tasks
+—Conversations
+—Workflows
+
+My Work
+—Assistant 
+—Dashboard
+—Tasks
+—Chat
+—Skills
+
+
+Sales
+—Dashboard
+—Agents
+—Insights
+—Calendar
+
+Service
+—Dashboard
+—Agents
+—Campaigns
+—Insights
+—Calendar
+
+Marketing
+—Dashboard 
+—Agents
+—Campaigns
+—Studio  (Podcasts, Images, Landing pages, Videos)
+—Insights
+
+Management
+—Dashboard
+—Insights
+—Hunches
+—Activities
+—ROI
+
+Problem: Each dealer wants one persona per store. 
+Solution: We give the Ai chat the name of the persona. instead of Automa or Dealer Brain. 
+
+Problem: Agents need a section for providing chat history artifacts and information. 
+Solution: In the drop-down there's a lot of room underneath of the selections to add sections under each agent cult, chat history and data nested under the agent selection. 
+
+Problem: Not every customer is going to have CRM access. 
+Solution: We created an agent called the CRM Guru, which is the place where you can ask questions about the CRM data and run reports. 
+
+Problem: The navigation does not support R B A C. 
+Solution: We modify the navigation so that we only give access to modules that match up with the actual Users functions. 
+
+Problem: It's going to take a lot to get a fully functioning drive system put together, and storage is not part of what we were asked to do. 
+Solution: We Eliminate the drive option. add an artifacts to the Ai chat submenu and keep artifacts there. 
+
+Problem Managing templates for all situations is not viable right now. 
+Solution: We create one template. It stays the same and is limited to the types of artifacts that can be created, which are just going to be data reports. 
+
+Problem: Artifact sharing was never a requirement. 
+Solution: We eliminate it for now and allow them to download the reports. 
+
+Problem: We arent building it for personas (more sizzle than steak) and We have learned that different people want different things
+Solution: We redo the navigation to support the personas, making it easier to control. 
+
+Problem: We're building this for a lot of industries, not just automotive. 
+Solution: We make it modular so that we can turn on and off different modules to provide different solutions. 
+
+Problem: We don't have a place to see things for the team
+Solution: We create a section called Teambox. We use the space in the drop-down and we segment it by tasks and conversations We use tabs at the top of the drop-down and filters in that column to see All agents etcetera. possibly use the third column as well. look at commBox as an example Although it uses a four column layout, we really don't need that fourth column, I don't think. Or we can use a modal for the information that is in that fourth column if you look at the example. 
+
+Problem: We don't have a place for the user to see their um personal items. 
+Solution: We create a section called My Work and the dropdown shows things related to that user only. 
+
+Problem: Aging skills has been a problem. 
+Solution: We drop skills completely since we're not going to be allowing the creation of new agents for now Except for Super Admin. And we ensure that Superadmin can share down the agent to the section that it needs to when it's provisioning the account. 
+
+Problem: Customers want to be able to see and interact with the external channels from inside the application. 
+Solution: We Redo the hosted page configuration. Basically, we're creating a website that's a single page. When you go to it you, have an option to launch the video, fill out a form, or use the l use the universal widget. 
+
+Problem: I don't know where to put the link to the public page.  Solution: We put a simple icon in the header with a World Wide Web icon and when you click it it just takes you to that page. 
+
+Problem: Setting up triggers and workflows so they're easy to manage. 
+Solution: Under team box, add a workflow section. since we're eliminating the ability to create new agents. This will need to be controlled by RBAC. 
+
+Problem: It's been confusing about what percentage to use for outbound communication. 
+
+Solution Instead of Automa, as I mentioned above for the AI chat, we give the chat the name of the store's persona. All outbound automated communication It gets that name and it keeps it very simple. So the chat, the video, the texts, all of it. Although now that they're adding service, we might want to change the name. Because if two-way sales conversations are happening and two-way service conversations are happening, you probably need to have a different phone number for each of those. Seems you probably need a new persona, but I need your input on that. The management of the settings for this would need to be under settings for the system agent. Which I think is already there. We did decide yesterday to have a communications agent that no one could modify, and since we're not creating new agents, it takes away some of the dialogue for modification. although all agents will still need modifiers. So instead of that we could still do that 
+
+Problem: Yesterday, the system spammed a bunch of customers without my knowledge because of a hallucination As the system wasn't ready and it set up a service. 
+
+Solution: We need to make sure that we have the ability to gate outbound communications within the system with a toggle or a toggle for each service and a toggle for overall communication that doesn't let anything happen. 
+
+Unresolved Problems: 
+
+How to route tasks to the right individuals or the team. 
+How to segment insights. For sales service, marketing and management. 
+How to use the context router to segment and incorporate data that comes from the CRM versus data that's uploaded into the system. 
+What elements should go on each dashboard For each section. 
+If we need an overall system dashboard
+We have a metering sketch done, but we don't have a credit system and some of this stuff is going to need credit usage monitoring and the ability to mark it up so that when the tokens are used we can make sure the customer has a credit card on file to renew it. This is a money-making bonanza. 
+Getting the marketing data into the system. 
+figuring out the boundary between hunches and tasks. 
+What exactly to do about phone number assignment and outbound communication representation in terms of persona. 
+How we segment insights. 
+How to figure out what data is and features are shown to what users under team box. 
+logging and using and having forensic information about who did what in case somebody does something wrong. 
+We still haven't figured out to do about all the billing and invoicing, even though that started. As I mentioned, we don't have credits, but we do have metering. But I don't know how much of that is done. . 
+what to do about  calendar integration as the VIN solutions does not offer calendar sync and what to do about email inboxes as right now we're sending out do not reply emails. 
+
+
+
+Frech Pastry Suggestions: 
+
+Use NanoClaw since it has such a small footprint and use it as a container and install one for each user. 
+
+Find a way to set up a studio item under marketing because the dealers really want their own resource for creating videos, graphics, etcetera. 
+
+I have all of the plumbing built for siteboost.ai and the dealers really want SEO, especially AI site analysis done and have that work done. It just needs to be incorporated into a section within Insights under Marketing. 
+
+
+We could put this road map together and put a plan a full plan together to deliver all of this, but do it in phases under the moniker of two point two and start with the stuff that's absolutely required, deploy it, and/or figure out what stuff would be easy to incorporate. 
+
+
+Overall, I say that we take the PRD and the SRS and the rest of the documents and we create new documents that are waves of development. We learn from the lessons and I don't try to code the whole thing at one time. The plan itself breaks it up into sprints so that I can manage it a little bit better and not leave so much to chance. 
