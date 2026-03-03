@@ -1,0 +1,183 @@
+import { useState } from 'react';
+import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
+import { formatDistanceToNow } from 'date-fns';
+
+const tabs = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'insights', label: 'Insights', icon: BarChart3 },
+  { id: 'hunches', label: 'Hunches', icon: Lightbulb },
+  { id: 'activities', label: 'Activities', icon: Activity },
+  { id: 'roi', label: 'ROI', icon: DollarSign },
+];
+
+const managementMetrics = [
+  { id: 'mgmt-1', label: 'Total Revenue', value: '$485K', change: 12, trend: 'up' as const, icon: DollarSign },
+  { id: 'mgmt-2', label: 'Active Accounts', value: '24', change: 3, trend: 'up' as const, icon: Users },
+  { id: 'mgmt-3', label: 'Team Activity Score', value: '94', change: 5, trend: 'up' as const, icon: Target },
+  { id: 'mgmt-4', label: 'MRR', value: '$12,450', change: 8, trend: 'up' as const, icon: TrendingUp },
+  { id: 'mgmt-5', label: 'Customer Satisfaction', value: '4.8', change: 2, trend: 'up' as const, icon: ArrowUpRight },
+  { id: 'mgmt-6', label: 'Avg Deal Size', value: '$28.5K', change: -1, trend: 'down' as const, icon: Briefcase },
+];
+
+const mockHunches = [
+  { id: 'h1', title: 'Lead Response Time Correlation', confidence: 92, impact: 'high', pattern: 'Leads contacted within 5 minutes have 3x higher conversion rate', recommendation: 'Prioritize sub-5-minute response times for all new leads' },
+  { id: 'h2', title: 'Service-to-Sales Pipeline', confidence: 87, impact: 'high', pattern: 'Service customers who decline upsells are 40% more likely to buy a new vehicle within 6 months', recommendation: 'Create a follow-up campaign for declined service upsells' },
+  { id: 'h3', title: 'Weekend Engagement Spike', confidence: 78, impact: 'medium', pattern: 'Widget interactions increase 65% on Saturday mornings', recommendation: 'Schedule high-impact campaigns for Saturday 9-11 AM' },
+  { id: 'h4', title: 'Email vs SMS Response Rate', confidence: 85, impact: 'medium', pattern: 'SMS follow-ups get 4x the response rate vs email for leads under 30', recommendation: 'Default to SMS for younger demographics' },
+  { id: 'h5', title: 'Inventory Price Sensitivity', confidence: 73, impact: 'medium', pattern: 'Vehicles priced 5-8% below market move 2x faster', recommendation: 'Review pricing strategy for slow-moving inventory' },
+  { id: 'h6', title: 'Agent Handoff Quality', confidence: 68, impact: 'low', pattern: 'Conversations with 3+ agent handoffs have 50% lower satisfaction', recommendation: 'Limit handoffs to maximum 2 per conversation' },
+];
+
+export default function ManagementPage() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const renderDashboard = () => (
+    <div className="p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold mb-1">Management Dashboard</h2>
+        <p className="text-sm text-muted-foreground">Cross-department KPIs, revenue, and team performance</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {managementMetrics.map(metric => (
+          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-muted-foreground">{metric.label}</p>
+                <metric.icon className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="text-2xl font-bold">{metric.value}</p>
+              <div className="flex items-center gap-1 mt-1">
+                {metric.trend === 'up' ? (
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-500" />
+                )}
+                <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : 'text-red-500')}>
+                  {metric.change > 0 ? '+' : ''}{metric.change}%
+                </span>
+                <span className="text-xs text-muted-foreground">vs last month</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderInsights = () => (
+    <div className="p-6 flex items-center justify-center h-full">
+      <div className="text-center space-y-3">
+        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h3 className="text-lg font-medium">Management Insights</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">Cross-department analytics, trend analysis, and performance benchmarking.</p>
+      </div>
+    </div>
+  );
+
+  const renderHunches = () => (
+    <div className="p-6 space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold mb-1">AI Hunches</h2>
+        <p className="text-sm text-muted-foreground">Pattern-based insights ranked by confidence and impact</p>
+      </div>
+      <div className="space-y-3">
+        {mockHunches.map(hunch => (
+          <Card key={hunch.id} className="hover:shadow-md transition-shadow" data-testid={`hunch-card-${hunch.id}`}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className={cn('h-5 w-5 flex-shrink-0', hunch.confidence >= 85 ? 'text-amber-500' : hunch.confidence >= 70 ? 'text-amber-400' : 'text-amber-300')} />
+                  <h3 className="text-sm font-semibold">{hunch.title}</h3>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge variant={hunch.impact === 'high' ? 'destructive' : 'secondary'} className="text-[10px]">{hunch.impact}</Badge>
+                  <Badge variant="outline" className="text-[10px]">{hunch.confidence}%</Badge>
+                </div>
+              </div>
+              <div className="space-y-2 ml-7">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Pattern</p>
+                  <p className="text-sm">{hunch.pattern}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Recommendation</p>
+                  <p className="text-sm text-primary/80">{hunch.recommendation}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderActivities = () => (
+    <div className="p-6 space-y-4">
+      <h2 className="text-lg font-semibold">Recent Activities</h2>
+      <div className="space-y-2">
+        {mockActivityFeed.map(item => (
+          <div key={item.id} className="flex items-start gap-3 p-3 border border-border rounded-lg" data-testid={`activity-item-${item.id}`}>
+            <div className={cn('w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', getActivityColor(item.type))}>
+              <Activity className="h-4 w-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm">{item.description}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderROI = () => (
+    <div className="p-6 flex items-center justify-center h-full">
+      <div className="text-center space-y-3">
+        <DollarSign className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h3 className="text-lg font-medium">ROI Analysis</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">Return on investment tracking across all departments, campaigns, and AI initiatives.</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full" data-testid="management-page">
+      <div className="border-b border-border px-6 pt-4">
+        <h1 className="text-xl font-semibold mb-3">Management</h1>
+        <div className="flex gap-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+                activeTab === tab.id
+                  ? 'border-primary text-foreground font-medium'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              )}
+              data-testid={`tab-mgmt-${tab.id}`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1">
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'insights' && renderInsights()}
+        {activeTab === 'hunches' && renderHunches()}
+        {activeTab === 'activities' && renderActivities()}
+        {activeTab === 'roi' && renderROI()}
+      </ScrollArea>
+    </div>
+  );
+}

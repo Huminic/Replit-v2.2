@@ -1,0 +1,41 @@
+sidebar 'm gonna do something, I think. On the server we have a proxy MCP. I think I want to build the proxy     
+   out so that the Vin solutions interface is there. This will allow me to query Venn solutions from    
+  other apps. What do you think about this? Asking for your opinion. The proxy is in. ../central-mcp        
+  This will give a very focused agent understanding and documentation of the Venn solutions interface.       The VIN Solutions integration is full of hard-won knowledge. Header casing (v3 not V3), href reference    
+  formats for contacts/leadSources/leadTypes, the 2-step lead creation flow, which endpoints use
+  application/json vs application/vnd.coxauto.v3+json, the items not results response key. All of that is   
+  currently buried inside vinSolutionsService.ts in nexxus-v2. If you ever need VIN data from another app —
+  or even from a Claude session doing research — you'd have to rediscover all of it.
+
+  MCP tools are self-documenting. When a Claude session connects to the MCP server, it sees the tool        
+  definitions — parameters, descriptions, what each endpoint does. That's living documentation that any
+  agent can read and use correctly without needing to understand the nexxus codebase.                       
+                                                                  
+  It's also a safety boundary. One of the problems tonight was that VIN lead polling was wired directly into
+   the trigger engine inside nexxus. Internal function calls are invisible — they just fire. An MCP tool is
+  an explicit request with a clear interface. It's harder to accidentally wire an MCP tool into a background
+   job that spams customers.                                      
+
+  Practical considerations:                                                                                 
+   
+  - OAuth token management is the main complexity. The tokens are per-org and stored encrypted in Supabase. 
+  The MCP server would need either access to the same database or its own token store
+  - The existing VinOAuthService and VinSolutionsService are portable — they're already self-contained with 
+  a Pool dependency                                                                                         
+  - Your central-mcp is already running (PM2 id 14, online) so the infrastructure is there
+                                                                                                            
+
+ What the MCP tools would look like:                                                                       
+                                                                                                            
+  - vin_query_leads — search leads by date range, dealer, status                                            
+  - vin_get_lead_sources — list valid lead sources per dealer     
+  - vin_create_contact — step 1 of lead creation                                                            
+  - vin_create_lead — step 2 of lead creation (takes contact href)                                          
+  - vin_token_status — check token health per org                                                           
+                                                                                                            
+  Each tool handles the auth, headers, and API quirks internally. The caller just says "get me leads for    
+  dealer X from the last 48 hours."   
+
+This is something that would be important for the documents. It would also take some of the strain and confusion off of the development. 
+
+Please memorialize this and then we can continue with your questions. If there are any other questions that I need to evaluate let me know. 

@@ -11,7 +11,7 @@ interface RightPaneProps {
 }
 
 export function RightPane({ className }: RightPaneProps) {
-  const { currentUser } = useApp();
+  const { currentUser, personaName } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -42,7 +42,7 @@ export function RightPane({ className }: RightPaneProps) {
       const assistantMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'assistant',
-        content: "I understand your request. Let me help you with that. This is a UI prototype, so I'm simulating a response. In a production environment, this would connect to the Automa AI backend for intelligent responses.",
+        content: "I understand your request. Let me help you with that. This is a UI prototype, so I'm simulating a response. In production, this connects to your AI backend for intelligent responses.",
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMessage]);
@@ -66,7 +66,7 @@ export function RightPane({ className }: RightPaneProps) {
     <div className={cn('flex flex-col h-full bg-background', className)}>
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div>
-          <h3 className="font-semibold text-foreground">Automa</h3>
+          <h3 className="font-semibold text-foreground" data-testid="text-persona-name">{personaName}</h3>
           <p className="text-xs text-muted-foreground">AI Assistant</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export function RightPane({ className }: RightPaneProps) {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Automa anything..."
+              placeholder={`Ask ${personaName} anything...`}
               className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[24px] max-h-32 py-1"
               rows={1}
               data-testid="input-chat-message"

@@ -25,6 +25,8 @@ interface AppContextValue {
   activePanel: string | null;
   subMenuExpanded: boolean;
   panelHovered: boolean;
+  personaName: string;
+  communicationGateEnabled: boolean;
   setSelectedAgent: (agent: Agent | null) => void;
   setSidebarVisible: (visible: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
@@ -41,6 +43,7 @@ interface AppContextValue {
   addFavorite: (item: FavoriteItem) => void;
   removeFavorite: (id: string) => void;
   isFavorite: (path: string) => boolean;
+  setCommunicationGateEnabled: (enabled: boolean) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -72,10 +75,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(mockAgents[0] || null);
+  const [communicationGateEnabled, setCommunicationGateEnabled] = useState(true);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([
-    { id: 'fav-1', label: 'Insights Dashboard', path: '/insights' },
-    { id: 'fav-2', label: 'Hub Calendar', path: '/work-center' },
+    { id: 'fav-1', label: 'Sales Dashboard', path: '/sales' },
+    { id: 'fav-2', label: 'Service Calendar', path: '/service?tab=calendar' },
   ]);
+
+  const personaName = currentOrganization.personaName;
 
   const addFavorite = (item: FavoriteItem) => {
     setFavorites(prev => [...prev, item]);
@@ -132,6 +138,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         activePanel,
         subMenuExpanded,
         panelHovered,
+        personaName,
+        communicationGateEnabled,
         setSelectedAgent,
         setSidebarVisible,
         setRightPaneOpen,
@@ -148,6 +156,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addFavorite,
         removeFavorite,
         isFavorite,
+        setCommunicationGateEnabled,
       }}
     >
       {children}

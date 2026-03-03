@@ -9,7 +9,7 @@ import { SubMenuManager } from './SubMenuManager';
 import { AgentConfigPane } from '@/components/AgentConfigPane';
 import { useApp } from '@/contexts/AppContext';
 
-type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat';
+type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat' | 'teambox';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,11 +17,12 @@ interface AppLayoutProps {
 
 function getViewConfig(pathname: string): ViewConfig {
   if (pathname === '/') return 'chat-only';
+  if (pathname.startsWith('/teambox')) return 'teambox';
   if (pathname.startsWith('/agents')) return 'heavy-chat';
-  if (pathname.startsWith('/drive') || pathname.startsWith('/insights') || pathname.startsWith('/activity')) {
+  if (pathname.startsWith('/sales') || pathname.startsWith('/service') || pathname.startsWith('/marketing') || pathname.startsWith('/management') || pathname.startsWith('/insights')) {
     return 'data-display';
   }
-  if (pathname.startsWith('/work-center') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) {
+  if (pathname.startsWith('/my-work') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) {
     return 'sub-menu';
   }
   return 'data-display';
@@ -32,7 +33,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { rightPaneOpen, setRightPaneOpen } = useApp();
   
   const viewConfig = getViewConfig(location);
-  const canToggleRightPane = viewConfig !== 'chat-only';
+  const canToggleRightPane = viewConfig === 'data-display' || viewConfig === 'heavy-chat';
   const isAgentsPage = location.startsWith('/agents');
   const isDataDisplayPage = viewConfig === 'data-display';
 
@@ -57,7 +58,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             'flex-1 overflow-hidden flex flex-col relative',
             viewConfig === 'chat-only' && 'max-w-4xl mx-auto w-full'
           )}>
-            {viewConfig !== 'chat-only' && (
+            {viewConfig !== 'chat-only' && viewConfig !== 'teambox' && (
               <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-transparent to-purple-500/[0.03] dark:to-purple-400/[0.04]" />
             )}
             <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">

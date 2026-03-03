@@ -1,0 +1,210 @@
+import { useState } from 'react';
+import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useApp } from '@/contexts/AppContext';
+import { getAgentsByDepartment, getAgentStatusColor, type Agent } from '@/mocks/agents';
+
+const tabs = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'agents', label: 'Agents', icon: Bot },
+  { id: 'insights', label: 'Insights', icon: BarChart3 },
+  { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
+];
+
+const salesMetrics = [
+  { id: 'sm-1', label: 'Pipeline Count', value: '127', change: 8, trend: 'up' as const, icon: Target },
+  { id: 'sm-2', label: 'New Leads', value: '34', change: 12, trend: 'up' as const, icon: Users },
+  { id: 'sm-3', label: 'Overdue Leads', value: '18', change: -3, trend: 'down' as const, icon: Clock },
+  { id: 'sm-4', label: 'Avg Lead Age', value: '4.2d', change: -0.5, trend: 'up' as const, icon: Clock },
+  { id: 'sm-5', label: 'AI-Gen Leads', value: '23', change: 15, trend: 'up' as const, icon: Zap },
+  { id: 'sm-6', label: 'Conversion Rate', value: '18.5%', change: 2.3, trend: 'up' as const, icon: TrendingUp },
+  { id: 'sm-7', label: 'Top Agent Close', value: '31%', change: 4, trend: 'up' as const, icon: ArrowUpRight },
+];
+
+export default function SalesPage() {
+  const { agents, selectedAgent, setSelectedAgent } = useApp();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const salesAgents = getAgentsByDepartment(agents, 'sales');
+
+  const renderDashboard = () => (
+    <div className="p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold mb-1">Sales Dashboard</h2>
+        <p className="text-sm text-muted-foreground">Real-time sales pipeline and performance metrics</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {salesMetrics.map(metric => (
+          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-muted-foreground">{metric.label}</p>
+                <metric.icon className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="text-2xl font-bold">{metric.value}</p>
+              <div className="flex items-center gap-1 mt-1">
+                {metric.trend === 'up' ? (
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-500" />
+                )}
+                <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : 'text-red-500')}>
+                  {metric.change > 0 ? '+' : ''}{metric.change}%
+                </span>
+                <span className="text-xs text-muted-foreground">vs last week</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Top Performing Agents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {salesAgents.filter(a => a.status === 'active').map((agent, i) => (
+                <div key={agent.id} className="flex items-center gap-3" data-testid={`top-agent-${agent.id}`}>
+                  <span className="text-sm font-bold text-muted-foreground w-5">{i + 1}</span>
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                      <Bot className="h-3.5 w-3.5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{agent.name}</p>
+                    <p className="text-xs text-muted-foreground">{agent.channel}</p>
+                  </div>
+                  <div className={cn('w-2 h-2 rounded-full', getAgentStatusColor(agent.status))} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { action: 'New lead from website', time: '5 min ago', type: 'lead' },
+                { action: 'Sales Agent qualified lead #1042', time: '12 min ago', type: 'agent' },
+                { action: 'Follow-up call completed', time: '28 min ago', type: 'call' },
+                { action: 'Proposal sent to David Jackson', time: '1 hour ago', type: 'email' },
+                { action: 'Test drive scheduled - Emily Davis', time: '2 hours ago', type: 'calendar' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                  <span className="text-sm flex-1">{item.action}</span>
+                  <span className="text-xs text-muted-foreground">{item.time}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderAgents = () => (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Sales Agents</h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {salesAgents.map(agent => (
+          <Card
+            key={agent.id}
+            className={cn('cursor-pointer hover:shadow-md transition-shadow', selectedAgent?.id === agent.id && 'ring-2 ring-primary')}
+            onClick={() => setSelectedAgent(agent)}
+            data-testid={`agent-card-${agent.id}`}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm">
+                    <Bot className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold">{agent.name}</h3>
+                  <p className="text-xs text-muted-foreground">{agent.channel}</p>
+                </div>
+                <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
+              </div>
+              <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <Badge variant="secondary" className="text-[10px]">{agent.status}</Badge>
+                {agent.assignedPhone && (
+                  <Badge variant="outline" className="text-[10px]">{agent.assignedPhone}</Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderInsights = () => (
+    <div className="p-6 flex items-center justify-center h-full">
+      <div className="text-center space-y-3">
+        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h3 className="text-lg font-medium">Sales Insights</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">Detailed analytics and reports for your sales pipeline, lead scoring, and conversion metrics.</p>
+      </div>
+    </div>
+  );
+
+  const renderCalendar = () => (
+    <div className="p-6 flex items-center justify-center h-full">
+      <div className="text-center space-y-3">
+        <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h3 className="text-lg font-medium">Sales Calendar</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">Test drives, follow-up appointments, and sales team schedules.</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full" data-testid="sales-page">
+      <div className="border-b border-border px-6 pt-4">
+        <h1 className="text-xl font-semibold mb-3">Sales</h1>
+        <div className="flex gap-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+                activeTab === tab.id
+                  ? 'border-primary text-foreground font-medium'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              )}
+              data-testid={`tab-sales-${tab.id}`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1">
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'agents' && renderAgents()}
+        {activeTab === 'insights' && renderInsights()}
+        {activeTab === 'calendar' && renderCalendar()}
+      </ScrollArea>
+    </div>
+  );
+}
