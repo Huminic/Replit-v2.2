@@ -1,3 +1,29 @@
+/**
+ * TopBar.tsx — Top navigation bar for Nexxus Connect V2
+ *
+ * Fixed height h-14. Contains:
+ *  - Logo: Text-only "Nexxus Connect™" — NO icon (locked design decision)
+ *  - Org Switcher: Center-aligned dropdown for switching between organizations (multi-org users)
+ *  - Globe icon: Opens /w/demo landing page in same window
+ *  - Notifications: Bell icon with unread count badge, scrollable dropdown list
+ *  - Activity Feed: Recent system-wide activity in dropdown (stays in header, NOT in sidebar)
+ *  - Theme Toggle: Light/dark mode via ThemeContext
+ *  - Profile Menu: User avatar dropdown with profile/preferences/billing links + logout
+ *  - Role Switcher: DEV TOOL — allows switching RBAC role for testing. Shows all 8 roles.
+ *    Will be removed or restricted in production.
+ *
+ * Data sources:
+ *  - AppContext: currentUser, notifications, organizations, currentRole, switchOrganization
+ *  - ThemeContext: theme state + toggleTheme
+ *  - mocks/notifications.ts: getNotificationIcon, getNotificationColor
+ *  - mocks/activity.ts: mockActivityFeed, getActivityColor
+ *  - mocks/users.ts: getRoleLabel for role badge display
+ *
+ * PRODUCTION NOTE: Notifications and activity feed will come from backend API via WebSocket
+ * or polling. Role switcher will be removed; role comes from JWT claims.
+ *
+ * @locked Logo format (text-only), activity feed location (header not sidebar)
+ */
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
