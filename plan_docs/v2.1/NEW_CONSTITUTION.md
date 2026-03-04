@@ -4,7 +4,7 @@
 **Date:** 2026-02-21
 **Status:** GOVERNING DOCUMENT — Identity, principles, and immutable rules
 **Supersedes:** Old Constitution v1.0 (2026-02-18)
-**Cross-References:** [NEW_SRS.md](./NEW_SRS.md) · [NEW_IMPLEMENTATION_PLAN.md](./NEW_IMPLEMENTATION_PLAN.md) · [NEW_CLAUDE.md](./NEW_CLAUDE.md) · [ACCEPTANCE_CRITERIA.md](../ACCEPTANCE_CRITERIA.md)
+**Cross-References:** [NEW_SRS.md](./NEW_SRS.md) · [NEW_IMPLEMENTATION_PLAN.md](./NEW_IMPLEMENTATION_PLAN.md) · [ACCEPTANCE_CRITERIA.md](../../ACCEPTANCE_CRITERIA.md)
 
 ---
 
@@ -50,7 +50,7 @@ The **current working UI prototype** is the single definitive reference for all 
 | 2 | ACCEPTANCE_CRITERIA.md | Verifiable behaviors as documented from the UI |
 | 3 | This Constitution + SRS | Principles, requirements, metric formulas |
 | 4 | IMPLEMENTATION_PLAN.md | Development sequencing and sprint structure |
-| 5 | NEW_CLAUDE.md | Implementation guidance for AI agents |
+| 5 | CLAUDE.md (root) | Implementation guidance for AI agents (v2.2, supersedes NEW_CLAUDE.md) |
 
 ### 2.2 Data Truth Hierarchy
 
