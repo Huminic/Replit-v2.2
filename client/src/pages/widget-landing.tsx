@@ -10,6 +10,9 @@ import {
   Mic,
   MicOff,
   VideoOff,
+  Mail,
+  FileText,
+  Calendar,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -115,9 +118,7 @@ export default function WidgetLandingPage() {
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => {
-                setWidgetMode('closed');
-              }}
+              onClick={() => setWidgetMode('closed')}
               data-testid="widget-option-sms"
             >
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
@@ -126,6 +127,45 @@ export default function WidgetLandingPage() {
               <div>
                 <p className="font-medium text-sm text-gray-900">Send us a Text</p>
                 <p className="text-xs text-gray-500">SMS to (555) 234-5679</p>
+              </div>
+            </button>
+            <button
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
+              onClick={() => setWidgetMode('closed')}
+              data-testid="widget-option-email"
+            >
+              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-5 w-5 text-sky-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Email Us</p>
+                <p className="text-xs text-gray-500">connect@cageautomotive.com</p>
+              </div>
+            </button>
+            <button
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
+              onClick={() => setWidgetMode('closed')}
+              data-testid="widget-option-callback"
+            >
+              <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0">
+                <Phone className="h-5 w-5 text-rose-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Request a Callback</p>
+                <p className="text-xs text-gray-500">We'll call you back ASAP</p>
+              </div>
+            </button>
+            <button
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
+              onClick={() => setWidgetMode('closed')}
+              data-testid="widget-option-schedule"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <Calendar className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Schedule Service</p>
+                <p className="text-xs text-gray-500">Book a service appointment</p>
               </div>
             </button>
           </div>
@@ -439,7 +479,7 @@ export default function WidgetLandingPage() {
             <MessageSquare className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-white leading-tight">
-            Your next car is a conversation away
+            Let's schedule a VIP test drive
           </h2>
           <p className="text-white/80 mt-4 text-lg leading-relaxed">
             Our AI-powered team is ready to help you find the perfect vehicle, 
