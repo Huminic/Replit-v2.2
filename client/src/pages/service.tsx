@@ -33,7 +33,7 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentStatusColor } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/lib/agent-utils';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';

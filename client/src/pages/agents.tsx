@@ -23,7 +23,7 @@
  * Related files:
  * - AgentConfigPane.tsx: Right pane configuration panel for selected agent
  * - AppContext.tsx: selectedAgent, setSelectedAgent
- * - mocks/agents.ts: Agent type definition
+ * - @shared/schema: Agent type definition
  *
  * @see client/src/components/AgentConfigPane.tsx
  * @see client/src/components/layout/SubMenuManager.tsx — Agent list with conversation expand

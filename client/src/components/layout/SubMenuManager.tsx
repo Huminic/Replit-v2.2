@@ -49,7 +49,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentStatusColor } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/lib/agent-utils';
 import { mockActivityFeed } from '@/mocks/activity';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreVertical, Play, Trash2 } from 'lucide-react';

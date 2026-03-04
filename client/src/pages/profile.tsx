@@ -56,7 +56,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
-import { getRoleLabel } from '@/mocks/users';
+import { getRoleLabel } from '@/lib/agent-utils';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useMutation } from '@tanstack/react-query';
