@@ -9,9 +9,52 @@
  */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
+import type { UserRole, SectionPermission } from '@/lib/rbac';
 import type { Agent } from '@shared/schema';
-import { mockNotifications, type Notification } from '@/mocks/notifications';
+import { staticNotifications, type Notification } from '@/lib/notification-utils';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar?: string;
+  organizationId: string;
+  permissions?: SectionPermission[];
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  logo?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  personaName: string;
+}
+
+const fallbackOrganizations: Organization[] = [
+  {
+    id: 'org-1',
+    name: 'Cage Automotive',
+    primaryColor: '#8b5cf6',
+    secondaryColor: '#3b82f6',
+    personaName: 'Serra',
+  },
+  {
+    id: 'org-2',
+    name: 'Premier Motors',
+    primaryColor: '#10b981',
+    secondaryColor: '#3b82f6',
+    personaName: 'Aria',
+  },
+  {
+    id: 'org-3',
+    name: 'Elite Auto Group',
+    primaryColor: '#f59e0b',
+    secondaryColor: '#ef4444',
+    personaName: 'Nova',
+  },
+];
 import { useQuery } from '@tanstack/react-query';
 
 export interface FavoriteItem {
@@ -110,20 +153,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         secondaryColor: orgDetails.secondaryColor || '#3b82f6',
         personaName: orgDetails.personaName || 'Serra',
       }
-    : mockOrganizations[0];
+    : fallbackOrganizations[0];
 
   const resolvedOrganizations: Organization[] = accessibleOrganizations
     ? accessibleOrganizations.map(o => {
-        const mock = mockOrganizations.find(m => m.name === o.name);
+        const fb = fallbackOrganizations.find(m => m.name === o.name);
         return {
           id: o.id,
           name: o.name,
-          primaryColor: mock?.primaryColor || '#8b5cf6',
-          secondaryColor: mock?.secondaryColor || '#3b82f6',
-          personaName: mock?.personaName || 'Serra',
+          primaryColor: fb?.primaryColor || '#8b5cf6',
+          secondaryColor: fb?.secondaryColor || '#3b82f6',
+          personaName: fb?.personaName || 'Serra',
         };
       })
-    : mockOrganizations;
+    : fallbackOrganizations;
 
   const resolvedAgents = apiAgents || [];
 
@@ -151,7 +194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('nexxus-current-role', role);
   };
 
-  const [currentOrganization, setCurrentOrganization] = useState<Organization>(mockOrganizations[0]);
+  const [currentOrganization, setCurrentOrganization] = useState<Organization>(fallbackOrganizations[0]);
 
   useEffect(() => {
     setCurrentOrganization(resolvedOrganization);
@@ -165,7 +208,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [apiAgents]);
 
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rightPaneOpen, setRightPaneOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

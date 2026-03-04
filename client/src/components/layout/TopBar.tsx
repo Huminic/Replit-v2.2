@@ -16,7 +16,7 @@
  *  - AppContext: currentUser, notifications, organizations, currentRole, switchOrganization
  *  - ThemeContext: theme state + toggleTheme
  *  - mocks/notifications.ts: getNotificationIcon, getNotificationColor
- *  - mocks/activity.ts: mockActivityFeed, getActivityColor
+ *  - lib/activity-utils.ts: staticActivityFeed, getActivityColor
  *  - mocks/users.ts: getRoleLabel for role badge display
  *
  * PRODUCTION NOTE: Notifications and activity feed will come from backend API via WebSocket
@@ -56,8 +56,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import { getNotificationIcon, getNotificationColor } from '@/mocks/notifications';
-import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
+import { getNotificationIcon, getNotificationColor } from '@/lib/notification-utils';
+import { staticActivityFeed, getActivityColor } from '@/lib/activity-utils';
 import { getRoleLabel } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -230,7 +230,7 @@ export function TopBar() {
             <DropdownMenuLabel>Activity Feed</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="h-80">
-              {mockActivityFeed.slice(0, 8).map((item) => (
+              {staticActivityFeed.slice(0, 8).map((item) => (
                 <DropdownMenuItem
                   key={item.id}
                   className="flex items-start gap-3 p-3"

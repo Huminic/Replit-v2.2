@@ -36,7 +36,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
-import { canAccessSection } from '@/mocks/users';
+import { canAccessSection } from '@/lib/rbac';
 
 /** Sidebar menu item shape — hasPanel indicates whether hovering shows a SubMenuManager flyout */
 interface MenuItem {

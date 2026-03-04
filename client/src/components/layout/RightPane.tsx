@@ -25,7 +25,7 @@ import { Send, Plus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { agentSuggestions, type ChatMessage } from '@/mocks/messages';
+import { agentSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
