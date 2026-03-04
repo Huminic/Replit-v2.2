@@ -182,10 +182,10 @@ shared/
 | ai-chat | AI Chat | MessageSquare | / | ai-chat | All roles |
 | teambox | TeamBox | Inbox | /teambox | teambox | All roles |
 | my-work | My Work | User | /my-work | my-work | All roles |
-| sales | Sales | ShoppingCart | /sales | sales | All roles |
-| service | Service | Wrench | /service | service | All roles |
-| marketing | Marketing | Megaphone | /marketing | marketing | super_admin, partner_admin, org_admin |
-| management | Manage | LayoutDashboard | /management | management | super_admin, partner_admin, org_admin |
+| sales | Sales | ShoppingCart | /sales | sales | super_admin, partner_admin, org_admin, executive, sales_manager, sales |
+| service | Service | Wrench | /service | service | super_admin, partner_admin, org_admin, executive, service |
+| marketing | Marketing | Megaphone | /marketing | marketing | super_admin, partner_admin, org_admin, executive, marketing |
+| management | Manage | LayoutDashboard | /management | management | super_admin, partner_admin, org_admin, executive, sales_manager |
 | system | System | Settings | /settings/system | system | super_admin, partner_admin, org_admin |
 
 ### 4.2 Sub-Menu Panels
@@ -217,42 +217,64 @@ The `AppLayout` component uses view configs to determine right pane behavior:
 
 ## 5. RBAC Implementation
 
-### 5.1 Role Hierarchy
+### 5.1 Role Hierarchy (8 Roles)
+
+The UI implements 8 RBAC roles (defined in `client/src/mocks/users.ts`). The old `org_staff` role has been removed and replaced with department-specific roles.
 
 ```
-super_admin > partner_admin > org_admin > org_staff
+Platform level:   super_admin > partner_admin
+Org level:        org_admin > executive > sales_manager
+Department level: sales, service, marketing
 ```
+
+| Role | System Value | Real-World Equivalent |
+|------|-------------|----------------------|
+| Super Admin | `super_admin` | Platform operator (Huminic) |
+| Partner Admin | `partner_admin` | Brand/group manager (Duran Cage) |
+| Org Admin | `org_admin` | Dealership Owner / GM |
+| Executive | `executive` | Dealership executive / VP |
+| Sales Manager | `sales_manager` | Sales floor manager |
+| Sales | `sales` | Salesperson |
+| Service | `service` | Service advisor |
+| Marketing | `marketing` | Marketing coordinator |
 
 ### 5.2 Section Access Matrix
 
-| Section | super_admin | partner_admin | org_admin | org_staff |
-|---------|:-----------:|:-------------:|:---------:|:---------:|
-| AI Chat | ✅ | ✅ | ✅ | ✅ |
-| TeamBox | ✅ | ✅ | ✅ | ✅ |
-| My Work | ✅ | ✅ | ✅ | ✅ |
-| Sales | ✅ | ✅ | ✅ | ✅ |
-| Service | ✅ | ✅ | ✅ | ✅ |
-| Marketing | ✅ | ✅ | ✅ | ❌ |
-| Management | ✅ | ✅ | ✅ | ❌ |
-| System Settings | ✅ | ✅ | ✅ | ❌ |
-| Billing Management | ✅ | ✅ | ❌ | ❌ |
-| Org Creation Wizard | ✅ | ✅ | ❌ | ❌ |
+Controlled by `defaultSectionsByRole` in `users.ts`. My Work is always visible. System settings requires admin roles (`canAccessSystem()`). Per-user overrides via `userPermissions` in AppContext can grant additional sections.
+
+| Section | super_admin | partner_admin | org_admin | executive | sales_manager | sales | service | marketing |
+|---------|:-----------:|:-------------:|:---------:|:---------:|:-------------:|:-----:|:-------:|:---------:|
+| AI Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| TeamBox | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| My Work | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Sales | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Service | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Marketing | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| Manage | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| System Settings | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Billing Management | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Org Creation Wizard | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ### 5.3 Role-Based Main Page Metric Tiles
 
-Each role sees different metric tiles on the AI Chat (`/`) page:
+Each role sees different metric tiles on the AI Chat (`/`) page. The `roleMetrics` object in `main.tsx` maps roles to tile sets:
 
 - **super_admin**: Partner Orgs, Total Logins, Platform Actions, Agent Actions
 - **partner_admin**: Sub Orgs, Total Logins, User Actions, Agent Actions
 - **org_admin**: Pipeline Value, Lead Source, Lead Quality, Demand Score
-- **org_staff**: Hot Opportunities, Buying Intel, Threats, Urgency Score
+- **executive**: Pipeline Value, Lead Source, Lead Quality, Demand Score (same as org_admin)
+- **sales_manager**: Pipeline Value, Lead Source, Lead Quality, Demand Score (same as org_admin)
+- **sales**: Hot Opportunities, Buying Intel, Threats, Urgency Score
+- **service**: Hot Opportunities, Buying Intel, Threats, Urgency Score (same as sales)
+- **marketing**: Hot Opportunities, Buying Intel, Threats, Urgency Score (same as sales)
 
 ### 5.4 Data Scoping
 
 - `super_admin` sees ALL organizations
 - `partner_admin` sees their partner group's organizations only
-- `org_admin` sees their own organization only
-- `org_staff` sees their own organization only (further filtered by assignment)
+- `org_admin` / `executive` sees their own organization only
+- `sales_manager` sees their own organization only (sales team scope)
+- `sales` / `service` / `marketing` sees their own organization only (further filtered by department assignment)
 
 ---
 
@@ -351,6 +373,21 @@ Campaigns exist within Service and Marketing sections:
 - **Per-conversation disconnect** in TeamBox — prevents future campaign messages for individual customers
 - **Global Communication Gate** in Settings — master toggle that prevents ALL outbound automated communications
 
+#### 8.1.1 Kill Switch Backend Spec (Wave 2)
+
+The UI-layer kill switch (`communicationGateEnabled` in AppContext, per-campaign `killSwitch` toggle, per-conversation `campaignDisconnected`) is fully built. The backend enforcement requires these database columns (planned for Wave 2):
+
+| Column | Table | Purpose |
+|--------|-------|---------|
+| `outbound_enabled` | `organizations` | Global org-level communication gate (maps to `communicationGateEnabled`) |
+| `sms_enabled` | `organizations` | Per-channel toggle for SMS outbound |
+| `phone_enabled` | `organizations` | Per-channel toggle for voice outbound |
+| `email_enabled` | `organizations` | Per-channel toggle for email outbound |
+| `kill_switch` | `campaigns` | Per-campaign stop (already in mock model) |
+| `campaign_disconnected` | `teambox_conversations` | Per-conversation disconnect (already in mock model) |
+
+MCP enforcement: The central-mcp proxy must check `outbound_enabled` + channel-specific flags before any outbound API call (TextMagic, Resend, VAPI). This prevents the spam incident pattern where background jobs bypass UI-layer checks.
+
 ### 8.2 TeamBox (Unified Inbox)
 
 CommBox-inspired 3-column layout:
@@ -364,9 +401,11 @@ Channels: `sms`, `email`, `chat`, `whatsapp`, `voice`
 
 ### 8.3 Widget System
 
-Four widget types: `text`, `video`, `voice`, `unified`
+Four widget types in Settings: `text`, `video`, `voice`, `unified`
 Each widget has: appearance config, targeting rules, allowed domains, embed code
 Landing pages linked to widgets with their own appearance settings
+
+The widget landing page (`/w/demo`) floating FAB supports 7 channels: chat, video, voice, SMS, callback, email, WhatsApp. This exceeds the 4 settings-level widget types — the FAB is the customer-facing channel selector, while widget types are the admin configuration model.
 
 ### 8.4 AI Hunches
 
@@ -485,3 +524,4 @@ For every role-gated feature:
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial Claude Code guide (old navigation: Main/Insights/Agents/Hub/Drive) |
 | 2026-03-03 | 2.2 | Complete rewrite for v2.2 navigation (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). Updated route map, RBAC matrix, file structure, locked UI elements. Added campaign system, TeamBox, widget system docs. Removed Drive, standalone Agents/Insights references. |
+| 2026-03-04 | 2.3 | RBAC expanded from 4 roles to 8 (added executive, sales_manager, sales, service, marketing; removed org_staff). Section access matrix updated to match defaultSectionsByRole in users.ts. Sidebar label "Management"→"Manage". Widget FAB 7-channel note added. Kill switch backend spec subsection added. |

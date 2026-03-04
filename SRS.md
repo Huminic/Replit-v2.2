@@ -94,7 +94,7 @@ Nexxus Connect is an AI-powered dealership management platform. This SRS defines
 | NAV-04 | Active page indicator: purple left-edge bar (w-0.5 h-8 bg-purple-500) | P0 |
 | NAV-05 | Sub-menu panel: hover-reveal with 800ms leave timeout, pin/unpin toggle | P0 |
 | NAV-06 | Sub-menu auto-collapse on resize below 1024px | P0 |
-| NAV-07 | RBAC visibility: Marketing hidden from org_staff, Management hidden from org_staff, System hidden from org_staff | P0 |
+| NAV-07 | RBAC visibility: Department roles see only their department section (sales sees Sales only, service sees Service only, marketing sees Marketing only). sales_manager sees Sales + Manage. executive sees all departments. System settings restricted to admin roles (super_admin, partner_admin, org_admin) | P0 |
 | NAV-08 | Logout button at sidebar bottom (simulated in prototype) | P0 |
 
 ### 2.2 Top Bar
@@ -107,7 +107,7 @@ Nexxus Connect is an AI-powered dealership management platform. This SRS defines
 | TOP-04 | Activity feed dropdown (pulse icon) showing 8 most recent entries | P1 |
 | TOP-05 | Theme toggle (Moon/Sun icon) with localStorage persistence | P0 |
 | TOP-06 | Profile menu: avatar + chevron, dropdown with My Profile, Preferences, Billing, Log Out | P0 |
-| TOP-07 | Role switcher (dev tool): 4 roles, persists via localStorage | P0 |
+| TOP-07 | Role switcher (dev tool): 8 roles (super_admin, partner_admin, org_admin, executive, sales_manager, sales, service, marketing), persists via localStorage | P0 |
 | TOP-08 | Globe icon linking to public widget landing page (/w/demo) | P1 |
 
 ### 2.3 AI Chat Page (Main Page)
@@ -226,7 +226,7 @@ Each tile displays: label, large value, change indicator with trend arrow (green
 | MK-04 | Campaigns tab: same table layout as Service campaigns, filtered to marketing department | P0 |
 | MK-05 | Studio tab: placeholder with "Coming Soon" badge for future video/image/podcast tools (Wave 4) | P1 |
 | MK-06 | Insights tab: placeholder for marketing analytics | P1 |
-| MK-07 | RBAC: Marketing section hidden from org_staff role | P0 |
+| MK-07 | RBAC: Marketing section visible only to marketing, org_admin, executive, partner_admin, super_admin | P0 |
 
 ### 2.9 Management Page
 
@@ -242,7 +242,7 @@ Each tile displays: label, large value, change indicator with trend arrow (green
 | MG-05 | Hunch lightbulb icon color intensity varies by confidence level | P0 |
 | MG-06 | Activities tab: activity feed items with colored type icon, description, relative timestamp | P0 |
 | MG-07 | ROI tab: placeholder for ROI analysis view | P1 |
-| MG-08 | RBAC: Management section hidden from org_staff role | P0 |
+| MG-08 | RBAC: Manage section visible only to sales_manager, org_admin, executive, partner_admin, super_admin | P0 |
 
 ### 2.10 Settings Page
 
@@ -288,6 +288,8 @@ Each tile displays: label, large value, change indicator with trend arrow (green
 |----|-------------|----------|
 | WLP-01 | Standalone page outside AppLayout | P0 |
 | WLP-02 | Widget demonstration with channel cards | P0 |
+| WLP-03 | Floating FAB with 7 channels: chat, video, voice, SMS, callback, email, WhatsApp | P0 |
+| WLP-04 | FAB channel modes: menu (channel selector), chat, video, voice | P0 |
 
 ### 2.13 Agent Configuration
 
@@ -434,42 +436,52 @@ Campaign messages support template variables: `{{first_name}}`, `{{vehicle}}`, `
 
 ## 6. RBAC Requirements
 
-### 6.1 Role Definitions
+### 6.1 Role Definitions (8 Roles)
+
+The UI implements 8 roles. The old `org_staff` role has been removed and replaced with department-specific roles.
 
 | Role | Description | Org Switching |
 |------|-------------|---------------|
 | super_admin | Platform-level administrator, sees all orgs and data | Yes |
 | partner_admin | Partner group administrator, manages sub-organizations | Yes |
-| org_admin | Organization-level administrator | No |
-| org_staff | Individual contributor / staff member | No |
+| org_admin | Organization-level administrator (Dealership Owner / GM) | No |
+| executive | Dealership executive / VP — cross-department visibility | No |
+| sales_manager | Sales floor manager — sales + management access | No |
+| sales | Salesperson — sales department only | No |
+| service | Service advisor — service department only | No |
+| marketing | Marketing coordinator — marketing department only | No |
 
 ### 6.2 Section Visibility Matrix
 
-| Section | super_admin | partner_admin | org_admin | org_staff |
-|---------|-------------|---------------|-----------|-----------|
-| AI Chat | Yes | Yes | Yes | Yes |
-| TeamBox | Yes | Yes | Yes | Yes |
-| My Work | Yes | Yes | Yes | Yes |
-| Sales | Yes | Yes | Yes | Yes |
-| Service | Yes | Yes | Yes | Yes |
-| Marketing | Yes | Yes | Yes | No |
-| Management | Yes | Yes | Yes | No |
-| System | Yes | Yes | Yes | No |
+Controlled by `defaultSectionsByRole` in `users.ts`. Per-user overrides via `userPermissions` in AppContext.
+
+| Section | super_admin | partner_admin | org_admin | executive | sales_manager | sales | service | marketing |
+|---------|:-----------:|:-------------:|:---------:|:---------:|:-------------:|:-----:|:-------:|:---------:|
+| AI Chat | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| TeamBox | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| My Work | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Sales | Yes | Yes | Yes | Yes | Yes | Yes | No | No |
+| Service | Yes | Yes | Yes | Yes | No | No | Yes | No |
+| Marketing | Yes | Yes | Yes | Yes | No | No | No | Yes |
+| Manage | Yes | Yes | Yes | Yes | Yes | No | No | No |
+| System | Yes | Yes | Yes | No | No | No | No | No |
 
 ### 6.3 Settings Section Visibility
 
-| Settings Section | super_admin | partner_admin | org_admin | org_staff |
-|------------------|-------------|---------------|-----------|-----------|
-| Users | Yes | Yes | Yes | No |
-| Organization | Yes | Yes | Yes | No |
-| Tools & Integrations | Yes | Yes | Yes | No |
-| Knowledge Base | Yes | Yes | Yes | No |
-| AI Configuration | Yes | Yes | No | No |
-| Security | Yes | Yes | No | No |
-| Notifications | Yes | Yes | Yes | No |
-| Data Management | Yes | No | No | No |
-| Appearance | Yes | Yes | Yes | No |
-| Billing | Yes | Yes | No | No |
+Settings are only accessible to admin roles (super_admin, partner_admin, org_admin). Department roles (executive, sales_manager, sales, service, marketing) do not have System access.
+
+| Settings Section | super_admin | partner_admin | org_admin |
+|------------------|:-----------:|:-------------:|:---------:|
+| Users | Yes | Yes | Yes |
+| Organization | Yes | Yes | Yes |
+| Tools & Integrations | Yes | Yes | Yes |
+| Knowledge Base | Yes | Yes | Yes |
+| AI Configuration | Yes | Yes | No |
+| Security | Yes | Yes | No |
+| Notifications | Yes | Yes | Yes |
+| Data Management | Yes | No | No |
+| Appearance | Yes | Yes | Yes |
+| Billing | Yes | Yes | No |
 
 ---
 
@@ -805,7 +817,7 @@ All interactive and meaningful display elements include `data-testid` attributes
 | Area | Key Verification |
 |------|-----------------|
 | Navigation | All 7 sidebar items render with correct icons and labels |
-| RBAC | Marketing/Management/System hidden for org_staff |
+| RBAC | Department roles see only their section; Manage visible to sales_manager+; System visible to admin roles only |
 | Sub-menus | Each sidebar item shows correct panel content |
 | AI Chat | Metric tiles change per role, chat sends/receives, collapse works |
 | TeamBox | 3-column layout, filters work, messages display |
@@ -858,3 +870,4 @@ All interactive and meaningful display elements include `data-testid` attributes
 |------|---------|---------|
 | 2026-02-21 | 2.1 | Initial SRS with feature-based navigation (Main/Insights/Agents/Hub/Drive) |
 | 2026-03-03 | 2.2 | Complete rewrite for persona/department-based navigation. Added: TeamBox, My Work, Sales, Service, Marketing, Management sections. Removed: Drive, standalone Agents/Insights. Added campaign system with kill switches. Updated RBAC matrix, mock data specs, layout rules. |
+| 2026-03-04 | 2.3 | RBAC expanded from 4 roles to 8 (added executive, sales_manager, sales, service, marketing; removed org_staff). Section visibility matrix updated. Widget landing FAB 7-channel requirements added. NAV-07 updated for department-scoped access. |

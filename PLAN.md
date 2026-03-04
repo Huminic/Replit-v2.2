@@ -105,6 +105,9 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 | User/profile API | GET/PATCH user profile, preferences persistence | Auth |
 | Settings API | Settings CRUD with role-based visibility | Auth |
 | Organization API | Org profile, branding, persona name persistence | Auth |
+| Kill switch backend schema | Add `outbound_enabled`, `sms_enabled`, `phone_enabled`, `email_enabled` columns to organizations table. Add enforcement in MCP proxy | Schema |
+| Consolidated DB schema doc | Document all 53 production tables, columns, and RLS policies as Wave 2 reference | None |
+| API contract documentation | Map production backend's 35+ route files to request/response shapes for frontend wiring | None |
 
 ### 3.2 Wave 2 Completion Criteria
 
@@ -116,6 +119,9 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 - [ ] User profile edits save to database
 - [ ] Settings visibility matches authenticated role
 - [ ] Organization data flows from API (not mock)
+- [ ] Kill switch backend columns exist and are enforced by MCP proxy
+- [ ] Consolidated DB schema doc covers all 53 tables
+- [ ] API contract doc covers all endpoints needed for Wave 2 features
 - [ ] All mock imports removed for wired features
 
 ---
@@ -190,7 +196,7 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 - [ ] Communication gate prevents all outbound when disabled
 - [ ] Notifications appear in TopBar bell from real events
 - [ ] Activity feed shows real system actions
-- [ ] Widget CRUD works with 4 widget types
+- [ ] Widget CRUD works with 4 widget types + 7-channel FAB on landing pages
 - [ ] Marketing Studio placeholder renders
 - [ ] No mock data in production code
 - [ ] All acceptance criteria verified with real data
@@ -245,3 +251,5 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 | 2026-03-03 | Nest agents within department sections | Agents belong to departments (sales/service/marketing), not a standalone global list |
 | 2026-03-03 | TeamBox as dedicated CommBox-inspired page | Unified inbox for all customer conversations across channels, replacing fragmented inbox |
 | 2026-03-03 | Marketing Studio as Wave 4 placeholder | Video/image/podcast creation is a future capability, not MVP |
+| 2026-03-04 | Expand RBAC from 4 to 8 roles | Department-specific roles (sales, service, marketing) + executive and sales_manager replace generic org_staff. Better matches dealership org structure |
+| 2026-03-04 | Add kill switch backend spec to Wave 2 | DB columns + MCP enforcement required before any outbound wiring |

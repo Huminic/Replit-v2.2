@@ -62,7 +62,7 @@ Six documents in the project root govern the rebuild:
 Context-aware multi-pane layout with ClickUp-style navigation:
 
 **Navigation Behaviors:**
-1. **Thin Sidebar**: Always-visible 64px icon+label strip
+1. **Thin Sidebar**: Always-visible 72px icon+label strip
 2. **Hover Preview**: Hovering sidebar items shows sub-menu panel
 3. **Click Navigates**: Clicking navigates to the page and sets activePanel
 4. **Double Arrow Pins**: Toggle under logo controls `subMenuExpanded` state
@@ -70,7 +70,7 @@ Context-aware multi-pane layout with ClickUp-style navigation:
 6. **Global Persistence**: When pinned, sub-menu stays visible across pages
 
 **Layout Components:**
-- **Sidebar** (`Sidebar.tsx`): 64px icon navigation with RBAC gating via `canAccessSection()`
+- **Sidebar** (`Sidebar.tsx`): 72px icon navigation with RBAC gating via `canAccessSection()`
 - **SubMenuManager** (`SubMenuManager.tsx`): Panels for ai-chat, teambox, my-work, sales, service, marketing, management, system, profile
 - **AppLayout** (`AppLayout.tsx`): View config routing (chat-only, data-display, sub-menu, heavy-chat, teambox)
 - **RightPane** (`RightPane.tsx`): Contextual right panel (chat on data pages, info on chat pages)
@@ -82,7 +82,7 @@ Context-aware multi-pane layout with ClickUp-style navigation:
   - `activePanel`: Currently active/hovered sub-menu panel
   - `subMenuExpanded`: Global pin state for sub-menu
   - `currentRole`: User role with RBAC gating
-  - `personaName`: AI persona name (configurable per org, default "Automa")
+  - `personaName`: AI persona name (configurable per org — Serra, Aria, Nova; NOT "Automa")
   - `communicationGateEnabled`: Master switch for all outbound automated communications
 - No external state library — React Context handles all global state
 

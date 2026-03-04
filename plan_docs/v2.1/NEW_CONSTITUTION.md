@@ -84,14 +84,20 @@ Each role sees what is relevant to their job. RBAC is enforced at both the UI la
 |------|-------------|----------------------|-----------------|
 | Super Admin | `super_admin` | Platform operator (Huminic) | System-wide health, all orgs, platform operations |
 | Partner Admin | `partner_admin` | Brand / group manager (Duran Cage) | Org engagement, adoption metrics, partner-scoped orgs |
-| Org Admin | `org_admin` | Dealership Owner / GM / Sales Manager | Pipeline health, lead performance, AI activity |
-| Staff | `org_staff` | Salesperson | Market intelligence, hot opportunities, competitive threats |
+| Org Admin | `org_admin` | Dealership Owner / GM | Pipeline health, lead performance, AI activity, system settings |
+| Executive | `executive` | Dealership executive / VP | Cross-department KPIs, all departments visible, no system settings |
+| Sales Manager | `sales_manager` | Sales floor manager | Sales pipeline + Manage dashboard access |
+| Sales | `sales` | Salesperson | Hot opportunities, buying intel, competitive threats |
+| Service | `service` | Service advisor | Campaign management, appointments, upsell tracking |
+| Marketing | `marketing` | Marketing coordinator | Campaign performance, lead generation, widget analytics |
 
 **Critical constraints:**
 - Data access follows RBAC at the database level via Row-Level Security (RLS)
 - No cross-org data leakage — RLS policies enforce tenant isolation on every query
-- Staff role does NOT have access to System Settings
-- Staff role does NOT have access to the Insights dashboard (only sees Main page tiles)
+- Department roles (sales, service, marketing) only see their own department section + AI Chat, TeamBox, My Work
+- System Settings restricted to admin roles (super_admin, partner_admin, org_admin)
+- Executive sees all department sections but NOT System Settings
+- Sales Manager sees Sales + Manage but not Service/Marketing/System
 - Lead assignment must be configurable via Settings, never hardcoded
 - The role switcher is a dev-only tool in TopBar (ArrowDownRight icon, far right); it will be removed in production
 
