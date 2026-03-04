@@ -11,13 +11,19 @@ Nexxus Connect is an AI-powered dealership management platform with persona/depa
 The v2.2 cycle restructures the UI from feature-based navigation (Main/Insights/Agents/Hub/Drive) to persona/department-based navigation (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). The existing backend stays untouched until Wave 2.
 
 ### Documentation Suite
-Six documents in the project root govern the rebuild:
+Seven documents in the project root govern the rebuild:
 1. **CLAUDE.md** — Agent rules, truth hierarchy, forbidden actions, naming conventions
 2. **PRD.md** — Product requirements, target users, business goals, 4-wave vision
 3. **SRS.md** — System requirements, functional specs, business rules, integrations
 4. **SPEC.md** — Architecture document, file structure, component hierarchy, RBAC matrix
 5. **PLAN.md** — 4-wave marching orders, current phase status, completion criteria
 6. **ACCEPTANCE_CRITERIA.md** — Testable statements organized by wave
+7. **COMMENT_INDEX.md** — Master reference for all developer comments in the codebase
+
+Supporting documentation:
+- **`.agent_docs/`** — Agent team rules, acceptance criteria (Given/When/Then), codebase index, code conventions
+- **`plan_docs/v2.1/`** — v2.1 governance docs (NEW_CONSTITUTION, NEW_SRS, NEW_IMPLEMENTATION_PLAN, etc.)
+- **`docs/DESIGN_CONSTRAINTS_REFERENCE.md`** — Quick-reference design constraints
 
 **Truth hierarchy:** UI Design > Acceptance Criteria > Constitution > API Contract > SRS > Plan
 

@@ -3,7 +3,7 @@
 **Version:** 2.1
 **Date:** 2026-02-21
 **Status:** GOVERNING DOCUMENT — Sprint-based development plan
-**Cross-References:** [NEW_CONSTITUTION.md](./NEW_CONSTITUTION.md) · [NEW_SRS.md](./NEW_SRS.md) · [NEW_CLAUDE.md](./NEW_CLAUDE.md) · [ACCEPTANCE_CRITERIA.md](../ACCEPTANCE_CRITERIA.md)
+**Cross-References:** [NEW_CONSTITUTION.md](./NEW_CONSTITUTION.md) · [NEW_SRS.md](./NEW_SRS.md) · [ACCEPTANCE_CRITERIA.md](../../ACCEPTANCE_CRITERIA.md)
 
 ---
 
