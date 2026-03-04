@@ -46,15 +46,15 @@ Pages wired to real API data:
 - **AgentConfigPane Activity**: Real VAPI call history with recording links, transcript copy, customer info via `/api/vapi/calls`
 - **VAPI/Tavus Proxy**: Read-only proxy routes in `server/vendorProxy.ts` for all VAPI and Tavus API endpoints
 
-Pages still using mock data:
+Pages still using mock/hardcoded data:
 - Dashboard metric tiles (hardcoded KPIs per role)
 - Settings: Widgets (mockWidgets), Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills)
 - My Work page (hardcoded mockMyTasks)
 - Management page (hardcoded metrics, mockHunches)
 - TopBar notifications/activity (mockNotifications, mockActivityFeed)
-- SubMenuManager activity feed (mockActivityFeed — no activity table yet)
 - Billing section in Profile
 - AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
+- Service/Marketing dashboard metric tiles (inline hardcoded, not from mock files)
 
 ### Database Schema (8 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
