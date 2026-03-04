@@ -52,6 +52,7 @@ const channelIcons: Record<AgentChannel, React.ElementType> = {
   chat: MessageSquare,
   video: Video,
   email: Mail,
+  sms: MessageSquare,
 };
 
 const agentActivities = [
