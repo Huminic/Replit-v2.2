@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { mockCurrentUser, mockOrganizations, type User, type Organization, type UserRole } from '@/mocks/users';
+import { mockCurrentUser, mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
 import { mockAgents, type Agent } from '@/mocks/agents';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
 
@@ -27,6 +27,8 @@ interface AppContextValue {
   panelHovered: boolean;
   personaName: string;
   communicationGateEnabled: boolean;
+  userPermissions: SectionPermission[];
+  setUserPermissions: (perms: SectionPermission[]) => void;
   setSelectedAgent: (agent: Agent | null) => void;
   setSidebarVisible: (visible: boolean) => void;
   setRightPaneOpen: (open: boolean) => void;
@@ -51,7 +53,7 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser] = useState<User>(mockCurrentUser);
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
-    const validRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'org_staff'];
+    const validRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'executive', 'sales_manager', 'sales', 'service', 'marketing'];
     const urlParams = new URLSearchParams(window.location.search);
     const roleParam = urlParams.get('role') as UserRole | null;
     if (roleParam && validRoles.includes(roleParam)) {
@@ -61,6 +63,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('nexxus-current-role');
     return (saved as UserRole) || mockCurrentUser.role;
   });
+  const [userPermissions, setUserPermissions] = useState<SectionPermission[]>([]);
   const handleSetCurrentRole = (role: UserRole) => {
     setCurrentRole(role);
     localStorage.setItem('nexxus-current-role', role);
@@ -140,6 +143,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         panelHovered,
         personaName,
         communicationGateEnabled,
+        userPermissions,
+        setUserPermissions,
         setSelectedAgent,
         setSidebarVisible,
         setRightPaneOpen,
