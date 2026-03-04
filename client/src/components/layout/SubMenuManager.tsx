@@ -49,12 +49,12 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentStatusColor, getAgentsByDepartment, type Agent } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/mocks/agents';
 import { mockActivityFeed } from '@/mocks/activity';
-import { mockConversations } from '@/mocks/messages';
-import { mockTeamboxConversations } from '@/mocks/conversations';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreVertical, Play, Trash2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import type { Agent, Conversation } from '@shared/schema';
 
 export function SubMenuManager() {
   const [location, setLocation] = useLocation();
@@ -64,7 +64,6 @@ export function SubMenuManager() {
     setActivePanel, 
     setSubMenuExpanded,
     setPanelHovered,
-    agents,
     currentUser,
     currentRole,
     selectedAgent,
@@ -78,6 +77,26 @@ export function SubMenuManager() {
   const [agentSearch, setAgentSearch] = useState('');
   // Tracks which agents have their conversation history chevron-expanded
   const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
+
+  const { data: allConversations = [] } = useQuery<Conversation[]>({
+    queryKey: ['/api/conversations'],
+  });
+
+  const { data: chatHistory = [] } = useQuery<Conversation[]>({
+    queryKey: ['/api/conversations?channel=ai-chat'],
+  });
+
+  const { data: salesAgents = [] } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=sales'],
+  });
+
+  const { data: serviceAgents = [] } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=service'],
+  });
+
+  const { data: marketingAgents = [] } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=marketing'],
+  });
 
   // Auto-close sub-menu on window resize below 1024px (prevents layout breakage on mobile)
   useEffect(() => {
@@ -182,9 +201,8 @@ export function SubMenuManager() {
     setExpandedAgents(prev => ({ ...prev, [agentId]: !prev[agentId] }));
   };
 
-  // Get conversations assigned to a specific agent from mock data
   const getAgentConversations = (agentId: string) => {
-    return mockTeamboxConversations.filter(c => c.agentId === agentId);
+    return allConversations.filter(c => c.agentId === agentId);
   };
 
   /**
@@ -194,7 +212,8 @@ export function SubMenuManager() {
    * Clicking a conversation navigates to TeamBox.
    */
   const renderAgentList = (department: 'sales' | 'service' | 'marketing') => {
-    const deptAgents = getAgentsByDepartment(agents, department);
+    const agentMap = { sales: salesAgents, service: serviceAgents, marketing: marketingAgents };
+    const deptAgents = agentMap[department];
     const searched = agentSearch.trim()
       ? deptAgents.filter(a => a.name.toLowerCase().includes(agentSearch.toLowerCase()))
       : deptAgents;
@@ -289,7 +308,11 @@ export function SubMenuManager() {
                           <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{convo.lastMessage}</p>
+                      {convo.lastMessageAt && (
+                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                          {formatDistanceToNow(new Date(convo.lastMessageAt), { addSuffix: true })}
+                        </p>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -344,7 +367,7 @@ export function SubMenuManager() {
               </div>
               <ScrollArea className="flex-1">
                 <div className="p-2 flex flex-col gap-0.5">
-                  {mockConversations.map((conv) => (
+                  {chatHistory.length > 0 ? chatHistory.map((conv) => (
                     <div
                       key={conv.id}
                       role="button"
@@ -355,9 +378,9 @@ export function SubMenuManager() {
                       data-testid={`panel-conversation-${conv.id}`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-medium text-foreground truncate flex-1">{conv.title}</p>
+                        <p className="text-xs font-medium text-foreground truncate flex-1">{conv.customerName || 'Chat'}</p>
                         <div className="flex items-center gap-1">
-                          {conv.unread && <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
+                          {conv.unreadCount > 0 && <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={(e) => e.stopPropagation()} data-testid={`button-conv-menu-${conv.id}`}>
@@ -375,12 +398,15 @@ export function SubMenuManager() {
                           </DropdownMenu>
                         </div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
-                      <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                        {formatDistanceToNow(new Date(conv.timestamp), { addSuffix: true })}
-                      </p>
+                      {conv.lastMessageAt && (
+                        <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                          {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
+                        </p>
+                      )}
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-xs text-muted-foreground px-2 py-2">No chat history yet</p>
+                  )}
                 </div>
               </ScrollArea>
             </div>
@@ -399,8 +425,8 @@ export function SubMenuManager() {
         );
 
       case 'teambox': {
-        const openCount = mockTeamboxConversations.filter(c => c.status === 'open').length;
-        const automatedCount = mockTeamboxConversations.filter(c => c.status === 'automated').length;
+        const openCount = allConversations.filter(c => c.status === 'open').length;
+        const automatedCount = allConversations.filter(c => c.status === 'automated').length;
         return (
           <>
             <div className="p-3 border-b border-border">

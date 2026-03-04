@@ -33,7 +33,8 @@ export interface IStorage {
   deleteSession(id: string): Promise<void>;
   deleteUserSessions(userId: string): Promise<void>;
 
-  getAgents(organizationId: string): Promise<Agent[]>;
+  getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]>;
+  getUsers(organizationId: string): Promise<Array<User & { role?: Role }>>;
   getAgent(id: string): Promise<Agent | undefined>;
   createAgent(agent: InsertAgent): Promise<Agent>;
   updateAgent(id: string, data: Partial<InsertAgent>): Promise<Agent | undefined>;
@@ -132,8 +133,19 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.userId, userId));
   }
 
-  async getAgents(organizationId: string): Promise<Agent[]> {
-    return db.select().from(agents).where(eq(agents.organizationId, organizationId));
+  async getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]> {
+    const conditions = [eq(agents.organizationId, organizationId)];
+    if (filters?.department) conditions.push(eq(agents.department, filters.department));
+    return db.select().from(agents).where(and(...conditions));
+  }
+
+  async getUsers(organizationId: string): Promise<Array<User & { role?: Role }>> {
+    const result = await db
+      .select()
+      .from(users)
+      .leftJoin(roles, eq(users.roleId, roles.id))
+      .where(eq(users.organizationId, organizationId));
+    return result.map(r => ({ ...r.users, role: r.roles ?? undefined }));
   }
 
   async getAgent(id: string): Promise<Agent | undefined> {

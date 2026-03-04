@@ -276,10 +276,23 @@ export async function registerRoutes(
   app.get("/api/agents", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const agentList = await storage.getAgents(req.user.organizationId);
+      const filters: { department?: string } = {};
+      if (req.query.department) filters.department = req.query.department as string;
+      const agentList = await storage.getAgents(req.user.organizationId, filters);
       return res.json(agentList);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch agents" });
+    }
+  });
+
+  app.get("/api/users", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const userList = await storage.getUsers(req.user.organizationId);
+      const sanitized = userList.map(({ password, ...rest }) => rest);
+      return res.json(sanitized);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch users" });
     }
   });
 

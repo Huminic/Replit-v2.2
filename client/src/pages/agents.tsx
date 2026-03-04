@@ -54,7 +54,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useApp } from '@/contexts/AppContext';
-import { type Agent } from '@/mocks/agents';
+import { type Agent } from '@shared/schema';
 import { formatDistanceToNow } from 'date-fns';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
