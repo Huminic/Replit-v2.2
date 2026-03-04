@@ -2310,7 +2310,7 @@ export default function SettingsPage() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-xs">System Prompt</Label>
-                  <Textarea rows={6} defaultValue="You are Automa, an AI assistant for automotive dealerships..." disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-prompt" />
+                  <Textarea rows={6} defaultValue={`You are ${personaName}, an AI assistant for automotive dealerships...`} disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-prompt" />
                 </div>
                 <div>
                   <Label className="text-xs">System Information</Label>

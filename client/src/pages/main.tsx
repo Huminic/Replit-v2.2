@@ -1,6 +1,6 @@
 /**
  * @file main.tsx — Primary AI Chat Page
- * @description The center of the app experience. This is the main Automa AI chat interface
+ * @description The center of the app experience. This is the main AI chat interface
  *   where users interact with the AI persona (personaName from AppContext). The page follows
  *   the cardinal layout rule: chat is always in center → info/artifacts appear in the right pane.
  *
@@ -278,7 +278,11 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
  */
 export default function MainPage() {
   const { currentRole, personaName } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages.slice(0, 1));
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const initial = { ...mockChatMessages[0] };
+    initial.content = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
+    return [initial];
+  });
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);

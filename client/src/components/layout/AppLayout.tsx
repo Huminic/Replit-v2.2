@@ -36,7 +36,7 @@ import { useApp } from '@/contexts/AppContext';
 /**
  * ViewConfig determines right pane behavior and main content layout per route:
  * - chat-only: No right pane, centered chat (AI Chat page)
- * - data-display: Right pane with Automa AI assistant
+ * - data-display: Right pane with AI assistant (persona name from org config)
  * - sub-menu: No right pane, sub-menu navigation only
  * - heavy-chat: Right pane with AgentConfigPane
  * - teambox: Own internal 3-column layout, no global right pane
@@ -63,14 +63,14 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen } = useApp();
+  const { rightPaneOpen, setRightPaneOpen, personaName } = useApp();
   
   const viewConfig = getViewConfig(location);
   const canToggleRightPane = viewConfig === 'data-display' || viewConfig === 'heavy-chat';
   const isAgentsPage = location.startsWith('/agents');
   const isDataDisplayPage = viewConfig === 'data-display';
 
-  // Right pane renders AgentConfigPane on /agents, otherwise the Automa AI RightPane
+  // Right pane renders AgentConfigPane on /agents, otherwise the AI chat RightPane
   const renderRightPaneContent = () => {
     if (isAgentsPage) {
       return <AgentConfigPane />;
@@ -141,7 +141,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setRightPaneOpen(true)}
-                    title={isAgentsPage ? "Open configuration" : "Discuss with Automa"}
+                    title={isAgentsPage ? "Open configuration" : `Discuss with ${personaName}`}
                     data-testid="button-open-right-pane"
                   >
                     <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
@@ -152,7 +152,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                       size="icon"
                       className="rounded-full border-primary/30 bg-primary/5"
                       onClick={() => setRightPaneOpen(true)}
-                      title="Discuss this data with Automa"
+                      title={`Discuss this data with ${personaName}`}
                       data-testid="button-automa-popout"
                     >
                       <MessageCircle className="h-4 w-4 text-primary" />
@@ -164,7 +164,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     size="icon"
                     className="md:hidden fixed bottom-20 right-4 z-40 rounded-full shadow-lg"
                     onClick={() => setRightPaneOpen(true)}
-                    title="Discuss with Automa"
+                    title={`Discuss with ${personaName}`}
                     data-testid="button-automa-fab-mobile"
                   >
                     <MessageCircle className="h-5 w-5" />
