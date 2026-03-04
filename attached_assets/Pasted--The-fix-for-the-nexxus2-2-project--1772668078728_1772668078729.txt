@@ -1,0 +1,38 @@
+  The fix for the nexxus2.2 project:                                                                                                                                                                                       
+                                                                  
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                           
+                                                                                                                                                                                                                           
+● Update(~/Claude-store/nexxus2.2/.claude/mcp.json)
+  ⎿  Added 1 line, removed 1 line                     
+      10        ]
+      11      },                                                                                                                                                                                                           
+      12      "dax-mcp": {
+      13 -      "type": "http",                                                                                                                                                                                            
+      13 +      "type": "sse",                                                                                                                                                                                      
+      14        "url": "https://mcp.huminicdev.com/dax/mcp",
+      15        "headers": {
+      16          "Authorization": "Bearer ItLBe6N8aGTeScxfXGhFOz+NWE8gkfdxyrYqLeKUCh8="
+
+● Also fix the global config:                         
+
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                           
+                       
+● Update(~/.claude/mcp.json)                                                                                                                                                                                               
+  ⎿  Added 1 line, removed 1 line                                 
+       8        }                                                                                                                                                                                                          
+       9      },                                                                                                                                                                                                           
+      10      "dax-mcp": {
+      11 -      "type": "http",                                                                                                                                                                                            
+      11 +      "type": "sse",                                                                                                                                                                                      
+      12        "url": "https://mcp.huminicdev.com/dax/mcp",
+      13        "headers": {
+      14          "Authorization": "Bearer ItLBe6N8aGTeScxfXGhFOz+NWE8gkfdxyrYqLeKUCh8="
+
+● Root cause found: type: "http" (Streamable HTTP) vs type: "sse" (Server-Sent Events) are different MCP transports. Our central-mcp returns content-type: text/event-stream, which is SSE — but the config said http.
+  Claude Code couldn't connect because it was trying the wrong transport protocol.
+                                                                                                                                                                                                                           
+  Fixed in both locations:
+  - ~/.claude/mcp.json (global) — changed to "type": "sse"                                                                                                                                                                 
+  - /home/ubuntu/Claude-store/nexxus2.2/.claude/mcp.json (project) — changed to "type": "sse"
+
+  The nexxus2.2 agent will need to restart Claude Code once more to pick up the fix.
