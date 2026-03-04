@@ -1,47 +1,19 @@
 /**
  * AppContext.tsx — Global application state provider for Nexxus V2
  *
- * This is the central state store for the entire application. It manages:
+ * Bridges AuthContext user identity into the app's UI state layer.
+ * Auth provides the real user/role/organization. AppContext manages
+ * UI state (sidebar, favorites, panels) and mock data fallbacks.
  *
- * User & RBAC:
- *  - currentUser: The logged-in user (mock: Duane Wells)
- *  - currentRole: Active RBAC role — can be changed via TopBar role switcher (DEV TOOL)
- *  - userPermissions: Per-user section overrides (can grant access beyond role defaults)
- *
- * Organization:
- *  - currentOrganization: Active org with personaName, colors
- *  - organizations: All available orgs (for org switcher dropdown)
- *  - personaName: Derived from currentOrganization — the AI assistant's display name
- *    (e.g., "Serra", "Aria", "Nova"). Used throughout chat UI, RightPane, agent pages.
- *
- * Communication Safety:
- *  - communicationGateEnabled: GLOBAL kill switch for all outbound communications.
- *    When false, ALL campaigns show "Communications Paused" badge. Toggled in
- *    settings.tsx Organization section. CRITICAL SAFETY FEATURE.
- *
- * UI State:
- *  - sidebarVisible: Whether the 72px sidebar is shown (collapsed = 40px expand button)
- *  - rightPaneOpen: Whether the RightPane Automa chat is visible
- *  - mobileMenuOpen: Mobile navigation drawer state
- *  - activePanel: Which SubMenuManager flyout panel is showing (null = none)
- *  - subMenuExpanded: Whether the sub-menu is pinned open vs hover-only
- *  - panelHovered: Mouse is over the sub-menu panel
- *  - selectedAgent: Currently selected agent for AgentConfigPane display
- *
- * Data:
- *  - agents: Mutable agent list (addAgent, updateAgent)
- *  - notifications: Mutable notifications with mark-as-read
- *  - favorites: User's favorited pages shown in FavoritesBar
- *
- * PRODUCTION NOTE: Most of this state will be fetched from/synced with the backend API.
- * Role and permissions will come from JWT claims. Organization data from the org API.
+ * The dev role switcher still works by overriding currentRole locally.
  */
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { mockCurrentUser, mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
 import { mockAgents, type Agent } from '@/mocks/agents';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
+import { useQuery } from '@tanstack/react-query';
 
-/** Favorited page entry — displayed in the FavoritesBar below TopBar */
 export interface FavoriteItem {
   id: string;
   label: string;
@@ -89,8 +61,72 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
+function mapAuthUserToAppUser(authUser: { id: string; email: string; firstName: string; lastName: string; role: { name: string }; organization: { id: string } }): User {
+  return {
+    id: authUser.id,
+    name: `${authUser.firstName} ${authUser.lastName}`,
+    email: authUser.email,
+    role: authUser.role.name as UserRole,
+    organizationId: authUser.organization.id,
+  };
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser] = useState<User>(mockCurrentUser);
+  const { user: authUser, accessibleOrganizations } = useAuth();
+
+  const authAppUser = authUser ? mapAuthUserToAppUser(authUser) : null;
+
+  const { data: apiAgents } = useQuery<Agent[]>({
+    queryKey: ['/api/agents'],
+    enabled: !!authUser,
+  });
+
+  const { data: orgDetails } = useQuery<{
+    id: string;
+    name: string;
+    slug: string;
+    personaName: string;
+    primaryColor: string | null;
+    secondaryColor: string | null;
+    outboundEnabled: boolean;
+  }>({
+    queryKey: ['/api/organizations', authUser?.organization?.id],
+    enabled: !!authUser?.organization?.id,
+  });
+
+  const resolvedUser: User = authAppUser || {
+    id: 'fallback',
+    name: 'User',
+    email: '',
+    role: 'org_admin',
+    organizationId: 'org-1',
+  };
+
+  const resolvedOrganization: Organization = orgDetails
+    ? {
+        id: orgDetails.id,
+        name: orgDetails.name,
+        primaryColor: orgDetails.primaryColor || '#8b5cf6',
+        secondaryColor: orgDetails.secondaryColor || '#3b82f6',
+        personaName: orgDetails.personaName || 'Serra',
+      }
+    : mockOrganizations[0];
+
+  const resolvedOrganizations: Organization[] = accessibleOrganizations
+    ? accessibleOrganizations.map(o => {
+        const mock = mockOrganizations.find(m => m.name === o.name);
+        return {
+          id: o.id,
+          name: o.name,
+          primaryColor: mock?.primaryColor || '#8b5cf6',
+          secondaryColor: mock?.secondaryColor || '#3b82f6',
+          personaName: mock?.personaName || 'Serra',
+        };
+      })
+    : mockOrganizations;
+
+  const resolvedAgents = apiAgents || mockAgents;
+
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
     const validRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'executive', 'sales_manager', 'sales', 'service', 'marketing'];
     const urlParams = new URLSearchParams(window.location.search);
@@ -100,15 +136,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return roleParam;
     }
     const saved = localStorage.getItem('nexxus-current-role');
-    return (saved as UserRole) || mockCurrentUser.role;
+    return (saved as UserRole) || 'org_admin';
   });
+
+  useEffect(() => {
+    if (authUser && !localStorage.getItem('nexxus-current-role')) {
+      setCurrentRole(authUser.role.name as UserRole);
+    }
+  }, [authUser]);
+
   const [userPermissions, setUserPermissions] = useState<SectionPermission[]>([]);
   const handleSetCurrentRole = (role: UserRole) => {
     setCurrentRole(role);
     localStorage.setItem('nexxus-current-role', role);
   };
+
   const [currentOrganization, setCurrentOrganization] = useState<Organization>(mockOrganizations[0]);
+
+  useEffect(() => {
+    setCurrentOrganization(resolvedOrganization);
+  }, [orgDetails]);
+
   const [agents, setAgents] = useState<Agent[]>(mockAgents);
+
+  useEffect(() => {
+    if (resolvedAgents !== mockAgents) {
+      setAgents(resolvedAgents);
+    }
+  }, [apiAgents]);
+
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rightPaneOpen, setRightPaneOpen] = useState(false);
@@ -116,12 +172,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [subMenuExpanded, setSubMenuExpanded] = useState(false);
   const [panelHovered, setPanelHovered] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(mockAgents[0] || null);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [communicationGateEnabled, setCommunicationGateEnabled] = useState(true);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([
     { id: 'fav-1', label: 'Sales Dashboard', path: '/sales' },
     { id: 'fav-2', label: 'Service Calendar', path: '/service?tab=calendar' },
   ]);
+
+  useEffect(() => {
+    if (agents.length > 0 && !selectedAgent) {
+      setSelectedAgent(agents[0]);
+    }
+  }, [agents]);
+
+  useEffect(() => {
+    if (orgDetails) {
+      setCommunicationGateEnabled(orgDetails.outboundEnabled !== false);
+    }
+  }, [orgDetails]);
 
   const personaName = currentOrganization.personaName;
 
@@ -142,7 +210,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const switchOrganization = (orgId: string) => {
-    const org = mockOrganizations.find(o => o.id === orgId);
+    const org = resolvedOrganizations.find(o => o.id === orgId);
     if (org) {
       setCurrentOrganization(org);
     }
@@ -152,7 +220,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAgents(prev => [...prev, agent]);
   };
 
-  const updateAgent = (agentId: string, updates: Partial<Agent>) => {
+  const updateAgentHandler = (agentId: string, updates: Partial<Agent>) => {
     setAgents(prev => prev.map(a => a.id === agentId ? { ...a, ...updates } : a));
   };
 
@@ -165,11 +233,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
-        currentUser,
+        currentUser: resolvedUser,
         currentRole,
         setCurrentRole: handleSetCurrentRole,
         currentOrganization,
-        organizations: mockOrganizations,
+        organizations: resolvedOrganizations,
         agents,
         notifications,
         favorites,
@@ -194,7 +262,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleSubMenuExpanded,
         switchOrganization,
         addAgent,
-        updateAgent,
+        updateAgent: updateAgentHandler,
         markNotificationRead,
         unreadNotificationCount,
         addFavorite,
