@@ -19,14 +19,17 @@
  */
 import { useState } from 'react';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentsByDepartment, getAgentStatusColor, type Agent } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/mocks/agents';
+import type { Agent } from '@shared/schema';
 
 /** Sub-navigation tabs for the sales page — Dashboard/Agents/Insights/Calendar */
 const tabs = [
@@ -52,10 +55,12 @@ const salesMetrics = [
 ];
 
 export default function SalesPage() {
-  const { agents, selectedAgent, setSelectedAgent } = useApp();
+  const { selectedAgent, setSelectedAgent } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  // Filter agents to only show those assigned to the sales department
-  const salesAgents = getAgentsByDepartment(agents, 'sales');
+  
+  const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=sales'],
+  });
 
   /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
   const renderDashboard = () => (
@@ -97,21 +102,35 @@ export default function SalesPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {salesAgents.filter(a => a.status === 'active').map((agent, i) => (
-                <div key={agent.id} className="flex items-center gap-3" data-testid={`top-agent-${agent.id}`}>
-                  <span className="text-sm font-bold text-muted-foreground w-5">{i + 1}</span>
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                      <Bot className="h-3.5 w-3.5" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{agent.name}</p>
-                    <p className="text-xs text-muted-foreground">{agent.channel}</p>
+              {isLoading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="w-5 h-4" />
+                    <Skeleton className="h-7 w-7 rounded-full" />
+                    <div className="flex-1 space-y-1">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-2 w-16" />
+                    </div>
+                    <Skeleton className="w-2 h-2 rounded-full" />
                   </div>
-                  <div className={cn('w-2 h-2 rounded-full', getAgentStatusColor(agent.status))} />
-                </div>
-              ))}
+                ))
+              ) : (
+                salesAgents.filter(a => a.status === 'active').map((agent, i) => (
+                  <div key={agent.id} className="flex items-center gap-3" data-testid={`top-agent-${agent.id}`}>
+                    <span className="text-sm font-bold text-muted-foreground w-5">{i + 1}</span>
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                        <Bot className="h-3.5 w-3.5" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{agent.name}</p>
+                      <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
+                    </div>
+                    <div className={cn('w-2 h-2 rounded-full', getAgentStatusColor(agent.status))} />
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -143,45 +162,67 @@ export default function SalesPage() {
   );
 
   /** Agents tab — agent cards for sales department. Click to select → opens AgentConfigPane in right pane */
-  const renderAgents = () => (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Sales Agents</h2>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {salesAgents.map(agent => (
-          <Card
-            key={agent.id}
-            className={cn('cursor-pointer hover:shadow-md transition-shadow', selectedAgent?.id === agent.id && 'ring-2 ring-primary')}
-            onClick={() => setSelectedAgent(agent)}
-            data-testid={`agent-card-${agent.id}`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm">
-                    <Bot className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold">{agent.name}</h3>
-                  <p className="text-xs text-muted-foreground">{agent.channel}</p>
+  const renderAgents = () => {
+    if (isLoading) {
+      return (
+        <div className="p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Sales Agents</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-10 w-10 rounded-full mb-3" />
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-3 w-32 mb-4" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-20" />
                 </div>
-                <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
-              </div>
-              <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
-              <div className="flex items-center gap-2 mt-3">
-                <Badge variant="secondary" className="text-[10px]">{agent.status}</Badge>
-                {agent.assignedPhone && (
-                  <Badge variant="outline" className="text-[10px]">{agent.assignedPhone}</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Sales Agents</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {salesAgents.map((agent) => (
+            <Card
+              key={agent.id}
+              className={cn('cursor-pointer hover:shadow-md transition-shadow', selectedAgent?.id === agent.id && 'ring-2 ring-primary')}
+              onClick={() => setSelectedAgent(agent)}
+              data-testid={`agent-card-${agent.id}`}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold">{agent.name}</h3>
+                    <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
+                  </div>
+                  <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Badge variant="secondary" className="text-[10px]">{agent.status}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   /** Insights tab — placeholder for Wave 2 analytics (lead scoring, conversion funnels, pipeline velocity) */
   const renderInsights = () => (

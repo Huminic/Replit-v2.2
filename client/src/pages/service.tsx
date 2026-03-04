@@ -31,11 +31,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/mocks/agents';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import type { Campaign as APICampaign } from '@shared/schema';
+import type { Campaign as APICampaign, Agent } from '@shared/schema';
 
 /** Sub-navigation tabs for the service page */
 const tabs = [
@@ -69,9 +70,12 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function ServicePage() {
-  const { agents, communicationGateEnabled } = useApp();
+  const { communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const serviceAgents = getAgentsByDepartment(agents, 'service');
+
+  const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=service'],
+  });
 
   const { data: serviceCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
     queryKey: ['/api/campaigns?department=service'],
@@ -121,32 +125,60 @@ export default function ServicePage() {
   );
 
   /** Agents tab — service department AI agent cards */
-  const renderAgents = () => (
-    <div className="p-6 space-y-4">
-      <h2 className="text-lg font-semibold">Service Agents</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {serviceAgents.map(agent => (
-          <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`agent-card-${agent.id}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white text-sm">
-                    <Bot className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold">{agent.name}</h3>
-                  <p className="text-xs text-muted-foreground">{agent.channel}</p>
+  const renderAgents = () => {
+    if (agentsLoading) {
+      return (
+        <div className="p-6 space-y-4">
+          <h2 className="text-lg font-semibold">Service Agents</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-2 w-16" />
+                    </div>
+                    <Skeleton className="h-2.5 w-2.5 rounded-full" />
+                  </div>
+                  <Skeleton className="h-2 w-full" />
+                  <Skeleton className="h-2 w-4/5 mt-1" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Service Agents</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {serviceAgents.map(agent => (
+            <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`agent-card-${agent.id}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white text-sm">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold">{agent.name}</h3>
+                    <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
+                  </div>
+                  <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
                 </div>
-                <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
-              </div>
-              <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+                <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   /**
    * Campaigns tab — campaign table with CSV upload info, status, channel,

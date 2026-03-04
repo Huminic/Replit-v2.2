@@ -28,23 +28,30 @@ Preferred communication style: Simple, everyday language.
 -   **JWT** authentication (15min access, 7d refresh)
 -   **bcrypt** for password hashing
 
-### Data Flow (Wave 2 Phase 2 — Current)
+### Data Flow (Wave 2 Phase 2 + Wave 3 — Current)
 
 Pages wired to real API data:
 - **TeamBox**: `GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/messages`, `PATCH /api/conversations/:id`
 - **Main Chat**: Creates/resumes conversations via `POST /api/conversations` (channel="ai-chat"), persists messages via API
 - **RightPane Chat**: Same pattern with channel="ai-assistant"
-- **Service Campaigns**: `GET /api/campaigns?department=service`, `PATCH /api/campaigns/:id` for kill switch
-- **Marketing Campaigns**: `GET /api/campaigns?department=marketing`, `PATCH /api/campaigns/:id` for kill switch
+- **Service**: Agents from `GET /api/agents?department=service`, campaigns from `GET /api/campaigns?department=service`
+- **Marketing**: Agents from `GET /api/agents?department=marketing`, campaigns from `GET /api/campaigns?department=marketing`
+- **Sales**: Agents from `GET /api/agents?department=sales`
+- **SubMenuManager**: Agent lists per department from API, conversation counts from API, chat history from API
+- **Settings User Management**: `GET /api/users` returns real org users with role info
 - **Settings Communication Gate**: `PATCH /api/organizations/:id` with outboundEnabled
 - **Profile**: `PATCH /api/users/me` for contact info changes
 - **Auth**: JWT login/logout/refresh, session management
 
 Pages still using mock data:
 - Dashboard metric tiles (hardcoded KPIs per role)
-- Settings: User Management (mockUsers), Widgets (mockWidgets), Tools, Knowledge Base, AI Config
-- My Work, Sales page (mock data)
+- Settings: Widgets (mockWidgets), Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills)
+- My Work page (hardcoded mockMyTasks)
+- Management page (hardcoded metrics, mockHunches)
+- TopBar notifications/activity (mockNotifications, mockActivityFeed)
+- SubMenuManager activity feed (mockActivityFeed — no activity table yet)
 - Billing section in Profile
+- AgentConfigPane (hardcoded triggers/skills/knowledge refs)
 
 ### Database Schema (8 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
@@ -60,9 +67,9 @@ Pages still using mock data:
 **Public**: POST /api/auth/login, POST /api/auth/forgot-password, POST /api/auth/reset-password
 **Authenticated**:
 - Auth: POST /api/auth/logout, POST /api/auth/refresh, GET /api/auth/me
-- Agents: GET/POST /api/agents, GET/PATCH/DELETE /api/agents/:id
+- Agents: GET/POST /api/agents (supports ?department= filter), GET/PATCH/DELETE /api/agents/:id
 - Organizations: GET /api/organizations, GET/PATCH /api/organizations/:id
-- Users: PATCH /api/users/me
+- Users: GET /api/users (org users with roles), PATCH /api/users/me
 - Conversations: GET/POST /api/conversations, GET/PATCH /api/conversations/:id, GET/POST /api/conversations/:id/messages
 - Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
 

@@ -117,6 +117,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -131,7 +132,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockUsers, getRoleLabel, type UserRole } from '@/mocks/users';
+import { getRoleLabel, type UserRole } from '@/mocks/users';
 import { availableTools } from '@/mocks/agents';
 import {
   mockWidgets,
@@ -150,7 +151,7 @@ import {
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -229,6 +230,18 @@ export default function SettingsPage() {
   const { user: authUser } = useAuth();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  interface ApiUser {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role?: { id: string; name: string; level: number };
+  }
+
+  const { data: apiUsers = [], isLoading: usersLoading } = useQuery<ApiUser[]>({
+    queryKey: ['/api/users'],
+  });
 
   const commGateMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
@@ -392,47 +405,67 @@ export default function SettingsPage() {
         <Input placeholder="Search users..." className="pl-9" data-testid="input-search-users" />
       </div>
       <div className="space-y-2">
-        {mockUsers.map(user => (
-          <Card key={user.id} className="hover-elevate" data-testid={`user-${user.id}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback>
-                    {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground">{user.name}</p>
-                    <Badge variant="secondary" className="gap-1">
-                      <Shield className="h-3 w-3" />
-                      {getRoleLabel(user.role)}
-                    </Badge>
+        {usersLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="hover-elevate">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
                   </div>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" data-testid={`user-menu-${user.id}`}>
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => toast({ title: 'Edit user', description: `Editing ${user.name} is not available in demo mode.` })}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'User removed', description: `${user.name} has been removed.` })}>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Remove
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        ) : apiUsers.map(user => {
+          const userName = `${user.firstName} ${user.lastName}`;
+          const roleName = user.role?.name as UserRole | undefined;
+          return (
+            <Card key={user.id} className="hover-elevate" data-testid={`user-${user.id}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      {userName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{userName}</p>
+                      {roleName && (
+                        <Badge variant="secondary" className="gap-1">
+                          <Shield className="h-3 w-3" />
+                          {getRoleLabel(roleName)}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" data-testid={`user-menu-${user.id}`}>
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => toast({ title: 'Edit user', description: `Editing ${userName} is not available in demo mode.` })}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'User removed', description: `${userName} has been removed.` })}>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

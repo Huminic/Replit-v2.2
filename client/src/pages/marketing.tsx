@@ -27,11 +27,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/mocks/agents';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import type { Campaign as APICampaign } from '@shared/schema';
+import type { Campaign as APICampaign, Agent } from '@shared/schema';
 
 /** Sub-navigation tabs for the marketing page — includes Studio (Wave 4) */
 const tabs = [
@@ -63,9 +64,12 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function MarketingPage() {
-  const { agents, communicationGateEnabled } = useApp();
+  const { communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const marketingAgents = getAgentsByDepartment(agents, 'marketing');
+
+  const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
+    queryKey: ['/api/agents?department=marketing'],
+  });
 
   const { data: marketingCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
     queryKey: ['/api/campaigns?department=marketing'],
@@ -112,27 +116,47 @@ export default function MarketingPage() {
   const renderAgents = () => (
     <div className="p-6 space-y-4">
       <h2 className="text-lg font-semibold">Marketing Agents</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {marketingAgents.map(agent => (
-          <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`agent-card-${agent.id}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-sm">
-                    <Bot className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold">{agent.name}</h3>
-                  <p className="text-xs text-muted-foreground">{agent.channel}</p>
+      {agentsLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
                 </div>
-                <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
-              </div>
-              <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <Skeleton className="h-3 w-full mb-2" />
+                <Skeleton className="h-3 w-3/4" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {marketingAgents.map(agent => (
+            <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`agent-card-${agent.id}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-sm">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold">{agent.name}</h3>
+                    <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
+                  </div>
+                  <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 
