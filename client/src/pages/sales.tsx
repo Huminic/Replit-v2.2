@@ -39,20 +39,36 @@ const tabs = [
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
 ];
 
-/**
- * Sales KPI metric tiles — displayed in a responsive grid on the Dashboard tab.
- * Pipeline count, new leads, overdue leads, lead aging, AI-generated leads, conversion rate, top agent close rate.
- * PRODUCTION NOTE: These values will be fetched from the backend API wired to VinSolutions CRM data.
- */
-const salesMetrics = [
-  { id: 'sm-1', label: 'Pipeline Count', value: '127', change: 8, trend: 'up' as const, icon: Target },
-  { id: 'sm-2', label: 'New Leads', value: '34', change: 12, trend: 'up' as const, icon: Users },
-  { id: 'sm-3', label: 'Overdue Leads', value: '18', change: -3, trend: 'down' as const, icon: Clock },
-  { id: 'sm-4', label: 'Avg Lead Age', value: '4.2d', change: -0.5, trend: 'up' as const, icon: Clock },
-  { id: 'sm-5', label: 'AI-Gen Leads', value: '23', change: 15, trend: 'up' as const, icon: Zap },
-  { id: 'sm-6', label: 'Conversion Rate', value: '18.5%', change: 2.3, trend: 'up' as const, icon: TrendingUp },
-  { id: 'sm-7', label: 'Top Agent Close', value: '31%', change: 4, trend: 'up' as const, icon: ArrowUpRight },
-];
+interface LeadSummary {
+  period: { start: string; end: string };
+  totalLeads: number;
+  totalLeadsChange: number;
+  newLeads: number;
+  newLeadsChange: number;
+  activeLeads: number;
+  activeLeadsChange: number;
+  soldLeads: number;
+  soldLeadsChange: number;
+  lostLeads: number;
+  waitingForResponse: number;
+  appointments: number;
+  conversionRate: number;
+  source: string;
+}
+
+function buildSalesMetrics(summary: LeadSummary | undefined) {
+  if (!summary) return [];
+  const t = (v: number) => (v >= 0 ? 'up' : 'down') as 'up' | 'down';
+  return [
+    { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
+    { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },
+    { id: 'sm-3', label: 'Active Pipeline', value: String(summary.activeLeads), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
+    { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: 0, trend: 'up' as const, icon: Clock },
+    { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: 0, trend: 'up' as const, icon: ArrowUpRight },
+    { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), icon: TrendingUp },
+    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: summary.conversionRate, trend: t(summary.conversionRate), icon: TrendingUp },
+  ];
+}
 
 export default function SalesPage() {
   const { selectedAgent, setSelectedAgent } = useApp();
@@ -62,37 +78,56 @@ export default function SalesPage() {
     queryKey: ['/api/agents?department=sales'],
   });
 
+  const { data: leadSummary, isLoading: summaryLoading } = useQuery<LeadSummary>({
+    queryKey: ['/api/vin/leads/summary'],
+  });
+
+  const salesMetrics = buildSalesMetrics(leadSummary);
+
   /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold mb-1">Sales Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Real-time sales pipeline and performance metrics</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">Sales Dashboard</h2>
+          <p className="text-sm text-muted-foreground">Real-time sales pipeline and performance metrics</p>
+        </div>
+        {leadSummary?.source === 'vinsolutions' && (
+          <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-600 dark:text-blue-400" data-testid="badge-vinsolutions-live">
+            VinSolutions Live
+          </Badge>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {salesMetrics.map(metric => (
-          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-2xl font-bold">{metric.value}</p>
-              <div className="flex items-center gap-1 mt-1">
-                {metric.trend === 'up' ? (
-                  <TrendingUp className="h-3 w-3 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 text-red-500" />
-                )}
-                <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : 'text-red-500')}>
-                  {metric.change > 0 ? '+' : ''}{metric.change}%
-                </span>
-                <span className="text-xs text-muted-foreground">vs last week</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {summaryLoading ? (
+          Array.from({ length: 7 }).map((_, i) => (
+            <Card key={i}><CardContent className="p-4"><Skeleton className="h-16" /></CardContent></Card>
+          ))
+        ) : (
+          salesMetrics.map(metric => (
+            <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">{metric.label}</p>
+                  <metric.icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <p className="text-2xl font-bold" data-testid={`metric-value-${metric.id}`}>{metric.value}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {metric.trend === 'up' ? (
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 text-red-500" />
+                  )}
+                  <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : 'text-red-500')}>
+                    {metric.change > 0 ? '+' : ''}{metric.change}%
+                  </span>
+                  <span className="text-xs text-muted-foreground">vs last 30d</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
