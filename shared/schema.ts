@@ -105,6 +105,19 @@ export const campaigns = pgTable("campaigns", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const integrations = pgTable("integrations", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  provider: text("provider").notNull(),
+  externalDealerId: text("external_dealer_id"),
+  externalDealerName: text("external_dealer_name"),
+  externalIntegrationId: text("external_integration_id"),
+  status: text("status").notNull().default("active"),
+  nexxusOrgId: text("nexxus_org_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertRoleSchema = createInsertSchema(roles).omit({ id: true });
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
@@ -113,6 +126,7 @@ export const insertAgentSchema = createInsertSchema(agents).omit({ id: true, cre
 export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
 export const insertCampaignSchema = createInsertSchema(campaigns).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertIntegrationSchema = createInsertSchema(integrations).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertRole = z.infer<typeof insertRoleSchema>;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -122,6 +136,7 @@ export type InsertAgent = z.infer<typeof insertAgentSchema>;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
+export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -131,6 +146,7 @@ export type Agent = typeof agents.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type Campaign = typeof campaigns.$inferSelect;
+export type Integration = typeof integrations.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();

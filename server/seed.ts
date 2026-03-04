@@ -231,6 +231,24 @@ export async function seedDatabase() {
   await storage.createMessage({ conversationId: conv8.id, role: "bot", content: "Hi Stephanie! Check out our exclusive February specials - up to $5,000 off select models!", senderName: "Marketing Agent" });
   await storage.createMessage({ conversationId: conv8.id, role: "customer", content: "I received the wrong promotional offer.", senderName: "Stephanie Thompson" });
 
+  const integrationData = [
+    { orgId: serraHonda.id, provider: "vinsolutions", dealerId: "21043", dealerName: "Serra Honda of Sylacauga", integrationId: null, nexxusOrgId: "3795b8f6-aca7-45fc-b77e-fc671b85a9f3" },
+    { orgId: serraNissan.id, provider: "vinsolutions", dealerId: "21044", dealerName: "Serra Nissan of Sylacauga", integrationId: "f3f7e600-7d48-4c4e-9607-d737a271e57c", nexxusOrgId: "7f868569-62e5-4d49-9378-2e25d6a69321" },
+    { orgId: tonySerraFord.id, provider: "vinsolutions", dealerId: "21047", dealerName: "Tony Serra Ford", integrationId: "6b430786-b1b1-45ef-ae17-bd33e0cb3735", nexxusOrgId: "8751c73d-4570-4b8d-bd40-fa4f1e48024d" },
+  ];
+
+  for (const i of integrationData) {
+    await storage.createIntegration({
+      organizationId: i.orgId,
+      provider: i.provider,
+      externalDealerId: i.dealerId,
+      externalDealerName: i.dealerName,
+      externalIntegrationId: i.integrationId,
+      status: "active",
+      nexxusOrgId: i.nexxusOrgId,
+    });
+  }
+
   console.log("Database seeded successfully!");
   console.log("Default login: admin@nexxus.com / password123");
 }

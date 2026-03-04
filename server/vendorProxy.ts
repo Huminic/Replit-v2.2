@@ -11,7 +11,7 @@ const NEXXUS_ORG_MAP: Record<string, string> = {
   "ffe79304-9db7-4366-8ca9-e94fd7028ef1": "8751c73d-4570-4b8d-bd40-fa4f1e48024d",
 };
 
-function callMCP(toolName: string, args: Record<string, unknown>): Promise<any> {
+export function callMCP(toolName: string, args: Record<string, unknown>): Promise<any> {
   const mcpUrl = process.env.VINSOLUTIONS_MCP_URL || "https://mcp.huminicdev.com/dax/mcp";
   const token = process.env.VINSOLUTIONS_API_KEY;
   if (!token) return Promise.reject(new Error("VINSOLUTIONS_API_KEY not configured"));
@@ -77,7 +77,7 @@ function callMCP(toolName: string, args: Record<string, unknown>): Promise<any> 
   });
 }
 
-function resolveNexxusOrgId(localOrgId: string): string {
+export function resolveNexxusOrgId(localOrgId: string): string {
   return NEXXUS_ORG_MAP[localOrgId] || localOrgId;
 }
 

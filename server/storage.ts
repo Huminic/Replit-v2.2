@@ -9,7 +9,8 @@ import {
   type Conversation, type InsertConversation,
   type Message, type InsertMessage,
   type Campaign, type InsertCampaign,
-  users, roles, organizations, sessions, agents, conversations, messages, campaigns,
+  type Integration, type InsertIntegration,
+  users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -52,6 +53,11 @@ export interface IStorage {
   getCampaign(id: string): Promise<Campaign | undefined>;
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
   updateCampaign(id: string, data: Partial<InsertCampaign>): Promise<Campaign | undefined>;
+
+  getIntegrations(organizationId: string, filters?: { provider?: string }): Promise<Integration[]>;
+  getIntegration(id: string): Promise<Integration | undefined>;
+  createIntegration(integration: InsertIntegration): Promise<Integration>;
+  updateIntegration(id: string, data: Partial<InsertIntegration>): Promise<Integration | undefined>;
 }
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -216,6 +222,27 @@ export class DatabaseStorage implements IStorage {
 
   async updateCampaign(id: string, data: Partial<InsertCampaign>): Promise<Campaign | undefined> {
     const [updated] = await db.update(campaigns).set({ ...data, updatedAt: new Date() }).where(eq(campaigns.id, id)).returning();
+    return updated;
+  }
+
+  async getIntegrations(organizationId: string, filters?: { provider?: string }): Promise<Integration[]> {
+    const conditions = [eq(integrations.organizationId, organizationId)];
+    if (filters?.provider) conditions.push(eq(integrations.provider, filters.provider));
+    return db.select().from(integrations).where(and(...conditions));
+  }
+
+  async getIntegration(id: string): Promise<Integration | undefined> {
+    const [integration] = await db.select().from(integrations).where(eq(integrations.id, id));
+    return integration;
+  }
+
+  async createIntegration(integration: InsertIntegration): Promise<Integration> {
+    const [created] = await db.insert(integrations).values(integration).returning();
+    return created;
+  }
+
+  async updateIntegration(id: string, data: Partial<InsertIntegration>): Promise<Integration | undefined> {
+    const [updated] = await db.update(integrations).set({ ...data, updatedAt: new Date() }).where(eq(integrations.id, id)).returning();
     return updated;
   }
 }
