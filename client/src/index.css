@@ -193,6 +193,19 @@
   }
 }
 
+/* Landing page hero image — gentle flip every 6 seconds */
+@keyframes landing-spin {
+  0%, 85% { transform: rotateY(0deg); }
+  90% { transform: rotateY(180deg); }
+  95% { transform: rotateY(360deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.animate-landing-spin {
+  animation: landing-spin 6s ease-in-out infinite;
+  backface-visibility: visible;
+}
+
 /* Gradient animation for chat input (Nexxus V2 signature element) */
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
