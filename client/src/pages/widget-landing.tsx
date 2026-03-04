@@ -1,3 +1,35 @@
+/**
+ * Widget Landing Page — Public-facing lead capture page at /w/demo.
+ *
+ * STANDALONE LAYOUT: This page does NOT use AppLayout (no sidebar, no topbar).
+ * It renders as a full-screen split layout visible to unauthenticated visitors.
+ *
+ * Left side (white): Lead capture form with first/last name, phone (required), email,
+ * interest field. Submit shows success confirmation with "send another" option.
+ * Below form: "Or connect instantly" buttons for Video Call, Chat Now, Voice Call.
+ *
+ * Right side (ACCENT color background): Branding panel with decorative circles,
+ * hero text, and "Meet Serra" AI video call CTA button.
+ *
+ * Floating Widget FAB: Bottom-right corner button that toggles a multi-channel widget menu.
+ * Widget modes:
+ * - menu: Channel selection panel with 7 options (Text Chat, AI Video, Voice Call,
+ *   SMS, Email, Request Callback, Schedule Service).
+ * - chat: Text chat with AI persona (Serra). Mock responses based on keywords (SUV, trade-in).
+ * - video: AI video call interface with Tavus-style avatar, mic/camera toggles, end call.
+ * - voice: Voice call with audio waveform animation, mic toggle, end call.
+ *
+ * Constants:
+ * - ACCENT: Teal brand color (#0d9488)
+ * - ORG_NAME: "Cage Automotive" (demo org)
+ * - PERSONA_NAME: "Serra" (AI persona name)
+ *
+ * PRODUCTION NOTE: Form submission will POST to backend. Widget channels will connect to
+ * real VAPI (voice), Tavus (video), and AI chat backends. Lead data piped to CRM via MCP.
+ *
+ * @see client/src/pages/settings.tsx — Widget & landing page configuration in Tools section
+ * @see client/src/mocks/widgets.ts — Widget types and universal settings
+ */
 import { useState } from 'react';
 import {
   MessageSquare,

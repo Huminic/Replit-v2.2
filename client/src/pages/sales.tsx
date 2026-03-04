@@ -1,3 +1,22 @@
+/**
+ * Sales Department Dashboard
+ *
+ * Primary sales pipeline and performance page with tab navigation.
+ * Cardinal layout rule: data displayed in center content area, Automa AI chat
+ * available in the right pane (RightPane.tsx) for discussing sales data.
+ *
+ * RBAC: Visible to sales, sales_manager, org_admin, executive, partner_admin, super_admin.
+ * Access gating handled by canAccessSection() in users.ts via Sidebar navigation.
+ *
+ * Tabs:
+ *   - Dashboard: Metric tiles grid + top performing agents + recent activity feed
+ *   - Agents: Agent cards for sales department. Click to select → opens AgentConfigPane in right pane
+ *   - Insights: Placeholder for Wave 2 detailed analytics (lead scoring, conversion funnels)
+ *   - Calendar: Placeholder for Wave 2 test drive / follow-up scheduling
+ *
+ * PRODUCTION NOTE: Metrics will wire to VinSolutions CRM data via MCP server.
+ * Currently uses hardcoded salesMetrics array for mock display.
+ */
 import { useState } from 'react';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,6 +28,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentsByDepartment, getAgentStatusColor, type Agent } from '@/mocks/agents';
 
+/** Sub-navigation tabs for the sales page — Dashboard/Agents/Insights/Calendar */
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Bot },
@@ -16,6 +36,11 @@ const tabs = [
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
 ];
 
+/**
+ * Sales KPI metric tiles — displayed in a responsive grid on the Dashboard tab.
+ * Pipeline count, new leads, overdue leads, lead aging, AI-generated leads, conversion rate, top agent close rate.
+ * PRODUCTION NOTE: These values will be fetched from the backend API wired to VinSolutions CRM data.
+ */
 const salesMetrics = [
   { id: 'sm-1', label: 'Pipeline Count', value: '127', change: 8, trend: 'up' as const, icon: Target },
   { id: 'sm-2', label: 'New Leads', value: '34', change: 12, trend: 'up' as const, icon: Users },
@@ -29,8 +54,10 @@ const salesMetrics = [
 export default function SalesPage() {
   const { agents, selectedAgent, setSelectedAgent } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+  // Filter agents to only show those assigned to the sales department
   const salesAgents = getAgentsByDepartment(agents, 'sales');
 
+  /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
@@ -115,6 +142,7 @@ export default function SalesPage() {
     </div>
   );
 
+  /** Agents tab — agent cards for sales department. Click to select → opens AgentConfigPane in right pane */
   const renderAgents = () => (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -155,6 +183,7 @@ export default function SalesPage() {
     </div>
   );
 
+  /** Insights tab — placeholder for Wave 2 analytics (lead scoring, conversion funnels, pipeline velocity) */
   const renderInsights = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
@@ -165,6 +194,7 @@ export default function SalesPage() {
     </div>
   );
 
+  /** Calendar tab — placeholder for Wave 2 test drive scheduling and follow-up appointments */
   const renderCalendar = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">

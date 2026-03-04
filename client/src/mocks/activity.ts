@@ -1,5 +1,21 @@
-// Mock activity feed data for Nexxus V2 UI prototype
+/**
+ * activity.ts — System-wide activity feed for Nexxus V2
+ *
+ * Provides the activity stream displayed in:
+ *  - TopBar.tsx activity feed dropdown (bell icon)
+ *  - management.tsx renderActivities section
+ *  - my-work.tsx Dashboard tab recent activity
+ *
+ * Three activity types:
+ *  - user: Human user actions (login, file upload, agent config changes)
+ *  - agent: AI agent actions (calls, messages, campaign sends)
+ *  - system: Automated system events (backups, data syncs)
+ *
+ * PRODUCTION NOTE: Activity feed will be populated by backend event logging.
+ * Real-time updates via WebSocket subscription.
+ */
 
+/** Activity source classification — drives icon and color in the feed */
 export type ActivityType = 'user' | 'agent' | 'system';
 export type ActivityAction = 
   | 'created' 
@@ -27,6 +43,7 @@ export interface ActivityItem {
   metadata?: Record<string, string | number>;
 }
 
+/** 10 mock activity items spanning user, agent, and system actions */
 export const mockActivityFeed: ActivityItem[] = [
   {
     id: 'act-1',
@@ -124,6 +141,7 @@ export const mockActivityFeed: ActivityItem[] = [
   },
 ];
 
+/** Maps activity type to lucide-react icon name */
 export const getActivityIcon = (type: ActivityType): string => {
   const icons: Record<ActivityType, string> = {
     user: 'User',
@@ -133,6 +151,7 @@ export const getActivityIcon = (type: ActivityType): string => {
   return icons[type];
 };
 
+/** Returns Tailwind bg class for activity type indicator */
 export const getActivityColor = (type: ActivityType): string => {
   const colors: Record<ActivityType, string> = {
     user: 'bg-blue-500',

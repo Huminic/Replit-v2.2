@@ -1,5 +1,18 @@
-// Mock drive files data for Nexxus V2 UI prototype
+/**
+ * files.ts — Mock Drive/file manager data for Nexxus V2
+ *
+ * Provides the file system model for the Drive page (not yet a standalone page,
+ * referenced in sidebar navigation). Supports nested folders, file metadata,
+ * sharing, and starring.
+ *
+ * Also includes document templates (mockTemplates) for sales contracts,
+ * inspection checklists, and report templates.
+ *
+ * PRODUCTION NOTE: File storage will use cloud storage (S3/GCS) with metadata
+ * in the database. File uploads handled by the backend API.
+ */
 
+/** Supported file types — determines icon and color in the file browser */
 export type FileType = 'folder' | 'document' | 'spreadsheet' | 'image' | 'pdf' | 'video' | 'audio';
 
 export interface DriveFile {
@@ -15,6 +28,7 @@ export interface DriveFile {
   starred: boolean;
 }
 
+/** Mock file tree — 3 root folders + 3 root files + 3 files in Marketing Materials folder */
 export const mockFiles: DriveFile[] = [
   // Root folders
   {
@@ -125,6 +139,7 @@ export const mockFiles: DriveFile[] = [
   },
 ];
 
+/** System-provided document templates — created by "System" user, always shared */
 export const mockTemplates: DriveFile[] = [
   {
     id: 'template-1',
@@ -164,6 +179,7 @@ export const mockTemplates: DriveFile[] = [
   },
 ];
 
+/** Maps file type to lucide-react icon name */
 export const getFileIcon = (type: FileType): string => {
   const icons: Record<FileType, string> = {
     folder: 'Folder',
@@ -177,6 +193,7 @@ export const getFileIcon = (type: FileType): string => {
   return icons[type];
 };
 
+/** Returns Tailwind text color class for file type icon */
 export const getFileColor = (type: FileType): string => {
   const colors: Record<FileType, string> = {
     folder: 'text-blue-500',
@@ -190,6 +207,7 @@ export const getFileColor = (type: FileType): string => {
   return colors[type];
 };
 
+/** Converts byte count to human-readable string (e.g., "2.3 MB") */
 export const formatFileSize = (bytes?: number): string => {
   if (!bytes) return '';
   const units = ['B', 'KB', 'MB', 'GB'];

@@ -1,3 +1,11 @@
+/**
+ * 404 Not Found Page — Fallback route for unmatched URLs.
+ *
+ * Displays a centered Card with error icon, "404 Page Not Found" heading,
+ * and a "Go to Home" button that navigates to '/'.
+ *
+ * This page is registered as the catch-all route in App.tsx.
+ */
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Home } from "lucide-react";

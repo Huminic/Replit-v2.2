@@ -1,3 +1,28 @@
+/**
+ * @file main.tsx — Primary AI Chat Page
+ * @description The center of the app experience. This is the main Automa AI chat interface
+ *   where users interact with the AI persona (personaName from AppContext). The page follows
+ *   the cardinal layout rule: chat is always in center → info/artifacts appear in the right pane.
+ *
+ * @layout
+ *   - Top section: Role-based metric tiles (2x2 grid) that collapse after the user's first message
+ *   - Center: Full chat thread with bot messages left-aligned, user messages right-aligned (NO avatars)
+ *   - Bottom: Suggestion chips + gradient-bordered chat input with file upload dropdown
+ *   - Metric detail dialog: Click any tile to see drill-down breakdown data
+ *
+ * @designConstraints
+ *   - Metric tiles: gradient backgrounds, decorative SVG concentric circles, icon badges
+ *   - Chat: Bot messages use bg-card with border, user messages use bg-primary
+ *   - Thinking animation: flat rolling wave (.wave-dot CSS class), 3 dots with staggered timing (0s/0.15s/0.3s)
+ *   - Input: gradient border wrapper (chat-input-gradient class) with purple glow shadow
+ *
+ * @rbac All 8 roles see different metric tiles based on currentRole — each role gets tailored KPIs
+ * @locked Metric tile gradient themes per role, wave animation timing, chat bubble styling
+ *
+ * @productionNote Chat responses are currently mocked with a 1.5s setTimeout.
+ *   Will connect to AI backend at nexxusv2.huminicdev.com with conversation context.
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,27 +45,21 @@ import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/me
 import { useApp } from '@/contexts/AppContext';
 import type { UserRole } from '@/mocks/users';
 
-/**
- * @component MainPage
- * @description Primary chat interface with role-based metric tiles and Automa AI conversation
- * @designConstraints
- *   - Metric tiles: 2x2 grid with gradient backgrounds, decorative SVG patterns, icon badges
- *   - Chat: Bot messages left-aligned, user messages right-aligned, NO avatars/icons
- *   - Thinking animation: flat rolling wave (.wave-dot CSS class), 3 dots with staggered timing
- *   - Input: gradient border wrapper (chat-input-gradient class)
- * @rbac All roles see different metric tiles based on currentRole
- * @locked Metric tile gradient themes per role, wave animation timing (0s/0.15s/0.3s delays)
- */
-
+/** Shape of a single metric tile displayed above the chat */
 interface MetricTile {
   label: string;
   value: string;
   change: string;
   trend: 'up' | 'down' | 'neutral';
-  gradient: string;
-  iconBg: string;
+  gradient: string; // Tailwind gradient classes for tile background
+  iconBg: string;   // Background color class for the icon badge
 }
 
+/**
+ * roleMetrics — Role-based metric tiles that display above the chat area.
+ * Each role gets 4 tailored KPI tiles. These collapse after the user sends their first message.
+ * PRODUCTION NOTE: Values are currently hardcoded; will wire to real-time dashboard data from backend.
+ */
 const roleMetrics: Record<UserRole, MetricTile[]> = {
   super_admin: [
     { label: 'Partner Orgs', value: '12', change: '+2 this month', trend: 'up', gradient: 'from-violet-500/15 via-purple-500/10 to-fuchsia-500/5', iconBg: 'bg-violet-500/20' },
@@ -92,6 +111,7 @@ const roleMetrics: Record<UserRole, MetricTile[]> = {
   ],
 };
 
+/** Decorative SVG icons shown inside each metric tile's icon badge (folder, users, lightning, chart) */
 const tileIcons = [
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>,
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
@@ -99,6 +119,12 @@ const tileIcons = [
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>,
 ];
 
+/**
+ * metricDetails — Drill-down data for each metric tile.
+ * Clicking a tile opens a Dialog showing breakdown rows and key insights.
+ * Each entry is keyed by the metric label string from roleMetrics.
+ * PRODUCTION NOTE: This data will come from the analytics engine; currently hardcoded with realistic dealership data.
+ */
 const metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> = {
   'Pipeline Value': { description: 'Pipeline Health Score — Win Rate × 50pts + Active Pipeline Quality × 30pts + Pipeline Freshness × 20pts', breakdown: [
     { label: 'Win Rate (SOLD/SOLD+LOST)', value: '18.5%', detail: '74 SOLD / 326 LOST in last 90 days' },
@@ -211,6 +237,11 @@ const metricDetails: Record<string, { breakdown: { label: string; value: string;
   ], highlights: ['7 NEW leads need immediate contact (6+ hours overdue)', '3 hot leads cooling — win rate drops from 41% to 12% after 48h', '12 leads >30 days old should be triaged: save or archive'] },
 };
 
+/**
+ * ThinkingCard — Expandable card showing AI reasoning steps.
+ * Appears below bot messages that include a `thinking` property.
+ * Shows a summary line with Brain icon; click to expand and see detailed reasoning steps.
+ */
 function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
   const [expanded, setExpanded] = useState(false);
   if (!thinking) return null;
@@ -240,25 +271,33 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
   );
 }
 
+/**
+ * MainPage — Primary chat interface component.
+ * Uses personaName from AppContext to label the AI persona in responses.
+ * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
+ */
 export default function MainPage() {
   const { currentRole, personaName } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages.slice(0, 1));
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);
-  const [tilesCollapsed, setTilesCollapsed] = useState(false);
-  const [hasSentMessage, setHasSentMessage] = useState(false);
+  const [tilesCollapsed, setTilesCollapsed] = useState(false); // Tiles auto-collapse after first user message
+  const [hasSentMessage, setHasSentMessage] = useState(false); // Tracks whether user has sent at least one message
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Select metric tiles based on current RBAC role; falls back to org_admin
   const metrics = roleMetrics[currentRole] || roleMetrics.org_admin;
 
+  // Auto-scroll chat to bottom when new messages arrive
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
+  // Sends user message, triggers tile collapse on first send, and mocks an AI response after 1.5s
   const handleSend = () => {
     if (!inputValue.trim()) return;
 
@@ -290,6 +329,7 @@ export default function MainPage() {
     }, 1500);
   };
 
+  // Enter sends message; Shift+Enter allows multi-line input
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();

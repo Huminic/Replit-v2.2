@@ -1,3 +1,23 @@
+/**
+ * @component Sidebar
+ * @description Primary navigation sidebar (72px wide). Icon-only navigation with text labels below each icon.
+ * Uses a persona/department-based structure replacing the old feature-based navigation.
+ *
+ * Navigation items: AI Chat → TeamBox → My Work → Sales → Service → Marketing → Management
+ * Bottom items: System (settings) — RBAC gated to admin roles only
+ *
+ * @designConstraints
+ *   - Fixed width of 72px when expanded, 40px when collapsed (ChevronsRight button only)
+ *   - Active route indicator: purple left border bar + purple icon tint
+ *   - Hover behavior: mouseEnter sets activePanel → shows SubMenuManager flyout panel
+ *   - 800ms delay on mouseLeave before closing the flyout (prevents flicker)
+ *   - toggleSubMenuExpanded: Locks the sub-menu panel open (pin mode) vs hover-only mode
+ *
+ * @rbac canAccessSection() from users.ts checks currentRole + userPermissions to show/hide items
+ * @see SubMenuManager.tsx — flyout panel rendered alongside this sidebar
+ * @see AppContext.tsx — provides activePanel, subMenuExpanded, panelHovered state
+ * @production Logout button is placeholder — will wire to auth provider
+ */
 import { useLocation } from 'wouter';
 import { useRef, useEffect } from 'react';
 import { 
@@ -18,6 +38,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useApp } from '@/contexts/AppContext';
 import { canAccessSection } from '@/mocks/users';
 
+/** Sidebar menu item shape — hasPanel indicates whether hovering shows a SubMenuManager flyout */
 interface MenuItem {
   id: string;
   label: string;
@@ -27,6 +48,7 @@ interface MenuItem {
   section?: string;
 }
 
+/** Main navigation items — each has hasPanel:true for sub-menu flyout support */
 const menuItems: MenuItem[] = [
   { id: 'ai-chat', label: 'AI Chat', icon: MessageSquare, path: '/', hasPanel: true, section: 'ai-chat' },
   { id: 'teambox', label: 'TeamBox', icon: Inbox, path: '/teambox', hasPanel: true, section: 'teambox' },
@@ -37,6 +59,7 @@ const menuItems: MenuItem[] = [
   { id: 'management', label: 'Manage', icon: LayoutDashboard, path: '/management', hasPanel: true, section: 'management' },
 ];
 
+/** Bottom-pinned items — System settings, RBAC gated to admin roles via canAccessSection() */
 const bottomItems: MenuItem[] = [
   { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, section: 'system' },
 ];
@@ -55,8 +78,10 @@ export function Sidebar() {
     toggleSubMenuExpanded
   } = useApp();
   
+  // 800ms delay timer ref for mouseLeave — prevents sub-menu from closing instantly when moving cursor between sidebar and flyout
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (leaveTimeoutRef.current) {
@@ -65,17 +90,20 @@ export function Sidebar() {
     };
   }, []);
 
+  // Route matching — exact match for root, prefix match for other paths
   const isActive = (path: string) => {
     if (path === '/') return location === '/';
     return location.startsWith(path);
   };
 
+  // Determines if the current page has a sub-menu panel (used to show/hide the pin toggle button)
   const getCurrentPagePanel = () => {
     const allItems = [...menuItems, ...bottomItems];
     const currentItem = allItems.find(item => isActive(item.path));
     return currentItem?.hasPanel ? currentItem.id : null;
   };
 
+  // On hover: cancel any pending close timeout and open the sub-menu flyout for this item
   const handleMouseEnter = (item: MenuItem) => {
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
@@ -86,6 +114,7 @@ export function Sidebar() {
     }
   };
 
+  // On leave: if not pinned (subMenuExpanded), start 800ms timeout to close the flyout
   const handleMouseLeave = () => {
     if (!subMenuExpanded) {
       leaveTimeoutRef.current = setTimeout(() => {
@@ -96,6 +125,7 @@ export function Sidebar() {
     }
   };
 
+  // Navigate to the item's route and open its flyout panel (or close panel if item has no panel)
   const handleClick = (item: MenuItem) => {
     setLocation(item.path);
     if (item.hasPanel) {
@@ -110,6 +140,7 @@ export function Sidebar() {
   
   const currentPageHasPanel = getCurrentPagePanel() !== null;
 
+  // Renders a single sidebar icon button — RBAC filtered, with active indicator and panel highlight
   const renderMenuItem = (item: MenuItem) => {
     if (item.section && !canAccessSection(currentRole, item.section, userPermissions.length > 0 ? userPermissions : undefined)) {
       return null;
@@ -155,6 +186,7 @@ export function Sidebar() {
     );
   };
 
+  // Collapsed state: 40px wide, shows only a ChevronsRight expand button
   if (!sidebarVisible) {
     return (
       <aside className="flex flex-col items-center border-r border-border bg-sidebar w-10 py-2">

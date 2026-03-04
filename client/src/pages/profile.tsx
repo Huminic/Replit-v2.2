@@ -1,3 +1,25 @@
+/**
+ * Profile Page — User account management with tab navigation.
+ *
+ * Tabs:
+ * - My Profile: User avatar, name, email, role badge, org badge, contact info form.
+ *   Edit Profile button is demo-only (shows toast).
+ * - Preferences: Appearance (dark mode toggle), notification settings (push, email digest),
+ *   regional settings (language, timezone).
+ * - Billing: Current plan display, usage meters (voice/video/SMS/documents with Progress bars),
+ *   overage calculations, add-ons table, invoice history.
+ *   Falls back to "Billing not enabled" card when billingEnabled is false.
+ *
+ * Data sources:
+ * - currentUser and currentOrganization from AppContext
+ * - getRoleLabel from mocks/users.ts for role display
+ *
+ * PRODUCTION NOTE: Profile editing, billing data, and invoice viewing will wire to backend API.
+ * Usage meters will pull real consumption data from the metering/credit system (Wave 3).
+ *
+ * @see client/src/pages/billing-management.tsx — Partner/super admin billing management
+ * @see client/src/contexts/AppContext.tsx — currentUser, currentOrganization
+ */
 import { useState } from 'react';
 import { 
   User, 

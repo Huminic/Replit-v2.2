@@ -1,5 +1,29 @@
+/**
+ * campaigns.ts — Outbound campaign model for service.tsx, marketing.tsx, and sales.tsx
+ *
+ * Campaigns represent multi-step outbound communication sequences (SMS, email, or both).
+ * Key features:
+ *  - CSV upload: recipientCount populated from uploaded CSV file
+ *  - Message templates: Ordered sequence with {{variable}} merge tags and wait delays
+ *  - Kill switch: Boolean toggle to immediately stop ALL outbound messages for a campaign.
+ *    CRITICAL SAFETY FEATURE — added after a spam incident. When killSwitch=true,
+ *    no further messages are sent. Displayed as red toggle in campaign tables.
+ *  - Per-conversation disconnect: Separate feature in TeamBox (see conversations.ts
+ *    campaignDisconnected field) — stops messages for one specific customer.
+ *
+ * Campaign tables appear in service.tsx (renderCampaigns) and marketing.tsx (renderCampaigns)
+ * with identical patterns. When communicationGateEnabled=false in AppContext, ALL campaigns
+ * show "Communications Paused" badge regardless of individual kill switch state.
+ *
+ * PRODUCTION NOTE: Campaigns will use TextMagic API (SMS) and Resend API (email).
+ * CSV upload and recipient management handled by backend.
+ */
+
+/** Campaign lifecycle — paused can be resumed, completed cannot send more messages */
 export type CampaignStatus = 'active' | 'paused' | 'draft' | 'completed';
+/** Delivery channel — 'both' means the sequence alternates between SMS and email */
 export type CampaignChannel = 'sms' | 'email' | 'both';
+/** Department that owns the campaign — determines which dashboard shows it */
 export type CampaignDepartment = 'sales' | 'service' | 'marketing';
 
 export interface CampaignMessage {
@@ -29,6 +53,13 @@ export interface Campaign {
   createdBy: string;
 }
 
+/**
+ * 4 mock campaigns:
+ *  1. Service Reminder (active, SMS) — 3-step drip with service due reminders
+ *  2. Presidents Day Sale (completed, both) — marketing blast with email + SMS follow-up
+ *  3. New Lead Follow-Up (active, both) — 4-step sales nurture sequence
+ *  4. Oil Change Reminder (paused, SMS, killSwitch=true) — halted campaign example
+ */
 export const mockCampaigns: Campaign[] = [
   {
     id: 'camp-1',
@@ -114,6 +145,7 @@ export const mockCampaigns: Campaign[] = [
   },
 ];
 
+/** Filters campaigns by department — used in department dashboard campaign tables */
 export const getCampaignsByDepartment = (department: CampaignDepartment): Campaign[] => {
   return mockCampaigns.filter(c => c.department === department);
 };

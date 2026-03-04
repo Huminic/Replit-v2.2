@@ -1,5 +1,24 @@
-// Mock notifications data for Nexxus V2 UI prototype
+/**
+ * notifications.ts — User notification data for Nexxus V2
+ *
+ * Notifications appear in the TopBar.tsx bell icon dropdown with unread count badge.
+ * Each notification has an optional actionUrl for navigation on click.
+ *
+ * Notification types:
+ *  - alert: Warnings requiring attention (e.g., low credits)
+ *  - task: Task assignments from other users
+ *  - approval: Items requiring admin approval (agent activation, expenses)
+ *  - system: Automated system notifications (agent updates, reports ready)
+ *  - mention: User was @mentioned in a comment or conversation
+ *
+ * Unread count tracked in AppContext (unreadNotificationCount) and displayed
+ * as a badge on the bell icon in TopBar.
+ *
+ * PRODUCTION NOTE: Notifications will be pushed via WebSocket and persisted in the database.
+ * Mark-as-read state synced with backend.
+ */
 
+/** Notification category — determines icon and color in the dropdown */
 export type NotificationType = 'alert' | 'task' | 'approval' | 'system' | 'mention';
 
 export interface Notification {
@@ -12,6 +31,7 @@ export interface Notification {
   actionUrl?: string;
 }
 
+/** 6 mock notifications — 3 unread, 3 read — covering all notification types */
 export const mockNotifications: Notification[] = [
   {
     id: 'notif-1',
@@ -69,6 +89,7 @@ export const mockNotifications: Notification[] = [
   },
 ];
 
+/** Maps notification type to lucide-react icon name */
 export const getNotificationIcon = (type: NotificationType): string => {
   const icons: Record<NotificationType, string> = {
     alert: 'AlertTriangle',
@@ -80,6 +101,7 @@ export const getNotificationIcon = (type: NotificationType): string => {
   return icons[type];
 };
 
+/** Returns Tailwind text color class for notification type */
 export const getNotificationColor = (type: NotificationType): string => {
   const colors: Record<NotificationType, string> = {
     alert: 'text-amber-500',

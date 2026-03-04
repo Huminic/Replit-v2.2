@@ -1,5 +1,30 @@
+/**
+ * @file teambox.tsx — CommBox-Inspired 3-Column Unified Inbox
+ * @description The TeamBox is a unified communication inbox modeled after CommBox.
+ *   It uses its OWN internal 4-column layout (NOT the global AppLayout right pane).
+ *   Cardinal rule: chat thread is in center → customer info panel is on the right column.
+ *
+ * @layout 4-column structure:
+ *   - Column 1 (w-64, hidden on <lg): Status and channel filter sidebar with counts
+ *   - Column 2 (w-72 / xl:w-80): Scrollable conversation list with avatar, channel icon,
+ *     agent badge, unread count. Automated conversations show a purple Bot icon overlay on the avatar
+ *   - Column 3 (flex-1): Full chat thread with reply input. Bot messages styled with primary/10 bg and border.
+ *     Customer messages use bg-muted. Agent messages use bg-primary.
+ *   - Column 4 (w-64, hidden on <xl): Customer info panel with quick actions (Call/Email/SMS)
+ *
+ * @keyFeatures
+ *   - Take Over button: Appears when conversation is automated — lets a human take control from the AI agent
+ *   - Campaign disconnect: Stops all future campaign messages for this specific customer conversation.
+ *     Uses Ban icon and destructive styling. Shows "Disconnected" when already disconnected.
+ *   - Status filters: all, open, assigned, participating, automated, scheduled, followup, pending
+ *   - Channel filters: all, SMS, Email, Web Chat, WhatsApp, Voice
+ *
+ * @productionNote Conversations currently come from mockTeamboxConversations in mocks/conversations.ts.
+ *   Will wire to backend API at nexxusv2.huminicdev.com for real-time conversation streaming.
+ */
+
 import { useState } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, AlertTriangle, Smartphone, Globe } from 'lucide-react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, AlertTriangle, Smartphone, Globe, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +36,7 @@ import { useApp } from '@/contexts/AppContext';
 import { mockTeamboxConversations, conversationStatusLabels, type ConversationStatus, type ConversationChannel, type TeamboxConversation } from '@/mocks/conversations';
 import { formatDistanceToNow } from 'date-fns';
 
+/** Maps each conversation channel type to its corresponding Lucide icon */
 const channelIcons: Record<ConversationChannel, React.ElementType> = {
   sms: Smartphone,
   email: Mail,
@@ -19,6 +45,7 @@ const channelIcons: Record<ConversationChannel, React.ElementType> = {
   voice: Phone,
 };
 
+/** Status filter options for Column 1 sidebar — includes counts dynamically calculated */
 const statusFilters: { id: ConversationStatus | 'all'; label: string; count?: number }[] = [
   { id: 'all', label: 'All' },
   { id: 'open', label: 'Open' },
@@ -30,6 +57,7 @@ const statusFilters: { id: ConversationStatus | 'all'; label: string; count?: nu
   { id: 'pending', label: 'Pending' },
 ];
 
+/** Channel filter options for Column 1 sidebar — filters conversations by communication channel */
 const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'sms', label: 'SMS' },
@@ -39,6 +67,11 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'voice', label: 'Voice' },
 ];
 
+/**
+ * TeamboxPage — Main unified inbox component.
+ * Pre-selects the first conversation on load.
+ * PRODUCTION NOTE: Will need WebSocket/SSE for real-time message updates.
+ */
 export default function TeamboxPage() {
   const { currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +80,7 @@ export default function TeamboxPage() {
   const [selectedConversation, setSelectedConversation] = useState<TeamboxConversation | null>(mockTeamboxConversations[0]);
   const [replyText, setReplyText] = useState('');
 
+  // Filter conversations by status, channel, and search term (customer name)
   const filteredConversations = mockTeamboxConversations.filter(conv => {
     if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
     if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
@@ -54,6 +88,7 @@ export default function TeamboxPage() {
     return true;
   });
 
+  // Counts conversations per status for the filter sidebar badges
   const getStatusCount = (status: ConversationStatus | 'all') => {
     if (status === 'all') return mockTeamboxConversations.length;
     return mockTeamboxConversations.filter(c => c.status === status).length;
@@ -61,6 +96,7 @@ export default function TeamboxPage() {
 
   return (
     <div className="flex h-full overflow-hidden" data-testid="teambox-page">
+      {/* Column 1: Status & Channel filter sidebar — hidden on screens < lg */}
       <div className="w-64 border-r border-border flex flex-col bg-muted/30 flex-shrink-0 hidden lg:flex">
         <div className="p-3 border-b border-border">
           <div className="relative">
@@ -116,6 +152,7 @@ export default function TeamboxPage() {
         </ScrollArea>
       </div>
 
+      {/* Column 2: Conversation list — shows avatar, channel icon, agent badge, unread count */}
       <div className="w-72 xl:w-80 border-r border-border flex flex-col flex-shrink-0">
         <div className="p-3 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -143,11 +180,19 @@ export default function TeamboxPage() {
                   data-testid={`conversation-item-${conv.id}`}
                 >
                   <div className="flex items-start gap-2">
-                    <Avatar className="h-8 w-8 flex-shrink-0 mt-0.5">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        {conv.customerName.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative flex-shrink-0 mt-0.5">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {conv.customerName.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* Purple Bot icon overlay on avatar for automated (AI-handled) conversations */}
+                      {conv.status === 'automated' && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
+                          <Bot className="h-2.5 w-2.5 text-white" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
                         <span className="text-sm font-medium truncate">{conv.customerName}</span>
@@ -159,7 +204,13 @@ export default function TeamboxPage() {
                       <div className="flex items-center gap-1.5 mt-1">
                         <ChannelIcon className="h-3 w-3 text-muted-foreground" />
                         {conv.agentName && (
-                          <Badge variant="outline" className="h-4 text-[10px] px-1">{conv.agentName}</Badge>
+                          <Badge variant="outline" className={cn(
+                            "h-4 text-[10px] px-1 gap-0.5",
+                            conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
+                          )}>
+                            {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
+                            {conv.agentName}
+                          </Badge>
                         )}
                         {conv.unreadCount > 0 && (
                           <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
@@ -174,9 +225,11 @@ export default function TeamboxPage() {
         </ScrollArea>
       </div>
 
+      {/* Column 3: Full chat thread with reply input */}
       <div className="flex-1 flex flex-col min-w-0">
         {selectedConversation ? (
           <>
+            {/* Chat header with customer name, tags, Take Over button, and Campaign Disconnect */}
             <div className="p-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
@@ -194,6 +247,7 @@ export default function TeamboxPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
+                {/* Take Over: Human agent takes control from AI when conversation is automated */}
                 {selectedConversation.agentName && selectedConversation.status === 'automated' && (
                   <Button
                     variant="outline"
@@ -204,6 +258,7 @@ export default function TeamboxPage() {
                     Take Over
                   </Button>
                 )}
+                {/* Campaign disconnect: Stops all future campaign messages for this customer */}
                 {selectedConversation.campaignId && (
                   <Button
                     variant="outline"
@@ -231,6 +286,7 @@ export default function TeamboxPage() {
                       msg.senderType === 'customer' ? 'justify-start' : 'justify-end'
                     )}
                   >
+                    {/* Message bubble: customer=bg-muted, bot=primary/10 with border, agent=bg-primary */}
                     <div className={cn(
                       'max-w-[75%] rounded-xl px-3 py-2',
                       msg.senderType === 'customer'
@@ -279,6 +335,7 @@ export default function TeamboxPage() {
         )}
       </div>
 
+      {/* Column 4: Customer info panel — hidden on screens < xl */}
       {selectedConversation && (
         <div className="w-64 border-l border-border flex-shrink-0 hidden xl:flex flex-col">
           <div className="p-3 border-b border-border">

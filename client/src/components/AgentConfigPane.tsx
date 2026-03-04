@@ -1,3 +1,34 @@
+/**
+ * AgentConfigPane — Right pane configuration panel for the selected AI agent.
+ *
+ * Rendered inside RightPane/AppLayout when an agent is selected and the user is on the Agents page.
+ * Cardinal rule: Chat is in center (agents.tsx) → config details on right (this component).
+ *
+ * Configuration sections (tab navigation on left side of pane):
+ * - Performance: Channel display, agent links (customer link, assigned phone, chat link with
+ *   copy/open buttons), and metrics cards (interactions, resolution rate, avg response time).
+ * - Instructions: Read-only system prompt with "Edit" button → modal for editing instructions text.
+ * - Triggers: Agent automation triggers (e.g., "New lead 5min", "Daily follow-up").
+ *   Each trigger has enable/disable toggle. Add Trigger and Configure buttons (demo-only).
+ * - Tools & Skills: Active tools list with manage modal (toggles from availableTools in agents.ts).
+ *   Skills catalog with 20 skills across Sales, Finance, Operations, General categories.
+ *   Manage Skills modal with category headers and checkboxes.
+ * - Knowledge: Reference documents (FAQ, Pricing Guide, Inventory CSV) with item counts.
+ *   Upload Reference button and delete buttons (demo-only).
+ * - Activity: Recent agent actions timeline (handled chat, sent email, qualified leads, etc.).
+ *
+ * State management:
+ * - selectedAgent from AppContext drives all displayed data
+ * - updateAgent from AppContext persists changes (instructions, triggers, tools, status)
+ * - Modal pattern: Open modal → copy data to edit state → save writes back via updateAgent
+ *
+ * PRODUCTION NOTE: All config will persist to backend. Skills and tools will be
+ * dynamically loaded from the AI engine configuration.
+ *
+ * @see client/src/pages/agents.tsx — Center chat interface for the selected agent
+ * @see client/src/mocks/agents.ts — Agent type, availableTools, AgentChannel/Trigger/Tool types
+ * @see client/src/contexts/AppContext.tsx — selectedAgent, updateAgent, setRightPaneOpen
+ */
 import { useState } from 'react';
 import {
   Phone,

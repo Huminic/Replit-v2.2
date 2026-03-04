@@ -1,3 +1,19 @@
+/**
+ * ThemeContext.tsx — Light/dark theme toggle with localStorage persistence
+ *
+ * Manages the application's color scheme:
+ *  - Toggles the "dark" class on document.documentElement for Tailwind dark mode
+ *  - Persists user preference in localStorage under "nexxus:theme"
+ *  - Falls back to system preference (prefers-color-scheme) if no stored value
+ *  - Listens for system theme changes and auto-applies if no manual override
+ *
+ * Used by:
+ *  - TopBar.tsx: Theme toggle button (sun/moon icon)
+ *  - settings.tsx: Appearance section theme selector
+ *  - All components via Tailwind's dark: variant classes
+ *
+ * The ThemeProvider wraps the entire app in App.tsx, inside QueryClientProvider.
+ */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
