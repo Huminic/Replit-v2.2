@@ -132,7 +132,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getRoleLabel, type UserRole } from '@/mocks/users';
+import { getRoleLabel, type UserRole } from '@/lib/agent-utils';
 import { availableTools } from '@/mocks/agents';
 import {
   mockWidgets,

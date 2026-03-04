@@ -10,7 +10,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
-import { mockAgents, type Agent } from '@/mocks/agents';
+import type { Agent } from '@shared/schema';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
 import { useQuery } from '@tanstack/react-query';
 
@@ -125,7 +125,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
     : mockOrganizations;
 
-  const resolvedAgents = apiAgents || mockAgents;
+  const resolvedAgents = apiAgents || [];
 
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
     const validRoles: UserRole[] = ['super_admin', 'partner_admin', 'org_admin', 'executive', 'sales_manager', 'sales', 'service', 'marketing'];
@@ -157,10 +157,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentOrganization(resolvedOrganization);
   }, [orgDetails]);
 
-  const [agents, setAgents] = useState<Agent[]>(mockAgents);
+  const [agents, setAgents] = useState<Agent[]>([]);
 
   useEffect(() => {
-    if (resolvedAgents !== mockAgents) {
+    if (resolvedAgents.length > 0) {
       setAgents(resolvedAgents);
     }
   }, [apiAgents]);

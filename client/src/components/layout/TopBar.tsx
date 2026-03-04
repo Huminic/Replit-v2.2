@@ -58,7 +58,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import { getNotificationIcon, getNotificationColor } from '@/mocks/notifications';
 import { mockActivityFeed, getActivityColor } from '@/mocks/activity';
-import { getRoleLabel } from '@/mocks/users';
+import { getRoleLabel } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
 
 /**

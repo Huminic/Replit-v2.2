@@ -28,7 +28,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { getAgentStatusColor } from '@/mocks/agents';
+import { getAgentStatusColor } from '@/lib/agent-utils';
 import type { Agent } from '@shared/schema';
 
 /** Sub-navigation tabs for the sales page — Dashboard/Agents/Insights/Calendar */
