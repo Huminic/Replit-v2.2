@@ -45,6 +45,7 @@ export function Sidebar() {
   const [location, setLocation] = useLocation();
   const { 
     currentRole, 
+    userPermissions,
     sidebarVisible, 
     setSidebarVisible,
     activePanel,
@@ -110,7 +111,7 @@ export function Sidebar() {
   const currentPageHasPanel = getCurrentPagePanel() !== null;
 
   const renderMenuItem = (item: MenuItem) => {
-    if (item.section && !canAccessSection(currentRole, item.section)) {
+    if (item.section && !canAccessSection(currentRole, item.section, userPermissions.length > 0 ? userPermissions : undefined)) {
       return null;
     }
 
@@ -133,7 +134,7 @@ export function Sidebar() {
             data-testid={`sidebar-item-${item.id}`}
           >
             <Icon className={cn(
-              'h-5 w-5 flex-shrink-0',
+              'h-[22px] w-[22px] flex-shrink-0',
               (active || isPanelOpen) ? 'text-purple-500 dark:text-purple-400' : 'text-muted-foreground'
             )} />
             <span className={cn(
@@ -172,7 +173,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col border-r border-border bg-sidebar w-16"
+      className="flex flex-col border-r border-border bg-sidebar w-[72px]"
       onMouseLeave={handleMouseLeave}
     >
       {currentPageHasPanel && (
