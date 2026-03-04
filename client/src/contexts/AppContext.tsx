@@ -180,8 +180,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   ]);
 
   useEffect(() => {
-    if (agents.length > 0 && !selectedAgent) {
-      setSelectedAgent(agents[0]);
+    if (agents.length > 0) {
+      if (!selectedAgent) {
+        setSelectedAgent(agents[0]);
+      } else {
+        const updated = agents.find(a => a.id === selectedAgent.id) ||
+                        agents.find(a => a.name === selectedAgent.name);
+        if (updated && updated.id !== selectedAgent.id) {
+          setSelectedAgent(updated);
+        }
+      }
     }
   }, [agents]);
 

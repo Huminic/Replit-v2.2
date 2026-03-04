@@ -30,6 +30,7 @@
  * @see client/src/contexts/AppContext.tsx — selectedAgent, updateAgent, setRightPaneOpen
  */
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Phone,
   MessageSquare,
@@ -56,6 +57,7 @@ import {
   Info,
   Sparkles,
   Check,
+  Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -66,6 +68,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -86,13 +89,22 @@ const channelIcons: Record<AgentChannel, React.ElementType> = {
   sms: MessageSquare,
 };
 
-const agentActivities = [
-  { id: 'act1', text: 'Handled inbound chat from Sarah M.', time: '2 hours ago' },
-  { id: 'act2', text: 'Sent follow-up email to lead #2847', time: '4 hours ago' },
-  { id: 'act3', text: 'Qualified 3 new leads via web form', time: '6 hours ago' },
-  { id: 'act4', text: 'Updated CRM records for 12 contacts', time: '8 hours ago' },
-  { id: 'act5', text: 'Triggered service reminder campaign', time: '12 hours ago' },
-];
+function formatTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function formatDuration(seconds: number | null): string {
+  if (!seconds) return '—';
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
 
 const agentTriggersMock = [
   { id: 'trg-1', name: 'New lead 5min', schedule: 'Event', enabled: true },
@@ -148,6 +160,24 @@ export function AgentConfigPane() {
   const { toast } = useToast();
   const { selectedAgent, updateAgent, setRightPaneOpen } = useApp();
   const [activeConfigSection, setActiveConfigSection] = useState('performance');
+
+  const vapiAssistantId = selectedAgent?.vapiAssistantId;
+
+  const { data: vapiAnalytics, isLoading: analyticsLoading } = useQuery<any[]>({
+    queryKey: ['/api/vapi/analytics'],
+    enabled: !!vapiAssistantId,
+    staleTime: 60000,
+  });
+
+  const { data: vapiCalls, isLoading: callsLoading } = useQuery<any[]>({
+    queryKey: [`/api/vapi/calls?assistantId=${vapiAssistantId}&limit=10`],
+    enabled: !!vapiAssistantId,
+    staleTime: 60000,
+  });
+
+  const agentAnalytics = vapiAnalytics?.[0]?.result?.find(
+    (r: any) => r.assistantId === vapiAssistantId
+  );
 
   const [instructionsModalOpen, setInstructionsModalOpen] = useState(false);
   const [editInstructions, setEditInstructions] = useState('');
@@ -236,16 +266,16 @@ export function AgentConfigPane() {
           <div className="p-4 space-y-4">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Channel</p>
-              <div className="flex gap-3">
-                {(() => {
-                  const Icon = channelIcons[selectedAgent.channel];
+              <div className="flex gap-3 flex-wrap">
+                {(selectedAgent.channels || [selectedAgent.channel]).filter(Boolean).map((ch: string) => {
+                  const Icon = channelIcons[ch as AgentChannel] || Phone;
                   return (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${selectedAgent.channel}`}>
+                    <div key={ch} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${ch}`}>
                       <Icon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm capitalize text-foreground">{selectedAgent.channel}</span>
+                      <span className="text-sm capitalize text-foreground">{ch}</span>
                     </div>
                   );
-                })()}
+                })}
               </div>
             </div>
             <div>
@@ -306,35 +336,53 @@ export function AgentConfigPane() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Metrics</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Metrics (Live)</p>
               <div className="grid grid-cols-1 gap-3">
-                <Card>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Interactions</p>
-                      <p className="text-lg font-bold text-foreground">247</p>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">+12% this week</Badge>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Resolution Rate</p>
-                      <p className="text-lg font-bold text-foreground">89%</p>
-                    </div>
-                    <Badge variant="secondary" className="text-xs text-green-600 dark:text-green-400">On target</Badge>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Avg Response</p>
-                      <p className="text-lg font-bold text-foreground">1.2s</p>
-                    </div>
-                    <Badge variant="secondary" className="text-xs text-green-600 dark:text-green-400">Under SLA</Badge>
-                  </CardContent>
-                </Card>
+                {analyticsLoading ? (
+                  <>
+                    <Skeleton className="h-[72px] rounded-xl" />
+                    <Skeleton className="h-[72px] rounded-xl" />
+                    <Skeleton className="h-[72px] rounded-xl" />
+                  </>
+                ) : (
+                  <>
+                    <Card>
+                      <CardContent className="p-4 flex items-center justify-between" data-testid="metric-calls">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Calls (7d)</p>
+                          <p className="text-lg font-bold text-foreground">{agentAnalytics?.countId || '0'}</p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {vapiAssistantId ? 'VAPI Live' : 'No VAPI ID'}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4 flex items-center justify-between" data-testid="metric-cost">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Total Cost (7d)</p>
+                          <p className="text-lg font-bold text-foreground">
+                            ${agentAnalytics?.sumCost != null ? agentAnalytics.sumCost.toFixed(2) : '0.00'}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs text-green-600 dark:text-green-400">USD</Badge>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4 flex items-center justify-between" data-testid="metric-duration">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Avg Duration</p>
+                          <p className="text-lg font-bold text-foreground">
+                            {agentAnalytics?.avgDuration != null
+                              ? `${Math.round(agentAnalytics.avgDuration * 60)}s`
+                              : '—'}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs text-green-600 dark:text-green-400">Per call</Badge>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -486,15 +534,65 @@ export function AgentConfigPane() {
       case 'activity':
         return (
           <div className="p-4 space-y-3">
-            {agentActivities.map(act => (
-              <div key={act.id} className="flex items-start gap-3 py-2" data-testid={`agent-activity-${act.id}`}>
-                <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-foreground">{act.text}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{act.time}</p>
-                </div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2" data-testid="activity-heading">Recent Calls</p>
+            {callsLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-16 rounded-lg" />
+                <Skeleton className="h-16 rounded-lg" />
+                <Skeleton className="h-16 rounded-lg" />
               </div>
-            ))}
+            ) : vapiCalls && vapiCalls.length > 0 ? (
+              vapiCalls.map((call: any) => (
+                <div key={call.id} className="p-3 rounded-lg border border-border space-y-1.5" data-testid={`call-${call.id}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Headphones className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">{call.customer || 'Unknown'}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{call.startedAt ? formatTimeAgo(call.startedAt) : ''}</span>
+                  </div>
+                  {call.summary && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">{call.summary}</p>
+                  )}
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                    <span>{formatDuration(call.duration)}</span>
+                    {call.cost != null && <span>${call.cost.toFixed(4)}</span>}
+                    {call.recordingUrl && (
+                      <a
+                        href={call.recordingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-0.5"
+                        data-testid={`call-recording-${call.id}`}
+                      >
+                        Recording
+                        <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    )}
+                    {call.transcript && (
+                      <button
+                        className="text-primary hover:underline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(call.transcript);
+                          toast({ title: 'Transcript copied', description: 'Full transcript copied to clipboard.' });
+                        }}
+                        data-testid={`call-transcript-${call.id}`}
+                      >
+                        Copy Transcript
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6">
+                <Headphones className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-sm text-muted-foreground">No recent calls</p>
+                {!vapiAssistantId && (
+                  <p className="text-xs text-muted-foreground mt-1">No VAPI assistant linked</p>
+                )}
+              </div>
+            )}
           </div>
         );
       default:

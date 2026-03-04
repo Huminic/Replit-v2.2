@@ -23,6 +23,7 @@ import {
   updateCampaignSchema,
 } from "@shared/schema";
 import { z } from "zod";
+import { registerVendorRoutes } from "./vendorProxy";
 
 const updateConversationSchema = z.object({
   status: z.string().optional(),
@@ -567,6 +568,8 @@ export async function registerRoutes(
       return res.status(500).json({ message: "Failed to fetch campaign" });
     }
   });
+
+  registerVendorRoutes(app);
 
   app.patch("/api/campaigns/:id", authenticateToken, async (req, res) => {
     try {
