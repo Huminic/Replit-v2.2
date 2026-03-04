@@ -53,6 +53,8 @@ export interface Agent {
   customerLink?: string;
   assignedPhone?: string;
   chatLink?: string;
+  vapiAssistantId?: string | null;
+  tavusPersonaId?: string | null;
   createdAt: string;
   updatedAt: string;
   createdBy: string;

@@ -42,6 +42,9 @@ Pages wired to real API data:
 - **Settings Communication Gate**: `PATCH /api/organizations/:id` with outboundEnabled
 - **Profile**: `PATCH /api/users/me` for contact info changes
 - **Auth**: JWT login/logout/refresh, session management
+- **AgentConfigPane Performance**: Live VAPI analytics (calls count, total cost, avg duration) per agent via `/api/vapi/analytics`
+- **AgentConfigPane Activity**: Real VAPI call history with recording links, transcript copy, customer info via `/api/vapi/calls`
+- **VAPI/Tavus Proxy**: Read-only proxy routes in `server/vendorProxy.ts` for all VAPI and Tavus API endpoints
 
 Pages still using mock data:
 - Dashboard metric tiles (hardcoded KPIs per role)
@@ -51,14 +54,14 @@ Pages still using mock data:
 - TopBar notifications/activity (mockNotifications, mockActivityFeed)
 - SubMenuManager activity feed (mockActivityFeed — no activity table yet)
 - Billing section in Profile
-- AgentConfigPane (hardcoded triggers/skills/knowledge refs)
+- AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
 
 ### Database Schema (8 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
 -   `organizations`: Org config including kill switch states (outbound/sms/phone/email enabled)
 -   `users`: User auth and profile
 -   `sessions`: JWT refresh token management
--   `agents`: AI agent definitions with department, channels, dealership
+-   `agents`: AI agent definitions with department, channels, dealership, assignedPhone, vapiAssistantId, tavusPersonaId
 -   `conversations`: Conversation metadata with status, channel, agentId, campaignId, campaignDisconnected
 -   `messages`: Individual messages with role (customer/bot/agent/user/assistant), senderName
 -   `campaigns`: Campaign config with department, killSwitch, recipient/sent/replied counts, csvFilename
@@ -72,12 +75,16 @@ Pages still using mock data:
 - Users: GET /api/users (org users with roles), PATCH /api/users/me
 - Conversations: GET/POST /api/conversations, GET/PATCH /api/conversations/:id, GET/POST /api/conversations/:id/messages
 - Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
+- VAPI Proxy (read-only): GET /api/vapi/assistants, GET /api/vapi/phone-numbers, GET /api/vapi/calls (?assistantId=, ?limit=), GET /api/vapi/calls/:callId, GET /api/vapi/analytics
+- Tavus Proxy (read-only): GET /api/tavus/personas, GET /api/tavus/replicas, GET /api/tavus/conversations (?personaId=, ?limit=)
 
 ### Seed Data
 Default login: admin@nexxus.com / password123
-- 8 roles, 3 organizations (Serra Honda/Nissan/Ford), 8 users, 5 agents
+- 8 roles, 3 organizations (Serra Honda/Nissan/Ford), 8 users, 5 agents (with VAPI/Tavus IDs)
 - 8 TeamBox conversations with messages across channels (sms/chat/email/whatsapp)
 - 4 campaigns (service/marketing/sales departments, one with killSwitch=true)
+- Agent VAPI mappings: Caroline→90a876c0, Magnolia→2203b188, Georgia→ad478eb2, Elizabeth→6d12a8fa, Savannah→6216451c
+- Agent Tavus mappings: Caroline→p9eb007721f4, Magnolia→p2f586f7e4e0, Georgia→pe791670615d, Savannah→pf233f09f33d
 
 ### UI/UX Decisions and Layout Architecture
 The platform features a context-aware multi-pane layout inspired by ClickUp.
