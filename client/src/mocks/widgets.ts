@@ -4,6 +4,28 @@ export type WidgetType = 'video' | 'text' | 'voice' | 'unified';
 export type LandingPageType = 'multi' | 'chat' | 'video' | 'callback';
 export type AudienceType = 'all' | 'leads' | 'returning';
 
+export type WidgetChannel = 'chat' | 'video' | 'voice' | 'sms' | 'callback';
+
+export interface UniversalWidgetSettings {
+  enabledChannels: Record<WidgetChannel, boolean>;
+  defaultChannel: WidgetChannel;
+  videoPersonaName: string;
+  videoPersonaGreeting: string;
+  videoAutoLaunch: boolean;
+  smsNumber: string;
+  callbackFormFields: string[];
+}
+
+export const defaultUniversalSettings: UniversalWidgetSettings = {
+  enabledChannels: { chat: true, video: true, voice: true, sms: true, callback: true },
+  defaultChannel: 'chat',
+  videoPersonaName: 'Serra',
+  videoPersonaGreeting: 'Hi! I\'m Serra, your AI concierge. How can I help you today?',
+  videoAutoLaunch: false,
+  smsNumber: '+1 (555) 234-5679',
+  callbackFormFields: ['name', 'phone', 'email', 'interest'],
+};
+
 export interface WidgetAppearance {
   primaryColor: string;
   secondaryColor: string;
