@@ -4,30 +4,19 @@
  * STANDALONE LAYOUT: This page does NOT use AppLayout (no sidebar, no topbar).
  * It renders as a full-screen split layout visible to unauthenticated visitors.
  *
- * Left side (white): Lead capture form with first/last name, phone (required), email,
- * interest field. Submit shows success confirmation with "send another" option.
- * Below form: "Or connect instantly" buttons for Video Call, Chat Now, Voice Call.
+ * Layout (desktop): Right branding panel on top conceptually, left form below.
+ * Layout (mobile): Branding panel stacks on top, form below.
  *
- * Right side (ACCENT color background): Branding panel with decorative circles,
- * hero text, and "Meet Serra" AI video call CTA button.
+ * Left side (white): "Start a Live Video Chat" CTA link at top, then lead capture form
+ * with first/last name, phone (required), email, interest field.
  *
- * Floating Widget FAB: Bottom-right corner button that toggles a multi-channel widget menu.
- * Widget modes:
- * - menu: Channel selection panel with 7 options (Text Chat, AI Video, Voice Call,
- *   SMS, Email, Request Callback, Schedule Service).
- * - chat: Text chat with AI persona (Serra). Mock responses based on keywords (SUV, trade-in).
- * - video: AI video call interface with Tavus-style avatar, mic/camera toggles, end call.
- * - voice: Voice call with audio waveform animation, mic toggle, end call.
+ * Right side (GUNMETAL_BLUE background): Branding panel with animated circular image,
+ * floating video icon, hero text, and stats.
  *
- * Constants:
- * - ACCENT: Teal brand color (#0d9488)
- * - ORG_NAME: "Cage Automotive" (demo org)
- * - PERSONA_NAME: "Serra" (AI persona name)
+ * Floating Widget FAB: Bottom-right corner button (TEAL colored — separate from page accent).
+ * Widget modes: menu (7 channels), chat, video, voice.
  *
- * PRODUCTION NOTE: Form submission will POST to backend. Widget channels will connect to
- * real VAPI (voice), Tavus (video), and AI chat backends. Lead data piped to CRM via MCP.
- *
- * @see client/src/pages/settings.tsx — Widget & landing page configuration in Tools section
+ * @see client/src/pages/settings.tsx — Widget & landing page configuration
  * @see client/src/mocks/widgets.ts — Widget types and universal settings
  */
 import { useState } from 'react';
@@ -43,7 +32,6 @@ import {
   MicOff,
   VideoOff,
   Mail,
-  FileText,
   Calendar,
 } from 'lucide-react';
 import liveVideoImg from '@assets/live-video-audience.png';
@@ -51,7 +39,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const ACCENT = '#0d9488';
+const GUNMETAL_BLUE = '#2c3e50';
+const WIDGET_TEAL = '#0d9488';
 const ORG_NAME = 'Cage Automotive';
 const PERSONA_NAME = 'Serra';
 
@@ -66,6 +55,11 @@ export default function WidgetLandingPage() {
   const [chatInput, setChatInput] = useState('');
   const [videoActive, setVideoActive] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
+
+  const startVideoChat = () => {
+    setWidgetMode('video');
+    setVideoActive(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +87,7 @@ export default function WidgetLandingPage() {
     if (widgetMode === 'menu') {
       return (
         <div className="bg-white rounded-2xl shadow-2xl w-80 overflow-hidden border border-gray-100" data-testid="widget-menu">
-          <div className="p-4 text-white" style={{ backgroundColor: ACCENT }}>
+          <div className="p-4 text-white" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -125,7 +119,7 @@ export default function WidgetLandingPage() {
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => { setWidgetMode('video'); setVideoActive(true); }}
+              onClick={startVideoChat}
               data-testid="widget-option-video"
             >
               <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
@@ -209,7 +203,7 @@ export default function WidgetLandingPage() {
     if (widgetMode === 'chat') {
       return (
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[420px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-chat">
-          <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: ACCENT }}>
+          <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
               <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs" data-testid="button-back-menu">
                 ←
@@ -234,7 +228,7 @@ export default function WidgetLandingPage() {
                     ? 'text-white rounded-br-md'
                     : 'bg-gray-100 text-gray-800 rounded-bl-md'
                 }`}
-                  style={msg.role === 'user' ? { backgroundColor: ACCENT } : undefined}
+                  style={msg.role === 'user' ? { backgroundColor: WIDGET_TEAL } : undefined}
                   data-testid={`chat-message-${i}`}
                 >
                   {msg.text}
@@ -244,18 +238,18 @@ export default function WidgetLandingPage() {
           </div>
           <div className="p-3 border-t border-gray-100">
             <div className="flex items-center gap-2">
-              <Input
+              <input
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Type a message..."
-                className="text-sm h-9 border-gray-200"
+                className="flex-1 text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 onKeyDown={(e) => e.key === 'Enter' && handleChatSend()}
                 data-testid="input-widget-chat"
               />
               <Button
                 size="sm"
                 className="h-9 w-9 p-0 text-white flex-shrink-0"
-                style={{ backgroundColor: ACCENT }}
+                style={{ backgroundColor: WIDGET_TEAL }}
                 onClick={handleChatSend}
                 data-testid="button-widget-send"
               >
@@ -337,7 +331,7 @@ export default function WidgetLandingPage() {
     if (widgetMode === 'voice') {
       return (
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[300px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
-          <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: ACCENT }}>
+          <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
               <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs">←</button>
               <p className="font-semibold text-xs">Voice Call</p>
@@ -382,11 +376,11 @@ export default function WidgetLandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative" data-testid="landing-page">
+    <div className="min-h-screen flex flex-col-reverse lg:flex-row relative" data-testid="landing-page">
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: ACCENT }}>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: GUNMETAL_BLUE }}>
               <MessageSquare className="h-4.5 w-4.5 text-white" />
             </div>
             <span className="font-bold text-lg text-gray-900">{ORG_NAME}</span>
@@ -394,7 +388,7 @@ export default function WidgetLandingPage() {
 
           {submitted ? (
             <div className="text-center py-12" data-testid="landing-success">
-              <CheckCircle2 className="h-16 w-16 mx-auto mb-4" style={{ color: ACCENT }} />
+              <CheckCircle2 className="h-16 w-16 mx-auto mb-4" style={{ color: GUNMETAL_BLUE }} />
               <h2 className="text-2xl font-bold text-gray-900">You're all set!</h2>
               <p className="text-gray-500 mt-2">
                 We'll be in touch shortly. Check your phone for a text from our team.
@@ -410,82 +404,52 @@ export default function WidgetLandingPage() {
             </div>
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-                Connect with our team
-              </h1>
-              <p className="text-gray-500 mt-2 mb-8">
-                Fill in your details and we'll reach out to you right away — by text, call, or however you prefer.
-              </p>
+              <div className="text-center mb-8">
+                <button
+                  onClick={startVideoChat}
+                  className="inline-flex items-center gap-2 text-lg font-semibold hover:underline transition-colors"
+                  style={{ color: GUNMETAL_BLUE }}
+                  data-testid="button-start-video-link"
+                >
+                  <Video className="h-5 w-5" />
+                  Start a Live Video Chat
+                </button>
+                <p className="text-gray-400 text-sm mt-2">or fill in your details</p>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-gray-600">First Name</Label>
-                    <Input placeholder="John" className="mt-1" required data-testid="input-first-name" />
+                    <input placeholder="John" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-first-name" />
                   </div>
                   <div>
                     <Label className="text-xs text-gray-600">Last Name</Label>
-                    <Input placeholder="Smith" className="mt-1" required data-testid="input-last-name" />
+                    <input placeholder="Smith" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-last-name" />
                   </div>
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">Phone Number</Label>
-                  <Input type="tel" placeholder="(555) 123-4567" className="mt-1" required data-testid="input-phone" />
+                  <input type="tel" placeholder="(555) 123-4567" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-phone" />
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">Email</Label>
-                  <Input type="email" placeholder="john@example.com" className="mt-1" data-testid="input-email" />
+                  <input type="email" placeholder="john@example.com" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" data-testid="input-email" />
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">What are you looking for?</Label>
-                  <Input placeholder="e.g. SUV under $40K, trade-in value" className="mt-1" data-testid="input-interest" />
+                  <input placeholder="e.g. SUV under $40K, trade-in value" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" data-testid="input-interest" />
                 </div>
                 <Button
                   type="submit"
                   className="w-full text-white mt-2"
-                  style={{ backgroundColor: ACCENT }}
+                  style={{ backgroundColor: GUNMETAL_BLUE }}
                   data-testid="button-submit"
                 >
                   Get in Touch
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </form>
-
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <p className="text-sm text-gray-600 font-medium mb-3 text-center">Or connect instantly</p>
-                <div className="flex items-center justify-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => setWidgetMode('chat')}
-                    data-testid="button-launch-chat"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Chat Now
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => { setWidgetMode('video'); setVideoActive(true); }}
-                    data-testid="button-launch-video"
-                  >
-                    <Video className="h-4 w-4" />
-                    Video Call
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => setWidgetMode('voice')}
-                    data-testid="button-launch-voice"
-                  >
-                    <Phone className="h-4 w-4" />
-                    Call
-                  </Button>
-                </div>
-              </div>
 
               <p className="text-[11px] text-gray-400 mt-4 leading-relaxed">
                 By submitting, you agree to receive communications from {ORG_NAME}. 
@@ -497,8 +461,8 @@ export default function WidgetLandingPage() {
       </div>
 
       <div
-        className="flex-1 flex items-center justify-center p-8 lg:p-16 relative overflow-hidden"
-        style={{ backgroundColor: ACCENT }}
+        className="lg:flex-1 flex items-center justify-center p-8 lg:p-16 relative overflow-hidden"
+        style={{ backgroundColor: GUNMETAL_BLUE }}
         data-testid="landing-branding"
       >
         <div className="absolute inset-0 opacity-10">
@@ -507,16 +471,23 @@ export default function WidgetLandingPage() {
         </div>
 
         <div className="relative text-center max-w-md">
-          <div className="relative w-64 h-64 mx-auto mb-6">
+          <button
+            onClick={startVideoChat}
+            className="relative w-64 h-64 mx-auto mb-6 group cursor-pointer"
+            data-testid="button-hero-image"
+          >
             <img
               src={liveVideoImg}
-              alt="Live video audience"
-              className="w-64 h-64 rounded-full object-cover border-4 border-white/30 shadow-lg"
+              alt="Start a live video chat"
+              className="w-64 h-64 rounded-full object-cover border-4 border-white/30 shadow-lg animate-landing-spin"
             />
+            <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <Video className="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+            </div>
             <div className="absolute -bottom-2 -right-2 w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-md">
               <Video className="h-7 w-7 text-white" />
             </div>
-          </div>
+          </button>
           <h2 className="text-3xl font-bold text-white leading-tight">
             Let's schedule a VIP test drive
           </h2>
@@ -552,7 +523,7 @@ export default function WidgetLandingPage() {
 
       <button
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white z-50 transition-transform hover:scale-105 active:scale-95"
-        style={{ backgroundColor: ACCENT }}
+        style={{ backgroundColor: WIDGET_TEAL }}
         onClick={() => setWidgetMode(widgetMode === 'closed' ? 'menu' : 'closed')}
         data-testid="button-widget-fab"
       >
