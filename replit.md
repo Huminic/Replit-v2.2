@@ -62,7 +62,7 @@ Pages still using hardcoded/static data (no API backend yet):
 - AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
 - Service/Marketing dashboard metric tiles (inline hardcoded, not from mock files)
 
-### Database Schema (8 tables)
+### Database Schema (9 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
 -   `organizations`: Org config including kill switch states (outbound/sms/phone/email enabled)
 -   `users`: User auth and profile
@@ -71,6 +71,7 @@ Pages still using hardcoded/static data (no API backend yet):
 -   `conversations`: Conversation metadata with status, channel, agentId, campaignId, campaignDisconnected
 -   `messages`: Individual messages with role (customer/bot/agent/user/assistant), senderName
 -   `campaigns`: Campaign config with department, killSwitch, recipient/sent/replied counts, csvFilename
+-   `integrations`: External service connections per org (provider, externalDealerId, externalDealerName, externalIntegrationId, nexxusOrgId, status)
 
 ### API Routes
 **Public**: POST /api/auth/login, POST /api/auth/forgot-password, POST /api/auth/reset-password
@@ -83,10 +84,12 @@ Pages still using hardcoded/static data (no API backend yet):
 - Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
 - VAPI Proxy (read-only): GET /api/vapi/assistants, GET /api/vapi/phone-numbers, GET /api/vapi/calls (?assistantId=, ?limit=), GET /api/vapi/calls/:callId, GET /api/vapi/analytics
 - Tavus Proxy (read-only): GET /api/tavus/personas, GET /api/tavus/replicas, GET /api/tavus/conversations (?personaId=, ?limit=)
+- Integrations: GET /api/integrations (?provider=), POST /api/integrations/provision (calls MCP vin_provision_dealer + inserts row)
 
 ### Seed Data
 Default login: admin@nexxus.com / password123
 - 8 roles, 3 organizations (Serra Honda/Nissan/Ford), 8 users, 5 agents (with VAPI/Tavus IDs)
+- 3 VinSolutions integrations: Serra Honda→dealer 21043, Serra Nissan→dealer 21044, Tony Serra Ford→dealer 21047
 - 8 TeamBox conversations with messages across channels (sms/chat/email/whatsapp)
 - 4 campaigns (service/marketing/sales departments, one with killSwitch=true)
 - Agent VAPI mappings: Caroline→90a876c0, Magnolia→2203b188, Georgia→ad478eb2, Elizabeth→6d12a8fa, Savannah→6216451c
