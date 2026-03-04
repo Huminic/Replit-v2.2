@@ -60,11 +60,35 @@ const roleMetrics: Record<UserRole, MetricTile[]> = {
     { label: 'Lead Quality', value: '72%', change: '-3%', trend: 'down', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
     { label: 'Demand Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ],
-  org_staff: [
+  executive: [
+    { label: 'Revenue', value: '$1.2M', change: '+9%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { label: 'Team Activity', value: '94%', change: '+3%', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { label: 'Customer Sat', value: '4.7', change: '+0.2', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'ROI Score', value: '8.9', change: '+1.1', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+  ],
+  sales_manager: [
+    { label: 'Pipeline Value', value: '$284K', change: '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { label: 'Team Leads', value: '34', change: '+8 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { label: 'Conversion Rate', value: '24%', change: '+3%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'Urgency Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+  ],
+  sales: [
     { label: 'Hot Opportunities', value: '7', change: '3 urgent', trend: 'up', gradient: 'from-orange-500/15 via-amber-500/10 to-yellow-500/5', iconBg: 'bg-orange-500/20' },
     { label: 'Buying Intel', value: '12', change: '5 new signals', trend: 'up', gradient: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', iconBg: 'bg-sky-500/20' },
     { label: 'Threats', value: '3', change: '1 critical', trend: 'down', gradient: 'from-red-500/15 via-rose-500/10 to-pink-500/5', iconBg: 'bg-red-500/20' },
     { label: 'Urgency Score', value: '8.1', change: '+1.2 today', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
+  ],
+  service: [
+    { label: 'Active Campaigns', value: '4', change: '+1 today', trend: 'up', gradient: 'from-teal-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-teal-500/20' },
+    { label: 'Messages Sent', value: '1,247', change: '+89 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { label: 'Appointments', value: '23', change: '+5 booked', trend: 'up', gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5', iconBg: 'bg-green-500/20' },
+    { label: 'Upsell Rate', value: '18%', change: '+2%', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+  ],
+  marketing: [
+    { label: 'Campaign Perf', value: '87%', change: '+4%', trend: 'up', gradient: 'from-pink-500/15 via-rose-500/10 to-red-500/5', iconBg: 'bg-pink-500/20' },
+    { label: 'Leads Generated', value: '156', change: '+23 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { label: 'Widget Clicks', value: '3,412', change: '+12%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'Landing Visits', value: '8,901', change: '+18%', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
   ],
 };
 

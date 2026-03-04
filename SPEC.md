@@ -393,3 +393,38 @@ Tests are organized by the 4-wave delivery structure. Each acceptance criterion 
 - Widget configuration and embed code generation
 - Theme toggle persistence
 - Mobile responsive behavior
+
+## 14. MCP Architecture Decision — VinSolutions Integration
+
+### Problem
+VinSolutions integration knowledge is buried in `vinSolutionsService.ts` on the production backend (nexxus-v2). Internal function calls are invisible and dangerous — a lead polling function was wired directly into the trigger engine, causing a spam incident where hundreds of automated messages fired silently. OAuth tokens are per-org, stored encrypted in Supabase, and refresh invalidates the previous token immediately.
+
+### Decision
+The central-mcp proxy server is the **sole token authority and gateway** for all VinSolutions API access. No other application calls VinSolutions directly.
+
+### Rationale
+1. **MCP tools are self-documenting** — any agent connecting to the proxy sees tool definitions, parameters, and API quirks without needing the nexxus codebase
+2. **MCP tools are explicit requests** — they can't be accidentally wired into background jobs that fire silently
+3. **Single refresh owner** — eliminates token refresh race conditions between services
+
+### Tool Surface
+- `vin_query_leads` — Search leads by date range, dealer, status
+- `vin_get_lead_sources` — List valid lead sources (returns href, not ID)
+- `vin_get_lead_types` — List valid lead types (returns href, not ID)
+- `vin_create_contact` — Step 1 of lead creation, returns contact href
+- `vin_create_lead` — Step 2, accepts full href strings for contact, source, type
+- `vin_token_status` — Read-only token health check (does not trigger refresh)
+- `vin_refresh_token` — Force-refresh OAuth token for an org
+
+### Hard-Won API Quirks (encoded in tool implementations)
+- Content-Type header: `application/vnd.coxauto.v3+json` — lowercase `v3`, NOT `V3` (returns 406)
+- Response key: `items`, NOT `results` (silently returns undefined)
+- Lead creation is 2-step: create Contact → use contact `href` in create Lead
+- Lead sources and types are referenced by full `href` URI, not by ID
+- Token refresh invalidates previous token immediately — no grace period
+
+### Migration Path
+1. VinOAuthService + VinSolutionsService copied into central-mcp (they're portable — Pool dependency only)
+2. MCP tools built with auto-refresh on expired tokens
+3. nexxus-v2 scheduled jobs updated to call through MCP instead of direct service calls
+4. Direct VinSolutions service calls in nexxus-v2 deprecated
