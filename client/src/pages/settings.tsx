@@ -103,6 +103,9 @@ import { mockUsers, getRoleLabel, type UserRole } from '@/mocks/users';
 import { availableTools } from '@/mocks/agents';
 import {
   mockWidgets,
+  defaultUniversalSettings,
+  type UniversalWidgetSettings,
+  type WidgetChannel,
   mockLandingPages,
   getWidgetStatusColor,
   getLandingPageTypeLabel,
@@ -205,6 +208,7 @@ export default function SettingsPage() {
   const [showKillConfirm, setShowKillConfirm] = useState(false);
   const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
 
   const isSuperAdmin = currentRole === 'super_admin';
   const isPartnerAdmin = currentRole === 'partner_admin';
@@ -423,6 +427,135 @@ export default function SettingsPage() {
     setWidgets(prev => [...prev, newWidget]);
     setSelectedWidget(newWidget);
     toast({ title: 'Widget created', description: 'Configure your new widget.' });
+  };
+
+  const channelLabels: Record<WidgetChannel, { label: string; icon: React.ElementType; description: string }> = {
+    chat: { label: 'Text Chat', icon: MessageSquare, description: 'AI-powered text conversations' },
+    video: { label: 'AI Video', icon: Video, description: 'Face-to-face AI video via Tavus' },
+    voice: { label: 'Voice Call', icon: Phone, description: 'Browser-based voice via VAPI' },
+    sms: { label: 'SMS / Text', icon: Send, description: 'Two-way SMS messaging' },
+    callback: { label: 'Callback Form', icon: FileText, description: 'Request a callback form' },
+  };
+
+  const renderUniversalSettings = () => {
+    const updateChannel = (channel: WidgetChannel, enabled: boolean) => {
+      setUniversalSettings(prev => ({
+        ...prev,
+        enabledChannels: { ...prev.enabledChannels, [channel]: enabled },
+      }));
+    };
+
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <LayoutGrid className="h-5 w-5 text-purple-500" />
+              <div>
+                <CardTitle className="text-sm">Universal Widget Settings</CardTitle>
+                <CardDescription>Configure which channels are available across all widgets and the landing page</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Enabled Channels</Label>
+              <div className="space-y-3 mt-3">
+                {(Object.keys(universalSettings.enabledChannels) as WidgetChannel[]).map((channel) => {
+                  const info = channelLabels[channel];
+                  const ChannelIcon = info.icon;
+                  return (
+                    <div key={channel} className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          'w-8 h-8 rounded-lg flex items-center justify-center',
+                          universalSettings.enabledChannels[channel] ? 'bg-purple-500/10' : 'bg-muted'
+                        )}>
+                          <ChannelIcon className={cn('h-4 w-4', universalSettings.enabledChannels[channel] ? 'text-purple-500' : 'text-muted-foreground')} />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{info.label}</p>
+                          <p className="text-xs text-muted-foreground">{info.description}</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={universalSettings.enabledChannels[channel]}
+                        onCheckedChange={(val) => updateChannel(channel, val)}
+                        data-testid={`switch-channel-${channel}`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Video Settings</Label>
+              <div>
+                <Label className="text-xs">Video Persona Name</Label>
+                <Input
+                  value={universalSettings.videoPersonaName}
+                  onChange={(e) => setUniversalSettings(prev => ({ ...prev, videoPersonaName: e.target.value }))}
+                  className="mt-1"
+                  data-testid="input-video-persona-name"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Video Greeting Message</Label>
+                <Textarea
+                  value={universalSettings.videoPersonaGreeting}
+                  onChange={(e) => setUniversalSettings(prev => ({ ...prev, videoPersonaGreeting: e.target.value }))}
+                  className="mt-1 text-sm"
+                  rows={2}
+                  data-testid="input-video-greeting"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-xs">Auto-launch Video on Landing Page</Label>
+                  <p className="text-[10px] text-muted-foreground">Automatically start video agent when visitor loads landing page</p>
+                </div>
+                <Switch
+                  checked={universalSettings.videoAutoLaunch}
+                  onCheckedChange={(val) => setUniversalSettings(prev => ({ ...prev, videoAutoLaunch: val }))}
+                  data-testid="switch-video-auto-launch"
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Default Channel</Label>
+              <Select
+                value={universalSettings.defaultChannel}
+                onValueChange={(val) => setUniversalSettings(prev => ({ ...prev, defaultChannel: val as WidgetChannel }))}
+              >
+                <SelectTrigger data-testid="select-default-channel">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(universalSettings.enabledChannels) as WidgetChannel[])
+                    .filter(ch => universalSettings.enabledChannels[ch])
+                    .map(ch => (
+                      <SelectItem key={ch} value={ch}>{channelLabels[ch].label}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={() => toast({ title: 'Universal settings saved', description: 'Channel configuration updated for all widgets.' })}
+              data-testid="button-save-universal-settings"
+            >
+              Save Universal Settings
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   };
 
   const renderWidgetTypeCards = () => {
@@ -1869,12 +2002,13 @@ export default function SettingsPage() {
         </Button>
 
         <Tabs value={currentTab} onValueChange={(val) => { setToolsTab(val); setSelectedWidget(null); setSelectedLandingPage(null); }}>
-          <TabsList className={cn('w-full max-w-2xl', isSuperAdmin ? 'grid grid-cols-7' : 'grid grid-cols-5')}>
+          <TabsList className={cn('w-full max-w-3xl', isSuperAdmin ? 'grid grid-cols-8' : 'grid grid-cols-6')}>
             <TabsTrigger value="mcp" data-testid="tab-mcp">MCP</TabsTrigger>
             <TabsTrigger value="api" data-testid="tab-api-tools">API</TabsTrigger>
             <TabsTrigger value="other" data-testid="tab-other">Other</TabsTrigger>
+            <TabsTrigger value="universal" data-testid="tab-universal">Universal</TabsTrigger>
             <TabsTrigger value="widgets" data-testid="tab-widgets">Widgets</TabsTrigger>
-            <TabsTrigger value="landing-pages" data-testid="tab-landing-pages">Landing Pages</TabsTrigger>
+            <TabsTrigger value="landing-pages" data-testid="tab-landing-pages">Pages</TabsTrigger>
             {isSuperAdmin && <TabsTrigger value="api-keys" data-testid="tab-api-keys">API Keys</TabsTrigger>}
             {isSuperAdmin && <TabsTrigger value="webhooks" data-testid="tab-webhooks">Webhooks</TabsTrigger>}
           </TabsList>
@@ -1899,6 +2033,10 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {otherTools.map(renderToolCard)}
             </div>
+          </TabsContent>
+
+          <TabsContent value="universal" className="mt-4">
+            {renderUniversalSettings()}
           </TabsContent>
 
           <TabsContent value="widgets" className="mt-4">
