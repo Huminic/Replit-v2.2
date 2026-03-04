@@ -18,10 +18,12 @@ Nexxus Connect solves these problems by providing a single AI-powered platform t
 
 | Persona | Role | Key Needs |
 |---------|------|-----------|
-| **Sales Rep** | org_staff (sales) | Pipeline visibility, lead notifications, AI-assisted follow-ups, appointment scheduling |
-| **Service Advisor** | org_staff (service) | Campaign management, appointment booking, declined service follow-ups, upsell tracking |
-| **Marketing Manager** | org_admin | Campaign creation/monitoring, lead generation metrics, widget analytics, landing page management |
-| **Dealership GM** | org_admin | Cross-department KPIs, revenue tracking, team activity monitoring, ROI analysis |
+| **Sales Rep** | sales | Pipeline visibility, lead notifications, AI-assisted follow-ups, appointment scheduling |
+| **Service Advisor** | service | Campaign management, appointment booking, declined service follow-ups, upsell tracking |
+| **Marketing Coordinator** | marketing | Campaign creation/monitoring, lead generation metrics, widget analytics, landing page management |
+| **Sales Manager** | sales_manager | Sales team oversight, pipeline metrics, management dashboard access |
+| **Dealership Executive** | executive | Cross-department KPIs, all department visibility, revenue tracking |
+| **Dealership GM** | org_admin | Full org access, system settings, team activity monitoring, ROI analysis |
 | **Platform Admin** | super_admin | Multi-org management, system configuration, API key management, billing |
 
 ### Secondary Personas
@@ -62,7 +64,7 @@ Nexxus Connect operates at the intersection of:
 **Theme**: Validated user experience with mock data
 
 - Persona-based sidebar navigation (AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management)
-- RBAC gating via `canAccessSection()` — Marketing and Management hidden from org_staff
+- RBAC gating via `canAccessSection()` — 8 roles with department-scoped sidebar visibility (see §6.6)
 - TeamBox: CommBox-inspired 3-column inbox (conversation list, chat thread, customer info)
 - Department dashboards with section-specific metric tiles
 - Campaign management UI with kill-switch toggles
@@ -142,18 +144,24 @@ Nexxus Connect operates at the intersection of:
 - Simplified landing page for customer-facing deployment
 
 ### 6.6 RBAC
-4-tier role system: super_admin > partner_admin > org_admin > org_staff
+8-role system replacing the old 4-tier model. Department-specific roles replaced the generic `org_staff`.
 
-| Section | org_staff | org_admin | partner_admin | super_admin |
-|---------|-----------|-----------|---------------|-------------|
-| AI Chat | ✓ | ✓ | ✓ | ✓ |
-| TeamBox | ✓ | ✓ | ✓ | ✓ |
-| My Work | ✓ | ✓ | ✓ | ✓ |
-| Sales | ✓ (dept) | ✓ | ✓ | ✓ |
-| Service | ✓ (dept) | ✓ | ✓ | ✓ |
-| Marketing | ✗ | ✓ | ✓ | ✓ |
-| Management | ✗ | ✓ | ✓ | ✓ |
-| System | ✗ | ✓ | ✓ | ✓ |
+```
+Platform level:   super_admin > partner_admin
+Org level:        org_admin > executive > sales_manager
+Department level: sales, service, marketing
+```
+
+| Section | sales | service | marketing | sales_manager | executive | org_admin | partner_admin | super_admin |
+|---------|:-----:|:-------:|:---------:|:-------------:|:---------:|:---------:|:-------------:|:-----------:|
+| AI Chat | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TeamBox | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| My Work | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Sales | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Service | ✗ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
+| Marketing | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ |
+| Manage | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| System | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ |
 
 ## 7. Success Metrics
 
@@ -177,6 +185,7 @@ Nexxus Connect operates at the intersection of:
 5. **Backend stays untouched during Wave 1** — all work is frontend-only with mock data
 6. **VinSolutions integration must respect OAuth2 token refresh** — never store permanent credentials
 7. **All automated messages must include opt-out mechanism** — TCPA/CAN-SPAM compliance
+8. **Kill switch backend columns must be defined before Wave 2 outbound wiring** — `outbound_enabled`, `sms_enabled`, `phone_enabled`, `email_enabled` on `organizations` table; MCP proxy must enforce these before any outbound API call
 
 ## 9. External Dependencies
 

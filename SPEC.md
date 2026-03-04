@@ -156,18 +156,20 @@ The `AppLayout` component determines layout behavior via `getViewConfig()`:
 |-------|--------|------------------|
 | theme | string | "light" or "dark"|
 
-## 6. RBAC Matrix
+## 6. RBAC Matrix (8 Roles)
 
-| Section    | super_admin | partner_admin | org_admin | org_staff |
-|------------|-------------|---------------|-----------|-----------|
-| AI Chat    | Y           | Y             | Y         | Y         |
-| TeamBox    | Y           | Y             | Y         | Y         |
-| My Work    | Y           | Y             | Y         | Y         |
-| Sales      | Y           | Y             | Y         | Y         |
-| Service    | Y           | Y             | Y         | Y         |
-| Marketing  | Y           | Y             | Y         | N         |
-| Management | Y           | Y             | Y         | N         |
-| System     | Y           | Y             | Y         | N         |
+The UI implements 8 roles (defined in `users.ts`). The old `org_staff` role has been removed and replaced with department-specific roles: `executive`, `sales_manager`, `sales`, `service`, `marketing`.
+
+| Section    | super_admin | partner_admin | org_admin | executive | sales_manager | sales | service | marketing |
+|------------|:-----------:|:-------------:|:---------:|:---------:|:-------------:|:-----:|:-------:|:---------:|
+| AI Chat    | Y           | Y             | Y         | Y         | Y             | Y     | Y       | Y         |
+| TeamBox    | Y           | Y             | Y         | Y         | Y             | Y     | Y       | Y         |
+| My Work    | Y           | Y             | Y         | Y         | Y             | Y     | Y       | Y         |
+| Sales      | Y           | Y             | Y         | Y         | Y             | Y     | N       | N         |
+| Service    | Y           | Y             | Y         | Y         | N             | N     | Y       | N         |
+| Marketing  | Y           | Y             | Y         | Y         | N             | N     | N       | Y         |
+| Manage     | Y           | Y             | Y         | Y         | Y             | N     | N       | N         |
+| System     | Y           | Y             | Y         | N         | N             | N     | N       | N         |
 
 Settings sub-section access:
 
@@ -234,9 +236,10 @@ Per-conversation disconnect (TeamBox):
 - Channels: sms, email, chat, whatsapp, voice
 
 ### Widgets (`mocks/widgets.ts`)
-- Types: text, video, voice, unified
+- Types: text, video, voice, unified (admin configuration model)
 - Each widget has: appearance config, targeting rules, allowed domains, embed code generation
 - Landing pages linked to widgets
+- The widget landing page FAB supports 7 customer-facing channels: chat, video, voice, SMS, callback, email, WhatsApp
 
 ## 9. Integration Architecture (Planned)
 
@@ -359,10 +362,10 @@ Reference screenshots stored in `client/public/screenshots/` with naming convent
 ```
 Examples:
 - `org_admin--home--desktop-dark.png`
-- `org_staff--sales--mobile-light.png`
+- `sales--sales--mobile-light.png`
 - `super_admin--settings--desktop-light.png`
 
-Roles captured: `super_admin`, `partner_admin`, `org_admin`, `org_staff`
+Roles captured: `super_admin`, `partner_admin`, `org_admin`, `executive`, `sales_manager`, `sales`, `service`, `marketing`
 Viewports: `desktop`, `mobile`
 Themes: `light`, `dark`
 

@@ -27,16 +27,19 @@
 
 | ID | Criterion | Test Method |
 |---|---|---|
-| W1-AC-002a | AI Chat visible to all roles (super_admin, partner_admin, org_admin, org_staff) | Switch to each role via role switcher; confirm AI Chat sidebar item visible |
-| W1-AC-002b | TeamBox visible to all roles | Switch to each role; confirm TeamBox visible |
-| W1-AC-002c | My Work visible to all roles | Switch to each role; confirm My Work visible |
-| W1-AC-002d | Sales visible to all roles | Switch to each role; confirm Sales visible |
-| W1-AC-002e | Service visible to all roles | Switch to each role; confirm Service visible |
-| W1-AC-002f | Marketing hidden from org_staff role | Switch to org_staff; confirm Marketing item not rendered |
-| W1-AC-002g | Management hidden from org_staff role | Switch to org_staff; confirm Management item not rendered |
-| W1-AC-002h | System hidden from org_staff role | Switch to org_staff; confirm System item not rendered |
-| W1-AC-002i | Marketing visible to super_admin, partner_admin, org_admin | Switch to each; confirm Marketing visible |
-| W1-AC-002j | Management visible to super_admin, partner_admin, org_admin | Switch to each; confirm Management visible |
+| W1-AC-002a | AI Chat visible to all 8 roles | Switch to each role via role switcher; confirm AI Chat sidebar item visible |
+| W1-AC-002b | TeamBox visible to all 8 roles | Switch to each role; confirm TeamBox visible |
+| W1-AC-002c | My Work visible to all 8 roles | Switch to each role; confirm My Work visible |
+| W1-AC-002d | Sales visible to super_admin, partner_admin, org_admin, executive, sales_manager, sales | Switch to each listed role; confirm Sales sidebar item visible |
+| W1-AC-002e | Sales hidden from service and marketing roles | Switch to service and marketing; confirm Sales item not rendered |
+| W1-AC-002f | Service visible to super_admin, partner_admin, org_admin, executive, service | Switch to each listed role; confirm Service visible |
+| W1-AC-002g | Service hidden from sales_manager, sales, marketing roles | Switch to each; confirm Service item not rendered |
+| W1-AC-002h | Marketing visible to super_admin, partner_admin, org_admin, executive, marketing | Switch to each listed role; confirm Marketing visible |
+| W1-AC-002i | Marketing hidden from sales_manager, sales, service roles | Switch to each; confirm Marketing item not rendered |
+| W1-AC-002j | Manage visible to super_admin, partner_admin, org_admin, executive, sales_manager | Switch to each listed role; confirm Manage sidebar item visible |
+| W1-AC-002k | Manage hidden from sales, service, marketing roles | Switch to each; confirm Manage item not rendered |
+| W1-AC-002l | System visible to super_admin, partner_admin, org_admin only | Switch to each admin role; confirm System visible |
+| W1-AC-002m | System hidden from executive, sales_manager, sales, service, marketing | Switch to each; confirm System item not rendered |
 
 ### W1-AC-003: Top Bar
 
@@ -96,7 +99,11 @@
 | W1-AC-010b | Tiles show role-specific content for super_admin: Partner Orgs, Total Logins, Platform Actions, Agent Actions | Switch to super_admin; confirm tile labels match |
 | W1-AC-010c | Tiles show role-specific content for partner_admin: Sub Orgs, Total Logins, User Actions, Agent Actions | Switch to partner_admin; confirm tile labels match |
 | W1-AC-010d | Tiles show role-specific content for org_admin: Pipeline Value, Lead Source, Lead Quality, Demand Score | Switch to org_admin; confirm tile labels match |
-| W1-AC-010e | Tiles show role-specific content for org_staff: Hot Opportunities, Buying Intel, Threats, Urgency Score | Switch to org_staff; confirm tile labels match |
+| W1-AC-010e | Tiles show role-specific content for executive: Revenue, Team Activity, Customer Sat, ROI Score | Switch to executive; confirm tile labels match |
+| W1-AC-010e2 | Tiles show role-specific content for sales_manager: Pipeline Value, Team Leads, Conversion Rate, Urgency Score | Switch to sales_manager; confirm tile labels match |
+| W1-AC-010e3 | Tiles show role-specific content for sales: Hot Opportunities, Buying Intel, Threats, Urgency Score | Switch to sales; confirm tile labels match |
+| W1-AC-010e4 | Tiles show role-specific content for service: Active Campaigns, Messages Sent, Appointments, Upsell Rate | Switch to service; confirm tile labels match |
+| W1-AC-010e5 | Tiles show role-specific content for marketing: Campaign Perf, Leads Generated, Widget Clicks, Landing Visits | Switch to marketing; confirm tile labels match |
 | W1-AC-010f | Clicking a tile opens a detail modal with breakdown data | Click Pipeline Value tile; confirm modal opens with breakdown rows |
 | W1-AC-010g | After first chat message, tiles collapse with window-blind animation (500ms) | Send a message; confirm tiles animate to max-h-0 opacity-0 |
 | W1-AC-010h | Show/Hide toggle appears after first message | Send a message; confirm toggle button with data-testid="button-toggle-metrics" appears |
