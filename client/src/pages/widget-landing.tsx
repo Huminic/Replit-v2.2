@@ -392,7 +392,7 @@ export default function WidgetLandingPage() {
     <div className="min-h-screen flex flex-col-reverse lg:flex-row relative" data-testid="landing-page">
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-md">
-          <div className="flex items-center gap-2.5 mb-8">
+          <div className="flex items-center gap-2.5 mb-4">
             {ORG_LOGO ? (
               <img src={ORG_LOGO} alt={ORG_NAME} className="w-9 h-9 rounded-lg object-contain" />
             ) : (
@@ -402,6 +402,10 @@ export default function WidgetLandingPage() {
             )}
             <span className="font-bold text-lg text-gray-900">{ORG_NAME}</span>
           </div>
+
+          <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-8">
+            Let's schedule a VIP test drive
+          </h1>
 
           {submitted ? (
             <div className="text-center py-12" data-testid="landing-success">
@@ -421,18 +425,6 @@ export default function WidgetLandingPage() {
             </div>
           ) : (
             <>
-              <div className="text-center mb-8">
-                <button
-                  onClick={startVideoChat}
-                  className="inline-flex items-center gap-2 text-lg font-semibold hover:underline transition-colors"
-                  style={{ color: GUNMETAL_BLUE }}
-                  data-testid="button-start-video-link"
-                >
-                  <Video className="h-5 w-5" />
-                  Start a Live Video Chat
-                </button>
-                <p className="text-gray-400 text-sm mt-2">or fill in your details</p>
-              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -506,12 +498,20 @@ export default function WidgetLandingPage() {
             </div>
           </button>
           <h2 className="text-3xl font-bold text-white leading-tight">
-            Let's schedule a VIP test drive
+            We are here for you 24/7
           </h2>
           <p className="text-white/80 mt-4 text-lg leading-relaxed">
             Our AI-powered team is ready to help you find the perfect vehicle, 
-            get a trade-in estimate, or schedule a test drive — 24/7.
+            get a trade-in estimate, or schedule a test drive.
           </p>
+          <button
+            onClick={startVideoChat}
+            className="inline-flex items-center gap-2 mt-5 text-white font-semibold text-lg hover:underline transition-colors"
+            data-testid="button-hero-video-link"
+          >
+            <Video className="h-5 w-5" />
+            Start a Live Video Chat
+          </button>
           
           <div className="flex items-center justify-center gap-6 mt-8">
             <div className="text-center">
