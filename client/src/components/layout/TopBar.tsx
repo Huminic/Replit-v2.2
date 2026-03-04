@@ -275,7 +275,11 @@ export function TopBar() {
               { value: 'super_admin' as const, label: 'Super Admin' },
               { value: 'partner_admin' as const, label: 'Partner Admin' },
               { value: 'org_admin' as const, label: 'Org Admin' },
-              { value: 'org_staff' as const, label: 'Staff' },
+              { value: 'executive' as const, label: 'Executive' },
+              { value: 'sales_manager' as const, label: 'Sales Manager' },
+              { value: 'sales' as const, label: 'Sales' },
+              { value: 'service' as const, label: 'Service' },
+              { value: 'marketing' as const, label: 'Marketing' },
             ]).map((role) => (
               <DropdownMenuItem
                 key={role.value}
