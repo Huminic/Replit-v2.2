@@ -14,11 +14,22 @@ import {
 import { seedDatabase } from "./seed";
 import {
   insertAgentSchema,
+  insertConversationSchema,
+  insertMessageSchema,
+  insertCampaignSchema,
   updateAgentSchema,
   updateOrganizationSchema,
   updateUserProfileSchema,
   updateCampaignSchema,
 } from "@shared/schema";
+import { z } from "zod";
+
+const updateConversationSchema = z.object({
+  status: z.string().optional(),
+  campaignDisconnected: z.boolean().optional(),
+  unreadCount: z.number().optional(),
+  assignedTo: z.string().nullable().optional(),
+});
 
 export async function registerRoutes(
   httpServer: Server,
@@ -413,6 +424,56 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/conversations", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const parsed = insertConversationSchema.safeParse({
+        ...req.body,
+        organizationId: req.user.organizationId,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
+      }
+      const conv = await storage.createConversation(parsed.data);
+      return res.status(201).json(conv);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create conversation" });
+    }
+  });
+
+  app.get("/api/conversations/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const conversation = await storage.getConversation(req.params.id);
+      if (!conversation) return res.status(404).json({ message: "Conversation not found" });
+      if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      return res.json(conversation);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch conversation" });
+    }
+  });
+
+  app.patch("/api/conversations/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getConversation(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Conversation not found" });
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const parsed = updateConversationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
+      }
+      const conv = await storage.updateConversation(req.params.id, parsed.data);
+      return res.json(conv);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update conversation" });
+    }
+  });
+
   app.get("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -428,13 +489,69 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const conversation = await storage.getConversation(req.params.id);
+      if (!conversation) return res.status(404).json({ message: "Conversation not found" });
+      if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const parsed = insertMessageSchema.safeParse({
+        ...req.body,
+        conversationId: req.params.id,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid message data", errors: parsed.error.flatten() });
+      }
+      const msg = await storage.createMessage(parsed.data);
+      await storage.updateConversation(req.params.id, { lastMessageAt: new Date() });
+      return res.status(201).json(msg);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create message" });
+    }
+  });
+
   app.get("/api/campaigns", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const campaignList = await storage.getCampaigns(req.user.organizationId);
+      const filters: { department?: string } = {};
+      if (req.query.department) filters.department = req.query.department as string;
+      const campaignList = await storage.getCampaigns(req.user.organizationId, filters);
       return res.json(campaignList);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch campaigns" });
+    }
+  });
+
+  app.post("/api/campaigns", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const parsed = insertCampaignSchema.safeParse({
+        ...req.body,
+        organizationId: req.user.organizationId,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid campaign data", errors: parsed.error.flatten() });
+      }
+      const campaign = await storage.createCampaign(parsed.data);
+      return res.status(201).json(campaign);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create campaign" });
+    }
+  });
+
+  app.get("/api/campaigns/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const campaign = await storage.getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+      if (campaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      return res.json(campaign);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch campaign" });
     }
   });
 

@@ -37,7 +37,8 @@ import {
   Mic,
   Video,
   MessageCircle,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -58,12 +59,27 @@ import { useApp } from '@/contexts/AppContext';
 import { getRoleLabel } from '@/mocks/users';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const { currentUser, currentOrganization } = useApp();
   const [billingEnabled] = useState(true);
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+  const profileMutation = useMutation({
+    mutationFn: async (data: { firstName?: string; lastName?: string; email?: string }) => {
+      await apiRequest('PATCH', '/api/users/me', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      toast({ title: 'Profile updated', description: 'Your profile has been saved.' });
+    },
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to save profile changes.', variant: 'destructive' });
+    },
+  });
 
   return (
     <div className="flex flex-col h-full items-center">
@@ -146,7 +162,22 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <Button onClick={() => toast({ title: 'Contact saved', description: 'Your contact information has been updated.' })} data-testid="button-save-contact">Save Changes</Button>
+                  <Button
+                    onClick={() => {
+                      const emailInput = document.getElementById('email') as HTMLInputElement;
+                      const nameParts = currentUser.name.split(' ');
+                      profileMutation.mutate({
+                        email: emailInput?.value || currentUser.email,
+                        firstName: nameParts[0],
+                        lastName: nameParts.slice(1).join(' '),
+                      });
+                    }}
+                    disabled={profileMutation.isPending}
+                    data-testid="button-save-contact"
+                  >
+                    {profileMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                    Save Changes
+                  </Button>
                 </CardContent>
               </Card>
             </div>

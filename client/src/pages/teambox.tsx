@@ -19,12 +19,12 @@
  *   - Status filters: all, open, assigned, participating, automated, scheduled, followup, pending
  *   - Channel filters: all, SMS, Email, Web Chat, WhatsApp, Voice
  *
- * @productionNote Conversations currently come from mockTeamboxConversations in mocks/conversations.ts.
- *   Will wire to backend API at nexxusv2.huminicdev.com for real-time conversation streaming.
+ * @dataSource Conversations loaded from GET /api/conversations, messages from GET /api/conversations/:id/messages.
+ *   Replies persisted via POST, Take Over and Campaign Disconnect via PATCH.
  */
 
-import { useState } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, AlertTriangle, Smartphone, Globe, Bot } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, Smartphone, Bot, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,11 +32,27 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
-import { mockTeamboxConversations, conversationStatusLabels, type ConversationStatus, type ConversationChannel, type TeamboxConversation } from '@/mocks/conversations';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { formatDistanceToNow } from 'date-fns';
+import type { Conversation, Message } from '@shared/schema';
 
-/** Maps each conversation channel type to its corresponding Lucide icon */
+type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
+type ConversationStatus = 'open' | 'assigned' | 'participating' | 'automated' | 'scheduled' | 'followup' | 'pending' | 'closed';
+
+const conversationStatusLabels: Record<ConversationStatus, string> = {
+  open: 'Open',
+  assigned: 'Assigned to me',
+  participating: 'Participating',
+  automated: 'Automated',
+  scheduled: 'Scheduled',
+  followup: 'Followup',
+  pending: 'Pending',
+  closed: 'Closed',
+};
+
 const channelIcons: Record<ConversationChannel, React.ElementType> = {
   sms: Smartphone,
   email: Mail,
@@ -45,8 +61,7 @@ const channelIcons: Record<ConversationChannel, React.ElementType> = {
   voice: Phone,
 };
 
-/** Status filter options for Column 1 sidebar — includes counts dynamically calculated */
-const statusFilters: { id: ConversationStatus | 'all'; label: string; count?: number }[] = [
+const statusFilters: { id: ConversationStatus | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'open', label: 'Open' },
   { id: 'assigned', label: 'Assigned to me' },
@@ -57,7 +72,6 @@ const statusFilters: { id: ConversationStatus | 'all'; label: string; count?: nu
   { id: 'pending', label: 'Pending' },
 ];
 
-/** Channel filter options for Column 1 sidebar — filters conversations by communication channel */
 const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'sms', label: 'SMS' },
@@ -67,36 +81,155 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'voice', label: 'Voice' },
 ];
 
-/**
- * TeamboxPage — Main unified inbox component.
- * Pre-selects the first conversation on load.
- * PRODUCTION NOTE: Will need WebSocket/SSE for real-time message updates.
- */
+function getAgentName(agentId: string | null, agents: { id: string; name: string }[]): string | undefined {
+  if (!agentId) return undefined;
+  const agent = agents.find(a => a.id === agentId);
+  return agent?.name;
+}
+
+function ConversationListSkeleton() {
+  return (
+    <div className="flex flex-col">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="p-3 border-b border-border">
+          <div className="flex items-start gap-2">
+            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MessagesSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 max-w-2xl mx-auto p-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className={cn('flex gap-2', i % 2 === 0 ? 'justify-start' : 'justify-end')}>
+          <Skeleton className={cn('rounded-xl h-16', i % 2 === 0 ? 'w-[60%]' : 'w-[50%]')} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function TeamboxPage() {
-  const { currentUser } = useApp();
+  const { agents } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
   const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
-  const [selectedConversation, setSelectedConversation] = useState<TeamboxConversation | null>(mockTeamboxConversations[0]);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Filter conversations by status, channel, and search term (customer name)
-  const filteredConversations = mockTeamboxConversations.filter(conv => {
+  const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
+    queryKey: ['/api/conversations'],
+  });
+
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null;
+
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(conversations[0].id);
+    }
+  }, [conversations, selectedConversationId]);
+
+  const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
+    queryKey: ['/api/conversations', selectedConversationId, 'messages'],
+    enabled: !!selectedConversationId,
+  });
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const filteredConversations = conversations.filter(conv => {
     if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
     if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
     if (searchTerm && !conv.customerName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     return true;
   });
 
-  // Counts conversations per status for the filter sidebar badges
   const getStatusCount = (status: ConversationStatus | 'all') => {
-    if (status === 'all') return mockTeamboxConversations.length;
-    return mockTeamboxConversations.filter(c => c.status === status).length;
+    if (status === 'all') return conversations.length;
+    return conversations.filter(c => c.status === status).length;
+  };
+
+  const getLastMessage = (conv: Conversation): string => {
+    if (selectedConversationId === conv.id && messages.length > 0) {
+      return messages[messages.length - 1].content;
+    }
+    return '';
+  };
+
+  const sendReplyMutation = useMutation({
+    mutationFn: async (data: { conversationId: string; content: string; senderName: string }) => {
+      return apiRequest('POST', `/api/conversations/${data.conversationId}/messages`, {
+        role: 'agent',
+        content: data.content,
+        senderName: data.senderName,
+      });
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations', variables.conversationId, 'messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      setReplyText('');
+    },
+  });
+
+  const takeOverMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest('PATCH', `/api/conversations/${conversationId}`, {
+        status: 'open',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+  });
+
+  const disconnectCampaignMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest('PATCH', `/api/conversations/${conversationId}`, {
+        campaignDisconnected: true,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+  });
+
+  const handleSendReply = () => {
+    if (!replyText.trim() || !selectedConversationId) return;
+    sendReplyMutation.mutate({
+      conversationId: selectedConversationId,
+      content: replyText.trim(),
+      senderName: 'Agent',
+    });
+  };
+
+  const handleTakeOver = () => {
+    if (!selectedConversationId) return;
+    takeOverMutation.mutate(selectedConversationId);
+  };
+
+  const handleDisconnectCampaign = () => {
+    if (!selectedConversationId) return;
+    disconnectCampaignMutation.mutate(selectedConversationId);
   };
 
   return (
     <div className="flex h-full overflow-hidden" data-testid="teambox-page">
-      {/* Column 1: Status & Channel filter sidebar — hidden on screens < lg */}
       <div className="w-64 border-r border-border flex flex-col bg-muted/30 flex-shrink-0 hidden lg:flex">
         <div className="p-3 border-b border-border">
           <div className="relative">
@@ -152,7 +285,6 @@ export default function TeamboxPage() {
         </ScrollArea>
       </div>
 
-      {/* Column 2: Conversation list — shows avatar, channel icon, agent badge, unread count */}
       <div className="w-72 xl:w-80 border-r border-border flex flex-col flex-shrink-0">
         <div className="p-3 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -161,75 +293,87 @@ export default function TeamboxPage() {
               {activeStatus === 'all' ? 'All' : conversationStatusLabels[activeStatus as ConversationStatus]}
             </span>
           </div>
-          <Badge variant="secondary" className="text-xs">{filteredConversations.length}</Badge>
+          <Badge variant="secondary" className="text-xs" data-testid="badge-conversation-count">{filteredConversations.length}</Badge>
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="flex flex-col">
-            {filteredConversations.map(conv => {
-              const ChannelIcon = channelIcons[conv.channel];
-              const isSelected = selectedConversation?.id === conv.id;
-              return (
-                <button
-                  key={conv.id}
-                  onClick={() => setSelectedConversation(conv)}
-                  className={cn(
-                    'w-full text-left p-3 border-b border-border transition-colors',
-                    isSelected ? 'bg-accent' : 'hover:bg-accent/50'
-                  )}
-                  data-testid={`conversation-item-${conv.id}`}
-                >
-                  <div className="flex items-start gap-2">
-                    <div className="relative flex-shrink-0 mt-0.5">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                          {conv.customerName.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      {/* Purple Bot icon overlay on avatar for automated (AI-handled) conversations */}
-                      {conv.status === 'automated' && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
-                          <Bot className="h-2.5 w-2.5 text-white" />
+          {conversationsLoading ? (
+            <ConversationListSkeleton />
+          ) : (
+            <div className="flex flex-col">
+              {filteredConversations.map(conv => {
+                const ChannelIcon = channelIcons[conv.channel as ConversationChannel] || MessageSquare;
+                const isSelected = selectedConversationId === conv.id;
+                const agentName = getAgentName(conv.agentId, agents);
+                const lastMsgText = getLastMessage(conv);
+                return (
+                  <button
+                    key={conv.id}
+                    onClick={() => setSelectedConversationId(conv.id)}
+                    className={cn(
+                      'w-full text-left p-3 border-b border-border transition-colors',
+                      isSelected ? 'bg-accent' : 'hover:bg-accent/50'
+                    )}
+                    data-testid={`conversation-item-${conv.id}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="relative flex-shrink-0 mt-0.5">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                            {conv.customerName.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        {conv.status === 'automated' && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
+                            <Bot className="h-2.5 w-2.5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-sm font-medium truncate">{conv.customerName}</span>
+                          <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                            {conv.lastMessageAt
+                              ? formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
+                              : ''}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-sm font-medium truncate">{conv.customerName}</span>
-                        <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                          {formatDistanceToNow(new Date(conv.lastMessageTime), { addSuffix: false })}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <ChannelIcon className="h-3 w-3 text-muted-foreground" />
-                        {conv.agentName && (
-                          <Badge variant="outline" className={cn(
-                            "h-4 text-[10px] px-1 gap-0.5",
-                            conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
-                          )}>
-                            {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
-                            {conv.agentName}
-                          </Badge>
+                        {lastMsgText && (
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsgText}</p>
                         )}
-                        {conv.unreadCount > 0 && (
-                          <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
-                        )}
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <ChannelIcon className="h-3 w-3 text-muted-foreground" />
+                          {agentName && (
+                            <Badge variant="outline" className={cn(
+                              "h-4 text-[10px] px-1 gap-0.5",
+                              conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
+                            )}>
+                              {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
+                              {agentName}
+                            </Badge>
+                          )}
+                          {conv.unreadCount > 0 && (
+                            <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  </button>
+                );
+              })}
+              {filteredConversations.length === 0 && !conversationsLoading && (
+                <div className="p-6 text-center text-sm text-muted-foreground">
+                  No conversations found
+                </div>
+              )}
+            </div>
+          )}
         </ScrollArea>
       </div>
 
-      {/* Column 3: Full chat thread with reply input */}
       <div className="flex-1 flex flex-col min-w-0">
         {selectedConversation ? (
           <>
-            {/* Chat header with customer name, tags, Take Over button, and Campaign Disconnect */}
             <div className="p-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
@@ -238,27 +382,30 @@ export default function TeamboxPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="text-sm font-semibold">{selectedConversation.customerName}</h3>
+                  <h3 className="text-sm font-semibold" data-testid="text-conversation-customer">{selectedConversation.customerName}</h3>
                   <div className="flex items-center gap-2">
-                    {selectedConversation.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-[10px] h-4">{tag}</Badge>
-                    ))}
+                    <Badge variant="secondary" className="text-[10px] h-4">
+                      {(selectedConversation.channel || '').toUpperCase()}
+                    </Badge>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {/* Take Over: Human agent takes control from AI when conversation is automated */}
-                {selectedConversation.agentName && selectedConversation.status === 'automated' && (
+                {selectedConversation.agentId && selectedConversation.status === 'automated' && (
                   <Button
                     variant="outline"
                     size="sm"
                     className="h-7 text-xs"
+                    onClick={handleTakeOver}
+                    disabled={takeOverMutation.isPending}
                     data-testid="button-take-over"
                   >
+                    {takeOverMutation.isPending ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : null}
                     Take Over
                   </Button>
                 )}
-                {/* Campaign disconnect: Stops all future campaign messages for this customer */}
                 {selectedConversation.campaignId && (
                   <Button
                     variant="outline"
@@ -267,43 +414,58 @@ export default function TeamboxPage() {
                       'h-7 text-xs gap-1',
                       selectedConversation.campaignDisconnected ? 'text-muted-foreground' : 'text-destructive border-destructive/30'
                     )}
+                    onClick={handleDisconnectCampaign}
+                    disabled={selectedConversation.campaignDisconnected || disconnectCampaignMutation.isPending}
                     data-testid="button-disconnect-campaign"
                   >
-                    <Ban className="h-3 w-3" />
+                    {disconnectCampaignMutation.isPending ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Ban className="h-3 w-3" />
+                    )}
                     {selectedConversation.campaignDisconnected ? 'Disconnected' : 'Disconnect Campaign'}
                   </Button>
                 )}
               </div>
             </div>
 
-            <ScrollArea className="flex-1 p-4">
-              <div className="flex flex-col gap-3 max-w-2xl mx-auto">
-                {selectedConversation.messages.map(msg => (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      'flex gap-2',
-                      msg.senderType === 'customer' ? 'justify-start' : 'justify-end'
-                    )}
-                  >
-                    {/* Message bubble: customer=bg-muted, bot=primary/10 with border, agent=bg-primary */}
-                    <div className={cn(
-                      'max-w-[75%] rounded-xl px-3 py-2',
-                      msg.senderType === 'customer'
-                        ? 'bg-muted text-foreground rounded-bl-sm'
-                        : msg.senderType === 'bot'
-                          ? 'bg-primary/10 text-foreground rounded-br-sm border border-primary/20'
-                          : 'bg-primary text-primary-foreground rounded-br-sm'
-                    )}>
-                      <p className="text-[10px] font-medium mb-0.5 opacity-70">{msg.senderName}</p>
-                      <p className="text-sm">{msg.content}</p>
-                      <p className="text-[10px] mt-1 opacity-50">
-                        {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
-                      </p>
+            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+              {messagesLoading ? (
+                <MessagesSkeleton />
+              ) : (
+                <div className="flex flex-col gap-3 max-w-2xl mx-auto">
+                  {messages.map(msg => (
+                    <div
+                      key={msg.id}
+                      className={cn(
+                        'flex gap-2',
+                        msg.role === 'customer' ? 'justify-start' : 'justify-end'
+                      )}
+                      data-testid={`message-${msg.id}`}
+                    >
+                      <div className={cn(
+                        'max-w-[75%] rounded-xl px-3 py-2',
+                        msg.role === 'customer'
+                          ? 'bg-muted text-foreground rounded-bl-sm'
+                          : msg.role === 'bot'
+                            ? 'bg-primary/10 text-foreground rounded-br-sm border border-primary/20'
+                            : 'bg-primary text-primary-foreground rounded-br-sm'
+                      )}>
+                        <p className="text-[10px] font-medium mb-0.5 opacity-70">{msg.senderName || msg.role}</p>
+                        <p className="text-sm">{msg.content}</p>
+                        <p className="text-[10px] mt-1 opacity-50">
+                          {msg.createdAt ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true }) : ''}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                  {messages.length === 0 && (
+                    <div className="text-center text-sm text-muted-foreground py-8">
+                      No messages yet
+                    </div>
+                  )}
+                </div>
+              )}
             </ScrollArea>
 
             <div className="border-t border-border p-3">
@@ -314,6 +476,12 @@ export default function TeamboxPage() {
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Write a reply..."
                     className="min-h-[60px] max-h-[120px] text-sm resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendReply();
+                      }
+                    }}
                     data-testid="input-reply"
                   />
                 </div>
@@ -321,8 +489,18 @@ export default function TeamboxPage() {
                   <Button variant="ghost" size="icon" className="h-8 w-8" data-testid="button-attach">
                     <Paperclip className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                  <Button size="icon" className="h-8 w-8" disabled={!replyText.trim()} data-testid="button-send-reply">
-                    <Send className="h-4 w-4" />
+                  <Button
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={!replyText.trim() || sendReplyMutation.isPending}
+                    onClick={handleSendReply}
+                    data-testid="button-send-reply"
+                  >
+                    {sendReplyMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -330,12 +508,15 @@ export default function TeamboxPage() {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <p className="text-sm">Select a conversation to view</p>
+            {conversationsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <p className="text-sm">Select a conversation to view</p>
+            )}
           </div>
         )}
       </div>
 
-      {/* Column 4: Customer info panel — hidden on screens < xl */}
       {selectedConversation && (
         <div className="w-64 border-l border-border flex-shrink-0 hidden xl:flex flex-col">
           <div className="p-3 border-b border-border">
@@ -345,32 +526,34 @@ export default function TeamboxPage() {
             <div className="space-y-4">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Name</p>
-                <p className="text-sm font-medium">{selectedConversation.customerName}</p>
+                <p className="text-sm font-medium" data-testid="text-customer-name">{selectedConversation.customerName}</p>
               </div>
               {selectedConversation.customerEmail && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Email</p>
-                  <p className="text-sm">{selectedConversation.customerEmail}</p>
+                  <p className="text-sm" data-testid="text-customer-email">{selectedConversation.customerEmail}</p>
                 </div>
               )}
               {selectedConversation.customerPhone && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Phone</p>
-                  <p className="text-sm">{selectedConversation.customerPhone}</p>
+                  <p className="text-sm" data-testid="text-customer-phone">{selectedConversation.customerPhone}</p>
                 </div>
               )}
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Channel</p>
-                <Badge variant="outline" className="text-xs">{selectedConversation.channel.toUpperCase()}</Badge>
+                <Badge variant="outline" className="text-xs">{(selectedConversation.channel || '').toUpperCase()}</Badge>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Status</p>
-                <Badge variant="secondary" className="text-xs">{conversationStatusLabels[selectedConversation.status]}</Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {conversationStatusLabels[selectedConversation.status as ConversationStatus] || selectedConversation.status}
+                </Badge>
               </div>
-              {selectedConversation.agentName && (
+              {selectedConversation.agentId && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Handled by</p>
-                  <p className="text-sm">{selectedConversation.agentName}</p>
+                  <p className="text-sm" data-testid="text-agent-name">{getAgentName(selectedConversation.agentId, agents) || 'AI Agent'}</p>
                 </div>
               )}
               <div className="border-t border-border pt-3">
@@ -387,16 +570,6 @@ export default function TeamboxPage() {
                   </Button>
                 </div>
               </div>
-              {selectedConversation.tags.length > 0 && (
-                <div className="border-t border-border pt-3">
-                  <p className="text-xs text-muted-foreground mb-2">Tags</p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedConversation.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-[10px]">{tag}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </ScrollArea>
         </div>

@@ -47,7 +47,7 @@ export interface IStorage {
   getMessages(conversationId: string): Promise<Message[]>;
   createMessage(msg: InsertMessage): Promise<Message>;
 
-  getCampaigns(organizationId: string): Promise<Campaign[]>;
+  getCampaigns(organizationId: string, filters?: { department?: string }): Promise<Campaign[]>;
   getCampaign(id: string): Promise<Campaign | undefined>;
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
   updateCampaign(id: string, data: Partial<InsertCampaign>): Promise<Campaign | undefined>;
@@ -186,8 +186,10 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getCampaigns(organizationId: string): Promise<Campaign[]> {
-    return db.select().from(campaigns).where(eq(campaigns.organizationId, organizationId));
+  async getCampaigns(organizationId: string, filters?: { department?: string }): Promise<Campaign[]> {
+    const conditions = [eq(campaigns.organizationId, organizationId)];
+    if (filters?.department) conditions.push(eq(campaigns.department, filters.department));
+    return db.select().from(campaigns).where(and(...conditions));
   }
 
   async getCampaign(id: string): Promise<Campaign | undefined> {

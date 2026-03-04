@@ -23,7 +23,7 @@
  * Currently uses getCampaignsByDepartment() from mock data.
  */
 import { useState } from 'react';
-import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban } from 'lucide-react';
+import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +33,9 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
-import { getCampaignsByDepartment, type Campaign } from '@/mocks/campaigns';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import type { Campaign as APICampaign } from '@shared/schema';
 
 /** Sub-navigation tabs for the service page */
 const tabs = [
@@ -67,11 +69,22 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function ServicePage() {
-  // communicationGateEnabled: global kill switch from AppContext — when OFF, shows "Communications Paused" badge
   const { agents, communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const serviceAgents = getAgentsByDepartment(agents, 'service');
-  const serviceCampaigns = getCampaignsByDepartment('service');
+
+  const { data: serviceCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
+    queryKey: ['/api/campaigns?department=service'],
+  });
+
+  const killSwitchMutation = useMutation({
+    mutationFn: async ({ id, killSwitch }: { id: string; killSwitch: boolean }) => {
+      await apiRequest('PATCH', `/api/campaigns/${id}`, { killSwitch });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=service'] });
+    },
+  });
 
   /** Dashboard tab — service KPI metric tiles in a responsive grid */
   const renderDashboard = () => (
@@ -158,6 +171,11 @@ export default function ServicePage() {
         </div>
       </div>
 
+      {campaignsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
       <div className="border border-border rounded-lg overflow-hidden">
         <table className="w-full">
           <thead>
@@ -177,10 +195,10 @@ export default function ServicePage() {
                 <td className="px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">{campaign.name}</p>
-                    {campaign.csvFileName && (
+                    {campaign.csvFilename && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Upload className="h-3 w-3" />
-                        {campaign.csvFileName}
+                        {campaign.csvFilename}
                       </p>
                     )}
                   </div>
@@ -201,6 +219,7 @@ export default function ServicePage() {
                   <div className="flex justify-center">
                     <Switch
                       checked={!campaign.killSwitch}
+                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: !checked })}
                       className="data-[state=unchecked]:bg-red-500"
                       data-testid={`switch-killswitch-${campaign.id}`}
                     />
@@ -211,6 +230,7 @@ export default function ServicePage() {
           </tbody>
         </table>
       </div>
+      )}
 
       <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
         <CardContent className="p-4 flex items-start gap-3">

@@ -150,6 +150,9 @@ import {
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SettingsTile {
   id: string;
@@ -223,8 +226,26 @@ const mockSkills: SkillItem[] = [
 export default function SettingsPage() {
   const { toast } = useToast();
   const { currentRole, communicationGateEnabled, setCommunicationGateEnabled, personaName } = useApp();
+  const { user: authUser } = useAuth();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  const commGateMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      if (!authUser?.organization?.id) return;
+      await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, { outboundEnabled: enabled });
+    },
+    onSuccess: () => {
+      if (authUser?.organization?.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
+      }
+    },
+  });
+
+  const handleCommGateToggle = (enabled: boolean) => {
+    setCommunicationGateEnabled(enabled);
+    commGateMutation.mutate(enabled);
+  };
   const [widgets, setWidgets] = useState<IndividualWidget[]>(mockWidgets);
   const [landingPages, setLandingPages] = useState<LandingPage[]>(mockLandingPages);
   const [selectedWidget, setSelectedWidget] = useState<IndividualWidget | null>(null);
@@ -2890,7 +2911,7 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={communicationGateEnabled}
-                  onCheckedChange={setCommunicationGateEnabled}
+                  onCheckedChange={handleCommGateToggle}
                   className={cn(
                     communicationGateEnabled
                       ? 'data-[state=checked]:bg-green-500'

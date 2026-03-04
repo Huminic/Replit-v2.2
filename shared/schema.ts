@@ -88,6 +88,7 @@ export const messages = pgTable("messages", {
 export const campaigns = pgTable("campaigns", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  department: text("department").notNull().default("sales"),
   status: text("status").notNull().default("draft"),
   channel: text("channel").notNull().default("sms"),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id),
