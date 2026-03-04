@@ -100,7 +100,7 @@ import {
   monthlyPerformanceSummary,
   rollingForecast,
   yearOverYear,
-} from '@/mocks/insights';
+} from '@/lib/insight-data';
 import { 
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, 

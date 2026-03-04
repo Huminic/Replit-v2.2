@@ -26,7 +26,7 @@
  * - AppContext.tsx: communicationGateEnabled, personaName, currentRole
  * - mocks/widgets.ts: Widget/landing page types, universal settings, embed code generation
  * - mocks/agents.ts: availableTools for AI config
- * - mocks/users.ts: mockUsers, getRoleLabel for user management section
+ * - lib/agent-utils.ts: getRoleLabel for user management section
  *
  * @see client/src/pages/org-wizard.tsx — New Organization creation (linked from User Management)
  */
@@ -132,14 +132,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getRoleLabel, type UserRole } from '@/lib/agent-utils';
-import { availableTools } from '@/mocks/agents';
+import { getRoleLabel, availableTools, type UserRole } from '@/lib/agent-utils';
 import {
-  mockWidgets,
+  staticWidgets,
   defaultUniversalSettings,
   type UniversalWidgetSettings,
   type WidgetChannel,
-  mockLandingPages,
+  staticLandingPages,
   getWidgetStatusColor,
   getLandingPageTypeLabel,
   generateWidgetEmbedCode,
@@ -147,7 +146,7 @@ import {
   type IndividualWidget,
   type LandingPage,
   type WidgetType,
-} from '@/mocks/widgets';
+} from '@/lib/widget-types';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
@@ -259,8 +258,8 @@ export default function SettingsPage() {
     setCommunicationGateEnabled(enabled);
     commGateMutation.mutate(enabled);
   };
-  const [widgets, setWidgets] = useState<IndividualWidget[]>(mockWidgets);
-  const [landingPages, setLandingPages] = useState<LandingPage[]>(mockLandingPages);
+  const [widgets, setWidgets] = useState<IndividualWidget[]>(staticWidgets);
+  const [landingPages, setLandingPages] = useState<LandingPage[]>(staticLandingPages);
   const [selectedWidget, setSelectedWidget] = useState<IndividualWidget | null>(null);
   const [selectedLandingPage, setSelectedLandingPage] = useState<LandingPage | null>(null);
   const [copiedEmbed, setCopiedEmbed] = useState(false);

@@ -46,12 +46,18 @@ Pages wired to real API data:
 - **AgentConfigPane Activity**: Real VAPI call history with recording links, transcript copy, customer info via `/api/vapi/calls`
 - **VAPI/Tavus Proxy**: Read-only proxy routes in `server/vendorProxy.ts` for all VAPI and Tavus API endpoints
 
-Pages still using mock/hardcoded data:
+Mock import purge COMPLETE — zero `@/mocks/` imports remain in `client/src/`:
+- Types/utilities extracted to `client/src/lib/rbac.ts`, `agent-utils.ts`, `notification-utils.ts`, `activity-utils.ts`, `chat-types.ts`, `widget-types.ts`, `insight-data.ts`
+- `User` and `Organization` interfaces moved to `AppContext.tsx` (were in mocks/users.ts)
+- All mock data arrays renamed from `mock*` to `static*` (e.g. staticWidgets, staticActivityFeed, staticNotifications)
+
+Pages still using hardcoded/static data (no API backend yet):
 - Dashboard metric tiles (hardcoded KPIs per role)
-- Settings: Widgets (mockWidgets), Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills)
+- Settings: Widgets (staticWidgets from widget-types.ts), Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills inline)
 - My Work page (hardcoded mockMyTasks)
 - Management page (hardcoded metrics, mockHunches)
-- TopBar notifications/activity (mockNotifications, mockActivityFeed)
+- TopBar notifications/activity (staticNotifications, staticActivityFeed from lib files)
+- Insights page (static chart data from insight-data.ts)
 - Billing section in Profile
 - AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
 - Service/Marketing dashboard metric tiles (inline hardcoded, not from mock files)

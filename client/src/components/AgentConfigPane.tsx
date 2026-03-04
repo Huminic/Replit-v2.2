@@ -79,7 +79,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useApp } from '@/contexts/AppContext';
-import { availableTools, type AgentChannel, type AgentTrigger, type AgentTool } from '@/mocks/agents';
+import { availableTools, type AgentChannel, type AgentTrigger, type AgentTool } from '@/lib/agent-utils';
 
 const channelIcons: Record<AgentChannel, React.ElementType> = {
   voice: Phone,

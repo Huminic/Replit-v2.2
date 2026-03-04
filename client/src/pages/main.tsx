@@ -41,12 +41,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { agentSuggestions, type ChatMessage } from '@/mocks/messages';
+import { agentSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import type { UserRole } from '@/mocks/users';
+import type { UserRole } from '@/lib/rbac';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
 /** Shape of a single metric tile displayed above the chat */
