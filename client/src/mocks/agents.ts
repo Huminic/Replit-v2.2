@@ -1,12 +1,8 @@
 /**
- * agents.ts — Mock AI Agent definitions for Nexxus V2
+ * agents.ts — Real AI Agent definitions for Serra Auto Group
  *
- * Defines the Agent data model and provides 6 pre-configured AI agents spanning
- * sales, service, and marketing departments. Each agent has:
- *  - Channel assignment (voice, chat, video, email, sms)
- *  - Trigger configuration (when the agent activates)
- *  - Tool bindings (which MCP tools the agent can use)
- *  - Customer-facing links and phone numbers
+ * Each Serra dealership has a named AI agent with both VAPI (voice) and Tavus (video)
+ * capabilities. Agents are customer-facing with real phone numbers.
  *
  * Agents are displayed in:
  *  - SubMenuManager flyout panels (per-department agent lists)
@@ -17,15 +13,12 @@
  * PRODUCTION NOTE: Agent CRUD will be handled by the backend API at
  * nexxusv2.huminicdev.com. Tools will be MCP-server-provided capabilities
  * (VIN decoder, CRM lookup, etc.). Agent instructions feed into the LLM prompt.
+ * Voice powered by VAPI, video powered by Tavus.
  */
 
-/** Lifecycle status — draft agents are not customer-facing */
 export type AgentStatus = 'active' | 'inactive' | 'draft';
-/** Communication channel the agent operates on */
 export type AgentChannel = 'voice' | 'chat' | 'video' | 'email' | 'sms';
-/** How the agent gets activated — scheduled/automated triggers run without human initiation */
 export type TriggerType = 'mention' | 'direct_message' | 'assign_task' | 'scheduled' | 'automated';
-/** Department alignment — determines which sidebar section shows the agent */
 export type AgentDepartment = 'sales' | 'service' | 'marketing' | 'system';
 
 export interface AgentTrigger {
@@ -50,7 +43,9 @@ export interface Agent {
   description: string;
   status: AgentStatus;
   channel: AgentChannel;
+  channels: AgentChannel[];
   department: AgentDepartment;
+  dealership?: string;
   avatar?: string;
   instructions: string;
   triggers: AgentTrigger[];
@@ -80,168 +75,159 @@ export const availableTools: AgentTool[] = [
 ];
 
 /**
- * 6 pre-configured mock agents covering all departments:
- *  1. Sales Agent — inbound voice lead qualification
- *  2. Communications Agent — outbound SMS/email campaigns
- *  3. CRM Data Agent — VinSolutions data queries and reporting
- *  4. Service Guru — service dept communications and scheduling
- *  5. Sales Guru — internal sales coaching and follow-up prioritization
- *  6. Marketing Agent — campaign management and performance tracking
+ * 5 real Serra Auto Group AI agents — one per dealership.
+ * Each agent has VAPI (voice) and Tavus (video) capabilities.
+ * Phone numbers are real assigned numbers.
  */
 export const mockAgents: Agent[] = [
   {
     id: 'agent-1',
-    name: 'Sales Agent',
-    description: 'Handles inbound sales inquiries and qualifies leads',
+    name: 'Caroline',
+    description: 'AI agent for Serra Honda of Sylacauga — handles sales inquiries, service scheduling, and customer support via voice and video',
     status: 'active',
     channel: 'voice',
+    channels: ['voice', 'video', 'chat'],
     department: 'sales',
-    instructions: 'You are a friendly sales agent for a car dealership. Help customers find the right vehicle for their needs. Qualify leads by understanding their budget, preferences, and timeline.',
+    dealership: 'Serra Honda of Sylacauga',
+    instructions: 'You are Caroline, the AI assistant for Serra Honda of Sylacauga. Help customers find the right Honda vehicle, schedule test drives, answer questions about inventory and pricing, and book service appointments. Be warm, professional, and knowledgeable about Honda models.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
       { type: 'assign_task', enabled: true },
-      { type: 'scheduled', enabled: false },
-      { type: 'automated', enabled: false },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Inbound call or web inquiry' } },
     ],
     tools: [
       { ...availableTools[0], enabled: true },
       { ...availableTools[1], enabled: true },
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[3], enabled: true },
       { ...availableTools[4], enabled: true },
+      { ...availableTools[5], enabled: true },
     ],
-    customerLink: 'https://nexxus.ai/a/sales-agent',
-    assignedPhone: '(800) 555-0101',
-    chatLink: 'https://nexxus.ai/chat/sales-agent',
+    assignedPhone: '+1 (901) 203-8267',
     createdAt: '2026-01-15T10:30:00Z',
-    updatedAt: '2026-01-20T14:45:00Z',
+    updatedAt: '2026-02-28T14:45:00Z',
     createdBy: 'user-1',
   },
   {
     id: 'agent-2',
-    name: 'Communications Agent',
-    description: 'Manages outbound SMS, email, and call campaigns across all departments',
+    name: 'Magnolia',
+    description: 'AI agent for Serra Nissan of Sylacauga — handles sales inquiries, service scheduling, and customer support via voice and video',
     status: 'active',
-    channel: 'sms',
+    channel: 'voice',
+    channels: ['voice', 'video', 'chat'],
     department: 'sales',
-    instructions: 'You manage outbound communications for the dealership. Send follow-up messages, appointment reminders, and promotional campaigns. Always respect opt-out preferences and communication schedules.',
-    triggers: [
-      { type: 'mention', enabled: true },
-      { type: 'direct_message', enabled: true },
-      { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: true, config: { schedule: 'Based on campaign schedule' } },
-      { type: 'automated', enabled: true, config: { condition: 'New lead or status change' } },
-    ],
-    tools: [
-      { ...availableTools[2], enabled: true },
-      { ...availableTools[7], enabled: true },
-    ],
-    customerLink: 'https://nexxus.ai/a/comms-agent',
-    assignedPhone: '(800) 555-0102',
-    chatLink: 'https://nexxus.ai/chat/comms-agent',
-    createdAt: '2026-01-10T09:00:00Z',
-    updatedAt: '2026-01-19T11:20:00Z',
-    createdBy: 'user-1',
-  },
-  {
-    id: 'agent-3',
-    name: 'CRM Data Agent',
-    description: 'Answers questions about CRM data, runs reports, and provides data insights',
-    status: 'active',
-    channel: 'chat',
-    department: 'sales',
-    instructions: 'You are the CRM Guru. Answer questions about VinSolutions data, run reports on pipeline health, lead scoring, and conversion metrics. Never fabricate data - if you dont have the information, say so clearly.',
-    triggers: [
-      { type: 'mention', enabled: true },
-      { type: 'direct_message', enabled: true },
-      { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: false },
-      { type: 'automated', enabled: false },
-    ],
-    tools: [
-      { ...availableTools[2], enabled: true },
-      { ...availableTools[6], enabled: true },
-    ],
-    customerLink: 'https://nexxus.ai/a/crm-guru',
-    chatLink: 'https://nexxus.ai/chat/crm-guru',
-    createdAt: '2026-01-05T14:00:00Z',
-    updatedAt: '2026-01-18T16:30:00Z',
-    createdBy: 'user-1',
-  },
-  {
-    id: 'agent-4',
-    name: 'Service Guru',
-    description: 'Handles service department communications and appointment management',
-    status: 'active',
-    channel: 'chat',
-    department: 'service',
-    instructions: 'You manage service department interactions. Schedule appointments, send service reminders, handle customer inquiries about maintenance and repairs. Upsell recommended services when appropriate.',
+    dealership: 'Serra Nissan of Sylacauga',
+    instructions: 'You are Magnolia, the AI assistant for Serra Nissan of Sylacauga. Help customers explore Nissan vehicles, schedule test drives, provide pricing information, and manage service appointments. Be friendly, helpful, and deeply knowledgeable about the Nissan lineup.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
       { type: 'assign_task', enabled: true },
-      { type: 'scheduled', enabled: true, config: { schedule: 'Every Monday at 9:00 AM' } },
-      { type: 'automated', enabled: true, config: { condition: 'Service due within 7 days' } },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Inbound call or web inquiry' } },
     ],
     tools: [
+      { ...availableTools[0], enabled: true },
+      { ...availableTools[1], enabled: true },
       { ...availableTools[2], enabled: true },
       { ...availableTools[3], enabled: true },
-      { ...availableTools[7], enabled: true },
+      { ...availableTools[4], enabled: true },
+      { ...availableTools[5], enabled: true },
     ],
-    customerLink: 'https://nexxus.ai/a/service-guru',
-    assignedPhone: '(800) 555-0104',
-    chatLink: 'https://nexxus.ai/chat/service-guru',
+    assignedPhone: '+1 (256) 862-3318',
+    createdAt: '2026-01-10T09:00:00Z',
+    updatedAt: '2026-02-28T11:20:00Z',
+    createdBy: 'user-1',
+  },
+  {
+    id: 'agent-3',
+    name: 'Georgia',
+    description: 'AI agent for Tony Serra Ford — handles sales inquiries, service scheduling, and customer support via voice and video',
+    status: 'active',
+    channel: 'voice',
+    channels: ['voice', 'video', 'chat'],
+    department: 'sales',
+    dealership: 'Tony Serra Ford',
+    instructions: 'You are Georgia, the AI assistant for Tony Serra Ford. Help customers find the right Ford vehicle — trucks, SUVs, cars — schedule test drives, provide trade-in estimates, and book service appointments. Be confident, knowledgeable about Ford models, and customer-focused.',
+    triggers: [
+      { type: 'mention', enabled: true },
+      { type: 'direct_message', enabled: true },
+      { type: 'assign_task', enabled: true },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Inbound call or web inquiry' } },
+    ],
+    tools: [
+      { ...availableTools[0], enabled: true },
+      { ...availableTools[1], enabled: true },
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[3], enabled: true },
+      { ...availableTools[4], enabled: true },
+      { ...availableTools[5], enabled: true },
+    ],
+    assignedPhone: '+1 (256) 459-9707',
+    createdAt: '2026-01-05T14:00:00Z',
+    updatedAt: '2026-02-28T16:30:00Z',
+    createdBy: 'user-1',
+  },
+  {
+    id: 'agent-4',
+    name: 'Elizabeth',
+    description: 'AI agent for Hyundai of Columbia — handles sales inquiries, service scheduling, and customer support via voice and video',
+    status: 'active',
+    channel: 'voice',
+    channels: ['voice', 'video', 'chat'],
+    department: 'sales',
+    dealership: 'Hyundai of Columbia',
+    instructions: 'You are Elizabeth, the AI assistant for Hyundai of Columbia. Help customers explore Hyundai vehicles, schedule test drives, answer pricing and financing questions, and manage service appointments. Be warm, approachable, and well-versed in the Hyundai lineup including EVs.',
+    triggers: [
+      { type: 'mention', enabled: true },
+      { type: 'direct_message', enabled: true },
+      { type: 'assign_task', enabled: true },
+      { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
+      { type: 'automated', enabled: true, config: { condition: 'Inbound call or web inquiry' } },
+    ],
+    tools: [
+      { ...availableTools[0], enabled: true },
+      { ...availableTools[1], enabled: true },
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[3], enabled: true },
+      { ...availableTools[4], enabled: true },
+      { ...availableTools[5], enabled: true },
+    ],
+    assignedPhone: '+1 (901) 203-9398',
     createdAt: '2026-01-12T11:00:00Z',
-    updatedAt: '2026-01-17T09:15:00Z',
+    updatedAt: '2026-02-28T09:15:00Z',
     createdBy: 'user-1',
   },
   {
     id: 'agent-5',
-    name: 'Sales Guru',
-    description: 'Coaches salespeople through deals and prioritizes follow-ups',
+    name: 'Savannah',
+    description: 'AI agent for Ford of Columbia — handles sales inquiries, service scheduling, and customer support via voice and video',
     status: 'active',
-    channel: 'chat',
+    channel: 'voice',
+    channels: ['voice', 'video', 'chat'],
     department: 'sales',
-    instructions: 'You are a sales coaching agent. Help salespeople prioritize their leads, suggest next actions, and coach them through deals. Monitor overdue follow-ups and alert when opportunities are at risk.',
+    dealership: 'Ford of Columbia',
+    instructions: 'You are Savannah, the AI assistant for Ford of Columbia. Help customers find their perfect Ford vehicle, schedule test drives, provide financing options, handle trade-in valuations, and book service appointments. Be energetic, helpful, and an expert on the Ford lineup.',
     triggers: [
       { type: 'mention', enabled: true },
       { type: 'direct_message', enabled: true },
-      { type: 'assign_task', enabled: false },
+      { type: 'assign_task', enabled: true },
       { type: 'scheduled', enabled: true, config: { schedule: 'Daily at 8:00 AM' } },
-      { type: 'automated', enabled: true, config: { condition: 'Lead overdue > 48 hours' } },
+      { type: 'automated', enabled: true, config: { condition: 'Inbound call or web inquiry' } },
     ],
     tools: [
-      { ...availableTools[2], enabled: true },
+      { ...availableTools[0], enabled: true },
       { ...availableTools[1], enabled: true },
+      { ...availableTools[2], enabled: true },
+      { ...availableTools[3], enabled: true },
       { ...availableTools[4], enabled: true },
+      { ...availableTools[5], enabled: true },
     ],
-    chatLink: 'https://nexxus.ai/chat/sales-guru',
+    assignedPhone: '+1 (931) 369-2815',
     createdAt: '2026-01-08T10:00:00Z',
-    updatedAt: '2026-01-20T08:00:00Z',
-    createdBy: 'user-1',
-  },
-  {
-    id: 'agent-6',
-    name: 'Marketing Agent',
-    description: 'Manages marketing campaigns and tracks performance metrics',
-    status: 'active',
-    channel: 'email',
-    department: 'marketing',
-    instructions: 'You manage marketing campaigns. Track campaign performance, monitor widget interactions, and report on landing page visits. Generate marketing reports and suggest optimization strategies.',
-    triggers: [
-      { type: 'mention', enabled: true },
-      { type: 'direct_message', enabled: true },
-      { type: 'assign_task', enabled: false },
-      { type: 'scheduled', enabled: true, config: { schedule: 'Weekly on Monday' } },
-      { type: 'automated', enabled: false },
-    ],
-    tools: [
-      { ...availableTools[6], enabled: true },
-      { ...availableTools[7], enabled: true },
-    ],
-    customerLink: 'https://nexxus.ai/a/marketing-agent',
-    chatLink: 'https://nexxus.ai/chat/marketing-agent',
-    createdAt: '2026-01-14T13:00:00Z',
-    updatedAt: '2026-01-19T15:30:00Z',
+    updatedAt: '2026-02-28T08:00:00Z',
     createdBy: 'user-1',
   },
 ];
