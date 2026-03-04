@@ -5,6 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppProvider } from "@/contexts/AppContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { SessionTimeoutDialog } from "@/components/auth/SessionTimeoutDialog";
 import { AppLayout } from "@/components/layout/AppLayout";
 import NotFound from "@/pages/not-found";
 import MainPage from "@/pages/main";
@@ -21,33 +24,44 @@ import ProfilePage from "@/pages/profile";
 import WidgetLandingPage from "@/pages/widget-landing";
 import BillingManagementPage from "@/pages/billing-management";
 import OrgWizardPage from "@/pages/org-wizard";
+import LoginPage from "@/pages/login";
+import ForgotPasswordPage from "@/pages/forgot-password";
+import ResetPasswordPage from "@/pages/reset-password";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/login" component={LoginPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/w/demo" component={WidgetLandingPage} />
       <Route>
-        <AppLayout>
-          <Switch>
-            <Route path="/" component={MainPage} />
-            <Route path="/teambox" component={TeamboxPage} />
-            <Route path="/my-work" component={MyWorkPage} />
-            <Route path="/sales" component={SalesPage} />
-            <Route path="/service" component={ServicePage} />
-            <Route path="/marketing" component={MarketingPage} />
-            <Route path="/management" component={ManagementPage} />
-            <Route path="/agents" component={AgentsPage} />
-            <Route path="/insights" component={InsightsPage} />
-            <Route path="/settings/system" component={SettingsPage} />
-            <Route path="/settings/billing" component={BillingManagementPage} />
-            <Route path="/settings/org-wizard" component={OrgWizardPage} />
-            <Route path="/settings" component={SettingsPage} />
-            <Route path="/profile" component={ProfilePage} />
-            <Route path="/profile/preferences" component={ProfilePage} />
-            <Route path="/profile/billing" component={ProfilePage} />
-            <Route component={NotFound} />
-          </Switch>
-        </AppLayout>
+        <ProtectedRoute>
+          <AppProvider>
+            <SessionTimeoutDialog />
+            <AppLayout>
+              <Switch>
+                <Route path="/" component={MainPage} />
+                <Route path="/teambox" component={TeamboxPage} />
+                <Route path="/my-work" component={MyWorkPage} />
+                <Route path="/sales" component={SalesPage} />
+                <Route path="/service" component={ServicePage} />
+                <Route path="/marketing" component={MarketingPage} />
+                <Route path="/management" component={ManagementPage} />
+                <Route path="/agents" component={AgentsPage} />
+                <Route path="/insights" component={InsightsPage} />
+                <Route path="/settings/system" component={SettingsPage} />
+                <Route path="/settings/billing" component={BillingManagementPage} />
+                <Route path="/settings/org-wizard" component={OrgWizardPage} />
+                <Route path="/settings" component={SettingsPage} />
+                <Route path="/profile" component={ProfilePage} />
+                <Route path="/profile/preferences" component={ProfilePage} />
+                <Route path="/profile/billing" component={ProfilePage} />
+                <Route component={NotFound} />
+              </Switch>
+            </AppLayout>
+          </AppProvider>
+        </ProtectedRoute>
       </Route>
     </Switch>
   );
@@ -58,10 +72,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider>
-          <AppProvider>
+          <AuthProvider>
             <Toaster />
             <Router />
-          </AppProvider>
+          </AuthProvider>
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>

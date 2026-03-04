@@ -2,210 +2,115 @@
 
 ## Overview
 
-Nexxus Connect is an AI-powered dealership management platform with persona/department-based navigation. The project has two layers:
+Nexxus Connect is an AI-powered dealership management platform designed with persona/department-based navigation. The project aims to provide a validated frontend prototype with client-side mock data, structured around a 4-wave product roadmap, which will eventually integrate with a mature production backend. The core business vision is to streamline dealership operations through AI-powered tools and a user-centric interface, replacing traditional feature-based navigation with a more intuitive persona-driven approach.
 
-1. **UI Prototype (this Replit)** — A validated frontend with client-side mock data, structured around a 4-wave product roadmap. Persona-based navigation replaces the previous feature-based layout.
-2. **Production Backend (separate environment)** — A mature Express/PostgreSQL backend with 185+ API endpoints, 53 database tables, 7 third-party integrations, and 747 E2E tests running at `nexxusv2.huminicdev.com`.
+The project is divided into two layers:
+1.  **UI Prototype (this Replit)**: Focuses on a redesigned frontend experience.
+2.  **Production Backend (separate environment)**: A robust existing backend with extensive API endpoints, database tables, and third-party integrations.
 
-### Development Strategy (v2.2)
-The v2.2 cycle restructures the UI from feature-based navigation (Main/Insights/Agents/Hub/Drive) to persona/department-based navigation (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). The existing backend stays untouched until Wave 2.
+The v2.2 development cycle primarily focuses on restructuring the UI for persona/department-based navigation (AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management), while the existing backend remains stable until later integration phases.
 
-### Documentation Suite
-Seven documents in the project root govern the rebuild:
-1. **CLAUDE.md** — Agent rules, truth hierarchy, forbidden actions, naming conventions
-2. **PRD.md** — Product requirements, target users, business goals, 4-wave vision
-3. **SRS.md** — System requirements, functional specs, business rules, integrations
-4. **SPEC.md** — Architecture document, file structure, component hierarchy, RBAC matrix
-5. **PLAN.md** — 4-wave marching orders, current phase status, completion criteria
-6. **ACCEPTANCE_CRITERIA.md** — Testable statements organized by wave
-7. **COMMENT_INDEX.md** — Master reference for all developer comments in the codebase
+## User Preferences
 
-Supporting documentation:
-- **`.agent_docs/`** — Agent team rules, acceptance criteria (Given/When/Then), codebase index, code conventions
-
-**Truth hierarchy:** UI Design > Acceptance Criteria > Constitution > API Contract > SRS > Plan
-
-## Navigation Structure (v2.2)
-
-### Sidebar Items (top to bottom)
-| Section | Icon | Route | RBAC | Description |
-|---------|------|-------|------|-------------|
-| AI Chat | MessageSquare | `/` | All | Main AI chat with persona name from org config |
-| TeamBox | Inbox | `/teambox` | All | CommBox-inspired 3-column conversation inbox |
-| My Work | User | `/my-work` | All | Personal dashboard, tasks, assistant |
-| Sales | TrendingUp | `/sales` | Sales + Admin | Pipeline, leads, agents, calendar |
-| Service | Wrench | `/service` | Service + Admin | Campaigns, appointments, agents |
-| Marketing | Megaphone | `/marketing` | Marketing + Admin | Campaigns, studio, widget insights |
-| Management | BarChart3 | `/management` | Manager + Admin | Cross-section KPIs, ROI, hunches |
-| System | Settings | `/settings/*` | Admin | Settings, users, tools, widgets |
-
-### Removed Features (not in MVP contract)
-- Drive (file storage/sharing)
-- Custom Agent creation (non-Super Admin)
-- Standalone Activity page
-- Skills references in agent config
-- Artifact sharing
-
-### Cardinal Layout Rules
-- **Data/information in center** → chat in the right pane
-- **Chat in center** → information/configuration in the right pane
-- **TeamBox** uses its own internal 3-column layout (not global right pane)
-- **Agent "Take Over"** navigates to TeamBox with that conversation selected
+Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
 ### Frontend Stack
-- **React 18** with TypeScript
-- **Vite** for development and building
-- **Wouter** for client-side routing
-- **TanStack Query** for data fetching patterns (currently using mock data)
-- **Tailwind CSS** with custom design tokens
-- **Shadcn/ui** component library (Radix UI primitives)
+-   **React 18** with TypeScript
+-   **Vite** for development and building
+-   **Wouter** for client-side routing
+-   **TanStack Query** for data fetching
+-   **Tailwind CSS** with custom design tokens
+-   **Shadcn/ui** component library built on Radix UI primitives
 
-### Layout Architecture
-Context-aware multi-pane layout with ClickUp-style navigation:
+### Backend Stack
+-   **Express** with TypeScript
+-   **PostgreSQL**
+-   **Drizzle ORM** for database queries and schema management
+-   **JWT** authentication
+-   **bcrypt** for password hashing
+
+### UI/UX Decisions and Layout Architecture
+The platform features a context-aware multi-pane layout inspired by ClickUp.
 
 **Navigation Behaviors:**
-1. **Thin Sidebar**: Always-visible 72px icon+label strip
-2. **Hover Preview**: Hovering sidebar items shows sub-menu panel
-3. **Click Navigates**: Clicking navigates to the page and sets activePanel
-4. **Double Arrow Pins**: Toggle under logo controls `subMenuExpanded` state
-5. **Panel Collapse**: ChevronLeft button in sub-menu header collapses panel
-6. **Global Persistence**: When pinned, sub-menu stays visible across pages
+-   **Thin Sidebar**: Always-visible 72px icon+label navigation.
+-   **Hover Preview**: Displays sub-menu panel on sidebar item hover.
+-   **Click Navigation**: Navigates to the page and sets the active panel.
+-   **Pinning**: A toggle under the logo controls the expansion state of the sub-menu.
+-   **Panel Collapse**: A chevron button in the sub-menu header allows collapsing.
+-   **Global Persistence**: Pinned sub-menus remain visible across pages.
 
-**Layout Components:**
-- **Sidebar** (`Sidebar.tsx`): 72px icon navigation with RBAC gating via `canAccessSection()`
-- **SubMenuManager** (`SubMenuManager.tsx`): Panels for ai-chat, teambox, my-work, sales, service, marketing, management, system, profile
-- **AppLayout** (`AppLayout.tsx`): View config routing (chat-only, data-display, sub-menu, heavy-chat, teambox)
-- **RightPane** (`RightPane.tsx`): Contextual right panel (chat on data pages, info on chat pages)
-- **TopBar** (`TopBar.tsx`): Logo, org switcher, globe icon (landing page link), notifications, theme, profile
+**Core Layout Components:**
+-   **Sidebar**: Main navigation with RBAC gating.
+-   **SubMenuManager**: Manages panels for various sections (AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management, System, Profile).
+-   **AppLayout**: Configures view routing based on content type (chat-only, data-display, sub-menu, heavy-chat, teambox).
+-   **RightPane**: Provides contextual information or chat, depending on the active view.
+-   **TopBar**: Contains branding, organization switcher, notifications, theme toggle, and user profile.
 
-### State Management
-- **ThemeContext**: Light/dark mode with localStorage persistence
-- **AppContext**: Global app state including:
-  - `activePanel`: Currently active/hovered sub-menu panel
-  - `subMenuExpanded`: Global pin state for sub-menu
-  - `currentRole`: User role with RBAC gating
-  - `personaName`: AI persona name (configurable per org — Serra, Aria, Nova; NOT "Automa")
-  - `communicationGateEnabled`: Master switch for all outbound automated communications
-- No external state library — React Context handles all global state
+**Cardinal Layout Rules:**
+-   Data-centric pages display AI chat in a right pane.
+-   Chat-centric pages display information/configuration in a right pane.
+-   TeamBox utilizes a unique 3-column internal layout, distinct from the global right pane.
 
-### Routes
-```
-/                    → AI Chat (main.tsx)
-/teambox             → TeamBox inbox (teambox.tsx)
-/my-work             → My Work dashboard (my-work.tsx)
-/sales               → Sales section (sales.tsx)
-/service             → Service section (service.tsx)
-/marketing           → Marketing section (marketing.tsx)
-/management          → Management section (management.tsx)
-/agents              → Agent list (agents.tsx)
-/agents/:id          → Agent detail
-/insights            → Insights (insights.tsx)
-/settings/system     → System settings (settings.tsx)
-/settings/org-wizard → Organization wizard
-/settings/billing    → Billing (Super Admin)
-/profile/*           → Profile pages
-/w/demo              → Widget landing page (standalone, outside AppLayout)
-```
+**Chat Interface Design:**
+-   Bot messages are left-aligned without avatars.
+-   User messages are right-aligned without avatars.
+-   A "thinking" animation uses a 3-dot wave effect.
+-   Input fields have a gradient border.
+-   AI persona names (Serra, Aria, Nova) are dynamic and configured per organization, avoiding generic terms like "Automa" or "AI".
 
-### RBAC
-Roles (8 total): `super_admin`, `partner_admin`, `org_admin`, `executive`, `sales_manager`, `sales`, `service`, `marketing`
+**Metric Tiles (Main Page):**
+-   Arranged in a 2x2 grid, centered.
+-   Each tile features a gradient background, decorative SVGs, and an icon badge.
+-   Role-specific metrics are displayed, and tiles collapse after the first user message.
 
-> `org_staff` was REMOVED from the codebase entirely.
+**Color Coding:**
+-   Hunch types: Opportunity (green), Threat (red), Insight (blue).
+-   Pipeline alerts: Critical (red), Warning (amber), Info (blue).
+-   Agent status: Active (green dot), Inactive (muted dot).
+-   Campaign status: Active (green), Paused (amber), Draft (gray), Completed (blue).
 
-Section gating via `canAccessSection()` in `mocks/users.ts`:
-- AI Chat, TeamBox, My Work: All roles
-- Sales: sales, sales_manager, org_admin, executive, partner_admin, super_admin
-- Service: service, org_admin, executive, partner_admin, super_admin
-- Marketing: marketing, org_admin, executive, partner_admin, super_admin
-- Management: org_admin, executive, sales_manager, partner_admin, super_admin
-- System: `canAccessSystem()` — org_admin and above
+### Features and Functionality
+-   **Persona/Department-based Navigation**: Redesigned navigation around roles (AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management, System).
+-   **Role-Based Access Control (RBAC)**: Eight distinct roles (`super_admin` down to `marketing`) govern access to sections and features.
+-   **Campaign Safety System**: Includes per-campaign kill switches, per-conversation disconnects, and a global communication gate to control outbound automated communications.
+-   **Widget Configuration**: Allows managing widgets with appearance, channel, targeting, and embed code settings, including a live preview.
+-   **Mock Data Layer**: All frontend data is currently mocked for rapid prototyping and validation.
+-   **Auth System**: JWT-based authentication with access and refresh tokens, session management, and role-level route guarding.
 
-### Mock Data Layer
-All data is mocked in `/client/src/mocks/`:
-- `agents.ts` — Agents tagged by department (sales/service/marketing)
-- `campaigns.ts` — Campaign data with kill-switch state
-- `conversations.ts` — TeamBox conversations with channel/status metadata
-- `insights.ts` — Metrics tagged by section
-- `users.ts` — Users with RBAC helpers
-- `widgets.ts` — Widget configurations and landing pages
+### Database Schema (8 primary tables for the UI Prototype)
+-   `roles`: Defines user roles and hierarchy.
+-   `organizations`: Stores organization details, including kill switch states.
+-   `users`: User authentication and profile information.
+-   `sessions`: Manages JWT refresh tokens.
+-   `agents`: AI agent definitions.
+-   `conversations`: Stores conversation metadata and states.
+-   `messages`: Individual messages within conversations.
+-   `campaigns`: Campaign configurations and kill switch status.
 
-### Campaign Safety System
-- **Per-campaign kill switch**: Toggle in Service/Marketing Campaigns tabs
-- **Per-conversation disconnect**: Button in TeamBox to stop AI for individual customers
-- **Global communication gate**: Master toggle in Settings → Organization that halts ALL outbound automated communications
+### API Routes (Key Endpoints)
+-   **Public**: Login, forgot password, reset password.
+-   **Authenticated**: Logout, token refresh, current user details, organization switching, CRUD operations for agents, organization and user profile updates, conversation listing and message retrieval, campaign management.
 
-### Widget Configuration (Settings → Tools → Widgets)
-- **Widget list**: Table layout with name, embed code (copy icon), status, last updated, actions
-- **Widget detail**: Accordion sections (Appearance, Channels, Targeting, Embed) with live preview sidebar
-- **Landing page** (`/w/demo`): Clean split layout — sign-up form on left, branding on right
+## External Dependencies
 
-## Production Backend (Separate Environment)
-The production backend at `nexxusv2.huminicdev.com` includes:
-- **53 database tables** with 100+ RLS policies
-- **185+ API endpoints** across 34 route files
-- **JWT authentication** with access/refresh token management
-- **7 integrations**: VinSolutions (OAuth2), VAPI (voice), Tavus (video), Resend (email), TextMagic (SMS), Claude API (AI), Google Calendar
-- **747 E2E tests** via Playwright
+### Frontend
+-   **Wouter**: Client-side routing.
+-   **TanStack Query**: Data fetching and caching.
+-   **Tailwind CSS**: Utility-first CSS framework.
+-   **Shadcn/ui**: Component library built on Radix UI.
 
-## 4-Wave Product Roadmap
-- **Wave 1** (current): UI shell restructuring, persona-based nav, mock data, RBAC, campaign safety UI
-- **Wave 2**: Backend wiring to production API, real auth, real data, real-time updates
-- **Wave 3**: Credit/metering system (must ship before Studio), advanced reports, competitor intelligence
-- **Wave 4**: Studio (video/image/podcast creation), advanced AI features
-
-### Developer Comment Index
-All files have comprehensive JSDoc and inline developer comments. The master reference is `COMMENT_INDEX.md` in the project root — it tracks every file's purpose, cardinal layout rules, RBAC, production wiring notes, and instructions for keeping comments in sync when the codebase changes.
-
-## Auth System (extracted from v2.1, not yet wired)
-The following files exist in the codebase but are NOT connected to app routing yet (Wave 2 task):
-- `client/src/pages/login.tsx` — Login page with random wallpaper backgrounds (9 images in `/wallpapers/`)
-- `client/src/pages/forgot-password.tsx` — Password reset request
-- `client/src/pages/reset-password.tsx` — Password reset form
-- `client/src/contexts/AuthContext.tsx` — JWT auth state provider
-- `client/src/components/auth/ProtectedRoute.tsx` — Route guard for authenticated pages
-- `client/src/components/auth/SessionTimeoutDialog.tsx` — Auto-logout dialog
-- `client/src/hooks/useSessionTimeout.ts` — Session timeout hook
-- `client/src/hooks/useFirstLogin.ts` — First login detection hook
-
-## Design Constraints Quick Reference
-
-### Chat Interface
-- Bot messages: left-aligned, no avatar/icon
-- User messages: right-aligned, no avatar/icon
-- Thinking animation: `.wave-dot` CSS class, 3 dots with delays 0s/0.15s/0.3s
-- Input: gradient border wrapper via `.chat-input-gradient` class
-- Persona name: comes from `currentOrganization.personaName` in AppContext (Serra, Aria, Nova). Never "Automa" or "AI"
-
-### Metric Tiles (Main Page)
-- Layout: 2x2 grid, max-w-3xl centered
-- Each tile: gradient background (bg-gradient-to-br), decorative SVG circles, icon badge
-- Role-specific metrics per all 8 roles (see roleMetrics in main.tsx)
-- Hover: scale-[1.02] + shadow-lg transition
-- Tiles collapse after first user message
-
-### Cardinal Layout Rules
-- Data in center → AI chat in right pane (Sales, Service, Marketing, Management pages)
-- Chat in center → info/config on right pane (AI Chat page, Agent detail page)
-- TeamBox uses its own 3-column layout (NOT the global right pane)
-
-### Page Structure
-- Sales/Service/Marketing: Dashboard / Agents / Campaigns / Insights / Calendar tabs
-- Management: Dashboard / Insights / Hunches / Activities / ROI tabs
-- Insights: Dashboard / Reports / Library / Hunches (4 tabs)
-- Settings: Tile-based grid, role-gated per section
-- My Work: Dashboard / Tasks / Chat / Assistant tabs
-
-### Color Coding
-- Hunch types: opportunity=green, threat=red, insight=blue
-- Pipeline alerts: critical=red, warning=amber, info=blue
-- Agent status: active=green dot, inactive=muted dot
-- Campaign status: active=green, paused=amber, draft=gray, completed=blue
-
-## Build Configuration
-- Development: `npm run dev` — Vite dev server with HMR
-- Production: `npm run build` — Vite builds client to `dist/public`, esbuild bundles server
-
-## User Preferences
-Preferred communication style: Simple, everyday language.
+### Backend (Production - separate environment)
+-   **PostgreSQL**: Primary database.
+-   **Drizzle ORM**: Object-relational mapper.
+-   **JWT**: Token-based authentication.
+-   **bcrypt**: Password hashing.
+-   **VinSolutions**: CRM integration (OAuth2).
+-   **VAPI**: Voice integration.
+-   **Tavus**: Video integration.
+-   **Resend**: Email service.
+-   **TextMagic**: SMS service.
+-   **Claude API**: AI capabilities.
+-   **Google Calendar**: Calendar integration.
