@@ -22,6 +22,7 @@
 import { useState } from 'react';
 import {
   MessageSquare,
+  Car,
   CheckCircle2,
   ArrowRight,
   Video,
@@ -41,7 +42,19 @@ import { Label } from '@/components/ui/label';
 
 const GUNMETAL_BLUE = '#2c3e50';
 const WIDGET_TEAL = '#0d9488';
+
+/**
+ * DESIGNER NOTE — Production wiring:
+ * ORG_NAME, ORG_LOGO, and PERSONA_NAME will come from the organization's settings
+ * (currentOrganization in AppContext → Organization interface in mocks/users.ts).
+ *
+ * - Replace ORG_NAME with the dealership's name from settings.
+ * - If the org has a logo URL (Organization.logo), render an <img> in place of
+ *   the Car icon next to the title. If no logo is set, keep the Car icon fallback.
+ * - PERSONA_NAME comes from Organization.personaName (the AI assistant's name).
+ */
 const ORG_NAME = 'Cage Automotive';
+const ORG_LOGO: string | undefined = undefined;
 const PERSONA_NAME = 'Serra';
 
 type WidgetMode = 'closed' | 'chat' | 'video' | 'voice' | 'menu';
@@ -380,9 +393,13 @@ export default function WidgetLandingPage() {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: GUNMETAL_BLUE }}>
-              <MessageSquare className="h-4.5 w-4.5 text-white" />
-            </div>
+            {ORG_LOGO ? (
+              <img src={ORG_LOGO} alt={ORG_NAME} className="w-9 h-9 rounded-lg object-contain" />
+            ) : (
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: GUNMETAL_BLUE }}>
+                <Car className="h-4.5 w-4.5 text-white" />
+              </div>
+            )}
             <span className="font-bold text-lg text-gray-900">{ORG_NAME}</span>
           </div>
 
