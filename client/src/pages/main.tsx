@@ -23,7 +23,7 @@
  *   Will connect to AI backend at nexxusv2.huminicdev.com with conversation context.
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { mockChatMessages, agentSuggestions, type ChatMessage } from '@/mocks/messages';
+import { agentSuggestions, type ChatMessage } from '@/mocks/messages';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { UserRole } from '@/mocks/users';
+import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
 /** Shape of a single metric tile displayed above the chat */
 interface MetricTile {
@@ -277,38 +281,121 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
  * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
  */
 export default function MainPage() {
-  const { currentRole, personaName } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const initial = { ...mockChatMessages[0] };
-    initial.content = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
-    return [initial];
-  });
+  const { currentRole, personaName, currentUser } = useApp();
+  const { user: authUser } = useAuth();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);
-  const [tilesCollapsed, setTilesCollapsed] = useState(false); // Tiles auto-collapse after first user message
-  const [hasSentMessage, setHasSentMessage] = useState(false); // Tracks whether user has sent at least one message
+  const [tilesCollapsed, setTilesCollapsed] = useState(false);
+  const [hasSentMessage, setHasSentMessage] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Select metric tiles based on current RBAC role; falls back to org_admin
   const metrics = roleMetrics[currentRole] || roleMetrics.org_admin;
 
-  // Auto-scroll chat to bottom when new messages arrive
+  const { data: existingConversations } = useQuery<DbConversation[]>({
+    queryKey: ['/api/conversations?channel=ai-chat'],
+    enabled: !!authUser,
+  });
+
+  const findOrCreateConversation = useCallback(async () => {
+    if (!authUser || initialized) return;
+
+    const userEmail = authUser.email;
+    const match = existingConversations?.find(
+      (c) => c.customerEmail === userEmail && c.channel === 'ai-chat'
+    );
+
+    if (match) {
+      setConversationId(match.id);
+      setInitialized(true);
+    } else if (existingConversations !== undefined) {
+      try {
+        const res = await apiRequest('POST', '/api/conversations', {
+          customerName: `${authUser.firstName} ${authUser.lastName}`,
+          customerEmail: userEmail,
+          channel: 'ai-chat',
+          status: 'open',
+        });
+        const newConv: DbConversation = await res.json();
+        setConversationId(newConv.id);
+
+        const greeting = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
+        await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
+          role: 'assistant',
+          content: greeting,
+          senderName: personaName,
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
+        setInitialized(true);
+      } catch (err) {
+        console.error('Failed to create main chat conversation:', err);
+      }
+    }
+  }, [authUser, existingConversations, initialized, personaName]);
+
+  useEffect(() => {
+    findOrCreateConversation();
+  }, [findOrCreateConversation]);
+
+  const { data: dbMessages } = useQuery<DbMessage[]>({
+    queryKey: ['/api/conversations', conversationId, 'messages'],
+    enabled: !!conversationId,
+  });
+
+  useEffect(() => {
+    if (dbMessages && dbMessages.length > 0) {
+      const mapped: ChatMessage[] = dbMessages.map((m) => ({
+        id: m.id,
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+        timestamp: m.createdAt ? new Date(m.createdAt).toISOString() : new Date().toISOString(),
+      }));
+      setMessages(mapped);
+      if (mapped.some((m) => m.role === 'user')) {
+        setHasSentMessage(true);
+        setTilesCollapsed(true);
+      }
+    } else if (dbMessages && dbMessages.length === 0 && conversationId && !initialized) {
+    } else if (!conversationId && !authUser) {
+      const greeting: ChatMessage = {
+        id: 'greeting',
+        role: 'assistant',
+        content: `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages([greeting]);
+    }
+  }, [dbMessages, conversationId, personaName, authUser]);
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async (data: { role: string; content: string; senderName?: string }) => {
+      if (!conversationId) throw new Error('No conversation');
+      const res = await apiRequest('POST', `/api/conversations/${conversationId}/messages`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
+    },
+  });
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Sends user message, triggers tile collapse on first send, and mocks an AI response after 1.5s
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
 
+    const content = inputValue.trim();
     const userMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
-      content: inputValue.trim(),
+      content,
       timestamp: new Date().toISOString(),
     };
 
@@ -321,19 +408,43 @@ export default function MainPage() {
       setTilesCollapsed(true);
     }
 
-    setTimeout(() => {
+    if (conversationId) {
+      try {
+        await sendMessageMutation.mutateAsync({
+          role: 'user',
+          content,
+          senderName: currentUser.name,
+        });
+      } catch (err) {
+        console.error('Failed to save user message:', err);
+      }
+    }
+
+    setTimeout(async () => {
+      const assistantContent = `I understand your request. Let me help you with that. This is the main chat interface where you can interact with ${personaName} for any task. Would you like me to analyze data, review your pipeline, or assist with something else?`;
       const assistantMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'assistant',
-        content: `I understand your request. Let me help you with that. This is the main chat interface where you can interact with ${personaName} for any task. Would you like me to analyze data, review your pipeline, or assist with something else?`,
+        content: assistantContent,
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
+
+      if (conversationId) {
+        try {
+          await sendMessageMutation.mutateAsync({
+            role: 'assistant',
+            content: assistantContent,
+            senderName: personaName,
+          });
+        } catch (err) {
+          console.error('Failed to save assistant message:', err);
+        }
+      }
     }, 1500);
   };
 
-  // Enter sends message; Shift+Enter allows multi-line input
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();

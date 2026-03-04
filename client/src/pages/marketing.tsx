@@ -19,7 +19,7 @@
  * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
 import { useState } from 'react';
-import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban } from 'lucide-react';
+import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,9 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
-import { getCampaignsByDepartment } from '@/mocks/campaigns';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import type { Campaign as APICampaign } from '@shared/schema';
 
 /** Sub-navigation tabs for the marketing page — includes Studio (Wave 4) */
 const tabs = [
@@ -61,11 +63,22 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function MarketingPage() {
-  // communicationGateEnabled: global kill switch from AppContext — when OFF, shows "Communications Paused" badge on campaigns tab
   const { agents, communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const marketingAgents = getAgentsByDepartment(agents, 'marketing');
-  const marketingCampaigns = getCampaignsByDepartment('marketing');
+
+  const { data: marketingCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
+    queryKey: ['/api/campaigns?department=marketing'],
+  });
+
+  const killSwitchMutation = useMutation({
+    mutationFn: async ({ id, killSwitch }: { id: string; killSwitch: boolean }) => {
+      await apiRequest('PATCH', `/api/campaigns/${id}`, { killSwitch });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+    },
+  });
 
   /** Dashboard tab — marketing KPI metric tiles in a responsive 4-column grid */
   const renderDashboard = () => (
@@ -141,6 +154,11 @@ export default function MarketingPage() {
           <Button size="sm" data-testid="button-new-marketing-campaign">New Campaign</Button>
         </div>
       </div>
+      {campaignsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
       <div className="border border-border rounded-lg overflow-hidden">
         <table className="w-full">
           <thead>
@@ -160,9 +178,9 @@ export default function MarketingPage() {
                 <td className="px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">{campaign.name}</p>
-                    {campaign.csvFileName && (
+                    {campaign.csvFilename && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <Upload className="h-3 w-3" /> {campaign.csvFileName}
+                        <Upload className="h-3 w-3" /> {campaign.csvFilename}
                       </p>
                     )}
                   </div>
@@ -181,7 +199,12 @@ export default function MarketingPage() {
                 <td className="px-4 py-3 text-right text-sm">{campaign.repliedCount}</td>
                 <td className="px-4 py-3 text-center">
                   <div className="flex justify-center">
-                    <Switch checked={!campaign.killSwitch} className="data-[state=unchecked]:bg-red-500" data-testid={`switch-killswitch-${campaign.id}`} />
+                    <Switch
+                      checked={!campaign.killSwitch}
+                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: !checked })}
+                      className="data-[state=unchecked]:bg-red-500"
+                      data-testid={`switch-killswitch-${campaign.id}`}
+                    />
                   </div>
                 </td>
               </tr>
@@ -189,6 +212,7 @@ export default function MarketingPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 

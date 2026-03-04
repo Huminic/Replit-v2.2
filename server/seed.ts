@@ -80,8 +80,9 @@ export async function seedDatabase() {
     { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: serraHonda.id },
   ];
 
+  const createdAgents: Record<string, string> = {};
   for (const a of agentData) {
-    await storage.createAgent({
+    const agent = await storage.createAgent({
       name: a.name,
       department: a.department,
       type: "ai",
@@ -91,56 +92,141 @@ export async function seedDatabase() {
       dealership: a.dealership,
       organizationId: a.orgId,
     });
+    createdAgents[a.name] = agent.id;
   }
 
   const campaignData = [
-    { name: "Winter Service Reminder", status: "active", channel: "sms", orgId: serraHonda.id, recipientCount: 1250, sentCount: 890, repliedCount: 234, csvFilename: "winter_service_2026.csv" },
-    { name: "New Year Sales Event", status: "active", channel: "email", orgId: serraHonda.id, recipientCount: 3400, sentCount: 3400, repliedCount: 567 },
-    { name: "Recall Notice - Brake System", status: "paused", channel: "sms", orgId: serraHonda.id, recipientCount: 450, sentCount: 450, repliedCount: 89, csvFilename: "recall_brakes.csv" },
-    { name: "Spring Marketing Campaign", status: "draft", channel: "email", orgId: serraHonda.id, recipientCount: 0, sentCount: 0, repliedCount: 0 },
+    { name: "Service Reminder - February", department: "service", status: "active", channel: "sms", orgId: serraHonda.id, recipientCount: 145, sentCount: 132, repliedCount: 47, csvFilename: "feb_service_due.csv", killSwitch: false },
+    { name: "Presidents Day Sale", department: "marketing", status: "completed", channel: "both", orgId: serraHonda.id, recipientCount: 892, sentCount: 892, repliedCount: 123, csvFilename: "marketing_list_feb.csv", killSwitch: false },
+    { name: "New Lead Follow-Up Sequence", department: "sales", status: "active", channel: "both", orgId: serraHonda.id, recipientCount: 67, sentCount: 45, repliedCount: 18, csvFilename: null, killSwitch: false },
+    { name: "Oil Change Reminder", department: "service", status: "paused", channel: "sms", orgId: serraHonda.id, recipientCount: 234, sentCount: 89, repliedCount: 31, csvFilename: "oil_change_due_march.csv", killSwitch: true },
   ];
 
+  const createdCampaigns: Record<string, string> = {};
   for (const c of campaignData) {
-    await storage.createCampaign({
+    const campaign = await storage.createCampaign({
       name: c.name,
+      department: c.department,
       status: c.status,
       channel: c.channel,
       organizationId: c.orgId,
       recipientCount: c.recipientCount,
       sentCount: c.sentCount,
       repliedCount: c.repliedCount,
-      csvFilename: c.csvFilename || null,
+      csvFilename: c.csvFilename,
+      killSwitch: c.killSwitch,
     });
+    createdCampaigns[c.name] = campaign.id;
   }
 
   const conv1 = await storage.createConversation({
     customerName: "Michael Clark",
-    customerEmail: "mclark@email.com",
-    customerPhone: "+1(901)555-0123",
+    customerEmail: "michael.clark@email.com",
+    customerPhone: "(412) 555-0101",
     channel: "sms",
     status: "open",
+    agentId: createdAgents["Caroline"],
     organizationId: serraHonda.id,
-    unreadCount: 2,
-    lastMessageAt: new Date(),
+    unreadCount: 3,
+    lastMessageAt: new Date("2026-02-20T14:30:00Z"),
   });
-
-  await storage.createMessage({ conversationId: conv1.id, role: "customer", content: "Hi, I'm interested in the 2026 Civic. Do you have any in stock?", senderName: "Michael Clark" });
-  await storage.createMessage({ conversationId: conv1.id, role: "bot", content: "Hello Michael! Yes, we have several 2026 Honda Civics available. Would you prefer the sedan or hatchback?", senderName: "Caroline" });
-  await storage.createMessage({ conversationId: conv1.id, role: "customer", content: "The sedan, preferably in blue. What's the starting price?", senderName: "Michael Clark" });
+  await storage.createMessage({ conversationId: conv1.id, role: "bot", content: "Hi Michael! Thank you for your interest in the 2026 Camry. Would you like to schedule a test drive?", senderName: "Sales Agent" });
+  await storage.createMessage({ conversationId: conv1.id, role: "customer", content: "Yes, but I also wanted to ask about the trade-in value for my current car.", senderName: "Michael Clark" });
+  await storage.createMessage({ conversationId: conv1.id, role: "bot", content: "Of course! I can help with that. What year, make, and model is your current vehicle?", senderName: "Sales Agent" });
+  await storage.createMessage({ conversationId: conv1.id, role: "customer", content: "I received a damaged item and need help.", senderName: "Michael Clark" });
 
   const conv2 = await storage.createConversation({
-    customerName: "Sarah Johnson",
-    customerEmail: "sjohnson@email.com",
-    customerPhone: "+1(256)555-0456",
-    channel: "email",
+    customerName: "Ben Smith",
+    customerEmail: "ben.smith@email.com",
+    customerPhone: "(412) 555-0102",
+    channel: "chat",
     status: "automated",
+    agentId: createdAgents["Caroline"],
+    organizationId: serraHonda.id,
+    unreadCount: 1,
+    lastMessageAt: new Date("2026-02-20T13:45:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv2.id, role: "bot", content: "Welcome Ben! How can I help you today?", senderName: "Sales Agent" });
+  await storage.createMessage({ conversationId: conv2.id, role: "customer", content: "I'm having trouble accessing my account.", senderName: "Ben Smith" });
+
+  const conv3 = await storage.createConversation({
+    customerName: "David Jackson",
+    customerEmail: "david.jackson@email.com",
+    customerPhone: "(412) 555-0103",
+    channel: "email",
+    status: "followup",
     organizationId: serraHonda.id,
     unreadCount: 0,
-    lastMessageAt: new Date(Date.now() - 3600000),
+    lastMessageAt: new Date("2026-02-20T12:00:00Z"),
   });
+  await storage.createMessage({ conversationId: conv3.id, role: "customer", content: "I need to update my payment information.", senderName: "David Jackson" });
 
-  await storage.createMessage({ conversationId: conv2.id, role: "customer", content: "When is my next service appointment due?", senderName: "Sarah Johnson" });
-  await storage.createMessage({ conversationId: conv2.id, role: "bot", content: "Hi Sarah! Based on your records, your 2024 Accord is due for a 30,000 mile service. Would you like me to schedule an appointment?", senderName: "Magnolia" });
+  const conv4 = await storage.createConversation({
+    customerName: "Joshua Thompson",
+    customerEmail: "joshua.t@email.com",
+    customerPhone: "(412) 555-0104",
+    channel: "sms",
+    status: "assigned",
+    agentId: createdAgents["Elizabeth"],
+    organizationId: serraHonda.id,
+    unreadCount: 2,
+    lastMessageAt: new Date("2026-02-20T11:30:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv4.id, role: "bot", content: "Hi Joshua! We have some great deals this month. Can I help you find the right vehicle?", senderName: "Communications Agent" });
+  await storage.createMessage({ conversationId: conv4.id, role: "customer", content: "I have a question about the special pricing.", senderName: "Joshua Thompson" });
+
+  const conv5 = await storage.createConversation({
+    customerName: "Emily Davis",
+    customerEmail: "emily.d@email.com",
+    customerPhone: "(412) 555-0105",
+    channel: "whatsapp",
+    status: "open",
+    organizationId: serraHonda.id,
+    unreadCount: 1,
+    lastMessageAt: new Date("2026-02-20T10:45:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv5.id, role: "customer", content: "I need to change the shipping address.", senderName: "Emily Davis" });
+
+  const conv6 = await storage.createConversation({
+    customerName: "Amanda Anderson",
+    customerEmail: "amanda.a@email.com",
+    customerPhone: "(412) 555-0106",
+    channel: "chat",
+    status: "pending",
+    agentId: createdAgents["Savannah"],
+    organizationId: serraHonda.id,
+    unreadCount: 0,
+    lastMessageAt: new Date("2026-02-20T09:30:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv6.id, role: "customer", content: "I'd like to request a copy of my service history.", senderName: "Amanda Anderson" });
+
+  const conv7 = await storage.createConversation({
+    customerName: "Melissa Taylor",
+    customerPhone: "(412) 555-0107",
+    channel: "sms",
+    status: "scheduled",
+    agentId: createdAgents["Savannah"],
+    organizationId: serraHonda.id,
+    campaignId: createdCampaigns["Service Reminder - February"],
+    unreadCount: 0,
+    lastMessageAt: new Date("2026-02-19T16:00:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv7.id, role: "bot", content: "Hi Melissa! This is a reminder that your vehicle is due for its 30,000 mile service.", senderName: "Service Guru" });
+  await storage.createMessage({ conversationId: conv7.id, role: "customer", content: "Can I schedule it for Friday?", senderName: "Melissa Taylor" });
+  await storage.createMessage({ conversationId: conv7.id, role: "bot", content: "Your service appointment is confirmed for Friday at 10am.", senderName: "Service Guru" });
+
+  const conv8 = await storage.createConversation({
+    customerName: "Stephanie Thompson",
+    customerEmail: "steph.t@email.com",
+    channel: "email",
+    status: "participating",
+    agentId: createdAgents["Elizabeth"],
+    organizationId: serraHonda.id,
+    unreadCount: 1,
+    lastMessageAt: new Date("2026-02-19T14:00:00Z"),
+  });
+  await storage.createMessage({ conversationId: conv8.id, role: "bot", content: "Hi Stephanie! Check out our exclusive February specials - up to $5,000 off select models!", senderName: "Marketing Agent" });
+  await storage.createMessage({ conversationId: conv8.id, role: "customer", content: "I received the wrong promotional offer.", senderName: "Stephanie Thompson" });
 
   console.log("Database seeded successfully!");
   console.log("Default login: admin@nexxus.com / password123");
