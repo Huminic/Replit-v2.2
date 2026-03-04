@@ -1,3 +1,35 @@
+/**
+ * Settings Page — System-wide configuration hub.
+ *
+ * Layout: Tile grid landing → drill-down into section detail views.
+ * Each tile maps to a settings section: User Management, Organization, Tools & Integrations,
+ * Knowledge Base, AI Configuration, Security, Notifications, Data Management, Appearance.
+ *
+ * RBAC: Each tile has a minRole array controlling visibility per role.
+ * - super_admin sees all tiles
+ * - partner_admin sees most (AI Config read-only)
+ * - org_admin sees org-level tiles only
+ *
+ * Key sections:
+ * - Organization: Has the global communication gate toggle (communicationGateEnabled from AppContext).
+ *   When OFF, all outbound campaign messages are paused system-wide.
+ * - Tools & Integrations: MCP tools (VIN Solutions, VAPI, Tavus, TextMagic, etc.),
+ *   individual widget management, universal widget settings (channel toggles),
+ *   landing page management, and skills configuration.
+ * - Knowledge Base: File upload for AI training data (FAQ, pricing, inventory CSVs).
+ *   Kill switch confirmation dialog for immediate data purge.
+ *
+ * PRODUCTION NOTE: All settings currently use local state. Will wire to backend API
+ * at nexxusv2.huminicdev.com for persistent org configuration.
+ *
+ * Related files:
+ * - AppContext.tsx: communicationGateEnabled, personaName, currentRole
+ * - mocks/widgets.ts: Widget/landing page types, universal settings, embed code generation
+ * - mocks/agents.ts: availableTools for AI config
+ * - mocks/users.ts: mockUsers, getRoleLabel for user management section
+ *
+ * @see client/src/pages/org-wizard.tsx — New Organization creation (linked from User Management)
+ */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 

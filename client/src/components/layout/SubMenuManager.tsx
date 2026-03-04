@@ -1,3 +1,30 @@
+/**
+ * @component SubMenuManager
+ * @description Flyout sub-menu panel (280px wide) that appears when hovering/pinning sidebar items.
+ * Shows section-specific navigation links, agent lists with chevron-expand for conversation history.
+ *
+ * Positioned fixed at left-16 (next to 72px sidebar), fills full height below TopBar (top-14).
+ *
+ * Panel cases per sidebar section:
+ *   - ai-chat: Favorites list + chat history + artifacts placeholder
+ *   - teambox: Conversation/task/workflow navigation + quick filters (open/automated/followup)
+ *   - my-work: Assistant/dashboard/tasks/chat tab links
+ *   - sales/service/marketing: Tab navigation + agent list with expandable conversations
+ *   - management: Dashboard/insights/hunches/activities/ROI navigation
+ *   - system: Settings items filtered by currentRole RBAC
+ *   - profile: User info + profile/preferences/billing links
+ *
+ * @features
+ *   - renderAgentList: Agents with chevron-expand button to show conversation history.
+ *     Clicking a conversation navigates to TeamBox. Active (non-closed) count shown in badge.
+ *   - toggleAgentExpanded / expandedAgents: Local state for agent conversation expand/collapse
+ *   - agentSearch: Filter agents by name within each department panel
+ *   - 800ms mouseLeave delay prevents flicker when moving between sidebar and panel
+ *
+ * @see Sidebar.tsx — triggers this panel via activePanel state
+ * @see AppContext.tsx — provides activePanel, subMenuExpanded, panelHovered
+ * @production Conversations currently from mockTeamboxConversations; will wire to backend API
+ */
 import { useRef, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
@@ -7,7 +34,7 @@ import {
   MessageSquare, LayoutDashboard, CheckSquare,
   Building2, Lock, Bell, Database, Palette,
   Megaphone, Users, DollarSign, ExternalLink, Inbox,
-  FileText
+  FileText, ChevronDown, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,9 +72,14 @@ export function SubMenuManager() {
     favorites
   } = useApp();
   
+  // 800ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Search filter for agents within department panels
   const [agentSearch, setAgentSearch] = useState('');
+  // Tracks which agents have their conversation history chevron-expanded
+  const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
 
+  // Auto-close sub-menu on window resize below 1024px (prevents layout breakage on mobile)
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024 && subMenuExpanded) {
@@ -70,11 +102,13 @@ export function SubMenuManager() {
   
   const isVisible = activePanel !== null || subMenuExpanded;
 
+  // Close/unpin the sub-menu panel
   const handleCollapsePanel = () => {
     setSubMenuExpanded(false);
     setActivePanel(null);
   };
 
+  // Cancel any pending close timeout when mouse enters the panel
   const handlePanelMouseEnter = () => {
     if (panelLeaveTimeoutRef.current) {
       clearTimeout(panelLeaveTimeoutRef.current);
@@ -83,6 +117,7 @@ export function SubMenuManager() {
     setPanelHovered(true);
   };
 
+  // Start 800ms close timeout when mouse leaves the panel (unless pinned)
   const handlePanelMouseLeave = (e: React.MouseEvent) => {
     const relatedTarget = e.relatedTarget;
     const panel = e.currentTarget as HTMLElement;
@@ -99,6 +134,7 @@ export function SubMenuManager() {
     }
   };
 
+  // Resolves which panel content to render based on activePanel or current route
   const getCurrentPanelId = () => {
     if (activePanel) return activePanel;
     if (location === '/') return 'ai-chat';
@@ -121,6 +157,7 @@ export function SubMenuManager() {
     return null;
   }
 
+  // Reusable nav item renderer — shows icon, label, optional badge (e.g. conversation count)
   const renderNavItem = (item: { id: string; label: string; icon: React.ElementType; path?: string; onClick?: () => void; active?: boolean; badge?: string }) => {
     const Icon = item.icon;
     return (
@@ -140,6 +177,22 @@ export function SubMenuManager() {
     );
   };
 
+  // Toggle chevron expand/collapse for an agent's conversation history
+  const toggleAgentExpanded = (agentId: string) => {
+    setExpandedAgents(prev => ({ ...prev, [agentId]: !prev[agentId] }));
+  };
+
+  // Get conversations assigned to a specific agent from mock data
+  const getAgentConversations = (agentId: string) => {
+    return mockTeamboxConversations.filter(c => c.agentId === agentId);
+  };
+
+  /**
+   * Renders agent list for a department with search filter and chevron-expand conversation history.
+   * Each agent shows: avatar, name, status dot, expand button with active conversation count badge.
+   * Expanded view shows conversation list with customer name, AI badge (if automated), unread dot.
+   * Clicking a conversation navigates to TeamBox.
+   */
   const renderAgentList = (department: 'sales' | 'service' | 'marketing') => {
     const deptAgents = getAgentsByDepartment(agents, department);
     const searched = agentSearch.trim()
@@ -159,37 +212,96 @@ export function SubMenuManager() {
             data-testid="input-agent-search"
           />
         </div>
-        {searched.map((agent) => (
-          <button
-            key={agent.id}
-            onClick={() => {
-              setSelectedAgent(agent);
-            }}
-            className={cn(
-              'w-full text-left p-2 rounded-md transition-colors hover-elevate',
-              selectedAgent?.id === agent.id ? 'bg-accent' : 'hover:bg-accent/50'
-            )}
-            data-testid={`panel-agent-${agent.id}`}
-          >
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-[10px]">
-                  <Bot className="h-3 w-3" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs font-medium text-foreground truncate">{agent.name}</p>
-                  <div className={cn('w-1.5 h-1.5 rounded-full', getAgentStatusColor(agent.status))} />
-                </div>
+        {searched.map((agent) => {
+          const agentConvos = getAgentConversations(agent.id);
+          const isExpanded = expandedAgents[agent.id] || false;
+          const activeConvoCount = agentConvos.filter(c => c.status !== 'closed').length;
+
+          return (
+            <div key={agent.id}>
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    setSelectedAgent(agent);
+                  }}
+                  className={cn(
+                    'flex-1 text-left p-2 rounded-md transition-colors hover-elevate',
+                    selectedAgent?.id === agent.id ? 'bg-accent' : 'hover:bg-accent/50'
+                  )}
+                  data-testid={`panel-agent-${agent.id}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-[10px]">
+                        <Bot className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-medium text-foreground truncate">{agent.name}</p>
+                        <div className={cn('w-1.5 h-1.5 rounded-full', getAgentStatusColor(agent.status))} />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+                {agentConvos.length > 0 && (
+                  <button
+                    onClick={() => toggleAgentExpanded(agent.id)}
+                    className="p-1.5 rounded-md hover:bg-accent/50 transition-colors flex-shrink-0"
+                    data-testid={`button-expand-agent-${agent.id}`}
+                    title={isExpanded ? 'Hide conversations' : `Show ${activeConvoCount} conversation${activeConvoCount !== 1 ? 's' : ''}`}
+                  >
+                    <div className="flex items-center gap-0.5">
+                      {activeConvoCount > 0 && (
+                        <Badge variant="secondary" className="h-4 min-w-4 text-[9px] px-1">
+                          {activeConvoCount}
+                        </Badge>
+                      )}
+                      {isExpanded ? (
+                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+                )}
               </div>
+
+              {isExpanded && agentConvos.length > 0 && (
+                <div className="ml-6 pl-2 border-l-2 border-border/50 space-y-0.5 pb-1">
+                  {agentConvos.map((convo) => (
+                    <button
+                      key={convo.id}
+                      onClick={() => setLocation('/teambox')}
+                      className="w-full text-left p-1.5 rounded-md hover:bg-accent/50 transition-colors group"
+                      data-testid={`agent-convo-${convo.id}`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-medium text-foreground truncate flex-1">
+                          {convo.customerName}
+                        </span>
+                        {convo.status === 'automated' && (
+                          <Badge variant="outline" className="h-3.5 text-[8px] px-1 border-purple-300 text-purple-600 dark:text-purple-400">
+                            AI
+                          </Badge>
+                        )}
+                        {convo.unreadCount > 0 && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{convo.lastMessage}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </button>
-        ))}
+          );
+        })}
       </div>
     );
   };
 
+  // Renders the appropriate panel content based on the current panelId
   const renderPanelContent = () => {
     switch (panelId) {
       case 'ai-chat':

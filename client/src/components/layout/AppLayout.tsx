@@ -1,3 +1,27 @@
+/**
+ * @component AppLayout
+ * @description Master layout wrapper for all authenticated pages. Orchestrates the full application shell:
+ * TopBar (h-14) + Sidebar (72px) + SubMenuManager (flyout) + main content + RightPane.
+ *
+ * Does NOT wrap /w/demo (the public landing page uses its own standalone layout).
+ *
+ * @designConstraints Cardinal layout rules enforced here:
+ *   - chat-only: AI Chat page — centered content (max-w-4xl), no right pane
+ *   - data-display: Dashboard pages (sales/service/marketing/management/insights) — right pane available for Automa AI chat
+ *   - sub-menu: Utility pages (my-work/settings/profile) — no right pane, relies on SubMenuManager navigation
+ *   - heavy-chat: Agent detail page — chat center → AgentConfigPane in right pane
+ *   - teambox: CommBox 3-column layout — uses its own internal columns, no global right pane
+ *
+ * Right pane toggle:
+ *   - Desktop: Slide-out panel (w-80 lg:w-96) with chevron close button
+ *   - Mobile: Full-screen overlay with close button
+ *   - FAB (floating action button): Appears on mobile for data-display pages to open Automa chat
+ *
+ * @see Sidebar.tsx — left navigation (72px)
+ * @see SubMenuManager.tsx — flyout sub-menu panel
+ * @see RightPane.tsx — Automa AI chat panel for data-display pages
+ * @see AgentConfigPane.tsx — agent configuration panel for /agents route
+ */
 import { useLocation } from 'wouter';
 import { ChevronsLeft, ChevronsRight, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,12 +33,21 @@ import { SubMenuManager } from './SubMenuManager';
 import { AgentConfigPane } from '@/components/AgentConfigPane';
 import { useApp } from '@/contexts/AppContext';
 
+/**
+ * ViewConfig determines right pane behavior and main content layout per route:
+ * - chat-only: No right pane, centered chat (AI Chat page)
+ * - data-display: Right pane with Automa AI assistant
+ * - sub-menu: No right pane, sub-menu navigation only
+ * - heavy-chat: Right pane with AgentConfigPane
+ * - teambox: Own internal 3-column layout, no global right pane
+ */
 type ViewConfig = 'chat-only' | 'data-display' | 'sub-menu' | 'heavy-chat' | 'teambox';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+/** Maps the current route to a ViewConfig to determine layout behavior */
 function getViewConfig(pathname: string): ViewConfig {
   if (pathname === '/') return 'chat-only';
   if (pathname.startsWith('/teambox')) return 'teambox';
@@ -37,6 +70,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isAgentsPage = location.startsWith('/agents');
   const isDataDisplayPage = viewConfig === 'data-display';
 
+  // Right pane renders AgentConfigPane on /agents, otherwise the Automa AI RightPane
   const renderRightPaneContent = () => {
     if (isAgentsPage) {
       return <AgentConfigPane />;

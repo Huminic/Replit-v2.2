@@ -1,6 +1,31 @@
+/**
+ * agents.ts — Mock AI Agent definitions for Nexxus V2
+ *
+ * Defines the Agent data model and provides 6 pre-configured AI agents spanning
+ * sales, service, and marketing departments. Each agent has:
+ *  - Channel assignment (voice, chat, video, email, sms)
+ *  - Trigger configuration (when the agent activates)
+ *  - Tool bindings (which MCP tools the agent can use)
+ *  - Customer-facing links and phone numbers
+ *
+ * Agents are displayed in:
+ *  - SubMenuManager flyout panels (per-department agent lists)
+ *  - agents.tsx detail/chat page (cardinal rule: chat center → config right)
+ *  - AgentConfigPane.tsx (right pane config editor)
+ *  - Department dashboards (sales.tsx, service.tsx, marketing.tsx)
+ *
+ * PRODUCTION NOTE: Agent CRUD will be handled by the backend API at
+ * nexxusv2.huminicdev.com. Tools will be MCP-server-provided capabilities
+ * (VIN decoder, CRM lookup, etc.). Agent instructions feed into the LLM prompt.
+ */
+
+/** Lifecycle status — draft agents are not customer-facing */
 export type AgentStatus = 'active' | 'inactive' | 'draft';
+/** Communication channel the agent operates on */
 export type AgentChannel = 'voice' | 'chat' | 'video' | 'email' | 'sms';
+/** How the agent gets activated — scheduled/automated triggers run without human initiation */
 export type TriggerType = 'mention' | 'direct_message' | 'assign_task' | 'scheduled' | 'automated';
+/** Department alignment — determines which sidebar section shows the agent */
 export type AgentDepartment = 'sales' | 'service' | 'marketing' | 'system';
 
 export interface AgentTrigger {
@@ -38,6 +63,11 @@ export interface Agent {
   createdBy: string;
 }
 
+/**
+ * Available MCP tools that can be assigned to agents.
+ * PRODUCTION NOTE: These will be dynamically loaded from the MCP server registry.
+ * Each tool maps to a backend capability (VinSolutions CRM, TextMagic SMS, etc.)
+ */
 export const availableTools: AgentTool[] = [
   { id: 'vin-decoder', name: 'VIN Decoder', description: 'Decode vehicle identification numbers', enabled: false },
   { id: 'inventory-search', name: 'Inventory Search', description: 'Search dealership inventory', enabled: false },
@@ -49,6 +79,15 @@ export const availableTools: AgentTool[] = [
   { id: 'notification-sender', name: 'Notification Sender', description: 'Send emails and SMS notifications', enabled: false },
 ];
 
+/**
+ * 6 pre-configured mock agents covering all departments:
+ *  1. Sales Agent — inbound voice lead qualification
+ *  2. Communications Agent — outbound SMS/email campaigns
+ *  3. CRM Data Agent — VinSolutions data queries and reporting
+ *  4. Service Guru — service dept communications and scheduling
+ *  5. Sales Guru — internal sales coaching and follow-up prioritization
+ *  6. Marketing Agent — campaign management and performance tracking
+ */
 export const mockAgents: Agent[] = [
   {
     id: 'agent-1',
@@ -207,6 +246,7 @@ export const mockAgents: Agent[] = [
   },
 ];
 
+/** Returns Tailwind bg class for agent status indicator dot */
 export const getAgentStatusColor = (status: AgentStatus): string => {
   const colors: Record<AgentStatus, string> = {
     active: 'bg-green-500',
@@ -216,6 +256,7 @@ export const getAgentStatusColor = (status: AgentStatus): string => {
   return colors[status];
 };
 
+/** Maps channel type to lucide-react icon name for display */
 export const getChannelIcon = (channel: AgentChannel): string => {
   const icons: Record<AgentChannel, string> = {
     voice: 'Phone',
@@ -227,6 +268,7 @@ export const getChannelIcon = (channel: AgentChannel): string => {
   return icons[channel];
 };
 
+/** Filters agents by department — used in SubMenuManager and department dashboards */
 export const getAgentsByDepartment = (agents: Agent[], department: AgentDepartment): Agent[] => {
   return agents.filter(a => a.department === department);
 };

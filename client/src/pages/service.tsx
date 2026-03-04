@@ -1,3 +1,27 @@
+/**
+ * Service Department Dashboard
+ *
+ * Service-focused dashboard with campaign management capabilities.
+ * Cardinal layout rule: data in center, Automa AI chat in right pane.
+ *
+ * RBAC: Visible to service, org_admin, executive, partner_admin, super_admin.
+ * Access gating handled by canAccessSection() in users.ts via Sidebar navigation.
+ *
+ * Tabs:
+ *   - Dashboard: Service KPI metric tiles (active campaigns, messages sent, replies, appointments, declined services, upsell rate)
+ *   - Agents: Agent cards for service department AI agents
+ *   - Campaigns: Campaign table with CSV upload info, status, channel, recipient/sent/replied counts, kill switch toggle.
+ *     Shows "Communications Paused" badge when global communication gate is OFF (communicationGateEnabled from AppContext).
+ *     Campaign Safety card explains kill switch and per-conversation disconnect in TeamBox.
+ *   - Insights: Placeholder for Wave 2 service analytics
+ *   - Calendar: Placeholder for Wave 2 service appointment scheduling
+ *
+ * Kill Switch: Toggle to immediately stop all outbound messages for a campaign.
+ * CRITICAL FEATURE — added after spam incident. Each campaign row has its own toggle.
+ *
+ * PRODUCTION NOTE: Campaigns will use TextMagic (SMS) and Resend (email) APIs.
+ * Currently uses getCampaignsByDepartment() from mock data.
+ */
 import { useState } from 'react';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,6 +35,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
 import { getCampaignsByDepartment, type Campaign } from '@/mocks/campaigns';
 
+/** Sub-navigation tabs for the service page */
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Bot },
@@ -19,6 +44,11 @@ const tabs = [
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
 ];
 
+/**
+ * Service KPI metric tiles — active campaigns, messages sent, replies received,
+ * appointments booked, declined services, upsell rate.
+ * PRODUCTION NOTE: Will be fetched from backend API aggregating TextMagic + Resend data.
+ */
 const serviceMetrics = [
   { id: 'svm-1', label: 'Active Campaigns', value: '3', change: 1, trend: 'up' as const, icon: Megaphone },
   { id: 'svm-2', label: 'Messages Sent', value: '456', change: 23, trend: 'up' as const, icon: MessageSquare },
@@ -28,6 +58,7 @@ const serviceMetrics = [
   { id: 'svm-6', label: 'Upsell Rate', value: '22%', change: 3, trend: 'up' as const, icon: DollarSign },
 ];
 
+/** Color mapping for campaign status indicators — used in both service.tsx and marketing.tsx */
 const campaignStatusColors: Record<string, string> = {
   active: 'bg-green-500',
   paused: 'bg-amber-500',
@@ -36,11 +67,13 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function ServicePage() {
+  // communicationGateEnabled: global kill switch from AppContext — when OFF, shows "Communications Paused" badge
   const { agents, communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const serviceAgents = getAgentsByDepartment(agents, 'service');
   const serviceCampaigns = getCampaignsByDepartment('service');
 
+  /** Dashboard tab — service KPI metric tiles in a responsive grid */
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
@@ -74,6 +107,7 @@ export default function ServicePage() {
     </div>
   );
 
+  /** Agents tab — service department AI agent cards */
   const renderAgents = () => (
     <div className="p-6 space-y-4">
       <h2 className="text-lg font-semibold">Service Agents</h2>
@@ -101,6 +135,12 @@ export default function ServicePage() {
     </div>
   );
 
+  /**
+   * Campaigns tab — campaign table with CSV upload info, status, channel,
+   * recipient/sent/replied counts, and per-campaign kill switch toggle.
+   * Shows "Communications Paused" destructive badge when global communication gate is OFF.
+   * Campaign Safety card at bottom explains kill switch behavior and per-conversation disconnect in TeamBox.
+   */
   const renderCampaigns = () => (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -187,6 +227,7 @@ export default function ServicePage() {
     </div>
   );
 
+  /** Insights tab — placeholder for Wave 2 service performance analytics and appointment trends */
   const renderInsights = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
@@ -197,6 +238,7 @@ export default function ServicePage() {
     </div>
   );
 
+  /** Calendar tab — placeholder for Wave 2 service appointment scheduling and bay availability */
   const renderCalendar = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">

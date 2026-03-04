@@ -1,4 +1,40 @@
-// Mock insights and analytics data for Nexxus V2 UI prototype
+/**
+ * insights.ts — Comprehensive analytics and reporting mock data for Nexxus V2
+ *
+ * This is the largest mock data file, providing data for the insights.tsx page
+ * (1800+ lines) which contains the full analytics dashboard. Data categories:
+ *
+ * Overview metrics:
+ *  - mockMetrics: Top-level KPI cards (leads, conversion, satisfaction, etc.)
+ *  - mockLeadsChart / mockConversionsChart: 7-day trend sparkline data
+ *  - mockAgentPerformance: Per-agent interaction counts
+ *  - mockGoals: Business goal tracking with progress bars
+ *
+ * Command Center (Red/Yellow/Green zone tables):
+ *  - mockHotLeadsGoingCold: Aging hot leads that need attention (Red Zone)
+ *  - mockNewLeadsNoContact: Leads with no first contact attempt (Red Zone)
+ *  - mockShowroomNotClosed: Walk-in visitors not yet converted (Red Zone)
+ *  - yellowZoneData: Stale leads and pending finance deals
+ *  - greenZoneMetrics: Healthy pipeline indicators
+ *
+ * Pipeline Health:
+ *  - pipelineHealthData: Velocity, freshness, status flow, month-end forecast
+ *
+ * Performance Scorecard:
+ *  - scorecardConversionMetrics: Win/loss/bad rates with sparklines
+ *  - topLeadSources: Source quality grading (A+ to D)
+ *  - channelPerformance: Volume and conversion by channel
+ *
+ * Reports (Loss Analysis, Channel Intelligence, Trends):
+ *  - lossReasonBreakdown / badLeadBreakdown: Why deals are lost
+ *  - fullChannelComparison: 10-channel detailed comparison
+ *  - digitalVsPhysical: Online vs. in-person performance gap
+ *  - serviceLaneAnalysis: Service-to-sales conversion opportunity
+ *  - monthlyPerformanceSummary / rollingForecast: Executive reporting
+ *
+ * PRODUCTION NOTE: All data will come from VinSolutions CRM via MCP server,
+ * computed by the backend analytics engine. Refresh intervals TBD.
+ */
 
 export interface MetricCard {
   id: string;

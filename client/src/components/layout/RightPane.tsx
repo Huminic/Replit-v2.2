@@ -1,3 +1,25 @@
+/**
+ * @component RightPane
+ * @description Right-side Automa AI chat panel for data-display pages. Cardinal rule: when data is in center,
+ * this panel lets users discuss that data with the AI assistant.
+ *
+ * Features:
+ *   - Uses personaName from AppContext as the assistant's display name
+ *   - Mock chat pattern with simulated typing (wave-dot animation) and 1.5s response delay
+ *   - Suggestion buttons shown when conversation has ≤3 messages (onboarding help)
+ *   - Gradient border on input area (chat-input-gradient) for visual distinction
+ *   - Enter to send, Shift+Enter for newline, auto-scroll on new messages
+ *
+ * @designConstraints
+ *   - Rendered inside AppLayout right column (w-80 lg:w-96 on desktop, full-screen on mobile)
+ *   - User messages: primary bg, right-aligned
+ *   - Assistant messages: card bg with border, left-aligned
+ *
+ * @production Will connect to AI backend (nexxusv2.huminicdev.com) with dashboard context awareness.
+ *   Currently uses mockChatMessages and simulated responses.
+ * @see AppLayout.tsx — controls when this panel is shown/hidden
+ * @see messages.ts — provides mockChatMessages and agentSuggestions
+ */
 import { useState, useRef, useEffect } from 'react';
 import { Send, Plus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,6 +46,7 @@ export function RightPane({ className }: RightPaneProps) {
     }
   }, [messages]);
 
+  // Send user message and simulate AI response after 1.5s delay
   const handleSend = () => {
     if (!inputValue.trim()) return;
 
@@ -50,6 +73,7 @@ export function RightPane({ className }: RightPaneProps) {
     }, 1500);
   };
 
+  // Enter sends message, Shift+Enter adds newline
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -57,6 +81,7 @@ export function RightPane({ className }: RightPaneProps) {
     }
   };
 
+  // Pre-fill input with suggestion text and focus the textarea
   const handleSuggestionClick = (suggestion: string) => {
     setInputValue(suggestion);
     inputRef.current?.focus();

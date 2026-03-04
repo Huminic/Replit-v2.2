@@ -1,3 +1,23 @@
+/**
+ * Marketing Department Dashboard
+ *
+ * Marketing-focused dashboard with campaign management and creative studio placeholder.
+ * Cardinal layout rule: data in center, Automa AI chat in right pane.
+ *
+ * RBAC: Visible to marketing, org_admin, executive, partner_admin, super_admin.
+ * Access gating handled by canAccessSection() in users.ts via Sidebar navigation.
+ *
+ * Tabs:
+ *   - Dashboard: Marketing KPI metric tiles (campaign performance, leads generated, widget interactions, landing page visits)
+ *   - Agents: Agent cards for marketing department AI agents
+ *   - Campaigns: Same campaign table pattern as service.tsx with kill switch toggle per campaign
+ *   - Studio: Placeholder for Wave 4 media creation tools (video, image, podcast, landing page builder)
+ *   - Insights: Placeholder for Wave 2 campaign ROI and lead attribution analytics
+ *
+ * PRODUCTION NOTE: Widget interactions tracked via analytics events.
+ * Landing page visits tracked via UTM params and /w/demo route analytics.
+ * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
+ */
 import { useState } from 'react';
 import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,6 +31,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getAgentsByDepartment, getAgentStatusColor } from '@/mocks/agents';
 import { getCampaignsByDepartment } from '@/mocks/campaigns';
 
+/** Sub-navigation tabs for the marketing page — includes Studio (Wave 4) */
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Bot },
@@ -19,6 +40,11 @@ const tabs = [
   { id: 'insights', label: 'Insights', icon: BarChart3 },
 ];
 
+/**
+ * Marketing KPI metric tiles — campaign performance, leads generated,
+ * widget interactions (tracked via analytics), landing page visits (tracked via UTM params).
+ * PRODUCTION NOTE: Will be fetched from backend analytics aggregation.
+ */
 const marketingMetrics = [
   { id: 'mm-1', label: 'Campaign Performance', value: '87%', change: 5, trend: 'up' as const, icon: Target },
   { id: 'mm-2', label: 'Leads Generated', value: '156', change: 18, trend: 'up' as const, icon: Users },
@@ -26,6 +52,7 @@ const marketingMetrics = [
   { id: 'mm-4', label: 'Landing Page Visits', value: '4,821', change: 8, trend: 'up' as const, icon: Globe },
 ];
 
+/** Color mapping for campaign status indicators — same pattern used in service.tsx */
 const campaignStatusColors: Record<string, string> = {
   active: 'bg-green-500',
   paused: 'bg-amber-500',
@@ -34,11 +61,13 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function MarketingPage() {
+  // communicationGateEnabled: global kill switch from AppContext — when OFF, shows "Communications Paused" badge on campaigns tab
   const { agents, communicationGateEnabled } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const marketingAgents = getAgentsByDepartment(agents, 'marketing');
   const marketingCampaigns = getCampaignsByDepartment('marketing');
 
+  /** Dashboard tab — marketing KPI metric tiles in a responsive 4-column grid */
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
@@ -66,6 +95,7 @@ export default function MarketingPage() {
     </div>
   );
 
+  /** Agents tab — marketing department AI agent cards */
   const renderAgents = () => (
     <div className="p-6 space-y-4">
       <h2 className="text-lg font-semibold">Marketing Agents</h2>
@@ -93,6 +123,10 @@ export default function MarketingPage() {
     </div>
   );
 
+  /**
+   * Campaigns tab — same campaign table pattern as service.tsx.
+   * Includes kill switch toggle per campaign and "Communications Paused" badge when global gate is OFF.
+   */
   const renderCampaigns = () => (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -158,6 +192,7 @@ export default function MarketingPage() {
     </div>
   );
 
+  /** Studio tab — placeholder for Wave 4 media creation tools (video, image, podcast, landing page builder) */
   const renderStudio = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
@@ -169,6 +204,7 @@ export default function MarketingPage() {
     </div>
   );
 
+  /** Insights tab — placeholder for Wave 2 campaign ROI, lead attribution, and conversion funnel analytics */
   const renderInsights = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">

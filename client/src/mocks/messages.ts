@@ -1,4 +1,18 @@
-// Mock chat messages for Nexxus V2 UI prototype
+/**
+ * messages.ts — Mock chat messages and conversation history for the AI Chat page (main.tsx)
+ *
+ * Provides the data model for the primary AI chat interface:
+ *  - ChatMessage: Individual messages with optional ThinkingBlock (expandable AI reasoning)
+ *  - Conversation: Chat history entries shown in the SubMenuManager flyout
+ *  - agentSuggestions: Quick-start suggestion pills displayed below the chat input
+ *
+ * ThinkingBlock: When present on an assistant message, renders as an expandable
+ * "thinking" card (ThinkingCard component in main.tsx) showing AI reasoning steps.
+ *
+ * PRODUCTION NOTE: Messages will stream from the AI backend via SSE/WebSocket.
+ * Conversation history persisted in the database. ThinkingBlock data comes from
+ * the LLM's chain-of-thought output.
+ */
 
 export type MessageRole = 'user' | 'assistant';
 
@@ -23,6 +37,7 @@ export interface Conversation {
   unread: boolean;
 }
 
+/** Chat history entries — displayed in SubMenuManager AI Chat panel and my-work.tsx Chat tab */
 export const mockConversations: Conversation[] = [
   {
     id: 'conv-1',
@@ -54,6 +69,7 @@ export const mockConversations: Conversation[] = [
   },
 ];
 
+/** Initial chat thread shown when user opens AI Chat (main.tsx). First message has ThinkingBlock example. */
 export const mockChatMessages: ChatMessage[] = [
   {
     id: 'msg-1',
@@ -118,6 +134,7 @@ You can also configure these settings later in the Agent Builder. Would you like
   },
 ];
 
+/** Quick-start suggestion pills shown below chat input in main.tsx */
 export const agentSuggestions = [
   'AI agent documentation assistant',
   'AI agent task organizer',

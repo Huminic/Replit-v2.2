@@ -1,3 +1,37 @@
+/**
+ * Insights Page — Large analytics dashboard (~1800 lines).
+ *
+ * Tab navigation: Dashboard | Reports | Library | Hunches
+ *
+ * === Dashboard Tab ===
+ * Traffic-light zone system for lead management:
+ * - RED ZONE (Immediate Action Required): Hot Leads Going Cold, New Leads Without Contact,
+ *   Showroom Visitors Not Closed. Each card is clickable → opens drill-down dialog.
+ * - YELLOW ZONE (Watch List): Stale Leads, Pending Finance deals over 5 days.
+ * - GREEN ZONE: Pipeline health scorecard, conversion metrics, green zone KPIs.
+ * - Charts: Leads trend (AreaChart), conversions (BarChart) via Recharts.
+ *
+ * === Reports Tab ===
+ * Three report categories: Loss Analysis, Channel Performance, Trend Analysis.
+ * Each has sub-tabs with detailed data tables and charts.
+ * Includes: loss reasons, bad lead breakdown, source quality, channel comparison,
+ * digital vs physical, service lane analysis, monthly performance, rolling forecast, YoY.
+ *
+ * === Library Tab ===
+ * 34 browsable metric tiles organized by category (Pipeline, Conversion, Response, Lead Source,
+ * Channel, Composite, Forecast). Grid/list toggle, search, category filter.
+ * Click any metric → dialog with drill-down rows and AI-generated insight text.
+ *
+ * === Hunches Tab ===
+ * AI-generated business insights: opportunity, threat, insight types.
+ * Each hunch has confidence score, source, and recommended action.
+ * Preferences sheet: notification channels, default view, min confidence, auto-dismiss.
+ *
+ * Data sources: mocks/insights.ts for all chart and table data.
+ * PRODUCTION NOTE: Will wire to backend analytics engine. Hunches will be AI-generated.
+ *
+ * @see client/src/mocks/insights.ts — All mock data for charts, tables, zones
+ */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 

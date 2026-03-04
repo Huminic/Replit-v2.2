@@ -37,11 +37,24 @@ import { formatDistanceToNow } from 'date-fns';
 
 /**
  * @component TopBar
- * @description Top navigation bar with logo, org switcher, notifications, and activity feed
+ * @description Top navigation bar. Fixed height h-14. Contains logo, org switcher, globe (public page link),
+ * notifications, activity feed, theme toggle, profile menu, and role switcher (dev tool).
+ *
  * @designConstraints
- *   - Logo: Text-only "Nexxus Connect" with trademark symbol, NO icon
- *   - Activity feed: Dropdown with recent activity items (stays in header, NOT in sidebar)
+ *   - Logo: Text-only "Nexxus Connect™" — NO icon (locked design decision)
+ *   - Activity feed: Dropdown with recent system-wide activity (stays in header, NOT in sidebar)
+ *   - Org switcher: Center-aligned dropdown for switching between organizations (multi-org users)
+ *   - Globe icon: Opens /w/demo landing page in same window
+ *   - Notifications: Bell icon with unread count badge, scrollable dropdown
+ *   - Theme toggle: Light/dark mode via ThemeContext
+ *   - Profile menu: User avatar dropdown with links to profile/preferences/billing
+ *   - Role switcher: DEV TOOL — allows switching RBAC role for testing. Shows all 8 roles.
+ *     Will be removed or restricted in production.
+ *
  * @locked Logo format (text-only), activity feed location
+ * @see AppContext.tsx — provides currentUser, notifications, organizations state
+ * @see ThemeContext.tsx — provides theme toggle
+ * @production Notifications/activity will come from backend API; currently uses mock data
  */
 
 export function TopBar() {
@@ -65,10 +78,12 @@ export function TopBar() {
 
   return (
     <header className="h-14 min-h-14 flex items-center px-4 border-b border-border bg-background z-50">
+      {/* Logo — text-only "Nexxus Connect™", NO icon (locked design decision) */}
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className="font-semibold text-foreground text-sm">Nexxus Connect<span className="text-muted-foreground">™</span></span>
       </div>
 
+      {/* Org switcher — center-aligned, switches between organizations for multi-org users */}
       <div className="flex-1 flex items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -99,7 +114,9 @@ export function TopBar() {
         </DropdownMenu>
       </div>
 
+      {/* Right-side action icons */}
       <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+        {/* Globe icon — opens /w/demo landing page in same window */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -222,7 +239,7 @@ export function TopBar() {
           )}
         </Button>
 
-        {/* Profile Menu */}
+        {/* Profile Menu — avatar dropdown with profile/preferences/billing links */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2 px-2" data-testid="button-profile-menu">
@@ -262,6 +279,7 @@ export function TopBar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {/* Role Switcher — DEV TOOL for testing RBAC. Shows all 8 roles. Remove/restrict in production */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8" data-testid="button-role-switcher">

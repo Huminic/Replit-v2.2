@@ -1,8 +1,47 @@
+/**
+ * AppContext.tsx — Global application state provider for Nexxus V2
+ *
+ * This is the central state store for the entire application. It manages:
+ *
+ * User & RBAC:
+ *  - currentUser: The logged-in user (mock: Duane Wells)
+ *  - currentRole: Active RBAC role — can be changed via TopBar role switcher (DEV TOOL)
+ *  - userPermissions: Per-user section overrides (can grant access beyond role defaults)
+ *
+ * Organization:
+ *  - currentOrganization: Active org with personaName, colors
+ *  - organizations: All available orgs (for org switcher dropdown)
+ *  - personaName: Derived from currentOrganization — the AI assistant's display name
+ *    (e.g., "Serra", "Aria", "Nova"). Used throughout chat UI, RightPane, agent pages.
+ *
+ * Communication Safety:
+ *  - communicationGateEnabled: GLOBAL kill switch for all outbound communications.
+ *    When false, ALL campaigns show "Communications Paused" badge. Toggled in
+ *    settings.tsx Organization section. CRITICAL SAFETY FEATURE.
+ *
+ * UI State:
+ *  - sidebarVisible: Whether the 72px sidebar is shown (collapsed = 40px expand button)
+ *  - rightPaneOpen: Whether the RightPane Automa chat is visible
+ *  - mobileMenuOpen: Mobile navigation drawer state
+ *  - activePanel: Which SubMenuManager flyout panel is showing (null = none)
+ *  - subMenuExpanded: Whether the sub-menu is pinned open vs hover-only
+ *  - panelHovered: Mouse is over the sub-menu panel
+ *  - selectedAgent: Currently selected agent for AgentConfigPane display
+ *
+ * Data:
+ *  - agents: Mutable agent list (addAgent, updateAgent)
+ *  - notifications: Mutable notifications with mark-as-read
+ *  - favorites: User's favorited pages shown in FavoritesBar
+ *
+ * PRODUCTION NOTE: Most of this state will be fetched from/synced with the backend API.
+ * Role and permissions will come from JWT claims. Organization data from the org API.
+ */
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { mockCurrentUser, mockOrganizations, type User, type Organization, type UserRole, type SectionPermission } from '@/mocks/users';
 import { mockAgents, type Agent } from '@/mocks/agents';
 import { mockNotifications, type Notification } from '@/mocks/notifications';
 
+/** Favorited page entry — displayed in the FavoritesBar below TopBar */
 export interface FavoriteItem {
   id: string;
   label: string;

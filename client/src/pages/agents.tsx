@@ -1,3 +1,33 @@
+/**
+ * Agents Page — Agent detail view with direct chat interface.
+ *
+ * Cardinal rule: Chat in center → Agent configuration in right pane (AgentConfigPane).
+ *
+ * Layout:
+ * - When no agent selected: Empty state with "Select an Agent" prompt and "Create New Agent" button.
+ * - When agent selected (via selectedAgent from AppContext):
+ *   - Header: Agent avatar, name, status badge, description, created/updated metadata, dropdown menu (edit/delete).
+ *   - Center: Full chat interface with the selected agent. Uses wave-dot animation for typing indicator.
+ *   - Bottom: Suggestion chips (quick prompts) + gradient-bordered chat input with send button.
+ *   - Right pane: AgentConfigPane component (managed by AppLayout) for performance metrics,
+ *     instructions, triggers, tools, skills, knowledge, and activity.
+ *
+ * Chat flow:
+ * - handleAgentSend: Adds user message, shows typing indicator for 1.8s, then adds bot response.
+ * - agentSuggestions: Pre-built prompts that populate the input on click.
+ * - Enter key sends (Shift+Enter for newline).
+ *
+ * PRODUCTION NOTE: Chat will connect to AI backend. Agent selection comes from SubMenuManager
+ * sidebar navigation. The mock response is a placeholder.
+ *
+ * Related files:
+ * - AgentConfigPane.tsx: Right pane configuration panel for selected agent
+ * - AppContext.tsx: selectedAgent, setSelectedAgent
+ * - mocks/agents.ts: Agent type definition
+ *
+ * @see client/src/components/AgentConfigPane.tsx
+ * @see client/src/components/layout/SubMenuManager.tsx — Agent list with conversation expand
+ */
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 

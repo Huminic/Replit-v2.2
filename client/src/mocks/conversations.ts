@@ -1,4 +1,28 @@
+/**
+ * conversations.ts — TeamBox (CommBox-inspired unified inbox) conversation model
+ *
+ * Defines the data structure for multi-channel customer conversations displayed
+ * in the TeamBox 3-column inbox (teambox.tsx). Each conversation tracks:
+ *  - Channel (sms, email, chat, whatsapp, voice)
+ *  - Status workflow (open → assigned → participating → automated → closed)
+ *  - Agent assignment (which AI agent is handling it)
+ *  - Campaign linkage (campaignId ties to campaigns.ts, campaignDisconnected stops future messages)
+ *  - Full message thread with sender type (customer, agent, bot, staff)
+ *
+ * Key behaviors:
+ *  - "automated" status: AI agent is handling the conversation autonomously.
+ *    Shows purple Bot icon overlay on avatar and "Take Over" button in TeamBox.
+ *  - campaignDisconnected: When true, stops all future campaign messages for this
+ *    specific customer conversation (per-conversation kill switch in TeamBox).
+ *
+ * PRODUCTION NOTE: Conversations will come from the backend API. Messages will
+ * stream via WebSocket. Channel routing handled by TextMagic (SMS), Resend (email),
+ * and VAPI (voice).
+ */
+
+/** Supported communication channels for TeamBox conversations */
 export type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
+/** Conversation lifecycle status — drives filtering in TeamBox Column 1 */
 export type ConversationStatus = 'open' | 'assigned' | 'participating' | 'automated' | 'scheduled' | 'followup' | 'pending' | 'closed';
 
 export interface ConversationMessage {
@@ -30,6 +54,11 @@ export interface TeamboxConversation {
   campaignDisconnected?: boolean;
 }
 
+/**
+ * 8 mock conversations across different channels/statuses for TeamBox UI.
+ * Includes examples of: bot-initiated (agent-1 Sales Agent), automated (tc-2),
+ * campaign-linked (tc-7 → camp-1), and multi-party (participating) conversations.
+ */
 export const mockTeamboxConversations: TeamboxConversation[] = [
   {
     id: 'tc-1',
@@ -176,6 +205,7 @@ export const mockTeamboxConversations: TeamboxConversation[] = [
   },
 ];
 
+/** Human-readable labels for status filter sidebar in TeamBox Column 1 */
 export const conversationStatusLabels: Record<ConversationStatus, string> = {
   open: 'Open',
   assigned: 'Assigned to me',
@@ -187,6 +217,7 @@ export const conversationStatusLabels: Record<ConversationStatus, string> = {
   closed: 'Closed',
 };
 
+/** Human-readable labels for channel filter buttons in TeamBox Column 1 */
 export const conversationChannelLabels: Record<ConversationChannel, string> = {
   sms: 'SMS',
   email: 'Email',

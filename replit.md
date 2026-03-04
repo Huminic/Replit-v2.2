@@ -106,14 +106,16 @@ Context-aware multi-pane layout with ClickUp-style navigation:
 ```
 
 ### RBAC
-Roles: `super_admin`, `partner_admin`, `org_admin`, `org_staff`
+Roles (8 total): `super_admin`, `partner_admin`, `org_admin`, `executive`, `sales_manager`, `sales`, `service`, `marketing`
+
+> `org_staff` was REMOVED from the codebase entirely.
 
 Section gating via `canAccessSection()` in `mocks/users.ts`:
 - AI Chat, TeamBox, My Work: All roles
-- Sales: org_staff (sales), org_admin, partner_admin, super_admin
-- Service: org_staff (service), org_admin, partner_admin, super_admin
-- Marketing: org_admin, partner_admin, super_admin (hidden from org_staff)
-- Management: org_admin, partner_admin, super_admin (hidden from org_staff)
+- Sales: sales, sales_manager, org_admin, executive, partner_admin, super_admin
+- Service: service, org_admin, executive, partner_admin, super_admin
+- Marketing: marketing, org_admin, executive, partner_admin, super_admin
+- Management: org_admin, executive, sales_manager, partner_admin, super_admin
 - System: `canAccessSystem()` — org_admin and above
 
 ### Mock Data Layer
@@ -148,6 +150,9 @@ The production backend at `nexxusv2.huminicdev.com` includes:
 - **Wave 2**: Backend wiring to production API, real auth, real data, real-time updates
 - **Wave 3**: Credit/metering system (must ship before Studio), advanced reports, competitor intelligence
 - **Wave 4**: Studio (video/image/podcast creation), advanced AI features
+
+### Developer Comment Index
+All files have comprehensive JSDoc and inline developer comments. The master reference is `COMMENT_INDEX.md` in the project root — it tracks every file's purpose, cardinal layout rules, RBAC, production wiring notes, and instructions for keeping comments in sync when the codebase changes.
 
 ## Build Configuration
 - Development: `npm run dev` — Vite dev server with HMR

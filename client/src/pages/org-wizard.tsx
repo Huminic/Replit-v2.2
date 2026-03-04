@@ -1,3 +1,29 @@
+/**
+ * Organization Wizard Page — 7-step onboarding flow for creating new organizations.
+ *
+ * RBAC: Restricted to super_admin and partner_admin only. Redirects other roles to /settings.
+ * Route: /settings/org-wizard
+ *
+ * Steps:
+ * 1. Org Details: Name (required), industry, size, website, logo upload, public listing toggle, multi-location.
+ * 2. Contact: Primary phone (required), email (required), address, city/state/zip, timezone, business hours.
+ * 3. Admin Setup: First/last name (required), email (required), phone, role (org_admin or partner_admin for super_admin),
+ *    auto-generated temporary password with copy button, welcome email toggle.
+ * 4. Configuration: Billing settings — billing enabled toggle, anniversary date, base monthly fee,
+ *    included minutes (voice/video/SMS), overage rates (fixed display), setup fee.
+ * 5. Tools: Toggle available integrations — CRM (VIN Solutions), Voice (VAPI), Video (Tavus),
+ *    SMS (TextMagic), Document Generator, Email (Resend).
+ * 6. Default Agent: Agent name, persona description, channel selection, auto-respond toggle,
+ *    deploy immediately toggle, skill checkboxes (Lead Qualifier, Email Composer, FAQ Responder).
+ * 7. Review: Summary of all steps with validation warnings. Create Organization button.
+ *
+ * Validation: Steps 0-2 have required field validation. Errors shown via toast on Next.
+ * On create: Shows success toast and navigates to /settings/system?section=users.
+ *
+ * PRODUCTION NOTE: Will POST to backend API to create org, admin user, billing config, and default agent.
+ *
+ * @see client/src/pages/settings.tsx — User Management section links to this wizard
+ */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useApp } from '@/contexts/AppContext';

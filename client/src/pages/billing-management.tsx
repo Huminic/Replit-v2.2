@@ -1,3 +1,32 @@
+/**
+ * Billing Management Page — Partner and super admin billing dashboard.
+ *
+ * RBAC: Restricted to super_admin and partner_admin. Other roles see "Access Denied" card.
+ * Route: /settings/billing
+ *
+ * === SuperAdminBillingView ===
+ * Full revenue management for all organizations:
+ * - Revenue Overview: MRR, Active Accounts, Avg Rev/Account, Overage Revenue,
+ *   Outstanding Invoices, Collected This Month.
+ * - Organization Billing Status: Table of all orgs with billing on/off, anniversary date,
+ *   base fee, usage, status. Expandable rows show BillingConfigSection.
+ * - BillingConfigSection: Per-org config — billing toggle, anniversary date, base fee,
+ *   setup fee, default voice/video minutes, overage rates, payment reminders.
+ * - Invoice Builder: Select org, date range, auto-populated line items (Monthly Base,
+ *   Voice Usage, Video, SMS Bundle). Add line item, preview, and send buttons.
+ *
+ * === PartnerAdminBillingView ===
+ * Read-only view of partner's managed organizations:
+ * - Org table: Name, status, MRR, last invoice date.
+ * - Summary cards: Total MRR and Active Accounts.
+ * - "Add Organization" button links to /settings/org-wizard.
+ *
+ * PRODUCTION NOTE: Billing data and invoice generation will wire to backend billing system.
+ * Overage calculation based on usage tracking from metering system (Wave 3).
+ *
+ * @see client/src/pages/profile.tsx — Individual user billing view (Billing tab)
+ * @see client/src/pages/org-wizard.tsx — New org creation with billing config
+ */
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
