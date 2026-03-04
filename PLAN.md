@@ -15,7 +15,7 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 | Wave | Theme | Duration | Status |
 |------|-------|----------|--------|
-| Wave 1 | UI Prototype & Navigation Restructure | 2 weeks | **In Progress** |
+| Wave 1 | UI Prototype & Navigation Restructure | 2 weeks | **Complete** |
 | Wave 2 | Backend Foundation & Core API Wiring | 3 weeks | Not Started |
 | Wave 3 | Data Integration & Intelligence Engine | 3 weeks | Not Started |
 | Wave 4 | Communication, Studio & Polish | 2 weeks | Not Started |
@@ -26,7 +26,7 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 **Goal:** Restructure navigation from feature-based (Main/Insights/Agents/Hub/Drive) to persona/department-based (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). Build all page shells with mock data. Establish the complete visual contract.
 
-**Status:** In Progress
+**Status:** Complete
 
 ### 2.1 Completed Items
 
@@ -62,25 +62,29 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 | Item | Description | Status |
 |------|-------------|--------|
-| Documentation suite | CLAUDE.md, PRD.md, SRS.md, SPEC.md, PLAN.md, ACCEPTANCE_CRITERIA.md | In progress |
-| Screenshot validation | Visual regression screenshots across roles, themes, viewports | In progress |
-| replit.md update | Reflect v2.2 navigation and architecture | Pending |
+| Documentation suite | CLAUDE.md, PRD.md, SRS.md, SPEC.md, PLAN.md, ACCEPTANCE_CRITERIA.md | Complete |
+| Screenshot validation | Visual regression screenshots across roles, themes, viewports | Complete (E2E tests) |
+| replit.md update | Reflect v2.2 navigation and architecture | Complete |
+| Automa→personaName fix | Replaced all hardcoded "Automa" with dynamic personaName from org config | Complete |
+| Codebase cleanup | Removed attached_assets/ (85MB), plan_docs/ (260KB), docs/ (8KB), fixed dangling refs | Complete |
+| Auth file extraction | Login, forgot/reset password, AuthContext, ProtectedRoute from v2.1 zip (not wired yet) | Complete |
+| Real agent data | 5 Serra Auto Group agents with VAPI+Tavus, channels[], dealership fields | Complete |
 
 ### 2.3 Wave 1 Completion Criteria
 
-- [ ] All 7 sidebar sections render with correct icons and RBAC gating
-- [ ] All section pages render their dashboards with metric tiles
-- [ ] Tab switching works within all section pages
-- [ ] TeamBox 3-column layout renders with conversation list, chat thread, customer info
-- [ ] Campaign tables render in Service and Marketing with kill switch toggles
-- [ ] Communication gate toggle visible in Settings
-- [ ] Right pane content follows cardinal layout rules (chat-center vs data-center)
-- [ ] Role switcher changes metric tiles on AI Chat page and hides/shows sidebar items
-- [ ] Sub-menu panels show correct nav items for each section
-- [ ] Widget configuration table and accordion sections render in Settings
-- [ ] No console errors, no broken imports, no dead routes
-- [ ] Documentation suite complete and internally consistent
-- [ ] replit.md updated to reflect current state
+- [x] All 7 sidebar sections render with correct icons and RBAC gating
+- [x] All section pages render their dashboards with metric tiles
+- [x] Tab switching works within all section pages
+- [x] TeamBox 3-column layout renders with conversation list, chat thread, customer info
+- [x] Campaign tables render in Service and Marketing with kill switch toggles
+- [x] Communication gate toggle visible in Settings
+- [x] Right pane content follows cardinal layout rules (chat-center vs data-center)
+- [x] Role switcher changes metric tiles on AI Chat page and hides/shows sidebar items
+- [x] Sub-menu panels show correct nav items for each section
+- [x] Widget configuration table and accordion sections render in Settings
+- [x] No console errors, no broken imports, no dead routes
+- [x] Documentation suite complete and internally consistent
+- [x] replit.md updated to reflect current state
 
 ---
 

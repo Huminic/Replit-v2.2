@@ -153,7 +153,7 @@ const initialFormData: FormData = {
     docgen: true,
     email: true,
   },
-  agentName: 'Automa',
+  agentName: 'Serra',
   agentPersona: '',
   agentChannel: 'omnichannel',
   autoRespond: true,

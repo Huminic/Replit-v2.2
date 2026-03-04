@@ -74,7 +74,7 @@ export const mockChatMessages: ChatMessage[] = [
   {
     id: 'msg-1',
     role: 'assistant',
-    content: "Hello! I'm Automa, your AI assistant for Nexxus V2. How can I help you today?",
+    content: "Hello! I'm your AI assistant for Nexxus Connect. How can I help you today?",
     timestamp: '2026-01-21T09:00:00Z',
     thinking: {
       summary: 'Analyzed your dealership profile and recent activity',
