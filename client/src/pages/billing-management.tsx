@@ -289,7 +289,7 @@ function PartnerAdminBillingView() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <h2 className="text-base font-semibold text-foreground" data-testid="text-my-orgs-title">My Organizations</h2>
-        <Button size="sm" onClick={() => setLocation('/settings/org-wizard')} data-testid="button-add-organization">
+        <Button size="sm" onClick={() => window.location.href = '/settings/org-wizard'} data-testid="button-add-organization">
           <Plus className="h-3 w-3 mr-1" />
           Add Organization
         </Button>

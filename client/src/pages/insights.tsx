@@ -1169,7 +1169,7 @@ export default function InsightsPage() {
                     </div>
                     {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
                     {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
-                    {metric.trend === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
+                    {(metric.trend as string) === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
                   </div>
                 </CardContent>
               </Card>
@@ -1188,7 +1188,7 @@ export default function InsightsPage() {
                   </div>
                   {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
                   {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
-                  {metric.trend === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
+                  {(metric.trend as string) === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
                 </div>
               </div>
             )

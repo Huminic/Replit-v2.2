@@ -29,7 +29,7 @@ export interface Goal {
 export interface CommandCenterLead {
   id: string;
   leadId: string;
-  daysOld: number;
+  daysOld?: number;
   hoursOld?: number;
   type: string;
   source: string;

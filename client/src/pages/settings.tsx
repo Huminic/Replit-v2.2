@@ -327,7 +327,7 @@ export default function SettingsPage() {
             Add User
           </Button>
           {isSuperAdmin && (
-            <Button size="sm" variant="outline" onClick={() => setLocation('/settings/org-wizard')} data-testid="button-new-organization">
+            <Button size="sm" variant="outline" onClick={() => window.location.href = '/settings/org-wizard'} data-testid="button-new-organization">
               <Plus className="h-4 w-4 mr-1" />
               New Organization
             </Button>
