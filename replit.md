@@ -22,8 +22,6 @@ Seven documents in the project root govern the rebuild:
 
 Supporting documentation:
 - **`.agent_docs/`** — Agent team rules, acceptance criteria (Given/When/Then), codebase index, code conventions
-- **`plan_docs/v2.1/`** — v2.1 governance docs (NEW_CONSTITUTION, NEW_SRS, NEW_IMPLEMENTATION_PLAN, etc.)
-- **`docs/DESIGN_CONSTRAINTS_REFERENCE.md`** — Quick-reference design constraints
 
 **Truth hierarchy:** UI Design > Acceptance Criteria > Constitution > API Contract > SRS > Plan
 
@@ -159,6 +157,51 @@ The production backend at `nexxusv2.huminicdev.com` includes:
 
 ### Developer Comment Index
 All files have comprehensive JSDoc and inline developer comments. The master reference is `COMMENT_INDEX.md` in the project root — it tracks every file's purpose, cardinal layout rules, RBAC, production wiring notes, and instructions for keeping comments in sync when the codebase changes.
+
+## Auth System (extracted from v2.1, not yet wired)
+The following files exist in the codebase but are NOT connected to app routing yet (Wave 2 task):
+- `client/src/pages/login.tsx` — Login page with random wallpaper backgrounds (9 images in `/wallpapers/`)
+- `client/src/pages/forgot-password.tsx` — Password reset request
+- `client/src/pages/reset-password.tsx` — Password reset form
+- `client/src/contexts/AuthContext.tsx` — JWT auth state provider
+- `client/src/components/auth/ProtectedRoute.tsx` — Route guard for authenticated pages
+- `client/src/components/auth/SessionTimeoutDialog.tsx` — Auto-logout dialog
+- `client/src/hooks/useSessionTimeout.ts` — Session timeout hook
+- `client/src/hooks/useFirstLogin.ts` — First login detection hook
+
+## Design Constraints Quick Reference
+
+### Chat Interface
+- Bot messages: left-aligned, no avatar/icon
+- User messages: right-aligned, no avatar/icon
+- Thinking animation: `.wave-dot` CSS class, 3 dots with delays 0s/0.15s/0.3s
+- Input: gradient border wrapper via `.chat-input-gradient` class
+- Persona name: comes from `currentOrganization.personaName` in AppContext (Serra, Aria, Nova). Never "Automa" or "AI"
+
+### Metric Tiles (Main Page)
+- Layout: 2x2 grid, max-w-3xl centered
+- Each tile: gradient background (bg-gradient-to-br), decorative SVG circles, icon badge
+- Role-specific metrics per all 8 roles (see roleMetrics in main.tsx)
+- Hover: scale-[1.02] + shadow-lg transition
+- Tiles collapse after first user message
+
+### Cardinal Layout Rules
+- Data in center → AI chat in right pane (Sales, Service, Marketing, Management pages)
+- Chat in center → info/config on right pane (AI Chat page, Agent detail page)
+- TeamBox uses its own 3-column layout (NOT the global right pane)
+
+### Page Structure
+- Sales/Service/Marketing: Dashboard / Agents / Campaigns / Insights / Calendar tabs
+- Management: Dashboard / Insights / Hunches / Activities / ROI tabs
+- Insights: Dashboard / Reports / Library / Hunches (4 tabs)
+- Settings: Tile-based grid, role-gated per section
+- My Work: Dashboard / Tasks / Chat / Assistant tabs
+
+### Color Coding
+- Hunch types: opportunity=green, threat=red, insight=blue
+- Pipeline alerts: critical=red, warning=amber, info=blue
+- Agent status: active=green dot, inactive=muted dot
+- Campaign status: active=green, paused=amber, draft=gray, completed=blue
 
 ## Build Configuration
 - Development: `npm run dev` — Vite dev server with HMR

@@ -35,6 +35,9 @@
 | `widget-landing.tsx` | Public landing page `/w/demo` — standalone, no sidebar | N/A (standalone) | Public | 1 |
 | `billing-management.tsx` | Partner billing management | N/A (sub-menu) | super_admin, partner_admin | 1 |
 | `not-found.tsx` | 404 fallback page | N/A | All | 1 |
+| `login.tsx` | Login page with random wallpaper backgrounds | N/A (standalone) | Public | 2 (not wired) |
+| `forgot-password.tsx` | Password reset request form | N/A (standalone) | Public | 2 (not wired) |
+| `reset-password.tsx` | Password reset with token validation | N/A (standalone) | Public | 2 (not wired) |
 
 ---
 
@@ -59,7 +62,7 @@
 
 | File | Purpose | Production Wiring |
 |------|---------|-------------------|
-| `agents.ts` | 6 AI agents across sales/service/marketing | Backend `agents` table, MCP server tools |
+| `agents.ts` | 5 real Serra Auto Group agents (Caroline, Magnolia, Georgia, Elizabeth, Savannah) with VAPI voice + Tavus video | Backend `agents` table, MCP server tools |
 | `conversations.ts` | TeamBox conversations with messages | Backend conversation API, WebSocket for real-time |
 | `campaigns.ts` | Outbound campaign data with kill switch | TextMagic (SMS), Resend (email) APIs |
 | `users.ts` | User model, 8 RBAC roles, permission helpers | Backend `users` table, JWT auth |
@@ -80,6 +83,7 @@
 |------|-----------|-------|
 | `AppContext.tsx` | currentUser, currentRole, currentOrganization, agents, notifications, selectedAgent, favorites, personaName, communicationGateEnabled, universalSettings, userPermissions, sidebar/panel visibility | Central state provider. `communicationGateEnabled` = global kill switch. `personaName` = AI persona (default "Serra") |
 | `ThemeContext.tsx` | theme (light/dark) | Toggles `.dark` class on `<html>`, persists to localStorage |
+| `AuthContext.tsx` | JWT auth state, login/logout, tokens | Extracted from v2.1 — NOT wired yet (Wave 2). Will wrap app in AuthProvider |
 
 ---
 

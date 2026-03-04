@@ -3,7 +3,7 @@
 **Version:** 2.2
 **Date:** 2026-03-03
 **Status:** GOVERNING DOCUMENT — Direct guidance for Claude Code implementation agents
-**Cross-References:** [ACCEPTANCE_CRITERIA.md](./plan_docs/ACCEPTANCE_CRITERIA.md) · [NEW_CONSTITUTION.md](./plan_docs/v2.1/NEW_CONSTITUTION.md) · [NEW_SRS.md](./plan_docs/v2.1/NEW_SRS.md)
+**Cross-References:** [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) · [SRS.md](./SRS.md) · [SPEC.md](./SPEC.md) · [PLAN.md](./PLAN.md)
 
 ---
 
