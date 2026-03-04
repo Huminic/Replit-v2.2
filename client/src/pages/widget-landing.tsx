@@ -46,6 +46,7 @@ import {
   FileText,
   Calendar,
 } from 'lucide-react';
+import liveVideoImg from '@assets/live-video-audience.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -456,22 +457,22 @@ export default function WidgetLandingPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 border-purple-200 text-purple-700 hover:bg-purple-50"
-                    onClick={() => { setWidgetMode('video'); setVideoActive(true); }}
-                    data-testid="button-launch-video"
-                  >
-                    <Video className="h-4 w-4" />
-                    AI Video Call
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
                     className="gap-2"
                     onClick={() => setWidgetMode('chat')}
                     data-testid="button-launch-chat"
                   >
                     <MessageSquare className="h-4 w-4" />
                     Chat Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => { setWidgetMode('video'); setVideoActive(true); }}
+                    data-testid="button-launch-video"
+                  >
+                    <Video className="h-4 w-4" />
+                    Video Call
                   </Button>
                   <Button
                     variant="outline"
@@ -501,14 +502,20 @@ export default function WidgetLandingPage() {
         data-testid="landing-branding"
       >
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-[10%] left-[15%] w-72 h-72 rounded-full border-2 border-white" />
           <div className="absolute bottom-[15%] right-[10%] w-96 h-96 rounded-full border border-white" />
           <div className="absolute top-[40%] right-[30%] w-48 h-48 rounded-full border border-white" />
         </div>
 
         <div className="relative text-center max-w-md">
-          <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-6">
-            <MessageSquare className="h-8 w-8 text-white" />
+          <div className="relative w-64 h-64 mx-auto mb-6">
+            <img
+              src={liveVideoImg}
+              alt="Live video audience"
+              className="w-64 h-64 rounded-full object-cover border-4 border-white/30 shadow-lg"
+            />
+            <div className="absolute -bottom-2 -right-2 w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-md">
+              <Video className="h-7 w-7 text-white" />
+            </div>
           </div>
           <h2 className="text-3xl font-bold text-white leading-tight">
             Let's schedule a VIP test drive
@@ -517,18 +524,6 @@ export default function WidgetLandingPage() {
             Our AI-powered team is ready to help you find the perfect vehicle, 
             get a trade-in estimate, or schedule a test drive — 24/7.
           </p>
-          
-          <div className="mt-6">
-            <Button
-              size="lg"
-              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 gap-2"
-              onClick={() => { setWidgetMode('video'); setVideoActive(true); }}
-              data-testid="button-hero-video"
-            >
-              <Video className="h-5 w-5" />
-              Meet {PERSONA_NAME} — AI Video Concierge
-            </Button>
-          </div>
           
           <div className="flex items-center justify-center gap-6 mt-8">
             <div className="text-center">
