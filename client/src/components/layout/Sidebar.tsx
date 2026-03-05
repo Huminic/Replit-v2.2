@@ -10,7 +10,7 @@
  *   - Fixed width of 72px when expanded, 40px when collapsed (ChevronsRight button only)
  *   - Active route indicator: purple left border bar + purple icon tint
  *   - Hover behavior: mouseEnter sets activePanel → shows SubMenuManager flyout panel
- *   - 800ms delay on mouseLeave before closing the flyout (prevents flicker)
+ *   - 1200ms delay on mouseLeave before closing the flyout (prevents flicker)
  *   - toggleSubMenuExpanded: Locks the sub-menu panel open (pin mode) vs hover-only mode
  *
  * @rbac canAccessSection() from users.ts checks currentRole + userPermissions to show/hide items
@@ -78,7 +78,7 @@ export function Sidebar() {
     toggleSubMenuExpanded
   } = useApp();
   
-  // 800ms delay timer ref for mouseLeave — prevents sub-menu from closing instantly when moving cursor between sidebar and flyout
+  // 1200ms delay timer ref for mouseLeave — prevents sub-menu from closing instantly when moving cursor between sidebar and flyout
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup timeout on unmount
@@ -114,14 +114,14 @@ export function Sidebar() {
     }
   };
 
-  // On leave: if not pinned (subMenuExpanded), start 800ms timeout to close the flyout
+  // On leave: if not pinned (subMenuExpanded), start timeout to close the flyout
   const handleMouseLeave = () => {
     if (!subMenuExpanded) {
       leaveTimeoutRef.current = setTimeout(() => {
         if (!panelHovered) {
           setActivePanel(null);
         }
-      }, 800);
+      }, 1200);
     }
   };
 
