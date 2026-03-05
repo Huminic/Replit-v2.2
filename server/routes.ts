@@ -304,6 +304,151 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/roles", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const roleList = await storage.getRoles();
+      return res.json(roleList);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch roles" });
+    }
+  });
+
+  app.post("/api/users", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { email, password, firstName, lastName, roleId } = req.body;
+
+      if (!email || !password || !firstName || !lastName || !roleId) {
+        return res.status(400).json({ message: "All fields are required: email, password, firstName, lastName, roleId" });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const existing = await storage.getUserByEmail(email);
+      if (existing) {
+        return res.status(409).json({ message: "A user with that email already exists" });
+      }
+
+      const role = await storage.getRole(roleId);
+      if (!role) return res.status(400).json({ message: "Invalid role" });
+      if (role.level < req.user.roleLevel) {
+        return res.status(403).json({ message: "Cannot assign a role with higher privileges than your own" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        roleId,
+        organizationId: req.user.organizationId,
+      });
+
+      const { password: _, ...safeUser } = user;
+      return res.status(201).json(safeUser);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.patch("/api/users/:id", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const targetUser = await storage.getUser(req.params.id);
+      if (!targetUser) return res.status(404).json({ message: "User not found" });
+      if (targetUser.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const targetRole = await storage.getRole(targetUser.roleId);
+      if (targetRole && targetRole.level < req.user.roleLevel) {
+        return res.status(403).json({ message: "Cannot modify a user with higher privileges than your own" });
+      }
+
+      const allowedFields: Record<string, any> = {};
+      if (req.body.firstName !== undefined) allowedFields.firstName = req.body.firstName;
+      if (req.body.lastName !== undefined) allowedFields.lastName = req.body.lastName;
+      if (req.body.roleId !== undefined) {
+        const role = await storage.getRole(req.body.roleId);
+        if (!role) return res.status(400).json({ message: "Invalid role" });
+        if (role.level < req.user.roleLevel) {
+          return res.status(403).json({ message: "Cannot assign a role with higher privileges than your own" });
+        }
+        allowedFields.roleId = req.body.roleId;
+      }
+      if (req.body.isActive !== undefined) allowedFields.isActive = req.body.isActive;
+
+      const updated = await storage.updateUser(req.params.id, allowedFields);
+      if (!updated) return res.status(404).json({ message: "User not found" });
+
+      const { password: _, ...safeUser } = updated;
+      return res.json(safeUser);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.post("/api/users/:id/reset-password", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { newPassword } = req.body;
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+
+      const targetUser = await storage.getUser(req.params.id);
+      if (!targetUser) return res.status(404).json({ message: "User not found" });
+      if (targetUser.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const targetRole = await storage.getRole(targetUser.roleId);
+      if (targetRole && targetRole.level < req.user.roleLevel) {
+        return res.status(403).json({ message: "Cannot reset password for a user with higher privileges than your own" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(req.params.id, { password: hashedPassword });
+      await storage.deleteUserSessions(req.params.id);
+
+      return res.json({ message: "Password has been reset" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current password and new password are required" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+
+      const user = await storage.getUser(req.user.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(req.user.id, { password: hashedPassword });
+
+      return res.json({ message: "Password changed successfully" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
   app.get("/api/agents/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });

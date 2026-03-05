@@ -40,7 +40,7 @@ Pages wired to real API data:
 - **Marketing**: Agents from `GET /api/agents?department=marketing`, campaigns from `GET /api/campaigns?department=marketing`
 - **Sales**: Agents from `GET /api/agents?department=sales`
 - **SubMenuManager**: Agent lists per department from API, conversation counts from API, chat history from API
-- **Settings User Management**: `GET /api/users` returns real org users with role info
+- **Settings User Management**: Full CRUD — `GET /api/users`, `POST /api/users` (create), `PATCH /api/users/:id` (edit/deactivate), `GET /api/roles` (role dropdown), `POST /api/users/:id/reset-password` (admin reset), `POST /api/auth/change-password` (self change). RBAC enforced — can't modify higher-privilege users.
 - **Settings Communication Gate**: `PATCH /api/organizations/:id` with outboundEnabled
 - **Profile**: `PATCH /api/users/me` for contact info changes
 - **Auth**: JWT login/logout/refresh, session management
