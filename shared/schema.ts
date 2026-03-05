@@ -32,6 +32,7 @@ export const users = pgTable("users", {
   roleId: uuid("role_id").notNull().references(() => roles.id),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id),
   locationId: text("location_id"),
+  profilePhotoUrl: text("profile_photo_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -148,6 +149,33 @@ export const widgets = pgTable("widgets", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const knowledgeDocuments = pgTable("knowledge_documents", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  size: integer("size").notNull().default(0),
+  status: text("status").notNull().default("indexed"),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  agentId: uuid("agent_id").references(() => agents.id),
+  content: text("content"),
+  mimeType: text("mime_type"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const campaignRecipients = pgTable("campaign_recipients", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: uuid("campaign_id").notNull().references(() => campaigns.id),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  phone: text("phone"),
+  email: text("email"),
+  status: text("status").notNull().default("pending"),
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertRoleSchema = createInsertSchema(roles).omit({ id: true });
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
@@ -159,6 +187,8 @@ export const insertCampaignSchema = createInsertSchema(campaigns).omit({ id: tru
 export const insertIntegrationSchema = createInsertSchema(integrations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTaskSchema = createInsertSchema(tasks).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertWidgetSchema = createInsertSchema(widgets).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertKnowledgeDocumentSchema = createInsertSchema(knowledgeDocuments).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertCampaignRecipientSchema = createInsertSchema(campaignRecipients).omit({ id: true, createdAt: true });
 
 export type InsertRole = z.infer<typeof insertRoleSchema>;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -171,6 +201,8 @@ export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
 export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
 export type InsertWidget = z.infer<typeof insertWidgetSchema>;
+export type InsertKnowledgeDocument = z.infer<typeof insertKnowledgeDocumentSchema>;
+export type InsertCampaignRecipient = z.infer<typeof insertCampaignRecipientSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -183,6 +215,8 @@ export type Campaign = typeof campaigns.$inferSelect;
 export type Integration = typeof integrations.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type Widget = typeof widgets.$inferSelect;
+export type KnowledgeDocument = typeof knowledgeDocuments.$inferSelect;
+export type CampaignRecipient = typeof campaignRecipients.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();
@@ -191,6 +225,7 @@ export const updateUserProfileSchema = z.object({
   lastName: z.string().min(1).optional(),
   email: z.string().email().optional(),
   locationId: z.string().nullable().optional(),
+  profilePhotoUrl: z.string().nullable().optional(),
 });
 export const updateCampaignSchema = z.object({
   name: z.string().min(1).optional(),

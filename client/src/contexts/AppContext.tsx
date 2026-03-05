@@ -19,6 +19,7 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string;
+  profilePhotoUrl?: string;
   organizationId: string;
   permissions?: SectionPermission[];
 }
@@ -100,16 +101,18 @@ interface AppContextValue {
   removeFavorite: (id: string) => void;
   isFavorite: (path: string) => boolean;
   setCommunicationGateEnabled: (enabled: boolean) => void;
+  updateCurrentUser: (updates: Partial<User>) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
-function mapAuthUserToAppUser(authUser: { id: string; email: string; firstName: string; lastName: string; role: { name: string }; organization: { id: string } }): User {
+function mapAuthUserToAppUser(authUser: { id: string; email: string; firstName: string; lastName: string; profilePhotoUrl?: string; role: { name: string }; organization: { id: string } }): User {
   return {
     id: authUser.id,
     name: `${authUser.firstName} ${authUser.lastName}`,
     email: authUser.email,
     role: authUser.role.name as UserRole,
+    profilePhotoUrl: authUser.profilePhotoUrl,
     organizationId: authUser.organization.id,
   };
 }
@@ -137,12 +140,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     enabled: !!authUser?.organization?.id,
   });
 
-  const resolvedUser: User = authAppUser || {
-    id: 'fallback',
-    name: 'User',
-    email: '',
-    role: 'org_admin',
-    organizationId: 'org-1',
+  const [userOverrides, setUserOverrides] = useState<Partial<User>>({});
+
+  const resolvedUser: User = {
+    ...(authAppUser || {
+      id: 'fallback',
+      name: 'User',
+      email: '',
+      role: 'org_admin' as UserRole,
+      organizationId: 'org-1',
+    }),
+    ...userOverrides,
   };
 
   const resolvedOrganization: Organization = orgDetails
@@ -320,6 +328,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         removeFavorite,
         isFavorite,
         setCommunicationGateEnabled,
+        updateCurrentUser: (updates: Partial<User>) => setUserOverrides(prev => ({ ...prev, ...updates })),
       }}
     >
       {children}

@@ -12,7 +12,10 @@ import {
   type Integration, type InsertIntegration,
   type Task, type InsertTask,
   type Widget, type InsertWidget,
+  type KnowledgeDocument, type InsertKnowledgeDocument,
+  type CampaignRecipient, type InsertCampaignRecipient,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
+  knowledgeDocuments, campaignRecipients,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -74,6 +77,15 @@ export interface IStorage {
   createWidget(widget: InsertWidget): Promise<Widget>;
   updateWidget(id: string, data: Partial<InsertWidget>): Promise<Widget | undefined>;
   deleteWidget(id: string): Promise<void>;
+
+  getDocuments(organizationId: string, agentId?: string): Promise<KnowledgeDocument[]>;
+  getDocument(id: string): Promise<KnowledgeDocument | undefined>;
+  createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument>;
+  deleteDocument(id: string): Promise<void>;
+
+  getRecipients(campaignId: string): Promise<CampaignRecipient[]>;
+  createRecipients(recipients: InsertCampaignRecipient[]): Promise<CampaignRecipient[]>;
+  getRecipientCount(campaignId: string): Promise<number>;
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
 }
@@ -350,6 +362,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWidget(id: string): Promise<void> {
     await db.delete(widgets).where(eq(widgets.id, id));
+  }
+
+  async getDocuments(organizationId: string, agentId?: string): Promise<KnowledgeDocument[]> {
+    const conditions = [eq(knowledgeDocuments.organizationId, organizationId)];
+    if (agentId) {
+      conditions.push(eq(knowledgeDocuments.agentId, agentId));
+    }
+    return db.select().from(knowledgeDocuments).where(and(...conditions)).orderBy(desc(knowledgeDocuments.createdAt));
+  }
+
+  async getDocument(id: string): Promise<KnowledgeDocument | undefined> {
+    const [doc] = await db.select().from(knowledgeDocuments).where(eq(knowledgeDocuments.id, id));
+    return doc;
+  }
+
+  async createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument> {
+    const [created] = await db.insert(knowledgeDocuments).values(doc).returning();
+    return created;
+  }
+
+  async deleteDocument(id: string): Promise<void> {
+    await db.delete(knowledgeDocuments).where(eq(knowledgeDocuments.id, id));
+  }
+
+  async getRecipients(campaignId: string): Promise<CampaignRecipient[]> {
+    return db.select().from(campaignRecipients).where(eq(campaignRecipients.campaignId, campaignId)).orderBy(desc(campaignRecipients.createdAt));
+  }
+
+  async createRecipients(recipients: InsertCampaignRecipient[]): Promise<CampaignRecipient[]> {
+    if (recipients.length === 0) return [];
+    return db.insert(campaignRecipients).values(recipients).returning();
+  }
+
+  async getRecipientCount(campaignId: string): Promise<number> {
+    const [result] = await db.select({ cnt: count() }).from(campaignRecipients).where(eq(campaignRecipients.campaignId, campaignId));
+    return Number(result?.cnt || 0);
   }
 
   async getDashboardMetrics(organizationId: string): Promise<DashboardMetrics> {

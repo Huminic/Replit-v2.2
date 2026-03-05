@@ -18,7 +18,7 @@
  * Landing page visits tracked via UTM params and /w/demo route analytics.
  * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';
@@ -63,7 +64,10 @@ const campaignStatusColors: Record<string, string> = {
 export default function MarketingPage() {
   const [, setLocation] = useLocation();
   const { communicationGateEnabled, setSelectedAgent } = useApp();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const [csvUploadCampaignId, setCsvUploadCampaignId] = useState<string | null>(null);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
     queryKey: ['/api/metrics/dashboard'],
@@ -94,6 +98,32 @@ export default function MarketingPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+    },
+  });
+
+  const csvUploadMutation = useMutation({
+    mutationFn: async ({ campaignId, file }: { campaignId: string; file: File }) => {
+      const token = localStorage.getItem("nexxus_access_token");
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`/api/campaigns/${campaignId}/upload-csv`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Upload failed" }));
+        throw new Error(err.message);
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/metrics/dashboard'] });
+      toast({ title: "CSV Uploaded", description: `${data.recipientCount} recipients loaded.` });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
     },
   });
 
@@ -228,6 +258,7 @@ export default function MarketingPage() {
               <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Sent</th>
               <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Replied</th>
               <th className="text-center text-xs font-medium text-muted-foreground px-4 py-3">Kill Switch</th>
+              <th className="text-center text-xs font-medium text-muted-foreground px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -265,6 +296,25 @@ export default function MarketingPage() {
                     />
                   </div>
                 </td>
+                <td className="px-4 py-3 text-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={() => {
+                      setCsvUploadCampaignId(campaign.id);
+                      csvInputRef.current?.click();
+                    }}
+                    disabled={csvUploadMutation.isPending}
+                    data-testid={`button-upload-csv-${campaign.id}`}
+                  >
+                    {csvUploadMutation.isPending && csvUploadCampaignId === campaign.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -299,6 +349,20 @@ export default function MarketingPage() {
 
   return (
     <div className="flex flex-col h-full" data-testid="marketing-page">
+      <input
+        ref={csvInputRef}
+        type="file"
+        accept=".csv"
+        className="hidden"
+        data-testid="input-csv-upload-marketing"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && csvUploadCampaignId) {
+            csvUploadMutation.mutate({ campaignId: csvUploadCampaignId, file });
+          }
+          e.target.value = '';
+        }}
+      />
       <div className="border-b border-border px-6 pt-4">
         <h1 className="text-xl font-semibold mb-3">Marketing</h1>
         <div className="flex gap-1">

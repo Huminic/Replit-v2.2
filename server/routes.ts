@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { type Server } from "http";
 import bcrypt from "bcrypt";
 import Anthropic from "@anthropic-ai/sdk";
+import multer from "multer";
 import { storage } from "./storage";
 import {
   authenticateToken,
@@ -31,6 +32,11 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -113,6 +119,7 @@ export async function registerRoutes(
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          profilePhotoUrl: user.profilePhotoUrl || null,
           role: {
             id: role.id,
             name: role.name,
@@ -221,6 +228,7 @@ export async function registerRoutes(
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          profilePhotoUrl: user.profilePhotoUrl || null,
           role: role ? { id: role.id, name: role.name, level: role.level } : null,
           organization: org ? { id: org.id, name: org.name } : null,
         },
@@ -356,6 +364,37 @@ export async function registerRoutes(
       return res.status(201).json(safeUser);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.get("/api/users/me", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const user = await storage.getUser(req.user.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const { password, ...safeUser } = user;
+      return res.json(safeUser);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
+  app.patch("/api/users/me", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const parsed = updateUserProfileSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid profile data", errors: parsed.error.flatten() });
+      }
+      const user = await storage.updateUser(req.user.id, parsed.data);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const { password: _, ...safeUser } = user;
+      return res.json(safeUser);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      return res.status(500).json({ message: "Failed to update profile" });
     }
   });
 
@@ -548,36 +587,6 @@ export async function registerRoutes(
       return res.json(org);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update organization" });
-    }
-  });
-
-  app.get("/api/users/me", authenticateToken, async (req, res) => {
-    try {
-      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const user = await storage.getUser(req.user.id);
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      const { password, ...safeUser } = user;
-      return res.json(safeUser);
-    } catch (err) {
-      return res.status(500).json({ message: "Failed to fetch profile" });
-    }
-  });
-
-  app.patch("/api/users/me", authenticateToken, async (req, res) => {
-    try {
-      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const parsed = updateUserProfileSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ message: "Invalid profile data", errors: parsed.error.flatten() });
-      }
-      const user = await storage.updateUser(req.user.id, parsed.data);
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      const { password: _, ...safeUser } = user;
-      return res.json(safeUser);
-    } catch (err) {
-      return res.status(500).json({ message: "Failed to update profile" });
     }
   });
 
@@ -1192,6 +1201,154 @@ Your personality and rules:
       return res.json({ message: "Widget deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete widget" });
+    }
+  });
+
+  app.get("/api/documents", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const agentId = req.query.agentId as string | undefined;
+      const docs = await storage.getDocuments(req.user.organizationId, agentId);
+      return res.json(docs);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  app.post("/api/documents", authenticateToken, upload.single("file"), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const file = req.file;
+      if (!file) return res.status(400).json({ message: "No file uploaded" });
+
+      const ext = file.originalname.split(".").pop()?.toLowerCase() || "unknown";
+      const typeMap: Record<string, string> = { pdf: "pdf", docx: "docx", doc: "docx", csv: "csv", txt: "txt", html: "html", htm: "html" };
+      const docType = typeMap[ext] || ext;
+
+      let content: string | null = null;
+      if (["csv", "txt", "html", "htm"].includes(ext)) {
+        content = file.buffer.toString("utf-8");
+      }
+
+      const doc = await storage.createDocument({
+        name: file.originalname,
+        type: docType,
+        size: file.size,
+        status: "indexed",
+        organizationId: req.user.organizationId,
+        agentId: (req.body.agentId as string) || null,
+        content,
+        mimeType: file.mimetype,
+      });
+      return res.status(201).json(doc);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
+  app.delete("/api/documents/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const doc = await storage.getDocument(req.params.id);
+      if (!doc) return res.status(404).json({ message: "Document not found" });
+      if (doc.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      await storage.deleteDocument(req.params.id);
+      return res.json({ message: "Document deleted" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to delete document" });
+    }
+  });
+
+  app.post("/api/campaigns/:id/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const file = req.file;
+      if (!file) return res.status(400).json({ message: "No file uploaded" });
+
+      const campaign = await storage.getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+      if (campaign.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const csvContent = file.buffer.toString("utf-8");
+      const lines = csvContent.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) {
+        return res.status(400).json({ message: "CSV must have a header row and at least one data row" });
+      }
+
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/['"]/g, ""));
+      const firstNameIdx = headers.findIndex(h => ["firstname", "first_name", "first name", "fname"].includes(h));
+      const lastNameIdx = headers.findIndex(h => ["lastname", "last_name", "last name", "lname"].includes(h));
+      const phoneIdx = headers.findIndex(h => ["phone", "phone_number", "phonenumber", "mobile", "cell"].includes(h));
+      const emailIdx = headers.findIndex(h => ["email", "email_address", "emailaddress"].includes(h));
+
+      if (phoneIdx === -1 && emailIdx === -1) {
+        return res.status(400).json({ message: "CSV must contain at least a phone or email column" });
+      }
+
+      const recipients: Array<{ campaignId: string; firstName: string | null; lastName: string | null; phone: string | null; email: string | null }> = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",").map(c => c.trim().replace(/['"]/g, ""));
+        recipients.push({
+          campaignId: campaign.id,
+          firstName: firstNameIdx >= 0 ? (cols[firstNameIdx] || null) : null,
+          lastName: lastNameIdx >= 0 ? (cols[lastNameIdx] || null) : null,
+          phone: phoneIdx >= 0 ? (cols[phoneIdx] || null) : null,
+          email: emailIdx >= 0 ? (cols[emailIdx] || null) : null,
+        });
+      }
+
+      await storage.createRecipients(recipients);
+      const recipientCount = await storage.getRecipientCount(campaign.id);
+      await storage.updateCampaign(campaign.id, { recipientCount, csvFilename: file.originalname } as any);
+
+      return res.json({ message: "CSV uploaded", recipientCount, filename: file.originalname });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to process CSV" });
+    }
+  });
+
+  app.get("/api/campaigns/:id/recipients", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const campaign = await storage.getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+      if (campaign.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const recipients = await storage.getRecipients(campaign.id);
+      return res.json(recipients);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch recipients" });
+    }
+  });
+
+  app.post("/api/users/me/photo", authenticateToken, upload.single("photo"), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const file = req.file;
+      if (!file) return res.status(400).json({ message: "No photo uploaded" });
+
+      if (!file.mimetype.startsWith("image/")) {
+        return res.status(400).json({ message: "File must be an image" });
+      }
+
+      if (file.size > 500 * 1024) {
+        return res.status(400).json({ message: "Photo must be less than 500KB" });
+      }
+
+      const base64 = file.buffer.toString("base64");
+      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+      const updated = await storage.updateUser(req.user.userId, { profilePhotoUrl: dataUrl } as any);
+      if (!updated) return res.status(404).json({ message: "User not found" });
+
+      return res.json({ profilePhotoUrl: dataUrl });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to upload photo" });
     }
   });
 

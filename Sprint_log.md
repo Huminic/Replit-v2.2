@@ -22,7 +22,7 @@
 | 1 | API Wiring & Data Sources | DONE | — |
 | 2.1 | AI Chat & Conversation Engine | DONE | ~30% |
 | 2.2a | User CRUD + Password Mgmt | DONE | ~33% |
-| 2.2b | File Uploads (KB, CSV, Photos) | NOT STARTED | — |
+| 2.2b | File Uploads (KB, CSV, Photos) | DONE | ~47% |
 | 2.3 + 4.1a | Real Metrics & Dashboard Wiring + Task/Widget Persistence | DONE | ~42% |
 | 3.1 | Outbound Communication Engine | NOT STARTED | — |
 | 3.2 | Webhooks & Real-Time | NOT STARTED | — |
@@ -301,4 +301,48 @@ Frontend:
 **Architect Review:** Passed — org scoping verified on all routes, Zod validation on CRUD, no blocking issues. Minor note: settings widget local state has optimistic updates without rollback on failure (non-blocking UX risk).
 
 **E2E Tests:** Passed — login, dashboard metric tiles with real numbers, Service/Marketing pages with real department data, My Work page with persisted tasks, Settings Widgets with API-loaded widget cards all verified.
+
+---
+
+## Sprint 2.2b — File Uploads (KB, CSV, Photos)
+**Date:** 2026-03-05
+**Status:** DONE
+**Cumulative Progress:** ~47%
+
+**Goal:** Wire all file-upload UIs to real API backends — Knowledge Base document upload/list/delete, Campaign CSV upload with recipient parsing, Profile photo upload + Edit Profile. Covers AC#6 (KB), AC#7 (CSV campaign), AC#8 (profile photo).
+
+**Schema Changes:**
+- `knowledge_documents` table: id, name, type, size, status, organizationId, agentId (nullable for agent-specific docs), content (text), mimeType, createdAt, updatedAt
+- `campaign_recipients` table: id, campaignId (FK), firstName, lastName, phone, email, status (pending/sent/delivered/failed/opted_out), sentAt, deliveredAt, createdAt
+- `profilePhotoUrl` column added to `users` table (text, nullable — stores base64 data URL for small photos <500KB)
+
+**Backend:**
+- `GET /api/documents` — list org-scoped documents, supports `?agentId=` filter
+- `POST /api/documents` — multipart upload via multer; stores file content as text, metadata in DB
+- `DELETE /api/documents/:id` — org-scoped delete
+- `POST /api/campaigns/:id/upload-csv` — multipart CSV upload; parses columns (firstName/lastName/phone/email with fuzzy matching), inserts into campaign_recipients, updates campaign.recipientCount + csvFilename
+- `GET /api/campaigns/:id/recipients` — list recipients for a campaign
+- `POST /api/users/me/photo` — multipart image upload; validates type + 500KB size; stores as base64 data URL in profilePhotoUrl
+- Route ordering fix: moved `/api/users/me` routes before `/api/users/:id` to prevent Express param collision
+
+**Frontend:**
+- **settings.tsx**: Knowledge Base tab now fetches from `GET /api/documents`; upload button triggers file picker → POST /api/documents; delete button wired to DELETE /api/documents/:id; loading skeletons + empty state
+- **AgentConfigPane.tsx**: "Manage Knowledge Base" dialog fetches agent-scoped documents; drag-and-drop upload zone wired; delete wired; all "demo mode" toasts removed
+- **service.tsx + marketing.tsx**: Campaign tables have new "Actions" column with Upload CSV button per row; hidden `<input type="file" accept=".csv">` wired to POST /api/campaigns/:id/upload-csv via FormData + auth token; recipientCount auto-updates after upload
+- **profile.tsx**: "Edit Profile" button toggles inline editing (firstName, lastName, email) with Save → PATCH /api/users/me; Avatar area clickable for photo upload → POST /api/users/me/photo; camera overlay on hover; "demo mode" toasts removed
+- **TopBar.tsx**: Profile menu avatar shows profilePhotoUrl via AvatarImage when available, falls back to initials
+- **AppContext.tsx**: Added profilePhotoUrl to User interface; updateCurrentUser method for local state updates after profile changes
+
+**Seed Data:**
+- 4 knowledge documents (Serra Honda inventory CSV, service FAQ, brand guidelines, pricing sheet)
+- 15 campaign recipients across existing campaigns (mixed statuses)
+
+**Acceptance Criteria:**
+- [x] AC#6: Knowledge base upload, list, delete documents — Settings + AgentConfigPane both wired
+- [x] AC#7: Campaign CSV upload populates recipientCount — service + marketing tables have upload button
+- [x] AC#8: Profile photo upload shows real image — avatar renders base64 data URL across TopBar + profile page
+
+**Architect Review:** Passed with minor notes — cache invalidation uses prefix matching (correct for TanStack Query v5), file type validation present on frontend, org scoping enforced on all routes. Minor: Zod validation could be added to file upload route bodies (non-blocking).
+
+**E2E Tests:** Passed — login, Settings KB loads seeded documents, Service + Marketing campaign tables show upload CSV buttons, Profile Edit saves successfully (route ordering fix verified), Edit Profile toggles inline editing with save confirmation toast.
 

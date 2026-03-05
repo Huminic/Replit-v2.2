@@ -54,17 +54,17 @@ Mock import purge COMPLETE — zero `@/mocks/` imports remain in `client/src/`:
 - All mock data arrays renamed from `mock*` to `static*` (e.g. staticWidgets, staticActivityFeed, staticNotifications)
 
 Pages still using hardcoded/static data (no API backend yet):
-- Settings: Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills inline)
+- Settings: Tools (hardcoded toolCards), AI Config (mockSkills inline)
 - Management page: mockHunches still hardcoded (metrics tiles now wired to API)
 - TopBar notifications/activity (staticNotifications, staticActivityFeed from lib files)
 - Insights page (static chart data from insight-data.ts)
 - Billing section in Profile
-- AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
+- AgentConfigPane: triggers/skills still hardcoded (Performance metrics, Activity, and Knowledge Base now wired to real APIs)
 
-### Database Schema (11 tables)
+### Database Schema (13 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
 -   `organizations`: Org config including kill switch states (outbound/sms/phone/email enabled)
--   `users`: User auth and profile
+-   `users`: User auth and profile, profilePhotoUrl (base64 data URL, nullable)
 -   `sessions`: JWT refresh token management
 -   `agents`: AI agent definitions with department, channels, dealership, assignedPhone, vapiAssistantId, tavusPersonaId
 -   `conversations`: Conversation metadata with status, channel, agentId, campaignId, campaignDisconnected
@@ -73,6 +73,8 @@ Pages still using hardcoded/static data (no API backend yet):
 -   `tasks`: Task items with status (todo/in_progress/review/done), priority (low/medium/high/urgent), dueDate, assignedUserId, tags (text[])
 -   `widgets`: Chat/voice/video widget config with type, status, widgetCode, config (jsonb), impressions/interactions counters
 -   `integrations`: External service connections per org (provider, externalDealerId, externalDealerName, externalIntegrationId, nexxusOrgId, status)
+-   `knowledge_documents`: KB file metadata with name, type, size, status, content (text), mimeType, organizationId, agentId (nullable for agent-specific)
+-   `campaign_recipients`: Recipient records parsed from CSV uploads — firstName, lastName, phone, email, status, sentAt, deliveredAt, campaignId (FK)
 
 ### API Routes
 **Public**: POST /api/auth/login, POST /api/auth/forgot-password, POST /api/auth/reset-password
@@ -80,9 +82,10 @@ Pages still using hardcoded/static data (no API backend yet):
 - Auth: POST /api/auth/logout, POST /api/auth/refresh, GET /api/auth/me
 - Agents: GET/POST /api/agents (supports ?department= filter), GET/PATCH/DELETE /api/agents/:id
 - Organizations: GET /api/organizations, GET/PATCH /api/organizations/:id
-- Users: GET /api/users (org users with roles), PATCH /api/users/me
+- Users: GET /api/users (org users with roles), GET/PATCH /api/users/me, POST /api/users/me/photo (multipart)
 - Conversations: GET/POST /api/conversations, GET/PATCH/DELETE /api/conversations/:id, GET/POST /api/conversations/:id/messages
-- Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
+- Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id, POST /api/campaigns/:id/upload-csv (multipart), GET /api/campaigns/:id/recipients
+- Documents: GET /api/documents (?agentId=), POST /api/documents (multipart), DELETE /api/documents/:id
 - VAPI Proxy (read-only): GET /api/vapi/assistants, GET /api/vapi/phone-numbers, GET /api/vapi/calls (?assistantId=, ?limit=), GET /api/vapi/calls/:callId, GET /api/vapi/analytics
 - Tavus Proxy (read-only): GET /api/tavus/personas, GET /api/tavus/replicas, GET /api/tavus/conversations (?personaId=, ?limit=)
 - Metrics: GET /api/metrics/dashboard (aggregated conversationCounts, messageCounts, campaignStats, agentCounts, userCounts)

@@ -312,7 +312,101 @@ export async function seedDatabase() {
   }
 
   await seedTasksAndWidgets();
+  await seedDocumentsAndRecipients();
 
   console.log("Database seeded successfully!");
   console.log("Default login: admin@nexxus.com / password123");
+}
+
+async function seedDocumentsAndRecipients() {
+  const orgs = await storage.getOrganizations();
+  const serraHonda = orgs.find(o => o.slug === "serra-honda");
+  if (!serraHonda) return;
+
+  const existingDocs = await storage.getDocuments(serraHonda.id);
+  if (existingDocs.length > 0) return;
+
+  const allAgents = await storage.getAgents(serraHonda.id);
+  const carolineAgent = allAgents.find(a => a.name === "Caroline");
+
+  await storage.createDocument({
+    name: "current_inventory_march2026.csv",
+    type: "csv",
+    size: 245760,
+    status: "indexed",
+    organizationId: serraHonda.id,
+    agentId: null,
+    content: "vin,year,make,model,trim,price,status\n1HGCV1F3XRA000001,2026,Honda,Civic,Sport,28995,available\n1HGCV1F3XRA000002,2026,Honda,Accord,EX-L,35990,available",
+    mimeType: "text/csv",
+  });
+
+  await storage.createDocument({
+    name: "service_faq_2026.pdf",
+    type: "pdf",
+    size: 189440,
+    status: "indexed",
+    organizationId: serraHonda.id,
+    agentId: carolineAgent?.id || null,
+    content: null,
+    mimeType: "application/pdf",
+  });
+
+  await storage.createDocument({
+    name: "serra_brand_guidelines.docx",
+    type: "docx",
+    size: 512000,
+    status: "indexed",
+    organizationId: serraHonda.id,
+    agentId: null,
+    content: null,
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+
+  await storage.createDocument({
+    name: "dealer_policies.txt",
+    type: "txt",
+    size: 4096,
+    status: "indexed",
+    organizationId: serraHonda.id,
+    agentId: null,
+    content: "Serra Honda Dealer Policies\n\nAll sales representatives must verify customer identity before processing trade-ins.\nService appointments require 24-hour advance booking.\nAll outbound communications must include opt-out language.",
+    mimeType: "text/plain",
+  });
+
+  const allCampaigns = await storage.getCampaigns(serraHonda.id);
+  const serviceCampaign = allCampaigns.find(c => c.department === "service");
+  const salesCampaign = allCampaigns.find(c => c.department === "sales");
+
+  if (serviceCampaign) {
+    const serviceRecipients = [
+      { campaignId: serviceCampaign.id, firstName: "James", lastName: "Rodriguez", phone: "2055551001", email: "james.r@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Patricia", lastName: "Williams", phone: "2055551002", email: "pwilliams@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Robert", lastName: "Chen", phone: "2055551003", email: "rchen@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Linda", lastName: "Martinez", phone: "2055551004", email: "linda.m@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "David", lastName: "Johnson", phone: "2055551005", email: "djohnson@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Susan", lastName: "Brown", phone: "2055551006", email: "sbrown@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Michael", lastName: "Davis", phone: "2055551007", email: "mdavis@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Karen", lastName: "Wilson", phone: "2055551008", email: null },
+      { campaignId: serviceCampaign.id, firstName: "Thomas", lastName: "Moore", phone: "2055551009", email: "tmoore@email.com" },
+      { campaignId: serviceCampaign.id, firstName: "Nancy", lastName: "Taylor", phone: "2055551010", email: "ntaylor@email.com" },
+    ];
+    await storage.createRecipients(serviceRecipients);
+    const count = await storage.getRecipientCount(serviceCampaign.id);
+    await storage.updateCampaign(serviceCampaign.id, { recipientCount: count } as any);
+  }
+
+  if (salesCampaign) {
+    const salesRecipients = [
+      { campaignId: salesCampaign.id, firstName: "Mark", lastName: "Anderson", phone: "2055552001", email: "manderson@email.com" },
+      { campaignId: salesCampaign.id, firstName: "Emily", lastName: "Thomas", phone: "2055552002", email: "ethomas@email.com" },
+      { campaignId: salesCampaign.id, firstName: "Steven", lastName: "Jackson", phone: "2055552003", email: "sjackson@email.com" },
+      { campaignId: salesCampaign.id, firstName: "Angela", lastName: "White", phone: "2055552004", email: "awhite@email.com" },
+      { campaignId: salesCampaign.id, firstName: "Brian", lastName: "Harris", phone: null, email: "bharris@email.com" },
+    ];
+    await storage.createRecipients(salesRecipients);
+    const count = await storage.getRecipientCount(salesCampaign.id);
+    await storage.updateCampaign(salesCampaign.id, { recipientCount: count } as any);
+  }
+
+  console.log("Knowledge documents and campaign recipients seeded successfully!");
 }
