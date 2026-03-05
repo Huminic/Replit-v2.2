@@ -23,14 +23,14 @@
 | 2.1 | AI Chat & Conversation Engine | DONE | ~30% |
 | 2.2a | User CRUD + Password Mgmt | DONE | ~33% |
 | 2.2b | File Uploads (KB, CSV, Photos) | NOT STARTED | — |
-| 2.3 | Real Metrics & Dashboard Wiring | NOT STARTED | — |
+| 2.3 + 4.1a | Real Metrics & Dashboard Wiring + Task/Widget Persistence | DONE | ~42% |
 | 3.1 | Outbound Communication Engine | NOT STARTED | — |
 | 3.2 | Webhooks & Real-Time | NOT STARTED | — |
 | 3.3 | Intelligence Engine | NOT STARTED | — |
-| 4.1 | Widget Backend & Calendar | NOT STARTED | — |
+| 4.1b | Widget Calendar & Remaining | NOT STARTED | — |
 | 4.2 | Security, Performance & E2E | NOT STARTED | — |
 
-**Overall Progress: ~33%** (Waves 0-1 complete, Wave 2.1-2.2a done)
+**Overall Progress: ~42%** (Waves 0-1 complete, Wave 2.1-2.2a done, Sprint 2.3+4.1a done)
 
 ---
 
@@ -264,4 +264,41 @@
 **Architect Review:** Passed after fixes for agent org validation, senderName for agent chats, abort cleanup in hook, trailing SSE buffer handling, and prompt safety guardrails.
 
 **E2E Tests:** Passed — main page streaming + right pane streaming verified.
+
+---
+
+### Sprint 2.3 + 4.1a — Real Metrics & Dashboard Wiring + Task/Widget Persistence
+**Status:** DONE
+
+**Scope:** Wire all dashboard metric tiles to computed data from existing DB tables (conversations, campaigns, agents, users). Add `tasks` and `widgets` tables with full CRUD. Wire My Work page to real tasks API. Wire Settings Widgets to real widgets API. UI = T1 truth — change data source only.
+
+**What was built:**
+
+Backend:
+- `GET /api/metrics/dashboard` — aggregation endpoint computing conversationCounts, messageCounts, campaignStats (by department), agentCounts, userCounts from real DB data, scoped to user's organization
+- `tasks` table: id, title, description, status (todo/in_progress/review/done), priority (low/medium/high/urgent), dueDate, assignedUserId, organizationId, tags (text[]), timestamps
+- `widgets` table: id, name, type (text/video/voice/unified), status (active/inactive/draft), description, widgetCode, organizationId, config (jsonb), impressions, interactions, timestamps
+- Full CRUD routes for both: GET/POST/PATCH/DELETE `/api/tasks`, `/api/widgets`
+- Storage interface: getDashboardMetrics, getTasks/getTask/createTask/updateTask/deleteTask, getWidgets/getWidget/createWidget/updateWidget/deleteWidget
+- Seed data: 6 tasks + 4 widgets for Serra Honda org (varied statuses, priorities, assignments)
+
+Frontend:
+- **main.tsx**: `buildMetricsForRole(role, data)` replaces hardcoded `roleMetrics` — every role gets real computed tiles; `buildMetricDetails(data)` generates drill-down breakdowns; loading skeleton for tiles
+- **service.tsx**: Service department tiles wired to real campaignStats.byDepartment.service data
+- **marketing.tsx**: Marketing department tiles wired to real campaignStats.byDepartment.marketing data
+- **management.tsx**: Management tiles wired to cross-department aggregates
+- **my-work.tsx**: Replaced `mockMyTasks` with useQuery/useMutation fetching real tasks; create/edit/complete/delete all persist to DB
+- **settings.tsx**: Widgets initialized from `GET /api/widgets` via useQuery; create/delete/toggle-status mutations wired to API; `dbWidgetToIndividual()` + `individualToDbConfig()` mappers handle DB ↔ UI type conversion
+
+**Acceptance Criteria:**
+- [x] `/api/metrics/dashboard` returns accurate counts matching DB data
+- [x] Main page tiles show real numbers per role (not hardcoded)
+- [x] Service/Marketing/Management pages show real department data
+- [x] Tasks persist across page refreshes; CRUD operations work
+- [x] Widgets persist in DB; toggle status works; create/delete work
+- [x] Seed data populates on fresh DB; guard prevents re-seeding
+
+**Architect Review:** Passed — org scoping verified on all routes, Zod validation on CRUD, no blocking issues. Minor note: settings widget local state has optimistic updates without rollback on failure (non-blocking UX risk).
+
+**E2E Tests:** Passed — login, dashboard metric tiles with real numbers, Service/Marketing pages with real department data, My Work page with persisted tasks, Settings Widgets with API-loaded widget cards all verified.
 

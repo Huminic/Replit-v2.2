@@ -18,7 +18,7 @@
  * Landing page visits tracked via UTM params and /w/demo route analytics.
  * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -44,17 +44,13 @@ const tabs = [
   { id: 'insights', label: 'Insights', icon: BarChart3 },
 ];
 
-/**
- * Marketing KPI metric tiles — campaign performance, leads generated,
- * widget interactions (tracked via analytics), landing page visits (tracked via UTM params).
- * PRODUCTION NOTE: Will be fetched from backend analytics aggregation.
- */
-const marketingMetrics = [
-  { id: 'mm-1', label: 'Campaign Performance', value: '87%', change: 5, trend: 'up' as const, icon: Target },
-  { id: 'mm-2', label: 'Leads Generated', value: '156', change: 18, trend: 'up' as const, icon: Users },
-  { id: 'mm-3', label: 'Widget Interactions', value: '2,340', change: 12, trend: 'up' as const, icon: MousePointerClick },
-  { id: 'mm-4', label: 'Landing Page Visits', value: '4,821', change: 8, trend: 'up' as const, icon: Globe },
-];
+interface DashboardMetrics {
+  conversationCounts: { total: number; open: number; closed: number; byChannel: Record<string, number> };
+  messageCounts: { total: number; last30Days: number };
+  campaignStats: { total: number; active: number; totalSent: number; totalReplied: number; replyRate: number; byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }> };
+  agentCounts: { total: number; active: number; byDepartment: Record<string, number> };
+  userCounts: { total: number; active: number };
+}
 
 /** Color mapping for campaign status indicators — same pattern used in service.tsx */
 const campaignStatusColors: Record<string, string> = {
@@ -68,6 +64,21 @@ export default function MarketingPage() {
   const [, setLocation] = useLocation();
   const { communicationGateEnabled, setSelectedAgent } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
+    queryKey: ['/api/metrics/dashboard'],
+  });
+
+  const marketingMetrics = useMemo(() => {
+    const mkt = metrics?.campaignStats?.byDepartment?.marketing;
+    const totalConversations = metrics?.conversationCounts?.total ?? 0;
+    return [
+      { id: 'mm-1', label: 'Campaign Performance', value: `${mkt?.replyRate ?? 0}%`, icon: Target },
+      { id: 'mm-2', label: 'Active Campaigns', value: String(mkt?.active ?? 0), icon: Megaphone },
+      { id: 'mm-3', label: 'Total Messages', value: String(mkt?.sent ?? 0), icon: MousePointerClick },
+      { id: 'mm-4', label: 'Conversations', value: String(totalConversations), icon: Globe },
+    ];
+  }, [metrics]);
 
   const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
     queryKey: ['/api/agents?department=marketing'],
@@ -86,13 +97,25 @@ export default function MarketingPage() {
     },
   });
 
-  /** Dashboard tab — marketing KPI metric tiles in a responsive 4-column grid */
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
         <h2 className="text-lg font-semibold mb-1">Marketing Dashboard</h2>
         <p className="text-sm text-muted-foreground">Campaign performance and lead generation metrics</p>
       </div>
+      {metricsLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 space-y-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-7 w-16" />
+                <Skeleton className="h-3 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {marketingMetrics.map(metric => (
           <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
@@ -102,15 +125,11 @@ export default function MarketingPage() {
                 <metric.icon className="h-4 w-4 text-muted-foreground" />
               </div>
               <p className="text-2xl font-bold">{metric.value}</p>
-              <div className="flex items-center gap-1 mt-1">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-xs text-green-500">+{metric.change}%</span>
-                <span className="text-xs text-muted-foreground">vs last week</span>
-              </div>
             </CardContent>
           </Card>
         ))}
       </div>
+      )}
     </div>
   );
 

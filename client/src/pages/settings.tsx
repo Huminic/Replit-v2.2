@@ -146,7 +146,62 @@ import {
   type IndividualWidget,
   type LandingPage,
   type WidgetType,
+  type WidgetAppearance,
+  type WidgetTargeting,
 } from '@/lib/widget-types';
+import type { Widget as DbWidget } from '@shared/schema';
+
+function dbWidgetToIndividual(w: DbWidget): IndividualWidget {
+  const cfg = (w.config || {}) as Record<string, any>;
+  return {
+    id: w.id,
+    type: w.type as IndividualWidget['type'],
+    widgetCode: w.widgetCode,
+    name: w.name,
+    description: w.description || '',
+    status: w.status as IndividualWidget['status'],
+    appearance: cfg.appearance || {
+      primaryColor: cfg.primaryColor || '#8b5cf6',
+      secondaryColor: cfg.accentColor || '#3b82f6',
+      textColor: '#ffffff',
+      backgroundColor: '#ffffff',
+      organizationName: 'Cage Automotive',
+      showLogo: cfg.showOrganizationName ?? true,
+      position: cfg.position || 'bottom-right',
+      animation: cfg.animation || 'pulse',
+      buttonLabel: 'Chat with us',
+      welcomeHeading: 'Hi there!',
+      welcomeMessage: cfg.greeting || 'How can we help you today?',
+    },
+    targeting: cfg.targeting || {
+      audience: cfg.audienceType || 'all',
+      includePages: '/*',
+      excludePages: '/admin/*',
+      desktop: cfg.deviceDesktop ?? true,
+      mobile: cfg.deviceMobile ?? true,
+      tablet: true,
+      businessHoursOnly: false,
+      delaySeconds: cfg.triggerDelay || 3,
+      scrollDepthPercent: 0,
+      exitIntent: cfg.exitIntent ?? false,
+    },
+    allowedDomains: cfg.allowedDomains || [],
+    config: cfg.agentConfig || {},
+    createdAt: w.createdAt?.toISOString?.() || String(w.createdAt),
+    updatedAt: w.updatedAt?.toISOString?.() || String(w.updatedAt),
+    impressions: w.impressions,
+    interactions: w.interactions,
+  };
+}
+
+function individualToDbConfig(w: IndividualWidget): Record<string, any> {
+  return {
+    appearance: w.appearance,
+    targeting: w.targeting,
+    allowedDomains: w.allowedDomains,
+    agentConfig: w.config,
+  };
+}
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
@@ -386,7 +441,20 @@ export default function SettingsPage() {
     setCommunicationGateEnabled(enabled);
     commGateMutation.mutate(enabled);
   };
-  const [widgets, setWidgets] = useState<IndividualWidget[]>(staticWidgets);
+  const { data: apiWidgets = [] } = useQuery<DbWidget[]>({
+    queryKey: ['/api/widgets'],
+  });
+  const [widgets, setWidgets] = useState<IndividualWidget[]>([]);
+  const [widgetsInitialized, setWidgetsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (apiWidgets.length > 0 && !widgetsInitialized) {
+      setWidgets(apiWidgets.map(dbWidgetToIndividual));
+      setWidgetsInitialized(true);
+    } else if (apiWidgets.length === 0 && !widgetsInitialized) {
+      setWidgets(staticWidgets);
+    }
+  }, [apiWidgets, widgetsInitialized]);
   const [landingPages, setLandingPages] = useState<LandingPage[]>(staticLandingPages);
   const [selectedWidget, setSelectedWidget] = useState<IndividualWidget | null>(null);
   const [selectedLandingPage, setSelectedLandingPage] = useState<LandingPage | null>(null);
@@ -605,7 +673,63 @@ export default function SettingsPage() {
     </div>
   );
 
+  const createWidgetMutation = useMutation({
+    mutationFn: async (data: { name: string; type: string; description: string; config: Record<string, any> }) => {
+      const res = await apiRequest('POST', '/api/widgets', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/widgets'] });
+      setWidgetsInitialized(false);
+    },
+  });
+
+  const updateWidgetMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, any> }) => {
+      const res = await apiRequest('PATCH', `/api/widgets/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/widgets'] });
+    },
+  });
+
+  const deleteWidgetMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/widgets/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/widgets'] });
+      setWidgetsInitialized(false);
+    },
+  });
+
   const handleCreateWidget = () => {
+    const defaultAppearance = {
+      primaryColor: '#8b5cf6',
+      secondaryColor: '#3b82f6',
+      textColor: '#ffffff',
+      backgroundColor: '#ffffff',
+      organizationName: 'Cage Automotive',
+      showLogo: true,
+      position: 'bottom-right',
+      animation: 'pulse',
+      buttonLabel: 'Chat with us',
+      welcomeHeading: 'Hi there!',
+      welcomeMessage: 'How can we help you today?',
+    };
+    const defaultTargeting = {
+      audience: 'all',
+      includePages: '/*',
+      excludePages: '/admin/*',
+      desktop: true,
+      mobile: true,
+      tablet: true,
+      businessHoursOnly: false,
+      delaySeconds: 3,
+      scrollDepthPercent: 0,
+      exitIntent: false,
+    };
     const newWidget: IndividualWidget = {
       id: `wgt-${Date.now()}`,
       type: 'text',
@@ -613,31 +737,8 @@ export default function SettingsPage() {
       name: 'New Widget',
       description: 'New text chat widget',
       status: 'draft',
-      appearance: {
-        primaryColor: '#8b5cf6',
-        secondaryColor: '#3b82f6',
-        textColor: '#ffffff',
-        backgroundColor: '#ffffff',
-        organizationName: 'Cage Automotive',
-        showLogo: true,
-        position: 'bottom-right',
-        animation: 'pulse',
-        buttonLabel: 'Chat with us',
-        welcomeHeading: 'Hi there!',
-        welcomeMessage: 'How can we help you today?',
-      },
-      targeting: {
-        audience: 'all',
-        includePages: '/*',
-        excludePages: '/admin/*',
-        desktop: true,
-        mobile: true,
-        tablet: true,
-        businessHoursOnly: false,
-        delaySeconds: 3,
-        scrollDepthPercent: 0,
-        exitIntent: false,
-      },
+      appearance: defaultAppearance,
+      targeting: defaultTargeting,
       allowedDomains: [],
       config: {},
       createdAt: new Date().toISOString(),
@@ -647,6 +748,12 @@ export default function SettingsPage() {
     };
     setWidgets(prev => [...prev, newWidget]);
     setSelectedWidget(newWidget);
+    createWidgetMutation.mutate({
+      name: 'New Widget',
+      type: 'text',
+      description: 'New text chat widget',
+      config: { appearance: defaultAppearance, targeting: defaultTargeting, allowedDomains: [] },
+    });
     toast({ title: 'Widget created', description: 'Configure your new widget.' });
   };
 
@@ -888,6 +995,7 @@ export default function SettingsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-destructive" onClick={() => {
+                              deleteWidgetMutation.mutate(widget.id);
                               setWidgets(prev => prev.filter(w => w.id !== widget.id));
                               toast({ title: 'Widget deleted', description: 'The widget has been removed.' });
                             }}>
@@ -1473,6 +1581,7 @@ export default function SettingsPage() {
               const updated = { ...widget, status: newStatus as IndividualWidget['status'] };
               setSelectedWidget(updated);
               setWidgets(prev => prev.map(w => w.id === updated.id ? updated : w));
+              updateWidgetMutation.mutate({ id: widget.id, data: { status: newStatus } });
               toast({ title: `Widget ${newStatus}`, description: `Widget is now ${newStatus}.` });
             }}
             variant={widget.status === 'active' ? 'outline' : 'default'}
@@ -1497,6 +1606,7 @@ export default function SettingsPage() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive" onClick={() => {
+                deleteWidgetMutation.mutate(widget.id);
                 setWidgets(prev => prev.filter(w => w.id !== widget.id));
                 setSelectedWidget(null);
                 toast({ title: 'Widget deleted' });

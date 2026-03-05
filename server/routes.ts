@@ -20,10 +20,14 @@ import {
   insertMessageSchema,
   insertCampaignSchema,
   insertIntegrationSchema,
+  insertTaskSchema,
+  insertWidgetSchema,
   updateAgentSchema,
   updateOrganizationSchema,
   updateUserProfileSchema,
   updateCampaignSchema,
+  updateTaskSchema,
+  updateWidgetSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
@@ -1036,6 +1040,158 @@ Your personality and rules:
       } else {
         res.status(500).json({ message: "Failed to stream chat response" });
       }
+    }
+  });
+
+  app.get("/api/metrics/dashboard", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const metrics = await storage.getDashboardMetrics(req.user.organizationId);
+      return res.json(metrics);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch dashboard metrics" });
+    }
+  });
+
+  app.get("/api/tasks", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const filters: { status?: string; assignedUserId?: string } = {};
+      if (typeof req.query.status === "string") filters.status = req.query.status;
+      if (typeof req.query.assignedUserId === "string") filters.assignedUserId = req.query.assignedUserId;
+      const result = await storage.getTasks(req.user.organizationId, filters);
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch tasks" });
+    }
+  });
+
+  app.post("/api/tasks", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const parsed = insertTaskSchema.safeParse({
+        ...req.body,
+        organizationId: req.user.organizationId,
+        assignedUserId: req.body.assignedUserId || req.user.userId,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid task data", errors: parsed.error.flatten() });
+      }
+      const task = await storage.createTask(parsed.data);
+      return res.status(201).json(task);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create task" });
+    }
+  });
+
+  app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getTask(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Task not found" });
+      if (existing.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const parsed = updateTaskSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid task data", errors: parsed.error.flatten() });
+      }
+      const task = await storage.updateTask(req.params.id, parsed.data);
+      return res.json(task);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update task" });
+    }
+  });
+
+  app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getTask(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Task not found" });
+      if (existing.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      await storage.deleteTask(req.params.id);
+      return res.json({ message: "Task deleted" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to delete task" });
+    }
+  });
+
+  app.get("/api/widgets", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await storage.getWidgets(req.user.organizationId);
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch widgets" });
+    }
+  });
+
+  app.get("/api/widgets/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const widget = await storage.getWidget(req.params.id);
+      if (!widget) return res.status(404).json({ message: "Widget not found" });
+      if (widget.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      return res.json(widget);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch widget" });
+    }
+  });
+
+  app.post("/api/widgets", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const widgetCode = `wgt_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const parsed = insertWidgetSchema.safeParse({
+        ...req.body,
+        organizationId: req.user.organizationId,
+        widgetCode: req.body.widgetCode || widgetCode,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid widget data", errors: parsed.error.flatten() });
+      }
+      const widget = await storage.createWidget(parsed.data);
+      return res.status(201).json(widget);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create widget" });
+    }
+  });
+
+  app.patch("/api/widgets/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getWidget(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Widget not found" });
+      if (existing.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const parsed = updateWidgetSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid widget data", errors: parsed.error.flatten() });
+      }
+      const widget = await storage.updateWidget(req.params.id, parsed.data);
+      return res.json(widget);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update widget" });
+    }
+  });
+
+  app.delete("/api/widgets/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getWidget(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Widget not found" });
+      if (existing.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      await storage.deleteWidget(req.params.id);
+      return res.json({ message: "Widget deleted" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to delete widget" });
     }
   });
 
