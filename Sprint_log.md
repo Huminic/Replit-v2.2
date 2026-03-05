@@ -1,0 +1,188 @@
+# Nexxus Connect — Sprint Log
+
+**Project:** Nexxus Connect (AI-Powered Dealership Management Platform)
+**Client:** Serra Auto Group / Cage Automotive
+**Sprint Workflow:**
+1. Agent describes the sprint (task + functionality outcome + acceptance criteria touched)
+2. Sprint is memorialized here in this log
+3. User gives go-ahead
+4. Agent codes it
+5. Architect reviews sprint log + acceptance criteria
+6. If pass → user optionally reviews. If fail → fix and re-review.
+7. Agent reports percentage complete
+8. Repeat from step 1
+
+---
+
+## Completion Tracker
+
+| Wave | Sprint | Status | % Done After |
+|------|--------|--------|--------------|
+| 0 | Setup & UI Prototype | DONE | — |
+| 1 | API Wiring & Data Sources | DONE | — |
+| 2.1 | AI Chat & Conversation Engine | NOT STARTED | — |
+| 2.2 | User & Org Management | NOT STARTED | — |
+| 2.3 | Real Metrics & Dashboard Wiring | NOT STARTED | — |
+| 3.1 | Outbound Communication Engine | NOT STARTED | — |
+| 3.2 | Webhooks & Real-Time | NOT STARTED | — |
+| 3.3 | Intelligence Engine | NOT STARTED | — |
+| 4.1 | Widget Backend & Calendar | NOT STARTED | — |
+| 4.2 | Security, Performance & E2E | NOT STARTED | — |
+
+**Overall Progress: ~25%** (Waves 0-1 complete out of Waves 0-4)
+
+---
+
+## Sprint History
+
+### Wave 0 — Setup & UI Prototype
+**Status:** COMPLETE
+- Full UI prototype with persona-based navigation (7 sidebar sections)
+- PostgreSQL database: 9 tables
+- JWT auth with access/refresh tokens, RBAC (8 roles)
+- All pages rendered with mock data
+
+### Wave 1 — API Wiring & Data Sources
+**Status:** COMPLETE
+- All department pages wired to real API data (zero mock imports in production code)
+- TeamBox with real conversation persistence
+- Settings with real user management
+- Read-only vendor integrations: VAPI, Tavus, VinSolutions (MCP)
+- VinSolutions dealer provisioning for all 3 Serra dealerships
+- 6 RBAC test accounts created and verified
+- Campaign list/update with kill switch persistence
+- Profile editing with database persistence
+
+---
+
+## Upcoming Sprints
+
+### Sprint 2.1 — AI Chat & Conversation Engine
+**Functionality Outcome:** The main chat interface and agent chat produce real AI responses instead of fake typing indicators. Messages persist to the database and survive page reload. When chatting with a specific agent, the AI responds with that agent's personality and instructions.
+
+**What gets wired:**
+- Main page center chat (currently shows typing dots then a canned response)
+- Right pane assistant chat (same pattern)
+- Agent-specific chat on /agents page (same pattern, but agent-aware)
+- Thinking/reasoning cards (collapsible display of AI reasoning steps)
+
+**Acceptance Criteria Touched:**
+- [ ] User sends a message in main chat, gets a real AI response streamed in
+- [ ] Messages persist to the conversations/messages tables and survive page reload
+- [ ] Right pane chat produces real AI responses
+- [ ] Agent chat uses the selected agent's description/instructions as context
+- [ ] Thinking steps are visible in collapsible cards during AI response
+- [ ] Chat input shows real streaming text (not a delayed fake response)
+
+**Blocker:** ~~Needs a Claude/Anthropic API key~~ RESOLVED — Replit AI Integrations (Anthropic) installed. API key verified working (claude-sonnet-4-6).
+
+---
+
+### Sprint 2.2 — User & Org Management
+**Functionality Outcome:** Admins can create, edit, and deactivate users from Settings. Password management works. File uploads (knowledge base, campaign CSV, profile photos) actually store files instead of showing "demo mode" toasts.
+
+**Acceptance Criteria Touched:**
+- [ ] Settings > User Management: add new user with role assignment
+- [ ] Settings > User Management: edit user role/status
+- [ ] Settings > User Management: deactivate user
+- [ ] Admin can reset a user's password
+- [ ] User can change own password from profile
+- [ ] Knowledge base: upload, list, delete documents
+- [ ] Campaign CSV upload populates recipient count
+- [ ] Profile photo upload shows real image
+
+**Blocker:** File storage strategy decision (local disk vs cloud).
+
+---
+
+### Sprint 2.3 — Real Metrics & Dashboard Wiring
+**Functionality Outcome:** Dashboard tiles across all department pages show computed values from real data sources (VinSolutions, conversation counts, campaign stats) instead of hardcoded numbers.
+
+**Acceptance Criteria Touched:**
+- [ ] Sales dashboard tiles show real VinSolutions lead numbers
+- [ ] Service dashboard tiles show real campaign/message metrics
+- [ ] Marketing dashboard tiles show real campaign performance
+- [ ] Management dashboard shows cross-department aggregates
+- [ ] Main page role-based tiles pull from appropriate data source
+- [ ] Clicking a tile shows breakdown modal with real sub-data
+
+**Blocker:** VinSolutions MCP data quality (some metrics may need stubs).
+
+---
+
+### Sprint 3.1 — Outbound Communication Engine
+**Functionality Outcome:** The platform can actually send SMS and email. The communication gate and per-campaign kill switches enforce real control over message sending.
+
+**Acceptance Criteria Touched:**
+- [ ] SMS sends via TextMagic API
+- [ ] Email sends via Resend API
+- [ ] Communication gate toggle prevents/allows all outbound
+- [ ] Campaign execution sends to all recipients over configured interval
+- [ ] Kill switch stops campaign mid-execution
+- [ ] Disconnecting a conversation stops future campaign messages
+
+**Blocker:** TextMagic API key, Resend API key needed.
+
+---
+
+### Sprint 3.2 — Webhooks & Real-Time
+**Functionality Outcome:** Inbound events from VAPI and Tavus automatically create records. Notifications and activity feeds are live and event-driven instead of static.
+
+**Acceptance Criteria Touched:**
+- [ ] VAPI call events create conversations in TeamBox
+- [ ] Tavus video session events create records
+- [ ] TopBar bell shows real notification count
+- [ ] Activity feeds show real events (user created, campaign started, etc.)
+- [ ] New messages appear in TeamBox without page refresh (SSE)
+
+**Blocker:** VAPI webhook URL config, Tavus webhook secret.
+
+---
+
+### Sprint 3.3 — Intelligence Engine
+**Functionality Outcome:** AI-generated insights replace static hunches. Metrics library computes real values. Reports and red zone alerts are data-driven.
+
+**Acceptance Criteria Touched:**
+- [ ] Management > Hunches shows AI-generated pattern/recommendation pairs
+- [ ] Hunches refresh on schedule with lifecycle tracking
+- [ ] Insights charts show computed data
+- [ ] Reports tab shows real reports
+- [ ] Red zone alerts identify cold leads and overdue follow-ups
+- [ ] Metrics library shows 91 metrics with real values where available
+
+**Blocker:** Sufficient VinSolutions data volume for meaningful insights.
+
+---
+
+### Sprint 4.1 — Widget Backend & Calendar
+**Functionality Outcome:** Widget configuration persists and generates real embed codes. Calendar integration shows real appointments. My Work task list persists.
+
+**Acceptance Criteria Touched:**
+- [ ] Widget CRUD persists to database
+- [ ] Embed code generation works (copy → paste in HTML → loads)
+- [ ] Landing pages serve from widget config
+- [ ] Calendar shows real appointments (Google Calendar OAuth)
+- [ ] My Work: add/complete/delete tasks persists
+
+**Blocker:** Google Calendar OAuth setup.
+
+---
+
+### Sprint 4.2 — Security, Performance & E2E
+**Functionality Outcome:** Production hardening. Row-level security, rate limiting, input validation, full E2E test suite, all mock data removed.
+
+**Acceptance Criteria Touched:**
+- [ ] RLS policies enforce multi-tenancy at DB level
+- [ ] API rate limiting (100 req/min per user)
+- [ ] All input validated and sanitized
+- [ ] Zero mock files remain in codebase
+- [ ] Full Playwright E2E suite passes
+- [ ] API p95 < 200ms, LCP < 2.5s
+- [ ] Billing/metering foundation tracks usage
+
+---
+
+## Sprint Execution Log
+
+*(Entries added as sprints are executed)*
+
