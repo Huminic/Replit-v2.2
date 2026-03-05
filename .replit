@@ -44,3 +44,6 @@ waitForPort = 5000
 
 [userenv.shared]
 VINSOLUTIONS_MCP_URL = "https://mcp.huminicdev.com/dax/mcp"
+
+[agent]
+integrations = ["javascript_anthropic_ai_integrations:2.0.0"]
