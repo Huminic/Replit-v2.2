@@ -1,0 +1,514 @@
+══════════════════════════════════════════════════════════════════════
+  NEXXUS V2 — API PROBE REPORT
+  Generated: 2026-02-18T02:05:23.196Z
+══════════════════════════════════════════════════════════════════════
+
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  VIN SOLUTIONS                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+VERSION DISCOVERY RESULTS
+──────────────────────────────────────────────────────────────────────
+
+Endpoint                                     v1    v2    v3    V3    json  xml
+───────────────────────────────────────────────────────────────────────────
+/leadStatuses?dealerId=21043                  ✓200  ✗400  ✗400  ✗400  ✗400  ✗400 
+/leadSources?dealerId=21043                   ✓200  ✗400  ✗400  ✗400  ✗400  ✗400 
+/leadTypes?dealerId=21043                     ✓200  ✗400  ✗400  ✗400  ✗400  ✗400 
+/leadStatusTypes?dealerId=21043               ✓200  ✗400  ✗400  ✗400  ✗400  ✗400 
+/leadGroupCategories?dealerId=21043           ✓200  ✗400  ✗400  ✗400  ✗400  ✗400 
+/vehicles/years                               ✓200  ✓200  ✗400  ✓200  ✓200  ✓200 
+/vehicles/makes?year=2025                     ✓200  ✓200  ✗400  ✓200  ✓200  ✓200 
+/leads?dealerId=21043&limit=1                 ✗400  ✗400  ✓200  ✗400  ✗400  ✗400 
+
+  /leadStatuses?dealerId=21043
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /leadSources?dealerId=21043
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /leadTypes?dealerId=21043
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /leadStatusTypes?dealerId=21043
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /leadGroupCategories?dealerId=21043
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /vehicles/years
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /vehicles/makes?year=2025
+    → Works with v1 header
+    → WORKING VERSION: v1
+  /leads?dealerId=21043&limit=1
+    → Works with v3_lower header
+    → WORKING VERSION: v3_lower
+
+ENDPOINT STATUS
+──────────────────────────────────────────────────────────────────────
+
+  200_OK (18 endpoints):
+    /leads?dealerId=21043&limit=5 [v3_lower] (leads_list)
+    /leads/id/1860193050?dealerId=21043 [v3_lower] (lead_detail)
+    /leads?dealerId=21043&leadStatus=ACTIVE_NEW_LEAD&limit=1 [v3_lower] (lead_status_ACTIVE_NEW_LEAD)
+    /leadStatuses?dealerId=21043 [v1] (reference_discovered_v1)
+    /leadSources?dealerId=21043 [v1] (reference_discovered_v1)
+    /leadTypes?dealerId=21043 [v1] (reference_discovered_v1)
+    /leadStatusTypes?dealerId=21043 [v1] (reference_discovered_v1)
+    /leadGroupCategories?dealerId=21043 [v1] (reference_discovered_v1)
+    /vehicles/years [v1] (reference_discovered_v1)
+    /vehicles/makes?year=2025 [v1] (reference_discovered_v1)
+    /leads?dealerId=21043&limit=1 [v3_lower] (reference_discovered_v3_lower)
+    /gateway/v1/tenant/user?dealerId=21043 [gateway] (users_list)
+    /gateway/v1/organization/dealers [gateway] (dealers_list)
+    /gateway/v1/tenant/user/id/1148936?dealerId=21043 [gateway] (user_detail)
+    /vehicles/interest?leadId=1860193050&dealerId=21043 [v1] (vehicles_interest_v1)
+    /gateway/v1/tenant/user?dealerId=21043 [gateway] (gateway_users)
+    /gateway/v1/organization/dealers [gateway] (gateway_dealers)
+    /vehicles/vin?vin=1HGBH41JXMN109186 [v1] (vin_decode_v1)
+
+  400_BAD_REQUEST (7 endpoints):
+    /leads?dealerId=21043&leadStatus=ACTIVE&limit=1 [v3_lower] (lead_status_ACTIVE)
+    /leads?dealerId=21043&leadStatus=SOLD&limit=1 [v3_lower] (lead_status_SOLD)
+    /leads?dealerId=21043&leadStatus=LOST&limit=1 [v3_lower] (lead_status_LOST)
+    /leads?dealerId=21043&leadStatus=ACTIVE_APPOINTMENT_SET&limit=1 [v3_lower] (lead_status_ACTIVE_APPOINTMENT_SET)
+    /gateway/v1/contact?contactId=1031704897&dealerId=21043 [gateway] (contact_detail)
+    /vehicles/trade?leadId=1860193050&dealerId=21043 [v3_lower] (vehicles_trade_v3_lower)
+    /gateway/v1/contact?contactId=1&dealerId=21043 [gateway] (gateway_contact_(single))
+
+  403_FORBIDDEN (17 endpoints):
+    /gateway/v1/contacts?dealerId=21043&limit=1 [gateway] (contacts_search)
+    /gateway/v1/contacts?dealerId=21043 [gateway] (gateway_contacts_(search))
+    /gateway/v1/lead?dealerId=21043 [gateway] (gateway_lead_(gateway))
+    /gateway/v1/leads?dealerId=21043 [gateway] (gateway_leads_(gateway))
+    /gateway/v1/communication?dealerId=21043 [gateway] (gateway_communication)
+    /gateway/v1/activity?dealerId=21043 [gateway] (gateway_activity)
+    /gateway/v1/notes?dealerId=21043 [gateway] (gateway_notes)
+    /gateway/v1/tasks?dealerId=21043 [gateway] (gateway_tasks)
+    /gateway/v1/appointments?dealerId=21043 [gateway] (gateway_appointments)
+    /gateway/v1/emails?dealerId=21043 [gateway] (gateway_emails)
+    /gateway/v1/calls?dealerId=21043 [gateway] (gateway_calls)
+    /gateway/v1/calldetails?dealerId=21043 [gateway] (gateway_calldetails)
+    /gateway/v1/vehicles?dealerId=21043 [gateway] (gateway_vehicles)
+    /gateway/v1/inventory?dealerId=21043 [gateway] (gateway_inventory)
+    /gateway/v1/deals?dealerId=21043 [gateway] (gateway_deals)
+    /gateway/v1/desking?dealerId=21043 [gateway] (gateway_desking)
+    /gateway/v1/customer?dealerId=21043 [gateway] (gateway_customer)
+
+  404_NOT_FOUND (4 endpoints):
+    /vehicles/trade?leadId=1860193050&dealerId=21043 [v1] (vehicles_trade_v1)
+    /vehicles/trade?leadId=1860193050&dealerId=21043 [v2] (vehicles_trade_v2)
+    /vehicles/trade?leadId=1860193050&dealerId=21043 [V3_upper] (vehicles_trade_V3_upper)
+    /vehicles/trade?leadId=1860193050&dealerId=21043 [gateway] (vehicles_trade_gateway)
+
+GATEWAY PERMISSION MAP
+──────────────────────────────────────────────────────────────────────
+
+  ACCESSIBLE (5):
+    ✓ /gateway/v1/tenant/user?dealerId=21043
+    ✓ /gateway/v1/organization/dealers
+    ✓ /gateway/v1/tenant/user/id/1148936?dealerId=21043
+    ✓ /gateway/v1/tenant/user?dealerId=21043
+    ✓ /gateway/v1/organization/dealers
+
+  FORBIDDEN — Exists but credentials lack access (17):
+    ✗ /gateway/v1/contacts?dealerId=21043&limit=1
+    ✗ /gateway/v1/contacts?dealerId=21043
+    ✗ /gateway/v1/lead?dealerId=21043
+    ✗ /gateway/v1/leads?dealerId=21043
+    ✗ /gateway/v1/communication?dealerId=21043
+    ✗ /gateway/v1/activity?dealerId=21043
+    ✗ /gateway/v1/notes?dealerId=21043
+    ✗ /gateway/v1/tasks?dealerId=21043
+    ✗ /gateway/v1/appointments?dealerId=21043
+    ✗ /gateway/v1/emails?dealerId=21043
+    ✗ /gateway/v1/calls?dealerId=21043
+    ✗ /gateway/v1/calldetails?dealerId=21043
+    ✗ /gateway/v1/vehicles?dealerId=21043
+    ✗ /gateway/v1/inventory?dealerId=21043
+    ✗ /gateway/v1/deals?dealerId=21043
+    ✗ /gateway/v1/desking?dealerId=21043
+    ✗ /gateway/v1/customer?dealerId=21043
+
+  → ACTION: Contact VIN Solutions to request access to these endpoints
+  → These return 403 (not 404) confirming the endpoints exist
+
+SAMPLE LEAD OBJECT (Full Field List)
+──────────────────────────────────────────────────────────────────────
+
+  href: "https://api.vinsolutions.com/leads/id/1860193050"
+  leadId: 1860193050
+  dealerId: 21043
+  contact: "https://api.vinsolutions.com/contacts/id/1031704897?dealerid=21043"
+  coBuyerContact: null
+  leadSource: "https://api.vinsolutions.com/leadsources/id/3822811?dealerid=21043"
+  leadStatus: "ACTIVE_NEW_LEAD"
+  leadStatusType: "ACTIVE"
+  leadType: "SERVICE"
+  leadGroupCategory: "NEW"
+  createdUtc: "2025-07-04T17:45:00+00:00"
+  isHot: false
+  isOnShowroom: false
+  vehiclesOfInterest: array[1]
+  tradeVehicles: array[0]
+
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  VAPI                                                               ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+ENDPOINT STATUS
+──────────────────────────────────────────────────────────────────────
+
+  ✓ 200 GET /call?limit=5 [calls_list]
+  ✓ 200 GET /call/019c6e67-7849-7112-a075-01afbe78fd6b [call_detail]
+  ✓ 200 GET /assistant [assistants_list]
+  ✓ 200 GET /phone-number [phone_numbers]
+  ✓ 201 POST /analytics [analytics_cost_90d]
+  ✓ 201 POST /analytics [analytics_by_assistant]
+  ✓ 201 POST /analytics [analytics_by_ended_reason]
+  ✓ 200 GET /eval?limit=5 [evals_list]
+  ✓ 200 GET /campaign [campaigns]
+  ✓ 200 GET /tool [tools]
+  ✓ 200 GET /squad [squads]
+  ✓ 200 GET /knowledge-base [knowledge_bases]
+  ✓ 200 GET /file [files]
+  ✗ 400 GET /log?limit=5 [logs]
+  ✓ 200 GET /block [blocks]
+  ✓ 200 GET /test-suite [test_suites]
+
+  Summary: 15 OK / 1 Failed / 16 Total
+
+SAMPLE CALL OBJECT (Full Field List)
+──────────────────────────────────────────────────────────────────────
+
+  id: "019c6e67-7849-7112-a075-01afbe78fd6b"
+  assistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0"
+  phoneNumberId: "732f8fde-7e2b-4b35-9337-7cb0cb592374"
+  type: "inboundPhoneCall"
+  startedAt: "2026-02-18T01:40:00.901Z"
+  endedAt: "2026-02-18T01:41:10.147Z"
+  transcript: string(1199 chars)
+  recordingUrl: string(120 chars)
+  summary: string(369 chars)
+  createdAt: "2026-02-18T01:40:00.713Z"
+  updatedAt: "2026-02-18T01:41:15.554Z"
+  orgId: "60c2f8db-e089-43ea-9f46-5e9d350d1ee6"
+  cost: 0.1606
+  customer: object{number,sipUri}
+  status: "ended"
+  endedReason: "customer-ended-call"
+  messages: array[8]
+  stereoRecordingUrl: string(122 chars)
+  costBreakdown: object{transport,stt,llm,tts,vapi,chat,total,llmPromptTokens,llmCompletionTokens,llmCachedPromptTokens,ttsCharacters,analysisCostBreakdown,knowledgeBaseCost,voicemailDetectionCost}
+  phoneCallProvider: "vapi"
+  phoneCallProviderId: "ae7f045e-f452-4615-8549-cfbe1f4230de"
+  phoneCallTransport: "sip"
+  phoneCallProviderDetails: object{sip,sbcCallId}
+  assistantOverrides: object{variableValues}
+  analysis: object{summary,successEvaluation}
+  artifact: object{recordingUrl,stereoRecordingUrl,recording,messages,messagesOpenAIFormatted,transcript,pcapUrl,logUrl,nodes,variableValues,variables,performanceMetrics,scorecards,transfers}
+  costs: array[7]
+  monitor: object{listenUrl,controlUrl}
+  transport: object{callSid,provider,sbcCallSid,conversationType}
+
+ANALYTICS DATA (90-day summary)
+──────────────────────────────────────────────────────────────────────
+
+  [
+    {
+      "name": "cost_summary_90d",
+      "timeRange": {
+        "start": "2025-11-20T02:05:10.307Z",
+        "end": "2026-02-18T02:05:10.307Z",
+        "step": "week",
+        "timezone": "UTC"
+      },
+      "result": [
+        {
+          "date": "2025-11-24T00:00:00.000Z",
+          "sumCost": 0.41940000000000005,
+          "countId": "9",
+          "sumDuration": 3.244316665331523
+        },
+        {
+          "date": "2025-12-01T00:00:00.000Z",
+          "sumCost": 0.040999999999999995,
+          "countId": "5",
+          "sumDuration": 0.5704333305358886
+        },
+        {
+          "date": "2025-12-08T00:00:00.000Z",
+          "sumCost": 0.0029,
+          "countId": "1",
+          "sumDuration": 0
+        },
+        {
+          "date": "2025-12-15T00:00:00.000Z",
+          "sumCost": 1.8955,
+          "countId": "18",
+          "sumDuration": 15.01861668030421
+        },
+        {
+          "date": "2025-12-22T00:00:00.000Z",
+          "sumCost": 8.49452,
+          "countId": "51",
+          "sumDuration": 59.95068333943687
+        },
+        {
+          "date": "2025-12-29T00:00:00.000Z",
+          "sumCost": 1.1843,
+          "countId": "9",
+          "sumDuration": 8.422150003910065
+        },
+        {
+          "date": "2026-01-05T00:00:00.000Z",
+          "sumCost": 3.7513200000000007,
+          "countId": "23",
+          "sumDuration": 28.04359999895096
+        },
+        {
+          "date": "2026-01-12T00:00:00.000Z",
+          "sumCost": 18.540980000000005,
+          "countId": "57",
+          "sumDuration": 129.35971665382382
+        },
+        {
+          "date": "2026-01-19T00:00:00.000Z",
+          "sumCost": 2.7764999999999995,
+          "countId": "18",
+          "sumDuration": 16.999283345540363
+        },
+        {
+          "date": "2026-01-26T00:00:00.000Z",
+          "sumCost": 6.196079999999999,
+          "countId": "53",
+          "sumDuration": 40.80094999074935
+        },
+        {
+          "date": "2026-02-02T00:00:00.000Z",
+          "sumCost": 36.33445999999999,
+          "countId": "63",
+          "sumDuration": 43.99918330907822
+        },
+        {
+          "date": "2026-02-09T00:00:00.000Z",
+          "sumCost": 5.702039999999999,
+          "countId": "22",
+          "sumDuration": 32.8067666610082
+        },
+        {
+          "date": "2026-02-16T00:00:00.000Z",
+          "sumCost": 2.04178,
+          "countId": "6",
+          "sumDuration": 11.854666670163471
+        }
+      ]
+    }
+  ]
+
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  TAVUS                                                              ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+ENDPOINT STATUS
+──────────────────────────────────────────────────────────────────────
+
+  ✓ 200 GET /conversations [conversations_list]
+  ✓ 200 GET /conversations/cc5fb9e07b5bd48b [conversation_detail]
+  ✓ 200 GET /personas [personas_list]
+  ✓ 200 GET /personas/pc9acbf2c94f [persona_detail]
+  ✓ 200 GET /replicas [replicas_list]
+  ✓ 200 GET /replicas/rfcc944ac6 [replica_detail]
+  ✓ 200 GET /videos [videos_list]
+  ✓ 200 GET /documents [documents_list]
+  ✗ 404 GET /landing-pages [landing_pages]
+  ✓ 200 GET /objectives [objectives]
+  ✓ 200 GET /guardrails [guardrails]
+
+  Summary: 10 OK / 1 Failed / 11 Total
+
+SAMPLE CONVERSATION OBJECT (Full Field List)
+──────────────────────────────────────────────────────────────────────
+
+  conversation_id: "cc5fb9e07b5bd48b"
+  conversation_name: "Daria Conversation 2025 08 03T07 39 27 007Z"
+  conversation_url: "https://tavus.daily.co/cc5fb9e07b5bd48b"
+  conversational_context: string(224 chars)
+  callback_url: ""
+  status: "ended"
+  replica_id: "rb91c99ba958"
+  persona_id: "pc9acbf2c94f"
+  created_at: "2025-08-03T07:39:28.772376Z"
+  updated_at: "2025-08-03T07:44:34.933479Z"
+
+SAMPLE PERSONA OBJECT (Full Field List)
+──────────────────────────────────────────────────────────────────────
+
+  persona_id: "pc9acbf2c94f"
+  persona_name: "Daria"
+  pipeline_mode: "full"
+  system_prompt: "You are a witty high energy assistant"
+  context: "You are helping Duane Wells run his life and his business"
+  layers: object{perception,llm,stt}
+  objectives_id: null
+  guardrails_id: null
+  greeting: ""
+  default_replica_id: "rb91c99ba958"
+  document_ids: array[0]
+  document_tags: array[0]
+  landing_ids: array[0]
+  created_at: "2025-08-03T07:31:47.484925Z"
+  updated_at: "2025-08-03T07:31:47.484925Z"
+
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  EVALUATION SUMMARY                                                ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+WHAT WE HAVE (Working Endpoints)
+──────────────────────────────────────────────────────────────────────
+  VIN Solutions: 18 working endpoints
+    ✓ /leads?dealerId=21043&limit=5
+    ✓ /leads/id/1860193050?dealerId=21043
+    ✓ /leads?dealerId=21043&leadStatus=ACTIVE_NEW_LEAD&limit=1
+    ✓ /leadStatuses?dealerId=21043
+    ✓ /leadSources?dealerId=21043
+    ✓ /leadTypes?dealerId=21043
+    ✓ /leadStatusTypes?dealerId=21043
+    ✓ /leadGroupCategories?dealerId=21043
+    ✓ /vehicles/years
+    ✓ /vehicles/makes?year=2025
+    ✓ /leads?dealerId=21043&limit=1
+    ✓ /gateway/v1/tenant/user?dealerId=21043
+    ✓ /gateway/v1/organization/dealers
+    ✓ /gateway/v1/tenant/user/id/1148936?dealerId=21043
+    ✓ /vehicles/interest?leadId=1860193050&dealerId=21043
+    ✓ /gateway/v1/tenant/user?dealerId=21043
+    ✓ /gateway/v1/organization/dealers
+    ✓ /vehicles/vin?vin=1HGBH41JXMN109186
+  VAPI: 15 working endpoints
+    ✓ GET /call?limit=5
+    ✓ GET /call/019c6e67-7849-7112-a075-01afbe78fd6b
+    ✓ GET /assistant
+    ✓ GET /phone-number
+    ✓ POST /analytics
+    ✓ POST /analytics
+    ✓ POST /analytics
+    ✓ GET /eval?limit=5
+    ✓ GET /campaign
+    ✓ GET /tool
+    ✓ GET /squad
+    ✓ GET /knowledge-base
+    ✓ GET /file
+    ✓ GET /block
+    ✓ GET /test-suite
+  Tavus: 10 working endpoints
+    ✓ /conversations
+    ✓ /conversations/cc5fb9e07b5bd48b
+    ✓ /personas
+    ✓ /personas/pc9acbf2c94f
+    ✓ /replicas
+    ✓ /replicas/rfcc944ac6
+    ✓ /videos
+    ✓ /documents
+    ✓ /objectives
+    ✓ /guardrails
+
+WHAT WE DON'T HAVE (Failed Endpoints)
+──────────────────────────────────────────────────────────────────────
+  VIN — Wrong API Version (400): 7 endpoints
+    ✗ /leads
+    ✗ /gateway/v1/contact
+    ✗ /vehicles/trade
+    → FIX: Need correct version header (v1? v2? — see discovery results)
+  VIN — Forbidden (403): 17 endpoints
+    ✗ /gateway/v1/contacts?dealerId=21043&limit=1
+    ✗ /gateway/v1/contacts?dealerId=21043
+    ✗ /gateway/v1/lead?dealerId=21043
+    ✗ /gateway/v1/leads?dealerId=21043
+    ✗ /gateway/v1/communication?dealerId=21043
+    ✗ /gateway/v1/activity?dealerId=21043
+    ✗ /gateway/v1/notes?dealerId=21043
+    ✗ /gateway/v1/tasks?dealerId=21043
+    ✗ /gateway/v1/appointments?dealerId=21043
+    ✗ /gateway/v1/emails?dealerId=21043
+    ✗ /gateway/v1/calls?dealerId=21043
+    ✗ /gateway/v1/calldetails?dealerId=21043
+    ✗ /gateway/v1/vehicles?dealerId=21043
+    ✗ /gateway/v1/inventory?dealerId=21043
+    ✗ /gateway/v1/deals?dealerId=21043
+    ✗ /gateway/v1/desking?dealerId=21043
+    ✗ /gateway/v1/customer?dealerId=21043
+    → FIX: Contact VIN Solutions to request API key permissions upgrade
+  VIN — Other Failures: 4 endpoints
+    ✗ 404 /vehicles/trade?leadId=1860193050&dealerId=21043
+    ✗ 404 /vehicles/trade?leadId=1860193050&dealerId=21043
+    ✗ 404 /vehicles/trade?leadId=1860193050&dealerId=21043
+    ✗ 404 /vehicles/trade?leadId=1860193050&dealerId=21043
+
+QUESTIONS FOR VIN SOLUTIONS
+──────────────────────────────────────────────────────────────────────
+
+  2. How do we request access to these gateway endpoints?
+     - /gateway/v1/contacts
+     - /gateway/v1/lead
+     - /gateway/v1/leads
+     - /gateway/v1/communication
+     - /gateway/v1/activity
+     - /gateway/v1/notes
+     - /gateway/v1/tasks
+     - /gateway/v1/appointments
+     - /gateway/v1/emails
+     - /gateway/v1/calls
+     - /gateway/v1/calldetails
+     - /gateway/v1/vehicles
+     - /gateway/v1/inventory
+     - /gateway/v1/deals
+     - /gateway/v1/desking
+     - /gateway/v1/customer
+     These return 403 (Forbidden) — the endpoints exist but our credentials lack access.
+     Current scope: PublicAPI
+     Current api_key controls endpoint access per VIN docs.
+
+  3. Is there documentation for the current API version our credentials support?
+     The OAS 3.0 YAML spec may not match our authorized API version.
+
+  4. What is the certification path to access Communication and Activity data?
+     /gateway/v1/communication and /gateway/v1/activity return 403.
+
+WHAT'S CORRECT IN OUR CODEBASE
+──────────────────────────────────────────────────────────────────────
+
+  ✓ OAuth2 token exchange — scope=PublicAPI matches VIN docs
+  ✓ /leads endpoint — works with v3 lowercase header
+  ✓ /gateway/v1/tenant/user — works with application/json
+  ✓ /gateway/v1/organization/dealers — works with application/json
+  ✓ /gateway/v1/contact (singular) — works with application/json
+  ✓ VAPI webhook handler — captures call events correctly
+  ✓ Tavus webhook handler — captures session events correctly
+
+WHAT'S INCORRECT IN OUR CODEBASE
+──────────────────────────────────────────────────────────────────────
+
+  ✗ Lead creation calls /leadSources and /leadTypes with v3 header
+    These endpoints reject v3 — calls fail silently in try/catch
+    Leads created with invalid fallback hrefs: /leadSources/id/1, /leadTypes/id/1
+    Location: server/services/vinSolutionsService.ts:870-927
+
+  ✗ VAPI call object fields not captured from webhook
+    Missing: cost, costBreakdown, analysis.successEvaluation,
+    analysis.structuredData, artifact.performanceMetrics
+    These are available in the call object but not stored in vapi_call_logs
+
+  ✗ No VAPI Analytics API integration
+    POST /analytics provides aggregated metrics (cost, duration, count)
+    Currently computing these by querying individual call records
+
+══════════════════════════════════════════════════════════════════════
+  END OF REPORT
+══════════════════════════════════════════════════════════════════════
