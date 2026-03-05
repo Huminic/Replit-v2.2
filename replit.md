@@ -147,4 +147,19 @@ Sprint process is documented in `.local/Sprint_log.md`. Each sprint follows:
 7. Agent reports percentage complete
 8. Repeat
 
-**Current Progress:** Waves 0-1 complete (~25%). Next: Sprint 2.1 (AI Chat Engine).
+**Current Progress:** Waves 0-1 complete (~25%). Next: Sprint 2.1a (AI Chat Engine — core quality).
+
+## Standing Directives (Apply to All Sprints)
+
+1. TeamBox needs departmental filter + RBAC — users only see conversations for their departments
+2. Campaign segmentation in TeamBox — clear way to filter/view by campaign
+3. Track all environment variables in a manifest for future Railway deployment
+4. Supabase migration planned — PostgreSQL now, keep schema compatible
+5. VAPI/Tavus prompts are vendor-side — NO bidirectional MCP yet (read-only)
+6. Never use the word "MVP" in code, comments, UI text, or documentation
+7. Metrics storage separate from CRM — uploaded data in its own store, agents specify data source, never auto-trigger on uploaded data
+8. "Reply STOP to opt out" in every outbound SMS (same message, not two). Unsubscribe link in every email
+9. All mock data must be eliminated — if no real data for a metric, remove the metric from UI entirely
+10. All testing built from UI audit + acceptance criteria — no ad-hoc test plans
+11. AI chat must compete with ChatGPT in quality/qualia — system prompt includes qualia instructions
+12. Full decisions table in `acceptance_criteria_audit.md`

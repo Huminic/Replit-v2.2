@@ -244,34 +244,70 @@ These are real backend gaps that no current sprint addresses:
 
 ---
 
-## PART 4: Questions, Comments & Suggestions Table
+## PART 4: Decisions Table (Reviewed 2026-03-05)
 
-| # | Type | Topic | Question / Comment | My Suggestion |
-|---|------|-------|-------------------|---------------|
-| Q1 | QUESTION | Agent instructions | Should we add an `instructions` column to the agents table now (Sprint 2.1) so agent-specific AI chat has real editable instructions, or use the existing `description` field as the system prompt? | Add `instructions` text column now. Use `description` for display, `instructions` for AI system prompt. This way the AgentConfigPane "Instructions" tab edit actually persists. |
-| Q2 | QUESTION | System prompt design | What should the AI "know" about itself? Should it know it's part of Nexxus Connect, working for Serra Auto Group, the user's role and name? | Yes — build a system prompt template: "You are {agentName}, an AI assistant for {orgName} ({dealershipName}). You work in the {department} department. Your role: {instructions}. The user's name is {userName} and their role is {userRole}." |
-| Q3 | QUESTION | Extended thinking | Is thinking/reasoning display a must-have for Sprint 2.1, or a nice-to-have? It adds significant complexity (different API params, parsing dual content blocks, collapsible UI component). | Make it a separate criterion that can be deferred if it slows the sprint. Core AI chat is more important than showing thinking steps. |
-| Q4 | QUESTION | Campaign recipients | Can I build the `campaign_recipients` table in Sprint 2.2 alongside CSV upload? This future-proofs Sprint 3.1. | Yes — build the table, CSV parser, and recipient storage together. Sprint 3.1 just adds the sending engine on top. |
-| Q5 | QUESTION | File storage | For knowledge base uploads, campaign CSVs, and profile photos — should I use Replit Object Storage (built-in, charges to credits) or local disk? | Recommend Replit Object Storage. Local disk doesn't survive deployment restarts reliably. |
-| Q6 | QUESTION | Revenue/MRR metrics | Management dashboard shows "Total Revenue" and "MRR" tiles. We have no financial transaction data. What should these show? | Mark them as "Coming Soon" or "Requires Integration" rather than showing fake numbers. Or compute estimated values from VinSolutions lead counts + average deal size. |
-| Q7 | COMMENT | Sprint 2.1 scope creep | Sprint 2.1 acceptance criteria should be focused: wire AI responses to 3 chat interfaces + persistence for agent chat. Adding system prompt architecture, streaming UI, error handling, and thinking cards makes it a large sprint. | Split into 2.1a (core AI chat: main + right pane + agent, all with streaming and persistence) and 2.1b (extended thinking, system prompt refinement, error handling). |
-| Q8 | COMMENT | Demo mode toasts | There are 14+ buttons showing "not available in demo mode." As we wire real functionality, each one needs to be found and replaced. Easy to miss some. | Maintain a checklist of all demo mode toasts and check them off as each sprint eliminates them. |
-| Q9 | COMMENT | Metrics count mismatch | Sprint 3.3 says "91 metrics" but the UI shows 34. The number 91 may be from a PRD or earlier spec. | Audit and reconcile. If 34 is the real count, update the criteria. |
-| Q10 | SUGGESTION | Agent config persistence | AgentConfigPane has 6 tabs (Performance, Instructions, Triggers, Tools/Skills, Knowledge, Activity). Currently only Performance and Activity pull real data (VAPI). The other 4 tabs need backend columns. | Add a sprint task (2.2 or standalone) to persist: instructions (text), triggers (jsonb), tools (text[]), skills (text[]), knowledge (jsonb) on the agents table. |
-| Q11 | SUGGESTION | Test protocol for outbound | Sprint 3.1 sends real SMS and email. We need a safety net. | Build a "sandbox mode" flag on the org. When enabled, outbound messages are logged to DB but not sent to external APIs. Toggle off only for production. |
-| Q12 | SUGGESTION | Rate limiting for AI chat | Claude API calls cost money. A user could spam the chat and rack up charges. | Add rate limiting: max 20 AI messages per user per hour. Show "slow down" message when exceeded. |
-| Q13 | SUGGESTION | Embed code scope | Sprint 4.1 says "embed code works — paste in HTML, widget loads." This implies building a full embeddable JavaScript widget. That's a mini-project on its own. | For MVP: embed code generates a link to the `/w/:widgetId` landing page. An actual in-page embed widget is Wave 5+. |
-| Q14 | SUGGESTION | Background job reliability | Campaign execution (Sprint 3.1) and hunch generation (Sprint 3.3) need background jobs. Replit doesn't have a built-in scheduler. | Use an in-memory queue with setInterval for MVP. If the server restarts mid-campaign, campaigns with status "sending" should resume on startup. Track progress in campaign_recipients table. |
-| Q15 | SUGGESTION | Conversation context for agent chat | When a user chats with an agent, should the AI have access to dealership data (VinSolutions leads, campaigns) via tool calls, or just conversation history? | Phase 1 (Sprint 2.1): conversation history only. Phase 2 (Sprint 3.3): add tool use so agents can look up leads, check campaign status, etc. |
-| Q16 | QUESTION | Conversation history cap | SubMenuManager popout shows all conversations per agent with no limit. If an agent handles hundreds of conversations, the expanded list renders them all (no virtualization, no pagination). What cap makes sense? | Show max 10 most recent conversations per agent in the popout with a "View all in TeamBox" link. Keeps the DOM lean and the UX clean. |
-| Q17 | QUESTION | Favorites overflow | The AI-Chat panel puts Favorites ABOVE the ScrollArea. If someone stars 20+ pages, favorites push Chat History off screen and the favorites section itself doesn't scroll. | Wrap the favorites section in its own ScrollArea with max-height, or put it inside the main ScrollArea. Cap at ~10 visible with "Show all." |
-| Q18 | COMMENT | Missing error states everywhere | If an API call fails (network error, 500, etc.), most pages just stay in skeleton/loading state forever. There's no error message, no retry button. | Every useQuery should handle isError with a user-friendly message + "Try Again" button. Add this as a cross-cutting criterion. |
-| Q19 | COMMENT | Role persistence staleness | currentRole is stored in localStorage. If a backend admin changes a user's role, the user keeps their old permissions until they clear storage/re-login. | On login, always override localStorage role from the server response. Add a check on /api/auth/me refresh too. |
-| Q20 | COMMENT | Agent status toggle race condition | AgentConfigPane status toggle doesn't disable while the update is in flight. Rapid clicking can desync. | Disable the toggle while mutation isPending. |
-| Q21 | COMMENT | TeamBox hides controls on mobile | Status filter column hidden below lg, customer info hidden below xl. Mobile users lose access to filtering and customer details. | Add a filter drawer/dropdown for mobile. Defer to Sprint 4.2. |
-| Q22 | COMMENT | Tab buttons lack ARIA attributes | Department page tab buttons don't have role="tab" or aria-selected. Screen readers can't interpret the tab bar. | Add proper ARIA roles. Low priority but good practice. |
-| Q23 | SUGGESTION | Dashboard empty state | When an org has zero leads/campaigns/agents, dashboard tiles show "0" or "—" with no guidance. A new dealership would see a blank, unhelpful dashboard. | Add onboarding empty states: "No leads yet — connect VinSolutions to get started" etc. |
-| Q24 | SUGGESTION | Profile sub-routes | TopBar has links to /profile, /profile/preferences, /profile/billing. If the profile page doesn't handle these as tabs, they may dead-end. | Verify profile page reads the sub-route and switches tabs accordingly. If not, wire it. |
+All items reviewed by stakeholder. Suggestions accepted unless overridden below. Additional directives integrated.
+
+### Standing Directives (apply globally)
+1. **TeamBox needs departmental filter + RBAC** — users only see conversations for departments they have access to
+2. **Campaign segmentation in TeamBox** — need clear way to filter/view conversations by campaign
+3. **Environment variables tracked** — maintain a manifest of all env vars for future Railway deployment
+4. **Supabase migration planned** — PostgreSQL now, Supabase later. No Supabase-specific code yet, but keep schema compatible
+5. **VAPI/Tavus prompts are vendor-side** — NO bidirectional MCP yet. We read from vendors, we don't write prompts to them
+6. **Never use the word "MVP"** in code, comments, UI text, or documentation
+7. **Metrics storage is separate from CRM** — uploaded data lives in its own store. Agents must specify data source. We never auto-trigger based on uploaded metric data
+8. **Reply STOP to opt out** must be in every outbound SMS (single message, not two). Unsubscribe link in every email
+9. **All mock data must be eliminated** — if we don't have real data for a metric, the metric gets removed from the UI, not shown as zero
+10. **All testing is built from UI audit + acceptance criteria** — no ad-hoc test plans
+
+| # | Type | Topic | Original Question | DECISION |
+|---|------|-------|-------------------|----------|
+| Q1 | DECISION | Agent instructions | Add `instructions` column to agents table? | **YES** — add `instructions` text column now (Sprint 2.1). Use `description` for display, `instructions` for AI system prompt. AgentConfigPane edits persist to DB. |
+| Q2 | DECISION | System prompt design | What should the AI know about itself? | **ACCEPTED** — build system prompt template with org/dealership/department/user context. Additionally: include system-level qualia instructions so the chat experience competes with ChatGPT in quality and feel. The AI should feel thoughtful, contextually aware, and emotionally intelligent — not robotic. |
+| Q3 | DECISION | Extended thinking | Must-have or nice-to-have for Sprint 2.1? | **ACCEPTED** — defer thinking cards if they slow the sprint. Core AI chat quality is the priority. Chat must be exceptional quality — "give ChatGPT a run for its money." |
+| Q4 | DECISION | Campaign recipients | Build campaign_recipients table in Sprint 2.2? | **YES** — build with CSV upload. Sprint 3.1 adds sending engine on top. |
+| Q5 | DECISION | File storage | Replit Object Storage or local disk? | **PostgreSQL for now** (Supabase migration planned). For file/blob storage: need a cheap recommendation. Evaluate Cloudflare R2 (free tier: 10GB, no egress fees), Backblaze B2 (free 10GB), or Supabase Storage (since we're migrating there anyway). Decision: choose cheapest option compatible with future Supabase migration. |
+| Q6 | DECISION | Revenue/MRR metrics | What to show for revenue/MRR? | **Compute from available data** — derive from VinSolutions lead counts + deal values where available. Additional data will be uploaded to the database through the backend; we compute metrics from CRM data but NOT from uploaded metric data. If no data exists for a metric, remove the metric from UI entirely. |
+| Q7 | DECISION | Sprint 2.1 scope | Split 2.1 into sub-sprints? | **ACCEPTED** — split into 2.1a (core AI chat with exceptional quality) and 2.1b (extended thinking, refinement). Quality > features. |
+| Q8 | DECISION | Demo mode toasts | Maintain checklist? | **ACCEPTED** — track and eliminate. All must be gone by end of Wave 4. |
+| Q9 | DECISION | Metrics count | 91 vs 34 metrics? | **User will provide VinSolutions probe file** for review. Metrics must match what VinSolutions actually provides. Any metrics not backed by that data get removed from the UI. |
+| Q10 | DECISION | Agent config persistence | Persist instructions/triggers/tools/skills/knowledge? | **ACCEPTED** — add columns to agents table. Sprint 2.2 or standalone task. |
+| Q11 | DECISION | Test protocol for outbound | Sandbox mode for SMS/email? | **ACCEPTED** — build sandbox mode. Additionally: loopback testing to self. If loopback not possible, use 412.654.6500 as the only allowed number until go-live. |
+| Q12 | DECISION | Rate limiting for AI chat | Rate limit AI calls? | **ACCEPTED** — max 20 AI messages per user per hour. |
+| Q13 | DECISION | Embed code scope | Embed code approach? | **Use the most usable, least problematic approach.** Whatever works reliably — iframe, script tag, or link — pick the one with fewest cross-origin and compatibility issues. Must survive being moved to other web servers. |
+| Q14 | DECISION | Background job reliability | In-memory queue for campaigns? | **ACCEPTED** — in-memory queue with setInterval. Resume on restart via campaign_recipients status tracking. |
+| Q15 | DECISION | Conversation context | Agent access to dealership data? | **ACCEPTED** — Phase 1: conversation history only. Phase 2 (Sprint 3.3): tool use for data lookup. Agent must specify where it gets data. |
+| Q16 | DECISION | Conversation history cap | Cap agent conversations in popout? | **ACCEPTED** — max 10 recent per agent + "View all in TeamBox" link. |
+| Q17 | DECISION | Favorites overflow | Fix favorites overflow in AI-Chat panel? | **ACCEPTED** — wrap in capped ScrollArea with "Show all" link. |
+| Q18 | DECISION | Error states | Add error handling across app? | **ACCEPTED** — every useQuery handles isError with user-friendly message + retry. Cross-cutting. |
+| Q19 | DECISION | Role persistence | Fix stale localStorage role? | **ACCEPTED** — override from server on login + token refresh. |
+| Q20 | DECISION | Agent status toggle | Fix race condition? | **ACCEPTED** — disable toggle during mutation. |
+| Q21 | DECISION | TeamBox mobile | Add mobile filter drawer? | **ACCEPTED** — defer to Sprint 4.2. |
+| Q22 | DECISION | Tab accessibility | Add ARIA attributes? | **ACCEPTED** — add with sprint work, low priority. |
+| Q23 | DECISION | Dashboard empty state | Add onboarding empty states? | **ACCEPTED** — but per directive #9: if no data, remove the metric entirely rather than showing "0" or empty guidance. |
+| Q24 | DECISION | Profile sub-routes | Wire sub-route to tab mapping? | **ACCEPTED** — verify and wire. |
+
+### Gap Decisions (from Part 2)
+
+| # | Gap | DECISION |
+|---|-----|----------|
+| G9 | Agent `createdBy` field | **Repurposed** — this is for managerial activity monitoring, not cosmetic. Track who created/modified agents. Add `createdBy` UUID column referencing users. |
+| G11 | File storage destination | **PostgreSQL for now** (Supabase migration planned). For blobs: use cheapest S3-compatible option. Evaluate Cloudflare R2, Backblaze B2, or Supabase Storage. Must be compatible with future Supabase migration. |
+| G17 | Sales metrics already wired | **User will provide VinSolutions probe file.** Metrics must match what VinSolutions actually returns. Any that don't match get removed. |
+| G20 | Management metrics are stubs | **Same as G11** — compute from available data. Remove metrics without data source. |
+| G23 | No campaign_recipients table | **Build in Sprint 2.2** alongside CSV upload. |
+| G27 | TCPA/CAN-SPAM compliance | **Include "Reply STOP to opt out" in every SMS** — must be in the SAME message (not a second message, which doubles cost). Unsubscribe link in every email. |
+| G28 | TextMagic/Resend API keys | **User will provide when it's time.** Not a blocker until Sprint 3.1. |
+| G29 | Test protocol for live messaging | **Loopback to self first.** If not possible, use 412.654.6500 as the ONLY allowed recipient until go-live. |
+| G37 | 34 vs 91 metrics | **User will provide VinSolutions probe file.** Reconcile metrics against probe results. Remove any not backed by real data. |
+| G41 | Red zone data source | **VinSolutions only.** Monitor leads from last 30 days that had any activity in the last 2 weeks. Flag those being "left behind." Never use the word "MVP." |
+| G42 | Widget schema | **What's in the UI has to work.** Full widget CRUD with persistence. |
+| G43 | Embed code approach | **Most usable, least problematic.** Whatever approach has fewest compatibility issues across web servers. |
+| G44 | Landing page serving | **Must survive other web servers.** Architecture so landing pages work even if we move off Replit to Railway or elsewhere. |
+| G45 | Google Calendar OAuth | **Leave as stubbed** unless a proven open-source OAuth library is available. Don't build custom OAuth. |
+| G46 | Task assignment user-to-user | **OPEN QUESTION** — has task assignment between users been decided? Need user input on whether tasks can be assigned from one user to another, or only self-created. |
+| G48 | Mock data removal | **All mock data must be gone.** If a metric has no real data source, remove it from the UI entirely. No fake numbers, no "Coming Soon" placeholders for metrics. |
+| G50 | E2E test scope | **All testing built from UI audit + acceptance criteria.** No ad-hoc test plans. Tests derive from the audit document and sprint acceptance criteria. |
 
 ---
 
