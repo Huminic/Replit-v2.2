@@ -52,7 +52,8 @@ import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreVertical, Play, Trash2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Agent, Conversation } from '@shared/schema';
 
 export function SubMenuManager() {
@@ -83,6 +84,17 @@ export function SubMenuManager() {
 
   const { data: chatHistory = [] } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations?channel=ai-chat'],
+  });
+
+  const deleteConversationMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/conversations/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-assistant'] });
+    },
   });
 
   const { data: salesAgents = [] } = useQuery<Agent[]>({
@@ -394,7 +406,7 @@ export function SubMenuManager() {
                               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setLocation('/'); }} data-testid={`menu-resume-${conv.id}`}>
                                 <Play className="h-3.5 w-3.5 mr-2" /> Resume
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={(e) => e.stopPropagation()} data-testid={`menu-delete-${conv.id}`}>
+                              <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteConversationMutation.mutate(conv.id); }} data-testid={`menu-delete-${conv.id}`}>
                                 <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>

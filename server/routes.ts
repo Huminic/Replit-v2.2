@@ -641,6 +641,21 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/conversations/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getConversation(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Conversation not found" });
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      await storage.deleteConversation(req.params.id);
+      return res.json({ message: "Conversation deleted" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to delete conversation" });
+    }
+  });
+
   app.get("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });

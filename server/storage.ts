@@ -48,6 +48,8 @@ export interface IStorage {
 
   getMessages(conversationId: string): Promise<Message[]>;
   createMessage(msg: InsertMessage): Promise<Message>;
+  deleteConversation(id: string): Promise<void>;
+  deleteMessages(conversationId: string): Promise<void>;
 
   getCampaigns(organizationId: string, filters?: { department?: string }): Promise<Campaign[]>;
   getCampaign(id: string): Promise<Campaign | undefined>;
@@ -202,6 +204,15 @@ export class DatabaseStorage implements IStorage {
   async createMessage(msg: InsertMessage): Promise<Message> {
     const [created] = await db.insert(messages).values(msg).returning();
     return created;
+  }
+
+  async deleteMessages(conversationId: string): Promise<void> {
+    await db.delete(messages).where(eq(messages.conversationId, conversationId));
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    await db.delete(messages).where(eq(messages.conversationId, id));
+    await db.delete(conversations).where(eq(conversations.id, id));
   }
 
   async getCampaigns(organizationId: string, filters?: { department?: string }): Promise<Campaign[]> {

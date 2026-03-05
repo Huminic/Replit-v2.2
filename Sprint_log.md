@@ -109,6 +109,35 @@
 
 ---
 
+### Sprint: Chat Quality — QA Test Plan Gap Closure
+**Status:** COMPLETE
+**Functionality Outcome:** Closed the biggest chat UX gaps from the formal QA test plan audit. AI responses now render markdown (code blocks, tables, lists, bold/italic). Users can copy messages, stop generation mid-stream, regenerate responses, retry on errors, and delete conversations. Send button disabled on empty input.
+
+**What was built:**
+- `MarkdownMessage` component — renders AI responses via react-markdown + remark-gfm with styled code blocks, tables, lists, blockquotes, links
+- Copy to clipboard — hover-reveal action bar on AI messages with Copy button (checkmark feedback for 2s)
+- Regenerate — RefreshCw button on last assistant message, re-sends last user message
+- Stop generation — Square button replaces Send during streaming; abortStream() exposed from useStreamingChat hook; partial text preserved
+- Error retry — error banner with Retry button when streaming fails; lastFailedContent tracked in hook
+- `DELETE /api/conversations/:id` — backend route with org-scoped auth; deletes messages then conversation
+- Conversation delete wired in SubMenuManager sidebar (invalidates all conversation caches)
+- Send button disabled when input is empty/whitespace-only
+- All features applied to all 3 chat surfaces (main.tsx, agents.tsx, RightPane.tsx)
+
+**Test Cases Covered (from QA Plan):**
+- [x] TC-UX-006: Markdown rendering (code blocks, tables, lists)
+- [x] TC-CTL-001: Copy to clipboard
+- [x] TC-CTL-002: Regenerate response
+- [x] TC-CTL-004: Stop generation
+- [x] TC-CTL-006: Delete conversation (backend + frontend)
+- [x] TC-ERR-001: Error retry button
+- [x] TC-ERR-006: Empty input prevention
+
+**Architect Review:** PASSED (minor styling notes on hover classes and button sizing — no functional issues)
+**E2E Tests:** PASSED (markdown rendering, copy button, stop generation, send disabled on empty)
+
+---
+
 ### Sprint 2.2b — File Uploads (Knowledge Base, CSV, Profile Photos)
 **Functionality Outcome:** File uploads (knowledge base, campaign CSV, profile photos) actually store files instead of showing "demo mode" toasts.
 
