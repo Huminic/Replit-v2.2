@@ -3,10 +3,72 @@ import { storage } from "./storage";
 
 const SALT_ROUNDS = 10;
 
+async function seedTasksAndWidgets() {
+  const orgs = await storage.getOrganizations();
+  const serraHonda = orgs.find(o => o.slug === "serra-honda");
+  if (!serraHonda) return;
+
+  const existingTasks = await storage.getTasks(serraHonda.id);
+  if (existingTasks.length > 0) return;
+
+  const orgUsers = await storage.getUsers(serraHonda.id);
+  const adminUser = orgUsers.find(u => u.email === "admin@nexxus.com");
+  const salesUser = orgUsers.find(u => u.email === "sales@serrahonda.com");
+  const serviceUser = orgUsers.find(u => u.email === "service@serrahonda.com");
+  const allAgents = await storage.getAgents(serraHonda.id);
+  const carolineAgent = allAgents.find(a => a.name === "Caroline");
+
+  const taskData = [
+    { title: "Follow up with Michael Clark", description: "Customer asked about trade-in value for 2026 Camry. Need to send KBB estimate and schedule test drive.", status: "in_progress", priority: "high", dueDate: new Date("2026-03-06"), assignedUserId: salesUser?.id || adminUser?.id, tags: ["sales", "follow-up"] },
+    { title: "Complete sales report for February", description: "Monthly sales performance report including lead conversion rates and pipeline analysis.", status: "in_progress", priority: "medium", dueDate: new Date("2026-03-07"), assignedUserId: adminUser?.id, tags: ["reports", "sales"] },
+    { title: "Review lead qualification criteria", description: "Update lead scoring model based on Q1 conversion data. Focus on BAD_DUPLICATE reduction.", status: "todo", priority: "low", dueDate: new Date("2026-03-10"), assignedUserId: adminUser?.id, tags: ["leads", "quality"] },
+    { title: "Respond to service inquiry - Joshua T.", description: "Customer has questions about special pricing on service campaign.", status: "todo", priority: "high", dueDate: new Date("2026-03-05"), assignedUserId: serviceUser?.id || adminUser?.id, tags: ["service", "customer"] },
+    { title: "Update CRM contact records", description: "Sync VinSolutions contact data with Nexxus records. 24 records need manual review.", status: "todo", priority: "medium", dueDate: new Date("2026-03-12"), assignedUserId: adminUser?.id, tags: ["crm", "data"] },
+    { title: "Prepare weekly team standup notes", description: "Compile key metrics and action items for Monday standup meeting.", status: "done", priority: "low", dueDate: new Date("2026-03-03"), assignedUserId: adminUser?.id, tags: ["team", "meetings"] },
+  ];
+
+  for (const t of taskData) {
+    await storage.createTask({
+      title: t.title,
+      description: t.description,
+      status: t.status,
+      priority: t.priority,
+      dueDate: t.dueDate,
+      assignedUserId: t.assignedUserId!,
+      organizationId: serraHonda.id,
+      tags: t.tags,
+    });
+  }
+
+  const widgetData = [
+    { name: "Serra Honda Sales Chat", type: "text", status: "active", description: "Primary website chat widget for sales inquiries and lead capture.", widgetCode: "wgt_serra_honda_sales", config: { position: "bottom-right", primaryColor: "#6366f1", accentColor: "#8b5cf6", greeting: "Hi! How can I help you find your perfect vehicle?", agentId: carolineAgent?.id, animation: "fade", showOrganizationName: true, audienceType: "all", deviceMobile: true, deviceDesktop: true, triggerDelay: 3, exitIntent: true, allowedDomains: ["serrahonda.com", "www.serrahonda.com"] } },
+    { name: "Serra Video Assistant", type: "video", status: "active", description: "Video chat widget powered by Tavus for personalized customer interactions.", widgetCode: "wgt_serra_video_assist", config: { position: "bottom-right", primaryColor: "#8b5cf6", accentColor: "#a78bfa", greeting: "Click to start a video chat!", tavusPersonaId: "p9eb007721f4", animation: "slide", showOrganizationName: true, audienceType: "returning", deviceMobile: false, deviceDesktop: true, triggerDelay: 5, exitIntent: false, allowedDomains: ["serrahonda.com"] }, impressions: 1240, interactions: 89 },
+    { name: "Service Appointment Bot", type: "voice", status: "inactive", description: "Voice widget for service appointment scheduling and recall notifications.", widgetCode: "wgt_serra_service_voice", config: { position: "bottom-left", primaryColor: "#14b8a6", accentColor: "#2dd4bf", greeting: "Need to schedule service?", vapiAssistantId: "90a876c0-0f11-4424-abfe-9ac82b264d88", animation: "bounce", showOrganizationName: false, audienceType: "all", deviceMobile: true, deviceDesktop: true, triggerDelay: 0, exitIntent: false, allowedDomains: ["serrahonda.com", "service.serrahonda.com"] }, impressions: 450, interactions: 34 },
+    { name: "Marketing Landing Widget", type: "unified", status: "draft", description: "Multi-channel widget for marketing landing pages with text, voice, and video options.", widgetCode: "wgt_serra_marketing_unified", config: { position: "bottom-right", primaryColor: "#ec4899", accentColor: "#f472b6", greeting: "Explore our latest deals!", animation: "fade", showOrganizationName: true, audienceType: "new", deviceMobile: true, deviceDesktop: true, triggerDelay: 10, exitIntent: true, allowedDomains: ["deals.serrahonda.com"] } },
+  ];
+
+  for (const w of widgetData) {
+    await storage.createWidget({
+      name: w.name,
+      type: w.type,
+      status: w.status,
+      description: w.description,
+      widgetCode: w.widgetCode,
+      organizationId: serraHonda.id,
+      config: w.config,
+      impressions: w.impressions || 0,
+      interactions: w.interactions || 0,
+    });
+  }
+
+  console.log("Tasks and widgets seeded successfully!");
+}
+
 export async function seedDatabase() {
   const existingRoles = await storage.getRoles();
   if (existingRoles.length > 0) {
     console.log("Database already seeded, skipping...");
+    await seedTasksAndWidgets();
     return;
   }
 
@@ -248,6 +310,8 @@ export async function seedDatabase() {
       nexxusOrgId: i.nexxusOrgId,
     });
   }
+
+  await seedTasksAndWidgets();
 
   console.log("Database seeded successfully!");
   console.log("Default login: admin@nexxus.com / password123");

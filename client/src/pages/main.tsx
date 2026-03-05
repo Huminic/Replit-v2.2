@@ -51,71 +51,312 @@ import { MarkdownMessage } from '@/components/MarkdownMessage';
 import type { UserRole } from '@/lib/rbac';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
-/** Shape of a single metric tile displayed above the chat */
+interface DashboardMetrics {
+  conversationCounts: {
+    total: number;
+    open: number;
+    closed: number;
+    byChannel: Record<string, number>;
+  };
+  messageCounts: {
+    total: number;
+    last30Days: number;
+  };
+  campaignStats: {
+    total: number;
+    active: number;
+    totalSent: number;
+    totalReplied: number;
+    replyRate: number;
+    byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }>;
+  };
+  agentCounts: {
+    total: number;
+    active: number;
+    byDepartment: Record<string, number>;
+  };
+  userCounts: {
+    total: number;
+    active: number;
+  };
+}
+
 interface MetricTile {
   label: string;
   value: string;
   change: string;
   trend: 'up' | 'down' | 'neutral';
-  gradient: string; // Tailwind gradient classes for tile background
-  iconBg: string;   // Background color class for the icon badge
+  gradient: string;
+  iconBg: string;
 }
 
-/**
- * roleMetrics — Role-based metric tiles that display above the chat area.
- * Each role gets 4 tailored KPI tiles. These collapse after the user sends their first message.
- * PRODUCTION NOTE: Values are currently hardcoded; will wire to real-time dashboard data from backend.
- */
-const roleMetrics: Record<UserRole, MetricTile[]> = {
+function fmt(n: number): string {
+  if (n >= 1000) return n.toLocaleString();
+  return String(n);
+}
+
+const tileThemes = {
   super_admin: [
-    { label: 'Partner Orgs', value: '12', change: '+2 this month', trend: 'up', gradient: 'from-violet-500/15 via-purple-500/10 to-fuchsia-500/5', iconBg: 'bg-violet-500/20' },
-    { label: 'Total Logins', value: '1,847', change: '+18%', trend: 'up', gradient: 'from-blue-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Platform Actions', value: '24.3K', change: '+9%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Agent Actions', value: '8,412', change: '+22%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5', iconBg: 'bg-amber-500/20' },
+    { gradient: 'from-violet-500/15 via-purple-500/10 to-fuchsia-500/5', iconBg: 'bg-violet-500/20' },
+    { gradient: 'from-blue-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { gradient: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5', iconBg: 'bg-amber-500/20' },
   ],
   partner_admin: [
-    { label: 'Sub Orgs', value: '6', change: '+1 this quarter', trend: 'up', gradient: 'from-indigo-500/15 via-violet-500/10 to-purple-500/5', iconBg: 'bg-indigo-500/20' },
-    { label: 'Total Logins', value: '423', change: '+12%', trend: 'up', gradient: 'from-cyan-500/15 via-blue-500/10 to-sky-500/5', iconBg: 'bg-cyan-500/20' },
-    { label: 'User Actions', value: '5,291', change: '+7%', trend: 'up', gradient: 'from-teal-500/15 via-emerald-500/10 to-green-500/5', iconBg: 'bg-teal-500/20' },
-    { label: 'Agent Actions', value: '2,104', change: '+15%', trend: 'up', gradient: 'from-rose-500/15 via-pink-500/10 to-fuchsia-500/5', iconBg: 'bg-rose-500/20' },
+    { gradient: 'from-indigo-500/15 via-violet-500/10 to-purple-500/5', iconBg: 'bg-indigo-500/20' },
+    { gradient: 'from-cyan-500/15 via-blue-500/10 to-sky-500/5', iconBg: 'bg-cyan-500/20' },
+    { gradient: 'from-teal-500/15 via-emerald-500/10 to-green-500/5', iconBg: 'bg-teal-500/20' },
+    { gradient: 'from-rose-500/15 via-pink-500/10 to-fuchsia-500/5', iconBg: 'bg-rose-500/20' },
   ],
   org_admin: [
-    { label: 'Pipeline Value', value: '$284K', change: '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Lead Source', value: '47 new', change: '+8 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Lead Quality', value: '72%', change: '-3%', trend: 'down', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Demand Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+    { gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ],
   executive: [
-    { label: 'Revenue', value: '$1.2M', change: '+9%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Team Activity', value: '94%', change: '+3%', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Customer Sat', value: '4.7', change: '+0.2', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'ROI Score', value: '8.9', change: '+1.1', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+    { gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ],
   sales_manager: [
-    { label: 'Pipeline Value', value: '$284K', change: '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Team Leads', value: '34', change: '+8 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Conversion Rate', value: '24%', change: '+3%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Urgency Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+    { gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ],
   sales: [
-    { label: 'Hot Opportunities', value: '7', change: '3 urgent', trend: 'up', gradient: 'from-orange-500/15 via-amber-500/10 to-yellow-500/5', iconBg: 'bg-orange-500/20' },
-    { label: 'Buying Intel', value: '12', change: '5 new signals', trend: 'up', gradient: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', iconBg: 'bg-sky-500/20' },
-    { label: 'Threats', value: '3', change: '1 critical', trend: 'down', gradient: 'from-red-500/15 via-rose-500/10 to-pink-500/5', iconBg: 'bg-red-500/20' },
-    { label: 'Urgency Score', value: '8.1', change: '+1.2 today', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
+    { gradient: 'from-orange-500/15 via-amber-500/10 to-yellow-500/5', iconBg: 'bg-orange-500/20' },
+    { gradient: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', iconBg: 'bg-sky-500/20' },
+    { gradient: 'from-red-500/15 via-rose-500/10 to-pink-500/5', iconBg: 'bg-red-500/20' },
+    { gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
   ],
   service: [
-    { label: 'Active Campaigns', value: '4', change: '+1 today', trend: 'up', gradient: 'from-teal-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-teal-500/20' },
-    { label: 'Messages Sent', value: '1,247', change: '+89 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Appointments', value: '23', change: '+5 booked', trend: 'up', gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5', iconBg: 'bg-green-500/20' },
-    { label: 'Upsell Rate', value: '18%', change: '+2%', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+    { gradient: 'from-teal-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-teal-500/20' },
+    { gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5', iconBg: 'bg-green-500/20' },
+    { gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ],
   marketing: [
-    { label: 'Campaign Perf', value: '87%', change: '+4%', trend: 'up', gradient: 'from-pink-500/15 via-rose-500/10 to-red-500/5', iconBg: 'bg-pink-500/20' },
-    { label: 'Leads Generated', value: '156', change: '+23 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Widget Clicks', value: '3,412', change: '+12%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Landing Visits', value: '8,901', change: '+18%', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
+    { gradient: 'from-pink-500/15 via-rose-500/10 to-red-500/5', iconBg: 'bg-pink-500/20' },
+    { gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
   ],
-};
+} as const;
+
+function buildMetricsForRole(role: UserRole, d: DashboardMetrics): MetricTile[] {
+  const themes = tileThemes[role] || tileThemes.org_admin;
+  const serviceDept = d.campaignStats.byDepartment['service'];
+  const marketingDept = d.campaignStats.byDepartment['marketing'];
+  const salesDept = d.campaignStats.byDepartment['sales'];
+
+  switch (role) {
+    case 'super_admin':
+      return [
+        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'partner_admin':
+      return [
+        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Active Users', value: fmt(d.userCounts.active), change: `${d.userCounts.total} total`, trend: d.userCounts.active > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'org_admin':
+      return [
+        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'executive':
+      return [
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Active Users', value: fmt(d.userCounts.active), change: `${d.userCounts.total} total`, trend: d.userCounts.active > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Campaign Reply Rate', value: `${d.campaignStats.replyRate}%`, change: `${fmt(d.campaignStats.totalReplied)} replies`, trend: d.campaignStats.replyRate > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'sales_manager':
+      return [
+        { label: 'Sales Campaigns', value: fmt(salesDept?.active || 0), change: `${salesDept?.total || 0} total`, trend: (salesDept?.active || 0) > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Reply Rate', value: `${salesDept?.replyRate || d.campaignStats.replyRate}%`, change: `${fmt(salesDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (salesDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'sales':
+      return [
+        { label: 'Open Conversations', value: fmt(d.conversationCounts.open), change: `${d.conversationCounts.total} total`, trend: d.conversationCounts.open > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Sales Campaigns', value: fmt(salesDept?.active || d.campaignStats.active), change: `${fmt(salesDept?.sent || d.campaignStats.totalSent)} sent`, trend: (salesDept?.active || d.campaignStats.active) > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Reply Rate', value: `${salesDept?.replyRate || d.campaignStats.replyRate}%`, change: `${fmt(salesDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (salesDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'service':
+      return [
+        { label: 'Active Campaigns', value: fmt(serviceDept?.active || 0), change: `${serviceDept?.total || 0} total`, trend: (serviceDept?.active || 0) > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Messages Sent', value: fmt(serviceDept?.sent || d.campaignStats.totalSent), change: `${fmt(serviceDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (serviceDept?.sent || 0) > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Replies Received', value: fmt(serviceDept?.replied || d.campaignStats.totalReplied), change: `${serviceDept?.replyRate || d.campaignStats.replyRate}% rate`, trend: (serviceDept?.replied || 0) > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    case 'marketing':
+      return [
+        { label: 'Campaign Perf', value: `${marketingDept?.replyRate || d.campaignStats.replyRate}%`, change: `reply rate`, trend: (marketingDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Active Campaigns', value: fmt(marketingDept?.active || d.campaignStats.active), change: `${marketingDept?.total || d.campaignStats.total} total`, trend: (marketingDept?.active || d.campaignStats.active) > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Total Messages', value: fmt(marketingDept?.sent || d.campaignStats.totalSent), change: `${fmt(marketingDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (marketingDept?.sent || 0) > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+    default:
+      return [
+        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
+        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
+        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
+      ];
+  }
+}
+
+function buildMetricDetails(d: DashboardMetrics): Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> {
+  const channelBreakdown = Object.entries(d.conversationCounts.byChannel).map(([ch, cnt]) => ({
+    label: ch.charAt(0).toUpperCase() + ch.slice(1),
+    value: fmt(cnt),
+  }));
+
+  const deptBreakdown = Object.entries(d.campaignStats.byDepartment).map(([dept, stats]) => ({
+    label: dept.charAt(0).toUpperCase() + dept.slice(1),
+    value: `${stats.active} active`,
+    detail: `${stats.total} total, ${fmt(stats.sent)} sent, ${fmt(stats.replied)} replied (${stats.replyRate}%)`,
+  }));
+
+  const agentDeptBreakdown = Object.entries(d.agentCounts.byDepartment).map(([dept, cnt]) => ({
+    label: dept.charAt(0).toUpperCase() + dept.slice(1),
+    value: fmt(cnt),
+  }));
+
+  return {
+    'Active Agents': {
+      description: 'AI agents deployed across departments',
+      breakdown: [
+        { label: 'Total Agents', value: fmt(d.agentCounts.total) },
+        { label: 'Active Agents', value: fmt(d.agentCounts.active) },
+        ...agentDeptBreakdown,
+      ],
+      highlights: [`${d.agentCounts.active} of ${d.agentCounts.total} agents currently active`],
+    },
+    'Total Conversations': {
+      description: 'All conversations across channels',
+      breakdown: [
+        { label: 'Total', value: fmt(d.conversationCounts.total) },
+        { label: 'Open', value: fmt(d.conversationCounts.open) },
+        { label: 'Closed', value: fmt(d.conversationCounts.closed) },
+        ...channelBreakdown,
+      ],
+      highlights: [`${d.conversationCounts.open} conversations currently open`],
+    },
+    'Open Conversations': {
+      description: 'Currently open conversations requiring attention',
+      breakdown: [
+        { label: 'Open', value: fmt(d.conversationCounts.open) },
+        { label: 'Total', value: fmt(d.conversationCounts.total) },
+        ...channelBreakdown,
+      ],
+    },
+    'Messages Sent (30d)': {
+      description: 'Messages sent in the last 30 days',
+      breakdown: [
+        { label: 'Last 30 Days', value: fmt(d.messageCounts.last30Days) },
+        { label: 'All Time', value: fmt(d.messageCounts.total) },
+      ],
+    },
+    'Messages Sent': {
+      description: 'Campaign messages sent',
+      breakdown: [
+        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
+        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
+        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
+      ],
+    },
+    'Active Campaigns': {
+      description: 'Currently active campaigns by department',
+      breakdown: [
+        { label: 'Active', value: fmt(d.campaignStats.active) },
+        { label: 'Total', value: fmt(d.campaignStats.total) },
+        ...deptBreakdown,
+      ],
+      highlights: [`${d.campaignStats.active} campaigns currently running`, `Overall reply rate: ${d.campaignStats.replyRate}%`],
+    },
+    'Active Users': {
+      description: 'User activity across the organization',
+      breakdown: [
+        { label: 'Active Users', value: fmt(d.userCounts.active) },
+        { label: 'Total Users', value: fmt(d.userCounts.total) },
+      ],
+    },
+    'Campaign Perf': {
+      description: 'Campaign performance measured by reply rate',
+      breakdown: [
+        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
+        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
+        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
+        ...deptBreakdown,
+      ],
+    },
+    'Campaign Reply Rate': {
+      description: 'Overall campaign reply rate',
+      breakdown: [
+        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
+        { label: 'Replies', value: fmt(d.campaignStats.totalReplied) },
+        { label: 'Sent', value: fmt(d.campaignStats.totalSent) },
+      ],
+    },
+    'Total Messages': {
+      description: 'Total campaign messages across departments',
+      breakdown: [
+        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
+        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
+        ...deptBreakdown,
+      ],
+    },
+    'Sales Campaigns': {
+      description: 'Sales department campaign performance',
+      breakdown: [
+        { label: 'Active', value: fmt(d.campaignStats.byDepartment['sales']?.active || 0) },
+        { label: 'Total', value: fmt(d.campaignStats.byDepartment['sales']?.total || 0) },
+        { label: 'Sent', value: fmt(d.campaignStats.byDepartment['sales']?.sent || 0) },
+        { label: 'Replied', value: fmt(d.campaignStats.byDepartment['sales']?.replied || 0) },
+        { label: 'Reply Rate', value: `${d.campaignStats.byDepartment['sales']?.replyRate || 0}%` },
+      ],
+    },
+    'Reply Rate': {
+      description: 'Campaign reply rate',
+      breakdown: [
+        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
+        { label: 'Total Replies', value: fmt(d.campaignStats.totalReplied) },
+        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
+      ],
+    },
+    'Replies Received': {
+      description: 'Replies received from campaign messages',
+      breakdown: [
+        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
+        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
+        ...deptBreakdown,
+      ],
+    },
+    'Conversations': {
+      description: 'All conversations',
+      breakdown: [
+        { label: 'Total', value: fmt(d.conversationCounts.total) },
+        { label: 'Open', value: fmt(d.conversationCounts.open) },
+        { label: 'Closed', value: fmt(d.conversationCounts.closed) },
+        ...channelBreakdown,
+      ],
+    },
+  };
+}
 
 /** Decorative SVG icons shown inside each metric tile's icon badge (folder, users, lightning, chart) */
 const tileIcons = [
@@ -125,123 +366,6 @@ const tileIcons = [
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>,
 ];
 
-/**
- * metricDetails — Drill-down data for each metric tile.
- * Clicking a tile opens a Dialog showing breakdown rows and key insights.
- * Each entry is keyed by the metric label string from roleMetrics.
- * PRODUCTION NOTE: This data will come from the analytics engine; currently hardcoded with realistic dealership data.
- */
-const metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> = {
-  'Pipeline Value': { description: 'Pipeline Health Score — Win Rate × 50pts + Active Pipeline Quality × 30pts + Pipeline Freshness × 20pts', breakdown: [
-    { label: 'Win Rate (SOLD/SOLD+LOST)', value: '18.5%', detail: '74 SOLD / 326 LOST in last 90 days' },
-    { label: 'Active Pipeline Quality (1 - BAD/Total)', value: '91.3%', detail: '87% leads non-BAD across 842 total' },
-    { label: 'Pipeline Freshness (<30d)', value: '64%', detail: '158 of 247 active leads are under 30 days' },
-    { label: 'Composite Score', value: '72/100' },
-  ], highlights: ['Win rate up 2.3% from last month', '31 stale leads (>30d) need attention', 'Fresh lead ratio improving week-over-week'] },
-  'Lead Source': { description: 'Lead Source Performance — Top Sources Win Rate × 40pts + Diversity × 30pts + Concentration Risk × 30pts', breakdown: [
-    { label: 'AutoTrader.com', value: '24% win rate', detail: '142 leads, 34 SOLD, 12 BAD' },
-    { label: 'Website (Organic)', value: '19% win rate', detail: '98 leads, 19 SOLD, 8 BAD' },
-    { label: 'Cars.com', value: '16% win rate', detail: '87 leads, 14 SOLD, 11 BAD' },
-    { label: 'Facebook Ads', value: '12% win rate', detail: '64 leads, 8 SOLD, 9 BAD' },
-    { label: 'Walk-In (No Source)', value: '31% win rate', detail: '52 leads, 16 SOLD, 2 BAD' },
-    { label: 'Source Diversity Score', value: '7/10 sources active' },
-    { label: 'Concentration Risk', value: '34% (AutoTrader)' },
-  ], highlights: ['Walk-ins have highest conversion but lowest volume', 'Facebook BAD rate (14%) needs investigation', 'Consider increasing referral marketing (32% win rate, only 4% volume)'] },
-  'Lead Quality': { description: 'Lead Quality Score — (1 - BAD Rate) × 40pts + Trade-In Penetration × 30pts + In-Stock Match × 30pts', breakdown: [
-    { label: 'BAD Lead Rate', value: '8.7%', detail: '73 BAD of 842 total leads' },
-    { label: 'Top BAD Reasons', value: '' },
-    { label: '  BAD_DUPLICATE', value: '28 leads (38%)' },
-    { label: '  BAD_NO_VALID_CONTACT', value: '19 leads (26%)' },
-    { label: '  BAD_WRONG_DEALER', value: '14 leads (19%)' },
-    { label: 'Trade-In Penetration', value: '23%', detail: '57 of 247 active leads have trade-ins' },
-    { label: 'In-Stock Match (VIN populated)', value: '41%', detail: '101 leads matched to inventory' },
-  ], highlights: ['Duplicate detection could reduce BAD rate by 3.3%', 'Trade-in leads close at 35% (vs 18% overall)', 'In-stock matches close 2.1x faster'] },
-  'Demand Score': { description: 'Market Demand — Demand Trend × 50pts + New/Used Balance × 25pts + Make Diversity × 25pts', breakdown: [
-    { label: '30-Day Lead Growth', value: '+14%', detail: '478 leads this month vs 419 last month' },
-    { label: 'New vs Used Split', value: '62% New / 38% Used' },
-    { label: 'Top Makes in Demand', value: '' },
-    { label: '  Honda', value: '23% of inquiries', detail: '89 leads, top model: CR-V' },
-    { label: '  Toyota', value: '19% of inquiries', detail: '74 leads, top model: Camry' },
-    { label: '  Ford', value: '15% of inquiries', detail: '58 leads, top model: F-150' },
-    { label: 'Price Range: $30K-$45K', value: '54% of inquiries' },
-  ], highlights: ['SUV demand up 22% month-over-month', 'Used vehicle inquiries trending up (was 32% → now 38%)', 'Luxury segment ($60K+) growing: 47 leads (+18%)'] },
-  'Partner Orgs': { description: 'Total organizations under your partner group', breakdown: [
-    { label: 'Serra Automotive Group', value: '5 stores', detail: '3 active, 2 onboarding' },
-    { label: 'Hyundai of Columbia', value: '2 stores', detail: 'Both fully active' },
-    { label: 'Metro Honda Alliance', value: '3 stores', detail: '2 active, 1 trial' },
-    { label: 'Pinnacle Motors', value: '2 stores', detail: 'Both in trial period' },
-    { label: 'Total Active Users', value: '147 across all orgs' },
-    { label: 'Avg Monthly Logins', value: '1,847' },
-  ], highlights: ['2 new orgs onboarded this month', 'Serra group has highest engagement (89% weekly active)', 'Pinnacle trial conversion likely (85% feature adoption)'] },
-  'Total Logins': { description: 'User login activity across all organizations', breakdown: [
-    { label: 'Daily Active Users', value: '89', detail: '61% of total user base' },
-    { label: 'Weekly Active Users', value: '124', detail: '84% of total user base' },
-    { label: 'Peak Login Hour', value: '9:00-10:00 AM', detail: 'Avg 34 concurrent users' },
-    { label: 'Mobile Logins', value: '38%', detail: '702 of 1,847 total logins' },
-    { label: 'Desktop Logins', value: '62%', detail: '1,145 of 1,847 total logins' },
-  ], highlights: ['Login rate up 18% month-over-month', 'Mobile usage growing (was 31% last month)', 'Monday has highest login activity (avg 312)'] },
-  'Platform Actions': { description: 'Total actions performed across the platform', breakdown: [
-    { label: 'Chat Messages Sent', value: '8,412', detail: '346 unique conversations' },
-    { label: 'Reports Generated', value: '1,284', detail: '214 unique report types' },
-    { label: 'Agent Interactions', value: '5,891', detail: 'Across 12 active agents' },
-    { label: 'File Uploads', value: '892' },
-    { label: 'Calendar Events Created', value: '2,341' },
-    { label: 'Settings Changes', value: '156' },
-  ], highlights: ['Chat usage up 22% from last month', 'Report generation doubled since onboarding', 'Peak activity: Tuesday-Thursday'] },
-  'Agent Actions': { description: 'Actions performed by AI agents', breakdown: [
-    { label: 'Lead Follow-ups Sent', value: '3,247', detail: '38.6% auto-approved by managers' },
-    { label: 'Appointment Reminders', value: '1,892', detail: '92% delivery rate' },
-    { label: 'Lead Scoring Updates', value: '1,456', detail: 'Avg 17 rescores per lead' },
-    { label: 'Alert Notifications', value: '891', detail: '67% acted upon within 2 hours' },
-    { label: 'Report Summaries', value: '426', detail: 'Daily digest for 89 users' },
-  ], highlights: ['Agent efficiency up 22% this month', 'Follow-up automation saving est. 14 hrs/week', 'Lead scoring accuracy: 87% (validated against outcomes)'] },
-  'Sub Orgs': { description: 'Organizations under your partner administration', breakdown: [
-    { label: 'Active Organizations', value: '5', detail: 'All with live data connections' },
-    { label: 'Trial Organizations', value: '1', detail: 'Metro Honda - Day 12 of 30' },
-    { label: 'Total Users Across Orgs', value: '89' },
-    { label: 'Avg Leads/Org/Month', value: '142' },
-    { label: 'Top Performing Org', value: 'Serra Downtown', detail: '24% win rate' },
-  ], highlights: ['All active orgs renewed last quarter', 'Metro Honda trial trending toward conversion', 'Consider expanding to 2 pending partner inquiries'] },
-  'User Actions': { description: 'User engagement across your partner organizations', breakdown: [
-    { label: 'Chat Conversations', value: '2,104', detail: '24 avg per user this month' },
-    { label: 'Reports Viewed', value: '891', detail: 'Most popular: Pipeline Velocity' },
-    { label: 'Agent Configs Modified', value: '234' },
-    { label: 'Leads Contacted via Platform', value: '1,456' },
-    { label: 'Dashboard Views', value: '3,892' },
-  ], highlights: ['Engagement up 7% from last month', 'Report usage correlates with higher close rates', 'Users avg 3.2 sessions per day'] },
-  'Hot Opportunities': { description: 'Hot Opportunities Score — Hot Leads Awaiting Contact × 40pts + Showroom Today × 30pts + Fresh Trade-Ins × 30pts', breakdown: [
-    { label: 'Hot Leads Needing Contact', value: '7 leads', detail: 'Oldest: 8 hours ago (Mark S. - 2024 CR-V)' },
-    { label: 'Showroom Visitors Now', value: '3 customers', detail: 'Bay 2: James R. (F-150), Bay 5: Lisa M. (Accord), Bay 7: David K. (Tucson)' },
-    { label: 'Fresh Trade-In Leads (<24h)', value: '4 leads', detail: 'Avg trade value: $18,500' },
-    { label: 'Highest Value Opportunity', value: '$62,400 MSRP', detail: 'Robert T. - 2024 BMW X5 - HOT, showroom today' },
-  ], highlights: ['3 hot leads have been waiting >6 hours — contact NOW', 'Showroom visitors convert at 41% vs 18% overall', 'Trade-in leads expire after 14 days (35% → 12% win rate)'] },
-  'Buying Intel': { description: 'What Customers Are Buying — Model Concentration × 50pts + New/Used Clarity × 30pts + Price Clarity × 20pts', breakdown: [
-    { label: 'Top Selling Models This Month', value: '' },
-    { label: '  1. Honda CR-V', value: '23 inquiries, 8 sold', detail: 'Avg selling price: $34,200' },
-    { label: '  2. Toyota Camry', value: '18 inquiries, 5 sold', detail: 'Avg selling price: $28,900' },
-    { label: '  3. Ford F-150', value: '15 inquiries, 6 sold', detail: 'Avg selling price: $48,700' },
-    { label: '  4. Hyundai Tucson', value: '12 inquiries, 4 sold' },
-    { label: '  5. Honda Civic', value: '10 inquiries, 3 sold' },
-    { label: 'New vs Used Split', value: '68% NEW, 32% USED', detail: 'Trending toward NEW (was 62/38)' },
-    { label: 'Hot Price Range', value: '$30K-$45K (62%)' },
-  ], highlights: ['SUV demand surging — CR-V + Tucson up 31% combined', 'F-150 has highest gross per unit ($4,200 avg front)', 'Budget segment ($0-$25K) shrinking: down 8% this month'] },
-  'Threats': { description: 'Competitive Threat Alert — (1 - Lost Elsewhere Rate) × 50pts + (1 - Loss Growth) × 30pts + (1 - Waiting Ratio) × 20pts', breakdown: [
-    { label: 'Lost to Competitors', value: '18 leads', detail: 'LOST_PURCHASED_DIFFERENT_BRAND up 25% vs last month' },
-    { label: 'Lost - No Agreement', value: '12 leads', detail: 'Primarily pricing issues ($2K avg gap)' },
-    { label: 'Lost - No Response', value: '8 leads', detail: 'We were too slow — avg 18hr response time' },
-    { label: 'Ghosting Rate', value: '23 leads', detail: 'In WAITING status >7 days, gone cold' },
-    { label: 'Internet Lead Loss Rate', value: '35%', detail: 'vs 18% walk-in loss rate — digital follow-up failing' },
-  ], highlights: ['Premier Motors pricing 8% below on sedans — losing deals', 'Response time >4hrs kills 60% of internet leads', '23 ghosted leads could be re-engaged with price drop offer'] },
-  'Urgency Score': { description: 'Pipeline Urgency — (1 - Overdue New Ratio) × 40pts + (1 - Stale Active Ratio) × 35pts + (1 - Cooling Hot Ratio) × 25pts', breakdown: [
-    { label: 'URGENT - Need Contact NOW', value: '' },
-    { label: '  NEW leads >24 hours', value: '7 leads', detail: 'Losing 5% close probability per hour' },
-    { label: '  HOT leads >48 hours', value: '3 leads', detail: 'No longer hot — cooling rapidly' },
-    { label: 'WARNING - Stale Deals', value: '' },
-    { label: '  ACTIVE >14 days, no update', value: '18 leads', detail: 'Dying on the vine' },
-    { label: '  ACTIVE >30 days', value: '12 leads', detail: '89% will statistically be lost' },
-    { label: 'Pipeline Aging Trend', value: '+3.2 days faster than last month' },
-  ], highlights: ['7 NEW leads need immediate contact (6+ hours overdue)', '3 hot leads cooling — win rate drops from 41% to 12% after 48h', '12 leads >30 days old should be triaged: save or archive'] },
-};
 
 /**
  * ThinkingCard — Expandable card showing AI reasoning steps.
@@ -287,7 +411,7 @@ export default function MainPage() {
   const { user: authUser } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [selectedMetric, setSelectedMetric] = useState<typeof roleMetrics.org_admin[0] | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<MetricTile | null>(null);
   const [tilesCollapsed, setTilesCollapsed] = useState(false);
   const [hasSentMessage, setHasSentMessage] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -295,7 +419,13 @@ export default function MainPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const metrics = roleMetrics[currentRole] || roleMetrics.org_admin;
+  const { data: dashboardData, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
+    queryKey: ['/api/metrics/dashboard'],
+    enabled: !!authUser,
+  });
+
+  const metrics = dashboardData ? buildMetricsForRole(currentRole, dashboardData) : [];
+  const dynamicMetricDetails = dashboardData ? buildMetricDetails(dashboardData) : {};
 
   const { data: existingConversations } = useQuery<DbConversation[]>({
     queryKey: ['/api/conversations?channel=ai-chat'],
@@ -452,7 +582,19 @@ export default function MainPage() {
               )}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-              {metrics.map((metric, i) => (
+              {metricsLoading && [0,1,2,3].map(i => (
+                <div key={i} className="relative rounded-xl border border-border bg-muted/30 animate-pulse" data-testid={`metric-tile-skeleton-${i}`}>
+                  <div className="p-4 flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted/50" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="h-3 w-20 bg-muted/50 rounded" />
+                      <div className="h-7 w-16 bg-muted/50 rounded" />
+                      <div className="h-3 w-24 bg-muted/50 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {!metricsLoading && metrics.map((metric, i) => (
                 <div
                   key={i}
                   className={cn(
@@ -676,7 +818,7 @@ export default function MainPage() {
               )}
             </DialogTitle>
             <DialogDescription className="text-xs">
-              {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
+              {selectedMetric && (dynamicMetricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
             </DialogDescription>
           </DialogHeader>
           {selectedMetric && (
@@ -695,7 +837,7 @@ export default function MainPage() {
               <div className="border-t border-border pt-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Breakdown</h4>
                 <div className="space-y-1">
-                  {(metricDetails[selectedMetric.label]?.breakdown || []).map((item, idx) => (
+                  {(dynamicMetricDetails[selectedMetric.label]?.breakdown || []).map((item, idx) => (
                     <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50" data-testid={`metric-breakdown-${idx}`}>
                       <div className="flex items-center justify-between">
                         <span className={cn('text-sm', item.label.startsWith('  ') ? 'text-foreground pl-3' : 'text-muted-foreground font-medium')}>{item.label}</span>
@@ -708,11 +850,11 @@ export default function MainPage() {
                   ))}
                 </div>
               </div>
-              {metricDetails[selectedMetric.label]?.highlights && (
+              {dynamicMetricDetails[selectedMetric.label]?.highlights && (
                 <div className="border-t border-border pt-3">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Key Insights</h4>
                   <div className="space-y-1.5">
-                    {metricDetails[selectedMetric.label]!.highlights!.map((insight, idx) => (
+                    {dynamicMetricDetails[selectedMetric.label]!.highlights!.map((insight, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                         <span className="text-xs text-foreground leading-relaxed">{insight}</span>

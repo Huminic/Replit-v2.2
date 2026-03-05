@@ -1,30 +1,22 @@
-/**
- * @file my-work.tsx — Personal Productivity Dashboard
- * @description Individual user's personal workspace showing their own metrics, tasks,
- *   conversation history, and AI assistant link. This is a per-user view (not team-wide).
- *
- * @tabs
- *   - Dashboard: Personal KPIs (tasks due today, overdue items, active conversations, weekly completions)
- *   - Tasks: Full task list with priority/status indicators. Supports add task action.
- *   - Chat: Conversation history placeholder — will show personal chat threads
- *   - Assistant: NanoClaw AI personal assistant link — Wave 4 feature, currently placeholder
- *
- * @productionNote
- *   - personaName from AppContext powers the assistant section display name
- *   - mockMyTasks is placeholder data — will wire to backend task management API
- *   - currentUser from AppContext provides the greeting name on the dashboard tab
- */
-
 import { useState } from 'react';
-import { User, LayoutDashboard, CheckSquare, MessageSquare, ExternalLink, Clock, AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
+import { User, LayoutDashboard, CheckSquare, MessageSquare, ExternalLink, Clock, AlertCircle, CheckCircle, TrendingUp, Plus, Trash2, Edit2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import type { Task } from '@shared/schema';
 
-/** Tab navigation config for the My Work page — each tab has an id, display label, and icon */
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
@@ -32,45 +24,167 @@ const tabs = [
   { id: 'assistant', label: 'Assistant', icon: User },
 ];
 
-/**
- * mockMyTasks — Placeholder task data for the personal task list.
- * PRODUCTION NOTE: Will wire to backend task management API.
- * Each task has an id, title, status (overdue/in_progress/pending/completed), priority, and dueDate.
- */
-const mockMyTasks = [
-  { id: 't1', title: 'Follow up with Michael Clark', status: 'overdue', priority: 'high', dueDate: '2026-02-19' },
-  { id: 't2', title: 'Complete sales report for February', status: 'in_progress', priority: 'medium', dueDate: '2026-02-21' },
-  { id: 't3', title: 'Review lead qualification criteria', status: 'pending', priority: 'low', dueDate: '2026-02-25' },
-  { id: 't4', title: 'Respond to service inquiry - Joshua T.', status: 'in_progress', priority: 'high', dueDate: '2026-02-20' },
-  { id: 't5', title: 'Update CRM contact records', status: 'pending', priority: 'medium', dueDate: '2026-02-28' },
-  { id: 't6', title: 'Prepare weekly team standup notes', status: 'completed', priority: 'low', dueDate: '2026-02-18' },
-];
-
-/** Color mapping for task status indicators */
 const statusColors: Record<string, string> = {
   overdue: 'text-red-500',
+  todo: 'text-amber-500',
   in_progress: 'text-blue-500',
-  pending: 'text-amber-500',
-  completed: 'text-green-500',
+  review: 'text-purple-500',
+  done: 'text-green-500',
 };
 
-/** Icon mapping for task status — AlertCircle for overdue, Clock for pending/in_progress, CheckCircle for completed */
 const statusIcons: Record<string, React.ElementType> = {
   overdue: AlertCircle,
+  todo: Clock,
   in_progress: Clock,
-  pending: Clock,
-  completed: CheckCircle,
+  review: Clock,
+  done: CheckCircle,
 };
 
-/**
- * MyWorkPage — Personal workspace component.
- * Uses currentUser from AppContext for greeting, personaName for the Assistant tab.
- */
+const statusLabels: Record<string, string> = {
+  todo: 'To Do',
+  in_progress: 'In Progress',
+  review: 'Review',
+  done: 'Done',
+};
+
+function getDisplayStatus(task: Task): string {
+  if (task.status !== 'done' && task.dueDate && new Date(task.dueDate) < new Date()) {
+    return 'overdue';
+  }
+  return task.status;
+}
+
+const emptyFormState = {
+  title: '',
+  description: '',
+  priority: 'medium' as string,
+  status: 'todo' as string,
+  dueDate: '',
+};
+
 export default function MyWorkPage() {
   const { currentUser, personaName } = useApp();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [formState, setFormState] = useState(emptyFormState);
 
-  // Dashboard tab: Personal KPI cards + upcoming tasks list
+  const { data: tasks = [], isLoading } = useQuery<Task[]>({
+    queryKey: ['/api/tasks'],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const res = await apiRequest('POST', '/api/tasks', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({ title: 'Task created' });
+      closeDialog();
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Failed to create task', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const res = await apiRequest('PATCH', `/api/tasks/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({ title: 'Task updated' });
+      closeDialog();
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Failed to update task', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/tasks/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({ title: 'Task deleted' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Failed to delete task', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const openCreateDialog = () => {
+    setEditingTask(null);
+    setFormState(emptyFormState);
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (task: Task) => {
+    setEditingTask(task);
+    setFormState({
+      title: task.title,
+      description: task.description || '',
+      priority: task.priority,
+      status: task.status,
+      dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
+    });
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditingTask(null);
+    setFormState(emptyFormState);
+  };
+
+  const handleSubmit = () => {
+    if (!formState.title.trim()) return;
+    const payload: Record<string, unknown> = {
+      title: formState.title,
+      description: formState.description || null,
+      priority: formState.priority,
+      status: formState.status,
+      dueDate: formState.dueDate ? new Date(formState.dueDate).toISOString() : null,
+    };
+    if (editingTask) {
+      updateMutation.mutate({ id: editingTask.id, data: payload });
+    } else {
+      createMutation.mutate(payload);
+    }
+  };
+
+  const handleComplete = (task: Task) => {
+    updateMutation.mutate({ id: task.id, data: { status: 'done' } });
+  };
+
+  const handleDelete = (task: Task) => {
+    deleteMutation.mutate(task.id);
+  };
+
+  const isMutating = createMutation.isPending || updateMutation.isPending;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const endOfToday = new Date(today);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const tasksDueToday = tasks.filter(t => t.status !== 'done' && t.dueDate && new Date(t.dueDate) >= today && new Date(t.dueDate) <= endOfToday).length;
+  const overdueItems = tasks.filter(t => t.status !== 'done' && t.dueDate && new Date(t.dueDate) < today).length;
+  const activeTasks = tasks.filter(t => t.status !== 'done').length;
+  const completedTasks = tasks.filter(t => t.status === 'done').length;
+
+  const renderLoadingSkeleton = () => (
+    <div className="p-6 space-y-4">
+      {[1, 2, 3, 4].map(i => (
+        <Skeleton key={i} className="h-12 w-full" />
+      ))}
+    </div>
+  );
+
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
@@ -80,14 +194,14 @@ export default function MyWorkPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Tasks Due Today', value: '3', icon: CheckSquare, color: 'text-blue-500' },
-          { label: 'Overdue Items', value: '1', icon: AlertCircle, color: 'text-red-500' },
-          { label: 'Conversations', value: '5', icon: MessageSquare, color: 'text-purple-500' },
-          { label: 'Completed This Week', value: '12', icon: TrendingUp, color: 'text-green-500' },
+          { label: 'Tasks Due Today', value: isLoading ? '-' : String(tasksDueToday), icon: CheckSquare, color: 'text-blue-500' },
+          { label: 'Overdue Items', value: isLoading ? '-' : String(overdueItems), icon: AlertCircle, color: 'text-red-500' },
+          { label: 'Active Tasks', value: isLoading ? '-' : String(activeTasks), icon: MessageSquare, color: 'text-purple-500' },
+          { label: 'Completed', value: isLoading ? '-' : String(completedTasks), icon: TrendingUp, color: 'text-green-500' },
         ].map(metric => (
           <Card key={metric.label}>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <div>
                   <p className="text-xs text-muted-foreground">{metric.label}</p>
                   <p className="text-2xl font-bold mt-1" data-testid={`metric-${metric.label.toLowerCase().replace(/\s/g, '-')}`}>{metric.value}</p>
@@ -104,55 +218,81 @@ export default function MyWorkPage() {
           <CardTitle className="text-sm font-medium">Upcoming Tasks</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {mockMyTasks.filter(t => t.status !== 'completed').slice(0, 5).map(task => {
-              const StatusIcon = statusIcons[task.status];
-              return (
-                <div key={task.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors" data-testid={`task-item-${task.id}`}>
-                  <StatusIcon className={cn('h-4 w-4 flex-shrink-0', statusColors[task.status])} />
-                  <span className="text-sm flex-1 truncate">{task.title}</span>
-                  <Badge variant={task.priority === 'high' ? 'destructive' : 'secondary'} className="text-[10px] h-5">
-                    {task.priority}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">{task.dueDate}</span>
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? renderLoadingSkeleton() : (
+            <div className="space-y-2">
+              {tasks.filter(t => t.status !== 'done').slice(0, 5).map(task => {
+                const display = getDisplayStatus(task);
+                const StatusIcon = statusIcons[display] || Clock;
+                return (
+                  <div key={task.id} className="flex items-center gap-3 p-2 rounded-md hover-elevate" data-testid={`task-item-${task.id}`}>
+                    <StatusIcon className={cn('h-4 w-4 flex-shrink-0', statusColors[display])} />
+                    <span className="text-sm flex-1 truncate">{task.title}</span>
+                    <Badge variant={task.priority === 'high' || task.priority === 'urgent' ? 'destructive' : 'secondary'} className="text-[10px] h-5">
+                      {task.priority}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : ''}</span>
+                  </div>
+                );
+              })}
+              {tasks.filter(t => t.status !== 'done').length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 
-  // Tasks tab: Full task list with status/priority badges and due dates
   const renderTasks = () => (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
         <h2 className="text-lg font-semibold">My Tasks</h2>
-        <Button size="sm" data-testid="button-add-task">Add Task</Button>
+        <Button size="sm" onClick={openCreateDialog} data-testid="button-add-task">
+          <Plus className="h-4 w-4 mr-1" />
+          Add Task
+        </Button>
       </div>
-      <div className="space-y-2">
-        {mockMyTasks.map(task => {
-          const StatusIcon = statusIcons[task.status];
-          return (
-            <div key={task.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-accent/50 transition-colors" data-testid={`task-row-${task.id}`}>
-              <StatusIcon className={cn('h-4 w-4 flex-shrink-0', statusColors[task.status])} />
-              <span className="text-sm flex-1">{task.title}</span>
-              <Badge variant={task.status === 'overdue' ? 'destructive' : 'secondary'} className="text-[10px]">
-                {task.status.replace('_', ' ')}
-              </Badge>
-              <Badge variant={task.priority === 'high' ? 'destructive' : 'outline'} className="text-[10px]">
-                {task.priority}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{task.dueDate}</span>
-            </div>
-          );
-        })}
-      </div>
+      {isLoading ? renderLoadingSkeleton() : (
+        <div className="space-y-2">
+          {tasks.map(task => {
+            const display = getDisplayStatus(task);
+            const StatusIcon = statusIcons[display] || Clock;
+            return (
+              <div key={task.id} className="flex items-center gap-3 p-3 border border-border rounded-md hover-elevate" data-testid={`task-row-${task.id}`}>
+                <StatusIcon className={cn('h-4 w-4 flex-shrink-0', statusColors[display])} />
+                <span className="text-sm flex-1">{task.title}</span>
+                <Badge variant={display === 'overdue' ? 'destructive' : 'secondary'} className="text-[10px]">
+                  {display === 'overdue' ? 'overdue' : statusLabels[task.status] || task.status}
+                </Badge>
+                <Badge variant={task.priority === 'high' || task.priority === 'urgent' ? 'destructive' : 'outline'} className="text-[10px]">
+                  {task.priority}
+                </Badge>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : ''}</span>
+                <div className="flex items-center gap-1">
+                  {task.status !== 'done' && (
+                    <Button size="icon" variant="ghost" onClick={() => handleComplete(task)} data-testid={`button-complete-task-${task.id}`}>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    </Button>
+                  )}
+                  <Button size="icon" variant="ghost" onClick={() => openEditDialog(task)} data-testid={`button-edit-task-${task.id}`}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDelete(task)} data-testid={`button-delete-task-${task.id}`}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+          {tasks.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">No tasks yet. Click "Add Task" to create one.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 
-  // Chat tab: Placeholder for personal conversation history — will show user's chat threads
   const renderChat = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
@@ -163,7 +303,6 @@ export default function MyWorkPage() {
     </div>
   );
 
-  // Assistant tab: NanoClaw AI personal assistant — Wave 4 feature, currently shows placeholder with launch button
   const renderAssistant = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
@@ -182,7 +321,7 @@ export default function MyWorkPage() {
     <div className="flex flex-col h-full" data-testid="my-work-page">
       <div className="border-b border-border px-6 pt-4">
         <h1 className="text-xl font-semibold mb-3">My Work</h1>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -208,6 +347,84 @@ export default function MyWorkPage() {
         {activeTab === 'chat' && renderChat()}
         {activeTab === 'assistant' && renderAssistant()}
       </ScrollArea>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingTask ? 'Edit Task' : 'Create Task'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="task-title">Title</Label>
+              <Input
+                id="task-title"
+                value={formState.title}
+                onChange={e => setFormState(s => ({ ...s, title: e.target.value }))}
+                placeholder="Task title"
+                data-testid="input-task-title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="task-description">Description</Label>
+              <Textarea
+                id="task-description"
+                value={formState.description}
+                onChange={e => setFormState(s => ({ ...s, description: e.target.value }))}
+                placeholder="Optional description"
+                className="resize-none"
+                data-testid="input-task-description"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <Select value={formState.priority} onValueChange={v => setFormState(s => ({ ...s, priority: v }))}>
+                  <SelectTrigger data-testid="select-task-priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={formState.status} onValueChange={v => setFormState(s => ({ ...s, status: v }))}>
+                  <SelectTrigger data-testid="select-task-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="review">Review</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="task-due-date">Due Date</Label>
+              <Input
+                id="task-due-date"
+                type="date"
+                value={formState.dueDate}
+                onChange={e => setFormState(s => ({ ...s, dueDate: e.target.value }))}
+                data-testid="input-task-due-date"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog} data-testid="button-cancel-task">Cancel</Button>
+            <Button onClick={handleSubmit} disabled={!formState.title.trim() || isMutating} data-testid="button-submit-task">
+              {isMutating && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              {editingTask ? 'Save' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

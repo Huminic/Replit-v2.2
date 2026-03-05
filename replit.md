@@ -54,17 +54,14 @@ Mock import purge COMPLETE — zero `@/mocks/` imports remain in `client/src/`:
 - All mock data arrays renamed from `mock*` to `static*` (e.g. staticWidgets, staticActivityFeed, staticNotifications)
 
 Pages still using hardcoded/static data (no API backend yet):
-- Dashboard metric tiles (hardcoded KPIs per role)
-- Settings: Widgets (staticWidgets from widget-types.ts), Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills inline)
-- My Work page (hardcoded mockMyTasks)
-- Management page (hardcoded metrics, mockHunches)
+- Settings: Tools (hardcoded toolCards), Knowledge Base (hardcoded), AI Config (mockSkills inline)
+- Management page: mockHunches still hardcoded (metrics tiles now wired to API)
 - TopBar notifications/activity (staticNotifications, staticActivityFeed from lib files)
 - Insights page (static chart data from insight-data.ts)
 - Billing section in Profile
 - AgentConfigPane: triggers/skills/knowledge refs still hardcoded (Performance metrics and Activity now wired to VAPI)
-- Service/Marketing dashboard metric tiles (inline hardcoded, not from mock files)
 
-### Database Schema (9 tables)
+### Database Schema (11 tables)
 -   `roles`: 8 roles with hierarchy levels (super_admin=1 through sales/service/marketing=4)
 -   `organizations`: Org config including kill switch states (outbound/sms/phone/email enabled)
 -   `users`: User auth and profile
@@ -73,6 +70,8 @@ Pages still using hardcoded/static data (no API backend yet):
 -   `conversations`: Conversation metadata with status, channel, agentId, campaignId, campaignDisconnected
 -   `messages`: Individual messages with role (customer/bot/agent/user/assistant), senderName
 -   `campaigns`: Campaign config with department, killSwitch, recipient/sent/replied counts, csvFilename
+-   `tasks`: Task items with status (todo/in_progress/review/done), priority (low/medium/high/urgent), dueDate, assignedUserId, tags (text[])
+-   `widgets`: Chat/voice/video widget config with type, status, widgetCode, config (jsonb), impressions/interactions counters
 -   `integrations`: External service connections per org (provider, externalDealerId, externalDealerName, externalIntegrationId, nexxusOrgId, status)
 
 ### API Routes
@@ -86,11 +85,14 @@ Pages still using hardcoded/static data (no API backend yet):
 - Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
 - VAPI Proxy (read-only): GET /api/vapi/assistants, GET /api/vapi/phone-numbers, GET /api/vapi/calls (?assistantId=, ?limit=), GET /api/vapi/calls/:callId, GET /api/vapi/analytics
 - Tavus Proxy (read-only): GET /api/tavus/personas, GET /api/tavus/replicas, GET /api/tavus/conversations (?personaId=, ?limit=)
+- Metrics: GET /api/metrics/dashboard (aggregated conversationCounts, messageCounts, campaignStats, agentCounts, userCounts)
+- Tasks: GET /api/tasks (?status=, ?assignedUserId=), POST /api/tasks, PATCH /api/tasks/:id, DELETE /api/tasks/:id
+- Widgets: GET /api/widgets, POST /api/widgets, PATCH /api/widgets/:id, DELETE /api/widgets/:id
 - Integrations: GET /api/integrations (?provider=), POST /api/integrations/provision (calls MCP vin_provision_dealer + inserts row)
 
 ### Seed Data
 Default login: admin@nexxus.com / password123
-- 8 roles, 3 organizations (Serra Honda/Nissan/Ford), 8 users, 5 agents (with VAPI/Tavus IDs)
+- 8 roles, 3 organizations (Serra Honda/Nissan/Ford), 8 users, 5 agents (with VAPI/Tavus IDs), 6 tasks, 4 widgets
 - 3 VinSolutions integrations: Serra Honda→dealer 21043, Serra Nissan→dealer 21044, Tony Serra Ford→dealer 21047
 - 8 TeamBox conversations with messages across channels (sms/chat/email/whatsapp)
 - 4 campaigns (service/marketing/sales departments, one with killSwitch=true)
@@ -149,7 +151,7 @@ Sprint process is documented in `.local/Sprint_log.md`. Each sprint follows:
 7. Agent reports percentage complete
 8. Repeat
 
-**Current Progress:** Waves 0-1 complete (~25%). Next: Sprint 2.1a (AI Chat Engine — core quality).
+**Current Progress:** ~42%. Waves 0-1 complete, Sprints 2.1-2.2a done, Sprint 2.3+4.1a done. Next: Sprint 2.2b (File Uploads) or Sprint 3.1 (Outbound Communication).
 
 ## Standing Directives (Apply to All Sprints)
 

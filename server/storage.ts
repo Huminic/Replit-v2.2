@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, count, sql, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   type User, type InsertUser,
@@ -10,7 +10,9 @@ import {
   type Message, type InsertMessage,
   type Campaign, type InsertCampaign,
   type Integration, type InsertIntegration,
-  users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations,
+  type Task, type InsertTask,
+  type Widget, type InsertWidget,
+  users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -60,6 +62,50 @@ export interface IStorage {
   getIntegration(id: string): Promise<Integration | undefined>;
   createIntegration(integration: InsertIntegration): Promise<Integration>;
   updateIntegration(id: string, data: Partial<InsertIntegration>): Promise<Integration | undefined>;
+
+  getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string }): Promise<Task[]>;
+  getTask(id: string): Promise<Task | undefined>;
+  createTask(task: InsertTask): Promise<Task>;
+  updateTask(id: string, data: Partial<InsertTask>): Promise<Task | undefined>;
+  deleteTask(id: string): Promise<void>;
+
+  getWidgets(organizationId: string): Promise<Widget[]>;
+  getWidget(id: string): Promise<Widget | undefined>;
+  createWidget(widget: InsertWidget): Promise<Widget>;
+  updateWidget(id: string, data: Partial<InsertWidget>): Promise<Widget | undefined>;
+  deleteWidget(id: string): Promise<void>;
+
+  getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
+}
+
+export interface DashboardMetrics {
+  conversationCounts: {
+    total: number;
+    open: number;
+    closed: number;
+    byChannel: Record<string, number>;
+  };
+  messageCounts: {
+    total: number;
+    last30Days: number;
+  };
+  campaignStats: {
+    total: number;
+    active: number;
+    totalSent: number;
+    totalReplied: number;
+    replyRate: number;
+    byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }>;
+  };
+  agentCounts: {
+    total: number;
+    active: number;
+    byDepartment: Record<string, number>;
+  };
+  userCounts: {
+    total: number;
+    active: number;
+  };
 }
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -255,6 +301,155 @@ export class DatabaseStorage implements IStorage {
   async updateIntegration(id: string, data: Partial<InsertIntegration>): Promise<Integration | undefined> {
     const [updated] = await db.update(integrations).set({ ...data, updatedAt: new Date() }).where(eq(integrations.id, id)).returning();
     return updated;
+  }
+
+  async getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string }): Promise<Task[]> {
+    const conditions = [eq(tasks.organizationId, organizationId)];
+    if (filters?.status) conditions.push(eq(tasks.status, filters.status));
+    if (filters?.assignedUserId) conditions.push(eq(tasks.assignedUserId, filters.assignedUserId));
+    return db.select().from(tasks).where(and(...conditions)).orderBy(desc(tasks.createdAt));
+  }
+
+  async getTask(id: string): Promise<Task | undefined> {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task;
+  }
+
+  async createTask(task: InsertTask): Promise<Task> {
+    const [created] = await db.insert(tasks).values(task).returning();
+    return created;
+  }
+
+  async updateTask(id: string, data: Partial<InsertTask>): Promise<Task | undefined> {
+    const [updated] = await db.update(tasks).set({ ...data, updatedAt: new Date() }).where(eq(tasks.id, id)).returning();
+    return updated;
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    await db.delete(tasks).where(eq(tasks.id, id));
+  }
+
+  async getWidgets(organizationId: string): Promise<Widget[]> {
+    return db.select().from(widgets).where(eq(widgets.organizationId, organizationId)).orderBy(desc(widgets.createdAt));
+  }
+
+  async getWidget(id: string): Promise<Widget | undefined> {
+    const [widget] = await db.select().from(widgets).where(eq(widgets.id, id));
+    return widget;
+  }
+
+  async createWidget(widget: InsertWidget): Promise<Widget> {
+    const [created] = await db.insert(widgets).values(widget).returning();
+    return created;
+  }
+
+  async updateWidget(id: string, data: Partial<InsertWidget>): Promise<Widget | undefined> {
+    const [updated] = await db.update(widgets).set({ ...data, updatedAt: new Date() }).where(eq(widgets.id, id)).returning();
+    return updated;
+  }
+
+  async deleteWidget(id: string): Promise<void> {
+    await db.delete(widgets).where(eq(widgets.id, id));
+  }
+
+  async getDashboardMetrics(organizationId: string): Promise<DashboardMetrics> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [convRows, msgTotal, msgRecent, campaignRows, agentRows, userRows] = await Promise.all([
+      db.select({
+        status: conversations.status,
+        channel: conversations.channel,
+        cnt: count(),
+      }).from(conversations).where(eq(conversations.organizationId, organizationId)).groupBy(conversations.status, conversations.channel),
+
+      db.select({ cnt: count() }).from(messages)
+        .innerJoin(conversations, eq(messages.conversationId, conversations.id))
+        .where(eq(conversations.organizationId, organizationId)),
+
+      db.select({ cnt: count() }).from(messages)
+        .innerJoin(conversations, eq(messages.conversationId, conversations.id))
+        .where(and(eq(conversations.organizationId, organizationId), gte(messages.createdAt, thirtyDaysAgo))),
+
+      db.select({
+        department: campaigns.department,
+        status: campaigns.status,
+        sentCount: campaigns.sentCount,
+        repliedCount: campaigns.repliedCount,
+      }).from(campaigns).where(eq(campaigns.organizationId, organizationId)),
+
+      db.select({
+        department: agents.department,
+        status: agents.status,
+        cnt: count(),
+      }).from(agents).where(eq(agents.organizationId, organizationId)).groupBy(agents.department, agents.status),
+
+      db.select({
+        isActive: users.isActive,
+        cnt: count(),
+      }).from(users).where(eq(users.organizationId, organizationId)).groupBy(users.isActive),
+    ]);
+
+    const conversationCounts = { total: 0, open: 0, closed: 0, byChannel: {} as Record<string, number> };
+    for (const row of convRows) {
+      const c = Number(row.cnt);
+      conversationCounts.total += c;
+      if (row.status === "open") conversationCounts.open += c;
+      if (row.status === "closed") conversationCounts.closed += c;
+      conversationCounts.byChannel[row.channel] = (conversationCounts.byChannel[row.channel] || 0) + c;
+    }
+
+    const messageCounts = {
+      total: Number(msgTotal[0]?.cnt || 0),
+      last30Days: Number(msgRecent[0]?.cnt || 0),
+    };
+
+    const byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }> = {};
+    let totalCampaigns = 0, activeCampaigns = 0, totalSent = 0, totalReplied = 0;
+    for (const row of campaignRows) {
+      totalCampaigns++;
+      if (row.status === "active") activeCampaigns++;
+      totalSent += row.sentCount;
+      totalReplied += row.repliedCount;
+      if (!byDepartment[row.department]) byDepartment[row.department] = { total: 0, active: 0, sent: 0, replied: 0, replyRate: 0 };
+      byDepartment[row.department].total++;
+      if (row.status === "active") byDepartment[row.department].active++;
+      byDepartment[row.department].sent += row.sentCount;
+      byDepartment[row.department].replied += row.repliedCount;
+    }
+    for (const dept of Object.keys(byDepartment)) {
+      byDepartment[dept].replyRate = byDepartment[dept].sent > 0 ? Math.round((byDepartment[dept].replied / byDepartment[dept].sent) * 100) : 0;
+    }
+
+    const agentCounts = { total: 0, active: 0, byDepartment: {} as Record<string, number> };
+    for (const row of agentRows) {
+      const c = Number(row.cnt);
+      agentCounts.total += c;
+      if (row.status === "active") agentCounts.active += c;
+      agentCounts.byDepartment[row.department] = (agentCounts.byDepartment[row.department] || 0) + c;
+    }
+
+    const userCounts = { total: 0, active: 0 };
+    for (const row of userRows) {
+      const c = Number(row.cnt);
+      userCounts.total += c;
+      if (row.isActive) userCounts.active += c;
+    }
+
+    return {
+      conversationCounts,
+      messageCounts,
+      campaignStats: {
+        total: totalCampaigns,
+        active: activeCampaigns,
+        totalSent,
+        totalReplied,
+        replyRate: totalSent > 0 ? Math.round((totalReplied / totalSent) * 100) : 0,
+        byDepartment,
+      },
+      agentCounts,
+      userCounts,
+    };
   }
 }
 
