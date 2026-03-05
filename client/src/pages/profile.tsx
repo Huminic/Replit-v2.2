@@ -20,7 +20,7 @@
  * @see client/src/pages/billing-management.tsx — Partner/super admin billing management
  * @see client/src/contexts/AppContext.tsx — currentUser, currentOrganization
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { 
   User, 
   Settings, 
@@ -38,9 +38,9 @@ import {
   Video,
   MessageCircle,
   FileText,
-  Loader2
+  Loader2,
+  Camera
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
@@ -64,22 +64,87 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { currentUser, currentOrganization } = useApp();
+  const { currentUser, currentOrganization, updateCurrentUser } = useApp();
   const [billingEnabled] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   const profileMutation = useMutation({
     mutationFn: async (data: { firstName?: string; lastName?: string; email?: string }) => {
       await apiRequest('PATCH', '/api/users/me', data);
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      const newName = [data.firstName, data.lastName].filter(Boolean).join(' ');
+      updateCurrentUser({
+        ...(newName ? { name: newName } : {}),
+        ...(data.email ? { email: data.email } : {}),
+      });
+      setIsEditing(false);
       toast({ title: 'Profile updated', description: 'Your profile has been saved.' });
     },
     onError: () => {
       toast({ title: 'Error', description: 'Failed to save profile changes.', variant: 'destructive' });
     },
   });
+
+  const handleEditProfile = () => {
+    const nameParts = currentUser.name.split(' ');
+    setEditFirstName(nameParts[0] || '');
+    setEditLastName(nameParts.slice(1).join(' ') || '');
+    setEditEmail(currentUser.email);
+    setIsEditing(true);
+  };
+
+  const handleSaveProfile = () => {
+    profileMutation.mutate({
+      firstName: editFirstName,
+      lastName: editLastName,
+      email: editEmail,
+    });
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please select an image file.', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > 500 * 1024) {
+      toast({ title: 'File too large', description: 'Photo must be under 500KB.', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+      const token = localStorage.getItem('nexxus_access_token');
+      const res = await fetch('/api/users/me/photo', {
+        method: 'POST',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      updateCurrentUser({ profilePhotoUrl: data.profilePhotoUrl });
+      toast({ title: 'Photo updated', description: 'Your profile photo has been saved.' });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to upload photo.', variant: 'destructive' });
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <div className="flex flex-col h-full items-center">
@@ -117,26 +182,76 @@ export default function ProfilePage() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-6">
-                    <Avatar className="h-20 w-20">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                        {userInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h2 className="text-xl font-semibold text-foreground">{currentUser.name}</h2>
-                      <p className="text-muted-foreground">{currentUser.email}</p>
-                      <div className="flex items-center gap-3 mt-3">
-                        <Badge variant="secondary" className="gap-1">
-                          <Shield className="h-3 w-3" />
-                          {getRoleLabel(currentUser.role)}
-                        </Badge>
-                        <Badge variant="outline" className="gap-1">
-                          <Building2 className="h-3 w-3" />
-                          {currentOrganization.name}
-                        </Badge>
+                    <div className="relative group">
+                      <Avatar className="h-20 w-20 cursor-pointer" onClick={() => fileInputRef.current?.click()} data-testid="button-upload-photo">
+                        {currentUser.profilePhotoUrl ? (
+                          <AvatarImage src={currentUser.profilePhotoUrl} alt={currentUser.name} data-testid="img-avatar" />
+                        ) : null}
+                        <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer pointer-events-none">
+                        {isUploadingPhoto ? (
+                          <Loader2 className="h-6 w-6 text-white animate-spin" />
+                        ) : (
+                          <Camera className="h-6 w-6 text-white" />
+                        )}
                       </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoUpload}
+                      />
                     </div>
-                    <Button variant="outline" onClick={() => toast({ title: 'Edit mode', description: 'Profile editing is not available in demo mode.' })} data-testid="button-edit-profile">Edit Profile</Button>
+                    <div className="flex-1">
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label htmlFor="edit-first-name">First Name</Label>
+                              <Input id="edit-first-name" value={editFirstName} onChange={e => setEditFirstName(e.target.value)} data-testid="input-first-name" />
+                            </div>
+                            <div className="space-y-1">
+                              <Label htmlFor="edit-last-name">Last Name</Label>
+                              <Input id="edit-last-name" value={editLastName} onChange={e => setEditLastName(e.target.value)} data-testid="input-last-name" />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="edit-email">Email</Label>
+                            <Input id="edit-email" value={editEmail} onChange={e => setEditEmail(e.target.value)} data-testid="input-edit-email" />
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <h2 className="text-xl font-semibold text-foreground">{currentUser.name}</h2>
+                          <p className="text-muted-foreground">{currentUser.email}</p>
+                          <div className="flex items-center gap-3 mt-3">
+                            <Badge variant="secondary" className="gap-1">
+                              <Shield className="h-3 w-3" />
+                              {getRoleLabel(currentUser.role)}
+                            </Badge>
+                            <Badge variant="outline" className="gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {currentOrganization.name}
+                            </Badge>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                        <Button onClick={handleSaveProfile} disabled={profileMutation.isPending} data-testid="button-save-profile">
+                          {profileMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button variant="outline" onClick={handleEditProfile} data-testid="button-edit-profile">Edit Profile</Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

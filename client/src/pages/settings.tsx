@@ -30,7 +30,7 @@
  *
  * @see client/src/pages/org-wizard.tsx — New Organization creation (linked from User Management)
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Users, 
@@ -470,6 +470,91 @@ export default function SettingsPage() {
   const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
+
+  interface ApiDocument {
+    id: number;
+    name: string;
+    type: string;
+    size: number;
+    status: string;
+    organizationId: number | null;
+    agentId: number | null;
+    content: string | null;
+    mimeType: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes >= 1048576) {
+      return `${(bytes / 1048576).toFixed(1)} MB`;
+    }
+    return `${Math.round(bytes / 1024)} KB`;
+  };
+
+  const formatDocDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: documents = [], isLoading: documentsLoading } = useQuery<ApiDocument[]>({
+    queryKey: ['/api/documents'],
+  });
+
+  const uploadDocumentMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const text = (await res.text()) || res.statusText;
+        throw new Error(`${res.status}: ${text}`);
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: 'Uploaded', description: 'Document uploaded successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Upload failed', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest('DELETE', `/api/documents/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: 'Deleted', description: 'Document removed.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Delete failed', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadDocumentMutation.mutate(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const isSuperAdmin = currentRole === 'super_admin';
   const isPartnerAdmin = currentRole === 'partner_admin';
@@ -2477,9 +2562,16 @@ export default function SettingsPage() {
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <Input placeholder="Search..." className="pl-8 h-8 w-40" data-testid="input-search-documents" />
                   </div>
-                  <Button size="sm" onClick={() => toast({ title: 'Upload', description: 'Document upload is not available in demo mode.' })} data-testid="button-upload-document">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    data-testid="input-file-upload"
+                  />
+                  <Button size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploadDocumentMutation.isPending} data-testid="button-upload-document">
                     <Upload className="h-3.5 w-3.5 mr-1" />
-                    Upload
+                    {uploadDocumentMutation.isPending ? 'Uploading...' : 'Upload'}
                   </Button>
                 </div>
               </div>
@@ -2497,20 +2589,33 @@ export default function SettingsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-t border-border" data-testid="doc-row-inventory">
-                      <td className="p-2 font-medium text-foreground">Inventory</td>
-                      <td className="p-2 text-muted-foreground">CSV</td>
-                      <td className="p-2 text-muted-foreground">2 MB</td>
-                      <td className="p-2 text-muted-foreground">2/20</td>
-                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'Document removed.' })} data-testid="button-delete-doc-inventory"><Trash2 className="h-3.5 w-3.5" /></Button></td>
-                    </tr>
-                    <tr className="border-t border-border" data-testid="doc-row-pricing">
-                      <td className="p-2 font-medium text-foreground">Pricing</td>
-                      <td className="p-2 text-muted-foreground">PDF</td>
-                      <td className="p-2 text-muted-foreground">500 KB</td>
-                      <td className="p-2 text-muted-foreground">2/18</td>
-                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'Document removed.' })} data-testid="button-delete-doc-pricing"><Trash2 className="h-3.5 w-3.5" /></Button></td>
-                    </tr>
+                    {documentsLoading ? (
+                      <>
+                        {[1, 2, 3].map(i => (
+                          <tr key={i} className="border-t border-border" data-testid={`doc-row-skeleton-${i}`}>
+                            <td className="p-2"><Skeleton className="h-4 w-24" /></td>
+                            <td className="p-2"><Skeleton className="h-4 w-12" /></td>
+                            <td className="p-2"><Skeleton className="h-4 w-16" /></td>
+                            <td className="p-2"><Skeleton className="h-4 w-12" /></td>
+                            <td className="p-2"><Skeleton className="h-4 w-4" /></td>
+                          </tr>
+                        ))}
+                      </>
+                    ) : documents.length === 0 ? (
+                      <tr className="border-t border-border">
+                        <td colSpan={5} className="p-4 text-center text-muted-foreground text-xs" data-testid="text-no-documents">No documents uploaded yet.</td>
+                      </tr>
+                    ) : (
+                      documents.map(doc => (
+                        <tr key={doc.id} className="border-t border-border" data-testid={`doc-row-${doc.id}`}>
+                          <td className="p-2 font-medium text-foreground" data-testid={`text-doc-name-${doc.id}`}>{doc.name}</td>
+                          <td className="p-2 text-muted-foreground" data-testid={`text-doc-type-${doc.id}`}>{doc.type.toUpperCase()}</td>
+                          <td className="p-2 text-muted-foreground" data-testid={`text-doc-size-${doc.id}`}>{formatFileSize(doc.size)}</td>
+                          <td className="p-2 text-muted-foreground" data-testid={`text-doc-date-${doc.id}`}>{formatDocDate(doc.createdAt)}</td>
+                          <td className="p-2"><Button variant="ghost" size="icon" onClick={() => deleteDocumentMutation.mutate(doc.id)} disabled={deleteDocumentMutation.isPending} data-testid={`button-delete-doc-${doc.id}`}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

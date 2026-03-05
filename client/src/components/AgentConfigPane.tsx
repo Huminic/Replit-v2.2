@@ -29,8 +29,9 @@
  * @see client/src/mocks/agents.ts — Agent type, availableTools, AgentChannel/Trigger/Tool types
  * @see client/src/contexts/AppContext.tsx — selectedAgent, updateAgent, setRightPaneOpen
  */
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import {
   Phone,
   MessageSquare,
@@ -141,11 +142,19 @@ const skillsCatalog = [
   { id: 'cat-20', name: 'Sentiment Analyzer', category: 'General', enabled: false },
 ];
 
-const knowledgeReferencesMock = [
-  { id: 'ref-1', name: 'Product FAQ', items: 45, status: 'Stored' },
-  { id: 'ref-2', name: 'Pricing Guide', items: 12, status: 'Stored' },
-  { id: 'ref-3', name: 'Inventory CSV', items: 1200, status: 'Stored' },
-];
+interface KBDocument {
+  id: number;
+  name: string;
+  type: string;
+  size: number;
+  status: string;
+  organizationId: number | null;
+  agentId: number | null;
+  content: string | null;
+  mimeType: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const configSections = [
   { id: 'performance', label: 'Performance', icon: BarChart3 },
@@ -193,7 +202,72 @@ export function AgentConfigPane() {
   const [agentTriggers, setAgentTriggers] = useState(agentTriggersMock.map(t => ({ ...t })));
 
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
-  const [knowledgeUploadOpen, setKnowledgeUploadOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: knowledgeDocuments, isLoading: knowledgeLoading } = useQuery<KBDocument[]>({
+    queryKey: ['/api/documents', selectedAgent?.id],
+    queryFn: async () => {
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/documents?agentId=${selectedAgent?.id}`, {
+        headers,
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch documents');
+      return res.json();
+    },
+    enabled: !!selectedAgent?.id,
+  });
+
+  const handleFileUpload = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0 || !selectedAgent) return;
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('agentId', String(selectedAgent.id));
+    try {
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || res.statusText);
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: 'Document uploaded', description: `${file.name} uploaded successfully.` });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message || 'Could not upload document.', variant: 'destructive' });
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, [selectedAgent, toast]);
+
+  const handleDeleteDocument = useCallback(async (docId: number, docName: string) => {
+    try {
+      await apiRequest('DELETE', `/api/documents/${docId}`);
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: 'Document deleted', description: `${docName} has been removed.` });
+    } catch (err: any) {
+      toast({ title: 'Delete failed', description: err.message || 'Could not delete document.', variant: 'destructive' });
+    }
+  }, [toast]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleFileUpload(e.dataTransfer.files);
+  }, [handleFileUpload]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
 
   const handleToggleStatus = () => {
     if (!selectedAgent) return;
@@ -501,29 +575,50 @@ export function AgentConfigPane() {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">References</p>
-              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Upload Reference', description: 'File upload not available in demo mode.' })} data-testid="button-upload-reference">
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} data-testid="button-upload-reference">
                 <Plus className="h-3 w-3 mr-1.5" />
                 Upload Reference
               </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.docx,.csv,.txt"
+                onChange={(e) => handleFileUpload(e.target.files)}
+                data-testid="knowledge-file-input"
+              />
             </div>
             <div className="space-y-2">
-              {knowledgeReferencesMock.map((ref) => (
-                <div key={ref.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`reference-${ref.id}`}>
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground">{ref.name}</p>
-                      <p className="text-xs text-muted-foreground">{ref.items.toLocaleString()} items</p>
+              {knowledgeLoading ? (
+                <>
+                  <Skeleton className="h-16 rounded-lg" />
+                  <Skeleton className="h-16 rounded-lg" />
+                  <Skeleton className="h-16 rounded-lg" />
+                </>
+              ) : knowledgeDocuments && knowledgeDocuments.length > 0 ? (
+                knowledgeDocuments.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`reference-${doc.id}`}>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground">{doc.name}</p>
+                        <p className="text-xs text-muted-foreground">{doc.type} - {(doc.size / 1024).toFixed(1)} KB</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge variant="secondary">{doc.status}</Badge>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteDocument(doc.id, doc.name)} data-testid={`reference-delete-${doc.id}`}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge variant="secondary">{ref.status}</Badge>
-                    <Button variant="ghost" size="icon" onClick={() => toast({ title: 'Delete Reference', description: 'Delete not available in demo mode.' })} data-testid={`reference-delete-${ref.id}`}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6">
+                  <BookOpen className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-sm text-muted-foreground">No documents uploaded</p>
                 </div>
-              ))}
+              )}
             </div>
             <p className="text-xs text-muted-foreground mt-3 flex items-start gap-1.5">
               <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
@@ -794,27 +889,43 @@ export function AgentConfigPane() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-3">
-              {[
-                { id: 'kb-1', name: 'Product Catalog', count: '248 items', type: 'Inventory Data', status: 'indexed' },
-                { id: 'kb-2', name: 'FAQ & Policies', count: '42 docs', type: 'Documents', status: 'indexed' },
-                { id: 'kb-3', name: 'Training Scripts', count: '15 flows', type: 'Conversation', status: 'indexed' },
-              ].map(kb => (
-                <div key={kb.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
-                  <div className="flex items-center gap-3">
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{kb.name}</p>
-                      <p className="text-xs text-muted-foreground">{kb.count} - {kb.type}</p>
+              {knowledgeLoading ? (
+                <>
+                  <Skeleton className="h-16 rounded-lg" />
+                  <Skeleton className="h-16 rounded-lg" />
+                  <Skeleton className="h-16 rounded-lg" />
+                </>
+              ) : knowledgeDocuments && knowledgeDocuments.length > 0 ? (
+                knowledgeDocuments.map(doc => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{doc.name}</p>
+                        <p className="text-xs text-muted-foreground">{doc.type} - {(doc.size / 1024).toFixed(1)} KB</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">{doc.status}</Badge>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteDocument(doc.id, doc.name)} data-testid={`kb-delete-${doc.id}`}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-xs">{kb.status}</Badge>
+                ))
+              ) : (
+                <div className="text-center py-4">
+                  <BookOpen className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-sm text-muted-foreground">No documents uploaded yet</p>
                 </div>
-              ))}
+              )}
             </div>
 
             <div
               className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => setKnowledgeUploadOpen(true)}
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
               data-testid="knowledge-upload-area"
             >
               <Upload className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />

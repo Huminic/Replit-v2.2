@@ -42,7 +42,7 @@ import {
   Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -270,6 +270,9 @@ export function TopBar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2 px-2" data-testid="button-profile-menu">
               <Avatar className="h-8 w-8">
+                {currentUser.profilePhotoUrl ? (
+                  <AvatarImage src={currentUser.profilePhotoUrl} alt={currentUser.name} data-testid="img-topbar-avatar" />
+                ) : null}
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {userInitials}
                 </AvatarFallback>
