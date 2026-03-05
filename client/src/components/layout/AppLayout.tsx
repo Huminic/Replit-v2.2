@@ -71,6 +71,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isAgentsPage = location.startsWith('/agents');
 
   useEffect(() => {
+    setRightPaneOpen(false);
     if (viewConfig !== 'data-display' && viewConfig !== 'heavy-chat') {
       setSelectedAgent(null);
     }

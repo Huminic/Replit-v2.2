@@ -33,7 +33,8 @@ Preferred communication style: Simple, everyday language.
 
 Pages wired to real API data:
 - **TeamBox**: `GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/messages`, `PATCH /api/conversations/:id`
-- **Main Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), persists messages, conversation channel="ai-chat", markdown rendering (react-markdown + remark-gfm), copy/regenerate/stop/retry message actions
+- **Main Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), persists messages, conversation channel="ai-chat", markdown rendering (react-markdown + remark-gfm), copy/regenerate/stop/retry message actions, always starts a fresh conversation on page load
+- **Knowledge Base RAG**: KB documents with text content are injected into the AI chat system prompt (per-doc 8K cap, 32K total cap); agent-specific docs + org-wide docs included contextually
 - **RightPane Chat**: Same streaming pattern, channel="ai-assistant"
 - **Agent Chat**: Per-agent conversation persistence (channel="agent-chat-{agentId}"), AI uses agent instructions as system prompt context
 - **Service**: Agents from `GET /api/agents?department=service`, campaigns from `GET /api/campaigns?department=service`

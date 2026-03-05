@@ -435,38 +435,28 @@ export default function MainPage() {
   const findOrCreateConversation = useCallback(async () => {
     if (!authUser || initialized) return;
 
-    const userEmail = authUser.email;
-    const match = existingConversations?.find(
-      (c) => c.customerEmail === userEmail && c.channel === 'ai-chat'
-    );
+    try {
+      const res = await apiRequest('POST', '/api/conversations', {
+        customerName: `${authUser.firstName} ${authUser.lastName}`,
+        customerEmail: authUser.email,
+        channel: 'ai-chat',
+        status: 'open',
+      });
+      const newConv: DbConversation = await res.json();
+      setConversationId(newConv.id);
 
-    if (match) {
-      setConversationId(match.id);
+      const greeting = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
+      await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
+        role: 'assistant',
+        content: greeting,
+        senderName: personaName,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
-    } else if (existingConversations !== undefined) {
-      try {
-        const res = await apiRequest('POST', '/api/conversations', {
-          customerName: `${authUser.firstName} ${authUser.lastName}`,
-          customerEmail: userEmail,
-          channel: 'ai-chat',
-          status: 'open',
-        });
-        const newConv: DbConversation = await res.json();
-        setConversationId(newConv.id);
-
-        const greeting = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
-        await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
-          role: 'assistant',
-          content: greeting,
-          senderName: personaName,
-        });
-        queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
-        setInitialized(true);
-      } catch (err) {
-        console.error('Failed to create main chat conversation:', err);
-      }
+    } catch (err) {
+      console.error('Failed to create main chat conversation:', err);
     }
-  }, [authUser, existingConversations, initialized, personaName]);
+  }, [authUser, initialized, personaName]);
 
   useEffect(() => {
     findOrCreateConversation();
