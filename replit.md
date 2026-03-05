@@ -33,7 +33,7 @@ Preferred communication style: Simple, everyday language.
 
 Pages wired to real API data:
 - **TeamBox**: `GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/messages`, `PATCH /api/conversations/:id`
-- **Main Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), persists messages, conversation channel="ai-chat"
+- **Main Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), persists messages, conversation channel="ai-chat", markdown rendering (react-markdown + remark-gfm), copy/regenerate/stop/retry message actions
 - **RightPane Chat**: Same streaming pattern, channel="ai-assistant"
 - **Agent Chat**: Per-agent conversation persistence (channel="agent-chat-{agentId}"), AI uses agent instructions as system prompt context
 - **Service**: Agents from `GET /api/agents?department=service`, campaigns from `GET /api/campaigns?department=service`
@@ -82,7 +82,7 @@ Pages still using hardcoded/static data (no API backend yet):
 - Agents: GET/POST /api/agents (supports ?department= filter), GET/PATCH/DELETE /api/agents/:id
 - Organizations: GET /api/organizations, GET/PATCH /api/organizations/:id
 - Users: GET /api/users (org users with roles), PATCH /api/users/me
-- Conversations: GET/POST /api/conversations, GET/PATCH /api/conversations/:id, GET/POST /api/conversations/:id/messages
+- Conversations: GET/POST /api/conversations, GET/PATCH/DELETE /api/conversations/:id, GET/POST /api/conversations/:id/messages
 - Campaigns: GET /api/campaigns (supports ?department= filter), POST /api/campaigns, GET/PATCH /api/campaigns/:id
 - VAPI Proxy (read-only): GET /api/vapi/assistants, GET /api/vapi/phone-numbers, GET /api/vapi/calls (?assistantId=, ?limit=), GET /api/vapi/calls/:callId, GET /api/vapi/analytics
 - Tavus Proxy (read-only): GET /api/tavus/personas, GET /api/tavus/replicas, GET /api/tavus/conversations (?personaId=, ?limit=)

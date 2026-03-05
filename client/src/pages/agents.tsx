@@ -39,7 +39,10 @@ import {
   Send,
   Sparkles,
   ArrowLeft,
-  Globe
+  Globe,
+  Square,
+  RotateCcw,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -60,6 +63,7 @@ import { type Agent, type Conversation as DbConversation, type Message as DbMess
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
+import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { formatDistanceToNow } from 'date-fns';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -164,10 +168,15 @@ export default function AgentsPage() {
     }
   }, [dbMessages]);
 
-  const { sendMessage: streamSend, isStreaming, streamingContent, statusMessage } = useStreamingChat({
+  const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
     agentId: selectedAgent?.id,
   });
+
+  const lastAgentUserContent = agentMessages.filter(m => m.role === 'user').at(-1)?.content;
+  const handleRegenerate = () => {
+    if (lastAgentUserContent) streamSend(lastAgentUserContent);
+  };
 
   const handleAgentSend = async () => {
     if (!agentInput.trim() || !conversationId) return;
@@ -254,24 +263,36 @@ export default function AgentsPage() {
 
           <ScrollArea className="flex-1" ref={agentScrollRef}>
             <div className="p-4 md:p-6 flex flex-col gap-4 max-w-3xl mx-auto">
-              {agentMessages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    'max-w-[80%] rounded-2xl px-4 py-3',
-                    msg.role === 'assistant'
-                      ? 'self-start bg-card border border-border text-foreground'
-                      : 'self-end bg-primary text-primary-foreground'
-                  )}
-                  data-testid={`agent-message-${msg.id}`}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                </div>
-              ))}
+              {agentMessages.map((msg, idx) => {
+                const isLastAssistant = msg.role === 'assistant' && idx === agentMessages.length - 1;
+                return (
+                  <div
+                    key={msg.id}
+                    className={cn(
+                      'max-w-[80%] rounded-2xl px-4 py-3',
+                      msg.role === 'assistant'
+                        ? 'self-start bg-card border border-border text-foreground'
+                        : 'self-end bg-primary text-primary-foreground'
+                    )}
+                    data-testid={`agent-message-${msg.id}`}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <MarkdownMessage
+                        content={msg.content}
+                        rawContent={msg.content}
+                        isLastAssistant={isLastAssistant && !isStreaming}
+                        onRegenerate={handleRegenerate}
+                      />
+                    ) : (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    )}
+                  </div>
+                );
+              })}
               {isStreaming && (
                 <div className="self-start max-w-[80%] rounded-2xl px-4 py-3 bg-card border border-border text-foreground" data-testid="streaming-message">
                   {streamingContent ? (
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                    <MarkdownMessage content={streamingContent} isStreaming showActions={false} />
                   ) : statusMessage ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-3.5 w-3.5 animate-pulse" />
@@ -283,6 +304,21 @@ export default function AgentsPage() {
                       <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
                       <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
                     </div>
+                  )}
+                </div>
+              )}
+
+              {streamError && !isStreaming && (
+                <div className="self-start max-w-[80%] rounded-2xl px-4 py-3 bg-destructive/10 border border-destructive/30" data-testid="stream-error">
+                  <div className="flex items-center gap-2 text-sm text-destructive mb-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{streamError}</span>
+                  </div>
+                  {lastFailedContent && (
+                    <Button size="sm" variant="outline" onClick={retry} data-testid="button-retry">
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                      Retry
+                    </Button>
                   )}
                 </div>
               )}
@@ -316,15 +352,27 @@ export default function AgentsPage() {
                     rows={1}
                     data-testid="input-agent-chat"
                   />
-                  <Button
-                    size="icon"
-                    className="h-9 w-9 flex-shrink-0 rounded-full"
-                    onClick={handleAgentSend}
-                    disabled={!agentInput.trim() || isStreaming}
-                    data-testid="button-agent-send"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                  {isStreaming ? (
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-9 w-9 flex-shrink-0 rounded-full"
+                      onClick={abortStream}
+                      data-testid="button-agent-stop"
+                    >
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      size="icon"
+                      className="h-9 w-9 flex-shrink-0 rounded-full"
+                      onClick={handleAgentSend}
+                      disabled={!agentInput.trim()}
+                      data-testid="button-agent-send"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

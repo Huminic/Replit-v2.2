@@ -21,7 +21,7 @@
  * @see messages.ts — provides mockChatMessages and agentSuggestions
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Plus, Sparkles, Globe } from 'lucide-react';
+import { Send, Plus, Sparkles, Globe, Square, RotateCcw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -31,6 +31,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
+import { MarkdownMessage } from '@/components/MarkdownMessage';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
 interface RightPaneProps {
@@ -116,9 +117,14 @@ export function RightPane({ className }: RightPaneProps) {
     }
   }, [dbMessages, conversationId, personaName, authUser]);
 
-  const { sendMessage: streamSend, isStreaming, streamingContent, statusMessage } = useStreamingChat({
+  const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
   });
+
+  const lastUserContent = messages.filter(m => m.role === 'user').at(-1)?.content;
+  const handleRegenerate = () => {
+    if (lastUserContent) streamSend(lastUserContent);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -166,33 +172,45 @@ export function RightPane({ className }: RightPaneProps) {
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="flex flex-col gap-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn(
-                'flex',
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-              data-testid={`chat-message-${message.id}`}
-            >
+          {messages.map((message, idx) => {
+            const isLastAssistant = message.role === 'assistant' && idx === messages.length - 1;
+            return (
               <div
+                key={message.id}
                 className={cn(
-                  'density-chat rounded-xl px-4 py-3 max-w-[85%]',
-                  message.role === 'assistant'
-                    ? 'bg-card border border-border'
-                    : 'bg-primary text-primary-foreground'
+                  'flex',
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
+                data-testid={`chat-message-${message.id}`}
               >
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                <div
+                  className={cn(
+                    'density-chat rounded-xl px-4 py-3 max-w-[85%]',
+                    message.role === 'assistant'
+                      ? 'bg-card border border-border'
+                      : 'bg-primary text-primary-foreground'
+                  )}
+                >
+                  {message.role === 'assistant' ? (
+                    <MarkdownMessage
+                      content={message.content}
+                      rawContent={message.content}
+                      isLastAssistant={isLastAssistant && !isStreaming}
+                      onRegenerate={handleRegenerate}
+                    />
+                  ) : (
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {isStreaming && (
             <div className="flex justify-start" data-testid="streaming-message">
               <div className="density-chat rounded-xl px-4 py-3 max-w-[85%] bg-card border border-border">
                 {streamingContent ? (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                  <MarkdownMessage content={streamingContent} isStreaming showActions={false} />
                 ) : statusMessage ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Globe className="h-3.5 w-3.5 animate-pulse" />
@@ -204,6 +222,23 @@ export function RightPane({ className }: RightPaneProps) {
                     <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
                     <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
                   </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {streamError && !isStreaming && (
+            <div className="flex justify-start" data-testid="stream-error">
+              <div className="density-chat rounded-xl px-4 py-3 max-w-[85%] bg-destructive/10 border border-destructive/30">
+                <div className="flex items-center gap-2 text-sm text-destructive mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{streamError}</span>
+                </div>
+                {lastFailedContent && (
+                  <Button size="sm" variant="outline" onClick={retry} data-testid="button-retry">
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                    Retry
+                  </Button>
                 )}
               </div>
             </div>
@@ -255,15 +290,27 @@ export function RightPane({ className }: RightPaneProps) {
               rows={1}
               data-testid="input-chat-message"
             />
-            <Button
-              size="icon"
-              className="h-8 w-8 flex-shrink-0 rounded-lg"
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isStreaming}
-              data-testid="button-send-message"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            {isStreaming ? (
+              <Button
+                size="icon"
+                variant="destructive"
+                className="h-8 w-8 flex-shrink-0 rounded-lg"
+                onClick={abortStream}
+                data-testid="button-chat-stop"
+              >
+                <Square className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                className="h-8 w-8 flex-shrink-0 rounded-lg"
+                onClick={handleSend}
+                disabled={!inputValue.trim()}
+                data-testid="button-send-message"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

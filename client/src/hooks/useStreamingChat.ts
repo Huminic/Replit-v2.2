@@ -8,10 +8,13 @@ interface UseStreamingChatOptions {
 
 interface UseStreamingChatReturn {
   sendMessage: (content: string) => Promise<void>;
+  abortStream: () => void;
+  retry: () => void;
   isStreaming: boolean;
   streamingContent: string;
   statusMessage: string | null;
   error: string | null;
+  lastFailedContent: string | null;
 }
 
 function parseSSELines(lines: string[], accumulated: { text: string }, setStreamingContent: (s: string) => void, setStatusMessage: (s: string | null) => void): boolean {
@@ -49,6 +52,7 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
   const [streamingContent, setStreamingContent] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastFailedContent, setLastFailedContent] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -58,6 +62,13 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
         abortRef.current = null;
       }
     };
+  }, []);
+
+  const abortStream = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
   }, []);
 
   const sendMessage = useCallback(async (content: string) => {
@@ -71,6 +82,7 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
     setStreamingContent('');
     setStatusMessage(null);
     setError(null);
+    setLastFailedContent(null);
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -117,14 +129,25 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
 
       queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
     } catch (err: any) {
-      if (err.name === 'AbortError') return;
+      if (err.name === 'AbortError') {
+        queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
+        return;
+      }
       console.error('Streaming chat error:', err);
       setError(err.message || 'Failed to get AI response');
+      setLastFailedContent(content);
     } finally {
       setIsStreaming(false);
+      setStatusMessage(null);
       abortRef.current = null;
     }
   }, [conversationId, agentId]);
 
-  return { sendMessage, isStreaming, streamingContent, statusMessage, error };
+  const retry = useCallback(() => {
+    if (lastFailedContent) {
+      sendMessage(lastFailedContent);
+    }
+  }, [lastFailedContent, sendMessage]);
+
+  return { sendMessage, abortStream, retry, isStreaming, streamingContent, statusMessage, error, lastFailedContent };
 }
