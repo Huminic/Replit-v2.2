@@ -20,8 +20,9 @@
 |------|--------|--------|--------------|
 | 0 | Setup & UI Prototype | DONE | — |
 | 1 | API Wiring & Data Sources | DONE | — |
-| 2.1 | AI Chat & Conversation Engine | NOT STARTED | — |
-| 2.2 | User & Org Management | NOT STARTED | — |
+| 2.1 | AI Chat & Conversation Engine | DONE | ~30% |
+| 2.2a | User CRUD + Password Mgmt | DONE | ~33% |
+| 2.2b | File Uploads (KB, CSV, Photos) | NOT STARTED | — |
 | 2.3 | Real Metrics & Dashboard Wiring | NOT STARTED | — |
 | 3.1 | Outbound Communication Engine | NOT STARTED | — |
 | 3.2 | Webhooks & Real-Time | NOT STARTED | — |
@@ -29,7 +30,7 @@
 | 4.1 | Widget Backend & Calendar | NOT STARTED | — |
 | 4.2 | Security, Performance & E2E | NOT STARTED | — |
 
-**Overall Progress: ~25%** (Waves 0-1 complete out of Waves 0-4)
+**Overall Progress: ~33%** (Waves 0-1 complete, Wave 2.1-2.2a done)
 
 ---
 
@@ -78,15 +79,40 @@
 
 ---
 
-### Sprint 2.2 — User & Org Management
-**Functionality Outcome:** Admins can create, edit, and deactivate users from Settings. Password management works. File uploads (knowledge base, campaign CSV, profile photos) actually store files instead of showing "demo mode" toasts.
+### Sprint 2.2a — User CRUD + Password Management
+**Status:** COMPLETE
+**Functionality Outcome:** Admins can create, edit, and deactivate users from Settings. Password change (self) and admin password reset work. RBAC enforced — can't modify users with higher privileges.
+
+**What was built:**
+- `GET /api/roles` — returns all roles for role dropdown
+- `POST /api/users` — create user with role, email uniqueness validation, password min-length 6, bcrypt hashing
+- `PATCH /api/users/:id` — update firstName/lastName/roleId/isActive; RBAC: can't modify higher-privilege users
+- `POST /api/users/:id/reset-password` — admin resets user password; RBAC enforced; invalidates target sessions
+- `POST /api/auth/change-password` — user changes own password with current password verification
+- Add User dialog in Settings (firstName, lastName, email, password, role dropdown)
+- Edit User dialog (firstName, lastName, role dropdown, active/inactive toggle)
+- Deactivate user from dropdown menu (sets isActive=false, card dimmed with Inactive badge)
+- Reset Password dialog from user dropdown menu
+- Change Password dialog in Security settings section
+- User search/filter in User Management
 
 **Acceptance Criteria Touched:**
-- [ ] Settings > User Management: add new user with role assignment
-- [ ] Settings > User Management: edit user role/status
-- [ ] Settings > User Management: deactivate user
-- [ ] Admin can reset a user's password
-- [ ] User can change own password from profile
+- [x] Settings > User Management: add new user with role assignment
+- [x] Settings > User Management: edit user role/status
+- [x] Settings > User Management: deactivate user
+- [x] Admin can reset a user's password
+- [x] User can change own password from Security settings
+- [x] RBAC prevents privilege escalation (can't modify/reset higher-privilege users)
+
+**Architect Review:** PASSED (3 issues found and fixed — privilege escalation RBAC check, password min-length on create, target role level check on reset)
+**E2E Tests:** PASSED (add user, edit user, deactivate user, search filter)
+
+---
+
+### Sprint 2.2b — File Uploads (Knowledge Base, CSV, Profile Photos)
+**Functionality Outcome:** File uploads (knowledge base, campaign CSV, profile photos) actually store files instead of showing "demo mode" toasts.
+
+**Acceptance Criteria Touched:**
 - [ ] Knowledge base: upload, list, delete documents
 - [ ] Campaign CSV upload populates recipient count
 - [ ] Profile photo upload shows real image

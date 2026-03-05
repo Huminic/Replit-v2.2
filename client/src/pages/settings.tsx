@@ -235,12 +235,140 @@ export default function SettingsPage() {
     email: string;
     firstName: string;
     lastName: string;
+    isActive?: boolean;
     role?: { id: string; name: string; level: number };
+  }
+
+  interface ApiRole {
+    id: string;
+    name: string;
+    level: number;
   }
 
   const { data: apiUsers = [], isLoading: usersLoading } = useQuery<ApiUser[]>({
     queryKey: ['/api/users'],
   });
+
+  const { data: roles = [] } = useQuery<ApiRole[]>({
+    queryKey: ['/api/roles'],
+  });
+
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ firstName: '', lastName: '', email: '', password: '', roleId: '' });
+
+  const [editUserOpen, setEditUserOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<ApiUser | null>(null);
+  const [editForm, setEditForm] = useState({ firstName: '', lastName: '', roleId: '', isActive: true });
+
+  const [resetPwOpen, setResetPwOpen] = useState(false);
+  const [resetPwTarget, setResetPwTarget] = useState<ApiUser | null>(null);
+  const [resetPwForm, setResetPwForm] = useState({ newPassword: '' });
+
+  const [changePwOpen, setChangePwOpen] = useState(false);
+  const [changePwForm, setChangePwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+  const [userSearch, setUserSearch] = useState('');
+
+  const createUserMutation = useMutation({
+    mutationFn: async (data: typeof addForm) => {
+      const res = await apiRequest('POST', '/api/users', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setAddUserOpen(false);
+      setAddForm({ firstName: '', lastName: '', email: '', password: '', roleId: '' });
+      toast({ title: 'User created', description: 'New user has been added successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to create user', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, any> }) => {
+      const res = await apiRequest('PATCH', `/api/users/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setEditUserOpen(false);
+      setEditTarget(null);
+      toast({ title: 'User updated', description: 'User has been updated successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to update user', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const deactivateUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest('PATCH', `/api/users/${id}`, { isActive: false });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      toast({ title: 'User deactivated', description: 'User has been deactivated.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to deactivate user', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ id, newPassword }: { id: string; newPassword: string }) => {
+      const res = await apiRequest('POST', `/api/users/${id}/reset-password`, { newPassword });
+      return res.json();
+    },
+    onSuccess: () => {
+      setResetPwOpen(false);
+      setResetPwTarget(null);
+      setResetPwForm({ newPassword: '' });
+      toast({ title: 'Password reset', description: 'User password has been reset successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to reset password', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const res = await apiRequest('POST', '/api/auth/change-password', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      setChangePwOpen(false);
+      setChangePwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast({ title: 'Password changed', description: 'Your password has been changed successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to change password', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const openEditUser = (user: ApiUser) => {
+    setEditTarget(user);
+    setEditForm({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roleId: user.role?.id || '',
+      isActive: user.isActive !== false,
+    });
+    setEditUserOpen(true);
+  };
+
+  const openResetPassword = (user: ApiUser) => {
+    setResetPwTarget(user);
+    setResetPwForm({ newPassword: '' });
+    setResetPwOpen(true);
+  };
+
+  const filteredUsers = userSearch
+    ? apiUsers.filter(u => {
+        const name = `${u.firstName} ${u.lastName}`.toLowerCase();
+        return name.includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase());
+      })
+    : apiUsers;
 
   const commGateMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
@@ -387,7 +515,7 @@ export default function SettingsPage() {
           Back
         </Button>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => toast({ title: 'Add user', description: 'User creation is not available in demo mode.' })} data-testid="button-add-user">
+          <Button size="sm" onClick={() => setAddUserOpen(true)} data-testid="button-add-user">
             <Plus className="h-4 w-4 mr-1" />
             Add User
           </Button>
@@ -401,7 +529,7 @@ export default function SettingsPage() {
       </div>
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search users..." className="pl-9" data-testid="input-search-users" />
+        <Input placeholder="Search users..." className="pl-9" value={userSearch} onChange={e => setUserSearch(e.target.value)} data-testid="input-search-users" />
       </div>
       <div className="space-y-2">
         {usersLoading ? (
@@ -418,11 +546,12 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
           ))
-        ) : apiUsers.map(user => {
+        ) : filteredUsers.map(user => {
           const userName = `${user.firstName} ${user.lastName}`;
           const roleName = user.role?.name as UserRole | undefined;
+          const isInactive = user.isActive === false;
           return (
-            <Card key={user.id} className="hover-elevate" data-testid={`user-${user.id}`}>
+            <Card key={user.id} className={cn("hover-elevate", isInactive && "opacity-50")} data-testid={`user-${user.id}`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10">
@@ -439,6 +568,9 @@ export default function SettingsPage() {
                           {getRoleLabel(roleName)}
                         </Badge>
                       )}
+                      {isInactive && (
+                        <Badge variant="outline" className="text-muted-foreground">Inactive</Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
@@ -449,14 +581,18 @@ export default function SettingsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => toast({ title: 'Edit user', description: `Editing ${userName} is not available in demo mode.` })}>
+                      <DropdownMenuItem onClick={() => openEditUser(user)} data-testid={`edit-user-${user.id}`}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openResetPassword(user)} data-testid={`reset-pw-${user.id}`}>
+                        <KeyRound className="h-4 w-4 mr-2" />
+                        Reset Password
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive" onClick={() => toast({ title: 'User removed', description: `${userName} has been removed.` })}>
+                      <DropdownMenuItem className="text-destructive" onClick={() => deactivateUserMutation.mutate(user.id)} data-testid={`deactivate-user-${user.id}`}>
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Remove
+                        Deactivate
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -2580,9 +2716,9 @@ export default function SettingsPage() {
           <Separator />
           <div>
             <p className="font-medium text-sm text-foreground mb-2">Password Management</p>
-            <Button variant="outline" onClick={() => toast({ title: 'Password reset', description: 'Password reset email sent.' })} data-testid="button-reset-password">
+            <Button variant="outline" onClick={() => setChangePwOpen(true)} data-testid="button-change-password">
               <Lock className="h-3.5 w-3.5 mr-1" />
-              Reset Password
+              Change Password
             </Button>
           </div>
         </CardContent>
@@ -2999,6 +3135,154 @@ export default function SettingsPage() {
       </ScrollArea>
 
       {renderWidgetPreviewModal()}
+
+      <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>Create a new user account for your organization.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>First Name</Label>
+                <Input value={addForm.firstName} onChange={e => setAddForm(f => ({ ...f, firstName: e.target.value }))} placeholder="First name" data-testid="input-add-firstname" />
+              </div>
+              <div className="space-y-2">
+                <Label>Last Name</Label>
+                <Input value={addForm.lastName} onChange={e => setAddForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Last name" data-testid="input-add-lastname" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input type="email" value={addForm.email} onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" data-testid="input-add-email" />
+            </div>
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <Input type="password" value={addForm.password} onChange={e => setAddForm(f => ({ ...f, password: e.target.value }))} placeholder="Minimum 6 characters" data-testid="input-add-password" />
+            </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={addForm.roleId} onValueChange={v => setAddForm(f => ({ ...f, roleId: v }))}>
+                <SelectTrigger data-testid="select-add-role">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map(r => (
+                    <SelectItem key={r.id} value={r.id} data-testid={`role-option-${r.id}`}>{getRoleLabel(r.name as UserRole)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddUserOpen(false)} data-testid="button-cancel-add">Cancel</Button>
+            <Button onClick={() => createUserMutation.mutate(addForm)} disabled={createUserMutation.isPending || !addForm.firstName || !addForm.lastName || !addForm.email || !addForm.password || !addForm.roleId} data-testid="button-submit-add">
+              {createUserMutation.isPending ? 'Creating...' : 'Add User'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editUserOpen} onOpenChange={setEditUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>Update user details for {editTarget ? `${editTarget.firstName} ${editTarget.lastName}` : ''}.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>First Name</Label>
+                <Input value={editForm.firstName} onChange={e => setEditForm(f => ({ ...f, firstName: e.target.value }))} data-testid="input-edit-firstname" />
+              </div>
+              <div className="space-y-2">
+                <Label>Last Name</Label>
+                <Input value={editForm.lastName} onChange={e => setEditForm(f => ({ ...f, lastName: e.target.value }))} data-testid="input-edit-lastname" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={editForm.roleId} onValueChange={v => setEditForm(f => ({ ...f, roleId: v }))}>
+                <SelectTrigger data-testid="select-edit-role">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map(r => (
+                    <SelectItem key={r.id} value={r.id}>{getRoleLabel(r.name as UserRole)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Active</Label>
+                <p className="text-xs text-muted-foreground">User can log in and access the system</p>
+              </div>
+              <Switch checked={editForm.isActive} onCheckedChange={v => setEditForm(f => ({ ...f, isActive: v }))} data-testid="switch-edit-active" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
+            <Button onClick={() => editTarget && updateUserMutation.mutate({ id: editTarget.id, data: editForm })} disabled={updateUserMutation.isPending} data-testid="button-submit-edit">
+              {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetPwOpen} onOpenChange={setResetPwOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>Set a new password for {resetPwTarget ? `${resetPwTarget.firstName} ${resetPwTarget.lastName}` : ''}.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>New Password</Label>
+              <Input type="password" value={resetPwForm.newPassword} onChange={e => setResetPwForm({ newPassword: e.target.value })} placeholder="Minimum 6 characters" data-testid="input-reset-password" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetPwOpen(false)} data-testid="button-cancel-reset-pw">Cancel</Button>
+            <Button onClick={() => resetPwTarget && resetPasswordMutation.mutate({ id: resetPwTarget.id, newPassword: resetPwForm.newPassword })} disabled={resetPasswordMutation.isPending || resetPwForm.newPassword.length < 6} data-testid="button-submit-reset-pw">
+              {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={changePwOpen} onOpenChange={setChangePwOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>Enter your current password and choose a new one.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Current Password</Label>
+              <Input type="password" value={changePwForm.currentPassword} onChange={e => setChangePwForm(f => ({ ...f, currentPassword: e.target.value }))} data-testid="input-current-password" />
+            </div>
+            <div className="space-y-2">
+              <Label>New Password</Label>
+              <Input type="password" value={changePwForm.newPassword} onChange={e => setChangePwForm(f => ({ ...f, newPassword: e.target.value }))} placeholder="Minimum 6 characters" data-testid="input-new-password" />
+            </div>
+            <div className="space-y-2">
+              <Label>Confirm New Password</Label>
+              <Input type="password" value={changePwForm.confirmPassword} onChange={e => setChangePwForm(f => ({ ...f, confirmPassword: e.target.value }))} data-testid="input-confirm-password" />
+            </div>
+            {changePwForm.newPassword && changePwForm.confirmPassword && changePwForm.newPassword !== changePwForm.confirmPassword && (
+              <p className="text-sm text-destructive">Passwords do not match</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChangePwOpen(false)} data-testid="button-cancel-change-pw">Cancel</Button>
+            <Button onClick={() => changePasswordMutation.mutate({ currentPassword: changePwForm.currentPassword, newPassword: changePwForm.newPassword })} disabled={changePasswordMutation.isPending || !changePwForm.currentPassword || changePwForm.newPassword.length < 6 || changePwForm.newPassword !== changePwForm.confirmPassword} data-testid="button-submit-change-pw">
+              {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
