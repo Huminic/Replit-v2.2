@@ -1,0 +1,28 @@
+
+1. We need a departmental filter on the teambox and rbac which dpartments are displayed. 
+2. Wondering how we segment campaigns in the teambox 
+3. We need to make sure we use environment variables and track them in case we deploy to railway
+4. Please remember we are going to migrate the data to supabase at some point
+5. Please remember that Vapi and Tavus have built in prompts at the vendor for now, we WILL NOT be doing bidirectional MCP YET. 
+6. Please dont use words like “MVP” in the coding
+7. Remember there is going to be a metrics storage to search thats from uploaded data in addition to searching crm metrics but the agent has to specify where it gets the data and we dont trigger on that data ever
+
+
+g9 - thiis is for the managerial activity monitoring
+g11 - We are going to use postgres and then migrate to supabase, BUT I need a  cheap recccomendation for file storage 
+g17 I have a file that was used to probe. vin solutions data to identify which metrics we could use i’m suprised to see that we have any that werent in that list. I will give you the fiels from the probe for you to reveiw. 
+g20 - see g11
+g27  - We need to include the reply unsubscribe to opt out in every text messsage lest we get charged for two text messages and double cost
+g28 - I have keys and will provide when its time or before
+g29 -  You should be able to loopback on yourself and if not use 412.654.6500 for all messages and limit to that number until we go live
+g37 - see g11
+g41 - We dont use the word “MVP” anywhere 2. Red zone pulls from vin solutions only leads that have come in in the last 30 days and had any activity in the last 2 weeks are monitored for being left behind for now
+g42 - whats in the UI has to work
+g43  - whatever the most usable least problematic approach is what to use for embed code. 
+g44 - this will need to survive other web servers if we move it. 
+g45 - leave as stubbed unless you can find an open source library for oath
+g46 - have we decided on task assignment from user to user? 
+g48 - All mock data must be gone, if we dont have data for a metric it gets removed
+g50 - ALL TESTING IS BUILT FROM UI AUDIT AND ACCEPTANCE CRITERIA
+Q5 - This chat has to give chat gpt a run for its money in quality and qualia - speaking of qualia there should be a system level recognition of quallia instructions in system chat prompt
+Q6 - compute from data, we will be uploading additional data in to the database through the back end but we arent computing metrics from it
