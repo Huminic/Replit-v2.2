@@ -23,7 +23,7 @@
  *
  * @see Sidebar.tsx — triggers this panel via activePanel state
  * @see AppContext.tsx — provides activePanel, subMenuExpanded, panelHovered
- * @production Conversations currently from mockTeamboxConversations; will wire to backend API
+ * @production Conversations and agents wired to backend API via useQuery
  */
 import { useRef, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
