@@ -73,7 +73,7 @@ function buildSalesMetrics(summary: LeadSummary | undefined) {
 
 export default function SalesPage() {
   const [, setLocation] = useLocation();
-  const { selectedAgent, setSelectedAgent } = useApp();
+  const { selectedAgent, setSelectedAgent, setRightPaneOpen } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({
@@ -233,7 +233,7 @@ export default function SalesPage() {
             <Card
               key={agent.id}
               className={cn('cursor-pointer hover:shadow-md transition-shadow', selectedAgent?.id === agent.id && 'ring-2 ring-primary')}
-              onClick={() => setSelectedAgent(agent)}
+              onClick={() => { setSelectedAgent(agent); setLocation('/agents'); }}
               data-testid={`agent-card-${agent.id}`}
             >
               <CardContent className="p-4">
@@ -254,7 +254,7 @@ export default function SalesPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedAgent(agent);
-                      setLocation('/agents');
+                      setRightPaneOpen(true);
                     }}
                     data-testid={`button-agent-settings-${agent.id}`}
                   >

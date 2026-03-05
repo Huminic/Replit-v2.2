@@ -512,7 +512,6 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'sl-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/sales', active: location === '/sales' })}
-                  {renderNavItem({ id: 'sl-agents', label: 'Agents', icon: Bot, path: '/sales?tab=agents' })}
                   {renderNavItem({ id: 'sl-insights', label: 'Insights', icon: BarChart3, path: '/sales?tab=insights' })}
                   {renderNavItem({ id: 'sl-calendar', label: 'Calendar', icon: CalendarIcon, path: '/sales?tab=calendar' })}
                 </nav>
@@ -537,7 +536,6 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'sv-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/service', active: location === '/service' })}
-                  {renderNavItem({ id: 'sv-agents', label: 'Agents', icon: Bot, path: '/service?tab=agents' })}
                   {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service?tab=campaigns' })}
                   {renderNavItem({ id: 'sv-insights', label: 'Insights', icon: BarChart3, path: '/service?tab=insights' })}
                   {renderNavItem({ id: 'sv-calendar', label: 'Calendar', icon: CalendarIcon, path: '/service?tab=calendar' })}
@@ -563,7 +561,6 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mk-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/marketing', active: location === '/marketing' })}
-                  {renderNavItem({ id: 'mk-agents', label: 'Agents', icon: Bot, path: '/marketing?tab=agents' })}
                   {renderNavItem({ id: 'mk-campaigns', label: 'Campaigns', icon: Megaphone, path: '/marketing?tab=campaigns' })}
                   {renderNavItem({ id: 'mk-studio', label: 'Studio', icon: Palette, path: '/marketing?tab=studio' })}
                   {renderNavItem({ id: 'mk-insights', label: 'Insights', icon: BarChart3, path: '/marketing?tab=insights' })}

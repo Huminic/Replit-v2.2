@@ -67,7 +67,7 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function ServicePage() {
   const [, setLocation] = useLocation();
-  const { communicationGateEnabled, setSelectedAgent } = useApp();
+  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen } = useApp();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -203,7 +203,7 @@ export default function ServicePage() {
         <h2 className="text-lg font-semibold">Service Agents</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {serviceAgents.map(agent => (
-            <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`agent-card-${agent.id}`}>
+            <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setSelectedAgent(agent); setLocation('/agents'); }} data-testid={`agent-card-${agent.id}`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar className="h-10 w-10">
@@ -222,7 +222,7 @@ export default function ServicePage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedAgent(agent);
-                      setLocation('/agents');
+                      setRightPaneOpen(true);
                     }}
                     data-testid={`button-agent-settings-${agent.id}`}
                   >
