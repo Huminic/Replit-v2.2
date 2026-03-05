@@ -13,6 +13,7 @@ import {
   getRefreshTokenExpiryDate,
 } from "./auth";
 import { seedDatabase } from "./seed";
+import { braveWebSearch } from "./braveSearch";
 import {
   insertAgentSchema,
   insertConversationSchema,
@@ -795,6 +796,21 @@ export async function registerRoutes(
     }
   });
 
+  const webSearchTool: Anthropic.Tool = {
+    name: "web_search",
+    description: "Search the web for current information. Use this when the user asks about current events, recent news, real-time data, locations/businesses near a place, or anything that requires up-to-date information beyond your training data. Also use for questions about specific people, places, or facts you are uncertain about.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        query: {
+          type: "string",
+          description: "The search query. Be specific and include relevant context.",
+        },
+      },
+      required: ["query"],
+    },
+  };
+
   app.post("/api/chat/:conversationId/stream", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -823,9 +839,21 @@ export async function registerRoutes(
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const org = await storage.getOrganization(req.user.organizationId);
+      const [org, orgUsers, orgAgents] = await Promise.all([
+        storage.getOrganization(req.user.organizationId),
+        storage.getUsers(req.user.organizationId),
+        storage.getAgents(req.user.organizationId, {}),
+      ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "America/New_York" });
+      const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "America/New_York" });
+
+      const activeUsers = orgUsers.filter(u => u.isActive !== false);
+      const teamSummary = activeUsers.map(u => `${u.firstName} ${u.lastName} (${u.role?.name || "unknown"})`).join(", ");
+      const agentSummary = orgAgents.map(a => `${a.name} [${a.department}]`).join(", ");
 
       let agentContext = "";
       let agentName: string | null = null;
@@ -839,23 +867,29 @@ export async function registerRoutes(
         }
       }
 
-      const systemPrompt = `You are ${personaName}, an elite AI assistant for ${orgName} — a platform called Nexxus Connect that powers automotive dealership operations. You are exceptionally intelligent, articulate, and helpful.
+      const systemPrompt = `You are ${personaName}, an AI assistant powering Nexxus Connect for ${orgName} — an automotive dealership management platform.
+
+Current date and time: ${dateStr}, ${timeStr} (Eastern Time)
 
 User context:
 - Name: ${req.user.firstName} ${req.user.lastName}
 - Role: ${req.user.roleName}
 - Organization: ${orgName}
 
-Your personality:
-- You are confident, precise, and proactive
-- You give concise, actionable answers — no filler
-- You use data and specifics when available
-- You anticipate follow-up questions
-- When discussing dealership operations, you understand sales pipelines, service scheduling, marketing campaigns, lead management, and CRM workflows
-- You format responses with markdown when it improves readability (bullets, bold, headers)
-- You never say "as an AI" or apologize unnecessarily
-- If you don't have specific data, say so clearly — never fabricate dealership numbers, customer names, or metrics
-- Never share or request PII (SSN, full credit card numbers, etc.)${agentContext}`;
+Organization data you have access to:
+- Team members (${activeUsers.length}): ${teamSummary}
+- AI agents (${orgAgents.length}): ${agentSummary}
+
+Your personality and rules:
+- Confident, precise, and proactive — concise, actionable answers with no filler
+- You understand automotive dealership operations deeply: sales pipelines, BDC, F&I, service scheduling, marketing campaigns, lead management, CRM workflows, inventory
+- Format responses with markdown when it improves readability (bullets, bold, headers)
+- Never say "as an AI" or apologize unnecessarily
+- If you don't have specific data, say so clearly — never fabricate dealership numbers, customer records, or metrics
+- Never share or request PII (SSN, full credit card numbers, etc.)
+- When you are unsure about current events, facts, people, locations, or anything time-sensitive, use the web_search tool to look it up — do not guess
+- When the user asks about nearby businesses, competitors, local information, or anything geographic, use web_search
+- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -870,21 +904,101 @@ Your personality:
       res.setHeader("X-Accel-Buffering", "no");
       res.flushHeaders();
 
-      const stream = anthropic.messages.stream({
+      let fullResponse = "";
+      let currentMessages: Anthropic.MessageParam[] = chatMessages;
+      const MAX_TOOL_ROUNDS = 3;
+
+      const firstResponse = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 4096,
         system: systemPrompt,
-        messages: chatMessages,
+        messages: currentMessages,
+        tools: [webSearchTool],
       });
 
-      let fullResponse = "";
+      const needsToolUse = firstResponse.content.some(b => b.type === "tool_use");
 
-      for await (const event of stream) {
-        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-          const text = event.delta.text;
-          if (text) {
-            fullResponse += text;
-            res.write(`data: ${JSON.stringify({ type: "content", text })}\n\n`);
+      if (!needsToolUse) {
+        for (const block of firstResponse.content) {
+          if (block.type === "text" && block.text) {
+            fullResponse += block.text;
+            res.write(`data: ${JSON.stringify({ type: "content", text: block.text })}\n\n`);
+          }
+        }
+      } else {
+        let response = firstResponse;
+
+        for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+          let hasToolUse = false;
+          const toolResults: Anthropic.ToolResultBlockParam[] = [];
+          let intermediateText = "";
+
+          for (const block of response.content) {
+            if (block.type === "text") {
+              intermediateText += block.text;
+            } else if (block.type === "tool_use") {
+              hasToolUse = true;
+              if (intermediateText) {
+                res.write(`data: ${JSON.stringify({ type: "content", text: intermediateText })}\n\n`);
+                fullResponse += intermediateText;
+                intermediateText = "";
+              }
+              res.write(`data: ${JSON.stringify({ type: "status", text: "Searching the web..." })}\n\n`);
+
+              let resultText: string;
+              try {
+                const results = await braveWebSearch((block.input as { query: string }).query, 3);
+                resultText = results.map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.description}`).join("\n\n");
+              } catch (searchErr) {
+                resultText = "Web search temporarily unavailable. Answer from your existing knowledge.";
+              }
+
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: block.id,
+                content: resultText || "No results found.",
+              });
+            }
+          }
+
+          if (intermediateText) {
+            fullResponse += intermediateText;
+            res.write(`data: ${JSON.stringify({ type: "content", text: intermediateText })}\n\n`);
+          }
+
+          if (!hasToolUse) break;
+
+          currentMessages = [
+            ...currentMessages,
+            { role: "assistant", content: response.content },
+            { role: "user", content: toolResults },
+          ];
+
+          if (round === MAX_TOOL_ROUNDS - 1) break;
+
+          response = await anthropic.messages.create({
+            model: "claude-sonnet-4-6",
+            max_tokens: 4096,
+            system: systemPrompt,
+            messages: currentMessages,
+            tools: [webSearchTool],
+          });
+        }
+
+        const stream = anthropic.messages.stream({
+          model: "claude-sonnet-4-6",
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: currentMessages,
+        });
+
+        for await (const event of stream) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            const text = event.delta.text;
+            if (text) {
+              fullResponse += text;
+              res.write(`data: ${JSON.stringify({ type: "content", text })}\n\n`);
+            }
           }
         }
       }

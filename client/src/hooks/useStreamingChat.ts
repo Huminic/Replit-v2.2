@@ -10,10 +10,11 @@ interface UseStreamingChatReturn {
   sendMessage: (content: string) => Promise<void>;
   isStreaming: boolean;
   streamingContent: string;
+  statusMessage: string | null;
   error: string | null;
 }
 
-function parseSSELines(lines: string[], accumulated: { text: string }, setStreamingContent: (s: string) => void): boolean {
+function parseSSELines(lines: string[], accumulated: { text: string }, setStreamingContent: (s: string) => void, setStatusMessage: (s: string | null) => void): boolean {
   for (const line of lines) {
     if (!line.startsWith('data: ')) continue;
     const jsonStr = line.slice(6).trim();
@@ -23,11 +24,16 @@ function parseSSELines(lines: string[], accumulated: { text: string }, setStream
       const event = JSON.parse(jsonStr);
 
       if (event.type === 'content') {
+        setStatusMessage(null);
         accumulated.text += event.text;
         setStreamingContent(accumulated.text);
+      } else if (event.type === 'status') {
+        setStatusMessage(event.text || 'Working...');
       } else if (event.type === 'done') {
+        setStatusMessage(null);
         return true;
       } else if (event.type === 'error') {
+        setStatusMessage(null);
         throw new Error(event.message || 'Stream error');
       }
     } catch (parseErr) {
@@ -41,6 +47,7 @@ function parseSSELines(lines: string[], accumulated: { text: string }, setStream
 export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOptions): UseStreamingChatReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -62,6 +69,7 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
 
     setIsStreaming(true);
     setStreamingContent('');
+    setStatusMessage(null);
     setError(null);
 
     const controller = new AbortController();
@@ -99,12 +107,12 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
-        const streamDone = parseSSELines(lines, accumulated, setStreamingContent);
+        const streamDone = parseSSELines(lines, accumulated, setStreamingContent, setStatusMessage);
         if (streamDone) break;
       }
 
       if (buffer.trim()) {
-        parseSSELines([buffer], accumulated, setStreamingContent);
+        parseSSELines([buffer], accumulated, setStreamingContent, setStatusMessage);
       }
 
       queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
@@ -118,5 +126,5 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
     }
   }, [conversationId, agentId]);
 
-  return { sendMessage, isStreaming, streamingContent, error };
+  return { sendMessage, isStreaming, streamingContent, statusMessage, error };
 }

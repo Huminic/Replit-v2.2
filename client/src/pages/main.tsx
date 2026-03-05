@@ -24,7 +24,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -371,7 +371,7 @@ export default function MainPage() {
     }
   }, [dbMessages, conversationId, personaName, authUser]);
 
-  const { sendMessage: streamSend, isStreaming, streamingContent } = useStreamingChat({
+  const { sendMessage: streamSend, isStreaming, streamingContent, statusMessage } = useStreamingChat({
     conversationId,
   });
 
@@ -521,6 +521,11 @@ export default function MainPage() {
                 <div className="density-chat rounded-2xl px-5 py-4 max-w-[80%] bg-card border border-border">
                   {streamingContent ? (
                     <p className="whitespace-pre-wrap text-sm leading-relaxed">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                  ) : statusMessage ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Globe className="h-3.5 w-3.5 animate-pulse" />
+                      <span>{statusMessage}</span>
+                    </div>
                   ) : (
                     <div className="flex gap-1 items-center h-5">
                       <span className="wave-dot" />

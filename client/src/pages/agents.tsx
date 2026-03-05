@@ -38,7 +38,8 @@ import {
   Trash2,
   Send,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -163,7 +164,7 @@ export default function AgentsPage() {
     }
   }, [dbMessages]);
 
-  const { sendMessage: streamSend, isStreaming, streamingContent } = useStreamingChat({
+  const { sendMessage: streamSend, isStreaming, streamingContent, statusMessage } = useStreamingChat({
     conversationId,
     agentId: selectedAgent?.id,
   });
@@ -271,6 +272,11 @@ export default function AgentsPage() {
                 <div className="self-start max-w-[80%] rounded-2xl px-4 py-3 bg-card border border-border text-foreground" data-testid="streaming-message">
                   {streamingContent ? (
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                  ) : statusMessage ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Globe className="h-3.5 w-3.5 animate-pulse" />
+                      <span>{statusMessage}</span>
+                    </div>
                   ) : (
                     <div className="flex gap-1 items-center h-5">
                       <span className="wave-dot" />
