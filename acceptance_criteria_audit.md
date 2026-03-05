@@ -259,6 +259,8 @@ All items reviewed by stakeholder. Suggestions accepted unless overridden below.
 8. **Reply STOP to opt out** must be in every outbound SMS (single message, not two). Unsubscribe link in every email
 9. **All mock data must be eliminated** — if we don't have real data for a metric, the metric gets removed from the UI, not shown as zero
 10. **All testing is built from UI audit + acceptance criteria** — no ad-hoc test plans
+11. **Task assignment**: agents (AI) or self-assigned only. No user-to-user assignment
+12. **TeamBox campaign filter**: simple dropdown filter "Filter by Campaign" with campaigns sub-segmented by department (Sales, Marketing, Service) in a grouped dropdown. Shows all conversations for the selected campaign
 
 | # | Type | Topic | Original Question | DECISION |
 |---|------|-------|-------------------|----------|
@@ -305,7 +307,7 @@ All items reviewed by stakeholder. Suggestions accepted unless overridden below.
 | G43 | Embed code approach | **Most usable, least problematic.** Whatever approach has fewest compatibility issues across web servers. |
 | G44 | Landing page serving | **Must survive other web servers.** Architecture so landing pages work even if we move off Replit to Railway or elsewhere. |
 | G45 | Google Calendar OAuth | **Leave as stubbed** unless a proven open-source OAuth library is available. Don't build custom OAuth. |
-| G46 | Task assignment user-to-user | **OPEN QUESTION** — has task assignment between users been decided? Need user input on whether tasks can be assigned from one user to another, or only self-created. |
+| G46 | Task assignment | **DECIDED** — tasks are assigned by agents (AI-created) or self-assigned. No user-to-user assignment. Tasks table needs `assignedBy` field that can be a user ID (self) or agent ID (AI). |
 | G48 | Mock data removal | **All mock data must be gone.** If a metric has no real data source, remove it from the UI entirely. No fake numbers, no "Coming Soon" placeholders for metrics. |
 | G50 | E2E test scope | **All testing built from UI audit + acceptance criteria.** No ad-hoc test plans. Tests derive from the audit document and sprint acceptance criteria. |
 

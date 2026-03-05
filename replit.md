@@ -162,4 +162,6 @@ Sprint process is documented in `.local/Sprint_log.md`. Each sprint follows:
 9. All mock data must be eliminated — if no real data for a metric, remove the metric from UI entirely
 10. All testing built from UI audit + acceptance criteria — no ad-hoc test plans
 11. AI chat must compete with ChatGPT in quality/qualia — system prompt includes qualia instructions
-12. Full decisions table in `acceptance_criteria_audit.md`
+12. Task assignment: agents (AI) or self-assigned only — no user-to-user assignment
+13. TeamBox campaign filter: simple "Filter by Campaign" dropdown, campaigns grouped by department (Sales/Marketing/Service)
+14. Full decisions table in `acceptance_criteria_audit.md`
