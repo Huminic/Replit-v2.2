@@ -19,7 +19,7 @@
  *     Clicking a conversation navigates to TeamBox. Active (non-closed) count shown in badge.
  *   - toggleAgentExpanded / expandedAgents: Local state for agent conversation expand/collapse
  *   - agentSearch: Filter agents by name within each department panel
- *   - 800ms mouseLeave delay prevents flicker when moving between sidebar and panel
+ *   - 1200ms mouseLeave delay prevents flicker when moving between sidebar and panel
  *
  * @see Sidebar.tsx — triggers this panel via activePanel state
  * @see AppContext.tsx — provides activePanel, subMenuExpanded, panelHovered
@@ -70,7 +70,7 @@ export function SubMenuManager() {
     favorites
   } = useApp();
   
-  // 800ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
+  // 1200ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Search filter for agents within department panels
   const [agentSearch, setAgentSearch] = useState('');
@@ -135,7 +135,7 @@ export function SubMenuManager() {
     setPanelHovered(true);
   };
 
-  // Start 800ms close timeout when mouse leaves the panel (unless pinned)
+  // Start close timeout when mouse leaves the panel (unless pinned)
   const handlePanelMouseLeave = (e: React.MouseEvent) => {
     const relatedTarget = e.relatedTarget;
     const panel = e.currentTarget as HTMLElement;
@@ -148,7 +148,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 800);
+      }, 1200);
     }
   };
 
@@ -241,6 +241,10 @@ export function SubMenuManager() {
                 <button
                   onClick={() => {
                     setSelectedAgent(agent);
+                    setLocation('/agents');
+                    if (!subMenuExpanded) {
+                      setActivePanel(null);
+                    }
                   }}
                   className={cn(
                     'flex-1 text-left p-2 rounded-md transition-colors hover-elevate',

@@ -19,7 +19,8 @@
  * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
 import { useState } from 'react';
-import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2 } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,7 +65,8 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function MarketingPage() {
-  const { communicationGateEnabled } = useApp();
+  const [, setLocation] = useLocation();
+  const { communicationGateEnabled, setSelectedAgent } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
@@ -149,6 +151,19 @@ export default function MarketingPage() {
                     <h3 className="text-sm font-semibold">{agent.name}</h3>
                     <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedAgent(agent);
+                      setLocation('/agents');
+                    }}
+                    data-testid={`button-agent-settings-${agent.id}`}
+                  >
+                    <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                  </Button>
                   <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
