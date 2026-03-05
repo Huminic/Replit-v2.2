@@ -22,8 +22,9 @@
  * @see RightPane.tsx — Automa AI chat panel for data-display pages
  * @see AgentConfigPane.tsx — agent configuration panel for /agents route
  */
+import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronsLeft, ChevronsRight, MessageCircle } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TopBar } from './TopBar';
@@ -63,16 +64,20 @@ function getViewConfig(pathname: string): ViewConfig {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, personaName } = useApp();
+  const { rightPaneOpen, setRightPaneOpen, personaName, selectedAgent, setSelectedAgent } = useApp();
   
   const viewConfig = getViewConfig(location);
   const canToggleRightPane = viewConfig === 'data-display' || viewConfig === 'heavy-chat';
   const isAgentsPage = location.startsWith('/agents');
-  const isDataDisplayPage = viewConfig === 'data-display';
 
-  // Right pane renders AgentConfigPane on /agents, otherwise the AI chat RightPane
+  useEffect(() => {
+    if (viewConfig !== 'data-display' && viewConfig !== 'heavy-chat') {
+      setSelectedAgent(null);
+    }
+  }, [location]);
+
   const renderRightPaneContent = () => {
-    if (isAgentsPage) {
+    if (isAgentsPage || selectedAgent) {
       return <AgentConfigPane />;
     }
     return <RightPane />;
@@ -141,35 +146,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setRightPaneOpen(true)}
-                    title={isAgentsPage ? "Open configuration" : `Discuss with ${personaName}`}
+                    title={isAgentsPage || selectedAgent ? "Open configuration" : `Discuss with ${personaName}`}
                     data-testid="button-open-right-pane"
                   >
                     <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                  {isDataDisplayPage && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="rounded-full border-primary/30 bg-primary/5"
-                      onClick={() => setRightPaneOpen(true)}
-                      title={`Discuss this data with ${personaName}`}
-                      data-testid="button-automa-popout"
-                    >
-                      <MessageCircle className="h-4 w-4 text-primary" />
-                    </Button>
-                  )}
                 </div>
-                {isDataDisplayPage && (
-                  <Button
-                    size="icon"
-                    className="md:hidden fixed bottom-20 right-4 z-40 rounded-full shadow-lg"
-                    onClick={() => setRightPaneOpen(true)}
-                    title={`Discuss with ${personaName}`}
-                    data-testid="button-automa-fab-mobile"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                  </Button>
-                )}
               </>
             )
           )}
