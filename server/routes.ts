@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import bcrypt from "bcrypt";
+import Anthropic from "@anthropic-ai/sdk";
 import { storage } from "./storage";
 import {
   authenticateToken,
@@ -25,6 +26,11 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
+
+const anthropic = new Anthropic({
+  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+});
 
 const updateConversationSchema = z.object({
   status: z.string().optional(),
@@ -641,6 +647,121 @@ export async function registerRoutes(
       return res.status(201).json({ integration, mcpResult });
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to provision dealer", error: err.message });
+    }
+  });
+
+  app.post("/api/chat/:conversationId/stream", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const { conversationId } = req.params;
+      const { content, agentId } = req.body;
+
+      if (!content || typeof content !== "string") {
+        return res.status(400).json({ message: "Message content is required" });
+      }
+
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) return res.status(404).json({ message: "Conversation not found" });
+      if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.createMessage({
+        conversationId,
+        role: "user",
+        content,
+        senderName: `${req.user.firstName} ${req.user.lastName}`,
+      });
+      await storage.updateConversation(conversationId, { lastMessageAt: new Date() });
+
+      const history = await storage.getMessages(conversationId);
+      const recentMessages = history.slice(-20);
+
+      const org = await storage.getOrganization(req.user.organizationId);
+      const orgName = org?.name || "Nexxus Connect";
+      const personaName = org?.personaName || "Automa";
+
+      let agentContext = "";
+      let agentName: string | null = null;
+      if (agentId) {
+        const agent = await storage.getAgent(agentId);
+        if (agent && agent.organizationId === req.user.organizationId) {
+          agentName = agent.name;
+          agentContext = `\n\nYou are specifically acting as the agent "${agent.name}" in the ${agent.department} department.`;
+          if (agent.description) agentContext += ` Agent description: ${agent.description}`;
+          if (agent.instructions) agentContext += `\n\nAgent-specific instructions:\n${agent.instructions}`;
+        }
+      }
+
+      const systemPrompt = `You are ${personaName}, an elite AI assistant for ${orgName} — a platform called Nexxus Connect that powers automotive dealership operations. You are exceptionally intelligent, articulate, and helpful.
+
+User context:
+- Name: ${req.user.firstName} ${req.user.lastName}
+- Role: ${req.user.roleName}
+- Organization: ${orgName}
+
+Your personality:
+- You are confident, precise, and proactive
+- You give concise, actionable answers — no filler
+- You use data and specifics when available
+- You anticipate follow-up questions
+- When discussing dealership operations, you understand sales pipelines, service scheduling, marketing campaigns, lead management, and CRM workflows
+- You format responses with markdown when it improves readability (bullets, bold, headers)
+- You never say "as an AI" or apologize unnecessarily
+- If you don't have specific data, say so clearly — never fabricate dealership numbers, customer names, or metrics
+- Never share or request PII (SSN, full credit card numbers, etc.)${agentContext}`;
+
+      const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        }));
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
+      res.flushHeaders();
+
+      const stream = anthropic.messages.stream({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: chatMessages,
+      });
+
+      let fullResponse = "";
+
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          const text = event.delta.text;
+          if (text) {
+            fullResponse += text;
+            res.write(`data: ${JSON.stringify({ type: "content", text })}\n\n`);
+          }
+        }
+      }
+
+      await storage.createMessage({
+        conversationId,
+        role: "assistant",
+        content: fullResponse,
+        senderName: agentName || personaName,
+      });
+      await storage.updateConversation(conversationId, { lastMessageAt: new Date() });
+
+      res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+      res.end();
+    } catch (err: any) {
+      console.error("Chat stream error:", err);
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ type: "error", message: err.message || "Stream failed" })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ message: "Failed to stream chat response" });
+      }
     }
   });
 

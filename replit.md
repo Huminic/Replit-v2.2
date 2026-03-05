@@ -27,13 +27,15 @@ Preferred communication style: Simple, everyday language.
 -   **PostgreSQL** with Drizzle ORM
 -   **JWT** authentication (15min access, 7d refresh)
 -   **bcrypt** for password hashing
+-   **Anthropic SDK** for Claude AI (claude-sonnet-4-6) — SSE streaming via `AI_INTEGRATIONS_ANTHROPIC_*` env vars
 
 ### Data Flow (Wave 2 Phase 2 + Wave 3 — Current)
 
 Pages wired to real API data:
 - **TeamBox**: `GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/messages`, `PATCH /api/conversations/:id`
-- **Main Chat**: Creates/resumes conversations via `POST /api/conversations` (channel="ai-chat"), persists messages via API
-- **RightPane Chat**: Same pattern with channel="ai-assistant"
+- **Main Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), persists messages, conversation channel="ai-chat"
+- **RightPane Chat**: Same streaming pattern, channel="ai-assistant"
+- **Agent Chat**: Per-agent conversation persistence (channel="agent-chat-{agentId}"), AI uses agent instructions as system prompt context
 - **Service**: Agents from `GET /api/agents?department=service`, campaigns from `GET /api/campaigns?department=service`
 - **Marketing**: Agents from `GET /api/agents?department=marketing`, campaigns from `GET /api/campaigns?department=marketing`
 - **Sales**: Agents from `GET /api/agents?department=sales`
