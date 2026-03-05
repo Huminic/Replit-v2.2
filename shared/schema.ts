@@ -58,6 +58,7 @@ export const agents = pgTable("agents", {
   customerLink: text("customer_link"),
   vapiAssistantId: text("vapi_assistant_id"),
   tavusPersonaId: text("tavus_persona_id"),
+  instructions: text("instructions"),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

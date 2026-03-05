@@ -28,7 +28,7 @@
  * @see client/src/components/AgentConfigPane.tsx
  * @see client/src/components/layout/SubMenuManager.tsx — Agent list with conversation expand
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Bot, 
@@ -54,7 +54,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useApp } from '@/contexts/AppContext';
-import { type Agent } from '@shared/schema';
+import { useAuth } from '@/contexts/AuthContext';
+import { type Agent, type Conversation as DbConversation, type Message as DbMessage } from '@shared/schema';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { formatDistanceToNow } from 'date-fns';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { FavoritesBar } from '@/components/layout/FavoritesBar';
@@ -64,10 +68,6 @@ interface AgentChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
-
-const initialAgentChat: AgentChatMessage[] = [
-  { id: 'ac-1', role: 'assistant', content: "I'm ready to help manage your sales pipeline. I can handle inbound inquiries, qualify leads, and schedule follow-ups automatically. What would you like me to focus on?" },
-];
 
 const agentSuggestions = [
   "Show today's lead activity",
@@ -79,27 +79,102 @@ const agentSuggestions = [
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
   const { selectedAgent, setSelectedAgent } = useApp();
-  const [agentMessages, setAgentMessages] = useState<AgentChatMessage[]>(initialAgentChat);
+  const { user: authUser } = useAuth();
+  const [agentMessages, setAgentMessages] = useState<AgentChatMessage[]>([]);
   const [agentInput, setAgentInput] = useState('');
-  const [agentTyping, setAgentTyping] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
   const agentInputRef = useRef<HTMLTextAreaElement>(null);
   const agentScrollRef = useRef<HTMLDivElement>(null);
 
-  const handleAgentSend = () => {
-    if (!agentInput.trim()) return;
-    const userMsg: AgentChatMessage = { id: `ac-${Date.now()}`, role: 'user', content: agentInput.trim() };
+  const agentChannel = selectedAgent ? `agent-chat-${selectedAgent.id}` : null;
+
+  const { data: existingConversations } = useQuery<DbConversation[]>({
+    queryKey: ['/api/conversations', { channel: agentChannel }],
+    queryFn: async () => {
+      const res = await fetch(`/api/conversations?channel=${agentChannel}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('nexxus_access_token')}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      return res.json();
+    },
+    enabled: !!authUser && !!agentChannel,
+  });
+
+  const findOrCreateConversation = useCallback(async () => {
+    if (!authUser || !selectedAgent || !agentChannel || initialized) return;
+
+    const match = existingConversations?.find(
+      (c) => c.customerEmail === authUser.email && c.channel === agentChannel
+    );
+
+    if (match) {
+      setConversationId(match.id);
+      setInitialized(true);
+    } else if (existingConversations !== undefined) {
+      try {
+        const res = await apiRequest('POST', '/api/conversations', {
+          customerName: `${authUser.firstName} ${authUser.lastName}`,
+          customerEmail: authUser.email,
+          channel: agentChannel,
+          status: 'open',
+          agentId: selectedAgent.id,
+        });
+        const newConv: DbConversation = await res.json();
+        setConversationId(newConv.id);
+
+        const greeting = `I'm ${selectedAgent.name}. ${selectedAgent.description || "How can I help you today?"}`;
+        await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
+          role: 'assistant',
+          content: greeting,
+          senderName: selectedAgent.name,
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/conversations', { channel: agentChannel }] });
+        setInitialized(true);
+      } catch (err) {
+        console.error('Failed to create agent conversation:', err);
+      }
+    }
+  }, [authUser, selectedAgent, agentChannel, existingConversations, initialized]);
+
+  useEffect(() => {
+    findOrCreateConversation();
+  }, [findOrCreateConversation]);
+
+  useEffect(() => {
+    setConversationId(null);
+    setInitialized(false);
+    setAgentMessages([]);
+  }, [selectedAgent?.id]);
+
+  const { data: dbMessages } = useQuery<DbMessage[]>({
+    queryKey: ['/api/conversations', conversationId, 'messages'],
+    enabled: !!conversationId,
+  });
+
+  useEffect(() => {
+    if (dbMessages && dbMessages.length > 0) {
+      const mapped: AgentChatMessage[] = dbMessages.map((m) => ({
+        id: m.id,
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
+      setAgentMessages(mapped);
+    }
+  }, [dbMessages]);
+
+  const { sendMessage: streamSend, isStreaming, streamingContent } = useStreamingChat({
+    conversationId,
+    agentId: selectedAgent?.id,
+  });
+
+  const handleAgentSend = async () => {
+    if (!agentInput.trim() || !conversationId) return;
+    const content = agentInput.trim();
+    const userMsg: AgentChatMessage = { id: `ac-${Date.now()}`, role: 'user', content };
     setAgentMessages(prev => [...prev, userMsg]);
     setAgentInput('');
-    setAgentTyping(true);
-    setTimeout(() => {
-      setAgentTyping(false);
-      const botMsg: AgentChatMessage = {
-        id: `ac-${Date.now() + 1}`,
-        role: 'assistant',
-        content: "I've noted that. Let me pull the latest data and get back to you with actionable insights shortly.",
-      };
-      setAgentMessages(prev => [...prev, botMsg]);
-    }, 1800);
+    await streamSend(content);
   };
 
   const handleAgentKeyDown = (e: React.KeyboardEvent) => {
@@ -114,7 +189,7 @@ export default function AgentsPage() {
       const el = agentScrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (el) el.scrollTop = el.scrollHeight;
     }
-  }, [agentMessages, agentTyping]);
+  }, [agentMessages, isStreaming, streamingContent]);
 
   return (
     <div className="flex h-full overflow-hidden flex-col">
@@ -144,7 +219,7 @@ export default function AgentsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">{selectedAgent.description}</p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
-                    <span>Created by {selectedAgent.createdBy}</span>
+                    <span>Created {formatDistanceToNow(new Date(selectedAgent.createdAt), { addSuffix: true })}</span>
                     <span>Updated {formatDistanceToNow(new Date(selectedAgent.updatedAt), { addSuffix: true })}</span>
                   </div>
                 </div>
@@ -192,13 +267,17 @@ export default function AgentsPage() {
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ))}
-              {agentTyping && (
-                <div className="self-start bg-card border border-border rounded-2xl px-4 py-3">
-                  <div className="flex gap-1 items-center h-5">
-                    <span className="wave-dot" />
-                    <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
-                    <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
-                  </div>
+              {isStreaming && (
+                <div className="self-start max-w-[80%] rounded-2xl px-4 py-3 bg-card border border-border text-foreground" data-testid="streaming-message">
+                  {streamingContent ? (
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                  ) : (
+                    <div className="flex gap-1 items-center h-5">
+                      <span className="wave-dot" />
+                      <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
+                      <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -235,7 +314,7 @@ export default function AgentsPage() {
                     size="icon"
                     className="h-9 w-9 flex-shrink-0 rounded-full"
                     onClick={handleAgentSend}
-                    disabled={!agentInput.trim()}
+                    disabled={!agentInput.trim() || isStreaming}
                     data-testid="button-agent-send"
                   >
                     <Send className="h-4 w-4" />

@@ -28,8 +28,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { agentSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useStreamingChat } from '@/hooks/useStreamingChat';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
 interface RightPaneProps {
@@ -41,7 +42,6 @@ export function RightPane({ className }: RightPaneProps) {
   const { user: authUser } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -116,25 +116,18 @@ export function RightPane({ className }: RightPaneProps) {
     }
   }, [dbMessages, conversationId, personaName, authUser]);
 
-  const sendMessageMutation = useMutation({
-    mutationFn: async (data: { role: string; content: string; senderName?: string }) => {
-      if (!conversationId) throw new Error('No conversation');
-      const res = await apiRequest('POST', `/api/conversations/${conversationId}/messages`, data);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
-    },
+  const { sendMessage: streamSend, isStreaming, streamingContent } = useStreamingChat({
+    conversationId,
   });
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, streamingContent]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !conversationId) return;
 
     const content = inputValue.trim();
     const userMessage: ChatMessage = {
@@ -146,43 +139,8 @@ export function RightPane({ className }: RightPaneProps) {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
-    setIsTyping(true);
 
-    if (conversationId) {
-      try {
-        await sendMessageMutation.mutateAsync({
-          role: 'user',
-          content,
-          senderName: currentUser.name,
-        });
-      } catch (err) {
-        console.error('Failed to save user message:', err);
-      }
-    }
-
-    setTimeout(async () => {
-      const assistantContent = "I understand your request. Let me help you with that. This is a UI prototype, so I'm simulating a response. In production, this connects to your AI backend for intelligent responses.";
-      const assistantMessage: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'assistant',
-        content: assistantContent,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsTyping(false);
-
-      if (conversationId) {
-        try {
-          await sendMessageMutation.mutateAsync({
-            role: 'assistant',
-            content: assistantContent,
-            senderName: personaName,
-          });
-        } catch (err) {
-          console.error('Failed to save assistant message:', err);
-        }
-      }
-    }, 1500);
+    await streamSend(content);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -230,14 +188,18 @@ export function RightPane({ className }: RightPaneProps) {
             </div>
           ))}
 
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-card border border-border rounded-xl px-4 py-3">
-                <div className="flex items-center gap-1">
-                  <span className="wave-dot" style={{ animationDelay: '0s' }} />
-                  <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
-                  <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
-                </div>
+          {isStreaming && (
+            <div className="flex justify-start" data-testid="streaming-message">
+              <div className="density-chat rounded-xl px-4 py-3 max-w-[85%] bg-card border border-border">
+                {streamingContent ? (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{streamingContent}<span className="inline-block w-1.5 h-4 bg-primary/70 animate-pulse ml-0.5 align-text-bottom" /></p>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="wave-dot" style={{ animationDelay: '0s' }} />
+                    <span className="wave-dot" style={{ animationDelay: '0.15s' }} />
+                    <span className="wave-dot" style={{ animationDelay: '0.3s' }} />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -292,7 +254,7 @@ export function RightPane({ className }: RightPaneProps) {
               size="icon"
               className="h-8 w-8 flex-shrink-0 rounded-lg"
               onClick={handleSend}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isStreaming}
               data-testid="button-send-message"
             >
               <Send className="h-4 w-4" />
