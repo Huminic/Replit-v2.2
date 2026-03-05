@@ -134,3 +134,17 @@ The platform features a context-aware multi-pane layout inspired by ClickUp.
 
 ### Production Backend (separate environment — nexxusv2.huminicdev.com)
 -   VinSolutions (CRM), VAPI (Voice), Tavus (Video), Resend (Email), TextMagic (SMS), Claude API (AI), Google Calendar
+
+## Sprint Workflow
+
+Sprint process is documented in `.local/Sprint_log.md`. Each sprint follows:
+1. Agent describes sprint (task + functionality outcome + acceptance criteria)
+2. Memorialized in Sprint_log.md
+3. User gives go-ahead
+4. Agent codes it
+5. Architect reviews sprint log + acceptance criteria
+6. Pass → user optionally reviews. Fail → fix and re-review.
+7. Agent reports percentage complete
+8. Repeat
+
+**Current Progress:** Waves 0-1 complete (~25%). Next: Sprint 2.1 (AI Chat Engine).
