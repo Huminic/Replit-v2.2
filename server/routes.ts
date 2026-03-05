@@ -867,10 +867,11 @@ export async function registerRoutes(
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const [org, orgUsers, orgAgents] = await Promise.all([
+      const [org, orgUsers, orgAgents, orgDocuments] = await Promise.all([
         storage.getOrganization(req.user.organizationId),
         storage.getUsers(req.user.organizationId),
         storage.getAgents(req.user.organizationId, {}),
+        storage.getDocuments(req.user.organizationId),
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
@@ -895,6 +896,27 @@ export async function registerRoutes(
         }
       }
 
+      let knowledgeContext = "";
+      const relevantDocs = agentId
+        ? orgDocuments.filter(d => d.agentId === agentId || !d.agentId)
+        : orgDocuments.filter(d => !d.agentId);
+      const docsWithContent = relevantDocs.filter(d => d.content && d.content.trim().length > 0);
+      if (docsWithContent.length > 0) {
+        const maxTotalChars = 32000;
+        let totalChars = 0;
+        const docSections: string[] = [];
+        for (const d of docsWithContent) {
+          const remaining = maxTotalChars - totalChars;
+          if (remaining <= 0) break;
+          const maxPerDoc = Math.min(8000, remaining);
+          const truncated = d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!;
+          const section = `--- ${d.name} (${d.type}) ---\n${truncated}`;
+          docSections.push(section);
+          totalChars += section.length;
+        }
+        knowledgeContext = `\n\nKnowledge Base Documents (use this information to answer questions when relevant):\n${docSections.join("\n\n")}`;
+      }
+
       const systemPrompt = `You are ${personaName}, an AI assistant powering Nexxus Connect for ${orgName} — an automotive dealership management platform.
 
 Current date and time: ${dateStr}, ${timeStr} (Eastern Time)
@@ -917,7 +939,7 @@ Your personality and rules:
 - Never share or request PII (SSN, full credit card numbers, etc.)
 - When you are unsure about current events, facts, people, locations, or anything time-sensitive, use the web_search tool to look it up — do not guess
 - When the user asks about nearby businesses, competitors, local information, or anything geographic, use web_search
-- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}`;
+- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
