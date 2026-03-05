@@ -263,3 +263,56 @@ These are real backend gaps that no current sprint addresses:
 | Q13 | SUGGESTION | Embed code scope | Sprint 4.1 says "embed code works — paste in HTML, widget loads." This implies building a full embeddable JavaScript widget. That's a mini-project on its own. | For MVP: embed code generates a link to the `/w/:widgetId` landing page. An actual in-page embed widget is Wave 5+. |
 | Q14 | SUGGESTION | Background job reliability | Campaign execution (Sprint 3.1) and hunch generation (Sprint 3.3) need background jobs. Replit doesn't have a built-in scheduler. | Use an in-memory queue with setInterval for MVP. If the server restarts mid-campaign, campaigns with status "sending" should resume on startup. Track progress in campaign_recipients table. |
 | Q15 | SUGGESTION | Conversation context for agent chat | When a user chats with an agent, should the AI have access to dealership data (VinSolutions leads, campaigns) via tool calls, or just conversation history? | Phase 1 (Sprint 2.1): conversation history only. Phase 2 (Sprint 3.3): add tool use so agents can look up leads, check campaign status, etc. |
+| Q16 | QUESTION | Conversation history cap | SubMenuManager popout shows all conversations per agent with no limit. If an agent handles hundreds of conversations, the expanded list renders them all (no virtualization, no pagination). What cap makes sense? | Show max 10 most recent conversations per agent in the popout with a "View all in TeamBox" link. Keeps the DOM lean and the UX clean. |
+| Q17 | QUESTION | Favorites overflow | The AI-Chat panel puts Favorites ABOVE the ScrollArea. If someone stars 20+ pages, favorites push Chat History off screen and the favorites section itself doesn't scroll. | Wrap the favorites section in its own ScrollArea with max-height, or put it inside the main ScrollArea. Cap at ~10 visible with "Show all." |
+| Q18 | COMMENT | Missing error states everywhere | If an API call fails (network error, 500, etc.), most pages just stay in skeleton/loading state forever. There's no error message, no retry button. | Every useQuery should handle isError with a user-friendly message + "Try Again" button. Add this as a cross-cutting criterion. |
+| Q19 | COMMENT | Role persistence staleness | currentRole is stored in localStorage. If a backend admin changes a user's role, the user keeps their old permissions until they clear storage/re-login. | On login, always override localStorage role from the server response. Add a check on /api/auth/me refresh too. |
+| Q20 | COMMENT | Agent status toggle race condition | AgentConfigPane status toggle doesn't disable while the update is in flight. Rapid clicking can desync. | Disable the toggle while mutation isPending. |
+| Q21 | COMMENT | TeamBox hides controls on mobile | Status filter column hidden below lg, customer info hidden below xl. Mobile users lose access to filtering and customer details. | Add a filter drawer/dropdown for mobile. Defer to Sprint 4.2. |
+| Q22 | COMMENT | Tab buttons lack ARIA attributes | Department page tab buttons don't have role="tab" or aria-selected. Screen readers can't interpret the tab bar. | Add proper ARIA roles. Low priority but good practice. |
+| Q23 | SUGGESTION | Dashboard empty state | When an org has zero leads/campaigns/agents, dashboard tiles show "0" or "—" with no guidance. A new dealership would see a blank, unhelpful dashboard. | Add onboarding empty states: "No leads yet — connect VinSolutions to get started" etc. |
+| Q24 | SUGGESTION | Profile sub-routes | TopBar has links to /profile, /profile/preferences, /profile/billing. If the profile page doesn't handle these as tabs, they may dead-end. | Verify profile page reads the sub-route and switches tabs accordingly. If not, wire it. |
+
+---
+
+## PART 5: UI Behavior Audit — Unclear or Problematic Patterns
+
+### Conversation History Overflow (SubMenuManager Popout)
+
+**The Problem:** When you expand an agent's chevron in the popout, it shows ALL conversations for that agent. There's no limit, no pagination, no virtualization. The conversations are rendered inside a `ScrollArea` (so the panel itself scrolls), but:
+
+- If an agent has 200 conversations and you expand it, 200 DOM elements render immediately
+- Multiple expanded agents compound the problem
+- There's a search filter for agents but not for conversations within an agent
+- Performance degrades as conversation count grows
+
+**Current Flow:**
+1. `getAgentConversations(agentId)` filters `allConversations` by agentId — returns ALL matches
+2. All matches are rendered via `.map()` — no `.slice()`, no limit
+3. `allConversations` comes from `useQuery` to `/api/conversations?channel=ai-chat` — also no limit param
+
+**My Recommendation:**
+- Cap the visible conversation list at 10 per agent in the popout
+- Add a "View all (N)" link at the bottom that navigates to TeamBox filtered by that agent
+- On the API side, add `?limit=` support to `GET /api/conversations` (already partially there — needs to be used)
+- Consider virtualized lists if agent count + conversation count grows large
+
+---
+
+### Other UI Behavior Issues Found
+
+| # | Area | Issue | Severity | Recommendation |
+|---|------|-------|----------|----------------|
+| U1 | **Favorites section** | AI-Chat panel puts Favorites above the ScrollArea. 20+ favorites push Chat History off-screen. Favorites section itself doesn't scroll. | MEDIUM | Give favorites its own capped ScrollArea or move it inside the main one. |
+| U2 | **Error handling** | Almost no `isError` handling across the app. Failed API calls leave the UI in a permanent loading/skeleton state. No retry option. | HIGH | Add error boundaries and per-query error states with retry. Cross-cutting fix. |
+| U3 | **Activity feed duplication** | TopBar dropdown has activity feed, AND Management page has an Activities tab showing the same data. Two places for the same thing. | LOW | By design (TopBar = quick glance, Management = deep dive). Document this so it's intentional, not confusing. |
+| U4 | **TeamBox breaks the cardinal rule** | TeamBox uses its own 4-column internal layout and ignores the global RightPane. This is the only page that does this. | LOW | By design for TeamBox's unique workflow. But should be documented as an intentional exception. |
+| U5 | **Agent status toggle** | AgentConfigPane status toggle doesn't disable during mutation. Rapid clicks can fire multiple PATCH requests. | MEDIUM | Add `disabled={mutation.isPending}` to the toggle. |
+| U6 | **Mobile TeamBox** | Status filter and customer info columns hidden on smaller screens with no alternative UI. | MEDIUM | Add a mobile filter drawer. Sprint 4.2 scope. |
+| U7 | **Tab accessibility** | Department page tab buttons lack `role="tab"` and `aria-selected` attributes. | LOW | Add ARIA attributes for screen reader support. |
+| U8 | **Login error display** | AuthContext stores login errors but the login page may not display them clearly. | LOW | Verify login page shows error message from the auth context. |
+| U9 | **localStorage role stale** | User's role persists in localStorage even if changed on backend. Stale permissions until re-login. | MEDIUM | Override localStorage role from server response on every login and token refresh. |
+| U10 | **Dashboard empty state** | New org with no data sees "0" tiles everywhere. No onboarding guidance. | LOW | Add "No data yet" messaging with setup guidance. Sprint 2.3 or 4.2 scope. |
+| U11 | **Profile sub-routes** | TopBar links to /profile, /profile/preferences, /profile/billing may not map to specific tabs on the profile page. | LOW | Verify and wire sub-route → tab mapping. |
+| U12 | **RightPane mobile overlay** | On mobile, RightPane covers the entire screen. User can't reference the main content while chatting with AI. | MEDIUM | Consider a half-screen drawer instead of full overlay on mobile. Sprint 4.2. |
+| U13 | **AppContext org fallback** | While org data is loading, AppContext falls back to a hardcoded org. This can cause a brief flash of wrong org name/branding. | LOW | Show a loading state instead of fallback org during initial load. |
