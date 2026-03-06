@@ -1,4 +1,4 @@
-export type NotificationType = 'alert' | 'task' | 'approval' | 'system' | 'mention';
+export type NotificationType = 'alert' | 'task' | 'approval' | 'system' | 'mention' | 'campaign' | 'comm_gate' | 'user' | 'info' | 'call';
 
 export interface Notification {
   id: string;
@@ -74,8 +74,13 @@ export const getNotificationIcon = (type: NotificationType): string => {
     approval: 'CheckCircle',
     system: 'Settings',
     mention: 'AtSign',
+    campaign: 'Megaphone',
+    comm_gate: 'Shield',
+    user: 'UserPlus',
+    info: 'Info',
+    call: 'Phone',
   };
-  return icons[type];
+  return icons[type] || 'Bell';
 };
 
 export const getNotificationColor = (type: NotificationType): string => {
@@ -85,6 +90,11 @@ export const getNotificationColor = (type: NotificationType): string => {
     approval: 'text-purple-500',
     system: 'text-gray-500',
     mention: 'text-green-500',
+    campaign: 'text-indigo-500',
+    comm_gate: 'text-red-500',
+    user: 'text-teal-500',
+    info: 'text-sky-500',
+    call: 'text-emerald-500',
   };
-  return colors[type];
+  return colors[type] || 'text-gray-500';
 };

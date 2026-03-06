@@ -20,7 +20,7 @@
  */
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings } from 'lucide-react';
+import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,6 +124,39 @@ export default function MarketingPage() {
     },
     onError: (err: Error) => {
       toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const { data: executionStatuses = {} } = useQuery<Record<string, { campaignId: string; status: string; totalRecipients: number; processed: number; sent: number; blocked: number; failed: number; dryRun: boolean }>>({
+    queryKey: ['/api/campaigns/execution-statuses'],
+    refetchInterval: 3000,
+  });
+
+  const executeMutation = useMutation({
+    mutationFn: async ({ id, dryRun }: { id: string; dryRun: boolean }) => {
+      await apiRequest('POST', `/api/campaigns/${id}/execute`, { dryRun });
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns/execution-statuses'] });
+      toast({ title: variables.dryRun ? "Dry Run Started" : "Campaign Started", description: variables.dryRun ? "Preview mode — no messages will be sent." : "Campaign is now executing." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Execution Failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const stopMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      await apiRequest('POST', `/api/campaigns/${id}/stop`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns/execution-statuses'] });
+      toast({ title: "Campaign Stopped", description: "Campaign execution has been stopped." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Stop Failed", description: err.message, variant: "destructive" });
     },
   });
 
@@ -297,23 +330,71 @@ export default function MarketingPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-2"
-                    onClick={() => {
-                      setCsvUploadCampaignId(campaign.id);
-                      csvInputRef.current?.click();
-                    }}
-                    disabled={csvUploadMutation.isPending}
-                    data-testid={`button-upload-csv-${campaign.id}`}
-                  >
-                    {csvUploadMutation.isPending && csvUploadCampaignId === campaign.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="h-4 w-4" />
-                    )}
-                  </Button>
+                  <div className="flex items-center justify-center gap-1">
+                    {(() => {
+                      const execStatus = executionStatuses[campaign.id];
+                      const isExecuting = execStatus?.status === "executing";
+                      return (
+                        <>
+                          {isExecuting ? (
+                            <>
+                              <Badge variant="secondary" className="text-[10px] gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                {execStatus.processed}/{execStatus.totalRecipients}
+                                {execStatus.dryRun ? " (dry)" : ""}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => stopMutation.mutate({ id: campaign.id })}
+                                disabled={stopMutation.isPending}
+                                data-testid={`button-stop-campaign-${campaign.id}`}
+                              >
+                                <Square className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
+                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                data-testid={`button-start-campaign-${campaign.id}`}
+                              >
+                                <Play className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: true })}
+                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                data-testid={`button-dryrun-campaign-${campaign.id}`}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setCsvUploadCampaignId(campaign.id);
+                              csvInputRef.current?.click();
+                            }}
+                            disabled={csvUploadMutation.isPending}
+                            data-testid={`button-upload-csv-${campaign.id}`}
+                          >
+                            {csvUploadMutation.isPending && csvUploadCampaignId === campaign.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Upload className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </>
+                      );
+                    })()}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -56,7 +56,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import { getNotificationIcon, getNotificationColor } from '@/lib/notification-utils';
+import { getNotificationIcon, getNotificationColor, type NotificationType } from '@/lib/notification-utils';
 import { staticActivityFeed, getActivityColor } from '@/lib/activity-utils';
 import { getRoleLabel } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -94,6 +94,7 @@ export function TopBar() {
     notifications, 
     unreadNotificationCount,
     markNotificationRead,
+    markAllNotificationsRead,
     switchOrganization,
   } = useApp();
   const [, setLocation] = useLocation();
@@ -175,27 +176,45 @@ export function TopBar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80" data-testid="dropdown-notifications">
-            <DropdownMenuLabel className="flex items-center justify-between">
+            <DropdownMenuLabel className="flex items-center justify-between gap-2 flex-wrap">
               <span>Notifications</span>
-              {unreadNotificationCount > 0 && (
-                <Badge variant="secondary" className="text-xs">{unreadNotificationCount} new</Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {unreadNotificationCount > 0 && (
+                  <Badge variant="secondary" className="text-xs">{unreadNotificationCount} new</Badge>
+                )}
+                {unreadNotificationCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-6 px-2"
+                    onClick={(e) => { e.stopPropagation(); markAllNotificationsRead(); }}
+                    data-testid="button-mark-all-read"
+                  >
+                    Mark all read
+                  </Button>
+                )}
+              </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="h-80">
+              {notifications.length === 0 && (
+                <div className="p-4 text-center text-sm text-muted-foreground" data-testid="text-no-notifications">
+                  No notifications yet
+                </div>
+              )}
               {notifications.map((notif) => {
-                const IconName = getNotificationIcon(notif.type);
+                const notifType = (notif.type || 'system') as NotificationType;
+                const IconName = getNotificationIcon(notifType);
                 return (
                   <DropdownMenuItem
                     key={notif.id}
                     className={`flex items-start gap-3 p-3 cursor-pointer ${!notif.read ? 'bg-muted/50' : ''}`}
                     onClick={() => {
                       markNotificationRead(notif.id);
-                      if (notif.actionUrl) setLocation(notif.actionUrl);
                     }}
                     data-testid={`notification-item-${notif.id}`}
                   >
-                    <div className={`mt-0.5 ${getNotificationColor(notif.type)}`}>
+                    <div className={`mt-0.5 ${getNotificationColor(notifType)}`}>
                       {IconName === 'AlertTriangle' && <Bell className="h-4 w-4" />}
                       {IconName === 'CheckSquare' && <Activity className="h-4 w-4" />}
                       {IconName === 'CheckCircle' && <Check className="h-4 w-4" />}
@@ -204,9 +223,9 @@ export function TopBar() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{notif.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
+                      {notif.message && <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>}
                       <p className="text-xs text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
                       </p>
                     </div>
                     {!notif.read && (

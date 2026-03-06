@@ -24,13 +24,13 @@
 | 2.2a | User CRUD + Password Mgmt | DONE | ~33% |
 | 2.2b | File Uploads (KB, CSV, Photos) | DONE | ~47% |
 | 2.3 + 4.1a | Real Metrics & Dashboard Wiring + Task/Widget Persistence | DONE | ~42% |
-| 3.1 | Outbound Communication Engine | NOT STARTED | — |
-| 3.2 | Webhooks & Real-Time | NOT STARTED | — |
-| 3.3 | Intelligence Engine | NOT STARTED | — |
+| 3.1 | Outbound Communication Engine | DONE | ~55% |
+| 3.2 | Webhooks & Real-Time | DONE | ~62% |
+| 3.3 | Intelligence Engine | DONE | ~68% |
 | 4.1b | Widget Calendar & Remaining | NOT STARTED | — |
 | 4.2 | Security, Performance & E2E | NOT STARTED | — |
 
-**Overall Progress: ~42%** (Waves 0-1 complete, Wave 2.1-2.2a done, Sprint 2.3+4.1a done)
+**Overall Progress: ~68%** (Waves 0-2 complete, Sprints 3.1-3.3 done)
 
 ---
 
@@ -345,4 +345,104 @@ Frontend:
 **Architect Review:** Passed with minor notes — cache invalidation uses prefix matching (correct for TanStack Query v5), file type validation present on frontend, org scoping enforced on all routes. Minor: Zod validation could be added to file upload route bodies (non-blocking).
 
 **E2E Tests:** Passed — login, Settings KB loads seeded documents, Service + Marketing campaign tables show upload CSV buttons, Profile Edit saves successfully (route ordering fix verified), Edit Profile toggles inline editing with save confirmation toast.
+
+---
+
+## Sprint 3.1 — Outbound Communication Engine
+**Date:** 2026-03-06
+**Status:** DONE
+**Cumulative Progress:** ~55%
+
+**Goal:** Build the outbound message sending infrastructure with comm gate, kill switch, rate limiting, and campaign execution. Stub SMS/email sends (TextMagic/Resend keys not yet available).
+
+**Schema Changes:**
+- `outbound_log` table: id, organizationId, campaignId, recipientId, channel (sms/email/phone), status (pending/sent/blocked/failed/dry_run), blockedReason, messageContent, sentAt, createdAt
+- `messageTemplate` and `sendIntervalSeconds` columns added to campaigns table
+
+**Backend:**
+- `server/outbound.ts` — Comm Gate middleware with 5-layer check: (1) org outboundEnabled, (2) channel-specific flags, (3) campaign killSwitch, (4) conversation campaignDisconnected, (5) rate limit 3/24h per customer
+- Stub send functions: sendSms, sendEmail, sendPhone — log "STUB: would send to X", ready for real API integration
+- `processOutboundSend()` — main entry point with dry run mode support
+- Campaign execution engine: `startCampaignExecution()` with setInterval processing, `stopCampaignExecution()`, template variable substitution ({{customerName}}, {{dealershipName}})
+- API routes: POST /api/campaigns/:id/execute, POST /api/campaigns/:id/stop, GET /api/campaigns/:id/execution-status, GET /api/campaigns/execution-statuses
+
+**Frontend:**
+- Service + Marketing campaign tables: Start (play), Dry Run (eye), Stop (square) buttons in Actions column
+- Execution progress badge with processed/total count and spinner
+- All buttons disabled during mutations with loading states
+
+**Acceptance Criteria:**
+- [x] Comm gate blocks sends when outboundEnabled=false
+- [x] Channel-specific flags block individual channels
+- [x] Campaign kill switch stops campaign mid-execution
+- [x] Rate limit enforced (3 messages/24h per customer)
+- [x] All send attempts logged to outbound_log
+- [x] Campaign executes through recipients at configured interval
+- [x] Dry run mode logs without sending
+- [x] Template variable substitution works
+- [x] UI shows execution controls and progress
+
+---
+
+## Sprint 3.2 — Webhooks & Real-Time (Notifications, Activity Log, VAPI Webhook)
+**Date:** 2026-03-06
+**Status:** DONE
+**Cumulative Progress:** ~62%
+
+**Goal:** Replace static notification bell and activity feed with real data. Add VAPI webhook receiver (read-only).
+
+**Schema Changes:**
+- `notifications` table: id, userId, organizationId, type (system/campaign/comm_gate/user/info), title, message, read, relatedEntityType, relatedEntityId, createdAt
+- `activity_log` table: id, userId, organizationId, action, entityType, entityId, metadata (jsonb), createdAt
+
+**Backend:**
+- Notification routes: GET /api/notifications, GET /api/notifications/unread-count, PATCH /api/notifications/:id/read, POST /api/notifications/mark-all-read
+- Activity log route: GET /api/activity-log (?limit=)
+- Notification triggers: user created (welcome), campaign started/stopped, kill switch toggled, comm gate toggled
+- Activity logging on: user CRUD, agent CRUD, campaign operations, org updates, document uploads
+- POST /api/webhooks/vapi — read-only webhook receiver; validates payload, creates TeamBox conversation + notification + activity log from VAPI call completion events
+
+**Frontend:**
+- TopBar bell: real unread count from API (polls every 15s), dropdown shows real notifications with mark-read + mark-all-read
+- Management activity feed: real data from GET /api/activity-log, color-coded icons per entity type, human-readable action descriptions, loading skeletons
+
+**Acceptance Criteria:**
+- [x] TopBar bell shows real notification count
+- [x] Notification dropdown shows real notifications from DB
+- [x] Mark read / mark all read works
+- [x] Activity feed in Management shows real logged events
+- [x] VAPI webhook creates conversation + notification from call data
+- [x] VAPI webhook is read-only (no writes to VAPI)
+
+---
+
+## Sprint 3.3 — Intelligence Engine (AI Hunches + Hunch Filter)
+**Date:** 2026-03-06
+**Status:** DONE
+**Cumulative Progress:** ~68%
+
+**Goal:** Replace static mockHunches with AI-generated business insights. Inject accepted hunches into AI chat prompt.
+
+**Schema Changes:**
+- `hunches` table: id, organizationId, type (pattern/recommendation/alert), title, description, confidence (0-100), status (new/accepted/dismissed/resolved), department, dataSource, generatedAt, acceptedAt, resolvedAt, createdAt
+
+**Backend:**
+- POST /api/hunches/generate — calls Claude to analyze org data (conversations, campaigns, agents) and generate 3-5 AI business insights
+- GET /api/hunches — list hunches with optional status/department filters
+- PATCH /api/hunches/:id — accept/dismiss/resolve with automatic timestamp setting
+- Hunch filter in chat: accepted hunches appended to AI system prompt (after agent context, before knowledge docs)
+
+**Frontend:**
+- Management page: real hunches from API, Generate Hunches button with loading state
+- Hunch cards: type badge, confidence %, status badge, department, Accept/Dismiss/Resolve actions
+- Loading skeletons and empty state
+
+**Acceptance Criteria:**
+- [x] AC-HF-A: Accepted hunches influence AI chat responses (injected into prompt)
+- [x] AC-HF-B: Dismissed hunches excluded from prompt
+- [x] AC-HF-C: Resolved hunches excluded from prompt
+- [x] AC-HF-D: Master system prompt unchanged (hunches appended as context)
+- [x] Generate button produces real AI hunches via Claude
+- [x] Accept/dismiss/resolve lifecycle works
+- [x] Management page uses real data (mockHunches removed)
 

@@ -29,9 +29,11 @@ import {
   updateCampaignSchema,
   updateTaskSchema,
   updateWidgetSchema,
+  updateHunchSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
+import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -361,6 +363,24 @@ export async function registerRoutes(
       });
 
       const { password: _, ...safeUser } = user;
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "user_created",
+        entityType: "user",
+        entityId: user.id,
+        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}` },
+      }).catch(() => {});
+
+      storage.createNotification({
+        userId: user.id,
+        organizationId: req.user!.organizationId,
+        type: "system",
+        title: "Welcome to Nexxus Connect",
+        message: `Your account has been created by ${req.user!.firstName} ${req.user!.lastName}.`,
+      }).catch(() => {});
+
       return res.status(201).json(safeUser);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create user" });
@@ -430,6 +450,16 @@ export async function registerRoutes(
       if (!updated) return res.status(404).json({ message: "User not found" });
 
       const { password: _, ...safeUser } = updated;
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "user_updated",
+        entityType: "user",
+        entityId: req.params.id,
+        metadata: { fields: Object.keys(allowedFields).join(", ") },
+      }).catch(() => {});
+
       return res.json(safeUser);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update user" });
@@ -518,6 +548,16 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid agent data", errors: parsed.error.flatten() });
       }
       const agent = await storage.createAgent(parsed.data);
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "agent_created",
+        entityType: "agent",
+        entityId: agent.id,
+        metadata: { agentName: agent.name, department: agent.department },
+      }).catch(() => {});
+
       return res.status(201).json(agent);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create agent" });
@@ -537,6 +577,16 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid update data", errors: parsed.error.flatten() });
       }
       const agent = await storage.updateAgent(req.params.id, parsed.data);
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "agent_updated",
+        entityType: "agent",
+        entityId: req.params.id,
+        metadata: { agentName: existing.name, fields: Object.keys(parsed.data).join(", ") },
+      }).catch(() => {});
+
       return res.json(agent);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update agent" });
@@ -552,6 +602,16 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Access denied" });
       }
       await storage.deleteAgent(req.params.id);
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "agent_deleted",
+        entityType: "agent",
+        entityId: req.params.id,
+        metadata: { agentName: existing.name },
+      }).catch(() => {});
+
       return res.json({ message: "Agent deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete agent" });
@@ -584,6 +644,32 @@ export async function registerRoutes(
       }
       const org = await storage.updateOrganization(req.params.id, parsed.data);
       if (!org) return res.status(404).json({ message: "Organization not found" });
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "organization_updated",
+        entityType: "organization",
+        entityId: req.params.id,
+        metadata: { fields: Object.keys(parsed.data).join(", ") },
+      }).catch(() => {});
+
+      if (parsed.data.outboundEnabled !== undefined) {
+        const state = parsed.data.outboundEnabled ? "enabled" : "disabled";
+        const orgUsers = await storage.getUsers(req.user!.organizationId);
+        for (const u of orgUsers) {
+          storage.createNotification({
+            userId: u.id,
+            organizationId: req.user!.organizationId,
+            type: "alert",
+            title: `Communication gate ${state}`,
+            message: `Outbound communications have been ${state} by ${req.user!.firstName} ${req.user!.lastName}.`,
+            relatedEntityType: "organization",
+            relatedEntityId: req.params.id,
+          }).catch(() => {});
+        }
+      }
+
       return res.json(org);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update organization" });
@@ -747,9 +833,28 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid campaign data", errors: parsed.error.flatten() });
       }
       const campaign = await storage.createCampaign(parsed.data);
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "campaign_created",
+        entityType: "campaign",
+        entityId: campaign.id,
+        metadata: { campaignName: campaign.name, department: campaign.department },
+      }).catch(() => {});
+
       return res.status(201).json(campaign);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create campaign" });
+    }
+  });
+
+  app.get("/api/campaigns/execution-statuses", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      return res.json(getAllExecutionStatuses());
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch execution statuses" });
     }
   });
 
@@ -782,9 +887,147 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid campaign data", errors: parsed.error.flatten() });
       }
       const campaign = await storage.updateCampaign(req.params.id, parsed.data);
+
+      const actionName = parsed.data.killSwitch !== undefined
+        ? (parsed.data.killSwitch ? "campaign_stopped" : "campaign_resumed")
+        : parsed.data.status
+          ? `campaign_${parsed.data.status}`
+          : "campaign_updated";
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: actionName,
+        entityType: "campaign",
+        entityId: req.params.id,
+        metadata: { campaignName: existing.name, fields: Object.keys(parsed.data).join(", ") },
+      }).catch(() => {});
+
+      if (parsed.data.status && parsed.data.status !== existing.status) {
+        const actionLabel = parsed.data.status === "active" ? "started" : parsed.data.status === "stopped" ? "stopped" : `changed to ${parsed.data.status}`;
+        const orgUsers = await storage.getUsers(req.user!.organizationId);
+        for (const u of orgUsers) {
+          storage.createNotification({
+            userId: u.id,
+            organizationId: req.user!.organizationId,
+            type: "alert",
+            title: `Campaign ${actionLabel}`,
+            message: `Campaign "${existing.name}" has been ${actionLabel} by ${req.user!.firstName} ${req.user!.lastName}.`,
+            relatedEntityType: "campaign",
+            relatedEntityId: existing.id,
+          }).catch(() => {});
+        }
+      }
+
+      if (parsed.data.killSwitch !== undefined && parsed.data.killSwitch !== existing.killSwitch) {
+        const state = parsed.data.killSwitch ? "activated" : "deactivated";
+        const orgUsers = await storage.getUsers(req.user!.organizationId);
+        for (const u of orgUsers) {
+          storage.createNotification({
+            userId: u.id,
+            organizationId: req.user!.organizationId,
+            type: "alert",
+            title: `Kill switch ${state}`,
+            message: `Kill switch for campaign "${existing.name}" has been ${state} by ${req.user!.firstName} ${req.user!.lastName}.`,
+            relatedEntityType: "campaign",
+            relatedEntityId: existing.id,
+          }).catch(() => {});
+        }
+      }
+
       return res.json(campaign);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update campaign" });
+    }
+  });
+
+  app.post("/api/campaigns/:id/execute", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const dryRun = req.body.dryRun === true;
+      const result = await startCampaignExecution(req.params.id, req.user.organizationId, dryRun);
+      if (!result.success) {
+        return res.status(400).json({ message: result.message });
+      }
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: dryRun ? "campaign_dry_run" : "campaign_executed",
+        entityType: "campaign",
+        entityId: req.params.id,
+        metadata: { dryRun },
+      }).catch(() => {});
+
+      if (!dryRun) {
+        const campaign = await storage.getCampaign(req.params.id);
+        const orgUsers = await storage.getUsers(req.user!.organizationId);
+        for (const u of orgUsers) {
+          storage.createNotification({
+            userId: u.id,
+            organizationId: req.user!.organizationId,
+            type: "alert",
+            title: "Campaign started",
+            message: `Campaign "${campaign?.name}" execution started by ${req.user!.firstName} ${req.user!.lastName}.`,
+            relatedEntityType: "campaign",
+            relatedEntityId: req.params.id,
+          }).catch(() => {});
+        }
+      }
+
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to execute campaign" });
+    }
+  });
+
+  app.post("/api/campaigns/:id/stop", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await stopCampaignExecution(req.params.id);
+      if (!result.success) {
+        return res.status(400).json({ message: result.message });
+      }
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "campaign_execution_stopped",
+        entityType: "campaign",
+        entityId: req.params.id,
+        metadata: {},
+      }).catch(() => {});
+
+      const campaign = await storage.getCampaign(req.params.id);
+      const orgUsers = await storage.getUsers(req.user!.organizationId);
+      for (const u of orgUsers) {
+        storage.createNotification({
+          userId: u.id,
+          organizationId: req.user!.organizationId,
+          type: "alert",
+          title: "Campaign stopped",
+          message: `Campaign "${campaign?.name}" execution stopped by ${req.user!.firstName} ${req.user!.lastName}.`,
+          relatedEntityType: "campaign",
+          relatedEntityId: req.params.id,
+        }).catch(() => {});
+      }
+
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to stop campaign" });
+    }
+  });
+
+  app.get("/api/campaigns/:id/execution-status", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const status = getExecutionStatus(req.params.id);
+      if (!status) {
+        return res.json({ active: false });
+      }
+      const { intervalHandle, ...publicStatus } = status;
+      return res.json({ active: true, ...publicStatus });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch execution status" });
     }
   });
 
@@ -884,11 +1127,12 @@ export async function registerRoutes(
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const [org, orgUsers, orgAgents, orgDocuments] = await Promise.all([
+      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches] = await Promise.all([
         storage.getOrganization(req.user.organizationId),
         storage.getUsers(req.user.organizationId),
         storage.getAgents(req.user.organizationId, {}),
         storage.getDocuments(req.user.organizationId),
+        storage.getAcceptedHunches(req.user.organizationId),
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
@@ -911,6 +1155,14 @@ export async function registerRoutes(
           if (agent.description) agentContext += ` Agent description: ${agent.description}`;
           if (agent.instructions) agentContext += `\n\nAgent-specific instructions:\n${agent.instructions}`;
         }
+      }
+
+      let hunchContext = "";
+      if (acceptedHunches.length > 0) {
+        const hunchSections = acceptedHunches.map(h =>
+          `- [${h.type}${h.department ? `/${h.department}` : ""}] ${h.title}: ${h.description} (confidence: ${h.confidence}%)`
+        ).join("\n");
+        hunchContext = `\n\nActive AI Insights (accepted hunches — use these to inform your responses when relevant):\n${hunchSections}`;
       }
 
       let knowledgeContext = "";
@@ -956,7 +1208,7 @@ Your personality and rules:
 - Never share or request PII (SSN, full credit card numbers, etc.)
 - When you are unsure about current events, facts, people, locations, or anything time-sensitive, use the web_search tool to look it up — do not guess
 - When the user asks about nearby businesses, competitors, local information, or anything geographic, use web_search
-- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}${knowledgeContext}`;
+- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -1088,6 +1340,17 @@ Your personality and rules:
       } else {
         res.status(500).json({ message: "Failed to stream chat response" });
       }
+    }
+  });
+
+  app.get("/api/activity-log", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const logs = await storage.getActivityLogs(req.user.organizationId, limit);
+      return res.json(logs);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch activity logs" });
     }
   });
 
@@ -1279,6 +1542,16 @@ Your personality and rules:
         content,
         mimeType: file.mimetype,
       });
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: "document_uploaded",
+        entityType: "document",
+        entityId: doc.id,
+        metadata: { fileName: file.originalname, fileType: docType, fileSize: file.size },
+      }).catch(() => {});
+
       return res.status(201).json(doc);
     } catch (err) {
       return res.status(500).json({ message: "Failed to upload document" });
@@ -1365,6 +1638,176 @@ Your personality and rules:
     }
   });
 
+  app.get("/api/notifications", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const notifs = await storage.getNotifications(req.user.id, limit);
+      return res.json(notifs);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.get("/api/notifications/unread-count", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const count = await storage.getUnreadNotificationCount(req.user.id);
+      return res.json({ count });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch unread count" });
+    }
+  });
+
+  app.patch("/api/notifications/:id/read", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      await storage.markNotificationRead(req.params.id);
+      return res.json({ message: "Notification marked as read" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to mark notification read" });
+    }
+  });
+
+  app.post("/api/notifications/mark-all-read", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      await storage.markAllNotificationsRead(req.user.id);
+      return res.json({ message: "All notifications marked as read" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to mark all notifications read" });
+    }
+  });
+
+  app.get("/api/hunches", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const filters: { status?: string; department?: string } = {};
+      if (req.query.status) filters.status = req.query.status as string;
+      if (req.query.department) filters.department = req.query.department as string;
+      const hunchList = await storage.getHunches(req.user.organizationId, filters);
+      return res.json(hunchList);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch hunches" });
+    }
+  });
+
+  app.patch("/api/hunches/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getHunch(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Hunch not found" });
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const parsed = updateHunchSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid update data", errors: parsed.error.flatten() });
+      }
+      const updateData: Record<string, any> = { status: parsed.data.status };
+      if (parsed.data.status === "accepted") updateData.acceptedAt = new Date();
+      if (parsed.data.status === "resolved") updateData.resolvedAt = new Date();
+      const updated = await storage.updateHunch(req.params.id, updateData);
+      return res.json(updated);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update hunch" });
+    }
+  });
+
+  app.post("/api/hunches/generate", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = req.user.organizationId;
+
+      const [convos, campaignList, agentList] = await Promise.all([
+        storage.getConversations(orgId),
+        storage.getCampaigns(orgId),
+        storage.getAgents(orgId),
+      ]);
+
+      const orgDataSummary = JSON.stringify({
+        conversations: {
+          total: convos.length,
+          open: convos.filter(c => c.status === "open").length,
+          closed: convos.filter(c => c.status === "closed").length,
+          channels: convos.reduce((acc, c) => { acc[c.channel] = (acc[c.channel] || 0) + 1; return acc; }, {} as Record<string, number>),
+        },
+        campaigns: campaignList.map(c => ({
+          name: c.name, department: c.department, status: c.status,
+          sent: c.sentCount, replied: c.repliedCount,
+          replyRate: c.sentCount > 0 ? Math.round((c.repliedCount / c.sentCount) * 100) : 0,
+        })),
+        agents: agentList.map(a => ({
+          name: a.name, department: a.department, status: a.status, channels: a.channels,
+        })),
+      });
+
+      const aiResponse = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2048,
+        messages: [{
+          role: "user",
+          content: `You are an AI business analyst. Analyze the following organization data and generate 3-5 actionable business insights ("hunches"). Each hunch should identify a pattern in the data and provide a specific recommendation.
+
+Organization Data:
+${orgDataSummary}
+
+Respond with a JSON array of objects, each with:
+- type: "pattern" | "recommendation" | "alert"
+- title: short descriptive title (max 60 chars)
+- description: detailed explanation of the insight (2-3 sentences)
+- confidence: number 50-100 representing certainty
+- department: relevant department (sales, service, marketing, or null for cross-department)
+- dataSource: what data this insight is based on
+
+Return ONLY the JSON array, no other text.`,
+        }],
+      });
+
+      let hunchData: any[] = [];
+      const textBlock = aiResponse.content.find(b => b.type === "text");
+      if (textBlock && textBlock.type === "text") {
+        try {
+          let rawText = textBlock.text.trim();
+          const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (jsonMatch) rawText = jsonMatch[1].trim();
+          hunchData = JSON.parse(rawText);
+          if (!Array.isArray(hunchData)) hunchData = [hunchData];
+        } catch {
+          return res.status(500).json({ message: "Failed to parse AI response" });
+        }
+      }
+
+      const created = [];
+      for (const h of hunchData) {
+        const hunch = await storage.createHunch({
+          organizationId: orgId,
+          type: h.type || "pattern",
+          title: h.title,
+          description: h.description,
+          confidence: Math.min(100, Math.max(0, h.confidence || 50)),
+          status: "new",
+          department: h.department || null,
+          dataSource: h.dataSource || null,
+        });
+        created.push(hunch);
+      }
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: orgId,
+        action: "hunches_generated",
+        entityType: "hunch",
+        metadata: { count: created.length },
+      }).catch(() => {});
+
+      return res.json(created);
+    } catch (err) {
+      console.error("Hunch generation error:", err);
+      return res.status(500).json({ message: "Failed to generate hunches" });
+    }
+  });
+
   app.post("/api/users/me/photo", authenticateToken, upload.single("photo"), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -1388,6 +1831,155 @@ Your personality and rules:
       return res.json({ profilePhotoUrl: dataUrl });
     } catch (err) {
       return res.status(500).json({ message: "Failed to upload photo" });
+    }
+  });
+
+  const vapiWebhookPayloadSchema = z.object({
+    message: z.object({
+      type: z.string(),
+      call: z.object({
+        id: z.string().optional(),
+        orgId: z.string().optional(),
+        type: z.string().optional(),
+        status: z.string().optional(),
+        phoneNumber: z.object({
+          number: z.string().optional(),
+        }).optional(),
+        customer: z.object({
+          number: z.string().optional(),
+          name: z.string().optional(),
+        }).optional(),
+        transcript: z.string().optional(),
+        summary: z.string().optional(),
+        startedAt: z.string().optional(),
+        endedAt: z.string().optional(),
+        assistantId: z.string().optional(),
+      }).optional(),
+    }),
+  });
+
+  app.post("/api/webhooks/vapi", async (req, res) => {
+    try {
+      const vapiSecret = process.env.VAPI_PRIVATE_KEY;
+      if (vapiSecret) {
+        const headerSecret = req.headers["x-vapi-secret"] || req.headers["authorization"];
+        const providedSecret = typeof headerSecret === "string" ? headerSecret.replace(/^Bearer\s+/i, "") : "";
+        if (providedSecret !== vapiSecret) {
+          console.warn("[VAPI Webhook] Invalid secret — rejecting request");
+          return res.status(401).json({ message: "Unauthorized" });
+        }
+      }
+
+      const parsed = vapiWebhookPayloadSchema.safeParse(req.body);
+      if (!parsed.success) {
+        console.warn("[VAPI Webhook] Invalid payload:", parsed.error.flatten());
+        return res.status(400).json({ message: "Invalid webhook payload" });
+      }
+
+      const { message } = parsed.data;
+
+      if (message.type !== "end-of-call-report" && message.type !== "call-ended") {
+        return res.json({ message: "Event type ignored", type: message.type });
+      }
+
+      const call = message.call;
+      if (!call) {
+        return res.status(400).json({ message: "Missing call data in payload" });
+      }
+
+      const customerName = call.customer?.name || "Unknown Caller";
+      const customerPhone = call.customer?.number || call.phoneNumber?.number || null;
+      const assistantId = call.assistantId || null;
+      const transcript = call.transcript || "";
+      const summary = call.summary || "";
+
+      let organizationId: string | null = null;
+      let agentId: string | null = null;
+
+      if (assistantId) {
+        const allOrgs = await storage.getOrganizations();
+        for (const org of allOrgs) {
+          const orgAgents = await storage.getAgents(org.id);
+          const matchingAgent = orgAgents.find(a => a.vapiAssistantId === assistantId);
+          if (matchingAgent) {
+            organizationId = org.id;
+            agentId = matchingAgent.id;
+            break;
+          }
+        }
+      }
+
+      if (!organizationId) {
+        const allOrgs = await storage.getOrganizations();
+        if (allOrgs.length > 0) {
+          organizationId = allOrgs[0].id;
+        } else {
+          return res.status(422).json({ message: "No organization found to associate call with" });
+        }
+      }
+
+      const conversation = await storage.createConversation({
+        customerName,
+        customerPhone,
+        channel: "voice",
+        status: "open",
+        agentId,
+        organizationId,
+        unreadCount: 1,
+        lastMessageAt: new Date(),
+      });
+
+      if (transcript || summary) {
+        const messageContent = summary
+          ? `**Call Summary:**\n${summary}\n\n**Transcript:**\n${transcript}`
+          : transcript;
+
+        await storage.createMessage({
+          conversationId: conversation.id,
+          role: "system",
+          content: messageContent,
+          senderName: "VAPI",
+        });
+      }
+
+      const users = await storage.getUsers(organizationId);
+      const adminUsers = users.filter(u => u.role && u.role.level <= 3);
+      for (const user of adminUsers) {
+        storage.createNotification({
+          userId: user.id,
+          organizationId,
+          type: "call",
+          title: "New Inbound Call Completed",
+          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.`,
+          relatedEntityType: "conversation",
+          relatedEntityId: conversation.id,
+        }).catch(() => {});
+      }
+
+      storage.createActivityLog({
+        organizationId,
+        action: "vapi_call_received",
+        entityType: "conversation",
+        entityId: conversation.id,
+        metadata: {
+          customerName,
+          customerPhone,
+          assistantId,
+          callId: call.id,
+          callStatus: call.status,
+          agentId,
+        },
+      }).catch(() => {});
+
+      console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}`);
+
+      return res.json({
+        message: "Webhook processed successfully",
+        conversationId: conversation.id,
+      });
+    } catch (err) {
+      console.error("[VAPI Webhook] Error processing webhook:", err);
+      return res.status(500).json({ message: "Failed to process webhook" });
     }
   });
 
