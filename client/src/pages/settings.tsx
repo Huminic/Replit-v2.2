@@ -425,6 +425,19 @@ export default function SettingsPage() {
       })
     : apiUsers;
 
+  interface OutboundStatus {
+    globalKillSwitch: boolean;
+    orgOutboundEnabled: boolean;
+    smsEnabled: boolean;
+    emailEnabled: boolean;
+    phoneEnabled: boolean;
+    effectiveStatus: boolean;
+  }
+
+  const { data: outboundStatus } = useQuery<OutboundStatus>({
+    queryKey: ['/api/outbound/status'],
+  });
+
   const commGateMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
       if (!authUser?.organization?.id) return;
@@ -434,6 +447,24 @@ export default function SettingsPage() {
       if (authUser?.organization?.id) {
         queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
       }
+      queryClient.invalidateQueries({ queryKey: ['/api/outbound/status'] });
+    },
+  });
+
+  const channelToggleMutation = useMutation({
+    mutationFn: async (data: { smsEnabled?: boolean; emailEnabled?: boolean; phoneEnabled?: boolean }) => {
+      if (!authUser?.organization?.id) return;
+      await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, data);
+    },
+    onSuccess: () => {
+      if (authUser?.organization?.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/outbound/status'] });
+      toast({ title: 'Channel updated', description: 'Communication channel setting saved.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to update channel', description: err.message || 'An error occurred', variant: 'destructive' });
     },
   });
 
@@ -3313,6 +3344,79 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {outboundStatus && !outboundStatus.globalKillSwitch && (
+            <Card className="border-2 border-amber-500/30">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-amber-500" />
+                  <CardTitle className="text-base">Server Kill Switch Active</CardTitle>
+                </div>
+                <CardDescription>
+                  The server-level outbound kill switch is currently OFF. No messages can be sent regardless of
+                  organization settings. This is controlled by your system administrator at the server level.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Channel Controls</CardTitle>
+              <CardDescription>
+                Enable or disable individual communication channels. These only take effect when the Communication Gate above is active.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">SMS / Text Messages</p>
+                    <p className="text-xs text-muted-foreground">Send text messages via TextMagic</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={outboundStatus?.smsEnabled ?? false}
+                  onCheckedChange={(checked) => channelToggleMutation.mutate({ smsEnabled: checked })}
+                  disabled={!communicationGateEnabled}
+                  data-testid="switch-sms-channel"
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Send className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">Email</p>
+                    <p className="text-xs text-muted-foreground">Send emails via Resend</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={outboundStatus?.emailEnabled ?? false}
+                  onCheckedChange={(checked) => channelToggleMutation.mutate({ emailEnabled: checked })}
+                  disabled={!communicationGateEnabled}
+                  data-testid="switch-email-channel"
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">Phone Calls</p>
+                    <p className="text-xs text-muted-foreground">Initiate calls via VAPI</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={outboundStatus?.phoneEnabled ?? false}
+                  onCheckedChange={(checked) => channelToggleMutation.mutate({ phoneEnabled: checked })}
+                  disabled={!communicationGateEnabled}
+                  data-testid="switch-phone-channel"
+                />
+              </div>
             </CardContent>
           </Card>
         </div>

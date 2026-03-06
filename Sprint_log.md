@@ -514,3 +514,50 @@ Frontend:
 - [x] Sync admin routes allow manual trigger and monitoring
 - [x] Sales dashboard shows source badge and sync age indicator
 
+---
+
+## Sprint W3.6 — Outbound Live Wiring & Safety Controls
+**Date:** 2026-03-06
+**Status:** DONE
+**Cumulative Progress:** ~76%
+
+**Goal:** Replace outbound SMS/email stubs with real service integrations, add a server-level global kill switch, and provide per-channel UI toggles in Settings.
+
+**Outbound SMS (TextMagic):**
+- `sendSms()` calls TextMagic REST API (`/api/v2/messages`) with `X-TM-Key` header
+- Phone numbers sanitized (non-numeric stripped)
+- Error body logged and thrown on failure; message ID logged on success
+
+**Outbound Email (Resend):**
+- `sendEmail()` uses Resend SDK
+- Extracts `Subject:` line from message content if present, falls back to default
+- Sends from `notifications@huminic.ai` (verified domain)
+- Newlines converted to `<br>` for HTML rendering
+
+**Global Kill Switch:**
+- `OUTBOUND_LIVE_ENABLED` environment variable — must be explicitly `"true"` to allow any sends
+- Currently set to `"false"` — nothing can go out
+- Checked first in CommGate before any org/channel/rate-limit checks
+- `GET /api/outbound/status` returns global + org + per-channel status
+
+**Settings UI — Channel Controls:**
+- Amber "Server Kill Switch Active" warning card shows when global switch is OFF
+- Per-channel toggles: SMS, Email, Phone — each toggles the org-level flag
+- Channel toggles disabled when Communication Gate is OFF
+- All toggles persist to database via PATCH /api/organizations/:id
+
+**Safety Stack (4 layers):**
+1. Global server kill switch (`OUTBOUND_LIVE_ENABLED` env var) — blocks everything
+2. Organization Communication Gate (`outboundEnabled`) — per-org master switch
+3. Per-channel toggles (`smsEnabled`, `emailEnabled`, `phoneEnabled`) — granular control
+4. Campaign-level kill switch + rate limiting (3/contact/24h) — per-campaign safety
+
+**Acceptance Criteria:**
+- [x] SMS sends via TextMagic REST API (real, not stub)
+- [x] Email sends via Resend SDK (real, not stub)
+- [x] Global kill switch blocks all sends when OUTBOUND_LIVE_ENABLED != "true"
+- [x] Settings UI shows amber warning when server kill switch is OFF
+- [x] Per-channel toggles (SMS, Email, Phone) visible and functional in Settings
+- [x] Channel toggles disabled when Communication Gate is OFF
+- [x] All 4 safety layers verified via E2E test
+

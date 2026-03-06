@@ -81,6 +81,10 @@ export async function sendPhone(to: string, content: string): Promise<void> {
   console.log(`[Phone] Call initiation to ${to} delegated to VAPI — "${content.substring(0, 80)}..."`);
 }
 
+function isGlobalOutboundEnabled(): boolean {
+  return process.env.OUTBOUND_LIVE_ENABLED === "true";
+}
+
 async function checkCommGate(
   org: Organization,
   campaign: Campaign | undefined,
@@ -88,6 +92,10 @@ async function checkCommGate(
   channel: "sms" | "email" | "phone",
   customerContact: string
 ): Promise<{ allowed: boolean; reason?: string }> {
+  if (!isGlobalOutboundEnabled()) {
+    return { allowed: false, reason: "Global outbound kill switch is OFF (OUTBOUND_LIVE_ENABLED != true)" };
+  }
+
   if (!org.outboundEnabled) {
     return { allowed: false, reason: "Organization outbound communications disabled" };
   }
