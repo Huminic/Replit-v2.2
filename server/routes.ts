@@ -1530,9 +1530,10 @@ Data provenance rules (CRITICAL):
   app.get("/api/tasks", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const filters: { status?: string; assignedUserId?: string } = {};
+      const filters: { status?: string; assignedUserId?: string; type?: string } = {};
       if (typeof req.query.status === "string") filters.status = req.query.status;
       if (typeof req.query.assignedUserId === "string") filters.assignedUserId = req.query.assignedUserId;
+      if (typeof req.query.type === "string") filters.type = req.query.type;
       const result = await storage.getTasks(req.user.organizationId, filters);
       return res.json(result);
     } catch (err) {
@@ -2107,6 +2108,103 @@ Return ONLY the JSON array, no other text.`,
         });
       }
 
+      let vinContactHref: string | null = null;
+      let vinLeadCreated = false;
+      const vapiPayloadSnapshot = {
+        callId: call.id,
+        assistantId,
+        customerName,
+        customerPhone,
+        callStatus: call.status,
+        transcriptLength: transcript.length,
+        summaryLength: summary.length,
+      };
+
+      try {
+        const { callMCP, resolveNexxusOrgId } = await import("./vendorProxy");
+        const nexxusOrgId = resolveNexxusOrgId(organizationId);
+
+        const nameParts = customerName.split(" ");
+        const firstName = nameParts[0] || "Unknown";
+        const lastName = nameParts.slice(1).join(" ") || "Caller";
+
+        const contactResult = await callMCP("vin_create_contact", {
+          orgId: nexxusOrgId,
+          firstName,
+          lastName,
+          phone: customerPhone || undefined,
+        });
+        vinContactHref = contactResult?.href || contactResult?.contactHref || contactResult?.id || null;
+        console.log(`[VAPI→VIN] Step 1 success: contact created, href=${vinContactHref}`);
+
+        try {
+          await callMCP("vin_create_lead", {
+            orgId: nexxusOrgId,
+            contactHref: vinContactHref,
+            source: "VAPI Inbound Call",
+            description: summary || `Inbound call from ${customerName}`,
+            transcript: transcript.substring(0, 5000),
+          });
+          vinLeadCreated = true;
+          console.log(`[VAPI→VIN] Step 2 success: lead created for contact ${vinContactHref}`);
+        } catch (step2Err: any) {
+          console.error(`[VAPI→VIN] Step 2 FAILED (lead creation):`, step2Err.message);
+          await storage.createTask({
+            type: "escalation",
+            title: "VIN Lead Creation Failed (Step 2)",
+            description: `Contact was created (href: ${vinContactHref}) but lead creation failed.\n\nError: ${step2Err.message}`,
+            status: "todo",
+            priority: "critical",
+            organizationId,
+            tags: ["escalation", "vin-integration", "vapi", "auto-generated"],
+            metadata: JSON.stringify({
+              trigger_id: `vapi-vin-${Date.now()}`,
+              org_id: organizationId,
+              failed_step: 2,
+              contact_href: vinContactHref,
+              error_response: step2Err.message,
+              timestamp: new Date().toISOString(),
+              original_vapi_data: vapiPayloadSnapshot,
+              conversation_id: conversation.id,
+            }),
+          });
+          storage.createActivityLog({
+            organizationId,
+            action: "vin_lead_creation_failed",
+            entityType: "conversation",
+            entityId: conversation.id,
+            metadata: { failed_step: 2, contact_href: vinContactHref, error: step2Err.message },
+          }).catch(() => {});
+        }
+      } catch (step1Err: any) {
+        console.error(`[VAPI→VIN] Step 1 FAILED (contact creation):`, step1Err.message);
+        await storage.createTask({
+          type: "escalation",
+          title: "VIN Contact Creation Failed (Step 1)",
+          description: `Failed to create VIN Solutions contact for VAPI call.\n\nCaller: ${customerName} (${customerPhone || "no phone"})\nError: ${step1Err.message}`,
+          status: "todo",
+          priority: "critical",
+          organizationId,
+          tags: ["escalation", "vin-integration", "vapi", "auto-generated"],
+          metadata: JSON.stringify({
+            trigger_id: `vapi-vin-${Date.now()}`,
+            org_id: organizationId,
+            failed_step: 1,
+            error_response: step1Err.message,
+            timestamp: new Date().toISOString(),
+            original_vapi_data: vapiPayloadSnapshot,
+            conversation_id: conversation.id,
+          }),
+        });
+        storage.createActivityLog({
+          organizationId,
+          action: "vin_contact_creation_failed",
+          entityType: "conversation",
+          entityId: conversation.id,
+          metadata: { failed_step: 1, error: step1Err.message, customerName, customerPhone },
+        }).catch(() => {});
+      }
+
       const users = await storage.getUsers(organizationId);
       const adminUsers = users.filter(u => u.role && u.role.level <= 3);
       for (const user of adminUsers) {
@@ -2115,7 +2213,7 @@ Return ONLY the JSON array, no other text.`,
           organizationId,
           type: "call",
           title: "New Inbound Call Completed",
-          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.`,
+          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
         }).catch(() => {});
@@ -2133,14 +2231,17 @@ Return ONLY the JSON array, no other text.`,
           callId: call.id,
           callStatus: call.status,
           agentId,
+          vinContactHref,
+          vinLeadCreated,
         },
       }).catch(() => {});
 
-      console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}`);
+      console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}`);
 
       return res.json({
         message: "Webhook processed successfully",
         conversationId: conversation.id,
+        vinLeadCreated,
       });
     } catch (err) {
       console.error("[VAPI Webhook] Error processing webhook:", err);

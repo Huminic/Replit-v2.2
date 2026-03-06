@@ -24,7 +24,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, Smartphone, Bot, Loader2 } from 'lucide-react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import type { Conversation, Message } from '@shared/schema';
+import type { Conversation, Message, Task } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
 type ConversationStatus = 'open' | 'assigned' | 'participating' | 'automated' | 'scheduled' | 'followup' | 'pending' | 'closed';
@@ -82,6 +82,29 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'voice', label: 'Voice' },
 ];
 
+type TaskType = 'task' | 'escalation' | 'unsent_message';
+type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
+
+const taskTypeConfig: Record<TaskType, { label: string; icon: React.ElementType; color: string; bg: string; border: string }> = {
+  task: { label: 'Task', icon: CheckSquare, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/50', border: 'border-blue-200 dark:border-blue-800' },
+  escalation: { label: 'Escalation', icon: AlertTriangle, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/50', border: 'border-orange-200 dark:border-orange-800' },
+  unsent_message: { label: 'Unsent Message', icon: MailX, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/50', border: 'border-red-200 dark:border-red-800' },
+};
+
+const priorityConfig: Record<TaskPriority, { label: string; color: string; bg: string; dot: string }> = {
+  critical: { label: 'Critical', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-100 dark:bg-red-900/60', dot: 'bg-red-500' },
+  high: { label: 'High', color: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-100 dark:bg-orange-900/60', dot: 'bg-orange-500' },
+  medium: { label: 'Medium', color: 'text-yellow-700 dark:text-yellow-300', bg: 'bg-yellow-100 dark:bg-yellow-900/60', dot: 'bg-yellow-500' },
+  low: { label: 'Low', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/60', dot: 'bg-green-500' },
+};
+
+const taskTypeFilters: { id: TaskType | 'all'; label: string }[] = [
+  { id: 'all', label: 'All Items' },
+  { id: 'task', label: 'Tasks' },
+  { id: 'escalation', label: 'Escalations' },
+  { id: 'unsent_message', label: 'Unsent Messages' },
+];
+
 function getAgentName(agentId: string | null, agents: { id: string; name: string }[]): string | undefined {
   if (!agentId) return undefined;
   const agent = agents.find(a => a.id === agentId);
@@ -122,19 +145,71 @@ function MessagesSkeleton() {
   );
 }
 
+function TaskListSkeleton() {
+  return (
+    <div className="flex flex-col">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="p-3 border-b border-border">
+          <div className="flex items-start gap-2">
+            <Skeleton className="h-8 w-8 rounded flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-full" />
+              <div className="flex gap-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-14" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function TeamboxPage() {
   const { agents } = useApp();
   const { toast } = useToast();
+  const [viewMode, setViewMode] = useState<'conversations' | 'tasks'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
   const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
+  const [activeTaskType, setActiveTaskType] = useState<TaskType | 'all'>('all');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations'],
+  });
+
+  const { data: allTasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
+    queryKey: ['/api/tasks'],
+  });
+
+  const filteredTasks = allTasks.filter(t => {
+    if (activeTaskType !== 'all' && t.type !== activeTaskType) return false;
+    if (searchTerm && !t.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
+  });
+
+  const selectedTask = allTasks.find(t => t.id === selectedTaskId) || null;
+
+  const getTaskTypeCount = (type: TaskType | 'all') => {
+    if (type === 'all') return allTasks.length;
+    return allTasks.filter(t => t.type === type).length;
+  };
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async (data: { id: string; status: string }) => {
+      return apiRequest('PATCH', `/api/tasks/${data.id}`, { status: data.status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({ title: 'Task updated' });
+    },
   });
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null;
@@ -261,13 +336,38 @@ export default function TeamboxPage() {
   return (
     <div className="flex h-full overflow-hidden" data-testid="teambox-page">
       <div className="w-64 border-r border-border flex flex-col bg-muted/30 flex-shrink-0 hidden lg:flex">
-        <div className="p-3 border-b border-border">
+        <div className="p-2 border-b border-border">
+          <div className="flex rounded-md bg-muted p-0.5 mb-2">
+            <button
+              onClick={() => setViewMode('conversations')}
+              className={cn(
+                'flex-1 text-xs py-1.5 rounded-sm transition-colors font-medium',
+                viewMode === 'conversations' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+              data-testid="tab-conversations"
+            >
+              Conversations
+            </button>
+            <button
+              onClick={() => setViewMode('tasks')}
+              className={cn(
+                'flex-1 text-xs py-1.5 rounded-sm transition-colors font-medium',
+                viewMode === 'tasks' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+              data-testid="tab-tasks"
+            >
+              Tasks
+              {allTasks.length > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 min-w-4 text-[10px] px-1">{allTasks.length}</Badge>
+              )}
+            </button>
+          </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search conversations..."
+              placeholder={viewMode === 'conversations' ? 'Search conversations...' : 'Search tasks...'}
               className="h-8 pl-8 text-xs"
               data-testid="input-teambox-search"
             />
@@ -275,43 +375,90 @@ export default function TeamboxPage() {
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-2">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Status</p>
-            {statusFilters.map(filter => {
-              const count = getStatusCount(filter.id);
-              return (
-                <button
-                  key={filter.id}
-                  onClick={() => setActiveStatus(filter.id)}
-                  className={cn(
-                    'w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs transition-colors',
-                    activeStatus === filter.id ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground hover:bg-accent/50'
-                  )}
-                  data-testid={`filter-status-${filter.id}`}
-                >
-                  <span>{filter.label}</span>
-                  {count > 0 && <Badge variant="secondary" className="h-5 min-w-5 text-[10px]">{count}</Badge>}
-                </button>
-              );
-            })}
-          </div>
+          {viewMode === 'conversations' ? (
+            <>
+              <div className="p-2">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Status</p>
+                {statusFilters.map(filter => {
+                  const count = getStatusCount(filter.id);
+                  return (
+                    <button
+                      key={filter.id}
+                      onClick={() => setActiveStatus(filter.id)}
+                      className={cn(
+                        'w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs transition-colors',
+                        activeStatus === filter.id ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground hover:bg-accent/50'
+                      )}
+                      data-testid={`filter-status-${filter.id}`}
+                    >
+                      <span>{filter.label}</span>
+                      {count > 0 && <Badge variant="secondary" className="h-5 min-w-5 text-[10px]">{count}</Badge>}
+                    </button>
+                  );
+                })}
+              </div>
 
-          <div className="p-2 border-t border-border">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Channel</p>
-            {channelFilters.map(filter => (
-              <button
-                key={filter.id}
-                onClick={() => setActiveChannel(filter.id)}
-                className={cn(
-                  'w-full flex items-center px-2 py-1.5 rounded-md text-xs transition-colors',
-                  activeChannel === filter.id ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground hover:bg-accent/50'
-                )}
-                data-testid={`filter-channel-${filter.id}`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+              <div className="p-2 border-t border-border">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Channel</p>
+                {channelFilters.map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setActiveChannel(filter.id)}
+                    className={cn(
+                      'w-full flex items-center px-2 py-1.5 rounded-md text-xs transition-colors',
+                      activeChannel === filter.id ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground hover:bg-accent/50'
+                    )}
+                    data-testid={`filter-channel-${filter.id}`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="p-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Type</p>
+              {taskTypeFilters.map(filter => {
+                const count = getTaskTypeCount(filter.id);
+                const cfg = filter.id !== 'all' ? taskTypeConfig[filter.id] : null;
+                const Icon = cfg?.icon;
+                return (
+                  <button
+                    key={filter.id}
+                    onClick={() => setActiveTaskType(filter.id)}
+                    className={cn(
+                      'w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs transition-colors',
+                      activeTaskType === filter.id ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground hover:bg-accent/50'
+                    )}
+                    data-testid={`filter-task-type-${filter.id}`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      {Icon && <Icon className={cn('h-3 w-3', cfg?.color)} />}
+                      {filter.label}
+                    </span>
+                    {count > 0 && <Badge variant="secondary" className="h-5 min-w-5 text-[10px]">{count}</Badge>}
+                  </button>
+                );
+              })}
+
+              <div className="mt-3 border-t border-border pt-2">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Priority</p>
+                {(['critical', 'high', 'medium', 'low'] as TaskPriority[]).map(p => {
+                  const cfg = priorityConfig[p];
+                  const count = allTasks.filter(t => t.priority === p).length;
+                  return (
+                    <div key={p} className="flex items-center justify-between px-2 py-1 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className={cn('h-2 w-2 rounded-full', cfg.dot)} />
+                        {cfg.label}
+                      </span>
+                      <span>{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </ScrollArea>
       </div>
 
@@ -320,89 +467,158 @@ export default function TeamboxPage() {
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">
-              {activeStatus === 'all' ? 'All' : conversationStatusLabels[activeStatus as ConversationStatus]}
+              {viewMode === 'conversations'
+                ? (activeStatus === 'all' ? 'All' : conversationStatusLabels[activeStatus as ConversationStatus])
+                : (activeTaskType === 'all' ? 'All Items' : taskTypeFilters.find(f => f.id === activeTaskType)?.label || 'All')}
             </span>
           </div>
-          <Badge variant="secondary" className="text-xs" data-testid="badge-conversation-count">{filteredConversations.length}</Badge>
+          <Badge variant="secondary" className="text-xs" data-testid="badge-list-count">
+            {viewMode === 'conversations' ? filteredConversations.length : filteredTasks.length}
+          </Badge>
         </div>
 
         <ScrollArea className="flex-1">
-          {conversationsLoading ? (
-            <ConversationListSkeleton />
-          ) : (
-            <div className="flex flex-col">
-              {filteredConversations.map(conv => {
-                const ChannelIcon = channelIcons[conv.channel as ConversationChannel] || MessageSquare;
-                const isSelected = selectedConversationId === conv.id;
-                const agentName = getAgentName(conv.agentId, agents);
-                const lastMsgText = getLastMessage(conv);
-                return (
-                  <button
-                    key={conv.id}
-                    onClick={() => setSelectedConversationId(conv.id)}
-                    className={cn(
-                      'w-full text-left p-3 border-b border-border transition-colors',
-                      isSelected ? 'bg-accent' : 'hover:bg-accent/50'
-                    )}
-                    data-testid={`conversation-item-${conv.id}`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="relative flex-shrink-0 mt-0.5">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                            {conv.customerName.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        {conv.status === 'automated' && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
-                            <Bot className="h-2.5 w-2.5 text-white" />
+          {viewMode === 'conversations' ? (
+            <>
+              {conversationsLoading ? (
+                <ConversationListSkeleton />
+              ) : (
+                <div className="flex flex-col">
+                  {filteredConversations.map(conv => {
+                    const ChannelIcon = channelIcons[conv.channel as ConversationChannel] || MessageSquare;
+                    const isSelected = selectedConversationId === conv.id;
+                    const agentName = getAgentName(conv.agentId, agents);
+                    const lastMsgText = getLastMessage(conv);
+                    return (
+                      <button
+                        key={conv.id}
+                        onClick={() => setSelectedConversationId(conv.id)}
+                        className={cn(
+                          'w-full text-left p-3 border-b border-border transition-colors',
+                          isSelected ? 'bg-accent' : 'hover:bg-accent/50'
+                        )}
+                        data-testid={`conversation-item-${conv.id}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="relative flex-shrink-0 mt-0.5">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                {conv.customerName.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            {conv.status === 'automated' && (
+                              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
+                                <Bot className="h-2.5 w-2.5 text-white" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-sm font-medium truncate">{conv.customerName}</span>
-                          <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                            {conv.lastMessageAt
-                              ? formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
-                              : ''}
-                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-sm font-medium truncate">{conv.customerName}</span>
+                              <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                                {conv.lastMessageAt
+                                  ? formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
+                                  : ''}
+                              </span>
+                            </div>
+                            {lastMsgText && (
+                              <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsgText}</p>
+                            )}
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <ChannelIcon className="h-3 w-3 text-muted-foreground" />
+                              {agentName && (
+                                <Badge variant="outline" className={cn(
+                                  "h-4 text-[10px] px-1 gap-0.5",
+                                  conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
+                                )}>
+                                  {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
+                                  {agentName}
+                                </Badge>
+                              )}
+                              {conv.unreadCount > 0 && (
+                                <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        {lastMsgText && (
-                          <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsgText}</p>
-                        )}
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <ChannelIcon className="h-3 w-3 text-muted-foreground" />
-                          {agentName && (
-                            <Badge variant="outline" className={cn(
-                              "h-4 text-[10px] px-1 gap-0.5",
-                              conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
-                            )}>
-                              {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
-                              {agentName}
-                            </Badge>
-                          )}
-                          {conv.unreadCount > 0 && (
-                            <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
-                          )}
-                        </div>
-                      </div>
+                      </button>
+                    );
+                  })}
+                  {filteredConversations.length === 0 && !conversationsLoading && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">
+                      No conversations found
                     </div>
-                  </button>
-                );
-              })}
-              {filteredConversations.length === 0 && !conversationsLoading && (
-                <div className="p-6 text-center text-sm text-muted-foreground">
-                  No conversations found
+                  )}
                 </div>
               )}
-            </div>
+            </>
+          ) : (
+            <>
+              {tasksLoading ? (
+                <TaskListSkeleton />
+              ) : (
+                <div className="flex flex-col">
+                  {filteredTasks.map(task => {
+                    const typeCfg = taskTypeConfig[(task.type as TaskType) || 'task'] || taskTypeConfig.task;
+                    const priCfg = priorityConfig[(task.priority as TaskPriority) || 'medium'] || priorityConfig.medium;
+                    const TypeIcon = typeCfg.icon;
+                    const isSelected = selectedTaskId === task.id;
+                    return (
+                      <button
+                        key={task.id}
+                        onClick={() => setSelectedTaskId(task.id)}
+                        className={cn(
+                          'w-full text-left p-3 border-b border-border transition-colors',
+                          isSelected ? 'bg-accent' : 'hover:bg-accent/50'
+                        )}
+                        data-testid={`task-item-${task.id}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className={cn('flex-shrink-0 mt-0.5 h-8 w-8 rounded flex items-center justify-center border', typeCfg.bg, typeCfg.border)}>
+                            <TypeIcon className={cn('h-4 w-4', typeCfg.color)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-sm font-medium truncate">{task.title}</span>
+                              <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            </div>
+                            {task.description && (
+                              <p className="text-xs text-muted-foreground truncate mt-0.5">{task.description}</p>
+                            )}
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <Badge variant="outline" className={cn('h-4 text-[10px] px-1 border', typeCfg.border, typeCfg.color)}>
+                                {typeCfg.label}
+                              </Badge>
+                              <Badge variant="outline" className={cn('h-4 text-[10px] px-1 gap-0.5', priCfg.color)}>
+                                <span className={cn('h-1.5 w-1.5 rounded-full', priCfg.dot)} />
+                                {priCfg.label}
+                              </Badge>
+                              {task.createdAt && (
+                                <span className="text-[10px] text-muted-foreground ml-auto flex items-center gap-0.5">
+                                  <Clock className="h-2.5 w-2.5" />
+                                  {formatDistanceToNow(new Date(task.createdAt), { addSuffix: false })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {filteredTasks.length === 0 && !tasksLoading && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">
+                      No tasks found
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </ScrollArea>
       </div>
 
       <div className="flex-1 flex flex-col min-w-0">
-        {selectedConversation ? (
+        {viewMode === 'conversations' && selectedConversation ? (
           <>
             <div className="p-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -537,18 +753,138 @@ export default function TeamboxPage() {
               </div>
             </div>
           </>
+        ) : viewMode === 'tasks' && selectedTask ? (
+          <>
+            <div className="p-3 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {(() => {
+                  const typeCfg = taskTypeConfig[(selectedTask.type as TaskType) || 'task'] || taskTypeConfig.task;
+                  const TypeIcon = typeCfg.icon;
+                  return (
+                    <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center border', typeCfg.bg, typeCfg.border)}>
+                      <TypeIcon className={cn('h-5 w-5', typeCfg.color)} />
+                    </div>
+                  );
+                })()}
+                <div>
+                  <h3 className="text-sm font-semibold" data-testid="text-task-title">{selectedTask.title}</h3>
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const typeCfg = taskTypeConfig[(selectedTask.type as TaskType) || 'task'] || taskTypeConfig.task;
+                      const priCfg = priorityConfig[(selectedTask.priority as TaskPriority) || 'medium'] || priorityConfig.medium;
+                      return (
+                        <>
+                          <Badge variant="outline" className={cn('text-[10px] h-4 px-1 border', typeCfg.border, typeCfg.color)} data-testid="badge-task-type">
+                            {typeCfg.label}
+                          </Badge>
+                          <Badge variant="outline" className={cn('text-[10px] h-4 px-1 gap-0.5', priCfg.color)} data-testid="badge-task-priority">
+                            <span className={cn('h-1.5 w-1.5 rounded-full', priCfg.dot)} />
+                            {priCfg.label}
+                          </Badge>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {selectedTask.status === 'todo' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => updateTaskMutation.mutate({ id: selectedTask.id, status: 'in-progress' })}
+                    disabled={updateTaskMutation.isPending}
+                    data-testid="button-task-start"
+                  >
+                    Start
+                  </Button>
+                )}
+                {selectedTask.status === 'in-progress' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => updateTaskMutation.mutate({ id: selectedTask.id, status: 'done' })}
+                    disabled={updateTaskMutation.isPending}
+                    data-testid="button-task-resolve"
+                  >
+                    Resolve
+                  </Button>
+                )}
+                {selectedTask.status === 'done' && (
+                  <Badge variant="secondary" className="text-xs">Resolved</Badge>
+                )}
+              </div>
+            </div>
+
+            <ScrollArea className="flex-1 p-4">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Description</h4>
+                  <p className="text-sm whitespace-pre-wrap" data-testid="text-task-description">
+                    {selectedTask.description || 'No description provided.'}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Status</p>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-task-status">{selectedTask.status}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Created</p>
+                    <p className="text-sm" data-testid="text-task-created">
+                      {selectedTask.createdAt ? formatDistanceToNow(new Date(selectedTask.createdAt), { addSuffix: true }) : 'Unknown'}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedTask.tags && selectedTask.tags.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Tags</p>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedTask.tags.map((tag, i) => (
+                        <Badge key={i} variant="outline" className="text-[10px]" data-testid={`badge-task-tag-${i}`}>{tag}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedTask.metadata && (() => {
+                  try {
+                    const meta = JSON.parse(selectedTask.metadata);
+                    return (
+                      <div>
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Metadata</h4>
+                        <div className="rounded-lg border border-border bg-muted/30 p-3">
+                          <pre className="text-xs font-mono whitespace-pre-wrap break-words" data-testid="text-task-metadata">
+                            {JSON.stringify(meta, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    );
+                  } catch {
+                    return null;
+                  }
+                })()}
+              </div>
+            </ScrollArea>
+          </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            {conversationsLoading ? (
+            {(viewMode === 'conversations' && conversationsLoading) || (viewMode === 'tasks' && tasksLoading) ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
-              <p className="text-sm">Select a conversation to view</p>
+              <p className="text-sm">
+                {viewMode === 'conversations' ? 'Select a conversation to view' : 'Select a task to view details'}
+              </p>
             )}
           </div>
         )}
       </div>
 
-      {selectedConversation && (
+      {viewMode === 'conversations' && selectedConversation && (
         <div className="w-64 border-l border-border flex-shrink-0 hidden xl:flex flex-col">
           <div className="p-3 border-b border-border">
             <h4 className="text-sm font-semibold">Customer Info</h4>
