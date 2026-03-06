@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
+import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import type { Agent } from '@shared/schema';
 
 interface SalesMetricTile {
@@ -340,16 +341,8 @@ export default function SalesPage() {
     </div>
   );
 
-  /** Calendar tab — placeholder for Wave 2 test drive scheduling and follow-up appointments */
-  const renderCalendar = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Sales Calendar</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Test drives, follow-up appointments, and sales team schedules.</p>
-      </div>
-    </div>
-  );
+  const renderCalendar = () => <AppointmentCalendar department="sales" />;
+
 
   return (
     <div className="flex flex-col h-full" data-testid="sales-page">

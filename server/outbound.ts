@@ -187,6 +187,17 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
     } catch (escErr) {
       console.error("[Outbound] Failed to create unsent message escalation:", escErr);
     }
+    try {
+      await storage.logUsageEvent({
+        organizationId: request.organizationId,
+        eventType: `outbound_${request.channel}_blocked`,
+        channel: request.channel,
+        quantity: 0,
+        metadata: { recipient: request.to, reason: gateResult.reason, status: "blocked" },
+      });
+    } catch (usageErr) {
+      console.error("[Outbound] Failed to log blocked usage event:", usageErr);
+    }
     return { status: "blocked", blockedReason: gateResult.reason };
   }
 
@@ -210,10 +221,32 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
     }
 
     await logAttempt(request, "sent");
+    try {
+      await storage.logUsageEvent({
+        organizationId: request.organizationId,
+        eventType: `outbound_${request.channel}`,
+        channel: request.channel,
+        quantity: 1,
+        metadata: { recipient: request.to, campaignId: request.campaignId || null },
+      });
+    } catch (usageErr) {
+      console.error("[Outbound] Failed to log usage event:", usageErr);
+    }
     return { status: "sent" };
   } catch (err: any) {
     const reason = err.message || "Send failed";
     await logAttempt(request, "failed", reason);
+    try {
+      await storage.logUsageEvent({
+        organizationId: request.organizationId,
+        eventType: `outbound_${request.channel}_failed`,
+        channel: request.channel,
+        quantity: 0,
+        metadata: { recipient: request.to, reason, status: "failed" },
+      });
+    } catch (usageErr) {
+      console.error("[Outbound] Failed to log failed usage event:", usageErr);
+    }
     return { status: "failed", blockedReason: reason };
   }
 }

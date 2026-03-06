@@ -95,18 +95,30 @@ export async function seedDatabase() {
     name: "Serra Honda",
     slug: "serra-honda",
     personaName: "Serra",
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
   });
 
   const serraNissan = await storage.createOrganization({
     name: "Serra Nissan",
     slug: "serra-nissan",
     personaName: "Aria",
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
   });
 
   const tonySerraFord = await storage.createOrganization({
     name: "Tony Serra Ford",
     slug: "tony-serra-ford",
     personaName: "Nova",
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
   });
 
   const defaultPassword = await bcrypt.hash("password123", SALT_ROUNDS);

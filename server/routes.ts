@@ -677,6 +677,54 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/organizations/:id/slug", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      if (req.params.id !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const { slug: newSlug } = req.body;
+      if (!newSlug || typeof newSlug !== "string") return res.status(400).json({ message: "Slug is required" });
+      const slugFormatted = newSlug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      if (!slugFormatted) return res.status(400).json({ message: "Invalid slug" });
+
+      const existing = await storage.getOrganizationBySlug(slugFormatted);
+      if (existing && existing.id !== req.params.id) {
+        return res.status(409).json({ message: "Slug already taken" });
+      }
+
+      const org = await storage.getOrganization(req.params.id);
+      if (!org) return res.status(404).json({ message: "Organization not found" });
+      const oldSlug = org.slug;
+
+      if (oldSlug !== slugFormatted) {
+        const thirtyDaysLater = new Date();
+        thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+        await storage.createSlugRedirect({
+          organizationId: req.params.id,
+          oldSlug,
+          newSlug: slugFormatted,
+          expiresAt: thirtyDaysLater,
+        });
+        await storage.updateOrganizationSlug(req.params.id, slugFormatted);
+
+        storage.createActivityLog({
+          userId: req.user!.id,
+          organizationId: req.user!.organizationId,
+          action: "slug_changed",
+          entityType: "organization",
+          entityId: req.params.id,
+          metadata: { oldSlug, newSlug: slugFormatted },
+        }).catch(() => {});
+      }
+
+      const updated = await storage.getOrganization(req.params.id);
+      return res.json(updated);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update slug" });
+    }
+  });
+
   app.get("/api/conversations", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -1156,7 +1204,8 @@ export async function registerRoutes(
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
       const { conversationId } = req.params;
-      const { content, agentId } = req.body;
+      const { content, agentId, mode } = req.body;
+      const isCrmGuru = mode === "crm_guru";
 
       if (!content || typeof content !== "string") {
         return res.status(400).json({ message: "Message content is required" });
@@ -1289,7 +1338,19 @@ Data provenance rules (CRITICAL):
 - If data is stale (last synced > 6 hours ago), proactively note this: "Note: this data was last synced X hours ago and may not reflect the latest changes"
 - If no VinSolutions data is available, say so clearly — do not guess at CRM numbers
 - Use the vin_query_leads tool to look up specific lead data and the vin_lead_summary tool to get overall metrics
-- When web search results are used, cite them naturally${agentContext}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
+- When web search results are used, cite them naturally${isCrmGuru ? `
+
+CRM GURU MODE (ACTIVE):
+You are operating as the CRM Guru — the dedicated CRM intelligence agent. Follow these rules strictly:
+1. ALWAYS query VinSolutions data FIRST for any CRM-related question using vin_query_leads or vin_lead_summary tools
+2. If VinSolutions data is insufficient, supplement with internal data warehouse — but ALWAYS explicitly state: "I found additional data in your internal data warehouse" when using warehouse data
+3. VinSolutions data is the primary source of truth for all CRM operations: leads, contacts, deals, activities
+4. When presenting data, always attribute sources clearly: "[VinSolutions]" or "[Data Warehouse]"
+5. If data conflicts exist between sources, prefer VinSolutions and note the discrepancy` : `
+
+When the user asks a question that requires deep CRM data (specific lead details, deal histories, contact records, pipeline specifics):
+- First try to answer from available internal data warehouse
+- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper VinSolutions integration. You can activate it from the agent selector."`}${agentContext}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -1590,6 +1651,95 @@ Data provenance rules (CRITICAL):
       return res.json({ message: "Task deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete task" });
+    }
+  });
+
+  app.get("/api/appointments", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { department, startDate, endDate } = req.query;
+      const filters: { department?: string; startDate?: Date; endDate?: Date } = {};
+      if (department && typeof department === "string") filters.department = department;
+      if (startDate && typeof startDate === "string") filters.startDate = new Date(startDate);
+      if (endDate && typeof endDate === "string") filters.endDate = new Date(endDate);
+      const result = await storage.getAppointments(req.user.organizationId, filters);
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch appointments" });
+    }
+  });
+
+  app.get("/api/appointments/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await storage.getAppointment(req.params.id);
+      if (!result) return res.status(404).json({ message: "Appointment not found" });
+      if (result.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch appointment" });
+    }
+  });
+
+  app.post("/api/appointments", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { title, customerName, customerPhone, customerEmail, appointmentType, department, startTime, endTime, notes, assignedUserId } = req.body;
+      if (!title || !customerName || !startTime || !endTime) {
+        return res.status(400).json({ message: "Missing required fields: title, customerName, startTime, endTime" });
+      }
+      const result = await storage.createAppointment({
+        title,
+        customerName,
+        customerPhone: customerPhone || null,
+        customerEmail: customerEmail || null,
+        appointmentType: appointmentType || "general",
+        department: department || "sales",
+        assignedUserId: assignedUserId || null,
+        organizationId: req.user.organizationId,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        status: "scheduled",
+        notes: notes || null,
+        source: "manual",
+      });
+      return res.status(201).json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to create appointment" });
+    }
+  });
+
+  app.patch("/api/appointments/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getAppointment(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Appointment not found" });
+      if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      const updates: Record<string, any> = {};
+      const allowed = ["title", "customerName", "customerPhone", "customerEmail", "appointmentType", "department", "startTime", "endTime", "status", "notes", "assignedUserId"];
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) {
+          updates[key] = (key === "startTime" || key === "endTime") ? new Date(req.body[key]) : req.body[key];
+        }
+      }
+      const result = await storage.updateAppointment(req.params.id, updates);
+      if (!result) return res.status(404).json({ message: "Appointment not found" });
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update appointment" });
+    }
+  });
+
+  app.delete("/api/appointments/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const existing = await storage.getAppointment(req.params.id);
+      if (!existing) return res.status(404).json({ message: "Appointment not found" });
+      if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      await storage.deleteAppointment(req.params.id);
+      return res.json({ message: "Appointment deleted" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to delete appointment" });
     }
   });
 
@@ -2371,9 +2521,14 @@ Return ONLY the JSON array, no other text.`,
     if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
     try {
       const slug = req.params.slug;
-      const orgs = await storage.getOrganizations();
-      const org = orgs.find(o => o.slug === slug);
-      if (!org) return res.status(404).json({ message: "Organization not found" });
+      let org = await storage.getOrganizationBySlug(slug);
+      if (!org) {
+        const redirect = await storage.getSlugRedirect(slug);
+        if (redirect) {
+          return res.json({ redirect: true, newSlug: redirect.newSlug });
+        }
+        return res.status(404).json({ message: "Organization not found" });
+      }
       return res.json({
         id: org.id,
         name: org.name,
@@ -2448,6 +2603,88 @@ Return ONLY the JSON array, no other text.`,
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to get outbound status" });
+    }
+  });
+
+  app.get("/api/usage", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { startDate, endDate, eventType } = req.query;
+      const filters: { startDate?: Date; endDate?: Date; eventType?: string } = {};
+      if (startDate && typeof startDate === "string") filters.startDate = new Date(startDate);
+      if (endDate && typeof endDate === "string") filters.endDate = new Date(endDate);
+      if (eventType && typeof eventType === "string") filters.eventType = eventType;
+      const events = await storage.getUsageEvents(req.user.organizationId, filters);
+      return res.json(events);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch usage events" });
+    }
+  });
+
+  app.get("/api/usage/summary", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const now = new Date();
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : new Date(now.getFullYear(), now.getMonth(), 1);
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : now;
+
+      const orgIds: string[] = [];
+      if (req.user.roleLevel <= 2) {
+        const allOrgs = await storage.getOrganizations();
+        const partnerOrgs = req.user.roleLevel === 1
+          ? allOrgs
+          : allOrgs.filter(o => o.partnerId === req.user!.organizationId || o.id === req.user!.organizationId);
+        orgIds.push(...partnerOrgs.map(o => o.id));
+      } else {
+        orgIds.push(req.user.organizationId);
+      }
+
+      const summaries = await Promise.all(
+        orgIds.map(async (orgId) => {
+          const summary = await storage.getUsageSummary(orgId, startDate, endDate);
+          const org = await storage.getOrganization(orgId);
+          return { organizationId: orgId, organizationName: org?.name || "Unknown", period: { start: startDate.toISOString(), end: endDate.toISOString() }, usage: summary };
+        })
+      );
+
+      return res.json(summaries);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch usage summary" });
+    }
+  });
+
+  app.get("/api/billing/usage", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = (req.query.org_id as string) || req.user.organizationId;
+      if (orgId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const now = new Date();
+      const period = (req.query.period as string) || "current_month";
+      let startDate: Date, endDate: Date;
+      if (period === "current_month") {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = now;
+      } else if (period === "last_month") {
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      } else {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = now;
+      }
+
+      const summary = await storage.getUsageSummary(orgId, startDate, endDate);
+      const org = await storage.getOrganization(orgId);
+      return res.json({
+        organizationId: orgId,
+        organizationName: org?.name || "Unknown",
+        period: { start: startDate.toISOString(), end: endDate.toISOString() },
+        usage: summary,
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch billing usage" });
     }
   });
 
