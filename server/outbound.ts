@@ -9,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
 const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
-const RESEND_FROM = "Nexxus Connect <notifications@nexxusconnect.com>";
+const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
 
 export interface SendRequest {
   organizationId: string;
