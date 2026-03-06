@@ -261,6 +261,10 @@ All items reviewed by stakeholder. Suggestions accepted unless overridden below.
 10. **All testing is built from UI audit + acceptance criteria** — no ad-hoc test plans
 11. **Task assignment**: agents (AI) or self-assigned only. No user-to-user assignment
 12. **TeamBox campaign filter**: simple dropdown filter "Filter by Campaign" with campaigns sub-segmented by department (Sales, Marketing, Service) in a grouped dropdown. Shows all conversations for the selected campaign
+13. **VinSolutions is Lead Management tier** — read/query only, NOT a sync-level integration. Platform maintains a forked local data store (data warehouse). Cannot do wholesale two-way sync with VinSolutions
+14. **VinSolutions sync strategy (3 tiers)**: (a) One-time historical bulk pull (take all available data — they said 48h lookback but we've accessed more), (b) Daily incremental pull (changes from previous 24h), (c) Business-hours dashboard refresh every 4 hours during business hours. NOT real-time except for leads from Nexxus tools
+15. **Data provenance / Context Router** — every data point has a known source (VinSolutions, VAPI, Tavus, uploaded, generated). AI chat must tell users where data came from ("this is from VinSolutions" vs "this is from your local data store"). The data warehouse aggregates multi-source data while preserving provenance
+16. **Insight history** — hunches/insights are memorialized over time so historical trends can be analyzed, not just point-in-time snapshots
 
 | # | Type | Topic | Original Question | DECISION |
 |---|------|-------|-------------------|----------|
