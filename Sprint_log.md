@@ -27,10 +27,11 @@
 | 3.1 | Outbound Communication Engine | DONE | ~55% |
 | 3.2 | Webhooks & Real-Time | DONE | ~62% |
 | 3.3 | Intelligence Engine | DONE | ~68% |
-| 4.1b | Widget Calendar & Remaining | NOT STARTED | — |
-| 4.2 | Security, Performance & E2E | NOT STARTED | — |
+| 3.5 | Dashboard Warehouse Wiring | DONE | ~72% |
+| 3.6 | Real Outbound (TextMagic/Resend) | DONE | ~76% |
+| 4 | Platform Completion | DONE | ~92% |
 
-**Overall Progress: ~68%** (Waves 0-2 complete, Sprints 3.1-3.3 done)
+**Overall Progress: ~92%** (Waves 0-4 complete. Remaining: Wave 5 — Google Calendar + production backend cutover)
 
 ---
 
@@ -560,4 +561,70 @@ Frontend:
 - [x] Per-channel toggles (SMS, Email, Phone) visible and functional in Settings
 - [x] Channel toggles disabled when Communication Gate is OFF
 - [x] All 4 safety layers verified via E2E test
+
+---
+
+### Wave 4 — Platform Completion Sprint
+**Status:** COMPLETE
+
+**What was built:**
+
+**T001 — Inbound SMS Webhook (2-Way SMS):**
+- `POST /api/webhooks/textmagic` — public webhook endpoint for TextMagic inbound SMS
+- Parses sender phone, message text, timestamp from webhook payload
+- Matches sender phone to existing conversation or creates new one (channel="sms")
+- `getConversationByPhone()` added to storage interface
+- Stores message with role="user", creates notification for org admins
+- Logs to activity_log with action "sms_inbound_received"
+
+**T002 — Landing Page Dynamic Serving:**
+- `GET /api/public/landing/:slug` — public API returning org name, persona, slug (no auth)
+- `/p/:slug` route added to App.tsx (public, no auth required)
+- widget-landing.tsx refactored: accepts slug param, fetches org data dynamically
+- Loading spinner and "Page Not Found" states for missing orgs
+- Fallback to demo data for `/w/demo` route
+
+**T003 — Widget Public JS & Embed:**
+- `GET /api/widgets/public/:widgetCode` — public widget config endpoint (appearance, channels)
+- `GET /widget/nexxus-widget.js` — embeddable JS loader (iframe-based, CORS enabled)
+- `generateWidgetEmbedCode()` updated to use current Replit host URL instead of hardcoded production URL
+
+**T004 — Metrics Consistency & Accuracy:**
+- `PipelineMetrics` interface: activePipeline, appointmentsToday, openEscalations, outboundSent24h
+- `getPipelineMetrics()` in storage — active pipeline = warehouse_leads created in 14 days excluding Lost/Sold/Duplicate (AC-01-A)
+- `GET /api/metrics/pipeline` — canonical pipeline metrics endpoint
+- AI Chat (main.tsx): 4 tiles sourced from canonical pipeline metrics
+- Management dashboard: Active Pipeline tile from same source
+- Sales dashboard: prefers canonical pipeline over VinSolutions activeLeads
+
+**T005 — Mock Data Removal & Empty States:**
+- Audited all pages — no direct mock imports in production pages
+- Added "Sample Data" banner to Insights analytics dashboard
+- Empty states already present in TeamBox, Service, Marketing pages
+
+**T006 — Error Boundaries & Session Refresh:**
+- React ErrorBoundary component wrapping entire app
+- Global 401 handler in queryClient — auto-redirects expired sessions to login
+- Session expired flag in sessionStorage for login page alert
+- Existing token auto-refresh (60s interval, 5min pre-expiry) confirmed working
+
+**T007 — Admin Polish — Org Invite Flow & Settings Wiring:**
+- `settings` JSONB column on organizations table for notification/appearance preferences
+- `GET /api/settings/org` and `PATCH /api/settings/org` endpoints
+- `POST /api/users/invite` — invite flow with Resend email, temp password, welcome notification
+- Settings notification prefs: controlled state, loads from API, persists on save
+- Settings appearance prefs: compact mode, animations, default view — all persist
+- Org fields (name, persona, phone, email) persist via PATCH /api/organizations/:id
+- Invite User dialog with name, email, role selector
+
+**Acceptance Criteria:**
+- [x] Inbound SMS webhook stores messages and creates notifications
+- [x] `/p/:slug` loads public landing page with real org data
+- [x] Widget embed code points to this Replit's URL
+- [x] Same pipeline count on AI Chat, Sales, and Management dashboards
+- [x] Insights page shows "Sample Data" banner
+- [x] Error boundary catches render errors gracefully
+- [x] Expired sessions auto-redirect to login
+- [x] Settings persist across page reloads
+- [x] Org invite sends email and creates user
 

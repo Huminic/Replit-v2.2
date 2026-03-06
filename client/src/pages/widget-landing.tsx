@@ -1,25 +1,5 @@
-/**
- * Widget Landing Page — Public-facing lead capture page at /w/demo.
- *
- * STANDALONE LAYOUT: This page does NOT use AppLayout (no sidebar, no topbar).
- * It renders as a full-screen split layout visible to unauthenticated visitors.
- *
- * Layout (desktop): Right branding panel on top conceptually, left form below.
- * Layout (mobile): Branding panel stacks on top, form below.
- *
- * Left side (white): "Start a Live Video Chat" CTA link at top, then lead capture form
- * with first/last name, phone (required), email, interest field.
- *
- * Right side (GUNMETAL_BLUE background): Branding panel with animated circular image,
- * floating video icon, hero text, and stats.
- *
- * Floating Widget FAB: Bottom-right corner button (TEAL colored — separate from page accent).
- * Widget modes: menu (7 channels), chat, video, voice.
- *
- * @see client/src/pages/settings.tsx — Widget & landing page configuration
- * @see client/src/mocks/widgets.ts — Widget types and universal settings
- */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRoute } from 'wouter';
 import {
   MessageSquare,
   Car,
@@ -34,6 +14,7 @@ import {
   VideoOff,
   Mail,
   Calendar,
+  Loader2,
 } from 'lucide-react';
 const liveVideoImg = '/images/live-video-audience.png';
 import { Button } from '@/components/ui/button';
@@ -43,31 +24,72 @@ import { Label } from '@/components/ui/label';
 const GUNMETAL_BLUE = '#2c3e50';
 const WIDGET_TEAL = '#0d9488';
 
-/**
- * DESIGNER NOTE — Production wiring:
- * ORG_NAME, ORG_LOGO, and PERSONA_NAME will come from the organization's settings
- * (currentOrganization in AppContext → Organization interface in mocks/users.ts).
- *
- * - Replace ORG_NAME with the dealership's name from settings.
- * - If the org has a logo URL (Organization.logo), render an <img> in place of
- *   the Car icon next to the title. If no logo is set, keep the Car icon fallback.
- * - PERSONA_NAME comes from Organization.personaName (the AI assistant's name).
- */
-const ORG_NAME = 'Cage Automotive';
-const ORG_LOGO: string | undefined = undefined;
-const PERSONA_NAME = 'Serra';
+interface LandingPageOrg {
+  id: string;
+  name: string;
+  slug: string;
+  personaName: string;
+}
 
 type WidgetMode = 'closed' | 'chat' | 'video' | 'voice' | 'menu';
 
 export default function WidgetLandingPage() {
+  const [, params] = useRoute('/p/:slug');
+  const slug = params?.slug || 'demo';
+
+  const [orgData, setOrgData] = useState<LandingPageOrg | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (slug === 'demo') {
+      setOrgData({ id: 'demo', name: 'Cage Automotive', slug: 'demo', personaName: 'Serra' });
+      setLoading(false);
+      return;
+    }
+    fetch(`/api/public/landing/${slug}`)
+      .then(res => {
+        if (!res.ok) throw new Error('not found');
+        return res.json();
+      })
+      .then(data => { setOrgData(data); setLoading(false); })
+      .catch(() => { setNotFound(true); setLoading(false); });
+  }, [slug]);
+
+  const ORG_NAME = orgData?.name || 'Cage Automotive';
+  const PERSONA_NAME = orgData?.personaName || 'Serra';
+
   const [submitted, setSubmitted] = useState(false);
   const [widgetMode, setWidgetMode] = useState<WidgetMode>('closed');
-  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
-    { role: 'ai', text: `Hi! I'm ${PERSONA_NAME}, your AI concierge at ${ORG_NAME}. How can I help you today?` },
-  ]);
+  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [videoActive, setVideoActive] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
+
+  useEffect(() => {
+    if (orgData) {
+      setChatMessages([{ role: 'ai', text: `Hi! I'm ${orgData.personaName}, your AI concierge at ${orgData.name}. How can I help you today?` }]);
+    }
+  }, [orgData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Page Not Found</h1>
+          <p className="text-gray-500">This dealership landing page doesn't exist.</p>
+        </div>
+      </div>
+    );
+  }
 
   const startVideoChat = () => {
     setWidgetMode('video');
@@ -393,13 +415,9 @@ export default function WidgetLandingPage() {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2.5 mb-4">
-            {ORG_LOGO ? (
-              <img src={ORG_LOGO} alt={ORG_NAME} className="w-9 h-9 rounded-lg object-contain" />
-            ) : (
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: GUNMETAL_BLUE }}>
-                <Car className="h-4.5 w-4.5 text-white" />
-              </div>
-            )}
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: GUNMETAL_BLUE }}>
+              <Car className="h-4.5 w-4.5 text-white" />
+            </div>
             <span className="font-bold text-lg text-gray-900">{ORG_NAME}</span>
           </div>
 

@@ -51,6 +51,13 @@ import { MarkdownMessage } from '@/components/MarkdownMessage';
 import type { UserRole } from '@/lib/rbac';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
+interface PipelineMetrics {
+  activePipeline: number;
+  appointmentsToday: number;
+  openEscalations: number;
+  outboundSent24h: number;
+}
+
 interface DashboardMetrics {
   conversationCounts: {
     total: number;
@@ -79,6 +86,7 @@ interface DashboardMetrics {
     total: number;
     active: number;
   };
+  pipeline: PipelineMetrics;
 }
 
 interface MetricTile {
@@ -148,211 +156,51 @@ const tileThemes = {
 
 function buildMetricsForRole(role: UserRole, d: DashboardMetrics): MetricTile[] {
   const themes = tileThemes[role] || tileThemes.org_admin;
-  const serviceDept = d.campaignStats.byDepartment['service'];
-  const marketingDept = d.campaignStats.byDepartment['marketing'];
-  const salesDept = d.campaignStats.byDepartment['sales'];
+  const p = d.pipeline;
 
-  switch (role) {
-    case 'super_admin':
-      return [
-        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'partner_admin':
-      return [
-        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Active Users', value: fmt(d.userCounts.active), change: `${d.userCounts.total} total`, trend: d.userCounts.active > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'org_admin':
-      return [
-        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'executive':
-      return [
-        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Active Users', value: fmt(d.userCounts.active), change: `${d.userCounts.total} total`, trend: d.userCounts.active > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Campaign Reply Rate', value: `${d.campaignStats.replyRate}%`, change: `${fmt(d.campaignStats.totalReplied)} replies`, trend: d.campaignStats.replyRate > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'sales_manager':
-      return [
-        { label: 'Sales Campaigns', value: fmt(salesDept?.active || 0), change: `${salesDept?.total || 0} total`, trend: (salesDept?.active || 0) > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Reply Rate', value: `${salesDept?.replyRate || d.campaignStats.replyRate}%`, change: `${fmt(salesDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (salesDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'sales':
-      return [
-        { label: 'Open Conversations', value: fmt(d.conversationCounts.open), change: `${d.conversationCounts.total} total`, trend: d.conversationCounts.open > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Sales Campaigns', value: fmt(salesDept?.active || d.campaignStats.active), change: `${fmt(salesDept?.sent || d.campaignStats.totalSent)} sent`, trend: (salesDept?.active || d.campaignStats.active) > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Reply Rate', value: `${salesDept?.replyRate || d.campaignStats.replyRate}%`, change: `${fmt(salesDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (salesDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'service':
-      return [
-        { label: 'Active Campaigns', value: fmt(serviceDept?.active || 0), change: `${serviceDept?.total || 0} total`, trend: (serviceDept?.active || 0) > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Messages Sent', value: fmt(serviceDept?.sent || d.campaignStats.totalSent), change: `${fmt(serviceDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (serviceDept?.sent || 0) > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Replies Received', value: fmt(serviceDept?.replied || d.campaignStats.totalReplied), change: `${serviceDept?.replyRate || d.campaignStats.replyRate}% rate`, trend: (serviceDept?.replied || 0) > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    case 'marketing':
-      return [
-        { label: 'Campaign Perf', value: `${marketingDept?.replyRate || d.campaignStats.replyRate}%`, change: `reply rate`, trend: (marketingDept?.replyRate || d.campaignStats.replyRate) > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Active Campaigns', value: fmt(marketingDept?.active || d.campaignStats.active), change: `${marketingDept?.total || d.campaignStats.total} total`, trend: (marketingDept?.active || d.campaignStats.active) > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Total Messages', value: fmt(marketingDept?.sent || d.campaignStats.totalSent), change: `${fmt(marketingDept?.replied || d.campaignStats.totalReplied)} replies`, trend: (marketingDept?.sent || 0) > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-    default:
-      return [
-        { label: 'Active Agents', value: fmt(d.agentCounts.active), change: `${d.agentCounts.total} total`, trend: d.agentCounts.active > 0 ? 'up' : 'neutral', ...themes[0] },
-        { label: 'Total Conversations', value: fmt(d.conversationCounts.total), change: `${d.conversationCounts.open} open`, trend: d.conversationCounts.total > 0 ? 'up' : 'neutral', ...themes[1] },
-        { label: 'Messages Sent (30d)', value: fmt(d.messageCounts.last30Days), change: `${fmt(d.messageCounts.total)} all time`, trend: d.messageCounts.last30Days > 0 ? 'up' : 'neutral', ...themes[2] },
-        { label: 'Active Campaigns', value: fmt(d.campaignStats.active), change: `${d.campaignStats.total} total`, trend: d.campaignStats.active > 0 ? 'up' : 'neutral', ...themes[3] },
-      ];
-  }
+  return [
+    { label: 'Active Pipeline', value: fmt(p.activePipeline), change: 'last 14 days', trend: p.activePipeline > 0 ? 'up' : 'neutral', ...themes[0] },
+    { label: 'Appointments Today', value: fmt(p.appointmentsToday), change: 'scheduled', trend: p.appointmentsToday > 0 ? 'up' : 'neutral', ...themes[1] },
+    { label: 'Open Escalations', value: fmt(p.openEscalations), change: 'needs attention', trend: p.openEscalations > 0 ? 'down' : 'neutral', ...themes[2] },
+    { label: 'Outbound Sent (24h)', value: fmt(p.outboundSent24h), change: 'last 24 hours', trend: p.outboundSent24h > 0 ? 'up' : 'neutral', ...themes[3] },
+  ];
 }
 
 function buildMetricDetails(d: DashboardMetrics): Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> {
-  const channelBreakdown = Object.entries(d.conversationCounts.byChannel).map(([ch, cnt]) => ({
-    label: ch.charAt(0).toUpperCase() + ch.slice(1),
-    value: fmt(cnt),
-  }));
-
-  const deptBreakdown = Object.entries(d.campaignStats.byDepartment).map(([dept, stats]) => ({
-    label: dept.charAt(0).toUpperCase() + dept.slice(1),
-    value: `${stats.active} active`,
-    detail: `${stats.total} total, ${fmt(stats.sent)} sent, ${fmt(stats.replied)} replied (${stats.replyRate}%)`,
-  }));
-
-  const agentDeptBreakdown = Object.entries(d.agentCounts.byDepartment).map(([dept, cnt]) => ({
-    label: dept.charAt(0).toUpperCase() + dept.slice(1),
-    value: fmt(cnt),
-  }));
+  const p = d.pipeline;
 
   return {
-    'Active Agents': {
-      description: 'AI agents deployed across departments',
+    'Active Pipeline': {
+      description: 'Leads created in the last 14 days excluding Lost, Sold, and Duplicate statuses',
       breakdown: [
-        { label: 'Total Agents', value: fmt(d.agentCounts.total) },
-        { label: 'Active Agents', value: fmt(d.agentCounts.active) },
-        ...agentDeptBreakdown,
+        { label: 'Active Pipeline', value: fmt(p.activePipeline) },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total) },
+        { label: 'Open Conversations', value: fmt(d.conversationCounts.open) },
       ],
-      highlights: [`${d.agentCounts.active} of ${d.agentCounts.total} agents currently active`],
+      highlights: [`${p.activePipeline} active leads in the pipeline`],
     },
-    'Total Conversations': {
-      description: 'All conversations across channels',
+    'Appointments Today': {
+      description: 'Appointments scheduled for today',
       breakdown: [
-        { label: 'Total', value: fmt(d.conversationCounts.total) },
-        { label: 'Open', value: fmt(d.conversationCounts.open) },
-        { label: 'Closed', value: fmt(d.conversationCounts.closed) },
-        ...channelBreakdown,
-      ],
-      highlights: [`${d.conversationCounts.open} conversations currently open`],
-    },
-    'Open Conversations': {
-      description: 'Currently open conversations requiring attention',
-      breakdown: [
-        { label: 'Open', value: fmt(d.conversationCounts.open) },
-        { label: 'Total', value: fmt(d.conversationCounts.total) },
-        ...channelBreakdown,
+        { label: 'Today', value: fmt(p.appointmentsToday) },
+        { label: 'Active Pipeline', value: fmt(p.activePipeline) },
       ],
     },
-    'Messages Sent (30d)': {
-      description: 'Messages sent in the last 30 days',
+    'Open Escalations': {
+      description: 'Open conversations with unread messages requiring attention',
       breakdown: [
-        { label: 'Last 30 Days', value: fmt(d.messageCounts.last30Days) },
-        { label: 'All Time', value: fmt(d.messageCounts.total) },
+        { label: 'Open Escalations', value: fmt(p.openEscalations) },
+        { label: 'Total Open', value: fmt(d.conversationCounts.open) },
+        { label: 'Total Conversations', value: fmt(d.conversationCounts.total) },
       ],
+      highlights: p.openEscalations > 0 ? [`${p.openEscalations} conversations need attention`] : undefined,
     },
-    'Messages Sent': {
-      description: 'Campaign messages sent',
+    'Outbound Sent (24h)': {
+      description: 'Outbound messages sent in the last 24 hours',
       breakdown: [
-        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
-        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
-        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
-      ],
-    },
-    'Active Campaigns': {
-      description: 'Currently active campaigns by department',
-      breakdown: [
-        { label: 'Active', value: fmt(d.campaignStats.active) },
-        { label: 'Total', value: fmt(d.campaignStats.total) },
-        ...deptBreakdown,
-      ],
-      highlights: [`${d.campaignStats.active} campaigns currently running`, `Overall reply rate: ${d.campaignStats.replyRate}%`],
-    },
-    'Active Users': {
-      description: 'User activity across the organization',
-      breakdown: [
-        { label: 'Active Users', value: fmt(d.userCounts.active) },
-        { label: 'Total Users', value: fmt(d.userCounts.total) },
-      ],
-    },
-    'Campaign Perf': {
-      description: 'Campaign performance measured by reply rate',
-      breakdown: [
-        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
-        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
-        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
-        ...deptBreakdown,
-      ],
-    },
-    'Campaign Reply Rate': {
-      description: 'Overall campaign reply rate',
-      breakdown: [
-        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
-        { label: 'Replies', value: fmt(d.campaignStats.totalReplied) },
-        { label: 'Sent', value: fmt(d.campaignStats.totalSent) },
-      ],
-    },
-    'Total Messages': {
-      description: 'Total campaign messages across departments',
-      breakdown: [
-        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
-        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
-        ...deptBreakdown,
-      ],
-    },
-    'Sales Campaigns': {
-      description: 'Sales department campaign performance',
-      breakdown: [
-        { label: 'Active', value: fmt(d.campaignStats.byDepartment['sales']?.active || 0) },
-        { label: 'Total', value: fmt(d.campaignStats.byDepartment['sales']?.total || 0) },
-        { label: 'Sent', value: fmt(d.campaignStats.byDepartment['sales']?.sent || 0) },
-        { label: 'Replied', value: fmt(d.campaignStats.byDepartment['sales']?.replied || 0) },
-        { label: 'Reply Rate', value: `${d.campaignStats.byDepartment['sales']?.replyRate || 0}%` },
-      ],
-    },
-    'Reply Rate': {
-      description: 'Campaign reply rate',
-      breakdown: [
-        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
-        { label: 'Total Replies', value: fmt(d.campaignStats.totalReplied) },
-        { label: 'Total Sent', value: fmt(d.campaignStats.totalSent) },
-      ],
-    },
-    'Replies Received': {
-      description: 'Replies received from campaign messages',
-      breakdown: [
-        { label: 'Total Replied', value: fmt(d.campaignStats.totalReplied) },
-        { label: 'Reply Rate', value: `${d.campaignStats.replyRate}%` },
-        ...deptBreakdown,
-      ],
-    },
-    'Conversations': {
-      description: 'All conversations',
-      breakdown: [
-        { label: 'Total', value: fmt(d.conversationCounts.total) },
-        { label: 'Open', value: fmt(d.conversationCounts.open) },
-        { label: 'Closed', value: fmt(d.conversationCounts.closed) },
-        ...channelBreakdown,
+        { label: 'Last 24 Hours', value: fmt(p.outboundSent24h) },
+        { label: 'Active Campaigns', value: fmt(d.campaignStats.active) },
+        { label: 'Total Campaigns', value: fmt(d.campaignStats.total) },
       ],
     },
   };

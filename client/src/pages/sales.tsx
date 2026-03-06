@@ -32,13 +32,24 @@ import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import type { Agent } from '@shared/schema';
 
-/** Sub-navigation tabs for the sales page — Dashboard/Agents/Insights/Calendar */
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Bot },
   { id: 'insights', label: 'Insights', icon: BarChart3 },
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
 ];
+
+interface PipelineMetrics {
+  activePipeline: number;
+  appointmentsToday: number;
+  openEscalations: number;
+  outboundSent24h: number;
+}
+
+interface DashboardMetricsResponse {
+  pipeline: PipelineMetrics;
+  [key: string]: any;
+}
 
 interface LeadSummary {
   period: { start: string; end: string };
@@ -69,13 +80,14 @@ function formatSyncAge(dateStr: string): string {
   return `${diffDays}d ago`;
 }
 
-function buildSalesMetrics(summary: LeadSummary | undefined) {
+function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: PipelineMetrics) {
   if (!summary) return [];
   const t = (v: number) => (v >= 0 ? 'up' : 'down') as 'up' | 'down';
+  const activePipeline = pipeline?.activePipeline ?? summary.activeLeads;
   return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },
-    { id: 'sm-3', label: 'Active Pipeline', value: String(summary.activeLeads), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
+    { id: 'sm-3', label: 'Active Pipeline', value: String(activePipeline), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
     { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: 0, trend: 'up' as const, icon: Clock },
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), icon: TrendingUp },
@@ -96,7 +108,11 @@ export default function SalesPage() {
     queryKey: ['/api/vin/leads/summary'],
   });
 
-  const salesMetrics = buildSalesMetrics(leadSummary);
+  const { data: dashboardMetrics } = useQuery<DashboardMetricsResponse>({
+    queryKey: ['/api/metrics/dashboard'],
+  });
+
+  const salesMetrics = buildSalesMetrics(leadSummary, dashboardMetrics?.pipeline);
 
   /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
   const renderDashboard = () => (

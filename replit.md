@@ -43,6 +43,9 @@ The system integrates real API data across various modules:
 -   **Activity Log**: Management page displaying real system events.
 -   **AI Hunches**: Claude-powered business insight generation with an accept/dismiss/resolve lifecycle.
 -   **Campaign Execution UI**: Controls for starting, stopping, and dry-running campaigns with progress tracking.
+-   **Metrics Pipeline**: Canonical `/api/metrics/pipeline` endpoint — active pipeline (14-day window, excludes Lost/Sold/Duplicate), appointments today, open escalations, outbound sent (24h). Same source for AI Chat, Sales, and Management dashboards.
+-   **Error Boundary**: React ErrorBoundary wraps entire app. Global 401 handler auto-redirects expired sessions to login.
+-   **Org Settings Persistence**: JSONB `settings` column on organizations for notification and appearance preferences.
 
 ### UI/UX Decisions and Layout Architecture
 The platform utilizes a context-aware multi-pane layout.
@@ -82,6 +85,18 @@ A comprehensive set of API routes supports both public access (login, password r
 -   **Drizzle ORM**: Schema management and queries
 -   **JWT (jsonwebtoken)**: Token-based authentication
 -   **bcrypt**: Password hashing
+
+### Outbound & Communications
+-   **TextMagic**: SMS service (X-TM-Key REST API), inbound webhook at POST /api/webhooks/textmagic
+-   **Resend**: Email service (from notifications@huminic.ai), org invite emails
+-   **4-layer safety**: Global OUTBOUND_LIVE_ENABLED env var → org comm gate → per-channel toggles → rate limit
+-   **Outbound status**: GET /api/outbound/status returns global+org+channel status
+
+### Public Routes (No Auth)
+-   **Landing pages**: GET /p/:slug serves public landing page with org branding from DB
+-   **Widget config**: GET /api/widgets/public/:widgetCode returns widget appearance/channels
+-   **Widget JS loader**: GET /widget/nexxus-widget.js serves embeddable widget script
+-   **Landing page API**: GET /api/public/landing/:slug returns org name, persona, slug
 
 ### Production Backend (separate environment)
 -   **VinSolutions**: CRM integration (Lead Management tier — read/query only, no full sync)

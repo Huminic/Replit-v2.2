@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 const ACCESS_TOKEN_KEY = 'nexxus_access_token';
+const REFRESH_TOKEN_KEY = 'nexxus_refresh_token';
 
 function getAuthHeaders(extra?: Record<string, string>): Record<string, string> {
   const headers: Record<string, string> = { ...extra };
@@ -11,8 +12,22 @@ function getAuthHeaders(extra?: Record<string, string>): Record<string, string> 
   return headers;
 }
 
+function handleUnauthorized() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem('nexxus_token_expiry');
+  localStorage.removeItem('nexxus_accessible_orgs');
+  if (window.location.pathname !== '/login') {
+    sessionStorage.setItem('nexxus_session_expired', 'true');
+    window.location.href = '/login';
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
     const text = (await res.text()) || res.statusText;
     throw new Error(`${res.status}: ${text}`);
   }
