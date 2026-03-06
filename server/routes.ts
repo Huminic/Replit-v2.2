@@ -1103,7 +1103,7 @@ Your personality and rules:
       const parsed = insertTaskSchema.safeParse({
         ...req.body,
         organizationId: req.user.organizationId,
-        assignedUserId: req.body.assignedUserId || req.user.userId,
+        assignedUserId: req.body.assignedUserId || req.user.id,
       });
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid task data", errors: parsed.error.flatten() });
@@ -1365,7 +1365,7 @@ Your personality and rules:
       const base64 = file.buffer.toString("base64");
       const dataUrl = `data:${file.mimetype};base64,${base64}`;
 
-      const updated = await storage.updateUser(req.user.userId, { profilePhotoUrl: dataUrl } as any);
+      const updated = await storage.updateUser(req.user.id, { profilePhotoUrl: dataUrl } as any);
       if (!updated) return res.status(404).json({ message: "User not found" });
 
       return res.json({ profilePhotoUrl: dataUrl });

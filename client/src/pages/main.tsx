@@ -427,11 +427,6 @@ export default function MainPage() {
   const metrics = dashboardData ? buildMetricsForRole(currentRole, dashboardData) : [];
   const dynamicMetricDetails = dashboardData ? buildMetricDetails(dashboardData) : {};
 
-  const { data: existingConversations } = useQuery<DbConversation[]>({
-    queryKey: ['/api/conversations?channel=ai-chat'],
-    enabled: !!authUser,
-  });
-
   const findOrCreateConversation = useCallback(async () => {
     if (!authUser || initialized) return;
 
