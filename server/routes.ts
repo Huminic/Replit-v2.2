@@ -2247,7 +2247,27 @@ Return ONLY the JSON array, no other text.`,
     console.error("[Sync] Failed to start scheduler:", err);
   });
 
+  const publicRateLimits = new Map<string, { count: number; resetAt: number }>();
+  const checkPublicRate = (ip: string, limit = 60, windowMs = 60000): boolean => {
+    const now = Date.now();
+    const entry = publicRateLimits.get(ip);
+    if (!entry || now > entry.resetAt) {
+      publicRateLimits.set(ip, { count: 1, resetAt: now + windowMs });
+      return true;
+    }
+    entry.count++;
+    return entry.count <= limit;
+  };
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, val] of publicRateLimits) {
+      if (now > val.resetAt) publicRateLimits.delete(key);
+    }
+  }, 60000);
+
   app.get("/api/public/landing/:slug", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
     try {
       const slug = req.params.slug;
       const orgs = await storage.getOrganizations();
@@ -2265,6 +2285,8 @@ Return ONLY the JSON array, no other text.`,
   });
 
   app.get("/api/widgets/public/:widgetCode", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
     try {
       const allOrgs = await storage.getOrganizations();
       for (const org of allOrgs) {
@@ -2329,11 +2351,18 @@ Return ONLY the JSON array, no other text.`,
   });
 
   app.post("/api/webhooks/textmagic", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
     try {
       const { sender, text: messageText, receiver } = req.body;
       const phone = typeof sender === "string" ? sender : String(sender || "");
       const content = typeof messageText === "string" ? messageText : String(messageText || "");
-      const timestamp = req.body.timestamp ? new Date(Number(req.body.timestamp) * 1000) : new Date();
+      let timestamp = new Date();
+      if (req.body.timestamp) {
+        const ts = Number(req.body.timestamp);
+        timestamp = !isNaN(ts) ? new Date(ts * 1000) : new Date(req.body.timestamp);
+        if (isNaN(timestamp.getTime())) timestamp = new Date();
+      }
 
       if (!phone || !content) {
         return res.status(400).json({ message: "Missing sender or text in webhook payload" });

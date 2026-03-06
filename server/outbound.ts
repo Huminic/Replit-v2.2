@@ -66,7 +66,7 @@ export async function sendEmail(to: string, content: string): Promise<void> {
     from: RESEND_FROM,
     to: [to],
     subject,
-    html: body.replace(/\n/g, "<br>"),
+    html: body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>"),
   });
 
   if (error) {
