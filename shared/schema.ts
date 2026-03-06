@@ -19,6 +19,7 @@ export const organizations = pgTable("organizations", {
   smsEnabled: boolean("sms_enabled").notNull().default(true),
   phoneEnabled: boolean("phone_enabled").notNull().default(true),
   emailEnabled: boolean("email_enabled").notNull().default(true),
+  settings: jsonb("settings").default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

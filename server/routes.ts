@@ -1517,6 +1517,16 @@ Data provenance rules (CRITICAL):
     }
   });
 
+  app.get("/api/metrics/pipeline", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const pipeline = await storage.getPipelineMetrics(req.user.organizationId);
+      return res.json(pipeline);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch pipeline metrics" });
+    }
+  });
+
   app.get("/api/tasks", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -2237,6 +2247,69 @@ Return ONLY the JSON array, no other text.`,
     console.error("[Sync] Failed to start scheduler:", err);
   });
 
+  app.get("/api/public/landing/:slug", async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const orgs = await storage.getOrganizations();
+      const org = orgs.find(o => o.slug === slug);
+      if (!org) return res.status(404).json({ message: "Organization not found" });
+      return res.json({
+        id: org.id,
+        name: org.name,
+        slug: org.slug,
+        personaName: org.personaName,
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to load landing page" });
+    }
+  });
+
+  app.get("/api/widgets/public/:widgetCode", async (req, res) => {
+    try {
+      const allOrgs = await storage.getOrganizations();
+      for (const org of allOrgs) {
+        const widgets = await storage.getWidgets(org.id);
+        const widget = widgets.find(w => w.widgetCode === req.params.widgetCode);
+        if (widget) {
+          const config = (widget.config || {}) as Record<string, any>;
+          return res.json({
+            widgetCode: widget.widgetCode,
+            type: widget.type,
+            name: widget.name,
+            orgName: org.name,
+            personaName: org.personaName,
+            appearance: config.appearance || {},
+            channels: {
+              chat: true,
+              video: true,
+              voice: true,
+            },
+          });
+        }
+      }
+      return res.status(404).json({ message: "Widget not found" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to load widget config" });
+    }
+  });
+
+  app.get("/widget/nexxus-widget.js", (_req, res) => {
+    res.setHeader("Content-Type", "application/javascript");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.send(`
+(function() {
+  var cfg = window.nexxusConfig || {};
+  if (!cfg.widgetId) { console.error('Nexxus Widget: missing widgetId in nexxusConfig'); return; }
+  var host = cfg.host || window.location.origin;
+  var iframe = document.createElement('iframe');
+  iframe.src = host + '/w/demo?widget=' + encodeURIComponent(cfg.widgetId);
+  iframe.style.cssText = 'position:fixed;bottom:20px;right:20px;width:380px;height:600px;border:none;z-index:999999;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);';
+  iframe.allow = 'microphone;camera';
+  document.body.appendChild(iframe);
+})();
+    `.trim());
+  });
+
   app.get("/api/outbound/status", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -2252,6 +2325,224 @@ Return ONLY the JSON array, no other text.`,
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to get outbound status" });
+    }
+  });
+
+  app.post("/api/webhooks/textmagic", async (req, res) => {
+    try {
+      const { sender, text: messageText, receiver } = req.body;
+      const phone = typeof sender === "string" ? sender : String(sender || "");
+      const content = typeof messageText === "string" ? messageText : String(messageText || "");
+      const timestamp = req.body.timestamp ? new Date(Number(req.body.timestamp) * 1000) : new Date();
+
+      if (!phone || !content) {
+        return res.status(400).json({ message: "Missing sender or text in webhook payload" });
+      }
+
+      const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+
+      console.log(`[TextMagic Webhook] Inbound SMS from ${normalizedPhone}: "${content.substring(0, 80)}"`);
+
+      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
+      let organizationId: string;
+
+      if (conversation) {
+        organizationId = conversation.organizationId;
+        await storage.updateConversation(conversation.id, {
+          lastMessageAt: timestamp,
+          unreadCount: (conversation.unreadCount || 0) + 1,
+        });
+      } else {
+        const allOrgs = await storage.getOrganizations();
+        organizationId = allOrgs[0]?.id;
+        if (!organizationId) {
+          console.error("[TextMagic Webhook] No organizations found to assign inbound SMS");
+          return res.status(500).json({ message: "No organization available" });
+        }
+
+        conversation = await storage.createConversation({
+          customerName: normalizedPhone,
+          customerPhone: normalizedPhone,
+          channel: "sms",
+          status: "open",
+          organizationId,
+          unreadCount: 1,
+          lastMessageAt: timestamp,
+        });
+      }
+
+      await storage.createMessage({
+        conversationId: conversation.id,
+        role: "user",
+        content,
+        senderName: normalizedPhone,
+      });
+
+      const orgUsers = await storage.getUsers(organizationId);
+      const adminUsers = orgUsers.filter(u => {
+        const roleLevel = (u as any).role?.level;
+        return roleLevel !== undefined && roleLevel <= 3;
+      });
+
+      for (const admin of adminUsers) {
+        storage.createNotification({
+          userId: admin.id,
+          organizationId,
+          type: "sms_inbound",
+          title: "New inbound SMS",
+          message: `SMS from ${normalizedPhone}: "${content.substring(0, 100)}"`,
+          relatedEntityType: "conversation",
+          relatedEntityId: conversation.id,
+        }).catch(() => {});
+      }
+
+      storage.createActivityLog({
+        organizationId,
+        action: "sms_inbound_received",
+        entityType: "conversation",
+        entityId: conversation.id,
+        metadata: { senderPhone: normalizedPhone, messagePreview: content.substring(0, 100) },
+      }).catch(() => {});
+
+      return res.json({ success: true, conversationId: conversation.id });
+    } catch (err) {
+      console.error("[TextMagic Webhook] Error processing inbound SMS:", err);
+      return res.status(500).json({ message: "Failed to process inbound SMS" });
+    }
+  });
+
+  app.get("/api/settings/org", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const org = await storage.getOrganization(req.user.organizationId);
+      if (!org) return res.status(404).json({ message: "Organization not found" });
+      return res.json(org.settings || {});
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch org settings" });
+    }
+  });
+
+  app.patch("/api/settings/org", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const org = await storage.getOrganization(req.user.organizationId);
+      if (!org) return res.status(404).json({ message: "Organization not found" });
+      const existingSettings = (org.settings || {}) as Record<string, any>;
+      const mergedSettings = { ...existingSettings, ...req.body };
+      const updated = await storage.updateOrganization(req.user.organizationId, { settings: mergedSettings } as any);
+      if (!updated) return res.status(500).json({ message: "Failed to update settings" });
+
+      storage.createActivityLog({
+        userId: req.user.id,
+        organizationId: req.user.organizationId,
+        action: "settings_updated",
+        entityType: "organization",
+        entityId: req.user.organizationId,
+        metadata: { sections: Object.keys(req.body) },
+      }).catch(() => {});
+
+      return res.json(mergedSettings);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update org settings" });
+    }
+  });
+
+  app.post("/api/users/invite", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const inviteSchema = z.object({
+        email: z.string().email(),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        roleId: z.string().uuid(),
+      });
+      const parsed = inviteSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid invite data", errors: parsed.error.flatten() });
+      }
+
+      const { email, firstName, lastName, roleId } = parsed.data;
+
+      const existing = await storage.getUserByEmail(email);
+      if (existing) {
+        return res.status(409).json({ message: "A user with that email already exists" });
+      }
+
+      const role = await storage.getRole(roleId);
+      if (!role) return res.status(400).json({ message: "Invalid role" });
+      if (role.level < req.user.roleLevel) {
+        return res.status(403).json({ message: "Cannot invite a user with higher privileges than your own" });
+      }
+
+      const tempPassword = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        roleId,
+        organizationId: req.user.organizationId,
+      });
+
+      const org = await storage.getOrganization(req.user.organizationId);
+
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const emailRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Nexxus Connect <onboarding@resend.dev>",
+              to: email,
+              subject: `You've been invited to ${org?.name || "Nexxus Connect"}`,
+              html: `<h2>Welcome to ${org?.name || "Nexxus Connect"}!</h2>
+                <p>${req.user.firstName} ${req.user.lastName} has invited you to join their organization.</p>
+                <p>Your temporary credentials:</p>
+                <ul>
+                  <li><strong>Email:</strong> ${email}</li>
+                  <li><strong>Password:</strong> ${tempPassword}</li>
+                </ul>
+                <p>Please change your password after your first login.</p>`,
+            }),
+          });
+          if (!emailRes.ok) {
+            console.warn("[Invite] Resend API error:", await emailRes.text());
+          }
+        } catch (emailErr) {
+          console.warn("[Invite] Failed to send invite email:", emailErr);
+        }
+      } else {
+        console.log(`[Invite] No RESEND_API_KEY configured. Invite for ${email} with temp password: ${tempPassword}`);
+      }
+
+      const { password: _, ...safeUser } = user;
+
+      storage.createActivityLog({
+        userId: req.user.id,
+        organizationId: req.user.organizationId,
+        action: "user_invited",
+        entityType: "user",
+        entityId: user.id,
+        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}` },
+      }).catch(() => {});
+
+      storage.createNotification({
+        userId: user.id,
+        organizationId: req.user.organizationId,
+        type: "system",
+        title: "Welcome to Nexxus Connect",
+        message: `You've been invited by ${req.user.firstName} ${req.user.lastName}. Please change your password after logging in.`,
+      }).catch(() => {});
+
+      return res.status(201).json({ ...safeUser, inviteSent: !!process.env.RESEND_API_KEY });
+    } catch (err) {
+      console.error("Invite error:", err);
+      return res.status(500).json({ message: "Failed to invite user" });
     }
   });
 

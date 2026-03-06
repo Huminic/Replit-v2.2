@@ -79,6 +79,7 @@ import {
   Send,
   Power,
   PowerOff,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -472,6 +473,47 @@ export default function SettingsPage() {
     setCommunicationGateEnabled(enabled);
     commGateMutation.mutate(enabled);
   };
+
+  const [orgFields, setOrgFields] = useState({
+    name: authUser?.organization?.name || '',
+    personaName: personaName || 'Automa',
+    phone: '',
+    email: '',
+    publicListing: true,
+  });
+  const [orgFieldsInitialized, setOrgFieldsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (authUser?.organization && !orgFieldsInitialized) {
+      const org = authUser.organization as any;
+      setOrgFields({
+        name: org.name || '',
+        personaName: org.personaName || personaName || 'Automa',
+        phone: org.phone || '',
+        email: org.email || '',
+        publicListing: org.publicListing !== false,
+      });
+      setOrgFieldsInitialized(true);
+    }
+  }, [authUser, orgFieldsInitialized, personaName]);
+
+  const saveOrgFieldsMutation = useMutation({
+    mutationFn: async (data: { name?: string; personaName?: string }) => {
+      if (!authUser?.organization?.id) return;
+      await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, data);
+    },
+    onSuccess: () => {
+      if (authUser?.organization?.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      toast({ title: 'Settings saved', description: 'Organization settings updated.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to save', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
   const { data: apiWidgets = [] } = useQuery<DbWidget[]>({
     queryKey: ['/api/widgets'],
   });
@@ -501,6 +543,99 @@ export default function SettingsPage() {
   const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
+
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ firstName: '', lastName: '', email: '', roleId: '' });
+
+  interface OrgSettings {
+    notifications?: {
+      emailNotifications?: boolean;
+      smsNotifications?: boolean;
+      pushNotifications?: boolean;
+      quietHoursStart?: string;
+      quietHoursEnd?: string;
+      newLead?: boolean;
+      appointmentBooked?: boolean;
+      agentAlert?: boolean;
+      taskDue?: boolean;
+    };
+    appearance?: {
+      compactMode?: boolean;
+      animations?: boolean;
+      defaultView?: string;
+      showMetricTiles?: boolean;
+    };
+  }
+
+  const { data: orgSettings, isLoading: orgSettingsLoading } = useQuery<OrgSettings>({
+    queryKey: ['/api/settings/org'],
+  });
+
+  const [notifPrefs, setNotifPrefs] = useState({
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: true,
+    quietHoursStart: '22:00',
+    quietHoursEnd: '07:00',
+    newLead: true,
+    appointmentBooked: true,
+    agentAlert: true,
+    taskDue: true,
+  });
+
+  const [appearancePrefs, setAppearancePrefs] = useState({
+    compactMode: false,
+    animations: true,
+    defaultView: 'dashboard',
+    showMetricTiles: true,
+  });
+
+  const [settingsInitialized, setSettingsInitialized] = useState(false);
+  useEffect(() => {
+    if (orgSettings && !settingsInitialized) {
+      if (orgSettings.notifications) {
+        setNotifPrefs(prev => ({ ...prev, ...orgSettings.notifications }));
+      }
+      if (orgSettings.appearance) {
+        setAppearancePrefs(prev => ({ ...prev, ...orgSettings.appearance }));
+      }
+      setSettingsInitialized(true);
+    }
+  }, [orgSettings, settingsInitialized]);
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      const res = await apiRequest('PATCH', '/api/settings/org', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/org'] });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to save settings', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const inviteUserMutation = useMutation({
+    mutationFn: async (data: typeof inviteForm) => {
+      const res = await apiRequest('POST', '/api/users/invite', data);
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setInviteOpen(false);
+      setInviteForm({ firstName: '', lastName: '', email: '', roleId: '' });
+      toast({
+        title: 'Invitation sent',
+        description: data.inviteSent
+          ? `An invite email has been sent to ${data.email}.`
+          : `User created. Share their credentials manually (email delivery not configured).`,
+      });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to invite user', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
 
   interface ApiDocument {
     id: number;
@@ -702,6 +837,10 @@ export default function SettingsPage() {
           <Button size="sm" onClick={() => setAddUserOpen(true)} data-testid="button-add-user">
             <Plus className="h-4 w-4 mr-1" />
             Add User
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setInviteOpen(true)} data-testid="button-invite-user">
+            <Mail className="h-4 w-4 mr-1" />
+            Invite User
           </Button>
           {isSuperAdmin && (
             <Button size="sm" variant="outline" onClick={() => window.location.href = '/settings/org-wizard'} data-testid="button-new-organization">
@@ -2972,53 +3111,66 @@ export default function SettingsPage() {
     </div>
   );
 
-  const renderNotifications = () => (
-    <div className="p-4 space-y-4">
-      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Back
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Notification Settings</CardTitle>
-          <CardDescription>Configure alert preferences and delivery channels</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Global Settings</p>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Email Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via email</p></div><Switch defaultChecked data-testid="switch-email-notifications" /></div>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">SMS Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via SMS</p></div><Switch data-testid="switch-sms-notifications" /></div>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Push Notifications</p><p className="text-xs text-muted-foreground">Browser push notifications</p></div><Switch defaultChecked data-testid="switch-push-notifications" /></div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <div>
-              <Label className="text-xs">Quiet Hours Start</Label>
-              <Input defaultValue="22:00" className="mt-1 w-28" data-testid="input-quiet-start" />
-            </div>
-            <div>
-              <Label className="text-xs">Quiet Hours End</Label>
-              <Input defaultValue="07:00" className="mt-1 w-28" data-testid="input-quiet-end" />
-            </div>
-          </div>
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Per-Event Preferences</p>
-          {[
-            { label: 'New Lead', desc: 'When a new lead is created' },
-            { label: 'Appointment Booked', desc: 'When an appointment is scheduled' },
-            { label: 'Agent Alert', desc: 'When an agent needs attention' },
-            { label: 'Task Due', desc: 'When a task is approaching deadline' },
-          ].map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between gap-4 py-1">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground text-sm">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.desc}</p>
+  const renderNotifications = () => {
+    const eventPrefs: { key: keyof typeof notifPrefs; label: string; desc: string }[] = [
+      { key: 'newLead', label: 'New Lead', desc: 'When a new lead is created' },
+      { key: 'appointmentBooked', label: 'Appointment Booked', desc: 'When an appointment is scheduled' },
+      { key: 'agentAlert', label: 'Agent Alert', desc: 'When an agent needs attention' },
+      { key: 'taskDue', label: 'Task Due', desc: 'When a task is approaching deadline' },
+    ];
+
+    return (
+      <div className="p-4 space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Notification Settings</CardTitle>
+            <CardDescription>Configure alert preferences and delivery channels</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Global Settings</p>
+            <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Email Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via email</p></div><Switch checked={notifPrefs.emailNotifications} onCheckedChange={(v) => setNotifPrefs(p => ({ ...p, emailNotifications: v }))} data-testid="switch-email-notifications" /></div>
+            <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">SMS Notifications</p><p className="text-xs text-muted-foreground">Receive alerts via SMS</p></div><Switch checked={notifPrefs.smsNotifications} onCheckedChange={(v) => setNotifPrefs(p => ({ ...p, smsNotifications: v }))} data-testid="switch-sms-notifications" /></div>
+            <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Push Notifications</p><p className="text-xs text-muted-foreground">Browser push notifications</p></div><Switch checked={notifPrefs.pushNotifications} onCheckedChange={(v) => setNotifPrefs(p => ({ ...p, pushNotifications: v }))} data-testid="switch-push-notifications" /></div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div>
+                <Label className="text-xs">Quiet Hours Start</Label>
+                <Input value={notifPrefs.quietHoursStart} onChange={(e) => setNotifPrefs(p => ({ ...p, quietHoursStart: e.target.value }))} className="mt-1 w-28" data-testid="input-quiet-start" />
               </div>
-              <Switch defaultChecked data-testid={`switch-notification-${item.label.toLowerCase().replace(/\s/g, '-')}`} />
+              <div>
+                <Label className="text-xs">Quiet Hours End</Label>
+                <Input value={notifPrefs.quietHoursEnd} onChange={(e) => setNotifPrefs(p => ({ ...p, quietHoursEnd: e.target.value }))} className="mt-1 w-28" data-testid="input-quiet-end" />
+              </div>
             </div>
-          ))}
-          <Button onClick={() => toast({ title: 'Settings saved', description: 'Notification preferences updated.' })} data-testid="button-save-notifications">Save</Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+            <Separator />
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Per-Event Preferences</p>
+            {eventPrefs.map((item) => (
+              <div key={item.key} className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                </div>
+                <Switch checked={notifPrefs[item.key] as boolean} onCheckedChange={(v) => setNotifPrefs(p => ({ ...p, [item.key]: v }))} data-testid={`switch-notification-${item.label.toLowerCase().replace(/\s/g, '-')}`} />
+              </div>
+            ))}
+            <Button
+              disabled={saveSettingsMutation.isPending}
+              onClick={() => {
+                saveSettingsMutation.mutate({ notifications: notifPrefs });
+                toast({ title: 'Settings saved', description: 'Notification preferences updated.' });
+              }}
+              data-testid="button-save-notifications"
+            >
+              {saveSettingsMutation.isPending ? 'Saving...' : 'Save'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   const renderDataManagement = () => {
     const mockUploads = [
@@ -3183,14 +3335,14 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">These settings apply to all users in this organization.</p>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Compact Mode</p><p className="text-xs text-muted-foreground">Use smaller spacing and fonts</p></div><Switch data-testid="switch-compact-mode" /></div>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Animations</p><p className="text-xs text-muted-foreground">Enable UI animations and transitions</p></div><Switch defaultChecked data-testid="switch-animations" /></div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Compact Mode</p><p className="text-xs text-muted-foreground">Use smaller spacing and fonts</p></div><Switch checked={appearancePrefs.compactMode} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, compactMode: v }))} data-testid="switch-compact-mode" /></div>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Animations</p><p className="text-xs text-muted-foreground">Enable UI animations and transitions</p></div><Switch checked={appearancePrefs.animations} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, animations: v }))} data-testid="switch-animations" /></div>
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
               <p className="font-medium text-sm text-foreground">Default View</p>
               <p className="text-xs text-muted-foreground">Default page on login</p>
             </div>
-            <Select defaultValue="dashboard">
+            <Select value={appearancePrefs.defaultView} onValueChange={(v) => setAppearancePrefs(p => ({ ...p, defaultView: v }))}>
               <SelectTrigger className="w-40" data-testid="select-default-view">
                 <SelectValue />
               </SelectTrigger>
@@ -3202,8 +3354,17 @@ export default function SettingsPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Show Metric Tiles</p><p className="text-xs text-muted-foreground">Display KPI tiles on home page</p></div><Switch defaultChecked data-testid="switch-metric-tiles" /></div>
-          <Button onClick={() => toast({ title: 'Settings saved', description: 'Appearance preferences updated.' })} data-testid="button-save-appearance-settings">Save</Button>
+          <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Show Metric Tiles</p><p className="text-xs text-muted-foreground">Display KPI tiles on home page</p></div><Switch checked={appearancePrefs.showMetricTiles} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, showMetricTiles: v }))} data-testid="switch-metric-tiles" /></div>
+          <Button
+            disabled={saveSettingsMutation.isPending}
+            onClick={() => {
+              saveSettingsMutation.mutate({ appearance: appearancePrefs });
+              toast({ title: 'Settings saved', description: 'Appearance preferences updated.' });
+            }}
+            data-testid="button-save-appearance-settings"
+          >
+            {saveSettingsMutation.isPending ? 'Saving...' : 'Save'}
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -3260,38 +3421,45 @@ export default function SettingsPage() {
                   <p className="font-medium text-foreground text-sm">Organization Name</p>
                   <p className="text-xs text-muted-foreground">Your company display name</p>
                 </div>
-                <Input defaultValue="Cage Automotive" className="max-w-[200px]" data-testid="input-org-name" />
+                <Input value={orgFields.name} onChange={(e) => setOrgFields(p => ({ ...p, name: e.target.value }))} className="max-w-[200px]" data-testid="input-org-name" />
               </div>
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm">AI Persona Name</p>
                   <p className="text-xs text-muted-foreground">The name your AI assistant presents to customers</p>
                 </div>
-                <Input defaultValue={personaName} className="max-w-[200px]" data-testid="input-persona-name" />
+                <Input value={orgFields.personaName} onChange={(e) => setOrgFields(p => ({ ...p, personaName: e.target.value }))} className="max-w-[200px]" data-testid="input-persona-name" />
               </div>
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm">Business Phone</p>
                   <p className="text-xs text-muted-foreground">Primary contact number</p>
                 </div>
-                <Input defaultValue="(555) 123-4567" className="max-w-[200px]" data-testid="input-org-phone" />
+                <Input value={orgFields.phone} onChange={(e) => setOrgFields(p => ({ ...p, phone: e.target.value }))} className="max-w-[200px]" data-testid="input-org-phone" />
               </div>
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm">Business Email</p>
                   <p className="text-xs text-muted-foreground">Primary contact email</p>
                 </div>
-                <Input defaultValue="info@cageautomotive.com" className="max-w-[200px]" data-testid="input-org-email" />
+                <Input value={orgFields.email} onChange={(e) => setOrgFields(p => ({ ...p, email: e.target.value }))} className="max-w-[200px]" data-testid="input-org-email" />
               </div>
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm">Public Listing</p>
                   <p className="text-xs text-muted-foreground">Show in partner directory</p>
                 </div>
-                <Switch defaultChecked data-testid="switch-public-listing" />
+                <Switch checked={orgFields.publicListing} onCheckedChange={(v) => setOrgFields(p => ({ ...p, publicListing: v }))} data-testid="switch-public-listing" />
               </div>
               <div className="pt-2">
-                <Button size="sm" onClick={() => toast({ title: 'Settings saved', description: 'Your changes have been applied.' })} data-testid="button-save-org">Save Changes</Button>
+                <Button
+                  size="sm"
+                  disabled={saveOrgFieldsMutation.isPending}
+                  onClick={() => saveOrgFieldsMutation.mutate({ name: orgFields.name, personaName: orgFields.personaName })}
+                  data-testid="button-save-org"
+                >
+                  {saveOrgFieldsMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -3598,6 +3766,54 @@ export default function SettingsPage() {
             <Button variant="outline" onClick={() => setChangePwOpen(false)} data-testid="button-cancel-change-pw">Cancel</Button>
             <Button onClick={() => changePasswordMutation.mutate({ currentPassword: changePwForm.currentPassword, newPassword: changePwForm.newPassword })} disabled={changePasswordMutation.isPending || !changePwForm.currentPassword || changePwForm.newPassword.length < 6 || changePwForm.newPassword !== changePwForm.confirmPassword} data-testid="button-submit-change-pw">
               {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite User</DialogTitle>
+            <DialogDescription>Send an invitation email to a new team member.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>First Name</Label>
+                <Input value={inviteForm.firstName} onChange={e => setInviteForm(f => ({ ...f, firstName: e.target.value }))} placeholder="First name" data-testid="input-invite-firstname" />
+              </div>
+              <div className="space-y-2">
+                <Label>Last Name</Label>
+                <Input value={inviteForm.lastName} onChange={e => setInviteForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Last name" data-testid="input-invite-lastname" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input type="email" value={inviteForm.email} onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" data-testid="input-invite-email" />
+            </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={inviteForm.roleId} onValueChange={v => setInviteForm(f => ({ ...f, roleId: v }))}>
+                <SelectTrigger data-testid="select-invite-role">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map(r => (
+                    <SelectItem key={r.id} value={r.id} data-testid={`invite-role-option-${r.id}`}>{getRoleLabel(r.name as UserRole)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)} data-testid="button-cancel-invite">Cancel</Button>
+            <Button
+              onClick={() => inviteUserMutation.mutate(inviteForm)}
+              disabled={inviteUserMutation.isPending || !inviteForm.firstName || !inviteForm.lastName || !inviteForm.email || !inviteForm.roleId}
+              data-testid="button-submit-invite"
+            >
+              {inviteUserMutation.isPending ? 'Sending...' : 'Send Invitation'}
             </Button>
           </DialogFooter>
         </DialogContent>

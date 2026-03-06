@@ -56,6 +56,7 @@ export interface IStorage {
 
   getConversations(organizationId: string, filters?: { status?: string; channel?: string }): Promise<Conversation[]>;
   getConversation(id: string): Promise<Conversation | undefined>;
+  getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined>;
   createConversation(conv: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, data: Partial<InsertConversation>): Promise<Conversation | undefined>;
 
@@ -130,6 +131,14 @@ export interface IStorage {
   getSyncLogs(organizationId: string, limit?: number): Promise<SyncLog[]>;
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
+  getPipelineMetrics(organizationId: string): Promise<PipelineMetrics>;
+}
+
+export interface PipelineMetrics {
+  activePipeline: number;
+  appointmentsToday: number;
+  openEscalations: number;
+  outboundSent24h: number;
 }
 
 export interface DashboardMetrics {
@@ -160,6 +169,7 @@ export interface DashboardMetrics {
     total: number;
     active: number;
   };
+  pipeline: PipelineMetrics;
 }
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -284,6 +294,20 @@ export class DatabaseStorage implements IStorage {
 
   async getConversation(id: string): Promise<Conversation | undefined> {
     const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
+    return conv;
+  }
+
+  async getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined> {
+    const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const conditions = [
+      eq(conversations.customerPhone, normalizedPhone),
+      eq(conversations.status, "open"),
+    ];
+    if (channel) conditions.push(eq(conversations.channel, channel));
+    const [conv] = await db.select().from(conversations)
+      .where(and(...conditions))
+      .orderBy(desc(conversations.lastMessageAt))
+      .limit(1);
     return conv;
   }
 
@@ -526,6 +550,8 @@ export class DatabaseStorage implements IStorage {
       if (row.isActive) userCounts.active += c;
     }
 
+    const pipeline = await this.getPipelineMetrics(organizationId);
+
     return {
       conversationCounts,
       messageCounts,
@@ -539,6 +565,53 @@ export class DatabaseStorage implements IStorage {
       },
       agentCounts,
       userCounts,
+      pipeline,
+    };
+  }
+
+  async getPipelineMetrics(organizationId: string): Promise<PipelineMetrics> {
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const [pipelineResult, appointmentResult, escalationResult, outboundResult] = await Promise.all([
+      db.select({ cnt: count() }).from(warehouseLeads).where(and(
+        eq(warehouseLeads.organizationId, organizationId),
+        gte(warehouseLeads.createdAt, fourteenDaysAgo),
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
+        sql`${warehouseLeads.vinStatus} IS NOT NULL`,
+      )),
+
+      db.select({ cnt: count() }).from(warehouseLeads).where(and(
+        eq(warehouseLeads.organizationId, organizationId),
+        eq(warehouseLeads.vinStatus, "ACTIVE_SET_APPOINTMENT"),
+        gte(warehouseLeads.syncedAt, todayStart),
+      )),
+
+      db.select({ cnt: count() }).from(conversations).where(and(
+        eq(conversations.organizationId, organizationId),
+        eq(conversations.status, "open"),
+        sql`${conversations.unreadCount} > 0`,
+      )),
+
+      db.select({ cnt: count() }).from(outboundLog).where(and(
+        eq(outboundLog.organizationId, organizationId),
+        eq(outboundLog.status, "sent"),
+        gte(outboundLog.createdAt, twentyFourHoursAgo),
+      )),
+    ]);
+
+    return {
+      activePipeline: Number(pipelineResult[0]?.cnt || 0),
+      appointmentsToday: Number(appointmentResult[0]?.cnt || 0),
+      openEscalations: Number(escalationResult[0]?.cnt || 0),
+      outboundSent24h: Number(outboundResult[0]?.cnt || 0),
     };
   }
 

@@ -335,6 +335,12 @@ export default function InsightsPage() {
   const renderDashboard = () => (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-6">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" data-testid="sample-data-banner">
+          <Info className="h-4 w-4 text-amber-600 flex-shrink-0" />
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            Showing sample analytics data. Live metrics will populate when connected to the production backend.
+          </p>
+        </div>
         {/* RED ZONE */}
         <section>
           <div className="flex items-center gap-2 mb-3">

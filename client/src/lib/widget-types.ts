@@ -307,16 +307,17 @@ export function getLandingPageTypeLabel(type: LandingPageType): string {
 }
 
 export function generateWidgetEmbedCode(widget: IndividualWidget): string {
+  const host = typeof window !== 'undefined' ? window.location.origin : '';
   return `<script>
   window.nexxusConfig = {
-    orgId: "org-cage-auto",
     widgetId: "${widget.widgetCode}",
     type: "${widget.type}",
     position: "${widget.appearance.position}",
     primaryColor: "${widget.appearance.primaryColor}",
     greeting: "${widget.appearance.welcomeHeading}",
-    message: "${widget.appearance.welcomeMessage}"
+    message: "${widget.appearance.welcomeMessage}",
+    host: "${host}"
   };
 </script>
-<script src="https://nexxusv2.huminicdev.com/widget/nexxus-widget.js" async></script>`;
+<script src="${host}/widget/nexxus-widget.js" async></script>`;
 }

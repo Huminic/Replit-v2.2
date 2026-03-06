@@ -46,6 +46,7 @@ interface DashboardMetrics {
   campaignStats: { total: number; active: number; totalSent: number; totalReplied: number; replyRate: number; byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }> };
   agentCounts: { total: number; active: number; byDepartment: Record<string, number> };
   userCounts: { total: number; active: number };
+  pipeline: { activePipeline: number; appointmentsToday: number; openEscalations: number; outboundSent24h: number };
 }
 
 
@@ -92,13 +93,14 @@ export default function ManagementPage() {
     const convCounts = metrics?.conversationCounts;
     const agentCounts = metrics?.agentCounts;
     const userCounts = metrics?.userCounts;
+    const pipeline = metrics?.pipeline;
     return [
-      { id: 'mgmt-1', label: 'Total Conversations', value: String(convCounts?.total ?? 0), trend: 'up' as const, icon: Briefcase },
-      { id: 'mgmt-2', label: 'Active Users', value: String(userCounts?.active ?? 0), trend: 'up' as const, icon: Users },
-      { id: 'mgmt-3', label: 'Active Agents', value: String(agentCounts?.active ?? 0), trend: 'up' as const, icon: Target },
-      { id: 'mgmt-4', label: 'Active Campaigns', value: String(stats?.active ?? 0), trend: 'up' as const, icon: TrendingUp },
-      { id: 'mgmt-5', label: 'Reply Rate', value: `${stats?.replyRate ?? 0}%`, trend: 'up' as const, icon: ArrowUpRight },
-      { id: 'mgmt-6', label: 'Messages (30d)', value: String(metrics?.messageCounts?.last30Days ?? 0), trend: 'up' as const, icon: DollarSign },
+      { id: 'mgmt-1', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), trend: 'up' as const, icon: Target },
+      { id: 'mgmt-2', label: 'Total Conversations', value: String(convCounts?.total ?? 0), trend: 'up' as const, icon: Briefcase },
+      { id: 'mgmt-3', label: 'Active Users', value: String(userCounts?.active ?? 0), trend: 'up' as const, icon: Users },
+      { id: 'mgmt-4', label: 'Active Agents', value: String(agentCounts?.active ?? 0), trend: 'up' as const, icon: Target },
+      { id: 'mgmt-5', label: 'Active Campaigns', value: String(stats?.active ?? 0), trend: 'up' as const, icon: TrendingUp },
+      { id: 'mgmt-6', label: 'Reply Rate', value: `${stats?.replyRate ?? 0}%`, trend: 'up' as const, icon: ArrowUpRight },
     ];
   }, [metrics]);
 
