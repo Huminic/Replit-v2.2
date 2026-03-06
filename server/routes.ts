@@ -2237,5 +2237,23 @@ Return ONLY the JSON array, no other text.`,
     console.error("[Sync] Failed to start scheduler:", err);
   });
 
+  app.get("/api/outbound/status", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const globalEnabled = process.env.OUTBOUND_LIVE_ENABLED === "true";
+      const org = await storage.getOrganization(req.user.organizationId);
+      return res.json({
+        globalKillSwitch: globalEnabled,
+        orgOutboundEnabled: org?.outboundEnabled ?? false,
+        smsEnabled: org?.smsEnabled ?? false,
+        emailEnabled: org?.emailEnabled ?? false,
+        phoneEnabled: org?.phoneEnabled ?? false,
+        effectiveStatus: globalEnabled && (org?.outboundEnabled ?? false),
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to get outbound status" });
+    }
+  });
+
   return httpServer;
 }
