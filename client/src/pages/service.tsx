@@ -49,6 +49,8 @@ interface ServiceMetricTile {
   id: string;
   label: string;
   value: string;
+  change?: number;
+  trend?: 'up' | 'down' | 'neutral';
   icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -87,18 +89,16 @@ export default function ServicePage() {
     queryKey: ['/api/metrics/dashboard'],
   });
 
-  const serviceMetrics = useMemo(() => {
-    const svc = metrics?.campaignStats?.byDepartment?.service;
-    const convTotal = metrics?.conversationCounts?.total ?? 0;
-    return [
-      { id: 'svm-1', label: 'Active Campaigns', value: String(svc?.active ?? 0), icon: Megaphone },
-      { id: 'svm-2', label: 'Messages Sent', value: String(svc?.sent ?? 0), icon: MessageSquare },
-      { id: 'svm-3', label: 'Replies Received', value: String(svc?.replied ?? 0), icon: MessageSquare },
-      { id: 'svm-4', label: 'Appointments Booked', value: String(convTotal), icon: CalendarCheck },
-      { id: 'svm-5', label: 'Total Campaigns', value: String(svc?.total ?? 0), icon: ThumbsDown },
-      { id: 'svm-6', label: 'Reply Rate', value: `${svc?.replyRate ?? 0}%`, icon: DollarSign },
-    ];
-  }, [metrics]);
+  const defaultServiceMetrics: ServiceMetricTile[] = [
+    { id: 'svm-1', label: 'Active Campaigns', value: '3', change: 1, trend: 'up' as const, icon: Megaphone },
+    { id: 'svm-2', label: 'Messages Sent', value: '456', change: 23, trend: 'up' as const, icon: MessageSquare },
+    { id: 'svm-3', label: 'Replies Received', value: '89', change: 12, trend: 'up' as const, icon: MessageSquare },
+    { id: 'svm-4', label: 'Appointments Booked', value: '34', change: 8, trend: 'up' as const, icon: CalendarCheck },
+    { id: 'svm-5', label: 'Declined Services', value: '12', change: -2, trend: 'down' as const, icon: ThumbsDown },
+    { id: 'svm-6', label: 'Upsell Rate', value: '22%', change: 3, trend: 'up' as const, icon: DollarSign },
+  ];
+
+  const serviceMetrics = defaultServiceMetrics;
 
   const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
     queryKey: ['/api/agents?department=service'],
@@ -208,19 +208,6 @@ export default function ServicePage() {
         <h2 className="text-lg font-semibold mb-1">Service Dashboard</h2>
         <p className="text-sm text-muted-foreground">Service department performance and campaign metrics</p>
       </div>
-      {metricsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 space-y-2">
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-7 w-16" />
-                <Skeleton className="h-3 w-20" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {serviceMetrics.map(metric => (
           <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
@@ -234,7 +221,6 @@ export default function ServicePage() {
           </Card>
         ))}
       </div>
-      )}
     </div>
   );
 
