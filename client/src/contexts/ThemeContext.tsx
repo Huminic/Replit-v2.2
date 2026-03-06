@@ -51,9 +51,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('nexxus:theme')) {
-        setThemeState(e.matches ? 'dark' : 'light');
-      }
+      setThemeState(e.matches ? 'dark' : 'light');
     };
 
     mediaQuery.addEventListener('change', handleChange);
