@@ -1,9 +1,9 @@
 # Nexxus Connect -- Implementation Plan (4-Wave)
 
-**Version:** 2.2
-**Date:** 2026-03-03
-**Status:** Active -- Wave 1 in progress
-**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md)
+**Version:** 3.0
+**Date:** 2026-03-06
+**Status:** Active -- Waves 0-3 complete (~68%), Wave 3.5 (Data Warehouse) next
+**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md) | [Sprint_log.md](./Sprint_log.md)
 
 ---
 
@@ -15,10 +15,14 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 | Wave | Theme | Duration | Status |
 |------|-------|----------|--------|
-| Wave 1 | UI Prototype & Navigation Restructure | 2 weeks | **Complete** |
-| Wave 2 | Backend Foundation & Core API Wiring | 3 weeks | Not Started |
-| Wave 3 | Data Integration & Intelligence Engine | 3 weeks | Not Started |
-| Wave 4 | Communication, Studio & Polish | 2 weeks | Not Started |
+| Wave 0 | Setup & UI Prototype | 2 weeks | **Complete** |
+| Wave 1 | API Wiring & Data Sources | 3 weeks | **Complete** |
+| Wave 2 | AI Chat, User CRUD, File Uploads, Metrics | 3 weeks | **Complete** |
+| Wave 3 | Outbound Engine, Webhooks, Intelligence | 2 weeks | **Complete** |
+| **Wave 3.5** | **Data Warehouse & Context Router** | 2 weeks | **Next** |
+| Wave 4 | Widget Calendar, Security, Performance, E2E | 2 weeks | Not Started |
+
+### Current Progress: ~68%
 
 ---
 
@@ -134,87 +138,192 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 ---
 
-## 4. Wave 3 -- Data Integration & Intelligence Engine
+## 4. Wave 3 -- Outbound Engine, Webhooks & Intelligence (COMPLETE)
 
-**Goal:** Integrate VIN Solutions CRM data, build the metrics computation engine, implement hunches, and wire all dashboard tiles to real computed values.
+**Goal:** Build outbound communication engine, real notifications/activity feeds, VAPI webhook, and AI intelligence engine.
 
-**Status:** Not Started
+**Status:** Complete (Sprint 3.1-3.3, completed 2026-03-06)
 
-### 4.1 Planned Items
+### 4.1 Completed Items
 
-| Item | Description | Dependencies |
-|------|-------------|--------------|
-| VIN Solutions client | OAuth2 API client, lead sync service, 5-minute sync scheduler | Wave 2 Auth |
-| Leads table & API | Lead CRUD, pipeline health endpoint, source tagging | VIN client |
-| Metric engine | All metric formulas from Constitution, time-bucketed caching | Leads data |
-| Main page tile wiring | Role-specific tile computations from real lead data | Metric engine |
-| Tile detail modals | Breakdown rows with sub-details and Key Insights from real data | Metric engine |
-| Dashboard wiring | Sales/Service/Marketing/Management dashboards with real metrics | Metric engine |
-| Insights library | Full metrics library (91+ metrics) with category filters and search | Metric engine |
-| Reports engine | 6 priority reports computed from VIN lead data | Leads data |
-| Hunch engine | AI-powered pattern detection using Claude, confidence scoring | Leads data |
-| Hunch scheduling | Weekly generation (Monday 6AM) with lifecycle tracking | Hunch engine |
-| TeamBox API wiring | Real conversation data, real-time message updates | Wave 2 Chat API |
-| Campaign API | Campaign CRUD, CSV upload, message scheduling, kill switch persistence | Wave 2 Auth |
+| Item | Description | Status |
+|------|-------------|--------|
+| Outbound engine | Comm gate (5-layer check), kill switch, rate limiting, template substitution | Done |
+| Campaign execution | Start/stop/dry-run with setInterval processing, progress tracking UI | Done |
+| Notifications system | Real bell count (15s poll), mark-read, triggered by user/campaign/comm events | Done |
+| Activity log | Management feed with real events, fire-and-forget logging | Done |
+| VAPI webhook | Read-only receiver, creates TeamBox conversations + notifications from calls | Done |
+| AI hunches | Claude-powered insight generation, accept/dismiss/resolve lifecycle | Done |
+| Hunch chat filter | Accepted hunches injected into AI chat prompt context | Done |
+| SMS/email stubs | Stub functions ready for TextMagic/Resend when API keys arrive | Done |
 
 ### 4.2 Wave 3 Completion Criteria
 
-- [ ] VIN Solutions leads sync correctly on 5-minute schedule
-- [ ] Main page metric tiles show real computed scores per role
-- [ ] Tile detail modals show real breakdown data with Key Insights
-- [ ] All section dashboards show real-time metrics
-- [ ] Reports generate correct data from VIN leads
-- [ ] Hunches generate from AI analysis with confidence scores
-- [ ] Campaign CRUD works with CSV upload and kill switch
-- [ ] TeamBox shows real conversations with filtering
-- [ ] No mock data remains for any wired feature
+- [x] Comm gate blocks sends when org/channel disabled
+- [x] Campaign kill switch stops execution mid-run
+- [x] Rate limit enforced (3 messages/24h per customer)
+- [x] Dry run mode logs without sending or mutating recipient status
+- [x] VAPI webhook creates conversations (read-only, no VAPI write-back)
+- [x] TopBar bell shows real notification count
+- [x] Management activity feed shows real logged events
+- [x] AI hunches generate via Claude with confidence scoring
+- [x] Accepted hunches influence AI chat responses
 
 ---
 
-## 5. Wave 4 -- Communication, Studio & Polish
+## 5. Wave 3.5 -- Data Warehouse & Context Router (NEXT)
 
-**Goal:** Wire external communication integrations (VAPI voice, Tavus video, TextMagic SMS, email), build the Marketing Studio placeholder, implement notifications/activity system, widget backend, and run full E2E certification.
+**Goal:** Build the local data warehouse, implement tiered sync from VinSolutions, add data source attribution to all warehoused data, build the context router for AI chat provenance, and memorialize insights over time.
+
+**Status:** Next — prerequisite for correct metrics, AI data access, and data provenance
+
+### CRITICAL ARCHITECTURE CONSTRAINT
+
+VinSolutions integration is **Lead Management tier** — NOT a sync-level integration.
+- **Can**: Query/pull data on demand via MCP proxy
+- **Cannot**: Do wholesale two-way synchronization
+- **Cannot**: Write data back to VinSolutions (deferred until write API access granted)
+- **Result**: Platform maintains a **forked local data store** (data warehouse) with its own copy of CRM data
+
+### 5.1 Tiered Sync Strategy
+
+| Tier | Frequency | Scope | Purpose |
+|------|-----------|-------|---------|
+| **Historical Backfill** | Once | All accessible VinSolutions data | Populate data warehouse (they said 48h lookback but we've accessed more — take everything available) |
+| **Daily Delta** | Once/day (overnight) | Yesterday's changes | Incremental updates — query VinSolutions for records modified in last 24h, upsert into warehouse |
+| **Metrics Refresh** | Every 4 hours (business hours 8am-6pm) | Dashboard KPIs only | Real-time enough for decisions — lightweight aggregation refresh |
+
+**NOT real-time** except for leads originating from Nexxus tools (VAPI calls, chat widgets, etc.)
+
+### 5.2 Data Source Attribution
+
+Every piece of data in the warehouse is tagged with its origin.
+
+| Source Tag | Origin | Examples |
+|------------|--------|----------|
+| `vin_solutions` | CRM queries via MCP proxy | Leads, contacts, deal statuses |
+| `vapi` | Call transcripts/events via webhook | Inbound call records, transcripts |
+| `tavus` | Video interactions | Video session data |
+| `uploaded` | Manual CSV/file imports | Campaign recipients, custom lists |
+| `computed` | Derived metrics/insights | AI hunches, aggregated KPIs |
+| `nexxus` | Platform-generated | Conversations, tasks, notifications |
+
+Schema pattern for all warehoused tables:
+```
+dataSource    text NOT NULL DEFAULT 'nexxus'    -- origin tag
+sourceId      text                              -- original ID from source system
+syncedAt      timestamp                         -- when last synced from source
+```
+
+### 5.3 Context Router (AI Chat Data Provenance)
+
+When AI chat answers questions that reference data, it must state provenance:
+- "Based on VinSolutions data from 2 hours ago..."
+- "Based on your uploaded metrics from March 1..."
+- "Based on call data from VAPI received today..."
+- "I don't have VinSolutions data for that — the last sync was 6 hours ago"
+
+Implementation:
+1. Register VinSolutions MCP tools in AI chat endpoint (currently only has `webSearchTool`)
+2. Update system prompt with provenance instructions
+3. Add source/freshness labels to all context injections (hunches, KB docs, agent context)
+4. Track `lastSyncedAt` per data source, surface staleness in AI responses
+
+### 5.4 Insight Memorialization
+
+Hunches/insights are not just point-in-time — they are memorialized for historical trend analysis.
+- Add `hunchBatchId` to group hunches from the same generation run
+- Each generation creates new records (additive, never mutates existing)
+- Historical comparison: "what changed since last generation?"
+- Track insight evolution over time (confidence shifts, recurring patterns)
+
+### 5.5 Sprint Breakdown
+
+#### Sprint W3.5a — Warehouse Schema & Historical Backfill
+- Design warehouse tables: `warehouse_leads`, `warehouse_contacts`, `warehouse_activities`
+- Add `dataSource`, `sourceId`, `syncedAt` columns
+- Build sync service with historical backfill (pull all available VinSolutions data)
+- Log sync events to activity_log
+- Files: shared/schema.ts, server/storage.ts, server/sync.ts (new)
+
+#### Sprint W3.5b — Daily Delta & Metrics Refresh
+- Build daily delta sync (query changes from last 24h, upsert)
+- Build business-hours metrics refresh (every 4h during 8am-6pm)
+- Dashboard tiles pull from warehouse instead of live VinSolutions queries
+- Sync failure notifications for admins
+
+#### Sprint W3.5c — Context Router & AI Data Access
+- Register VinSolutions MCP tools in AI chat endpoint
+- Update system prompt with data provenance instructions
+- Add source/freshness labels to context injections
+- Add `hunchBatchId` to hunches for generation grouping
+- Build historical comparison endpoint for insights
+
+### 5.6 Wave 3.5 Completion Criteria
+
+- [ ] Warehouse tables exist with source attribution columns
+- [ ] Historical backfill pulls all available VinSolutions data
+- [ ] Daily delta sync updates warehouse incrementally
+- [ ] Metrics refresh runs every 4h during business hours
+- [ ] Dashboard tiles read from warehouse (not live VinSolutions)
+- [ ] AI chat states data provenance in responses
+- [ ] AI chat can query VinSolutions data via MCP tools
+- [ ] Hunches grouped by batch for historical comparison
+- [ ] Sync failures create admin notifications
+- [ ] All warehoused data carries source tags
+
+### 5.7 Dependencies & Blockers
+
+| Dependency | Status | Impact |
+|------------|--------|--------|
+| VinSolutions probe file | Awaiting from user | Determines which metrics are actually available |
+| VinSolutions write API | NOT available | All write-back deferred |
+| MCP server access | Working via `VINSOLUTIONS_API_KEY` | No blocker |
+| TextMagic/Resend keys | Not needed for this wave | Outbound already stubbed |
+
+---
+
+## 6. Wave 4 -- Widget Calendar, Security, Performance & E2E
+
+**Goal:** Complete remaining features (widget calendar, embed codes), harden security (RLS, rate limiting, input validation), run full E2E certification, and remove all remaining mock data.
 
 **Status:** Not Started
 
-### 5.1 Planned Items
+### 6.1 Planned Items
 
 | Item | Description | Dependencies |
 |------|-------------|--------------|
-| VAPI webhook handler | Voice call webhook processing with idempotency guards | Wave 2 Auth |
+| Widget embed codes | Generate working embed codes for 4 widget types | Wave 2 Widgets |
+| Landing page serving | Widget landing pages serve from config, survive other web servers | Widget backend |
+| Calendar integration | Google Calendar OAuth for appointment scheduling | OAuth library |
 | Tavus webhook handler | Video session webhook with HMAC verification | Wave 2 Auth |
-| TextMagic integration | SMS send/receive, campaign message delivery | Wave 3 Campaigns |
-| Email integration | Outbound email via Resend, template rendering | Wave 2 Auth |
-| Communication gate backend | Global toggle persisted, enforced on all outbound channels | Wave 3 Campaigns |
-| Notification system | Real-time notifications from webhook events, in-app + email delivery | Webhooks |
-| Activity logging | System-wide audit log of admin actions | Wave 2 Auth |
-| Widget backend | Widget CRUD API, embed code generation, landing page dynamic config | Wave 2 Auth |
-| Marketing Studio | Placeholder UI for video/image/podcast creation tools | None |
-| Calendar integration | Calendar events CRUD with appointment scheduling | Wave 2 Auth |
-| Mock data removal | Remove all mock imports, delete mock files, skeleton loading states | All APIs wired |
-| E2E testing | Playwright tests against all pages with real data | All features |
-| Security audit | RLS verification, auth testing, input validation, XSS/CSRF checks | All features |
-| Performance testing | API response times (<200ms p95), LCP (<2.5s) | All features |
+| TextMagic integration | Wire real SMS sends when API key arrives | Wave 3 Outbound |
+| Resend integration | Wire real email sends when API key arrives | Wave 3 Outbound |
+| RLS policies | Row-level security for multi-tenant isolation | Wave 2 Schema |
+| API rate limiting | 100 req/min per user, 20 AI messages/hr per user | Wave 2 Auth |
+| Input validation | Full Zod validation on all request bodies | All routes |
+| Mock data removal | Remove all remaining static data, replace with empty states | All APIs |
+| E2E testing | Full Playwright suite across all features | All features |
+| Performance testing | API p95 < 200ms, LCP < 2.5s | All features |
 
-### 5.2 Wave 4 Completion Criteria
+### 6.2 Wave 4 Completion Criteria
 
-- [ ] VAPI webhooks create correct records (verified via Elliot test agent)
-- [ ] Tavus HMAC verification works
-- [ ] SMS messages trigger AI responses via Claude (loopback testing)
-- [ ] Communication gate prevents all outbound when disabled
-- [ ] Notifications appear in TopBar bell from real events
-- [ ] Activity feed shows real system actions
-- [ ] Widget CRUD works with 4 widget types + 7-channel FAB on landing pages
-- [ ] Marketing Studio placeholder renders
-- [ ] No mock data in production code
-- [ ] All acceptance criteria verified with real data
+- [ ] Widget embed codes generate and work when pasted in HTML
+- [ ] Landing pages serve from widget config
+- [ ] Calendar shows real appointments (if OAuth available)
+- [ ] TextMagic SMS sends work (when key provided)
+- [ ] Resend email sends work (when key provided)
+- [ ] RLS policies enforce tenant isolation at DB level
+- [ ] Rate limiting active on all endpoints
+- [ ] All input validated with Zod schemas
+- [ ] Zero mock/static data remains in codebase
+- [ ] Full E2E Playwright suite passes
+- [ ] API p95 < 200ms, LCP < 2.5s
 - [ ] Security audit passed
-- [ ] Performance targets met
-- [ ] E2E Playwright tests pass
 
 ---
 
-## 6. Risks & Mitigations
+## 7. Risks & Mitigations
 
 | Risk | Impact | Likelihood | Mitigation |
 |------|--------|------------|------------|
@@ -228,7 +337,7 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 ---
 
-## 7. Testing Protocol
+## 8. Testing Protocol
 
 ### Per-Wave Requirements
 
@@ -247,7 +356,7 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 
 ---
 
-## 8. Decision Log
+## 9. Decision Log
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
@@ -258,6 +367,12 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 | 2026-03-03 | Add global communication gate | Master toggle to prevent ALL automated outbound -- safety net for the organization |
 | 2026-03-03 | Nest agents within department sections | Agents belong to departments (sales/service/marketing), not a standalone global list |
 | 2026-03-03 | TeamBox as dedicated CommBox-inspired page | Unified inbox for all customer conversations across channels, replacing fragmented inbox |
-| 2026-03-03 | Marketing Studio as Wave 4 placeholder | Video/image/podcast creation is a future capability, not MVP |
-| 2026-03-04 | Expand RBAC from 4 to 8 roles | Department-specific roles (sales, service, marketing) + executive and sales_manager replace generic org_staff. Better matches dealership org structure |
+| 2026-03-03 | Marketing Studio as Wave 4 placeholder | Video/image/podcast creation is a future capability |
+| 2026-03-04 | Expand RBAC from 4 to 8 roles | Department-specific roles (sales, service, marketing) + executive and sales_manager replace generic org_staff |
 | 2026-03-04 | Add kill switch backend spec to Wave 2 | DB columns + MCP enforcement required before any outbound wiring |
+| 2026-03-06 | VinSolutions is Lead Management tier, not sync | Cannot do wholesale two-way sync. Platform maintains forked local data store |
+| 2026-03-06 | Three-tier sync strategy | Historical backfill (once), daily delta (overnight), metrics refresh (4h during business hours) |
+| 2026-03-06 | Data provenance required in AI chat | AI must state data source and freshness when referencing data |
+| 2026-03-06 | Context Router architecture | Data warehouse aggregates multi-source data (VinSolutions, VAPI, Tavus, uploaded) with preserved provenance |
+| 2026-03-06 | Insight memorialization | Hunches tracked over time for historical trend analysis, not just point-in-time snapshots |
+| 2026-03-06 | Insert Wave 3.5 before Wave 4 | Data warehouse is prerequisite for correct metrics and AI data access — must build before final polish |
