@@ -1,8 +1,8 @@
 # Nexxus Connect -- Implementation Plan (4-Wave)
 
-**Version:** 3.0
+**Version:** 3.1
 **Date:** 2026-03-06
-**Status:** Active -- Waves 0-3 complete (~68%), Wave 3.5 (Data Warehouse) next
+**Status:** Active -- Waves 0-3.6 complete (~76%), Wave 4 in progress
 **Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md) | [Sprint_log.md](./Sprint_log.md)
 
 ---
@@ -19,10 +19,12 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 | Wave 1 | API Wiring & Data Sources | 3 weeks | **Complete** |
 | Wave 2 | AI Chat, User CRUD, File Uploads, Metrics | 3 weeks | **Complete** |
 | Wave 3 | Outbound Engine, Webhooks, Intelligence | 2 weeks | **Complete** |
-| **Wave 3.5** | **Data Warehouse & Context Router** | 2 weeks | **Next** |
-| Wave 4 | Widget Calendar, Security, Performance, E2E | 2 weeks | Not Started |
+| Wave 3.5 | Data Warehouse & Context Router | 1 week | **Complete** |
+| Wave 3.6 | Outbound Live Wiring & Safety Controls | 1 day | **Complete** |
+| **Wave 4** | **Phone Outbound, Reporting, Admin Polish, Error Handling** | 2 weeks | **In Progress** |
+| Wave 5 | Google Calendar, Production Backend Cutover | TBD | Deferred (end) |
 
-### Current Progress: ~68%
+### Current Progress: ~76%
 
 ---
 
@@ -283,47 +285,69 @@ Hunches/insights are not just point-in-time — they are memorialized for histor
 
 ---
 
-## 6. Wave 4 -- Widget Calendar, Security, Performance & E2E
+## 6. Wave 4 -- Phone Outbound, Reporting, Admin Polish, Error Handling
 
-**Goal:** Complete remaining features (widget calendar, embed codes), harden security (RLS, rate limiting, input validation), run full E2E certification, and remove all remaining mock data.
+**Goal:** Complete remaining feature gaps: phone outbound via VAPI, reporting/export, admin UI polish, error handling, mock data removal, and deeper Tavus integration.
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### 6.1 Planned Items
 
-| Item | Description | Dependencies |
-|------|-------------|--------------|
-| Widget embed codes | Generate working embed codes for 4 widget types | Wave 2 Widgets |
-| Landing page serving | Widget landing pages serve from config, survive other web servers | Widget backend |
-| Calendar integration | Google Calendar OAuth for appointment scheduling | OAuth library |
-| Tavus webhook handler | Video session webhook with HMAC verification | Wave 2 Auth |
-| TextMagic integration | Wire real SMS sends when API key arrives | Wave 3 Outbound |
-| Resend integration | Wire real email sends when API key arrives | Wave 3 Outbound |
-| RLS policies | Row-level security for multi-tenant isolation | Wave 2 Schema |
-| API rate limiting | 100 req/min per user, 20 AI messages/hr per user | Wave 2 Auth |
-| Input validation | Full Zod validation on all request bodies | All routes |
-| Mock data removal | Remove all remaining static data, replace with empty states | All APIs |
-| E2E testing | Full Playwright suite across all features | All features |
-| Performance testing | API p95 < 200ms, LCP < 2.5s | All features |
+| Item | Description | Dependencies | Status |
+|------|-------------|--------------|--------|
+| Phone outbound via VAPI | Wire `sendPhone()` to initiate VAPI outbound calls through campaign engine | Wave 3 Outbound | Not Started |
+| Reporting & export | Analytics views, data export (CSV/PDF) for leads, campaigns, activity | Wave 3.5 Warehouse | Not Started |
+| Admin polish | Org invite flow, settings sections wired to backend (not local state) | Wave 2 Auth | Not Started |
+| Error boundaries | React error boundaries, offline handling, session refresh | All | Not Started |
+| Mock data removal | Remove all remaining static/mock data, replace with empty states or real queries | All APIs | Not Started |
+| Widget embed codes | Generate working embed codes for 4 widget types | Wave 2 Widgets | Not Started |
+| Landing page serving | Widget landing pages serve from config | Widget backend | Not Started |
+| Tavus deeper integration | Video session webhook with HMAC verification | Wave 2 Auth | Not Started |
+| RLS policies | Row-level security for multi-tenant isolation | Wave 2 Schema | Not Started |
+| API rate limiting | 100 req/min per user, 20 AI messages/hr per user | Wave 2 Auth | Not Started |
+| Input validation | Full Zod validation on all request bodies | All routes | Not Started |
+| E2E testing | Full Playwright suite across all features | All features | Not Started |
 
 ### 6.2 Wave 4 Completion Criteria
 
+- [ ] Phone outbound sends via VAPI campaign execution
+- [ ] Reporting page shows exportable analytics
+- [ ] Settings sections use backend data (not local state)
+- [ ] Error boundaries catch and display errors gracefully
+- [ ] Zero mock/static data remains in codebase
 - [ ] Widget embed codes generate and work when pasted in HTML
 - [ ] Landing pages serve from widget config
-- [ ] Calendar shows real appointments (if OAuth available)
-- [ ] TextMagic SMS sends work (when key provided)
-- [ ] Resend email sends work (when key provided)
 - [ ] RLS policies enforce tenant isolation at DB level
 - [ ] Rate limiting active on all endpoints
 - [ ] All input validated with Zod schemas
-- [ ] Zero mock/static data remains in codebase
 - [ ] Full E2E Playwright suite passes
-- [ ] API p95 < 200ms, LCP < 2.5s
-- [ ] Security audit passed
+
+### 6.3 Completed (moved from Wave 4)
+
+- [x] TextMagic SMS sends work (Sprint W3.6)
+- [x] Resend email sends work (Sprint W3.6)
+- [x] 4-layer outbound safety stack (Sprint W3.6)
 
 ---
 
-## 7. Risks & Mitigations
+## 7. Wave 5 -- Google Calendar & Production Backend Cutover (Deferred)
+
+**Goal:** Integrate Google Calendar for appointment scheduling and swap data source from Replit prototype to production backend at nexxusv2.huminicdev.com. Requires credentials and API contract alignment from client.
+
+**Status:** Deferred to end
+
+### 7.1 Planned Items
+
+| Item | Description | Dependencies |
+|------|-------------|--------------|
+| Calendar integration | Google Calendar OAuth for appointment scheduling | OAuth credentials from client |
+| Production backend cutover | Swap API data source to nexxusv2.huminicdev.com | API contract alignment |
+| Performance testing | API p95 < 200ms, LCP < 2.5s | All features |
+| Security audit | Final security review before production | All features |
+
+---
+
+## 8. Risks & Mitigations
 
 | Risk | Impact | Likelihood | Mitigation |
 |------|--------|------------|------------|
@@ -337,7 +361,7 @@ Hunches/insights are not just point-in-time — they are memorialized for histor
 
 ---
 
-## 8. Testing Protocol
+## 9. Testing Protocol
 
 ### Per-Wave Requirements
 
@@ -356,7 +380,7 @@ Hunches/insights are not just point-in-time — they are memorialized for histor
 
 ---
 
-## 9. Decision Log
+## 10. Decision Log
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
@@ -376,3 +400,5 @@ Hunches/insights are not just point-in-time — they are memorialized for histor
 | 2026-03-06 | Context Router architecture | Data warehouse aggregates multi-source data (VinSolutions, VAPI, Tavus, uploaded) with preserved provenance |
 | 2026-03-06 | Insight memorialization | Hunches tracked over time for historical trend analysis, not just point-in-time snapshots |
 | 2026-03-06 | Insert Wave 3.5 before Wave 4 | Data warehouse is prerequisite for correct metrics and AI data access — must build before final polish |
+| 2026-03-06 | 4-layer outbound safety stack | Global env kill switch > org gate > per-channel toggles > campaign rate limiting. Defense in depth. |
+| 2026-03-06 | Defer Calendar & production cutover to Wave 5 | Requires Google OAuth credentials and API contract alignment — save for end |
