@@ -71,7 +71,7 @@ export function SubMenuManager() {
     favorites
   } = useApp();
   
-  // 400ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
+  // 2000ms delay timer ref for panel mouseLeave — gives user time to re-enter without losing the panel
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Search filter for agents within department panels
   const [agentSearch, setAgentSearch] = useState('');
@@ -160,7 +160,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 400);
+      }, 2000);
     }
   };
 
