@@ -72,10 +72,31 @@ A comprehensive set of API routes supports both public access (login, password r
 -   **bcrypt**: Password hashing
 
 ### Production Backend (separate environment)
--   **VinSolutions**: CRM integration
+-   **VinSolutions**: CRM integration (Lead Management tier — read/query only, no full sync)
 -   **VAPI**: Voice integration
 -   **Tavus**: Video integration
 -   **Resend**: Email service
 -   **TextMagic**: SMS service
 -   **Claude API**: AI capabilities
 -   **Google Calendar**: Calendar integration
+
+### VinSolutions Data Architecture
+The VinSolutions integration is a **Lead Management** tier — NOT a sync-level integration. This means:
+- **Can**: Query/pull data on demand
+- **Cannot**: Do wholesale two-way synchronization
+- **Result**: Platform maintains a **forked local data store** (data warehouse) with its own copy of CRM data
+
+**Sync Strategy (3 tiers):**
+1. **One-time historical pull** — bulk import all available VinSolutions data (verbally told 48h lookback but observed longer access — take what's available)
+2. **Daily incremental** — each day, pull data that changed in the previous 24 hours
+3. **Business-hours dashboard refresh** — every 4 hours during business hours, refresh metrics that power dashboard tiles
+
+**NOT real-time** except for leads originating from Nexxus tools (VAPI calls, chat widgets, etc.)
+
+**Context Router / Data Provenance:**
+- Every piece of data has a known source: VinSolutions (CRM), VAPI (voice), Tavus (video), uploaded data, generated insights
+- When AI chat answers a user's question, it must tell the user the data source ("this came from VinSolutions" vs "this came from your local data store")
+- The data warehouse acts as a context router — aggregating multi-source data while preserving provenance
+
+**Insight History:**
+- Hunches/insights are not just point-in-time — they are memorialized so historical trends can be analyzed over time
