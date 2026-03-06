@@ -314,6 +314,39 @@ export function registerVendorRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const orgId = req.user.organizationId;
+
+      const { storage: storageModule } = await import("./storage");
+      const warehouseMetrics = await storageModule.getWarehouseMetrics(orgId, { period: undefined });
+      const latestSync = await storageModule.getLatestSync(orgId, "metrics_refresh");
+
+      if (warehouseMetrics.length > 0) {
+        const m = (key: string) => {
+          const found = warehouseMetrics.find(wm => wm.metricKey === key);
+          return found ? Number(found.metricValue) : 0;
+        };
+        const syncedAt = latestSync?.completedAt || warehouseMetrics[0]?.syncedAt || null;
+        const period = warehouseMetrics[0]?.period || "";
+        const [start, end] = period.includes("_") ? period.split("_") : ["", ""];
+
+        return res.json({
+          period: { start, end },
+          totalLeads: m("totalLeads"),
+          totalLeadsChange: m("totalLeadsChange"),
+          newLeads: m("newLeads"),
+          newLeadsChange: m("newLeadsChange"),
+          activeLeads: m("activeLeads"),
+          activeLeadsChange: m("activeLeadsChange"),
+          soldLeads: m("soldLeads"),
+          soldLeadsChange: m("soldLeadsChange"),
+          lostLeads: m("lostLeads"),
+          waitingForResponse: m("waitingForResponse"),
+          appointments: m("appointments"),
+          conversionRate: m("conversionRate"),
+          source: "warehouse",
+          syncedAt,
+        });
+      }
 
       const now = new Date();
       const thirtyDaysAgo = new Date(now);
@@ -391,6 +424,7 @@ export function registerVendorRoutes(app: Express) {
         appointments: curActiveAppt,
         conversionRate: curTotal > 0 ? Math.round((soldLeads / curTotal) * 100) : 0,
         source: "vinsolutions",
+        syncedAt: null,
       });
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch lead summary", error: err.message });

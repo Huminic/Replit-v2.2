@@ -446,3 +446,71 @@ Frontend:
 - [x] Accept/dismiss/resolve lifecycle works
 - [x] Management page uses real data (mockHunches removed)
 
+---
+
+## Sprint W3.5 — Data Warehouse Foundation & Context Router
+**Date:** 2026-03-06
+**Status:** DONE
+**Cumulative Progress:** ~75%
+
+**Goal:** Build the data warehouse for VinSolutions lead/metrics data, implement tiered sync service, add data provenance to AI chat, register VinSolutions tools in AI chat, and memorialize insights with batch grouping.
+
+**Schema Changes (4 new tables, 1 modified):**
+- `warehouse_leads` table: id, organizationId, sourceId, dataSource, vinStatus, customerName, customerEmail, customerPhone, leadSource, vehicleOfInterest, assignedSalesperson, dealerName, vinCreatedAt, vinUpdatedAt, syncedAt, createdAt
+- `warehouse_metrics` table: id, organizationId, metricKey, metricValue, period, dataSource, metadata (jsonb), syncedAt, createdAt
+- `sync_log` table: id, organizationId, syncType (backfill/daily_delta/metrics_refresh), status (running/completed/failed), recordsProcessed, recordsFailed, startedAt, completedAt, errorMessage, createdAt
+- `hunches` table modified: added `batchId` (uuid, nullable) for generation grouping
+
+**Backend — Sync Service (server/sync.ts):**
+- `runHistoricalBackfill(orgId)`: Pulls all available VinSolutions leads via MCP, transforms and upserts into warehouse_leads
+- `runDailyDelta(orgId)`: Pulls leads modified in last 24h, upserts into warehouse
+- `runMetricsRefresh(orgId)`: Queries VinSolutions for 30d/60d metrics, stores aggregated KPIs in warehouse_metrics (12 metric keys)
+- `startSyncScheduler()`: Starts automatic sync — metrics refresh every 4h during business hours (8am-6pm ET), daily delta at 2am ET
+- Each sync logs to sync_log and activity_log; failures create notifications
+
+**Backend — Sync Admin Routes:**
+- POST /api/sync/backfill — trigger historical backfill (admin only, roleLevel ≤ 2)
+- POST /api/sync/delta — trigger delta sync (admin only)
+- POST /api/sync/metrics — trigger metrics refresh (admin only)
+- GET /api/sync/status — latest sync status per type (backfill, daily_delta, metrics_refresh)
+- GET /api/sync/logs — sync history with limit
+- GET /api/warehouse/leads — query warehouse leads with status/limit filters
+- GET /api/warehouse/metrics — query warehouse metrics with key/period filters
+
+**Backend — Context Router (AI Chat):**
+- VinSolutions MCP tools registered in AI chat: `vin_query_leads` and `vin_lead_summary`
+- AI can now query CRM data on-demand when users ask about leads, pipeline, metrics
+- Tool results include `[Source: VinSolutions CRM, queried just now]` provenance tags
+- System prompt updated with data provenance rules: AI must state data source and freshness for every data-backed claim
+- Sync freshness context injected: last sync timestamps for VinSolutions metrics and leads
+- Hunch context now includes source tag and generation age
+- Status messages during tool use: "Querying VinSolutions CRM..." and "Fetching sales metrics..."
+
+**Backend — Dashboard Warehouse Wiring:**
+- `/api/vin/leads/summary` now checks warehouse_metrics first, falls back to live MCP
+- Response includes `syncedAt` timestamp and `source` field ("warehouse" or "vinsolutions")
+
+**Backend — Insight Memorialization:**
+- `batchId` (UUID) added to hunches table
+- POST /api/hunches/generate now groups each generation run with a shared batchId
+- Each generation creates new records (additive, never mutates existing)
+
+**Frontend:**
+- Sales dashboard shows data source badge: "Warehouse" (green) or "VinSolutions Live" (blue)
+- Sync age indicator: "Synced 2h ago" next to the source badge
+
+**Acceptance Criteria:**
+- [x] Warehouse tables exist with source attribution columns (dataSource, sourceId, syncedAt)
+- [x] Historical backfill pulls VinSolutions leads and stores in warehouse_leads
+- [x] Daily delta sync updates warehouse from last 24h changes
+- [x] Metrics refresh stores 12 KPI metrics in warehouse_metrics
+- [x] Sync scheduler runs automatically (4h metrics during business hours, nightly delta)
+- [x] Dashboard reads from warehouse first, falls back to live VinSolutions
+- [x] AI chat can query VinSolutions via vin_query_leads and vin_lead_summary tools
+- [x] AI chat states data provenance in system prompt instructions
+- [x] Sync freshness context injected into AI chat
+- [x] Hunch context includes source tags and generation age
+- [x] Hunches grouped by batchId for historical comparison
+- [x] Sync admin routes allow manual trigger and monitoring
+- [x] Sales dashboard shows source badge and sync age indicator
+

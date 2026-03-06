@@ -1,4 +1,4 @@
-# Nexxus Connect v2.2 — AI-Powered Dealership Platform
+# Nexxus Connect v3.0 — AI-Powered Dealership Platform
 
 ## Overview
 
@@ -51,10 +51,22 @@ The platform utilizes a context-aware multi-pane layout.
 -   TeamBox has a unique 4-column internal layout.
 
 ### Database Schema
-The database comprises 17 tables, including `roles`, `organizations`, `users`, `sessions`, `agents`, `conversations`, `messages`, `campaigns`, `tasks`, `widgets`, `integrations`, `knowledge_documents`, `campaign_recipients`, `outbound_log`, `notifications`, `activity_log`, and `hunches`. This schema supports the core functionalities like user management, AI conversations, campaign execution, and system activity logging.
+The database comprises 20 tables: `roles`, `organizations`, `users`, `sessions`, `agents`, `conversations`, `messages`, `campaigns`, `tasks`, `widgets`, `integrations`, `knowledge_documents`, `campaign_recipients`, `outbound_log`, `notifications`, `activity_log`, `hunches`, `warehouse_leads`, `warehouse_metrics`, and `sync_log`. The warehouse tables support the data warehouse pattern with source attribution (`dataSource`, `sourceId`, `syncedAt` columns).
 
 ### API Routes
-A comprehensive set of API routes supports both public access (login, password reset) and authenticated operations across all modules, including agents, organizations, users, conversations, campaigns, documents, VAPI/Tavus proxies, metrics, tasks, widgets, integrations, notifications, activity logs, and AI hunches.
+A comprehensive set of API routes supports both public access (login, password reset) and authenticated operations across all modules, including agents, organizations, users, conversations, campaigns, documents, VAPI/Tavus proxies, metrics, tasks, widgets, integrations, notifications, activity logs, AI hunches, sync management, and warehouse queries.
+
+### Data Warehouse & Sync Service
+- **server/sync.ts**: Tiered sync service — historical backfill, daily delta (2am ET), metrics refresh (4h during 8am-6pm ET)
+- **Warehouse-first reads**: `/api/vin/leads/summary` checks warehouse_metrics first, falls back to live MCP
+- **Sync admin routes**: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
+- **Warehouse query routes**: GET /api/warehouse/{leads,metrics}
+
+### Context Router (AI Chat Data Provenance)
+- AI chat has 3 tools: `web_search`, `vin_query_leads`, `vin_lead_summary`
+- System prompt includes data provenance rules — AI must state data source and freshness
+- Sync freshness timestamps injected into chat context
+- Hunch context includes source tags and generation age
 
 ## External Dependencies
 

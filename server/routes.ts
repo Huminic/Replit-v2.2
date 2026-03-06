@@ -34,6 +34,7 @@ import {
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
 import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
+import { runHistoricalBackfill, runDailyDelta, runMetricsRefresh, startSyncScheduler } from "./sync";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -1084,6 +1085,18 @@ export async function registerRoutes(
     }
   });
 
+  function formatSyncAge(date: Date | string): string {
+    const d = typeof date === "string" ? new Date(date) : date;
+    const diffMs = Date.now() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return "just now";
+    if (diffMin < 60) return `${diffMin} minute${diffMin !== 1 ? "s" : ""} ago`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+  }
+
   const webSearchTool: Anthropic.Tool = {
     name: "web_search",
     description: "Search the web for current information. Use this when the user asks about current events, recent news, real-time data, locations/businesses near a place, or anything that requires up-to-date information beyond your training data. Also use for questions about specific people, places, or facts you are uncertain about.",
@@ -1098,6 +1111,45 @@ export async function registerRoutes(
       required: ["query"],
     },
   };
+
+  const vinQueryLeadsTool: Anthropic.Tool = {
+    name: "vin_query_leads",
+    description: "Query VinSolutions CRM lead data. Use this when the user asks about sales leads, pipeline, lead counts, lead statuses, conversion rates, or any CRM-related question. Returns lead data from the dealership's VinSolutions CRM system.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        startDate: {
+          type: "string",
+          description: "Start date in YYYY-MM-DD format. Defaults to 30 days ago if not specified.",
+        },
+        endDate: {
+          type: "string",
+          description: "End date in YYYY-MM-DD format. Defaults to today if not specified.",
+        },
+        status: {
+          type: "string",
+          description: "Lead status filter. Common values: ACTIVE_NEW_LEAD, ACTIVE_ACTIVE_LEAD, ACTIVE_SET_APPOINTMENT, ACTIVE_WAITING_FOR_PROSPECT_RESPONSE, SOLD_DELIVERED, SOLD_PENDING_FINANCE, SOLD_ON_ORDER, LOST_DID_NOT_RESPOND, LOST_NO_AGREEMENT_REACHED, LOST_BAD_CREDIT, LOST_LEAD_PROCESS_COMPLETED.",
+        },
+        limit: {
+          type: "number",
+          description: "Maximum number of leads to return (1-100). Default: 20.",
+        },
+      },
+      required: [],
+    },
+  };
+
+  const vinLeadSummaryTool: Anthropic.Tool = {
+    name: "vin_lead_summary",
+    description: "Get a summary of VinSolutions CRM lead metrics including total leads, new leads, active pipeline, sold leads, conversion rate, and period-over-period changes. Use this when the user asks about overall sales performance, KPIs, metrics, or dashboard-level data.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  };
+
+  const chatTools: Anthropic.Tool[] = [webSearchTool, vinQueryLeadsTool, vinLeadSummaryTool];
 
   app.post("/api/chat/:conversationId/stream", authenticateToken, async (req, res) => {
     try {
@@ -1127,12 +1179,16 @@ export async function registerRoutes(
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches] = await Promise.all([
+      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches, latestMetricsSync, latestLeadSync] = await Promise.all([
         storage.getOrganization(req.user.organizationId),
         storage.getUsers(req.user.organizationId),
         storage.getAgents(req.user.organizationId, {}),
         storage.getDocuments(req.user.organizationId),
         storage.getAcceptedHunches(req.user.organizationId),
+        storage.getLatestSync(req.user.organizationId, "metrics_refresh"),
+        storage.getLatestSync(req.user.organizationId, "backfill").then(b =>
+          b || storage.getLatestSync(req.user.organizationId, "daily_delta")
+        ),
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
@@ -1159,9 +1215,11 @@ export async function registerRoutes(
 
       let hunchContext = "";
       if (acceptedHunches.length > 0) {
-        const hunchSections = acceptedHunches.map(h =>
-          `- [${h.type}${h.department ? `/${h.department}` : ""}] ${h.title}: ${h.description} (confidence: ${h.confidence}%)`
-        ).join("\n");
+        const hunchSections = acceptedHunches.map(h => {
+          const source = h.dataSource ? ` [Source: ${h.dataSource}]` : " [Source: computed]";
+          const age = h.generatedAt ? `, generated ${formatSyncAge(h.generatedAt)}` : "";
+          return `- [${h.type}${h.department ? `/${h.department}` : ""}] ${h.title}: ${h.description} (confidence: ${h.confidence}%${age}${source})`;
+        }).join("\n");
         hunchContext = `\n\nActive AI Insights (accepted hunches — use these to inform your responses when relevant):\n${hunchSections}`;
       }
 
@@ -1186,6 +1244,20 @@ export async function registerRoutes(
         knowledgeContext = `\n\nKnowledge Base Documents (use this information to answer questions when relevant):\n${docSections.join("\n\n")}`;
       }
 
+      let syncFreshnessContext = "";
+      if (latestMetricsSync || latestLeadSync) {
+        const parts: string[] = [];
+        if (latestMetricsSync?.completedAt) {
+          parts.push(`VinSolutions metrics last refreshed ${formatSyncAge(latestMetricsSync.completedAt)}`);
+        }
+        if (latestLeadSync?.completedAt) {
+          parts.push(`VinSolutions lead data last synced ${formatSyncAge(latestLeadSync.completedAt)}`);
+        }
+        if (parts.length > 0) {
+          syncFreshnessContext = `\n\nData freshness:\n- ${parts.join("\n- ")}`;
+        }
+      }
+
       const systemPrompt = `You are ${personaName}, an AI assistant powering Nexxus Connect for ${orgName} — an automotive dealership management platform.
 
 Current date and time: ${dateStr}, ${timeStr} (Eastern Time)
@@ -1208,7 +1280,16 @@ Your personality and rules:
 - Never share or request PII (SSN, full credit card numbers, etc.)
 - When you are unsure about current events, facts, people, locations, or anything time-sensitive, use the web_search tool to look it up — do not guess
 - When the user asks about nearby businesses, competitors, local information, or anything geographic, use web_search
-- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results${agentContext}${hunchContext}${knowledgeContext}`;
+- When citing search results, be natural — incorporate the information conversationally, don't just dump raw results
+
+Data provenance rules (CRITICAL):
+- When referencing data from VinSolutions CRM, always tell the user the data source and how fresh it is (e.g., "Based on VinSolutions data from 2 hours ago...")
+- When referencing AI insights/hunches, mention they are AI-generated with their confidence level
+- When referencing knowledge base documents, mention the document name as your source
+- If data is stale (last synced > 6 hours ago), proactively note this: "Note: this data was last synced X hours ago and may not reflect the latest changes"
+- If no VinSolutions data is available, say so clearly — do not guess at CRM numbers
+- Use the vin_query_leads tool to look up specific lead data and the vin_lead_summary tool to get overall metrics
+- When web search results are used, cite them naturally${agentContext}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -1227,12 +1308,14 @@ Your personality and rules:
       let currentMessages: Anthropic.MessageParam[] = chatMessages;
       const MAX_TOOL_ROUNDS = 3;
 
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+
       const firstResponse = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 4096,
         system: systemPrompt,
         messages: currentMessages,
-        tools: [webSearchTool],
+        tools: chatTools,
       });
 
       const needsToolUse = firstResponse.content.some(b => b.type === "tool_use");
@@ -1262,14 +1345,84 @@ Your personality and rules:
                 fullResponse += intermediateText;
                 intermediateText = "";
               }
-              res.write(`data: ${JSON.stringify({ type: "status", text: "Searching the web..." })}\n\n`);
 
               let resultText: string;
-              try {
-                const results = await braveWebSearch((block.input as { query: string }).query, 3);
-                resultText = results.map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.description}`).join("\n\n");
-              } catch (searchErr) {
-                resultText = "Web search temporarily unavailable. Answer from your existing knowledge.";
+
+              if (block.name === "web_search") {
+                res.write(`data: ${JSON.stringify({ type: "status", text: "Searching the web..." })}\n\n`);
+                try {
+                  const results = await braveWebSearch((block.input as { query: string }).query, 3);
+                  resultText = results.map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.description}`).join("\n\n");
+                } catch (searchErr) {
+                  resultText = "Web search temporarily unavailable. Answer from your existing knowledge.";
+                }
+              } else if (block.name === "vin_query_leads") {
+                res.write(`data: ${JSON.stringify({ type: "status", text: "Querying VinSolutions CRM..." })}\n\n`);
+                try {
+                  const input = block.input as { startDate?: string; endDate?: string; status?: string; limit?: number };
+                  const args: Record<string, unknown> = { orgId: nexxusOrgId, limit: Math.min(input.limit || 20, 100) };
+                  if (input.startDate) args.startDate = input.startDate;
+                  if (input.endDate) args.endDate = input.endDate;
+                  if (input.status) args.status = input.status;
+                  if (!input.startDate) {
+                    const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+                    args.startDate = thirtyAgo.toISOString().split("T")[0];
+                  }
+                  if (!input.endDate) {
+                    args.endDate = new Date().toISOString().split("T")[0];
+                  }
+                  const data = await callMCP("vin_query_leads", args);
+                  const leadCount = data?.count ?? data?.items?.length ?? 0;
+                  const items = (data?.items || []).slice(0, 10);
+                  const summary = items.map((l: any) => {
+                    const name = [l.contact?.firstName, l.contact?.lastName].filter(Boolean).join(" ") || "Unknown";
+                    return `- ${name} | Status: ${l.status || "N/A"} | Source: ${l.source?.name || "N/A"} | Vehicle: ${l.vehicle?.description || "N/A"}`;
+                  }).join("\n");
+                  resultText = `[Source: VinSolutions CRM, queried just now]\nTotal leads matching: ${leadCount}\n${summary || "No individual lead details available."}`;
+                } catch (err: any) {
+                  resultText = `VinSolutions query failed: ${err.message}. Unable to retrieve CRM data at this time.`;
+                }
+              } else if (block.name === "vin_lead_summary") {
+                res.write(`data: ${JSON.stringify({ type: "status", text: "Fetching sales metrics from VinSolutions..." })}\n\n`);
+                try {
+                  const now = new Date();
+                  const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                  const sixtyDaysAgo = new Date(now); sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+                  const fmt = (d: Date) => d.toISOString().split("T")[0];
+                  const curStart = fmt(thirtyDaysAgo);
+                  const curEnd = fmt(now);
+                  const prevStart = fmt(sixtyDaysAgo);
+                  const prevEnd = fmt(thirtyDaysAgo);
+
+                  const qc = (s: string, e: string, st?: string) =>
+                    callMCP("vin_query_leads", { orgId: nexxusOrgId, startDate: s, endDate: e, limit: 1, ...(st ? { status: st } : {}) })
+                      .then((r: any) => r.count ?? r.items?.length ?? 0).catch(() => 0);
+
+                  const [curTotal, prevTotal, curSold, prevSold, curNew, prevNew, curActive, curAppt, curWaiting] = await Promise.all([
+                    qc(curStart, curEnd), qc(prevStart, prevEnd),
+                    qc(curStart, curEnd, "SOLD_DELIVERED"), qc(prevStart, prevEnd, "SOLD_DELIVERED"),
+                    qc(curStart, curEnd, "ACTIVE_NEW_LEAD"), qc(prevStart, prevEnd, "ACTIVE_NEW_LEAD"),
+                    qc(curStart, curEnd, "ACTIVE_ACTIVE_LEAD"),
+                    qc(curStart, curEnd, "ACTIVE_SET_APPOINTMENT"),
+                    qc(curStart, curEnd, "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE"),
+                  ]);
+
+                  const pct = (c: number, p: number) => p === 0 ? (c > 0 ? "+100%" : "0%") : `${((c - p) / p * 100).toFixed(0)}%`;
+                  const convRate = curTotal > 0 ? `${Math.round((curSold / curTotal) * 100)}%` : "N/A";
+
+                  resultText = `[Source: VinSolutions CRM, queried just now]\nPeriod: ${curStart} to ${curEnd}\n` +
+                    `Total Leads: ${curTotal} (${pct(curTotal, prevTotal)} vs prior 30d)\n` +
+                    `New Leads: ${curNew} (${pct(curNew, prevNew)} vs prior 30d)\n` +
+                    `Active Pipeline: ${curActive}\n` +
+                    `Appointments Set: ${curAppt}\n` +
+                    `Waiting for Response: ${curWaiting}\n` +
+                    `Sold/Delivered: ${curSold} (${pct(curSold, prevSold)} vs prior 30d)\n` +
+                    `Conversion Rate: ${convRate}`;
+                } catch (err: any) {
+                  resultText = `VinSolutions summary failed: ${err.message}. Unable to retrieve metrics at this time.`;
+                }
+              } else {
+                resultText = "Unknown tool.";
               }
 
               toolResults.push({
@@ -1300,7 +1453,7 @@ Your personality and rules:
             max_tokens: 4096,
             system: systemPrompt,
             messages: currentMessages,
-            tools: [webSearchTool],
+            tools: chatTools,
           });
         }
 
@@ -1778,6 +1931,7 @@ Return ONLY the JSON array, no other text.`,
         }
       }
 
+      const batchId = crypto.randomUUID();
       const created = [];
       for (const h of hunchData) {
         const hunch = await storage.createHunch({
@@ -1789,6 +1943,7 @@ Return ONLY the JSON array, no other text.`,
           status: "new",
           department: h.department || null,
           dataSource: h.dataSource || null,
+          batchId,
         });
         created.push(hunch);
       }
@@ -1981,6 +2136,105 @@ Return ONLY the JSON array, no other text.`,
       console.error("[VAPI Webhook] Error processing webhook:", err);
       return res.status(500).json({ message: "Failed to process webhook" });
     }
+  });
+
+  app.post("/api/sync/backfill", authenticateToken, requireRole(2), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await runHistoricalBackfill(req.user.organizationId);
+      if (result.error) {
+        return res.status(502).json({ message: "Backfill completed with errors", ...result });
+      }
+      return res.json({ message: "Backfill completed", ...result });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to run backfill", error: err.message });
+    }
+  });
+
+  app.post("/api/sync/delta", authenticateToken, requireRole(2), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await runDailyDelta(req.user.organizationId);
+      if (result.error) {
+        return res.status(502).json({ message: "Delta sync completed with errors", ...result });
+      }
+      return res.json({ message: "Delta sync completed", ...result });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to run delta sync", error: err.message });
+    }
+  });
+
+  app.post("/api/sync/metrics", authenticateToken, requireRole(2), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const result = await runMetricsRefresh(req.user.organizationId);
+      if (result.error) {
+        return res.status(502).json({ message: "Metrics refresh completed with errors", ...result });
+      }
+      return res.json({ message: "Metrics refresh completed", ...result });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to refresh metrics", error: err.message });
+    }
+  });
+
+  app.get("/api/sync/status", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const [backfill, delta, metrics] = await Promise.all([
+        storage.getLatestSync(req.user.organizationId, "backfill"),
+        storage.getLatestSync(req.user.organizationId, "daily_delta"),
+        storage.getLatestSync(req.user.organizationId, "metrics_refresh"),
+      ]);
+      return res.json({ backfill: backfill || null, dailyDelta: delta || null, metricsRefresh: metrics || null });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to fetch sync status", error: err.message });
+    }
+  });
+
+  app.get("/api/sync/logs", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+      const logs = await storage.getSyncLogs(req.user.organizationId, limit);
+      return res.json(logs);
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to fetch sync logs", error: err.message });
+    }
+  });
+
+  app.get("/api/warehouse/leads", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { status, limit = "100" } = req.query;
+      const leads = await storage.getWarehouseLeads(req.user.organizationId, {
+        status: status as string | undefined,
+        limit: Math.min(Number(limit) || 100, 500),
+      });
+      const total = await storage.getWarehouseLeadCount(req.user.organizationId, {
+        status: status as string | undefined,
+      });
+      return res.json({ items: leads, total });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to fetch warehouse leads", error: err.message });
+    }
+  });
+
+  app.get("/api/warehouse/metrics", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { metricKey, period } = req.query;
+      const metrics = await storage.getWarehouseMetrics(req.user.organizationId, {
+        metricKey: metricKey as string | undefined,
+        period: period as string | undefined,
+      });
+      return res.json(metrics);
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to fetch warehouse metrics", error: err.message });
+    }
+  });
+
+  startSyncScheduler().catch(err => {
+    console.error("[Sync] Failed to start scheduler:", err);
   });
 
   return httpServer;
