@@ -30,8 +30,9 @@
 | 3.5 | Dashboard Warehouse Wiring | DONE | ~72% |
 | 3.6 | Real Outbound (TextMagic/Resend) | DONE | ~76% |
 | 4 | Platform Completion | DONE | ~92% |
+| 4.5 | UX Polish Pass | DONE | ~95% |
 
-**Overall Progress: ~92%** (Waves 0-4 complete. Remaining: Wave 5 — Google Calendar + production backend cutover)
+**Overall Progress: ~95%** (Waves 0-4.5 complete. Remaining: Wave 5 — Google Calendar + production backend cutover)
 
 ---
 
@@ -627,4 +628,36 @@ Frontend:
 - [x] Expired sessions auto-redirect to login
 - [x] Settings persist across page reloads
 - [x] Org invite sends email and creates user
+
+### Wave 4.5 — UX Polish Pass
+**Status:** COMPLETE
+**Goal:** Wire every dead/broken interactive element found in full UI audit
+
+**Changes Made:**
+1. **Org Switcher (T001):** TopBar org dropdown now calls AuthContext.switchOrganization → POST /api/auth/switch-org → invalidates all TanStack Query caches. Real context switch, not just local state.
+2. **Logout Button (T002):** Both Sidebar and TopBar logout buttons wired to AuthContext.logout() → clears tokens → redirects to /login.
+3. **Profile Tab Sync (T003):** Profile page now reads URL path (/profile/preferences, /profile/billing) and auto-selects the correct tab. Controlled Tabs component syncs with URL.
+4. **Sales/Service/Marketing Metric Tiles (T004):** All metric tiles now open detail dialogs showing value, trend, period, and data source.
+5. **TeamBox Quick Actions (T005):** Call → tel: link, Email → mailto: link, SMS → pre-fills reply with [SMS] prefix and focuses input, Attachment → "coming soon" toast.
+6. **New Campaign Button (T006):** Service and Marketing pages now open campaign creation dialog (name, channel, template) wired to POST /api/campaigns.
+7. **Chat Plus Menu (T007):** Upload File and Add Document menu items now show explicit "coming soon" toasts instead of silent dead clicks.
+8. **Agent Edit/Delete/Create (T008):** Edit opens AgentConfigPane, Delete shows confirmation dialog + DELETE /api/agents/:id, Create opens dialog with form → POST /api/agents.
+9. **My Work Chat & Assistant (T009):** Chat tab shows real conversation list (TeamBox + AI chat), Assistant tab "Launch Assistant" navigates to main AI chat.
+10. **Insights Green Zone + Lead IDs (T010):** Green zone cards now clickable with detail dialogs, lead ID links show toast with lead details.
+11. **Settings Stub Sections (T011):** All 22 stub save/action toasts updated to clear "saved locally — will persist when connected to production backend" messaging.
+
+**Files Changed:** TopBar.tsx, Sidebar.tsx, profile.tsx, sales.tsx, service.tsx, marketing.tsx, teambox.tsx, main.tsx, agents.tsx, my-work.tsx, insights.tsx, settings.tsx
+
+**Acceptance Criteria:**
+- [x] Org switcher invalidates caches and switches real context
+- [x] Logout clears session and redirects to /login
+- [x] /profile/preferences opens Preferences tab directly
+- [x] All metric tiles on Sales/Service/Marketing show detail on click
+- [x] TeamBox Call/Email/SMS/Attach buttons all have handlers
+- [x] "New Campaign" opens creation form on Service and Marketing
+- [x] Chat + menu items give explicit feedback
+- [x] Agent Edit/Delete/Create all functional
+- [x] My Work Chat tab shows real conversations
+- [x] Green zone cards and lead IDs are interactive
+- [x] Settings stubs show clear "saved locally" messaging
 

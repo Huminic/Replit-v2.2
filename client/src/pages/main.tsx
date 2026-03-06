@@ -48,6 +48,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
+import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from '@/lib/rbac';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
@@ -257,6 +258,7 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
 export default function MainPage() {
   const { currentRole, personaName, currentUser } = useApp();
   const { user: authUser } = useAuth();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [selectedMetric, setSelectedMetric] = useState<MetricTile | null>(null);
@@ -591,11 +593,27 @@ export default function MainPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" side="top" className="w-48">
-                    <DropdownMenuItem data-testid="menu-item-upload-file">
+                    <DropdownMenuItem
+                      data-testid="menu-item-upload-file"
+                      onClick={() => {
+                        toast({
+                          title: 'Coming Soon',
+                          description: 'File upload will be available in a future update.',
+                        });
+                      }}
+                    >
                       <Upload className="h-4 w-4 mr-2" />
                       Upload File
                     </DropdownMenuItem>
-                    <DropdownMenuItem data-testid="menu-item-add-document">
+                    <DropdownMenuItem
+                      data-testid="menu-item-add-document"
+                      onClick={() => {
+                        toast({
+                          title: 'Coming Soon',
+                          description: 'Knowledge base document attachment will be available in a future update.',
+                        });
+                      }}
+                    >
                       <FileText className="h-4 w-4 mr-2" />
                       Add Document
                     </DropdownMenuItem>

@@ -29,6 +29,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +41,13 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';
 
-/** Sub-navigation tabs for the marketing page — includes Studio (Wave 4) */
+interface MarketingMetricTile {
+  id: string;
+  label: string;
+  value: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Bot },
@@ -66,8 +77,32 @@ export default function MarketingPage() {
   const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen } = useApp();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedMetric, setSelectedMetric] = useState<MarketingMetricTile | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [csvUploadCampaignId, setCsvUploadCampaignId] = useState<string | null>(null);
+  const [newCampaignOpen, setNewCampaignOpen] = useState(false);
+  const [newCampaignName, setNewCampaignName] = useState('');
+  const [newCampaignChannel, setNewCampaignChannel] = useState('sms');
+  const [newCampaignTemplate, setNewCampaignTemplate] = useState('');
+
+  const createCampaignMutation = useMutation({
+    mutationFn: async (data: { name: string; department: string; channel: string; messageTemplate: string }) => {
+      const res = await apiRequest('POST', '/api/campaigns', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/metrics/dashboard'] });
+      toast({ title: "Campaign Created", description: "Your new marketing campaign has been created." });
+      setNewCampaignOpen(false);
+      setNewCampaignName('');
+      setNewCampaignChannel('sms');
+      setNewCampaignTemplate('');
+    },
+    onError: (err: Error) => {
+      toast({ title: "Failed to Create Campaign", description: err.message, variant: "destructive" });
+    },
+  });
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
     queryKey: ['/api/metrics/dashboard'],
@@ -181,7 +216,7 @@ export default function MarketingPage() {
       ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {marketingMetrics.map(metric => (
-          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
+          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-muted-foreground">{metric.label}</p>
@@ -272,7 +307,7 @@ export default function MarketingPage() {
               Communications Paused
             </Badge>
           )}
-          <Button size="sm" data-testid="button-new-marketing-campaign">New Campaign</Button>
+          <Button size="sm" data-testid="button-new-marketing-campaign" onClick={() => setNewCampaignOpen(true)}>New Campaign</Button>
         </div>
       </div>
       {campaignsLoading ? (
@@ -402,6 +437,63 @@ export default function MarketingPage() {
         </table>
       </div>
       )}
+
+      <Dialog open={newCampaignOpen} onOpenChange={setNewCampaignOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Marketing Campaign</DialogTitle>
+            <DialogDescription>Set up a new outbound campaign for the marketing department.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="mkt-campaign-name">Campaign Name</Label>
+              <Input
+                id="mkt-campaign-name"
+                data-testid="input-marketing-campaign-name"
+                placeholder="e.g. Spring Promo Blast"
+                value={newCampaignName}
+                onChange={(e) => setNewCampaignName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mkt-campaign-channel">Channel</Label>
+              <Select value={newCampaignChannel} onValueChange={setNewCampaignChannel}>
+                <SelectTrigger data-testid="select-marketing-campaign-channel">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sms">SMS</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mkt-campaign-template">Message Template</Label>
+              <Textarea
+                id="mkt-campaign-template"
+                data-testid="input-marketing-campaign-template"
+                placeholder="Hi {firstName}, check out our latest offers..."
+                value={newCampaignTemplate}
+                onChange={(e) => setNewCampaignTemplate(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewCampaignOpen(false)} data-testid="button-cancel-marketing-campaign">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => createCampaignMutation.mutate({ name: newCampaignName, department: 'marketing', channel: newCampaignChannel, messageTemplate: newCampaignTemplate })}
+              disabled={!newCampaignName.trim() || createCampaignMutation.isPending}
+              data-testid="button-submit-marketing-campaign"
+            >
+              {createCampaignMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Create Campaign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
@@ -473,6 +565,49 @@ export default function MarketingPage() {
         {activeTab === 'studio' && renderStudio()}
         {activeTab === 'insights' && renderInsights()}
       </ScrollArea>
+
+      <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+              {selectedMetric?.label}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Detailed breakdown of this marketing metric
+            </DialogDescription>
+          </DialogHeader>
+          {selectedMetric && (
+            <div className="space-y-4">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+              </div>
+              <div className="border-t border-border pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Metric Info</h4>
+                <div className="space-y-1">
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Current Value</span>
+                      <span className="text-sm font-semibold text-foreground">{selectedMetric.value}</span>
+                    </div>
+                  </div>
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Department</span>
+                      <span className="text-sm font-semibold text-foreground">Marketing</span>
+                    </div>
+                  </div>
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Data Source</span>
+                      <span className="text-sm font-semibold text-foreground">Dashboard Metrics API</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

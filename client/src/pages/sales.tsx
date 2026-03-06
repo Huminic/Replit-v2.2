@@ -25,12 +25,22 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import type { Agent } from '@shared/schema';
+
+interface SalesMetricTile {
+  id: string;
+  label: string;
+  value: string;
+  change: number;
+  trend: 'up' | 'down';
+  icon: React.ComponentType<{ className?: string }>;
+}
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -99,6 +109,7 @@ export default function SalesPage() {
   const [, setLocation] = useLocation();
   const { selectedAgent, setSelectedAgent, setRightPaneOpen } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({
     queryKey: ['/api/agents?department=sales'],
@@ -148,7 +159,7 @@ export default function SalesPage() {
           ))
         ) : (
           salesMetrics.map(metric => (
-            <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
+            <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-muted-foreground">{metric.label}</p>
@@ -366,6 +377,75 @@ export default function SalesPage() {
         {activeTab === 'insights' && renderInsights()}
         {activeTab === 'calendar' && renderCalendar()}
       </ScrollArea>
+
+      <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+              {selectedMetric && (
+                <>
+                  {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                  {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                  {selectedMetric.label}
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Detailed breakdown of this sales metric
+            </DialogDescription>
+          </DialogHeader>
+          {selectedMetric && (
+            <div className="space-y-4">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+                <span className={cn(
+                  'text-sm font-medium',
+                  selectedMetric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                )}>
+                  {selectedMetric.change > 0 ? '+' : ''}{selectedMetric.change}% vs last 30d
+                </span>
+              </div>
+              <div className="border-t border-border pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Metric Info</h4>
+                <div className="space-y-1">
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Current Value</span>
+                      <span className="text-sm font-semibold text-foreground">{selectedMetric.value}</span>
+                    </div>
+                  </div>
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Trend</span>
+                      <span className={cn('text-sm font-semibold', selectedMetric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400')}>
+                        {selectedMetric.trend === 'up' ? 'Trending Up' : 'Trending Down'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Change</span>
+                      <span className="text-sm font-semibold text-foreground">{selectedMetric.change > 0 ? '+' : ''}{selectedMetric.change}%</span>
+                    </div>
+                  </div>
+                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">Period</span>
+                      <span className="text-sm font-semibold text-foreground">Last 30 days</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-border pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Data Source</h4>
+                <p className="text-xs text-muted-foreground">
+                  {leadSummary?.source === 'warehouse' ? 'Data sourced from warehouse sync.' : leadSummary?.source ? 'Data sourced from VinSolutions CRM.' : 'Data from local metrics.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

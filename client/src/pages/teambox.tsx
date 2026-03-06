@@ -37,6 +37,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 import type { Conversation, Message } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
@@ -123,12 +124,14 @@ function MessagesSkeleton() {
 
 export default function TeamboxPage() {
   const { agents } = useApp();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
   const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations'],
@@ -208,6 +211,33 @@ export default function TeamboxPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
     },
   });
+
+  const handleCallCustomer = () => {
+    if (!selectedConversation?.customerPhone) {
+      toast({ title: 'No phone number available', description: 'This customer does not have a phone number on file.' });
+      return;
+    }
+    window.open(`tel:${selectedConversation.customerPhone}`, '_self');
+  };
+
+  const handleEmailCustomer = () => {
+    if (!selectedConversation?.customerEmail) {
+      toast({ title: 'No email available', description: 'This customer does not have an email address on file.' });
+      return;
+    }
+    window.open(`mailto:${selectedConversation.customerEmail}`, '_self');
+  };
+
+  const handleSmsCustomer = () => {
+    setReplyText('[SMS] ');
+    setTimeout(() => {
+      replyTextareaRef.current?.focus();
+    }, 100);
+  };
+
+  const handleAttachment = () => {
+    toast({ title: 'File attachments coming soon', description: 'This feature is currently under development.' });
+  };
 
   const handleSendReply = () => {
     if (!replyText.trim() || !selectedConversationId) return;
@@ -472,6 +502,7 @@ export default function TeamboxPage() {
               <div className="flex items-end gap-2">
                 <div className="flex-1">
                   <Textarea
+                    ref={replyTextareaRef}
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Write a reply..."
@@ -486,7 +517,7 @@ export default function TeamboxPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" data-testid="button-attach">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAttachment} data-testid="button-attach">
                     <Paperclip className="h-4 w-4 text-muted-foreground" />
                   </Button>
                   <Button
@@ -559,13 +590,13 @@ export default function TeamboxPage() {
               <div className="border-t border-border pt-3">
                 <p className="text-xs text-muted-foreground mb-2">Quick Actions</p>
                 <div className="flex flex-col gap-1">
-                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" data-testid="button-call-customer">
+                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" onClick={handleCallCustomer} data-testid="button-call-customer">
                     <Phone className="h-3 w-3" /> Call
                   </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" data-testid="button-email-customer">
+                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" onClick={handleEmailCustomer} data-testid="button-email-customer">
                     <Mail className="h-3 w-3" /> Email
                   </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" data-testid="button-sms-customer">
+                  <Button variant="outline" size="sm" className="h-7 text-xs justify-start gap-2" onClick={handleSmsCustomer} data-testid="button-sms-customer">
                     <Smartphone className="h-3 w-3" /> SMS
                   </Button>
                 </div>
