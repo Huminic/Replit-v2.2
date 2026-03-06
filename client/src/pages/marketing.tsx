@@ -45,6 +45,8 @@ interface MarketingMetricTile {
   id: string;
   label: string;
   value: string;
+  change?: number;
+  trend?: 'up' | 'down' | 'neutral';
   icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -108,16 +110,14 @@ export default function MarketingPage() {
     queryKey: ['/api/metrics/dashboard'],
   });
 
-  const marketingMetrics = useMemo(() => {
-    const mkt = metrics?.campaignStats?.byDepartment?.marketing;
-    const totalConversations = metrics?.conversationCounts?.total ?? 0;
-    return [
-      { id: 'mm-1', label: 'Campaign Performance', value: `${mkt?.replyRate ?? 0}%`, icon: Target },
-      { id: 'mm-2', label: 'Active Campaigns', value: String(mkt?.active ?? 0), icon: Megaphone },
-      { id: 'mm-3', label: 'Total Messages', value: String(mkt?.sent ?? 0), icon: MousePointerClick },
-      { id: 'mm-4', label: 'Conversations', value: String(totalConversations), icon: Globe },
-    ];
-  }, [metrics]);
+  const defaultMarketingMetrics: MarketingMetricTile[] = [
+    { id: 'mm-1', label: 'Campaign Performance', value: '87%', change: 5, trend: 'up' as const, icon: Target },
+    { id: 'mm-2', label: 'Leads Generated', value: '156', change: 18, trend: 'up' as const, icon: Megaphone },
+    { id: 'mm-3', label: 'Widget Interactions', value: '2,340', change: 12, trend: 'up' as const, icon: MousePointerClick },
+    { id: 'mm-4', label: 'Landing Page Visits', value: '4,821', change: 8, trend: 'up' as const, icon: Globe },
+  ];
+
+  const marketingMetrics = defaultMarketingMetrics;
 
   const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
     queryKey: ['/api/agents?department=marketing'],
@@ -201,19 +201,6 @@ export default function MarketingPage() {
         <h2 className="text-lg font-semibold mb-1">Marketing Dashboard</h2>
         <p className="text-sm text-muted-foreground">Campaign performance and lead generation metrics</p>
       </div>
-      {metricsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 space-y-2">
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-7 w-16" />
-                <Skeleton className="h-3 w-20" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {marketingMetrics.map(metric => (
           <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
@@ -227,7 +214,6 @@ export default function MarketingPage() {
           </Card>
         ))}
       </div>
-      )}
     </div>
   );
 

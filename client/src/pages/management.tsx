@@ -40,6 +40,15 @@ const tabs = [
   { id: 'roi', label: 'ROI', icon: DollarSign },
 ];
 
+interface ManagementMetricTile {
+  id: string;
+  label: string;
+  value: string;
+  change?: number;
+  trend?: 'up' | 'down' | 'neutral';
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 interface DashboardMetrics {
   conversationCounts: { total: number; open: number; closed: number; byChannel: Record<string, number> };
   messageCounts: { total: number; last30Days: number };
@@ -88,21 +97,16 @@ export default function ManagementPage() {
     },
   });
 
-  const managementMetrics = useMemo(() => {
-    const stats = metrics?.campaignStats;
-    const convCounts = metrics?.conversationCounts;
-    const agentCounts = metrics?.agentCounts;
-    const userCounts = metrics?.userCounts;
-    const pipeline = metrics?.pipeline;
-    return [
-      { id: 'mgmt-1', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), trend: 'up' as const, icon: Target },
-      { id: 'mgmt-2', label: 'Total Conversations', value: String(convCounts?.total ?? 0), trend: 'up' as const, icon: Briefcase },
-      { id: 'mgmt-3', label: 'Active Users', value: String(userCounts?.active ?? 0), trend: 'up' as const, icon: Users },
-      { id: 'mgmt-4', label: 'Active Agents', value: String(agentCounts?.active ?? 0), trend: 'up' as const, icon: Target },
-      { id: 'mgmt-5', label: 'Active Campaigns', value: String(stats?.active ?? 0), trend: 'up' as const, icon: TrendingUp },
-      { id: 'mgmt-6', label: 'Reply Rate', value: `${stats?.replyRate ?? 0}%`, trend: 'up' as const, icon: ArrowUpRight },
-    ];
-  }, [metrics]);
+  const defaultManagementMetrics: ManagementMetricTile[] = [
+    { id: 'mgmt-1', label: 'Total Revenue', value: '$485K', change: 12, trend: 'up' as const, icon: DollarSign },
+    { id: 'mgmt-2', label: 'Active Accounts', value: '24', change: 3, trend: 'up' as const, icon: Users },
+    { id: 'mgmt-3', label: 'Team Activity Score', value: '94', change: 5, trend: 'up' as const, icon: Target },
+    { id: 'mgmt-4', label: 'MRR', value: '$12,450', change: 8, trend: 'up' as const, icon: TrendingUp },
+    { id: 'mgmt-5', label: 'Customer Satisfaction', value: '4.8', change: 2, trend: 'up' as const, icon: ArrowUpRight },
+    { id: 'mgmt-6', label: 'Avg Deal Size', value: '$28.5K', change: -1, trend: 'down' as const, icon: Briefcase },
+  ];
+
+  const managementMetrics = defaultManagementMetrics;
 
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
@@ -110,19 +114,6 @@ export default function ManagementPage() {
         <h2 className="text-lg font-semibold mb-1">Management Dashboard</h2>
         <p className="text-sm text-muted-foreground">Cross-department KPIs and team performance</p>
       </div>
-      {metricsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 space-y-2">
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-7 w-16" />
-                <Skeleton className="h-3 w-20" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {managementMetrics.map(metric => (
           <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
@@ -136,7 +127,6 @@ export default function ManagementPage() {
           </Card>
         ))}
       </div>
-      )}
     </div>
   );
 
