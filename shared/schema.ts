@@ -103,6 +103,8 @@ export const campaigns = pgTable("campaigns", {
   sentCount: integer("sent_count").notNull().default(0),
   repliedCount: integer("replied_count").notNull().default(0),
   csvFilename: text("csv_filename"),
+  messageTemplate: text("message_template"),
+  sendIntervalSeconds: integer("send_interval_seconds").notNull().default(60),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -176,6 +178,59 @@ export const campaignRecipients = pgTable("campaign_recipients", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const outboundLog = pgTable("outbound_log", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  campaignId: uuid("campaign_id").references(() => campaigns.id),
+  recipientId: uuid("recipient_id").references(() => campaignRecipients.id),
+  channel: text("channel").notNull(),
+  status: text("status").notNull().default("pending"),
+  blockedReason: text("blocked_reason"),
+  messageContent: text("message_content"),
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const notifications = pgTable("notifications", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  type: text("type").notNull(),
+  title: text("title").notNull(),
+  message: text("message"),
+  read: boolean("read").notNull().default(false),
+  relatedEntityType: text("related_entity_type"),
+  relatedEntityId: text("related_entity_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const activityLog = pgTable("activity_log", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").references(() => users.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  action: text("action").notNull(),
+  entityType: text("entity_type"),
+  entityId: text("entity_id"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const hunches = pgTable("hunches", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  type: text("type").notNull().default("pattern"),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  confidence: integer("confidence").notNull().default(50),
+  status: text("status").notNull().default("new"),
+  department: text("department"),
+  dataSource: text("data_source"),
+  generatedAt: timestamp("generated_at").notNull().defaultNow(),
+  acceptedAt: timestamp("accepted_at"),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertRoleSchema = createInsertSchema(roles).omit({ id: true });
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
@@ -189,6 +244,10 @@ export const insertTaskSchema = createInsertSchema(tasks).omit({ id: true, creat
 export const insertWidgetSchema = createInsertSchema(widgets).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertKnowledgeDocumentSchema = createInsertSchema(knowledgeDocuments).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCampaignRecipientSchema = createInsertSchema(campaignRecipients).omit({ id: true, createdAt: true });
+export const insertOutboundLogSchema = createInsertSchema(outboundLog).omit({ id: true, createdAt: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+export const insertActivityLogSchema = createInsertSchema(activityLog).omit({ id: true, createdAt: true });
+export const insertHunchSchema = createInsertSchema(hunches).omit({ id: true, createdAt: true });
 
 export type InsertRole = z.infer<typeof insertRoleSchema>;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -203,6 +262,10 @@ export type InsertTask = z.infer<typeof insertTaskSchema>;
 export type InsertWidget = z.infer<typeof insertWidgetSchema>;
 export type InsertKnowledgeDocument = z.infer<typeof insertKnowledgeDocumentSchema>;
 export type InsertCampaignRecipient = z.infer<typeof insertCampaignRecipientSchema>;
+export type InsertOutboundLog = z.infer<typeof insertOutboundLogSchema>;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type InsertHunch = z.infer<typeof insertHunchSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -217,6 +280,10 @@ export type Task = typeof tasks.$inferSelect;
 export type Widget = typeof widgets.$inferSelect;
 export type KnowledgeDocument = typeof knowledgeDocuments.$inferSelect;
 export type CampaignRecipient = typeof campaignRecipients.$inferSelect;
+export type OutboundLog = typeof outboundLog.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
+export type ActivityLog = typeof activityLog.$inferSelect;
+export type Hunch = typeof hunches.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();
@@ -231,6 +298,13 @@ export const updateCampaignSchema = z.object({
   name: z.string().min(1).optional(),
   status: z.string().optional(),
   killSwitch: z.boolean().optional(),
+  messageTemplate: z.string().nullable().optional(),
+  sendIntervalSeconds: z.number().min(10).optional(),
+});
+export const updateHunchSchema = z.object({
+  status: z.enum(["new", "accepted", "dismissed", "resolved"]),
+  acceptedAt: z.date().nullable().optional(),
+  resolvedAt: z.date().nullable().optional(),
 });
 export const updateTaskSchema = createInsertSchema(tasks).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateWidgetSchema = createInsertSchema(widgets).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();

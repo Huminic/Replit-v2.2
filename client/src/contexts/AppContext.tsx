@@ -10,8 +10,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole, SectionPermission } from '@/lib/rbac';
-import type { Agent } from '@shared/schema';
-import { staticNotifications, type Notification } from '@/lib/notification-utils';
+import type { Agent, Notification as DbNotification } from '@shared/schema';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 export interface User {
   id: string;
@@ -71,7 +71,7 @@ interface AppContextValue {
   currentOrganization: Organization;
   organizations: Organization[];
   agents: Agent[];
-  notifications: Notification[];
+  notifications: DbNotification[];
   favorites: FavoriteItem[];
   selectedAgent: Agent | null;
   sidebarVisible: boolean;
@@ -96,6 +96,7 @@ interface AppContextValue {
   addAgent: (agent: Agent) => void;
   updateAgent: (agentId: string, updates: Partial<Agent>) => void;
   markNotificationRead: (notifId: string) => void;
+  markAllNotificationsRead: () => void;
   unreadNotificationCount: number;
   addFavorite: (item: FavoriteItem) => void;
   removeFavorite: (id: string) => void;
@@ -176,6 +177,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
     : fallbackOrganizations;
 
+  const { data: apiNotifications } = useQuery<DbNotification[]>({
+    queryKey: ['/api/notifications'],
+    enabled: !!authUser,
+    refetchInterval: 30000,
+  });
+
+  const { data: unreadCountData } = useQuery<{ count: number }>({
+    queryKey: ['/api/notifications/unread-count'],
+    enabled: !!authUser,
+    refetchInterval: 15000,
+  });
+
   const resolvedAgents = apiAgents || [];
 
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
@@ -216,7 +229,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [apiAgents]);
 
-  const [notifications, setNotifications] = useState<Notification[]>(staticNotifications);
+  const notifications: DbNotification[] = apiNotifications || [];
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rightPaneOpen, setRightPaneOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -283,11 +296,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAgents(prev => prev.map(a => a.id === agentId ? { ...a, ...updates } : a));
   };
 
-  const markNotificationRead = (notifId: string) => {
-    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, read: true } : n));
+  const markNotificationRead = async (notifId: string) => {
+    try {
+      await apiRequest('PATCH', `/api/notifications/${notifId}/read`);
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/unread-count'] });
+    } catch {
+    }
   };
 
-  const unreadNotificationCount = notifications.filter(n => !n.read).length;
+  const markAllNotificationsRead = async () => {
+    try {
+      await apiRequest('POST', '/api/notifications/mark-all-read');
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/unread-count'] });
+    } catch {
+    }
+  };
+
+  const unreadNotificationCount = unreadCountData?.count ?? notifications.filter(n => !n.read).length;
 
   return (
     <AppContext.Provider
@@ -323,6 +350,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addAgent,
         updateAgent: updateAgentHandler,
         markNotificationRead,
+        markAllNotificationsRead,
         unreadNotificationCount,
         addFavorite,
         removeFavorite,

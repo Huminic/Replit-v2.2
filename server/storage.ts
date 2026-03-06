@@ -14,8 +14,12 @@ import {
   type Widget, type InsertWidget,
   type KnowledgeDocument, type InsertKnowledgeDocument,
   type CampaignRecipient, type InsertCampaignRecipient,
+  type OutboundLog, type InsertOutboundLog,
+  type Notification, type InsertNotification,
+  type ActivityLog, type InsertActivityLog,
+  type Hunch, type InsertHunch,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
-  knowledgeDocuments, campaignRecipients,
+  knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -84,8 +88,30 @@ export interface IStorage {
   deleteDocument(id: string): Promise<void>;
 
   getRecipients(campaignId: string): Promise<CampaignRecipient[]>;
+  getRecipient(id: string): Promise<CampaignRecipient | undefined>;
   createRecipients(recipients: InsertCampaignRecipient[]): Promise<CampaignRecipient[]>;
   getRecipientCount(campaignId: string): Promise<number>;
+  updateRecipient(id: string, data: Partial<InsertCampaignRecipient>): Promise<CampaignRecipient | undefined>;
+  getPendingRecipients(campaignId: string): Promise<CampaignRecipient[]>;
+
+  createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog>;
+  getOutboundLogs(organizationId: string, filters?: { campaignId?: string }): Promise<OutboundLog[]>;
+  getRecentOutboundCount(organizationId: string, customerContact: string, hours: number): Promise<number>;
+
+  createNotification(notif: InsertNotification): Promise<Notification>;
+  getNotifications(userId: string, limit?: number): Promise<Notification[]>;
+  getUnreadNotificationCount(userId: string): Promise<number>;
+  markNotificationRead(id: string): Promise<void>;
+  markAllNotificationsRead(userId: string): Promise<void>;
+
+  createActivityLog(entry: InsertActivityLog): Promise<ActivityLog>;
+  getActivityLogs(organizationId: string, limit?: number): Promise<ActivityLog[]>;
+
+  getHunches(organizationId: string, filters?: { status?: string; department?: string }): Promise<Hunch[]>;
+  getHunch(id: string): Promise<Hunch | undefined>;
+  createHunch(hunch: InsertHunch): Promise<Hunch>;
+  updateHunch(id: string, data: Partial<Hunch>): Promise<Hunch | undefined>;
+  getAcceptedHunches(organizationId: string): Promise<Hunch[]>;
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
 }
@@ -498,6 +524,112 @@ export class DatabaseStorage implements IStorage {
       agentCounts,
       userCounts,
     };
+  }
+
+  async getRecipient(id: string): Promise<CampaignRecipient | undefined> {
+    const [r] = await db.select().from(campaignRecipients).where(eq(campaignRecipients.id, id));
+    return r;
+  }
+
+  async updateRecipient(id: string, data: Partial<InsertCampaignRecipient>): Promise<CampaignRecipient | undefined> {
+    const [updated] = await db.update(campaignRecipients).set(data).where(eq(campaignRecipients.id, id)).returning();
+    return updated;
+  }
+
+  async getPendingRecipients(campaignId: string): Promise<CampaignRecipient[]> {
+    return db.select().from(campaignRecipients)
+      .where(and(eq(campaignRecipients.campaignId, campaignId), eq(campaignRecipients.status, "pending")))
+      .orderBy(campaignRecipients.createdAt);
+  }
+
+  async createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog> {
+    const [created] = await db.insert(outboundLog).values(log).returning();
+    return created;
+  }
+
+  async getOutboundLogs(organizationId: string, filters?: { campaignId?: string }): Promise<OutboundLog[]> {
+    const conditions = [eq(outboundLog.organizationId, organizationId)];
+    if (filters?.campaignId) conditions.push(eq(outboundLog.campaignId, filters.campaignId));
+    return db.select().from(outboundLog).where(and(...conditions)).orderBy(desc(outboundLog.createdAt));
+  }
+
+  async getRecentOutboundCount(organizationId: string, customerContact: string, hours: number): Promise<number> {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const [result] = await db.select({ cnt: count() }).from(outboundLog)
+      .innerJoin(campaignRecipients, eq(outboundLog.recipientId, campaignRecipients.id))
+      .where(and(
+        eq(outboundLog.organizationId, organizationId),
+        eq(outboundLog.status, "sent"),
+        gte(outboundLog.createdAt, since),
+        sql`(${campaignRecipients.phone} = ${customerContact} OR ${campaignRecipients.email} = ${customerContact})`
+      ));
+    return Number(result?.cnt || 0);
+  }
+
+  async createNotification(notif: InsertNotification): Promise<Notification> {
+    const [created] = await db.insert(notifications).values(notif).returning();
+    return created;
+  }
+
+  async getNotifications(userId: string, limit = 50): Promise<Notification[]> {
+    return db.select().from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit);
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    const [result] = await db.select({ cnt: count() }).from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
+    return Number(result?.cnt || 0);
+  }
+
+  async markNotificationRead(id: string): Promise<void> {
+    await db.update(notifications).set({ read: true }).where(eq(notifications.id, id));
+  }
+
+  async markAllNotificationsRead(userId: string): Promise<void> {
+    await db.update(notifications).set({ read: true }).where(eq(notifications.userId, userId));
+  }
+
+  async createActivityLog(entry: InsertActivityLog): Promise<ActivityLog> {
+    const [created] = await db.insert(activityLog).values(entry).returning();
+    return created;
+  }
+
+  async getActivityLogs(organizationId: string, limit = 50): Promise<ActivityLog[]> {
+    return db.select().from(activityLog)
+      .where(eq(activityLog.organizationId, organizationId))
+      .orderBy(desc(activityLog.createdAt))
+      .limit(limit);
+  }
+
+  async getHunches(organizationId: string, filters?: { status?: string; department?: string }): Promise<Hunch[]> {
+    const conditions = [eq(hunches.organizationId, organizationId)];
+    if (filters?.status) conditions.push(eq(hunches.status, filters.status));
+    if (filters?.department) conditions.push(eq(hunches.department, filters.department));
+    return db.select().from(hunches).where(and(...conditions)).orderBy(desc(hunches.createdAt));
+  }
+
+  async getHunch(id: string): Promise<Hunch | undefined> {
+    const [h] = await db.select().from(hunches).where(eq(hunches.id, id));
+    return h;
+  }
+
+  async createHunch(hunch: InsertHunch): Promise<Hunch> {
+    const [created] = await db.insert(hunches).values(hunch).returning();
+    return created;
+  }
+
+  async updateHunch(id: string, data: Partial<Hunch>): Promise<Hunch | undefined> {
+    const [updated] = await db.update(hunches).set(data).where(eq(hunches.id, id)).returning();
+    return updated;
+  }
+
+  async getAcceptedHunches(organizationId: string): Promise<Hunch[]> {
+    return db.select().from(hunches)
+      .where(and(eq(hunches.organizationId, organizationId), eq(hunches.status, "accepted")))
+      .orderBy(desc(hunches.createdAt));
   }
 }
 
