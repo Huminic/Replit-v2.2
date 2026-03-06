@@ -75,7 +75,7 @@ export interface IStorage {
   createIntegration(integration: InsertIntegration): Promise<Integration>;
   updateIntegration(id: string, data: Partial<InsertIntegration>): Promise<Integration | undefined>;
 
-  getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string }): Promise<Task[]>;
+  getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string; type?: string }): Promise<Task[]>;
   getTask(id: string): Promise<Task | undefined>;
   createTask(task: InsertTask): Promise<Task>;
   updateTask(id: string, data: Partial<InsertTask>): Promise<Task | undefined>;
@@ -381,10 +381,11 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string }): Promise<Task[]> {
+  async getTasks(organizationId: string, filters?: { status?: string; assignedUserId?: string; type?: string }): Promise<Task[]> {
     const conditions = [eq(tasks.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(tasks.status, filters.status));
     if (filters?.assignedUserId) conditions.push(eq(tasks.assignedUserId, filters.assignedUserId));
+    if (filters?.type) conditions.push(eq(tasks.type, filters.type));
     return db.select().from(tasks).where(and(...conditions)).orderBy(desc(tasks.createdAt));
   }
 
@@ -594,10 +595,10 @@ export class DatabaseStorage implements IStorage {
         gte(warehouseLeads.syncedAt, todayStart),
       )),
 
-      db.select({ cnt: count() }).from(conversations).where(and(
-        eq(conversations.organizationId, organizationId),
-        eq(conversations.status, "open"),
-        sql`${conversations.unreadCount} > 0`,
+      db.select({ cnt: count() }).from(tasks).where(and(
+        eq(tasks.organizationId, organizationId),
+        eq(tasks.status, "todo"),
+        sql`(${tasks.type} = 'escalation' OR ${tasks.type} = 'unsent_message')`,
       )),
 
       db.select({ cnt: count() }).from(outboundLog).where(and(

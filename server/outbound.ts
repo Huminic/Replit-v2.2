@@ -164,6 +164,29 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
 
   if (!gateResult.allowed) {
     await logAttempt(request, "blocked", gateResult.reason);
+    try {
+      await storage.createTask({
+        type: "unsent_message",
+        title: `Unsent ${request.channel.toUpperCase()} — blocked`,
+        description: `Outbound ${request.channel} to ${request.to} was blocked. Reason: ${gateResult.reason}`,
+        status: "todo",
+        priority: gateResult.reason?.includes("Rate limit") ? "high" : "medium",
+        organizationId: request.organizationId,
+        tags: ["unsent", request.channel, "auto-generated"],
+        metadata: JSON.stringify({
+          trigger_id: `out-${Date.now()}`,
+          org_id: request.organizationId,
+          customer_id: request.to,
+          channel: request.channel,
+          status: "blocked",
+          blocked_reason: gateResult.reason,
+          timestamp: new Date().toISOString(),
+          campaign_id: request.campaignId || null,
+        }),
+      });
+    } catch (escErr) {
+      console.error("[Outbound] Failed to create unsent message escalation:", escErr);
+    }
     return { status: "blocked", blockedReason: gateResult.reason };
   }
 

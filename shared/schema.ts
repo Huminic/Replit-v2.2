@@ -125,6 +125,7 @@ export const integrations = pgTable("integrations", {
 
 export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull().default("task"),
   title: text("title").notNull(),
   description: text("description"),
   status: text("status").notNull().default("todo"),
@@ -133,6 +134,7 @@ export const tasks = pgTable("tasks", {
   assignedUserId: uuid("assigned_user_id").references(() => users.id),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id),
   tags: text("tags").array().default(sql`ARRAY[]::text[]`),
+  metadata: text("metadata"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
