@@ -24,8 +24,11 @@
  *
  * @locked Logo format (text-only), activity feed location (header not sidebar)
  */
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
+import { queryClient } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Bell, 
   Activity, 
@@ -95,11 +98,28 @@ export function TopBar() {
     unreadNotificationCount,
     markNotificationRead,
     markAllNotificationsRead,
-    switchOrganization,
+    switchOrganization: appSwitchOrg,
   } = useApp();
+  const { switchOrganization: authSwitchOrg, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+
+  const { toast } = useToast();
+  const handleSwitchOrg = useCallback(async (orgId: string) => {
+    try {
+      await authSwitchOrg(orgId);
+      appSwitchOrg(orgId);
+      queryClient.invalidateQueries();
+    } catch {
+      toast({ title: 'Switch failed', description: 'Could not switch organization. Please try again.', variant: 'destructive' });
+    }
+  }, [authSwitchOrg, appSwitchOrg, toast]);
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    setLocation('/login');
+  }, [logout, setLocation]);
 
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -126,7 +146,7 @@ export function TopBar() {
             {organizations.map((org) => (
               <DropdownMenuItem
                 key={org.id}
-                onClick={() => switchOrganization(org.id)}
+                onClick={() => handleSwitchOrg(org.id)}
                 className="flex items-center justify-between"
                 data-testid={`org-option-${org.id}`}
               >
@@ -321,7 +341,7 @@ export function TopBar() {
               Billing
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" data-testid="menu-item-logout">
+            <DropdownMenuItem className="text-destructive" onClick={handleLogout} data-testid="menu-item-logout">
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>

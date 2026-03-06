@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { User, LayoutDashboard, CheckSquare, MessageSquare, ExternalLink, Clock, AlertCircle, CheckCircle, TrendingUp, Plus, Trash2, Edit2, Loader2 } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { User, LayoutDashboard, CheckSquare, MessageSquare, ExternalLink, Clock, AlertCircle, CheckCircle, TrendingUp, Plus, Trash2, Edit2, Loader2, Mail, MessageCircle, Phone, Smartphone, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,9 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import type { Task } from '@shared/schema';
+import { mockConversations } from '@/mocks/messages';
+import { mockTeamboxConversations } from '@/mocks/conversations';
+import type { ConversationChannel } from '@/mocks/conversations';
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -62,9 +66,18 @@ const emptyFormState = {
   dueDate: '',
 };
 
+const channelIcons: Record<ConversationChannel, React.ElementType> = {
+  sms: Smartphone,
+  email: Mail,
+  chat: MessageCircle,
+  whatsapp: Phone,
+  voice: Phone,
+};
+
 export default function MyWorkPage() {
   const { currentUser, personaName } = useApp();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -293,23 +306,97 @@ export default function MyWorkPage() {
     </div>
   );
 
-  const renderChat = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">My Conversations</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">View your personal conversation history and continue where you left off.</p>
+  const renderChat = () => {
+    const recentConversations = mockTeamboxConversations
+      .filter(c => c.status !== 'closed')
+      .sort((a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime());
+
+    const aiConversations = mockConversations;
+
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">Recent Conversations</h2>
+          <p className="text-sm text-muted-foreground">Your active customer conversations and AI chat history</p>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Customer Conversations</h3>
+          <div className="space-y-2">
+            {recentConversations.slice(0, 5).map(conv => {
+              const ChannelIcon = channelIcons[conv.channel] || MessageSquare;
+              return (
+                <div
+                  key={conv.id}
+                  className="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover-elevate"
+                  onClick={() => setLocation('/teambox')}
+                  data-testid={`chat-conversation-${conv.id}`}
+                >
+                  <ChannelIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium">{conv.customerName}</span>
+                      <Badge variant="outline" className="text-[10px]">{conv.channel.toUpperCase()}</Badge>
+                      {conv.unreadCount > 0 && (
+                        <Badge variant="destructive" className="text-[10px]">{conv.unreadCount}</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(conv.lastMessageTime).toLocaleDateString()}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">AI Chat History</h3>
+          <div className="space-y-2">
+            {aiConversations.map(conv => (
+              <div
+                key={conv.id}
+                className="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover-elevate"
+                onClick={() => setLocation('/')}
+                data-testid={`chat-ai-conversation-${conv.id}`}
+              >
+                <Bot className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium">{conv.title}</span>
+                    {conv.unread && (
+                      <Badge variant="secondary" className="text-[10px]">New</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+                </div>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(conv.timestamp).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-center pt-2">
+          <Button variant="outline" onClick={() => setLocation('/teambox')} data-testid="button-view-all-conversations">
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View All in TeamBox
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderAssistant = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">
         <User className="h-12 w-12 text-muted-foreground mx-auto" />
         <h3 className="text-lg font-medium">Personal Assistant</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Your personal AI assistant powered by {personaName}. Coming soon.</p>
-        <Button variant="outline" className="gap-2" data-testid="button-launch-assistant">
+        <p className="text-sm text-muted-foreground max-w-sm">Your personal AI assistant powered by {personaName}. Ask questions, get insights, and manage your workflow.</p>
+        <Button variant="outline" className="gap-2" onClick={() => setLocation('/')} data-testid="button-launch-assistant">
           <ExternalLink className="h-4 w-4" />
           Launch Assistant
         </Button>

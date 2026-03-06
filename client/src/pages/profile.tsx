@@ -20,7 +20,8 @@
  * @see client/src/pages/billing-management.tsx — Partner/super admin billing management
  * @see client/src/contexts/AppContext.tsx — currentUser, currentOrganization
  */
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { 
   User, 
   Settings, 
@@ -146,6 +147,18 @@ export default function ProfilePage() {
     }
   };
 
+  const [location] = useLocation();
+  const getTabFromPath = () => {
+    if (location.includes('/profile/preferences')) return 'preferences';
+    if (location.includes('/profile/billing')) return 'billing';
+    return 'profile';
+  };
+  const [activeProfileTab, setActiveProfileTab] = useState(getTabFromPath);
+
+  useEffect(() => {
+    setActiveProfileTab(getTabFromPath());
+  }, [location]);
+
   return (
     <div className="flex flex-col h-full items-center">
       <div className="w-full max-w-4xl p-4 border-b border-border">
@@ -157,7 +170,7 @@ export default function ProfilePage() {
         <MobileNavDropdown currentPath="/profile" currentLabel="Profile" />
       </div>
 
-      <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
+      <Tabs value={activeProfileTab} onValueChange={setActiveProfileTab} className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl">
         <div className="px-4 border-b border-border hidden lg:flex items-center">
           <TabsList className="bg-transparent h-10 p-0 gap-4 flex-shrink-0">
             <TabsTrigger value="profile" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-main">

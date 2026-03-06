@@ -1130,7 +1130,7 @@ export default function SettingsPage() {
             </div>
 
             <Button
-              onClick={() => toast({ title: 'Universal settings saved', description: 'Channel configuration updated for all widgets.' })}
+              onClick={() => toast({ title: 'Universal settings saved locally', description: 'Channel configuration updated. Changes will persist when connected to production backend.' })}
               data-testid="button-save-universal-settings"
             >
               Save Universal Settings
@@ -1334,7 +1334,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         <Button
-          onClick={() => toast({ title: 'Settings saved', description: 'Widget configuration updated.' })}
+          onClick={() => toast({ title: 'Settings saved locally', description: 'Widget configuration updated. Changes will persist when connected to production backend.' })}
           data-testid="button-save-widget-settings"
         >
           Save Settings
@@ -1483,7 +1483,7 @@ export default function SettingsPage() {
         </Card>
 
         <Button
-          onClick={() => toast({ title: 'Appearance saved', description: 'Widget appearance updated.' })}
+          onClick={() => toast({ title: 'Appearance saved locally', description: 'Widget appearance updated. Changes will persist when connected to production backend.' })}
           data-testid="button-save-appearance"
         >
           Save Appearance
@@ -1623,7 +1623,7 @@ export default function SettingsPage() {
         </Card>
 
         <Button
-          onClick={() => toast({ title: 'Targeting saved', description: 'Targeting rules updated.' })}
+          onClick={() => toast({ title: 'Targeting saved locally', description: 'Targeting rules updated. Changes will persist when connected to production backend.' })}
           data-testid="button-save-targeting"
         >
           Save Targeting
@@ -1967,7 +1967,7 @@ export default function SettingsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => toast({ title: 'Instructions sent', description: 'Embed instructions sent to your developer.' })}
+                        onClick={() => toast({ title: 'Send instructions (demo)', description: 'In production, embed instructions would be emailed to your developer. This feature will be enabled when connected to production backend.' })}
                         data-testid="button-send-instructions"
                       >
                         <Send className="h-3.5 w-3.5 mr-1" />
@@ -2403,7 +2403,7 @@ export default function SettingsPage() {
             </Card>
 
             <Button
-              onClick={() => toast({ title: 'Page saved', description: 'Landing page configuration updated.' })}
+              onClick={() => toast({ title: 'Page saved locally', description: 'Landing page configuration updated. Changes will persist when connected to production backend.' })}
               data-testid="button-save-landing-page"
             >
               Save Changes
@@ -2526,7 +2526,7 @@ export default function SettingsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium text-foreground">{tool.friendlyName}</p>
-                <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode.' })} />
+                <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
               {isSuperAdmin && (
@@ -2651,7 +2651,7 @@ export default function SettingsPage() {
                     <Label className="text-xs">API Key</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input value="nxs_sk_••••••••••••4a2f" readOnly className="font-mono text-sm" data-testid="input-api-key" />
-                      <Button variant="outline" size="sm" onClick={() => toast({ title: 'Key rotated', description: 'A new API key has been generated.' })} data-testid="button-rotate-key">
+                      <Button variant="outline" size="sm" onClick={() => toast({ title: 'Key rotation (demo)', description: 'API key rotation saved locally. Will generate a real key when connected to production backend.' })} data-testid="button-rotate-key">
                         <KeyRound className="h-3.5 w-3.5 mr-1" />
                         Rotate
                       </Button>
@@ -2661,7 +2661,7 @@ export default function SettingsPage() {
                     <Label className="text-xs">Rate Limit (requests/hour)</Label>
                     <Input defaultValue="1000" type="number" className="mt-1 max-w-[200px]" data-testid="input-rate-limit" />
                   </div>
-                  <Button onClick={() => toast({ title: 'API settings saved', description: 'API configuration updated.' })} data-testid="button-save-api-keys">
+                  <Button onClick={() => toast({ title: 'API settings saved locally', description: 'API configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-api-keys">
                     Save
                   </Button>
                 </CardContent>
@@ -2696,7 +2696,7 @@ export default function SettingsPage() {
                     </div>
                     <Switch defaultChecked data-testid="switch-webhook-status" />
                   </div>
-                  <Button onClick={() => toast({ title: 'Webhooks saved', description: 'Webhook configuration updated.' })} data-testid="button-save-webhooks">
+                  <Button onClick={() => toast({ title: 'Webhooks saved locally', description: 'Webhook configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-webhooks">
                     Save
                   </Button>
                 </CardContent>
@@ -2798,7 +2798,7 @@ export default function SettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <CardTitle className="text-sm">Web Pages</CardTitle>
-                <Button size="sm" onClick={() => toast({ title: 'Add URL', description: 'URL addition is not available in demo mode.' })} data-testid="button-add-url">
+                <Button size="sm" onClick={() => toast({ title: 'Add URL (demo)', description: 'URL addition is not available in demo mode. This feature will be enabled when connected to production backend.' })} data-testid="button-add-url">
                   <Plus className="h-3.5 w-3.5 mr-1" />
                   Add URL
                 </Button>
@@ -2820,7 +2820,7 @@ export default function SettingsPage() {
                       <td className="p-2 font-mono text-xs text-foreground">dealer.com/inv</td>
                       <td className="p-2"><Badge variant="secondary" className="text-[10px]">Indexed</Badge></td>
                       <td className="p-2 text-muted-foreground">2/20</td>
-                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'Deleted', description: 'URL removed.' })} data-testid="button-delete-url-dealer"><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                      <td className="p-2"><Button variant="ghost" size="icon" onClick={() => toast({ title: 'URL removed (demo)', description: 'URL deletion saved locally. Changes will persist when connected to production backend.' })} data-testid="button-delete-url-dealer"><Trash2 className="h-3.5 w-3.5" /></Button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -2850,7 +2850,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4"><div className="flex-1"><p className="font-medium text-sm text-foreground">Document Retention</p><p className="text-xs text-muted-foreground">Days to keep processed documents</p></div><Input defaultValue="90" className="max-w-[100px]" data-testid="input-doc-retention" /></div>
               <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Smart Summarization</p><p className="text-xs text-muted-foreground">Auto-generate summaries for uploaded docs</p></div><Switch defaultChecked data-testid="switch-smart-summarization" /></div>
               <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Learning Mode</p><p className="text-xs text-muted-foreground">Allow AI to learn from corrections</p></div><Switch checked disabled data-testid="switch-learning-mode" /></div>
-              <Button onClick={() => toast({ title: 'Settings saved', description: 'Knowledge base settings updated.' })} data-testid="button-save-kb-settings">Save</Button>
+              <Button onClick={() => toast({ title: 'Settings saved locally', description: 'Knowledge base settings updated. Changes will persist when connected to production backend.' })} data-testid="button-save-kb-settings">Save</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -2894,7 +2894,7 @@ export default function SettingsPage() {
                   <Label className="text-xs">Rules & Exclusions</Label>
                   <Textarea rows={3} defaultValue="" disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-rules-exclusions" />
                 </div>
-                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'System prompt updated.' })} data-testid="button-save-system-prompt">Save</Button>}
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'System prompt saved locally', description: 'System prompt updated. Changes will persist when connected to production backend.' })} data-testid="button-save-system-prompt">Save</Button>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -2926,7 +2926,7 @@ export default function SettingsPage() {
                     </div>
                   ))}
                 </div>
-                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'Agent behavior updated.' })} data-testid="button-save-agent-behavior">Save</Button>}
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Agent behavior saved locally', description: 'Agent behavior updated. Changes will persist when connected to production backend.' })} data-testid="button-save-agent-behavior">Save</Button>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -3017,9 +3017,9 @@ export default function SettingsPage() {
                         <Switch defaultChecked={selectedSkill.enabled} data-testid="switch-skill-status" />
                       </div>
                       <div className="flex items-center gap-2 pt-2">
-                        <Button size="sm" onClick={() => toast({ title: 'Skill saved', description: 'Skill configuration updated.' })} data-testid="button-save-skill">Save</Button>
+                        <Button size="sm" onClick={() => toast({ title: 'Skill saved locally', description: 'Skill configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-skill">Save</Button>
                         <Button size="sm" variant="outline" onClick={() => setSelectedSkill(null)} data-testid="button-cancel-skill">Cancel</Button>
-                        {selectedSkill.id && <Button size="sm" variant="destructive" onClick={() => { setSelectedSkill(null); toast({ title: 'Skill deleted', description: 'Skill has been removed.' }); }} data-testid="button-delete-skill">Delete</Button>}
+                        {selectedSkill.id && <Button size="sm" variant="destructive" onClick={() => { setSelectedSkill(null); toast({ title: 'Skill removed locally', description: 'Skill has been removed. Changes will persist when connected to production backend.' }); }} data-testid="button-delete-skill">Delete</Button>}
                       </div>
                     </CardContent>
                   </Card>
@@ -3049,7 +3049,7 @@ export default function SettingsPage() {
                   </DialogHeader>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setShowKillConfirm(false)} data-testid="button-cancel-kill">Cancel</Button>
-                    <Button variant="destructive" onClick={() => { setShowKillConfirm(false); toast({ title: 'All agents disabled', description: 'Emergency kill switch activated.' }); }} data-testid="button-confirm-kill">Confirm Disable</Button>
+                    <Button variant="destructive" onClick={() => { setShowKillConfirm(false); toast({ title: 'Kill switch activated (demo)', description: 'In production, this would immediately disable all active agents. Changes will take effect when connected to production backend.' }); }} data-testid="button-confirm-kill">Confirm Disable</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -3072,7 +3072,7 @@ export default function SettingsPage() {
                   <Label className="text-xs">Recipients</Label>
                   <Input defaultValue="" placeholder="email1@example.com, email2@example.com" disabled={isReadOnlyAI} className="mt-1" data-testid="input-digest-recipients" />
                 </div>
-                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Saved', description: 'Hunches configuration updated.' })} data-testid="button-save-hunches">Save</Button>}
+                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Hunches saved locally', description: 'Hunches configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-hunches">Save</Button>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -3201,7 +3201,7 @@ export default function SettingsPage() {
                 <Upload className="h-3.5 w-3.5 mr-1" />
                 Upload Data
               </Button>
-              <Button size="sm" variant="outline" onClick={() => toast({ title: 'Scrape URL', description: 'URL scraping is not available in demo mode.' })} data-testid="button-scrape-url">
+              <Button size="sm" variant="outline" onClick={() => toast({ title: 'Scrape URL (demo)', description: 'URL scraping is not available in demo mode. This feature will be enabled when connected to production backend.' })} data-testid="button-scrape-url">
                 <Globe className="h-3.5 w-3.5 mr-1" />
                 Scrape URL
               </Button>
@@ -3228,7 +3228,7 @@ export default function SettingsPage() {
                             <td className="p-2 text-muted-foreground">{upload.type}</td>
                             <td className="p-2 text-muted-foreground">{upload.records.toLocaleString()}</td>
                             <td className="p-2 text-muted-foreground">{upload.date}</td>
-                            <td className="p-2"><Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: 'Deleted', description: 'Upload removed.' }); }} data-testid={`button-delete-upload-${upload.id}`}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                            <td className="p-2"><Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: 'Upload removed (demo)', description: 'Upload deletion saved locally. Changes will persist when connected to production backend.' }); }} data-testid={`button-delete-upload-${upload.id}`}><Trash2 className="h-3.5 w-3.5" /></Button></td>
                           </tr>
                           {expandedUpload === upload.id && (
                             <tr key={`${upload.id}-detail`} className="border-t border-border bg-muted/30">
@@ -3293,7 +3293,7 @@ export default function SettingsPage() {
                       <Label htmlFor="dt-unstructured" className="text-xs">Unstructured</Label>
                     </div>
                   </div>
-                  <Button className="w-full" onClick={() => { setShowUploadDialog(false); toast({ title: 'Processing', description: 'Data upload started. Processing will complete shortly.' }); }} data-testid="button-upload-process">
+                  <Button className="w-full" onClick={() => { setShowUploadDialog(false); toast({ title: 'Upload acknowledged (demo)', description: 'Data upload saved locally. File processing will be enabled when connected to production backend.' }); }} data-testid="button-upload-process">
                     <Upload className="h-4 w-4 mr-1" />
                     Upload & Process
                   </Button>

@@ -251,7 +251,7 @@ const libMetricSampleData: Record<string, { rows: { label: string; value: string
   ], insight: 'On track to beat last month by 8 units (+19%). Pipeline coverage is strong at 4.8x.' },
 };
 
-type DrillDownModal = null | 'hotLeads' | 'newLeads' | 'showroom' | 'staleLeads' | 'pendingFinance' | 'pipelineHealth' | 'scorecardDetail';
+type DrillDownModal = null | 'hotLeads' | 'newLeads' | 'showroom' | 'staleLeads' | 'pendingFinance' | 'pipelineHealth' | 'scorecardDetail' | 'greenZoneDetail';
 type ReportCategory = 'loss' | 'channel' | 'trend';
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'neutral' }) {
@@ -282,6 +282,7 @@ export default function InsightsPage() {
   const [librarySearch, setLibrarySearch] = useState('');
   const [selectedLibMetric, setSelectedLibMetric] = useState<typeof libraryMetrics[0] | null>(null);
   const [drillDown, setDrillDown] = useState<DrillDownModal>(null);
+  const [selectedGreenMetric, setSelectedGreenMetric] = useState<typeof greenZoneMetrics[0] | null>(null);
   const [reportCategory, setReportCategory] = useState<ReportCategory>('loss');
   const [reportSubTab, setReportSubTab] = useState('tab1');
   const [hunchPrefsOpen, setHunchPrefsOpen] = useState(false);
@@ -450,7 +451,7 @@ export default function InsightsPage() {
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {greenZoneMetrics.map(m => (
-              <Card key={m.id} data-testid={`green-metric-${m.id}`}>
+              <Card key={m.id} className="hover-elevate cursor-pointer" onClick={() => { setSelectedGreenMetric(m); setDrillDown('greenZoneDetail'); }} data-testid={`green-metric-${m.id}`}>
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground">{m.label}</p>
                   <p className="text-2xl font-bold text-foreground mt-1">{m.value}</p>
@@ -728,7 +729,7 @@ export default function InsightsPage() {
                   <tbody>
                     {reengagementCandidates.map(row => (
                       <tr key={row.id} className="border-b border-border/50">
-                        <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline">{row.leadId}</td>
+                        <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${row.leadId}`, description: `Lost ${row.daysSinceLoss} days ago from ${row.originalSource}. Reason: ${row.lossReason}. Vehicle: ${row.vehicle}. Re-engage score: ${row.reengageScore}%` })} data-testid={`link-lead-${row.leadId}`}>{row.leadId}</td>
                         <td className="py-2 px-2 text-right text-foreground">{row.daysSinceLoss}</td>
                         <td className="py-2 px-2 text-muted-foreground">{row.originalSource}</td>
                         <td className="py-2 px-2 text-muted-foreground">{row.lossReason}</td>
@@ -1444,7 +1445,7 @@ export default function InsightsPage() {
               <tbody>
                 {mockHotLeadsGoingCold.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline">{lead.leadId}</td>
+                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} lead from ${lead.source} — ${lead.vehicle}. ${lead.daysOld} days old.` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
                     <td className="py-2 px-2 text-right text-foreground">{lead.daysOld} days</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.source}</td>
@@ -1491,7 +1492,7 @@ export default function InsightsPage() {
               <tbody>
                 {mockNewLeadsNoContact.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline">{lead.leadId}</td>
+                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} lead from ${lead.source}. ${lead.hoursOld} hours without contact.${lead.isHot ? ' Marked as HOT.' : ''}` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
                     <td className="py-2 px-2 text-right text-foreground">{lead.hoursOld} hrs</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.source}</td>
@@ -1534,7 +1535,7 @@ export default function InsightsPage() {
               <tbody>
                 {mockShowroomNotClosed.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline">{lead.leadId}</td>
+                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} showroom visitor — ${lead.vehicle}. Status: ${lead.status}. ${lead.daysOld} days old.` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
                     <td className="py-2 px-2 text-right text-foreground">{lead.daysOld} days</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.vehicle}</td>
@@ -1833,6 +1834,66 @@ export default function InsightsPage() {
               <p className="text-xs text-green-500 mt-2">✅ 4 of 4 indicators trending positive</p>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Green Zone Detail */}
+      <Dialog open={drillDown === 'greenZoneDetail'} onOpenChange={(open) => { if (!open) { setDrillDown(null); setSelectedGreenMetric(null); } }}>
+        <DialogContent className="max-w-md" data-testid="dialog-green-zone-detail">
+          {selectedGreenMetric && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-green-500" /> {selectedGreenMetric.label}
+                </DialogTitle>
+                <DialogDescription>Today's performance detail</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">{selectedGreenMetric.value}</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <TrendIcon trend={selectedGreenMetric.trend} />
+                      <span className={cn('text-sm', (selectedGreenMetric.trend as string) === 'up' ? 'text-green-500' : (selectedGreenMetric.trend as string) === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {selectedGreenMetric.change}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <TrendIcon trend={selectedGreenMetric.trend} />
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <span className="text-muted-foreground">Current Value</span>
+                    <span className="font-semibold text-foreground">{selectedGreenMetric.value}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <span className="text-muted-foreground">Change</span>
+                    <span className={cn('font-semibold', (selectedGreenMetric.trend as string) === 'up' ? 'text-green-500' : (selectedGreenMetric.trend as string) === 'down' ? 'text-red-500' : 'text-foreground')}>{selectedGreenMetric.change}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 px-2 rounded-md hover:bg-muted/50">
+                    <span className="text-muted-foreground">Status</span>
+                    <Badge variant="secondary" className="text-[10px] text-green-600">Healthy</Badge>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
+                  <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-xs text-foreground">
+                    {selectedGreenMetric.id === 'gz-1' && 'Lead volume is above your 30-day average. Website organic leads are trending up.'}
+                    {selectedGreenMetric.id === 'gz-2' && 'Pipeline size is stable. Monitor for any sudden drops in lead intake.'}
+                    {selectedGreenMetric.id === 'gz-3' && 'Close rate improving week-over-week. Keep up the momentum with timely follow-ups.'}
+                    {selectedGreenMetric.id === 'gz-4' && 'On track to meet monthly target. Focus on converting hot leads to maintain pace.'}
+                  </span>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedGreenMetric.label} pinned to your dashboard.` }); setDrillDown(null); setSelectedGreenMetric(null); }} data-testid="button-pin-green-metric">
+                    Pin to Dashboard
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

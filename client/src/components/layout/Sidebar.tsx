@@ -19,7 +19,8 @@
  * @production Logout button is placeholder — will wire to auth provider
  */
 import { useLocation } from 'wouter';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   MessageSquare,
   Inbox,
@@ -66,6 +67,11 @@ const bottomItems: MenuItem[] = [
 
 export function Sidebar() {
   const [location, setLocation] = useLocation();
+  const { logout } = useAuth();
+  const handleLogout = useCallback(async () => {
+    await logout();
+    setLocation('/login');
+  }, [logout, setLocation]);
   const { 
     currentRole, 
     userPermissions,
@@ -251,6 +257,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           className="w-full flex-col gap-1 h-auto py-2 px-1 hover-elevate"
+          onClick={handleLogout}
           data-testid="button-logout"
         >
           <LogOut className="h-5 w-5 text-muted-foreground" />

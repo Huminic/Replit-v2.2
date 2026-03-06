@@ -46,6 +46,7 @@ The system integrates real API data across various modules:
 -   **Metrics Pipeline**: Canonical `/api/metrics/pipeline` endpoint — active pipeline (14-day window, excludes Lost/Sold/Duplicate), appointments today, open escalations, outbound sent (24h). Same source for AI Chat, Sales, and Management dashboards.
 -   **Error Boundary**: React ErrorBoundary wraps entire app. Global 401 handler auto-redirects expired sessions to login.
 -   **Org Settings Persistence**: JSONB `settings` column on organizations for notification and appearance preferences.
+-   **UX Polish (Wave 4.5)**: All interactive elements wired — org switcher invalidates caches, logout clears session, profile tabs sync from URL, metric tiles open detail dialogs, TeamBox quick actions (Call/Email/SMS) functional, campaign creation dialogs on Service/Marketing, agent CRUD complete, My Work shows real conversations, Insights green zone cards clickable, settings stubs show clear "saved locally" messaging.
 
 ### UI/UX Decisions and Layout Architecture
 The platform utilizes a context-aware multi-pane layout.
