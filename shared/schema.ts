@@ -225,9 +225,54 @@ export const hunches = pgTable("hunches", {
   status: text("status").notNull().default("new"),
   department: text("department"),
   dataSource: text("data_source"),
+  batchId: uuid("batch_id"),
   generatedAt: timestamp("generated_at").notNull().defaultNow(),
   acceptedAt: timestamp("accepted_at"),
   resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const warehouseLeads = pgTable("warehouse_leads", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  sourceId: text("source_id"),
+  dataSource: text("data_source").notNull().default("vin_solutions"),
+  vinStatus: text("vin_status"),
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  leadSource: text("lead_source"),
+  vehicleOfInterest: text("vehicle_of_interest"),
+  assignedSalesperson: text("assigned_salesperson"),
+  dealerName: text("dealer_name"),
+  vinCreatedAt: timestamp("vin_created_at"),
+  vinUpdatedAt: timestamp("vin_updated_at"),
+  syncedAt: timestamp("synced_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const warehouseMetrics = pgTable("warehouse_metrics", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  metricKey: text("metric_key").notNull(),
+  metricValue: text("metric_value").notNull(),
+  period: text("period"),
+  dataSource: text("data_source").notNull().default("vin_solutions"),
+  metadata: jsonb("metadata").default({}),
+  syncedAt: timestamp("synced_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const syncLog = pgTable("sync_log", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  syncType: text("sync_type").notNull(),
+  status: text("status").notNull().default("running"),
+  recordsProcessed: integer("records_processed").notNull().default(0),
+  recordsFailed: integer("records_failed").notNull().default(0),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+  errorMessage: text("error_message"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -248,6 +293,9 @@ export const insertOutboundLogSchema = createInsertSchema(outboundLog).omit({ id
 export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
 export const insertActivityLogSchema = createInsertSchema(activityLog).omit({ id: true, createdAt: true });
 export const insertHunchSchema = createInsertSchema(hunches).omit({ id: true, createdAt: true });
+export const insertWarehouseLeadSchema = createInsertSchema(warehouseLeads).omit({ id: true, createdAt: true });
+export const insertWarehouseMetricSchema = createInsertSchema(warehouseMetrics).omit({ id: true, createdAt: true });
+export const insertSyncLogSchema = createInsertSchema(syncLog).omit({ id: true, createdAt: true });
 
 export type InsertRole = z.infer<typeof insertRoleSchema>;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -266,6 +314,9 @@ export type InsertOutboundLog = z.infer<typeof insertOutboundLogSchema>;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type InsertHunch = z.infer<typeof insertHunchSchema>;
+export type InsertWarehouseLead = z.infer<typeof insertWarehouseLeadSchema>;
+export type InsertWarehouseMetric = z.infer<typeof insertWarehouseMetricSchema>;
+export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -284,6 +335,9 @@ export type OutboundLog = typeof outboundLog.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type Hunch = typeof hunches.$inferSelect;
+export type WarehouseLead = typeof warehouseLeads.$inferSelect;
+export type WarehouseMetric = typeof warehouseMetrics.$inferSelect;
+export type SyncLog = typeof syncLog.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();

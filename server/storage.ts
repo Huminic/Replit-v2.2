@@ -18,8 +18,12 @@ import {
   type Notification, type InsertNotification,
   type ActivityLog, type InsertActivityLog,
   type Hunch, type InsertHunch,
+  type WarehouseLead, type InsertWarehouseLead,
+  type WarehouseMetric, type InsertWarehouseMetric,
+  type SyncLog, type InsertSyncLog,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
+  warehouseLeads, warehouseMetrics, syncLog,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -112,6 +116,18 @@ export interface IStorage {
   createHunch(hunch: InsertHunch): Promise<Hunch>;
   updateHunch(id: string, data: Partial<Hunch>): Promise<Hunch | undefined>;
   getAcceptedHunches(organizationId: string): Promise<Hunch[]>;
+
+  upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead>;
+  getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number }): Promise<WarehouseLead[]>;
+  getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number>;
+
+  upsertWarehouseMetric(metric: InsertWarehouseMetric): Promise<WarehouseMetric>;
+  getWarehouseMetrics(organizationId: string, filters?: { metricKey?: string; period?: string }): Promise<WarehouseMetric[]>;
+
+  createSyncLog(entry: InsertSyncLog): Promise<SyncLog>;
+  updateSyncLog(id: string, data: Partial<SyncLog>): Promise<SyncLog | undefined>;
+  getLatestSync(organizationId: string, syncType?: string): Promise<SyncLog | undefined>;
+  getSyncLogs(organizationId: string, limit?: number): Promise<SyncLog[]>;
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
 }
@@ -630,6 +646,93 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(hunches)
       .where(and(eq(hunches.organizationId, organizationId), eq(hunches.status, "accepted")))
       .orderBy(desc(hunches.createdAt));
+  }
+
+  async upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead> {
+    if (lead.sourceId) {
+      const [existing] = await db.select().from(warehouseLeads)
+        .where(and(
+          eq(warehouseLeads.organizationId, lead.organizationId),
+          eq(warehouseLeads.sourceId, lead.sourceId)
+        ));
+      if (existing) {
+        const [updated] = await db.update(warehouseLeads)
+          .set({ ...lead, syncedAt: new Date() })
+          .where(eq(warehouseLeads.id, existing.id))
+          .returning();
+        return updated;
+      }
+    }
+    const [created] = await db.insert(warehouseLeads).values(lead).returning();
+    return created;
+  }
+
+  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number }): Promise<WarehouseLead[]> {
+    const conditions = [eq(warehouseLeads.organizationId, organizationId)];
+    if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
+    if (filters?.dataSource) conditions.push(eq(warehouseLeads.dataSource, filters.dataSource));
+    const query = db.select().from(warehouseLeads).where(and(...conditions)).orderBy(desc(warehouseLeads.syncedAt));
+    if (filters?.limit) return query.limit(filters.limit);
+    return query;
+  }
+
+  async getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number> {
+    const conditions = [eq(warehouseLeads.organizationId, organizationId)];
+    if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
+    const [result] = await db.select({ cnt: count() }).from(warehouseLeads).where(and(...conditions));
+    return Number(result?.cnt || 0);
+  }
+
+  async upsertWarehouseMetric(metric: InsertWarehouseMetric): Promise<WarehouseMetric> {
+    const conditions = [
+      eq(warehouseMetrics.organizationId, metric.organizationId),
+      eq(warehouseMetrics.metricKey, metric.metricKey),
+    ];
+    if (metric.period) conditions.push(eq(warehouseMetrics.period, metric.period));
+    const [existing] = await db.select().from(warehouseMetrics).where(and(...conditions));
+    if (existing) {
+      const [updated] = await db.update(warehouseMetrics)
+        .set({ ...metric, syncedAt: new Date() })
+        .where(eq(warehouseMetrics.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(warehouseMetrics).values(metric).returning();
+    return created;
+  }
+
+  async getWarehouseMetrics(organizationId: string, filters?: { metricKey?: string; period?: string }): Promise<WarehouseMetric[]> {
+    const conditions = [eq(warehouseMetrics.organizationId, organizationId)];
+    if (filters?.metricKey) conditions.push(eq(warehouseMetrics.metricKey, filters.metricKey));
+    if (filters?.period) conditions.push(eq(warehouseMetrics.period, filters.period));
+    return db.select().from(warehouseMetrics).where(and(...conditions)).orderBy(desc(warehouseMetrics.syncedAt));
+  }
+
+  async createSyncLog(entry: InsertSyncLog): Promise<SyncLog> {
+    const [created] = await db.insert(syncLog).values(entry).returning();
+    return created;
+  }
+
+  async updateSyncLog(id: string, data: Partial<SyncLog>): Promise<SyncLog | undefined> {
+    const [updated] = await db.update(syncLog).set(data).where(eq(syncLog.id, id)).returning();
+    return updated;
+  }
+
+  async getLatestSync(organizationId: string, syncType?: string): Promise<SyncLog | undefined> {
+    const conditions = [eq(syncLog.organizationId, organizationId)];
+    if (syncType) conditions.push(eq(syncLog.syncType, syncType));
+    const [latest] = await db.select().from(syncLog)
+      .where(and(...conditions))
+      .orderBy(desc(syncLog.startedAt))
+      .limit(1);
+    return latest;
+  }
+
+  async getSyncLogs(organizationId: string, limit = 20): Promise<SyncLog[]> {
+    return db.select().from(syncLog)
+      .where(eq(syncLog.organizationId, organizationId))
+      .orderBy(desc(syncLog.startedAt))
+      .limit(limit);
   }
 }
 

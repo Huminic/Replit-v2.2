@@ -55,6 +55,18 @@ interface LeadSummary {
   appointments: number;
   conversionRate: number;
   source: string;
+  syncedAt?: string | null;
+}
+
+function formatSyncAge(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
 }
 
 function buildSalesMetrics(summary: LeadSummary | undefined) {
@@ -94,10 +106,22 @@ export default function SalesPage() {
           <h2 className="text-lg font-semibold mb-1">Sales Dashboard</h2>
           <p className="text-sm text-muted-foreground">Real-time sales pipeline and performance metrics</p>
         </div>
-        {leadSummary?.source === 'vinsolutions' && (
-          <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-600 dark:text-blue-400" data-testid="badge-vinsolutions-live">
-            VinSolutions Live
-          </Badge>
+        {leadSummary?.source && (
+          <div className="flex items-center gap-2" data-testid="sync-status-indicator">
+            <Badge variant="outline" className={cn(
+              "text-[10px]",
+              leadSummary.source === 'warehouse'
+                ? "border-green-300 text-green-600 dark:text-green-400"
+                : "border-blue-300 text-blue-600 dark:text-blue-400"
+            )} data-testid="badge-vinsolutions-live">
+              {leadSummary.source === 'warehouse' ? 'Warehouse' : 'VinSolutions Live'}
+            </Badge>
+            {leadSummary.syncedAt && (
+              <span className="text-[10px] text-muted-foreground" data-testid="text-sync-age">
+                Synced {formatSyncAge(leadSummary.syncedAt)}
+              </span>
+            )}
+          </div>
         )}
       </div>
 
