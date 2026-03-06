@@ -615,6 +615,23 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
       }
       const conv = await storage.createConversation(parsed.data);
+
+      // REAP: Clean up stale ai-chat conversations for this user (greeting-only, no real messages).
+      // Fresh chat creates a new conversation each page load; old ones with <=1 message are orphans.
+      // TODO: Move to a scheduled job when background task infrastructure is available.
+      if (parsed.data.channel === "ai-chat" && parsed.data.customerEmail) {
+        const allConvs = await storage.getConversations(req.user.organizationId, { channel: "ai-chat" });
+        const staleConvs = allConvs.filter(
+          (c) => c.id !== conv.id && c.customerEmail === parsed.data.customerEmail
+        );
+        for (const stale of staleConvs) {
+          const msgs = await storage.getMessages(stale.id);
+          if (msgs.length <= 1) {
+            await storage.deleteConversation(stale.id);
+          }
+        }
+      }
+
       return res.status(201).json(conv);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create conversation" });

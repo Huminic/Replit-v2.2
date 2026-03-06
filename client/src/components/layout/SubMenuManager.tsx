@@ -71,7 +71,7 @@ export function SubMenuManager() {
     favorites
   } = useApp();
   
-  // 1200ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
+  // 400ms delay timer ref for panel mouseLeave — mirrors Sidebar.tsx behavior
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Search filter for agents within department panels
   const [agentSearch, setAgentSearch] = useState('');
@@ -160,7 +160,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 1200);
+      }, 400);
     }
   };
 
