@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/contexts/AppContext';
 import type { Appointment } from '@shared/schema';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -37,6 +38,8 @@ interface AppointmentCalendarProps {
 
 export function AppointmentCalendar({ department }: AppointmentCalendarProps) {
   const { toast } = useToast();
+  const { currentRole } = useApp();
+  const isSuperAdmin = currentRole === 'super_admin';
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -322,11 +325,25 @@ export function AppointmentCalendar({ department }: AppointmentCalendarProps) {
                 </Button>
               </div>
             ))}
-            <div className="pt-2 border-t border-border">
-              <p className="text-xs text-muted-foreground italic" data-testid="text-vin-not-listed">
-                VIN Solutions is not available as an appointment sync source.
-              </p>
-            </div>
+            {isSuperAdmin && (
+              <div className="flex items-center justify-between p-3 rounded-lg border border-primary/30 bg-primary/5" data-testid="connector-vinsolutions">
+                <div>
+                  <p className="text-sm font-medium">VIN Solutions</p>
+                  <p className="text-xs text-muted-foreground">Sync appointments from VIN Solutions CRM</p>
+                  <Badge variant="outline" className="text-[10px] mt-1">Super Admin</Badge>
+                </div>
+                <Button variant="outline" size="sm" data-testid="button-connect-vinsolutions">
+                  Configure
+                </Button>
+              </div>
+            )}
+            {!isSuperAdmin && (
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground italic" data-testid="text-vin-not-listed">
+                  VIN Solutions is not available as an appointment sync source.
+                </p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

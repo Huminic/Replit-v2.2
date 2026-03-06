@@ -281,7 +281,7 @@ const mockSkills: SkillItem[] = [
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const { currentRole, communicationGateEnabled, setCommunicationGateEnabled, personaName } = useApp();
+  const { currentRole, communicationGateEnabled, setCommunicationGateEnabled, personaName, currentOrganization } = useApp();
   const { user: authUser } = useAuth();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -536,6 +536,9 @@ export default function SettingsPage() {
   const [newDomain, setNewDomain] = useState('');
   const [previewWidget, setPreviewWidget] = useState<IndividualWidget | null>(null);
   const [toolsTab, setToolsTab] = useState('mcp');
+  const [provisionDealerId, setProvisionDealerId] = useState('');
+  const [provisionDealerName, setProvisionDealerName] = useState('');
+  const [provisionLoading, setProvisionLoading] = useState(false);
   const [widgetSearch, setWidgetSearch] = useState('');
   const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null);
   const [skillFilter, setSkillFilter] = useState('All');
@@ -2558,6 +2561,68 @@ export default function SettingsPage() {
                   <Label className="text-xs w-20">Markup Rate:</Label>
                   <Input defaultValue="0.00" className="h-7 text-xs w-24" data-testid={`input-markup-rate-${tool.id}`} />
                 </div>
+              </div>
+            </details>
+          )}
+          {isSuperAdmin && tool.id === 'crm' && (
+            <details className="text-xs">
+              <summary className="cursor-pointer text-muted-foreground flex items-center gap-1">
+                <ChevronDown className="h-3 w-3" /> Dealer Provisioning
+              </summary>
+              <div className="mt-2 space-y-3 pl-4 border-l-2 border-primary/30">
+                <p className="text-muted-foreground">Enter a new dealer's VIN Solutions Dealer ID to create the org, generate the UUID, and wire up the MCP integration automatically.</p>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs w-20 shrink-0">Dealer ID:</Label>
+                  <Input
+                    placeholder="e.g. 21043"
+                    className="h-7 text-xs w-32"
+                    value={provisionDealerId}
+                    onChange={e => setProvisionDealerId(e.target.value)}
+                    data-testid="input-provision-dealer-id"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs w-20 shrink-0">Dealer Name:</Label>
+                  <Input
+                    placeholder="e.g. Serra Honda"
+                    className="h-7 text-xs flex-1"
+                    value={provisionDealerName}
+                    onChange={e => setProvisionDealerName(e.target.value)}
+                    data-testid="input-provision-dealer-name"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  className="h-7 text-xs"
+                  disabled={!provisionDealerId || !provisionDealerName || provisionLoading}
+                  data-testid="button-provision-dealer"
+                  onClick={async () => {
+                    const dealerIdNum = parseInt(provisionDealerId, 10);
+                    if (isNaN(dealerIdNum) || dealerIdNum <= 0) {
+                      toast({ title: 'Invalid Dealer ID', description: 'Dealer ID must be a positive number.', variant: 'destructive' });
+                      return;
+                    }
+                    setProvisionLoading(true);
+                    try {
+                      const res = await apiRequest('POST', '/api/integrations/provision', {
+                        organizationId: currentOrganization?.id,
+                        dealerId: dealerIdNum,
+                        dealerName: provisionDealerName,
+                        provider: 'vinsolutions',
+                      });
+                      const data = await res.json();
+                      toast({ title: 'Dealer provisioned', description: `Integration created for ${provisionDealerName} (ID: ${provisionDealerId}). UUID: ${data.integration?.id || 'generated'}` });
+                      setProvisionDealerId('');
+                      setProvisionDealerName('');
+                    } catch (err: any) {
+                      toast({ title: 'Provisioning failed', description: err.message || 'Failed to provision dealer via MCP.', variant: 'destructive' });
+                    } finally {
+                      setProvisionLoading(false);
+                    }
+                  }}
+                >
+                  {provisionLoading ? 'Provisioning...' : 'Provision Dealer'}
+                </Button>
               </div>
             </details>
           )}
