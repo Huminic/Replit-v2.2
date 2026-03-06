@@ -1,8 +1,15 @@
 import { storage } from "./storage";
+import { Resend } from "resend";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
 const RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_HOURS = 24;
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
+const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
+const RESEND_FROM = "Nexxus Connect <notifications@nexxusconnect.com>";
 
 export interface SendRequest {
   organizationId: string;
@@ -20,15 +27,58 @@ export interface SendResult {
 }
 
 export async function sendSms(to: string, content: string): Promise<void> {
-  console.log(`STUB: would send SMS to ${to} — "${content.substring(0, 80)}..."`);
+  if (!TEXTMAGIC_API_KEY) {
+    throw new Error("TEXTMAGIC_API_KEY is not configured");
+  }
+
+  const response = await fetch(`${TEXTMAGIC_BASE_URL}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-TM-Key": TEXTMAGIC_API_KEY,
+    },
+    body: JSON.stringify({
+      text: content,
+      phones: to.replace(/[^0-9+]/g, ""),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[TextMagic] SMS send failed (${response.status}):`, errorBody);
+    throw new Error(`TextMagic SMS failed: ${response.status} — ${errorBody}`);
+  }
+
+  const result = await response.json();
+  console.log(`[TextMagic] SMS sent to ${to}, messageId: ${result.id}`);
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
-  console.log(`STUB: would send email to ${to} — "${content.substring(0, 80)}..."`);
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
+  const subjectMatch = content.match(/^Subject:\s*(.+?)[\r\n]/i);
+  const subject = subjectMatch ? subjectMatch[1].trim() : "Message from Nexxus Connect";
+  const body = subjectMatch ? content.replace(/^Subject:\s*.+?[\r\n]+/i, "").trim() : content;
+
+  const { data, error } = await resend.emails.send({
+    from: RESEND_FROM,
+    to: [to],
+    subject,
+    html: body.replace(/\n/g, "<br>"),
+  });
+
+  if (error) {
+    console.error(`[Resend] Email send failed:`, error);
+    throw new Error(`Resend email failed: ${error.message}`);
+  }
+
+  console.log(`[Resend] Email sent to ${to}, id: ${data?.id}`);
 }
 
 export async function sendPhone(to: string, content: string): Promise<void> {
-  console.log(`STUB: would initiate phone call to ${to} — "${content.substring(0, 80)}..."`);
+  console.log(`[Phone] Call initiation to ${to} delegated to VAPI — "${content.substring(0, 80)}..."`);
 }
 
 async function checkCommGate(
