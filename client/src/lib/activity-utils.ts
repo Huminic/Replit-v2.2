@@ -97,7 +97,7 @@ export const staticActivityFeed: ActivityItem[] = [
     action: 'uploaded',
     actor: 'Mike Chen',
     target: 'Vehicle Photos',
-    description: 'Uploaded 12 new vehicle photos to Drive',
+    description: 'Uploaded 12 new vehicle photos to media library',
     timestamp: '2026-01-19T11:00:00Z',
     metadata: { files: 12 },
   },

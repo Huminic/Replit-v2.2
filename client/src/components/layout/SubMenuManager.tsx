@@ -188,8 +188,21 @@ export function SubMenuManager() {
   }
 
   // Reusable nav item renderer — shows icon, label, optional badge (e.g. conversation count)
-  const renderNavItem = (item: { id: string; label: string; icon: React.ElementType; path?: string; onClick?: () => void; active?: boolean; badge?: string }) => {
+  const renderNavItem = (item: { id: string; label: string; icon: React.ElementType; path?: string; onClick?: () => void; active?: boolean; badge?: string; comingSoon?: boolean }) => {
     const Icon = item.icon;
+    if (item.comingSoon) {
+      return (
+        <div
+          key={item.id}
+          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground/50 cursor-not-allowed"
+          data-testid={`panel-nav-${item.id}`}
+        >
+          <Icon className="h-4 w-4" />
+          <span className="flex-1 text-left">{item.label}</span>
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40 bg-muted/50 px-1.5 py-0.5 rounded" data-testid={`badge-coming-soon-${item.id}`}>Coming Soon</span>
+        </div>
+      );
+    }
     return (
       <button
         key={item.id}
@@ -487,7 +500,7 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'mw-assistant', label: 'Assistant', icon: ExternalLink, path: '/my-work?tab=assistant' })}
+                  {renderNavItem({ id: 'mw-assistant', label: 'Assistant', icon: ExternalLink, comingSoon: true })}
                   {renderNavItem({ id: 'mw-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/my-work', active: location === '/my-work' })}
                   {renderNavItem({ id: 'mw-tasks', label: 'Tasks', icon: CheckSquare, path: '/my-work?tab=tasks' })}
                   {renderNavItem({ id: 'mw-chat', label: 'Chat', icon: MessageSquare, path: '/my-work?tab=chat' })}
@@ -512,6 +525,7 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'sl-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/sales', active: location === '/sales' })}
+                  {renderNavItem({ id: 'sl-agents', label: 'Agents', icon: Bot, path: '/sales?tab=agents' })}
                   {renderNavItem({ id: 'sl-insights', label: 'Insights', icon: BarChart3, path: '/sales?tab=insights' })}
                   {renderNavItem({ id: 'sl-calendar', label: 'Calendar', icon: CalendarIcon, path: '/sales?tab=calendar' })}
                 </nav>
@@ -536,6 +550,7 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'sv-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/service', active: location === '/service' })}
+                  {renderNavItem({ id: 'sv-agents', label: 'Agents', icon: Bot, path: '/service?tab=agents' })}
                   {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service?tab=campaigns' })}
                   {renderNavItem({ id: 'sv-insights', label: 'Insights', icon: BarChart3, path: '/service?tab=insights' })}
                   {renderNavItem({ id: 'sv-calendar', label: 'Calendar', icon: CalendarIcon, path: '/service?tab=calendar' })}
@@ -587,7 +602,7 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mg-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/management', active: location === '/management' })}
                   {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
-                  {renderNavItem({ id: 'mg-hunches', label: 'Hunches', icon: Lightbulb, path: '/management?tab=hunches' })}
+                  {renderNavItem({ id: 'mg-hunches', label: 'Hunches', icon: Lightbulb, path: '/management?tab=hunches', comingSoon: true })}
                   {renderNavItem({ id: 'mg-activities', label: 'Activities', icon: Activity, path: '/management?tab=activities' })}
                   {renderNavItem({ id: 'mg-roi', label: 'ROI', icon: DollarSign, path: '/management?tab=roi' })}
                 </nav>

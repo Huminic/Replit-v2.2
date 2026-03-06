@@ -1,4 +1,4 @@
-import { eq, and, desc, count, sql, gte } from "drizzle-orm";
+import { eq, and, desc, count, sql, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   type User, type InsertUser,
@@ -20,10 +20,13 @@ import {
   type Hunch, type InsertHunch,
   type WarehouseLead, type InsertWarehouseLead,
   type WarehouseMetric, type InsertWarehouseMetric,
+  type Appointment, type InsertAppointment,
+  type SlugRedirect, type InsertSlugRedirect,
   type SyncLog, type InsertSyncLog,
+  type UsageEvent, type InsertUsageEvent,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
-  warehouseLeads, warehouseMetrics, syncLog,
+  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -129,6 +132,17 @@ export interface IStorage {
   updateSyncLog(id: string, data: Partial<SyncLog>): Promise<SyncLog | undefined>;
   getLatestSync(organizationId: string, syncType?: string): Promise<SyncLog | undefined>;
   getSyncLogs(organizationId: string, limit?: number): Promise<SyncLog[]>;
+
+  getAppointments(organizationId: string, filters?: { department?: string; startDate?: Date; endDate?: Date }): Promise<Appointment[]>;
+  getAppointment(id: string): Promise<Appointment | undefined>;
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  updateAppointment(id: string, data: Partial<InsertAppointment>): Promise<Appointment | undefined>;
+  deleteAppointment(id: string): Promise<void>;
+
+  getOrganizationBySlug(slug: string): Promise<Organization | undefined>;
+  getSlugRedirect(oldSlug: string): Promise<SlugRedirect | undefined>;
+  createSlugRedirect(redirect: InsertSlugRedirect): Promise<SlugRedirect>;
+  updateOrganizationSlug(id: string, newSlug: string): Promise<Organization | undefined>;
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
   getPipelineMetrics(organizationId: string): Promise<PipelineMetrics>;
@@ -807,6 +821,85 @@ export class DatabaseStorage implements IStorage {
       .where(eq(syncLog.organizationId, organizationId))
       .orderBy(desc(syncLog.startedAt))
       .limit(limit);
+  }
+
+  async getAppointments(organizationId: string, filters?: { department?: string; startDate?: Date; endDate?: Date }): Promise<Appointment[]> {
+    const conditions = [eq(appointments.organizationId, organizationId)];
+    if (filters?.department) conditions.push(eq(appointments.department, filters.department));
+    if (filters?.startDate) conditions.push(gte(appointments.startTime, filters.startDate));
+    if (filters?.endDate) conditions.push(lte(appointments.startTime, filters.endDate));
+    return db.select().from(appointments).where(and(...conditions)).orderBy(appointments.startTime);
+  }
+
+  async getAppointment(id: string): Promise<Appointment | undefined> {
+    const [result] = await db.select().from(appointments).where(eq(appointments.id, id));
+    return result;
+  }
+
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
+    const [created] = await db.insert(appointments).values(appointment).returning();
+    return created;
+  }
+
+  async updateAppointment(id: string, data: Partial<InsertAppointment>): Promise<Appointment | undefined> {
+    const [updated] = await db.update(appointments).set({ ...data, updatedAt: new Date() }).where(eq(appointments.id, id)).returning();
+    return updated;
+  }
+
+  async deleteAppointment(id: string): Promise<void> {
+    await db.delete(appointments).where(eq(appointments.id, id));
+  }
+
+  async getOrganizationBySlug(slug: string): Promise<Organization | undefined> {
+    const [result] = await db.select().from(organizations).where(eq(organizations.slug, slug));
+    return result;
+  }
+
+  async getSlugRedirect(oldSlug: string): Promise<SlugRedirect | undefined> {
+    const [result] = await db.select().from(slugRedirects)
+      .where(and(eq(slugRedirects.oldSlug, oldSlug), gte(slugRedirects.expiresAt, new Date())));
+    return result;
+  }
+
+  async createSlugRedirect(redirect: InsertSlugRedirect): Promise<SlugRedirect> {
+    const [created] = await db.insert(slugRedirects).values(redirect).returning();
+    return created;
+  }
+
+  async updateOrganizationSlug(id: string, newSlug: string): Promise<Organization | undefined> {
+    const [updated] = await db.update(organizations)
+      .set({ slug: newSlug, updatedAt: new Date() })
+      .where(eq(organizations.id, id))
+      .returning();
+    return updated;
+  }
+
+  async logUsageEvent(event: InsertUsageEvent): Promise<UsageEvent> {
+    const [created] = await db.insert(usageEvents).values(event).returning();
+    return created;
+  }
+
+  async getUsageEvents(organizationId: string, filters?: { startDate?: Date; endDate?: Date; eventType?: string }): Promise<UsageEvent[]> {
+    const conditions = [eq(usageEvents.organizationId, organizationId)];
+    if (filters?.startDate) conditions.push(gte(usageEvents.createdAt, filters.startDate));
+    if (filters?.endDate) conditions.push(lte(usageEvents.createdAt, filters.endDate));
+    if (filters?.eventType) conditions.push(eq(usageEvents.eventType, filters.eventType));
+    return db.select().from(usageEvents).where(and(...conditions)).orderBy(desc(usageEvents.createdAt));
+  }
+
+  async getUsageSummary(organizationId: string, startDate: Date, endDate: Date): Promise<{ eventType: string; total: number }[]> {
+    const rows = await db.select({
+      eventType: usageEvents.eventType,
+      total: count(),
+    })
+      .from(usageEvents)
+      .where(and(
+        eq(usageEvents.organizationId, organizationId),
+        gte(usageEvents.createdAt, startDate),
+        lte(usageEvents.createdAt, endDate)
+      ))
+      .groupBy(usageEvents.eventType);
+    return rows.map(r => ({ eventType: r.eventType, total: Number(r.total) }));
   }
 }
 

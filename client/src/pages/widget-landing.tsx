@@ -12,8 +12,6 @@ import {
   Mic,
   MicOff,
   VideoOff,
-  Mail,
-  Calendar,
   Loader2,
 } from 'lucide-react';
 const liveVideoImg = '/images/live-video-audience.png';
@@ -31,7 +29,7 @@ interface LandingPageOrg {
   personaName: string;
 }
 
-type WidgetMode = 'closed' | 'chat' | 'video' | 'voice' | 'menu';
+type WidgetMode = 'closed' | 'chat' | 'video' | 'voice' | 'form' | 'menu';
 
 export default function WidgetLandingPage() {
   const [, params] = useRoute('/p/:slug');
@@ -52,7 +50,14 @@ export default function WidgetLandingPage() {
         if (!res.ok) throw new Error('not found');
         return res.json();
       })
-      .then(data => { setOrgData(data); setLoading(false); })
+      .then(data => {
+        if (data.redirect && data.newSlug) {
+          window.location.href = `/p/${data.newSlug}`;
+          return;
+        }
+        setOrgData(data);
+        setLoading(false);
+      })
       .catch(() => { setNotFound(true); setLoading(false); });
   }, [slug]);
 
@@ -148,21 +153,8 @@ export default function WidgetLandingPage() {
                 <MessageSquare className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Text Chat</p>
+                <p className="font-medium text-sm text-gray-900">Web Chat</p>
                 <p className="text-xs text-gray-500">Chat with our AI assistant</p>
-              </div>
-            </button>
-            <button
-              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={startVideoChat}
-              data-testid="widget-option-video"
-            >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
-                <Video className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">AI Video Call</p>
-                <p className="text-xs text-gray-500">Face-to-face with {PERSONA_NAME}</p>
               </div>
             </button>
             <button
@@ -174,60 +166,34 @@ export default function WidgetLandingPage() {
                 <Phone className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Voice Call</p>
+                <p className="font-medium text-sm text-gray-900">Web Call</p>
                 <p className="text-xs text-gray-500">Talk to our AI assistant</p>
               </div>
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => setWidgetMode('closed')}
-              data-testid="widget-option-sms"
+              onClick={() => setWidgetMode('form')}
+              data-testid="widget-option-form"
             >
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
                 <Send className="h-5 w-5 text-orange-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Send us a Text</p>
-                <p className="text-xs text-gray-500">SMS to (555) 234-5679</p>
+                <p className="font-medium text-sm text-gray-900">Contact Form</p>
+                <p className="text-xs text-gray-500">Send us a message</p>
               </div>
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => setWidgetMode('closed')}
-              data-testid="widget-option-email"
+              onClick={startVideoChat}
+              data-testid="widget-option-video"
             >
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
-                <Mail className="h-5 w-5 text-sky-600" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+                <Video className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Email Us</p>
-                <p className="text-xs text-gray-500">connect@cageautomotive.com</p>
-              </div>
-            </button>
-            <button
-              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => setWidgetMode('closed')}
-              data-testid="widget-option-callback"
-            >
-              <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0">
-                <Phone className="h-5 w-5 text-rose-600" />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Request a Callback</p>
-                <p className="text-xs text-gray-500">We'll call you back ASAP</p>
-              </div>
-            </button>
-            <button
-              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => setWidgetMode('closed')}
-              data-testid="widget-option-schedule"
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
-                <Calendar className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Schedule Service</p>
-                <p className="text-xs text-gray-500">Book a service appointment</p>
+                <p className="font-medium text-sm text-gray-900">Two-Way Video</p>
+                <p className="text-xs text-gray-500">Face-to-face with {PERSONA_NAME}</p>
               </div>
             </button>
           </div>
@@ -402,6 +368,44 @@ export default function WidgetLandingPage() {
             >
               <Phone className="h-4 w-4 rotate-[135deg]" />
             </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (widgetMode === 'form') {
+      return (
+        <div className="bg-white rounded-2xl shadow-2xl w-80 flex flex-col overflow-hidden border border-gray-100" data-testid="widget-form">
+          <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs" data-testid="button-form-back">←</button>
+              <p className="font-semibold text-xs">Contact Form</p>
+            </div>
+            <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white" data-testid="button-form-close">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="p-4 space-y-3">
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Name *</label>
+              <input className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Your name" data-testid="input-form-name" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Email *</label>
+              <input type="email" className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="your@email.com" data-testid="input-form-email" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Phone</label>
+              <input type="tel" className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="(555) 123-4567" data-testid="input-form-phone" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Message *</label>
+              <textarea className="w-full text-sm min-h-[60px] px-3 py-2 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" placeholder="How can we help?" data-testid="input-form-message" />
+            </div>
+            <Button className="w-full text-white" style={{ backgroundColor: WIDGET_TEAL }} data-testid="button-form-submit">
+              <Send className="h-4 w-4 mr-2" />
+              Send Message
+            </Button>
           </div>
         </div>
       );

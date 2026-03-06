@@ -28,6 +28,7 @@ import OrgWizardPage from "@/pages/org-wizard";
 import LoginPage from "@/pages/login";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import ResetPasswordPage from "@/pages/reset-password";
+import UsagePage from "@/pages/usage";
 
 function Router() {
   return (
@@ -59,6 +60,7 @@ function Router() {
                 <Route path="/profile" component={ProfilePage} />
                 <Route path="/profile/preferences" component={ProfilePage} />
                 <Route path="/profile/billing" component={ProfilePage} />
+                <Route path="/usage" component={UsagePage} />
                 <Route component={NotFound} />
               </Switch>
             </AppLayout>

@@ -25,6 +25,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
+import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -528,16 +529,7 @@ export default function ServicePage() {
     </div>
   );
 
-  /** Calendar tab — placeholder for Wave 2 service appointment scheduling and bay availability */
-  const renderCalendar = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Service Calendar</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Service appointments, maintenance schedules, and service bay availability.</p>
-      </div>
-    </div>
-  );
+  const renderCalendar = () => <AppointmentCalendar department="service" />;
 
   return (
     <div className="flex flex-col h-full" data-testid="service-page">

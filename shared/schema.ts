@@ -15,10 +15,10 @@ export const organizations = pgTable("organizations", {
   slug: text("slug").notNull().unique(),
   personaName: text("persona_name").notNull().default("Serra"),
   partnerId: uuid("partner_id"),
-  outboundEnabled: boolean("outbound_enabled").notNull().default(true),
-  smsEnabled: boolean("sms_enabled").notNull().default(true),
-  phoneEnabled: boolean("phone_enabled").notNull().default(true),
-  emailEnabled: boolean("email_enabled").notNull().default(true),
+  outboundEnabled: boolean("outbound_enabled").notNull().default(false),
+  smsEnabled: boolean("sms_enabled").notNull().default(false),
+  phoneEnabled: boolean("phone_enabled").notNull().default(false),
+  emailEnabled: boolean("email_enabled").notNull().default(false),
   settings: jsonb("settings").default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -266,6 +266,34 @@ export const warehouseMetrics = pgTable("warehouse_metrics", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const appointments = pgTable("appointments", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  appointmentType: text("appointment_type").notNull().default("general"),
+  department: text("department").notNull().default("sales"),
+  assignedUserId: uuid("assigned_user_id").references(() => users.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  status: text("status").notNull().default("scheduled"),
+  notes: text("notes"),
+  source: text("source").notNull().default("manual"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const slugRedirects = pgTable("slug_redirects", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  oldSlug: text("old_slug").notNull(),
+  newSlug: text("new_slug").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const syncLog = pgTable("sync_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id),
@@ -276,6 +304,16 @@ export const syncLog = pgTable("sync_log", {
   startedAt: timestamp("started_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
   errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const usageEvents = pgTable("usage_events", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  eventType: text("event_type").notNull(),
+  channel: text("channel"),
+  quantity: integer("quantity").notNull().default(1),
+  metadata: jsonb("metadata").default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -298,6 +336,8 @@ export const insertActivityLogSchema = createInsertSchema(activityLog).omit({ id
 export const insertHunchSchema = createInsertSchema(hunches).omit({ id: true, createdAt: true });
 export const insertWarehouseLeadSchema = createInsertSchema(warehouseLeads).omit({ id: true, createdAt: true });
 export const insertWarehouseMetricSchema = createInsertSchema(warehouseMetrics).omit({ id: true, createdAt: true });
+export const insertAppointmentSchema = createInsertSchema(appointments).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertSlugRedirectSchema = createInsertSchema(slugRedirects).omit({ id: true, createdAt: true });
 export const insertSyncLogSchema = createInsertSchema(syncLog).omit({ id: true, createdAt: true });
 
 export type InsertRole = z.infer<typeof insertRoleSchema>;
@@ -319,7 +359,11 @@ export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type InsertHunch = z.infer<typeof insertHunchSchema>;
 export type InsertWarehouseLead = z.infer<typeof insertWarehouseLeadSchema>;
 export type InsertWarehouseMetric = z.infer<typeof insertWarehouseMetricSchema>;
+export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+export type InsertSlugRedirect = z.infer<typeof insertSlugRedirectSchema>;
 export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
+export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
+export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -340,7 +384,10 @@ export type ActivityLog = typeof activityLog.$inferSelect;
 export type Hunch = typeof hunches.$inferSelect;
 export type WarehouseLead = typeof warehouseLeads.$inferSelect;
 export type WarehouseMetric = typeof warehouseMetrics.$inferSelect;
+export type Appointment = typeof appointments.$inferSelect;
+export type SlugRedirect = typeof slugRedirects.$inferSelect;
 export type SyncLog = typeof syncLog.$inferSelect;
+export type UsageEvent = typeof usageEvents.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();
@@ -365,3 +412,4 @@ export const updateHunchSchema = z.object({
 });
 export const updateTaskSchema = createInsertSchema(tasks).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateWidgetSchema = createInsertSchema(widgets).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
+export const updateAppointmentSchema = createInsertSchema(appointments).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();

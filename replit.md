@@ -2,129 +2,155 @@
 
 ## Overview
 
-Nexxus Connect is an AI-powered dealership management platform that aims to streamline dealership operations through AI-powered tools and a user-centric interface. It replaces traditional feature-based navigation with an intuitive persona-driven approach, providing a validated frontend prototype with real database-backed data. The project is structured around a 4-wave product roadmap, with the UI prototype (this Replit) focusing on the frontend experience and a separate backend handling extensive API endpoints and integrations.
+Nexxus Connect is an AI-powered dealership management platform for Serra Auto Group / Cage Automotive. It replaces traditional feature-based navigation with an intuitive persona-driven approach, providing a validated frontend prototype with real database-backed data. The project follows the **Golden Rule: UI = T1 truth — change the data source, not the UI.** Design metrics are the default display; real API data overrides when it exists.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
+## Truth Hierarchy
+
+1. UI code (approved design)
+2. `.agent_docs/acceptance_criteria.md` (62 ACs)
+3. SRS documentation
+4. API contract
+5. PLAN.md sequencing
+
 ## System Architecture
 
-The platform is divided into two layers: a UI Prototype and a Production Backend.
-
 ### Frontend Stack
--   **React 18** with TypeScript
--   **Vite** for development and building
--   **Wouter** for client-side routing
--   **TanStack Query** for data fetching and mutation caching
--   **Tailwind CSS** with custom design tokens
--   **Shadcn/ui** component library built on Radix UI primitives
+- **React 18** with TypeScript
+- **Vite** for development and building
+- **Wouter** for client-side routing
+- **TanStack Query** for data fetching and mutation caching
+- **Tailwind CSS** with custom design tokens
+- **Shadcn/ui** component library built on Radix UI primitives
 
 ### Backend Stack
--   **Express** with TypeScript
--   **PostgreSQL** with Drizzle ORM
--   **JWT** authentication
--   **bcrypt** for password hashing
--   **Anthropic SDK** for Claude AI (claude-sonnet-4-6)
+- **Express** with TypeScript
+- **PostgreSQL** with Drizzle ORM (22 tables)
+- **JWT** authentication
+- **bcrypt** for password hashing
+- **Anthropic SDK** for Claude AI (claude-sonnet-4-6)
 
-### Data Flow and Key Features
-The system integrates real API data across various modules:
--   **TeamBox**: Conversation management, including `GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/messages`, `PATCH /api/conversations/:id`.
--   **AI Chat**: Real Claude AI streaming via `POST /api/chat/:conversationId/stream` (SSE), with message persistence and markdown rendering. Includes Main Chat, RightPane Chat, and Agent Chat.
--   **Knowledge Base RAG**: Injecting KB documents into AI chat system prompts for context.
--   **Agent/Campaign Management**: Pages for Service, Marketing, and Sales departments fetch agents and campaigns from `/api/agents` and `/api/campaigns`.
--   **User Management**: Full CRUD operations for users and roles, including `GET /api/users`, `POST /api/users`, `PATCH /api/users/:id`, `GET /api/roles`, and password management. Role-Based Access Control (RBAC) is enforced.
--   **Communication Gate**: Global switch via `PATCH /api/organizations/:id` to control outbound communications.
--   **Profile Management**: `PATCH /api/users/me` for user profile updates.
--   **Auth**: JWT login/logout/refresh and session management.
--   **VAPI Integration**: Analytics and activity tracking for agents via `/api/vapi/analytics` and `/api/vapi/calls`. Read-only proxy for VAPI and Tavus API endpoints.
--   **Outbound Engine**: Campaign execution with kill switch, rate limiting, and template substitution.
--   **Notifications**: Real-time notifications with mark-as-read functionality.
--   **Activity Log**: Management page displaying real system events.
--   **AI Hunches**: Claude-powered business insight generation with an accept/dismiss/resolve lifecycle.
--   **Campaign Execution UI**: Controls for starting, stopping, and dry-running campaigns with progress tracking.
--   **Metrics Pipeline**: Canonical `/api/metrics/pipeline` endpoint — active pipeline (14-day window, excludes Lost/Sold/Duplicate), appointments today, open escalations, outbound sent (24h). Same source for AI Chat, Sales, and Management dashboards.
--   **Error Boundary**: React ErrorBoundary wraps entire app. Global 401 handler auto-redirects expired sessions to login.
--   **Org Settings Persistence**: JSONB `settings` column on organizations for notification and appearance preferences.
--   **UX Polish (Wave 4.5)**: All interactive elements wired — org switcher invalidates caches, logout clears session, profile tabs sync from URL, metric tiles open detail dialogs, TeamBox quick actions (Call/Email/SMS) functional, campaign creation dialogs on Service/Marketing, agent CRUD complete, My Work shows real conversations, Insights green zone cards clickable, settings stubs show clear "saved locally" messaging.
+## Database Schema
 
-### UI/UX Decisions and Layout Architecture
-The platform utilizes a context-aware multi-pane layout.
--   Data-centric pages feature AI chat in a right pane.
--   Chat-centric pages display information/configuration in a right pane.
--   TeamBox has a unique 4-column internal layout.
+22 tables: `roles`, `organizations`, `users`, `sessions`, `agents`, `conversations`, `messages`, `campaigns`, `tasks`, `widgets`, `integrations`, `knowledge_documents`, `campaign_recipients`, `outbound_log`, `notifications`, `activity_log`, `hunches`, `warehouse_leads`, `warehouse_metrics`, `appointments`, `slug_redirects`, `sync_log`, `usage_events`.
 
-### Database Schema
-The database comprises 20 tables: `roles`, `organizations`, `users`, `sessions`, `agents`, `conversations`, `messages`, `campaigns`, `tasks`, `widgets`, `integrations`, `knowledge_documents`, `campaign_recipients`, `outbound_log`, `notifications`, `activity_log`, `hunches`, `warehouse_leads`, `warehouse_metrics`, and `sync_log`. The warehouse tables support the data warehouse pattern with source attribution (`dataSource`, `sourceId`, `syncedAt` columns).
+### Key Tables Added
+- **appointments**: Manual appointment creation with calendar UI (title, customerName, phone, email, type, department, startTime, endTime, status, source)
+- **slug_redirects**: Handles old-to-new slug redirects with 30-day expiry and forensic logging
+- **usage_events**: Tracks every outbound event for metering (eventType, channel, quantity, metadata)
 
-### API Routes
-A comprehensive set of API routes supports both public access (login, password reset) and authenticated operations across all modules, including agents, organizations, users, conversations, campaigns, documents, VAPI/Tavus proxies, metrics, tasks, widgets, integrations, notifications, activity logs, AI hunches, sync management, and warehouse queries.
+### Kill Switch Column Defaults
+All outbound columns default to **FALSE** (AC-KS-A compliant):
+- `outbound_enabled`, `sms_enabled`, `phone_enabled`, `email_enabled` → default(false)
+- Seed explicitly sets TRUE for test organizations
 
-### Data Warehouse & Sync Service
-- **server/sync.ts**: Tiered sync service — historical backfill, daily delta (2am ET), metrics refresh (4h during 8am-6pm ET)
-- **Warehouse-first reads**: `/api/vin/leads/summary` checks warehouse_metrics first, falls back to live MCP
-- **Sync admin routes**: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
-- **Warehouse query routes**: GET /api/warehouse/{leads,metrics}
+## Features Built (Sprints 1-6)
 
-### Context Router (AI Chat Data Provenance)
-- AI chat has 3 tools: `web_search`, `vin_query_leads`, `vin_lead_summary`
-- System prompt includes data provenance rules — AI must state data source and freshness
-- Sync freshness timestamps injected into chat context
-- Hunch context includes source tags and generation age
+### Sprint 1: Design Metrics Restored
+- Home page role-based design metrics (8 roles with realistic fallback values)
+- Sales (7 tiles), Service (6 tiles), Marketing (4 tiles), Management (6 tiles)
+- Full Insights page with all tabs
+
+### Sprint 2: AI Chat + Pipeline Consistency
+- 4 AC-required tiles on AI Chat: active pipeline, appointments today, open escalations, outbound sent 24h
+- Tiles collapse when user starts typing (AC-CH-B)
+- Pipeline count consistent across AI Chat, Sales, and Management (AC-01-C)
+- Active pipeline = leads created last 14 days, excluding Lost/Sold/Duplicate (AC-01-A)
+
+### Sprint 3: VAPI + TeamBox + Kill Switch
+- VAPI→VIN Solutions 2-step lead creation with escalation on failure
+- TeamBox: 3 visually distinct types (Task, Escalation, Unsent Message), 4 priority levels
+- Kill switch creates "Unsent Message" escalation when blocking outbound sends
+- Rate limiting (3 messages per 24h per customer)
+
+### Sprint 4: Calendar, Widget, Landing Pages, Navigation
+- **Calendar**: Real monthly grid on Sales and Service with manual appointment creation, connector config UI for Google Calendar/Dealer.com/Tekion (VIN Solutions NOT listed per AC-03-E)
+- **Widget**: Exactly 4 channels (Web Chat, Web Call, Contact Form, Two-Way Video), video launches on click
+- **Landing Pages**: Globe icon → `/p/[org-slug]`, public access without login, slug redirect with 30-day expiry
+- **Navigation**: Full spec compliance (Sales has Agents/no Campaigns, Service has Agents+Campaigns, Coming Soon on Assistant and Hunches)
+
+### Sprint 5: CRM Guru, Usage, Kill Switch Fix, Hunches
+- **CRM Guru**: Dedicated mode toggle in chat input, VIN Solutions data priority, warehouse supplement with explicit attribution, general chat suggests CRM Guru for CRM questions
+- **Usage Metering**: `usage_events` table, logging on every outbound send, Usage page for Org Admin (counts, no dollars), Partner Admin org-scoped view, `/api/billing/usage` API endpoint
+- **Kill Switch**: Defaults changed from TRUE to FALSE, seed explicitly sets TRUE for test orgs
+- **Hunch Filter**: Verified — accepted hunches in prompt, dismissed excluded, resolved removed, master prompt unchanged
+
+### Sprint 6: Enforcer + AC Sweep + Documentation
+- **Enforcer** (scripts/enforcer.ts): Scans for dropped features ("Drive", "Custom Agent", "Sharing"), forbidden Artifacts context, credential exposure, kill switch default verification
+- Cleaned up Drive references from MobileNavDropdown, MobileSidebar, activity-utils
+- Full 62-AC sweep verified passing
+
+## API Routes
+
+### Core Routes
+- Auth: POST /api/auth/login, POST /api/auth/logout, POST /api/auth/refresh
+- Users: GET/POST/PATCH /api/users, GET /api/users/me
+- Agents: GET/POST/PATCH/DELETE /api/agents
+- Conversations: GET/POST/PATCH /api/conversations, messages
+- Campaigns: GET/POST/PATCH /api/campaigns, execution, recipients
+- Tasks: GET/POST/PATCH/DELETE /api/tasks
+- Widgets: GET/POST/PATCH/DELETE /api/widgets
+- Documents: GET/POST/DELETE /api/documents
+
+### Data & Metrics
+- Pipeline: GET /api/metrics/pipeline (canonical source)
+- Warehouse: GET /api/warehouse/leads, GET /api/warehouse/metrics
+- Sync: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
+
+### New Routes (Sprints 4-5)
+- Appointments: GET/POST/PATCH/DELETE /api/appointments (org-scoped, multi-tenant safe)
+- Usage: GET /api/usage, GET /api/usage/summary (roleLevel ≤ 3)
+- Billing: GET /api/billing/usage (org_id + period parameters)
+- Landing: GET /api/public/landing/:slug
+- Outbound Status: GET /api/outbound/status
+
+### Public Routes (No Auth)
+- Landing pages: GET /p/:slug
+- Widget config: GET /api/widgets/public/:widgetCode
+- Widget JS: GET /widget/nexxus-widget.js
+- VAPI webhook: POST /api/webhooks/vapi
+- TextMagic webhook: POST /api/webhooks/textmagic
 
 ## External Dependencies
 
 ### Frontend
--   **Wouter**: Client-side routing
--   **TanStack Query**: Data fetching and caching
--   **Tailwind CSS**: Utility-first CSS framework
--   **Shadcn/ui**: Component library built on Radix UI
--   **date-fns**: Date formatting
+- Wouter, TanStack Query, Tailwind CSS, Shadcn/ui, date-fns, lucide-react
 
 ### Backend
--   **PostgreSQL**: Primary database
--   **Drizzle ORM**: Schema management and queries
--   **JWT (jsonwebtoken)**: Token-based authentication
--   **bcrypt**: Password hashing
+- PostgreSQL, Drizzle ORM, JWT, bcrypt, Anthropic SDK, multer
 
-### Outbound & Communications
--   **TextMagic**: SMS service (X-TM-Key REST API), inbound webhook at POST /api/webhooks/textmagic
--   **Resend**: Email service (from notifications@huminic.ai), org invite emails
--   **4-layer safety**: Global OUTBOUND_LIVE_ENABLED env var → org comm gate → per-channel toggles → rate limit
--   **Outbound status**: GET /api/outbound/status returns global+org+channel status
+### Communications
+- TextMagic (SMS, X-TM-Key header), Resend (email, notifications@huminic.ai)
+- 4-layer safety: Global env → org comm gate → per-channel toggles → rate limit
 
-### Public Routes (No Auth)
--   **Landing pages**: GET /p/:slug serves public landing page with org branding from DB
--   **Widget config**: GET /api/widgets/public/:widgetCode returns widget appearance/channels
--   **Widget JS loader**: GET /widget/nexxus-widget.js serves embeddable widget script
--   **Landing page API**: GET /api/public/landing/:slug returns org name, persona, slug
+### Integrations
+- VinSolutions (Lead Management tier — read/query only)
+- VAPI (voice), Tavus (video)
 
-### Production Backend (separate environment)
--   **VinSolutions**: CRM integration (Lead Management tier — read/query only, no full sync)
--   **VAPI**: Voice integration
--   **Tavus**: Video integration
--   **Resend**: Email service
--   **TextMagic**: SMS service
--   **Claude API**: AI capabilities
--   **Google Calendar**: Calendar integration
+## Authentication
+- JWT tokens: `nexxus_access_token` in localStorage
+- Test logins: admin@nexxus.com/password123, Org_Admin@huminic.ai, duane.wells@huminic.ai/a1$ucc3ss
+- Role hierarchy: super_admin(1) > partner_admin(2) > org_admin(3) > executive(4) > sales_manager(5) > sales(6) > service(7) > marketing(8)
 
-### VinSolutions Data Architecture
-The VinSolutions integration is a **Lead Management** tier — NOT a sync-level integration. This means:
-- **Can**: Query/pull data on demand
-- **Cannot**: Do wholesale two-way synchronization
-- **Result**: Platform maintains a **forked local data store** (data warehouse) with its own copy of CRM data
+## Deferred to Wave 5
+- Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)
+- Production backend cutover to nexxusv2.huminicdev.com
+- Phone outbound via VAPI
+- Tavus deeper integration
+- RLS row-level security policies
 
-**Sync Strategy (3 tiers):**
-1. **One-time historical pull** — bulk import all available VinSolutions data (verbally told 48h lookback but observed longer access — take what's available)
-2. **Daily incremental** — each day, pull data that changed in the previous 24 hours
-3. **Business-hours dashboard refresh** — every 4 hours during business hours, refresh metrics that power dashboard tiles
-
-**NOT real-time** except for leads originating from Nexxus tools (VAPI calls, chat widgets, etc.)
-
-**Context Router / Data Provenance:**
-- Every piece of data has a known source: VinSolutions (CRM), VAPI (voice), Tavus (video), uploaded data, generated insights
-- When AI chat answers a user's question, it must tell the user the data source ("this came from VinSolutions" vs "this came from your local data store")
-- The data warehouse acts as a context router — aggregating multi-source data while preserving provenance
-
-**Insight History:**
-- Hunches/insights are not just point-in-time — they are memorialized so historical trends can be analyzed over time
+## Key Files
+- `shared/schema.ts` — All 22 tables, insert schemas, types
+- `server/routes.ts` — All API routes
+- `server/storage.ts` — Database storage layer
+- `server/outbound.ts` — Outbound engine with kill switch and usage logging
+- `server/seed.ts` — Test data seeding
+- `client/src/pages/main.tsx` — AI Chat with CRM Guru mode
+- `client/src/pages/widget-landing.tsx` — Public landing page with 4-channel widget
+- `client/src/components/AppointmentCalendar.tsx` — Calendar with appointment creation
+- `client/src/components/layout/SubMenuManager.tsx` — Navigation shell
+- `scripts/enforcer.ts` — Compliance scanner
+- `.agent_docs/acceptance_criteria.md` — DO NOT MODIFY

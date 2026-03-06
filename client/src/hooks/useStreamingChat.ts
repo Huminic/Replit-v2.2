@@ -4,6 +4,7 @@ import { queryClient } from '@/lib/queryClient';
 interface UseStreamingChatOptions {
   conversationId: string | null;
   agentId?: string;
+  mode?: string;
 }
 
 interface UseStreamingChatReturn {
@@ -47,7 +48,7 @@ function parseSSELines(lines: string[], accumulated: { text: string }, setStream
   return false;
 }
 
-export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOptions): UseStreamingChatReturn {
+export function useStreamingChat({ conversationId, agentId, mode }: UseStreamingChatOptions): UseStreamingChatReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -95,7 +96,7 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
           'Content-Type': 'application/json',
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ content, agentId }),
+        body: JSON.stringify({ content, agentId, ...(mode ? { mode } : {}) }),
         signal: controller.signal,
       });
 
@@ -141,7 +142,7 @@ export function useStreamingChat({ conversationId, agentId }: UseStreamingChatOp
       setStatusMessage(null);
       abortRef.current = null;
     }
-  }, [conversationId, agentId]);
+  }, [conversationId, agentId, mode]);
 
   const retry = useCallback(() => {
     if (lastFailedContent) {

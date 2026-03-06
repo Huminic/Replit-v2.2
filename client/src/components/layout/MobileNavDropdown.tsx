@@ -61,16 +61,6 @@ const pageSubMenus: Record<string, { label: string; items: SubMenuItem[] }> = {
       { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
     ],
   },
-  '/drive': {
-    label: 'Drive',
-    items: [
-      { id: 'my-files', label: 'My Files', icon: Folder, path: '/drive' },
-      { id: 'shared', label: 'Shared', icon: Users, path: '/drive' },
-      { id: 'starred', label: 'Starred', icon: Star, path: '/drive' },
-      { id: 'recent', label: 'Recent', icon: Clock, path: '/drive' },
-      { id: 'templates', label: 'Templates', icon: FileBox, path: '/drive' },
-    ],
-  },
   '/work-center': {
     label: 'Hub',
     items: [
