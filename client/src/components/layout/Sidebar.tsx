@@ -78,7 +78,7 @@ export function Sidebar() {
     toggleSubMenuExpanded
   } = useApp();
   
-  // 400ms delay timer ref for mouseLeave — prevents sub-menu from closing instantly when moving cursor between sidebar and flyout
+  // 2000ms delay timer ref for mouseLeave — gives user time to move back to sidebar/flyout without losing the panel
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup timeout on unmount
@@ -121,7 +121,7 @@ export function Sidebar() {
         if (!panelHovered) {
           setActivePanel(null);
         }
-      }, 400);
+      }, 2000);
     }
   };
 
