@@ -1,375 +1,405 @@
-# Nexxus Connect — Stabilization Plan
+# Nexxus Connect -- Implementation Plan (4-Wave)
 
-**Version:** 4.0
-**Date:** 2026-03-07
-**Status:** Synthesis complete — execution pending user approval per phase
-**Baseline:** Commit `58288b6`
-**Truth Hierarchy:** UI code → `.agent_docs/acceptance_criteria.md` (62 ACs) → This document
-**Cross-References:** [GAPS.md](./GAPS.md) | [RISK_REGISTER.md](./RISK_REGISTER.md) | [GUARDRAILS.md](./GUARDRAILS.md) | [AGENT_CODING_PLAN.md](./AGENT_CODING_PLAN.md)
+**Version:** 3.1
+**Date:** 2026-03-06
+**Status:** Active -- Waves 0-4 complete (~92%), Wave 5 deferred
+**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md) | [Sprint_log.md](./Sprint_log.md)
 
 ---
 
-## RC Milestone Definition
+## 1. Plan Overview
 
-**Release Candidate = ALL of the following are true:**
+Nexxus Connect is delivered in four waves, each building on the previous. The current UI prototype serves as the design reference for all waves. Mock data is replaced incrementally as backend services come online.
 
-1. VAPI voice calls place and receive real calls, with VinSolutions lead creation on completion (AC-02-A/B/C/D)
-2. Tavus video sessions initialize on widget click (AC-04-B)
-3. Landing page publicly accessible at `/p/:slug` with functional widget (AC-08-A/B, AC-09-A/B/C/D)
-4. Widget renders all 4 channels, each functional end-to-end (AC-04-A/B/C/D)
-5. All displayed metrics backed by real data — no mock/hardcoded values in production paths (AC-01-A/B/C, AC-CH-A/B)
-6. AI Chat stable with history persistence, persona name from org config, hunch filter working (AC-06-A/B/C/D, AC-HF-A/B/C/D)
-7. CRM Guru mode functional with VinSolutions data priority (AC-07-A/B/C)
+### Wave Summary
 
-**RC Gate**: All ACs listed above must show PASS in the Sprint Report. User must approve the RC declaration.
+| Wave | Theme | Duration | Status |
+|------|-------|----------|--------|
+| Wave 0 | Setup & UI Prototype | 2 weeks | **Complete** |
+| Wave 1 | API Wiring & Data Sources | 3 weeks | **Complete** |
+| Wave 2 | AI Chat, User CRUD, File Uploads, Metrics | 3 weeks | **Complete** |
+| Wave 3 | Outbound Engine, Webhooks, Intelligence | 2 weeks | **Complete** |
+| Wave 3.5 | Data Warehouse & Context Router | 1 week | **Complete** |
+| Wave 3.6 | Outbound Live Wiring & Safety Controls | 1 day | **Complete** |
+| **Wave 4** | **Platform Completion: Landing Pages, Widgets, Metrics, Inbound SMS, Error Handling** | 1 week | **Complete** |
+| Wave 5 | Google Calendar, Production Backend Cutover | TBD | Deferred (end) |
 
----
-
-## Section 1: AC Traceability Table
-
-This table maps every AC ID to the stabilization task that addresses it, its current status, and the GAPS.md/RISK_REGISTER.md items it relates to.
-
-**How to use this table:**
-- To check "what's the state of AC-04-B?" → find the row, see the task ID, check the status
-- At sprint end, update the Status column for each AC addressed in that sprint
-- Status values: NOT STARTED | IN PROGRESS | PASS | FAIL | PARTIAL | BLOCKED | DEFERRED
-
-### MVP Function 1 — Accurate Metrics
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-01-A | Active pipeline definition (14-day, exclude Lost/Sold/Dup) | S4-T01 | NOT STARTED | #5 | Backend computation exists; verify formula |
-| AC-01-B | Pipeline count display matches DB query | S4-T01 | NOT STARTED | #5 | Main page wired; verify accuracy |
-| AC-01-C | Metric consistency across sections | S4-T02 | NOT STARTED | #4, #5 | Insights page is 100% mock — blocks this AC |
-
-### MVP Function 2 — Voice Lead Capture (VAPI)
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-02-A | Successful VAPI lead capture → VIN record + transcript | S3-T01 | NOT STARTED | #1 | VAPI is console.log only |
-| AC-02-B | Step 1 failure → VIN Push Failure escalation in TeamBox | S3-T01 | NOT STARTED | #1 | No escalation creation on VAPI failure |
-| AC-02-C | Step 2 failure → escalation with contact_href | S3-T01 | NOT STARTED | #1 | No escalation creation on VAPI failure |
-| AC-02-D | No silent failure — log + escalation both exist | S3-T01 | NOT STARTED | #1, #15 | Silent .catch patterns exist |
-
-### MVP Function 3 — Appointment Sync
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-03-A | Google Calendar → Nexxus sync | DEFERRED | DEFERRED | — | Wave 5 / future |
-| AC-03-B | Dealer.com → Nexxus sync | DEFERRED | DEFERRED | — | Wave 5 / future |
-| AC-03-C | Tekion → Nexxus sync | DEFERRED | DEFERRED | — | Wave 5 / future |
-| AC-03-D | Manual appointment creation | DEFERRED | DEFERRED | — | Wave 5 / future |
-| AC-03-E | VIN Solutions NOT listed as appointment source | DEFERRED | DEFERRED | — | Wave 5 / future |
-
-### MVP Function 4 — Universal Widget
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-04-A | Four channels present (chat, call, form, video) | S3-T03 | NOT STARTED | #11 | Widget renders channels; verify all 4 functional |
-| AC-04-B | Video launches Tavus immediately on click | S3-T02 | NOT STARTED | #2 | Tavus has zero implementation |
-| AC-04-C | Disabled channel not rendered | S3-T03 | NOT STARTED | — | UI logic may exist; verify |
-| AC-04-D | Embed code generation and copyable | S3-T03 | NOT STARTED | — | Settings page has embed section |
-
-### MVP Function 5 — Outbound Trigger Engine
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-05-A | Kill switch blocks SMS | S6-T01 | NOT STARTED | — | Safety stack implemented; verify |
-| AC-05-B | Kill switch blocks phone (VAPI) | S6-T01 | NOT STARTED | #1 | Requires VAPI wiring first |
-| AC-05-C | Kill switch blocks email | S6-T01 | NOT STARTED | — | Safety stack implemented; verify |
-| AC-05-D | Channel switch blocks specific channel | S6-T01 | NOT STARTED | — | Per-channel toggles exist |
-| AC-05-E | Rate limit enforcement (3 msgs / 24h) | S6-T02 | NOT STARTED | — | Rate limiter code exists; verify |
-| AC-05-F | Trigger logged with full details | S6-T02 | NOT STARTED | #8, #14 | In-memory execution state; logging gaps |
-
-### MVP Function 6 — Advanced AI Chat
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-06-A | Thinking card visible during AI processing | S5-T01 | NOT STARTED | #48 | UI may exist; verify behavior |
-| AC-06-B | Chat history persists across sessions | S5-T02 | NOT STARTED | #7, #9 | Conversations stored in DB; verify retrieval |
-| AC-06-C | Persona name from org "Agent Name" field | S5-T03 | NOT STARTED | — | personaName field exists on orgs table |
-| AC-06-D | Persona name fallback to VAPI config name | S5-T03 | NOT STARTED | — | Fallback logic needed |
-
-### MVP Function 7 — CRM Guru Agent
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-07-A | VIN Solutions data priority in CRM Guru | S5-T04 | NOT STARTED | — | CRM Guru mode exists; verify data priority |
-| AC-07-B | Warehouse supplement with explicit attribution | S5-T04 | NOT STARTED | — | System prompt has data provenance rules |
-| AC-07-C | General chat fallback to warehouse + navigation suggestion | S5-T04 | NOT STARTED | — | Verify behavior |
-
-### MVP Function 8 — Customer Experience View
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-08-A | Globe icon links to landing page at /p/[slug] | S3-T04 | NOT STARTED | #3 | Globe icon may exist in TopBar |
-| AC-08-B | Landing page publicly accessible without login | S3-T04 | NOT STARTED | #3 | /p/:slug route exists but minimal |
-
-### MVP Function 9 — Hosted Landing Page
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-09-A | Slug format: kebab-case from org name | S3-T04 | NOT STARTED | #3 | Slug management exists |
-| AC-09-B | Slug collision handling (append -2) | S3-T04 | NOT STARTED | #3 | Verify collision logic |
-| AC-09-C | Slug edit with 30-day redirect + forensic log | S3-T04 | NOT STARTED | #3 | Redirect creation exists in API |
-| AC-09-D | Widget present and functional on landing page | S3-T04, S3-T03 | NOT STARTED | #3, #2 | Depends on widget being functional |
-
-### MVP Function 10 — Metering and Usage
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-10-A | Events counted (usage_events table) | S6-T03 | NOT STARTED | — | usage_events table exists |
-| AC-10-B | Usage visible to Org Admin (no dollar amounts) | S6-T03 | NOT STARTED | #22 | Usage page exists; verify data |
-| AC-10-C | Usage scoped to org (Partner sees own orgs only) | S6-T03 | NOT STARTED | #13 | App-layer scoping; no RLS |
-| AC-10-D | Billing API accessible (billing_get_usage) | DEFERRED | DEFERRED | #18 | Requires Stripe integration |
-
-### Kill Switch System
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-KS-A | 4 columns exist with DEFAULT FALSE | S6-T01 | NOT STARTED | — | Schema has these columns |
-| AC-KS-B | Master switch overrides channel switches | S6-T01 | NOT STARTED | — | Logic exists in outbound engine |
-
-### TeamBox Escalations
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-TB-A | Task/Escalation/Unsent Message are distinct visual types | S6-T04 | NOT STARTED | #11 | TeamBox renders conversations; verify type distinction |
-| AC-TB-B | Priority levels (Critical/High/Medium/Low) visually distinct | S6-T04 | NOT STARTED | — | Verify in TeamBox UI |
-
-### Enforcer Compliance
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-EF-A | Dropped feature references block merge | S7-T01 | NOT STARTED | #42 | Enforcer script exists; verify |
-| AC-EF-B | No production credentials in commits | S7-T01 | NOT STARTED | #42 | Enforcer script scans; verify |
-| AC-EF-C | Kill switch test must pass before merge | S7-T01 | NOT STARTED | #10 | Enforcer checks defaults; needs expansion |
-
-### AI Chat Landing Page — 4 Metrics
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-CH-A | Four metric tiles on load (pipeline, appts, escalations, outbound) | S4-T01 | NOT STARTED | — | Main page renders 4 tiles from real API |
-| AC-CH-B | Metrics hide on chat start | S4-T01 | NOT STARTED | — | Verify collapse behavior |
-
-### Hunch Filter — System Prompt Hierarchy
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-HF-A | Accepted hunch added to effective prompt | S5-T05 | NOT STARTED | — | Hunch injection exists in system prompt |
-| AC-HF-B | Dismissed hunch not in prompt | S5-T05 | NOT STARTED | — | Verify filtering |
-| AC-HF-C | Resolved hunch removed from prompt | S5-T05 | NOT STARTED | — | Verify filtering |
-| AC-HF-D | Master prompt unchanged by hunch acceptance | S5-T05 | NOT STARTED | — | Verify immutability |
-
-### Navigation Shell
-
-| AC ID | Description | Task(s) | Status | Risk Reg # | Notes |
-|-------|-------------|---------|--------|------------|-------|
-| AC-NAV-A | AI Chat sub-items: Favorites, Chat History, Artifacts | S8-T01 | NOT STARTED | — | SubMenuManager renders these |
-| AC-NAV-B | Artifacts scoped to data reports only | S8-T01 | NOT STARTED | — | Verify no file upload/sharing |
-| AC-NAV-C | My Work sub-items: Assistant (Coming Soon), Dashboard, Tasks, Chat | S8-T01 | NOT STARTED | — | Verify labels and Coming Soon |
-| AC-NAV-D | TeamBox sub-items: Tasks, Conversations, Workflows | S8-T01 | NOT STARTED | — | Verify order and labels |
-| AC-NAV-E | All conversations route to TeamBox → Conversations | S8-T01 | NOT STARTED | — | Verify routing |
-| AC-NAV-F | Sales: Dashboard, Agents, Insights, Calendar (no Campaigns) | S8-T01 | NOT STARTED | — | Verify absence of Campaigns |
-| AC-NAV-G | Service: Dashboard, Agents, Campaigns, Insights, Calendar | S8-T01 | NOT STARTED | — | Verify all present |
-| AC-NAV-H | Management: Dashboard, Insights, Hunches (Coming Soon), Activities, ROI | S8-T01 | NOT STARTED | — | Verify Coming Soon label on Hunches |
-| AC-NAV-I | Disabled module absent from nav (no stub) | S8-T01 | NOT STARTED | — | Verify behavior |
-| AC-NAV-J | Enabled-but-not-built shows Coming Soon + not clickable | S8-T01 | NOT STARTED | — | Verify behavior |
+### Current Progress: ~92%
 
 ---
 
-## Section 2: Stabilization Phases
+## 2. Wave 1 -- UI Prototype & Navigation Restructure
 
-### Phase S1: Governance Cleanup
+**Goal:** Restructure navigation from feature-based (Main/Insights/Agents/Hub/Drive) to persona/department-based (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). Build all page shells with mock data. Establish the complete visual contract.
 
-**Goal:** Resolve contradictions, archive stale documents, establish clean authority chain.
-**RC relevance:** Prerequisite — clears confusion that causes incorrect implementations.
+**Status:** Complete
 
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S1-T01 | Archive stale governance docs to `archive/` | SPEC.md, COMMENT_INDEX.md, acceptance_criteria_audit.md, .agent_docs/rules/operational-context.md, .agent_docs/codebase-index.md, .agent_docs/undefined-items.md | — | — | S | Files exist in archive/; originals removed from root/.agent_docs |
-| S1-T02 | Remove nuisance files (loose PNGs, orphaned mocks) | home-metrics.png, sales-dashboard.png, 9 orphaned mock files per RISK_REGISTER.md §6 | — | — | S | Files deleted; no broken imports (grep confirms no remaining references) |
-| S1-T03 | Update CLAUDE.md truth hierarchy to match consolidated hierarchy | CLAUDE.md | S1-T01 | — | S | CLAUDE.md §1.2 says: T1=UI code, T2=.agent_docs/acceptance_criteria.md, T3=SRS.md, T4=PLAN.md. No "Constitution" reference. |
-| S1-T04 | Resolve contradiction C-06 (Artifacts scope) in codebase comments | Relevant source files | S1-T01 | AC-NAV-B | S | Any code comment referencing Artifacts as "out of scope" is clarified to mean file upload/sharing, not the sub-item itself |
+### 2.1 Completed Items
 
-**GATE:STOP** — After completing S1, agent presents: files archived, files removed, CLAUDE.md changes, contradiction resolutions. User approves before S2.
+| Item | Description | Files |
+|------|-------------|-------|
+| Sidebar navigation | Replaced menu items with AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management, System | `Sidebar.tsx` |
+| Route structure | Added routes for `/teambox`, `/my-work`, `/sales`, `/service`, `/marketing`, `/management` | `App.tsx` |
+| SubMenuManager rewrite | Panel cases for all new sections with nav items, agent lists, search | `SubMenuManager.tsx` |
+| AI Chat page | Main page with role-based metric tiles, thinking cards, persona name from org config | `main.tsx` |
+| TeamBox page | CommBox-inspired 3-column layout: filters, conversation list, chat thread, customer info panel | `teambox.tsx` |
+| Sales page | Dashboard with 7 metric tiles, Agents tab with agent cards, Insights/Calendar placeholders | `sales.tsx` |
+| Service page | Dashboard with 6 metric tiles, Agents tab, Campaigns tab with table and kill switch, Insights/Calendar | `service.tsx` |
+| Marketing page | Dashboard with 4 metric tiles, Agents tab, Campaigns tab with table and kill switch, Studio placeholder, Insights | `marketing.tsx` |
+| Management page | Dashboard with 6 KPI tiles, Hunches tab with AI pattern cards, Activities tab, ROI placeholder | `management.tsx` |
+| My Work page | Personal dashboard, task list, chat/assistant placeholders | `my-work.tsx` |
+| Mock data: conversations | TeamBox conversation mock data with channels, statuses, messages | `mocks/conversations.ts` |
+| Mock data: campaigns | Campaign mock data with messages, CSV references, kill switch state | `mocks/campaigns.ts` |
+| Mock data: agents | Agents tagged by department (sales/service/marketing) | `mocks/agents.ts` |
+| AppContext updates | Persona name, communication gate, panel IDs, favorites, selectedAgent | `AppContext.tsx` |
+| RBAC gating | Section access by role, sidebar item visibility, settings tile visibility | `users.ts`, `Sidebar.tsx` |
+| Widget configuration | Table layout with embed codes, search, widget type cards, accordion config | `settings.tsx` |
+| Landing page | Simplified `/w/demo` route | `widget-landing.tsx` |
+| Campaign kill switch | Per-campaign toggle in Service and Marketing campaigns tabs | `service.tsx`, `marketing.tsx` |
+| Communication gate | Global toggle in Settings to pause all outbound automated communications | `settings.tsx`, `AppContext.tsx` |
+| Right pane rules | Chat-center pages get info pane; data-center pages get Automa chat pane | `AppLayout.tsx`, `RightPane.tsx` |
+| Settings: full sections | Users, Organization, Tools, Knowledge, AI Config, Security, Notifications, Data, Appearance, Billing | `settings.tsx` |
+| Profile page | Personal info, preferences, billing tabs | `profile.tsx` |
+| Billing management | Dedicated billing page at `/settings/billing` | `billing-management.tsx` |
+| Org wizard | Organization creation wizard at `/settings/org-wizard` | `org-wizard.tsx` |
+| Removed features | Drive, standalone Activity, standalone Agents creation, Skills standalone | Cleanup pass |
 
----
+### 2.2 Active Work
 
-### Phase S2: Schema Stabilization
+| Item | Description | Status |
+|------|-------------|--------|
+| Documentation suite | CLAUDE.md, PRD.md, SRS.md, SPEC.md, PLAN.md, ACCEPTANCE_CRITERIA.md | Complete |
+| Screenshot validation | Visual regression screenshots across roles, themes, viewports | Complete (E2E tests) |
+| replit.md update | Reflect v2.2 navigation and architecture | Complete |
+| Automa→personaName fix | Replaced all hardcoded "Automa" with dynamic personaName from org config | Complete |
+| Codebase cleanup | Removed attached_assets/ (85MB), plan_docs/ (260KB), docs/ (8KB), fixed dangling refs | Complete |
+| Auth file extraction | Login, forgot/reset password, AuthContext, ProtectedRoute from v2.1 zip (not wired yet) | Complete |
+| Real agent data | 5 Serra Auto Group agents with VAPI+Tavus, channels[], dealership fields | Complete |
 
-**Goal:** Resolve dual schema conflict, add cascades, add critical indexes. No new tables yet.
-**RC relevance:** Foundation — prevents data integrity issues during RC feature work.
+### 2.3 Wave 1 Completion Criteria
 
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S2-T01 | Resolve dual schema conflict — remove or isolate shared/models/chat.ts | shared/models/chat.ts, shared/schema.ts, server/replit_integrations/ | — | AC-06-B | S | shared/models/chat.ts either deleted or clearly scoped to Replit integration only; no type name collisions with shared/schema.ts |
-| S2-T02 | Add ON DELETE CASCADE to all FKs | shared/schema.ts | S2-T01 | — | S | Every references() call has onDelete: 'cascade' or an explicit documented reason for not cascading |
-| S2-T03 | Add indexes on high-query columns | shared/schema.ts | S2-T01 | — | S | Indexes on: conversations.organization_id, conversations.status, messages.conversation_id, campaigns.organization_id, campaigns.department, agents.organization_id, tasks.organization_id, activity_logs.organization_id |
-| S2-T04 | Generate migration file from current schema | shared/schema.ts, migrations/ | S2-T02, S2-T03 | — | S | At least one migration file exists in migrations/; drizzle-kit generate succeeds |
-
-**GATE:STOP** — After completing S2, agent presents: schema changes, migration file, cascade rules. User approves before S3.
-
----
-
-### Phase S3: RC Features — VAPI + Tavus + Widget + Landing Page
-
-**Goal:** Wire the communication stack end-to-end. This is the core RC milestone work.
-**RC relevance:** Direct — these are the RC-defining features.
-
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S3-T01 | Wire VAPI for real voice calls — replace console.log with actual VAPI API calls; implement VinSolutions lead creation on call completion; implement failure escalation to TeamBox | server/routes.ts (VAPI webhook handler), server/vendorProxy.ts, shared/schema.ts (if escalation type needed) | S2 complete | AC-02-A, AC-02-B, AC-02-C, AC-02-D | L | VAPI webhook receives real call data; lead created in VinSolutions on success; escalation created in tasks table on failure; no console.log-only paths remain |
-| S3-T02 | Implement Tavus video integration — create Tavus client, session initialization, persona matching | New: server/tavus.ts; modify: server/routes.ts, client widget component | S2 complete | AC-04-B | L | Tavus API called on video channel click; session initializes; video stream renders in widget; not pre-loaded on page arrival |
-| S3-T03 | Harden widget — verify 4 channels functional, channel toggle works, embed code generation | client/src/pages/widget-landing.tsx, settings widget section | S3-T01, S3-T02 | AC-04-A, AC-04-C, AC-04-D, AC-09-D | M | All 4 channels render when enabled; disabled channel hidden; embed code snippet displayed and copyable; widget functional on landing page |
-| S3-T04 | Landing page end-to-end — verify slug format, collision handling, redirect logic, globe icon link, public access | server/routes.ts (org slug routes), client TopBar, widget-landing.tsx | S3-T03 | AC-08-A, AC-08-B, AC-09-A, AC-09-B, AC-09-C | M | /p/:slug accessible without auth; slug is kebab-case; collision appends -2; edit creates 30-day redirect; globe icon in TopBar links to /p/[current-org-slug] |
-
-**GATE:STOP** — After completing S3, agent presents: VAPI call evidence, Tavus session evidence, widget 4-channel verification, landing page public access verification, AC pass/fail for each. User approves before S4.
-
----
-
-### Phase S4: Metrics Correction
-
-**Goal:** Ensure all displayed metrics are backed by real data. Remove mock data from metric surfaces.
-**RC relevance:** Direct — "correct metrics in UI" is an RC gate criterion.
-
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S4-T01 | Verify main page 4 tiles match AC-CH-A — active pipeline, appointments today, open escalations, outbound sent 24h. Verify hide-on-chat-start behavior. | client/src/pages/main.tsx | — | AC-01-A, AC-01-B, AC-CH-A, AC-CH-B | S | 4 tiles render with labels matching AC-CH-A; values come from /api/metrics/pipeline (real DB); tiles collapse when user types |
-| S4-T02 | Wire Insights page to real data — replace insight-data.ts imports with API calls. Build backend analytics endpoints as needed. | client/src/pages/insights.tsx, client/src/lib/insight-data.ts, server/routes.ts | S4-T01 | AC-01-C | L | Zero imports from insight-data.ts; every chart/table section uses useQuery; backend endpoints return real computed data; "Sample Data" banner removed |
-| S4-T03 | Wire trend percentages — implement historical comparison (vs previous period) for dashboard metric tiles | server/storage.ts, server/routes.ts, department page components | S4-T01 | AC-01-C | M | change values on metric tiles are non-zero when data exists; computed from real historical comparison; display "N/A" or "—" when insufficient history |
-| S4-T04 | Wire TopBar Activity Feed to real API | client/src/components/layout/TopBar.tsx, client/src/lib/activity-utils.ts | — | — | S | TopBar uses useQuery for /api/activity-log instead of staticActivityFeed; static array removed |
-| S4-T05 | Wire Sales Recent Activity to real API | client/src/pages/sales.tsx | — | — | S | 5-item hardcoded array replaced with useQuery for /api/activity-log?department=sales |
-
-**GATE:STOP** — After completing S4, agent presents: metric tile evidence (screenshots or data), Insights page transformation, trend values, TopBar/Sales activity wiring. AC pass/fail for each. User approves before S5.
-
----
-
-### Phase S5: Chat Hardening
-
-**Goal:** Ensure AI Chat is stable, advanced, and meets all chat-related ACs.
-**RC relevance:** Direct — "stable/advanced user chat" is an RC gate criterion.
-
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S5-T01 | Verify thinking card appears during AI processing | client/src/pages/main.tsx, client/src/hooks/useStreamingChat.ts | — | AC-06-A | S | Thinking indicator visible during AI processing; disappears when response starts streaming |
-| S5-T02 | Verify chat history persists across sessions — fix mid-stream failure data loss | server/routes.ts (stream endpoint), client chat components | — | AC-06-B | M | Returning to AI Chat shows previous conversations; partial AI responses saved on stream failure (not lost) |
-| S5-T03 | Verify persona name from org "Agent Name" field with VAPI fallback | server/routes.ts (system prompt), client greeting components | — | AC-06-C, AC-06-D | S | Persona greeting uses org.personaName; if empty, uses VAPI assistant name; never shows hardcoded "Automa" when org has a custom name |
-| S5-T04 | Verify CRM Guru mode — VIN Solutions data priority, warehouse supplement, general chat fallback | server/routes.ts (chat endpoint), client CRM Guru toggle | — | AC-07-A, AC-07-B, AC-07-C | M | CRM Guru response uses VIN data first; warehouse data attributed explicitly; general chat suggests CRM Guru when CRM data needed |
-| S5-T05 | Verify hunch filter — accepted hunches in prompt, dismissed excluded, resolved removed, master prompt immutable | server/routes.ts (system prompt construction) | — | AC-HF-A, AC-HF-B, AC-HF-C, AC-HF-D | M | Accepted hunch content appears in effective prompt after master prompt; dismissed hunch absent; resolved hunch absent; master prompt bytes identical before and after hunch operations |
-
-**GATE:STOP** — After completing S5, agent presents: thinking card evidence, chat history evidence, persona name evidence, CRM Guru test results, hunch filter verification. AC pass/fail for each. User approves before S6.
+- [x] All 7 sidebar sections render with correct icons and RBAC gating
+- [x] All section pages render their dashboards with metric tiles
+- [x] Tab switching works within all section pages
+- [x] TeamBox 3-column layout renders with conversation list, chat thread, customer info
+- [x] Campaign tables render in Service and Marketing with kill switch toggles
+- [x] Communication gate toggle visible in Settings
+- [x] Right pane content follows cardinal layout rules (chat-center vs data-center)
+- [x] Role switcher changes metric tiles on AI Chat page and hides/shows sidebar items
+- [x] Sub-menu panels show correct nav items for each section
+- [x] Widget configuration table and accordion sections render in Settings
+- [x] No console errors, no broken imports, no dead routes
+- [x] Documentation suite complete and internally consistent
+- [x] replit.md updated to reflect current state
 
 ---
 
-### Phase S6: Outbound & Kill Switch & TeamBox & Metering
+## 3. Wave 2 -- Backend Foundation & Core API Wiring
 
-**Goal:** Verify outbound safety stack, TeamBox escalation types, and metering pipeline.
-**RC relevance:** Safety-critical — kill switch is a hard requirement.
+**Goal:** Establish authentication, database schema, and wire core CRUD operations to replace mock data with real API calls.
 
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S6-T01 | Verify kill switch system — master overrides channels, all 3 channel blocks (SMS/phone/email), 4 columns with DEFAULT FALSE | server/outbound.ts, shared/schema.ts | S3-T01 (VAPI needed for phone) | AC-05-A, AC-05-B, AC-05-C, AC-05-D, AC-KS-A, AC-KS-B | M | With outbound_enabled=FALSE: SMS blocked + escalation created; phone blocked + escalation created; email blocked + escalation created. With outbound_enabled=TRUE, sms_enabled=FALSE: SMS blocked, email/phone pass. Master always overrides. |
-| S6-T02 | Verify rate limiter and trigger logging — persistent execution state | server/outbound.ts, server/routes.ts | S6-T01 | AC-05-E, AC-05-F | M | 4th message in 24h blocked with Unsent Message escalation; every trigger (sent or blocked) logged with: trigger_id, org_id, customer_id, channel, status, blocked_reason, timestamp. Campaign execution state persisted (not just in-memory Map). |
-| S6-T03 | Verify metering — usage events counted, visible to Org Admin, scoped correctly | server/routes.ts (usage routes), client/src/pages/usage.tsx | — | AC-10-A, AC-10-B, AC-10-C | M | Outbound SMS creates usage_events entry; Usage page shows counts without dollar amounts; Partner Admin sees only assigned orgs |
-| S6-T04 | Verify TeamBox escalation types and priority levels | client/src/pages/teambox.tsx | S6-T01 | AC-TB-A, AC-TB-B | S | Task, Escalation, Unsent Message visually distinct in TeamBox; Critical/High/Medium/Low priority levels have distinct visual treatment |
+**Status:** In Progress (Phase 1 Complete)
 
-**GATE:STOP** — After completing S6, agent presents: kill switch test results (all 4 channels), rate limiter evidence, trigger log evidence, metering evidence, TeamBox type/priority evidence. AC pass/fail for each. User approves before S7.
+### 3.1 Completed Items (Phase 1: Schema, Auth & API Foundation)
 
----
+| Item | Description | Files |
+|------|-------------|-------|
+| Database schema | 8 tables: roles, organizations, users, sessions, agents, conversations, messages, campaigns with kill switch columns | `shared/schema.ts` |
+| Database storage | Drizzle ORM DatabaseStorage with full CRUD for all tables | `server/storage.ts` |
+| Seed data | 8 roles, 3 orgs (Serra Honda/Nissan/Ford), 8 users, 5 agents, sample data. Default login: admin@nexxus.com / password123 | `server/seed.ts` |
+| JWT authentication | Access (15min) / refresh (7d) tokens, authenticateToken middleware, requireRole middleware | `server/auth.ts` |
+| Auth API routes | POST login/logout/refresh/switch-org/forgot-password/reset-password, GET me | `server/routes.ts` |
+| CRUD API routes | Agents (CRUD), organizations (read/update), users/me (read/update), conversations (list/messages), campaigns (list/update) | `server/routes.ts` |
+| Frontend auth wiring | AuthProvider wraps app, ProtectedRoute guards app routes, login/forgot/reset as public routes, SessionTimeoutDialog integrated | `App.tsx` |
+| AppContext bridge | Auth user maps to AppContext types, real agents/org loaded via TanStack Query, mock fallback preserved | `AppContext.tsx` |
+| Bearer token injection | queryClient.ts injects Authorization header from localStorage on all API calls | `queryClient.ts` |
+| Kill switch columns | outbound_enabled/sms_enabled/phone_enabled/email_enabled on organizations, kill_switch on campaigns, campaign_disconnected on conversations | `shared/schema.ts` |
 
-### Phase S7: Test Coverage
+### 3.2 Remaining Items (Phase 2: Deferred to Wave 3)
 
-**Goal:** Establish automated testing. Wire test batteries to executable tests.
-**RC relevance:** Verification — ensures RC features don't regress.
+| Item | Description | Dependencies |
+|------|-------------|--------------|
+| RLS & multi-tenancy | Row-level security policies for full tenant isolation | Schema |
+| Chat API streaming | SSE streaming for AI responses via Claude | Auth |
+| Chat history persistence | Store chat messages in database | Chat API |
+| Campaign CRUD API | Full campaign lifecycle with CSV upload | Auth |
 
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S7-T01 | Expand Enforcer script — add mock data detection, API endpoint verification, credential scanning improvements | scripts/enforcer.ts | — | AC-EF-A, AC-EF-B, AC-EF-C | M | Enforcer detects: mock imports in production pages, dropped feature references, credentials, kill switch defaults. All checks pass on current codebase. |
-| S7-T02 | Set up test framework (Vitest or Playwright) and create first test suite covering kill switch ACs | New: vitest.config.ts or playwright.config.ts, tests/ directory | S6 complete | AC-KS-A, AC-KS-B | M | Test runner executes; kill switch tests pass; test files exist in tests/ directory |
-| S7-T03 | Create API integration tests for critical endpoints (auth, chat, campaigns, metrics) | tests/ directory | S7-T02 | — | L | Tests cover: login flow, chat creation + message, campaign CRUD, metrics endpoint returns real data |
-| S7-T04 | Map test batteries (testing/ folder) to executable test plans — identify which battery tests can be automated vs manual | testing/README.md (new) | S7-T02 | — | M | README.md in testing/ maps each battery to: automated test file (if exists), manual test procedure, AC coverage |
+### 3.3 Wave 2 Completion Criteria
 
-**GATE:STOP** — After completing S7, agent presents: Enforcer results, test suite results, test coverage summary, battery mapping. User approves before S8.
-
----
-
-### Phase S8: Mock Removal & Polish
-
-**Goal:** Remove remaining mock data, fix navigation ACs, clean up UI gaps.
-**RC relevance:** Final polish — ensures no mock data in production paths.
-
-| Task | Description | Files | Blocked By | ACs | Complexity | Self-Verification |
-|------|-------------|-------|------------|-----|------------|-------------------|
-| S8-T01 | Verify all Navigation Shell ACs — sub-items, Coming Soon labels, routing | client/src/components/layout/SubMenuManager.tsx, Sidebar.tsx | — | AC-NAV-A through AC-NAV-J | M | Each AC-NAV item verified individually; sub-items match spec; Coming Soon labels present where required; disabled modules absent |
-| S8-T02 | Wire My Work chat tab to real API — remove mock imports | client/src/pages/my-work.tsx | S4 complete | — | M | Zero imports from @/mocks/; chat tab uses useQuery for /api/conversations; mock files messages.ts and conversations.ts deleted |
-| S8-T03 | Remove remaining orphaned mock files and barrel export | client/src/mocks/index.ts, remaining mock files | S8-T02 | — | S | client/src/mocks/ directory empty or deleted; no broken imports anywhere (build succeeds) |
-| S8-T04 | Address Settings demo-mode actions — wire or explicitly mark as "Phase 2" | client/src/pages/settings.tsx | — | — | M | Each demo-mode toast either replaced with real functionality or explicitly shows "Available in future release" with a tracking item in GAPS.md |
-
-**GATE:STOP** — After completing S8, agent presents: navigation verification (all AC-NAV items), My Work wiring evidence, mock removal evidence, settings status. AC pass/fail for each. User approves. If all RC-gate ACs pass → RC declaration proposed.
+- [x] Login/logout flow works end-to-end
+- [ ] RLS policies enforce tenant isolation (deferred to Wave 3)
+- [x] Agent list loads from API
+- [ ] AI chat streams responses via SSE (deferred to Wave 3)
+- [ ] Chat history persisted in database (deferred to Wave 3)
+- [x] User profile edits save to database
+- [x] Settings visibility matches authenticated role
+- [x] Organization data flows from API (not mock)
+- [x] Kill switch backend columns exist
+- [ ] Consolidated DB schema doc covers all 53 tables (deferred — production backend reference)
+- [ ] API contract doc covers all endpoints (deferred — production backend reference)
 
 ---
 
-## Section 3: Sprint Report Template
+## 4. Wave 3 -- Outbound Engine, Webhooks & Intelligence (COMPLETE)
 
-Use this template at the end of each phase to report results against ACs.
+**Goal:** Build outbound communication engine, real notifications/activity feeds, VAPI webhook, and AI intelligence engine.
 
+**Status:** Complete (Sprint 3.1-3.3, completed 2026-03-06)
+
+### 4.1 Completed Items
+
+| Item | Description | Status |
+|------|-------------|--------|
+| Outbound engine | Comm gate (5-layer check), kill switch, rate limiting, template substitution | Done |
+| Campaign execution | Start/stop/dry-run with setInterval processing, progress tracking UI | Done |
+| Notifications system | Real bell count (15s poll), mark-read, triggered by user/campaign/comm events | Done |
+| Activity log | Management feed with real events, fire-and-forget logging | Done |
+| VAPI webhook | Read-only receiver, creates TeamBox conversations + notifications from calls | Done |
+| AI hunches | Claude-powered insight generation, accept/dismiss/resolve lifecycle | Done |
+| Hunch chat filter | Accepted hunches injected into AI chat prompt context | Done |
+| SMS/email stubs | Stub functions ready for TextMagic/Resend when API keys arrive | Done |
+
+### 4.2 Wave 3 Completion Criteria
+
+- [x] Comm gate blocks sends when org/channel disabled
+- [x] Campaign kill switch stops execution mid-run
+- [x] Rate limit enforced (3 messages/24h per customer)
+- [x] Dry run mode logs without sending or mutating recipient status
+- [x] VAPI webhook creates conversations (read-only, no VAPI write-back)
+- [x] TopBar bell shows real notification count
+- [x] Management activity feed shows real logged events
+- [x] AI hunches generate via Claude with confidence scoring
+- [x] Accepted hunches influence AI chat responses
+
+---
+
+## 5. Wave 3.5 -- Data Warehouse & Context Router (NEXT)
+
+**Goal:** Build the local data warehouse, implement tiered sync from VinSolutions, add data source attribution to all warehoused data, build the context router for AI chat provenance, and memorialize insights over time.
+
+**Status:** Next — prerequisite for correct metrics, AI data access, and data provenance
+
+### CRITICAL ARCHITECTURE CONSTRAINT
+
+VinSolutions integration is **Lead Management tier** — NOT a sync-level integration.
+- **Can**: Query/pull data on demand via MCP proxy
+- **Cannot**: Do wholesale two-way synchronization
+- **Cannot**: Write data back to VinSolutions (deferred until write API access granted)
+- **Result**: Platform maintains a **forked local data store** (data warehouse) with its own copy of CRM data
+
+### 5.1 Tiered Sync Strategy
+
+| Tier | Frequency | Scope | Purpose |
+|------|-----------|-------|---------|
+| **Historical Backfill** | Once | All accessible VinSolutions data | Populate data warehouse (they said 48h lookback but we've accessed more — take everything available) |
+| **Daily Delta** | Once/day (overnight) | Yesterday's changes | Incremental updates — query VinSolutions for records modified in last 24h, upsert into warehouse |
+| **Metrics Refresh** | Every 4 hours (business hours 8am-6pm) | Dashboard KPIs only | Real-time enough for decisions — lightweight aggregation refresh |
+
+**NOT real-time** except for leads originating from Nexxus tools (VAPI calls, chat widgets, etc.)
+
+### 5.2 Data Source Attribution
+
+Every piece of data in the warehouse is tagged with its origin.
+
+| Source Tag | Origin | Examples |
+|------------|--------|----------|
+| `vin_solutions` | CRM queries via MCP proxy | Leads, contacts, deal statuses |
+| `vapi` | Call transcripts/events via webhook | Inbound call records, transcripts |
+| `tavus` | Video interactions | Video session data |
+| `uploaded` | Manual CSV/file imports | Campaign recipients, custom lists |
+| `computed` | Derived metrics/insights | AI hunches, aggregated KPIs |
+| `nexxus` | Platform-generated | Conversations, tasks, notifications |
+
+Schema pattern for all warehoused tables:
 ```
-## Sprint Report: Phase S[X]
-
-**Date:** [date]
-**Tasks Completed:** [list task IDs]
-
-### AC Results
-
-| AC ID | Description | Result | Evidence | Notes |
-|-------|-------------|--------|----------|-------|
-| AC-XX-X | [from traceability table] | PASS / FAIL / PARTIAL | [what was verified and how] | [any new gaps] |
-
-### New Gaps Discovered
-| ID | Description | Severity |
-|----|-------------|----------|
-| [new ID] | [description] | [H/M/L] |
-
-### Blocking Issues
-[any issues preventing completion]
-
-### User Approval
-- [ ] User reviewed and approved this sprint
+dataSource    text NOT NULL DEFAULT 'nexxus'    -- origin tag
+sourceId      text                              -- original ID from source system
+syncedAt      timestamp                         -- when last synced from source
 ```
 
+### 5.3 Context Router (AI Chat Data Provenance)
+
+When AI chat answers questions that reference data, it must state provenance:
+- "Based on VinSolutions data from 2 hours ago..."
+- "Based on your uploaded metrics from March 1..."
+- "Based on call data from VAPI received today..."
+- "I don't have VinSolutions data for that — the last sync was 6 hours ago"
+
+Implementation:
+1. Register VinSolutions MCP tools in AI chat endpoint (currently only has `webSearchTool`)
+2. Update system prompt with provenance instructions
+3. Add source/freshness labels to all context injections (hunches, KB docs, agent context)
+4. Track `lastSyncedAt` per data source, surface staleness in AI responses
+
+### 5.4 Insight Memorialization
+
+Hunches/insights are not just point-in-time — they are memorialized for historical trend analysis.
+- Add `hunchBatchId` to group hunches from the same generation run
+- Each generation creates new records (additive, never mutates existing)
+- Historical comparison: "what changed since last generation?"
+- Track insight evolution over time (confidence shifts, recurring patterns)
+
+### 5.5 Sprint Breakdown
+
+#### Sprint W3.5a — Warehouse Schema & Historical Backfill
+- Design warehouse tables: `warehouse_leads`, `warehouse_contacts`, `warehouse_activities`
+- Add `dataSource`, `sourceId`, `syncedAt` columns
+- Build sync service with historical backfill (pull all available VinSolutions data)
+- Log sync events to activity_log
+- Files: shared/schema.ts, server/storage.ts, server/sync.ts (new)
+
+#### Sprint W3.5b — Daily Delta & Metrics Refresh
+- Build daily delta sync (query changes from last 24h, upsert)
+- Build business-hours metrics refresh (every 4h during 8am-6pm)
+- Dashboard tiles pull from warehouse instead of live VinSolutions queries
+- Sync failure notifications for admins
+
+#### Sprint W3.5c — Context Router & AI Data Access
+- Register VinSolutions MCP tools in AI chat endpoint
+- Update system prompt with data provenance instructions
+- Add source/freshness labels to context injections
+- Add `hunchBatchId` to hunches for generation grouping
+- Build historical comparison endpoint for insights
+
+### 5.6 Wave 3.5 Completion Criteria
+
+- [ ] Warehouse tables exist with source attribution columns
+- [ ] Historical backfill pulls all available VinSolutions data
+- [ ] Daily delta sync updates warehouse incrementally
+- [ ] Metrics refresh runs every 4h during business hours
+- [ ] Dashboard tiles read from warehouse (not live VinSolutions)
+- [ ] AI chat states data provenance in responses
+- [ ] AI chat can query VinSolutions data via MCP tools
+- [ ] Hunches grouped by batch for historical comparison
+- [ ] Sync failures create admin notifications
+- [ ] All warehoused data carries source tags
+
+### 5.7 Dependencies & Blockers
+
+| Dependency | Status | Impact |
+|------------|--------|--------|
+| VinSolutions probe file | Awaiting from user | Determines which metrics are actually available |
+| VinSolutions write API | NOT available | All write-back deferred |
+| MCP server access | Working via `VINSOLUTIONS_API_KEY` | No blocker |
+| TextMagic/Resend keys | Not needed for this wave | Outbound already stubbed |
+
 ---
 
-## Section 4: Phase Dependencies
+## 6. Wave 4 -- Phone Outbound, Reporting, Admin Polish, Error Handling
 
-```
-S1 (Governance) ──┐
-                   ├── S3 (VAPI/Tavus/Widget/Landing) ── S6 (Outbound/Kill Switch) ── S7 (Tests)
-S2 (Schema) ──────┘                                                                        │
-                                                                                            v
-S4 (Metrics) ────────────────────────────────────────────────────────── S8 (Mock Removal/Polish)
-                                                                                            │
-S5 (Chat) ──────────────────────────────────────────────────────────────────────────────────┘
-```
+**Goal:** Complete remaining feature gaps: phone outbound via VAPI, reporting/export, admin UI polish, error handling, mock data removal, and deeper Tavus integration.
 
-- S1 and S2 can run in parallel (no dependencies)
-- S3 requires S1+S2 complete (clean schema + clear governance)
-- S4 and S5 can run in parallel after S2 (schema stable)
-- S6 requires S3 complete (VAPI needed for phone kill switch test)
-- S7 requires S6 complete (test suites need functional features)
-- S8 requires S4+S5+S7 complete (all features wired before final polish)
+**Status:** Complete
+
+### 6.1 Completed Items
+
+| Item | Description | Dependencies | Status |
+|------|-------------|--------------|--------|
+| Inbound SMS webhook | POST /api/webhooks/textmagic — stores messages, creates conversations, notifies admins | Wave 3.6 | **Complete** |
+| Landing page serving | Public /p/:slug route serves dynamic landing pages from org config | Wave 2 Widgets | **Complete** |
+| Widget embed codes | Generate working embed codes pointing to this Replit; public config endpoint | Wave 2 Widgets | **Complete** |
+| Widget JS loader | GET /widget/nexxus-widget.js — embeddable iframe loader with CORS | Wave 2 Widgets | **Complete** |
+| Metrics consistency | Canonical pipeline metrics across AI Chat, Sales, Management dashboards (AC-01-A) | Wave 3.5 Warehouse | **Complete** |
+| Admin polish | Org invite flow with Resend email, settings persistence (notifications, appearance) | Wave 2 Auth | **Complete** |
+| Error boundaries | React ErrorBoundary wrapping app, global 401 handler, session refresh | All | **Complete** |
+| Mock data audit | No mock imports in production pages; sample data banner on analytics | All APIs | **Complete** |
+| TextMagic SMS sends | Real SMS via X-TM-Key REST API | Wave 3.6 | **Complete** |
+| Resend email sends | Real email from notifications@huminic.ai | Wave 3.6 | **Complete** |
+| 4-layer safety stack | Global → org → channel → rate limit outbound safety | Wave 3.6 | **Complete** |
+
+### 6.2 Wave 4 Completion Criteria
+
+- [x] Inbound SMS webhook stores messages and creates notifications
+- [x] Settings sections use backend data (not local state)
+- [x] Error boundaries catch and display errors gracefully
+- [x] Widget embed codes generate and work when pasted in HTML
+- [x] Landing pages serve from org config (/p/:slug)
+- [x] Canonical pipeline metrics consistent across all dashboards
+- [x] Org invite flow sends email and creates user
+
+### 6.3 Deferred to Wave 5 or Future
+
+| Item | Description | Reason |
+|------|-------------|--------|
+| Phone outbound via VAPI | Wire sendPhone() to VAPI outbound calls | Per user: no VAPI changes |
+| Tavus deeper integration | Video session webhook with HMAC | Per user: no Tavus changes |
+| RLS policies | Row-level security for multi-tenant isolation | Production hardening |
+| API rate limiting | 100 req/min per user | Production hardening |
+| Full Zod validation | All request bodies validated | Production hardening |
+| Full E2E Playwright suite | Complete test coverage | Ongoing |
+| Reporting & export | CSV/PDF export for analytics | Production backend dependent |
 
 ---
 
-## Section 5: Deferred Items (Not in Stabilization Scope)
+## 7. Wave 5 -- Google Calendar & Production Backend Cutover (Deferred)
 
-These items are tracked in RISK_REGISTER.md Section 4 and GAPS.md but are explicitly excluded from this stabilization plan:
+**Goal:** Integrate Google Calendar for appointment scheduling and swap data source from Replit prototype to production backend at nexxusv2.huminicdev.com. Requires credentials and API contract alignment from client.
 
-- AC-03-A through AC-03-E (Appointment Sync — Google Calendar, Dealer.com, Tekion)
-- AC-10-D (Billing API — requires Stripe integration)
-- RLS policies (SCH-15) — tracked but deferred to post-RC
-- Stripe billing integration (API-01) — tracked but deferred
-- Marketing Studio (placeholder — Wave 5+)
-- NanoClaw / Personal Assistant (Wave 6)
-- A2P / 10DLC SMS registration
-- Google Analytics / Make.com connectors
+**Status:** Deferred to end
+
+### 7.1 Planned Items
+
+| Item | Description | Dependencies |
+|------|-------------|--------------|
+| Calendar integration | Google Calendar OAuth for appointment scheduling | OAuth credentials from client |
+| Production backend cutover | Swap API data source to nexxusv2.huminicdev.com | API contract alignment |
+| Performance testing | API p95 < 200ms, LCP < 2.5s | All features |
+| Security audit | Final security review before production | All features |
+
+---
+
+## 8. Risks & Mitigations
+
+| Risk | Impact | Likelihood | Mitigation |
+|------|--------|------------|------------|
+| VIN Solutions API access limited (17/30 endpoints blocked) | Cannot display full pipeline data | Confirmed | Use accessible endpoints only (leads, contacts, statuses, sources). Be transparent about data boundaries. |
+| Claude API rate limits during hunch generation | Delayed hunch delivery | Medium | Queue-based generation with retry logic, weekly batch instead of real-time |
+| SSE streaming complexity | Chat features delayed | Low | Start with polling fallback, upgrade to SSE |
+| RLS variable name mismatch (`current_organization_id` vs `current_org_id`) | Potential cross-tenant data leak | Confirmed (known bug) | Fix SecureQueryBuilder to use correct variable name in Wave 2 |
+| Excel upload records polluting metrics | Inflated numbers in dashboards | Confirmed (known bug) | Always exclude `source = 'excel_upload'` from lead queries |
+| Live VAPI/Tavus webhooks in production | Breaking existing customers | High impact | Preserve existing handler logic, test via Elliot agent only, never modify without approval |
+| SET LOCAL without transaction | Connection pool contamination | Medium | Wrap all RLS set operations in proper transactions in Wave 2 |
+
+---
+
+## 9. Testing Protocol
+
+### Per-Wave Requirements
+
+- **Wave 1:** Visual regression screenshots across 4 roles, 2 themes (light/dark), 3 viewports (desktop, tablet, mobile). All pages navigable without errors.
+- **Wave 2:** API integration tests for all CRUD endpoints. Auth flow E2E test. RLS isolation verification.
+- **Wave 3:** Metric computation verification against known test data. VIN sync correctness tests. Hunch generation quality checks.
+- **Wave 4:** Full E2E Playwright suite. Security audit. Performance benchmarks. Three proofs per feature (config, functional, visual).
+
+### Test Data Rules
+
+- SMS testing: TextMagic API loopback (send to self)
+- Email testing: Use `neoweaver@gmail.com` for all outbound
+- Voice testing: Use "Elliot" test-only VAPI agent
+- Video testing: Test sessions only, never production Tavus sessions
+- Lead data: Exclude `source = 'excel_upload'` from all queries
+
+---
+
+## 10. Decision Log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-03-03 | Restructure nav from feature-based to department-based | Better matches dealership organizational structure and user mental models |
+| 2026-03-03 | Remove Drive as standalone feature | Artifacts generated by AI stored contextually, not in a separate file system |
+| 2026-03-03 | Remove standalone Agent creation for non-Super Admin | Agent config is an admin function, not a daily workflow for staff |
+| 2026-03-03 | Add campaign kill switch UI | Direct response to spam incident -- users need immediate control over outbound communications |
+| 2026-03-03 | Add global communication gate | Master toggle to prevent ALL automated outbound -- safety net for the organization |
+| 2026-03-03 | Nest agents within department sections | Agents belong to departments (sales/service/marketing), not a standalone global list |
+| 2026-03-03 | TeamBox as dedicated CommBox-inspired page | Unified inbox for all customer conversations across channels, replacing fragmented inbox |
+| 2026-03-03 | Marketing Studio as Wave 4 placeholder | Video/image/podcast creation is a future capability |
+| 2026-03-04 | Expand RBAC from 4 to 8 roles | Department-specific roles (sales, service, marketing) + executive and sales_manager replace generic org_staff |
+| 2026-03-04 | Add kill switch backend spec to Wave 2 | DB columns + MCP enforcement required before any outbound wiring |
+| 2026-03-06 | VinSolutions is Lead Management tier, not sync | Cannot do wholesale two-way sync. Platform maintains forked local data store |
+| 2026-03-06 | Three-tier sync strategy | Historical backfill (once), daily delta (overnight), metrics refresh (4h during business hours) |
+| 2026-03-06 | Data provenance required in AI chat | AI must state data source and freshness when referencing data |
+| 2026-03-06 | Context Router architecture | Data warehouse aggregates multi-source data (VinSolutions, VAPI, Tavus, uploaded) with preserved provenance |
+| 2026-03-06 | Insight memorialization | Hunches tracked over time for historical trend analysis, not just point-in-time snapshots |
+| 2026-03-06 | Insert Wave 3.5 before Wave 4 | Data warehouse is prerequisite for correct metrics and AI data access — must build before final polish |
+| 2026-03-06 | 4-layer outbound safety stack | Global env kill switch > org gate > per-channel toggles > campaign rate limiting. Defense in depth. |
+| 2026-03-06 | Defer Calendar & production cutover to Wave 5 | Requires Google OAuth credentials and API contract alignment — save for end |
