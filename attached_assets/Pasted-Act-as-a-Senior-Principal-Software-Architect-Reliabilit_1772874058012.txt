@@ -1,0 +1,149 @@
+Act as a Senior Principal Software Architect, Reliability Engineer, and Systems Integrity Auditor.
+
+Your task is to perform a comprehensive, skeptical, and adversarial audit of this entire codebase using the project's acceptance criteria as the baseline definition of what the system is supposed to accomplish.
+
+Your goal is NOT to add features or write code yet. Your goal is to step completely back, zoom out, and evaluate whether the current implementation is structurally sound, logically consistent, and aligned with the acceptance criteria. Assume the role of someone reviewing the system for long-term viability, maintainability, and operational integrity before further development proceeds.
+
+You must approach this audit with a "devil’s advocate" mindset. Actively look for weaknesses, fragile implementations, patchwork solutions, agentic band-aids, and places where the system may appear to work but is not structurally reliable.
+
+Use the acceptance criteria, my user stories, the audit you just did as the definition of the intended system behavior and compare that against what actually exists in the codebase.
+
+Your responsibilities are as follows:
+
+1. ACCEPTANCE CRITERIA ALIGNMENT
+Examine the acceptance criteria and determine whether the codebase truly implements them. Identify where functionality fully matches the criteria, partially matches it, or does not implement it at all.
+
+2. STRUCTURAL CODEBASE REVIEW
+Evaluate the architectural integrity of the codebase. Look for signs of patchwork development, brittle dependencies, unclear boundaries between components, duplicated logic, tightly coupled modules, or fragile implementations that may have been created by iterative agentic fixes.
+
+3. SYSTEM PATHWAY ANALYSIS
+Zoom out and identify the major functional pathways through the system. Determine how information flows through the application from inputs to outputs. Verify whether these pathways appear coherent, consistent, and maintainable.
+
+4. AGENTIC PATCHWORK DETECTION
+Specifically search for areas that appear to have been fixed incrementally by agents without a clear architectural plan. Examples include:
+- temporary fixes that became permanent
+- duplicated logic in multiple files
+- defensive conditionals masking deeper issues
+- inconsistent naming or patterns
+- hidden coupling between modules
+- code that bypasses the intended architecture
+
+5. FUNCTIONALITY GAP ANALYSIS
+Identify functionality that the acceptance criteria require but which is either missing, incomplete, stubbed out, or only partially implemented in the current code.
+
+6. OBSERVABILITY AND TESTING READINESS
+Evaluate whether the system can realistically be tested and debugged. Check for the presence of logging, error handling, traceability, test coverage, and other signals that would allow someone to verify that the system behaves correctly.
+
+7. PROJECT VIABILITY ASSESSMENT
+Assess the overall health of the project from an engineering standpoint. Determine whether the system appears structurally viable for continued development or whether foundational issues should be addressed before proceeding.
+
+8. EVIDENCE-BASED ANALYSIS
+Whenever possible, cite specific files, modules, functions, or directories that support your conclusions. Do not make claims without pointing to code evidence. If something cannot be confirmed from inspection, clearly state that it is uncertain.
+
+Do not hallucinate functionality. If something is unclear, mark it as unclear.
+
+Produce the report using the following structure:
+
+EXECUTIVE SUMMARY
+Provide a high-level evaluation of the codebase integrity and project health.
+
+ACCEPTANCE CRITERIA COVERAGE
+List each major requirement and classify it as:
+- Implemented
+- Partially Implemented
+- Not Implemented
+
+ARCHITECTURAL STRUCTURE ANALYSIS
+Describe the current architecture and evaluate its coherence, modularity, and maintainability.
+
+SYSTEM PATHWAY OVERVIEW
+Describe the major functional pathways and how data moves through the system.
+
+PATCHWORK / BAND-AID DETECTION
+List areas where the implementation appears fragile, inconsistent, or improvised.
+
+FUNCTIONALITY GAPS
+Identify missing or incomplete capabilities relative to the acceptance criteria.
+
+OBSERVABILITY AND TESTING READINESS
+Evaluate the system's readiness for meaningful testing and debugging.
+
+TOP STRUCTURAL RISKS
+Identify the most serious engineering risks that could impact stability, scalability, or maintainability.
+
+PROJECT MATURITY SCORECARD
+Rate the following categories from 0–5:
+- Architecture clarity
+- Acceptance criteria alignment
+- Code consistency
+- Testability
+- Observability
+- Maintainability
+- Production readiness
+
+RECOMMENDED NEXT ACTIONS
+Provide a prioritized list of actions that should be taken before additional features are added.
+
+Important instructions:
+- Use sub agents and you do the coordination
+-Involve the architect at every key evaluation point
+-Be critical, skeptical, and thorough.
+- Do not try to protect the current design.
+- Your purpose is to reveal weaknesses and structural truths about the system.
+- Focus on clarity and evidence rather than speculation.
+
+This is an audit, not a coding task. Do not modify the codebase. Analyze and report only.  this will be used to structure a revised plan to finish. 
+
+We want to have a clear understanding of the data flow for each Entry stimulus and expected stations and destinationss in terms of where we are.  ENTRY
+-----
+[Widget Form]
+[Website Chat]
+[Inbound SMS]
+[Inbound Voice]
+[Campaign Scheduler]
+[TeamBox Manual Action]
+
+                ROUTING / ORCHESTRATION
+                -----------------------
+                        [Context Router]
+                              |
+         -------------------------------------------------
+         |                    |                         |
+         v                    v                         v
+    [Lead Route]         [Conversation Route]     [Appointment Route]
+         |                    |                         |
+         |                    |                         |
+         v                    v                         v
+
+PROCESSING
+----------
+[Validate Payload]     [Intent Analysis]          [Availability Check]
+[Dedupe Contact]       [Context Retrieval]        [Customer Identity Match]
+[Source Attribution]   [Escalation Check]         [Calendar Rules]
+[Compliance Check]     [Pause / Takeover Check]   [Confirmation Rules]
+
+DESTINATIONS
+------------
+[VIN CRM]              [SMS Provider]             [Calendar]
+[Lead Notes]           [TeamBox]                  [Confirmation Message]
+[Task Creation]        [Human Handoff]            [Analytics Event]
+
+CONTROL POINTS
+--------------
+[Opt-Out Block]
+[Kill Switch]
+[Channel Pause]
+[Provider Failure]
+[Validation Failure]
+[Duplicate Prevention]
+
+EVIDENCE / OBSERVABILITY
+------------------------
+[Input Event Log]
+[Route Decision Log]
+[CRM Record ID]
+[Outbound Message ID]
+[Thread ID]
+[Calendar Event ID]
+[Escalation ID]
+[Trace ID]
