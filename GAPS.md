@@ -1,212 +1,151 @@
-# Nexxus Connect — Canonical Gap & Defect Register
+# GAPS.md — Neutral Gap Register
 
-**Source:** acceptance_criteria_audit.md (2026-03-05 devil's advocate review)
-**Purpose:** Single source of truth for all known gaps, bugs, and missing functionality.
-**Rule:** Every gap gets a status. Nothing gets removed — only status changes.
-
----
-
-## Status Key
-
-| Status | Meaning |
-|--------|---------|
-| OPEN | Not started, needs work |
-| IN-PROGRESS | Actively being worked on |
-| RESOLVED | Fixed and verified |
-| WONT-FIX | Accepted as-is or deferred indefinitely |
-| DECIDED | Stakeholder decision made, implementation pending |
+**Source:** Fresh re-audit from restored baseline (commit `58288b6`)
+**Date:** 2026-03-07
+**Status:** All items OPEN unless otherwise noted. No item may be marked RESOLVED without explicit user approval.
 
 ---
 
-## PART 1: Hidden Gaps (Things That Look Done But Aren't)
+## Part 1: Governance Gaps (GOV)
 
-| ID | Area | What It Looks Like | What's Actually Happening | Severity | Status | Sprint Target |
-|----|------|--------------------|---------------------------|----------|--------|---------------|
-| H1 | Main page chat | User sends message, gets response | Real Claude streaming via useStreamingChat + /api/chat/:id/stream. Fully functional. | MEDIUM | RESOLVED — real Claude SSE streaming | S03 |
-| H2 | RightPane chat | Same typing dots, response pattern | Real Claude streaming via useStreamingChat. Fully functional. | MEDIUM | RESOLVED — real Claude SSE streaming | S03 |
-| H3 | Agent chat (/agents) | Typing dots, response | Uses useStreamingChat + conversation API. Messages persist to DB. Survives refresh. | HIGH | RESOLVED — streaming + DB persistence | S03 |
-| H4 | Agent instructions edit | AgentConfigPane has Instructions tab with edit modal | `instructions` column EXISTS on agents table. Verify UI wiring persists to DB. | MEDIUM | RESOLVED (schema) — verify UI wiring | S03 |
-| H5 | Campaign kill switch | Toggle in campaign table, shows red when ON | Backend enforces killSwitch check in outbound.ts. RESOLVED. | MEDIUM | RESOLVED — outbound.ts checks campaign.killSwitch | S06 |
-| H6 | Communication gate | Toggle in Settings > Organization | checkCommGate() middleware in outbound.ts checks org.outboundEnabled. RESOLVED. | MEDIUM | RESOLVED — outbound.ts enforces | S06 |
-| H7 | Campaign disconnect | Disconnect button sets campaignDisconnected=true | outbound.ts checks conversation.campaignDisconnected. RESOLVED. | MEDIUM | RESOLVED — outbound.ts enforces | S06 |
-| H8 | User Management | Shows real users from API | Create/edit/deactivate/reset-password ALL wired with real mutations + API routes. No demo toasts on user CRUD. | HIGH | RESOLVED — full CRUD wired | S04 |
-| H9 | Profile editing | Edit profile button exists | profileMutation wired to PATCH /api/users/me. Inline editing works. No demo toast. | LOW | RESOLVED — mutation wired | S04 |
-| H10 | Widgets | Rich config UI with preview, embed codes, targeting | Widget table + CRUD routes + UI all wired via useQuery/mutations to /api/widgets. | HIGH | RESOLVED — full API wiring confirmed | S09 |
-| H11 | Knowledge Base | Upload UI, document list, web scraping | Document upload/list/delete fully wired via /api/documents + multer. Web scraping still demo. | HIGH | RESOLVED (core) — web scrape/URL add remain demo | S04 |
-| H12 | My Work | Tasks list with status, priority, due dates | Tasks table + CRUD routes EXIST. Page still imports from mocks (3 mock imports found). | HIGH | OPEN — page needs API wiring | S09 |
-| H13 | Dashboard metrics | KPI tiles on every department page | Sales tiles use VinSolutions data. Service/Marketing/Management tiles hardcoded. | HIGH | OPEN | S05 |
-| H14 | Insights page | Charts, metrics library, red zone alerts | 100% from insight-data.ts static arrays. None computed. | HIGH | OPEN | S08 |
-| H15 | Hunches | AI insight cards with confidence scores | Hardcoded mockHunches array. No AI generation. | HIGH | OPEN | S08 |
-| H16 | Notifications | Bell icon in TopBar with count badge | Notifications table + CRUD routes EXIST. Verify UI reads from API. | HIGH | OPEN — verify UI wiring | S07 |
-| H17 | Activity feeds | Activity timeline in Management page | Activity_log table + API route EXIST. Verify UI reads from API. | HIGH | OPEN — verify UI wiring | S07 |
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| GOV-01 | Truth hierarchy | Three documents (CLAUDE.md, replit.md, operational-context.md) declare competing truth hierarchies | HIGH | OPEN |
+| GOV-02 | Acceptance criteria | Two AC documents exist (root ACCEPTANCE_CRITERIA.md and .agent_docs/acceptance_criteria.md) with conflicting requirements for AI Chat tiles, widget channels, TeamBox model | HIGH | OPEN |
+| GOV-03 | SPEC.md staleness | SPEC.md §12 shows single-table database; §11 says "no active API routes." Both critically wrong. | HIGH | OPEN |
+| GOV-04 | operational-context.md | Never updated since creation (2026-03-04). All waves show LOCKED, all audit items PENDING. | HIGH | OPEN |
+| GOV-05 | codebase-index.md | Application code section empty despite 50+ app files existing | MEDIUM | OPEN |
+| GOV-06 | undefined-items.md | No entries logged despite complex multi-wave development | LOW | OPEN |
+| GOV-07 | Enforcer compliance log | Never executed — log shows "(Wave 0 — no merges yet)" | MEDIUM | OPEN |
+| GOV-08 | Cross-references to non-existent files | DO_NOT_TOUCH.md, DESIGNER_BRIEF.md, MEMORY.md, spec.ts referenced but don't exist | MEDIUM | OPEN |
+| GOV-09 | Cross-references to non-existent directories | server/services/, server/middleware/, central-mcp/, client/src/types/ referenced in code-conventions.md | MEDIUM | OPEN |
+| GOV-10 | PLAN.md completion claims | Claims ~92% complete but Wave 3.5 completion criteria all unchecked; Sprint_log says ~95% | MEDIUM | OPEN |
+| GOV-11 | Sprint_log criteria mismatch | Planning section checkboxes unchecked while execution section shows DONE for same items | MEDIUM | OPEN |
+| GOV-12 | SRS.md agent data stale | Lists generic agent names; actual agents are named personas (Caroline, Magnolia, etc.) | LOW | OPEN |
+| GOV-13 | COMMENT_INDEX.md stale | References pre-wiring states (AuthContext "NOT wired yet") that were resolved | LOW | OPEN |
 
 ---
 
-## PART 2: Sprint-by-Sprint Gaps
+## Part 2: Schema Gaps (SCH)
 
-### Sprint 2.1 — AI Chat & Conversation Engine
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G1 | Agent chat has NO database persistence. Main/RightPane persist but agents.tsx uses local useState. | HIGH | RESOLVED — agents.tsx uses useStreamingChat + conversation API, messages in DB | S03 |
-| G2 | No `instructions` column on agents table. Only `description` exists. | MEDIUM | RESOLVED — column exists in schema | S02 |
-| G3 | No system prompt architecture defined. AI gives generic responses without org/dealership/role context. | HIGH | RESOLVED — system prompt built with org/dept/user/agent/knowledge/sync context (routes.ts L1310-1353) | S03 |
-| G4 | Streaming UI component doesn't exist. Chat renders complete messages, needs streaming token append. | MEDIUM | RESOLVED — useStreamingChat hook + MarkdownMessage with isStreaming prop | S03 |
-| G5 | Extended thinking API complexity. Needs specific API params and UI parsing of thinking blocks. | MEDIUM | DECIDED — deferred per plan | S03 |
-| G6 | Conversation history context window. Long conversations will hit token limits. | LOW | RESOLVED — last 20 messages truncation implemented | S03 |
-| G7 | Error handling for AI failures. Rate limits, server errors, content filters leave UI broken. | MEDIUM | RESOLVED — error state + retry button in all 3 chat UIs, server catches/streams errors | S03 |
-| G8 | Which Claude model? Not specified. Affects cost and quality. | LOW | RESOLVED — claude-sonnet-4-6 in use | S03 |
-| G9 | Agent createdBy field. No column, hardcoded string in seed. Repurposed for managerial tracking. | LOW | RESOLVED — createdBy UUID column added (S02) | S02 |
-
-### Sprint 2.2 — User & Org Management
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G10 | No campaign_recipients table. Can't track per-recipient send status for CSV uploads. | HIGH | RESOLVED — table exists with full CRUD | S02 |
-| G11 | File storage destination undefined. Local disk doesn't survive deployments. | HIGH | DECIDED — PostgreSQL now, evaluate R2/B2/Supabase (Q5) | S04 |
-| G12 | Add User needs org assignment for super_admin/partner_admin roles. | MEDIUM | OPEN | S04 |
-| G13 | Password validation rules undefined. No min length or complexity. | LOW | RESOLVED — min length 6 enforced in routes.ts | S04 |
-| G14 | Profile photo persistence. No profilePhotoUrl column, no storage for photos. | MEDIUM | RESOLVED (schema) — profilePhotoUrl column exists. Storage TBD. | S04 |
-| G15 | Profile edit demo mode disconnect. Button shows toast despite working API route. | LOW | RESOLVED — profile edit uses real mutation, no demo toast | S04 |
-| G16 | Knowledge base upload scope undefined. File storage vs RAG indexing unclear. | MEDIUM | RESOLVED — files stored via multer memoryStorage + content in DB. Documents injected into AI system prompt. | S04 |
-
-### Sprint 2.3 — Real Metrics & Dashboard Wiring
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G17 | Sales metrics already partially wired. Need audit of what's computed vs hardcoded. | LOW | DECIDED — awaiting VinSolutions probe (Q9) | S05 |
-| G18 | Service metrics data sources undefined. Which tiles show what? | MEDIUM | OPEN | S05 |
-| G19 | Marketing metrics overlap with service. Both have campaigns. | MEDIUM | OPEN | S05 |
-| G20 | Management metrics are stubs (revenue, MRR). No real financial data source. | HIGH | DECIDED — compute from available data, remove rest (Q6) | S05 |
-| G21 | Tile detail modals sub-data undefined. What breakdown appears on click? | MEDIUM | OPEN | S05 |
-| G22 | Main page role-based tile mapping unclear. Which role sees which tiles? | MEDIUM | OPEN | S05 |
-
-### Sprint 3.1 — Outbound Communication Engine
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G23 | No campaign_recipients table (duplicate of G10). | CRITICAL | RESOLVED — duplicate of G10, table exists | S02 |
-| G24 | No background job system. Campaign sends need timed processing. | HIGH | DECIDED — in-memory queue + setInterval (Q14) | S06 |
-| G25 | Configured send interval undefined. No sendIntervalSeconds column. | MEDIUM | RESOLVED — sendIntervalSeconds column exists (default 60) | S06 |
-| G26 | No message templating system. Campaigns need variable substitution. | HIGH | RESOLVED — substituteTemplate() built with {{customerName}}, {{dealershipName}} | S06 |
-| G27 | TCPA/CAN-SPAM compliance missing. No opt-out in SMS, no unsubscribe in email. | HIGH | DECIDED — Reply STOP in every SMS, unsubscribe in email (Q27) | S06 |
-| G28 | TextMagic/Resend API keys not provisioned. | BLOCKER | DECIDED — user provides when ready (Q28) | S06 |
-| G29 | Test protocol for live messaging undefined. Risk of accidental mass send. | HIGH | DECIDED — dry run mode + loopback test (Q11) | S06 |
-| G30 | Communication gate middleware doesn't exist. Boolean saved but not enforced. | MEDIUM | RESOLVED — checkCommGate() in outbound.ts checks org.outboundEnabled + channel flags | S06 |
-
-### Sprint 3.2 — Webhooks & Real-Time
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G31 | No notifications table in schema. | HIGH | RESOLVED — table exists with CRUD routes | S02 |
-| G32 | No activity_log table in schema. | HIGH | RESOLVED — table exists with API route | S02 |
-| G33 | Webhook authentication missing. VAPI/Tavus need verification. | HIGH | OPEN | S07 |
-| G34 | VAPI webhook URL not configured in VAPI dashboard. | MEDIUM | OPEN | S07 |
-| G35 | SSE connection management. Reconnection logic needed. | MEDIUM | OPEN | S07 |
-| G36 | Notification trigger events undefined. No clear list. | MEDIUM | OPEN | S07 |
-
-### Sprint 3.3 — Intelligence Engine
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G37 | 34 metrics in library, not 91. Mismatch with criteria. | MEDIUM | DECIDED — reconcile with VinSolutions probe (Q9) | S08 |
-| G38 | Computed data for charts needs time-series data that may not exist. | HIGH | OPEN | S08 |
-| G39 | Hunch generation cost. Claude calls on schedule could be expensive. | MEDIUM | OPEN | S08 |
-| G40 | "Real reports" is vague. No definition of what a report is. | HIGH | OPEN | S08 |
-| G41 | Red zone alerts data source. Need lead age tracking from VinSolutions. | MEDIUM | DECIDED — VinSolutions last activity > X days (G41) | S08 |
-
-### Sprint 4.1 — Widget Backend & Calendar
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G42 | Widget schema doesn't exist. No widgets table. | HIGH | RESOLVED — widgets table + CRUD routes exist | S09 |
-| G43 | Embed code — what does it load? iframe vs script vs web component. | HIGH | DECIDED — most usable approach (Q13) | S09 |
-| G44 | Landing page serving architecture. Must survive moving off Replit. | MEDIUM | DECIDED — portable architecture (G44) | S09 |
-| G45 | Google Calendar OAuth complexity. Significant integration work. | HIGH | DECIDED — leave stubbed (G45) | S12 |
-| G46 | My Work tasks — no table. Need tasks CRUD. | MEDIUM | RESOLVED — tasks table + CRUD routes exist. Page needs API wiring. | S09 |
-
-### Sprint 4.2 — Security, Performance & E2E
-
-| ID | Gap | Severity | Status | Sprint Target |
-|----|-----|----------|--------|---------------|
-| G47 | RLS on Replit Postgres. May not support RLS policies. | HIGH | OPEN | S12 |
-| G48 | Mock data vs static data distinction. Criteria says zero mock files. | MEDIUM | DECIDED — all static arrays replaced with API calls (G48) | S10 |
-| G49 | Billing/metering scope undefined. What are we metering? | HIGH | OPEN | S12 |
-| G50 | E2E test coverage scope. How many tests, which flows? | MEDIUM | DECIDED — derive from UI audit + AC (Q50) | S12 |
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| SCH-01 | Missing table: landing_pages | SRS §10.4 specifies landing_pages table; not in schema | MEDIUM | OPEN |
+| SCH-02 | Missing table: campaign_messages | SRS §10.2 specifies multi-step campaign messages; only single message_template exists | MEDIUM | OPEN |
+| SCH-03 | Missing table: metrics_cache | SRS §10.5 specifies metrics_cache for computed values | LOW | OPEN |
+| SCH-04 | Missing columns: organizations | industry, plan, logo_url, primary_color, secondary_color missing | MEDIUM | OPEN |
+| SCH-05 | Missing columns: users | phone, preferences (jsonb) missing | LOW | OPEN |
+| SCH-06 | Missing column: messages.thinking | SRS specifies thinking column for AI reasoning | LOW | OPEN |
+| SCH-07 | Missing columns: campaigns | delivered_count, created_by missing | MEDIUM | OPEN |
+| SCH-08 | Missing columns: agents | system_prompt, created_by, triggers, tools, knowledge_sources, chat_link missing | MEDIUM | OPEN |
+| SCH-09 | Missing columns: notifications.action_url | SRS §10.6 specifies action_url | LOW | OPEN |
+| SCH-10 | Missing columns: activity_log.description | SRS §10.6 specifies description | LOW | OPEN |
+| SCH-11 | Missing columns: hunches | impact, pattern, recommendation, source, data (jsonb) missing vs SRS | LOW | OPEN |
+| SCH-12 | Dual schema conflict | shared/models/chat.ts defines conversations/messages with serial PKs; shared/schema.ts uses UUIDs. Type name collision risk. | HIGH | OPEN |
+| SCH-13 | No ON DELETE cascade | No FK has onDelete behavior. Deleting parent records will cause constraint violations. | HIGH | OPEN |
+| SCH-14 | No explicit indexes | No indexes beyond PK/UNIQUE. Performance risk at scale for filtered queries. | MEDIUM | OPEN |
+| SCH-15 | No RLS policies | SRS §10.7 requires RLS; none exist. Multi-tenancy enforced only in app code. | MEDIUM | OPEN |
+| SCH-16 | IStorage interface incomplete | logUsageEvent, getUsageEvents, getUsageSummary on DatabaseStorage but not in IStorage | LOW | OPEN |
+| SCH-17 | Orphaned FK-like columns | organizations.partner_id and hunches.batch_id have no FK constraints | LOW | OPEN |
+| SCH-18 | No migration files | migrations/ directory empty; no versioned migration history | MEDIUM | OPEN |
+| SCH-19 | Missing NOT NULL | campaign_recipients phone+email both nullable (unreachable recipient possible) | LOW | OPEN |
+| SCH-20 | Missing updated_at | campaign_recipients, outbound_log, notifications lack updated_at despite mutable fields | LOW | OPEN |
 
 ---
 
-## PART 3: Below-the-Line Backend Gaps
+## Part 3: API & Backend Gaps (API)
 
-| ID | Gap | Current State | Severity | Status | Sprint Target |
-|----|-----|---------------|----------|--------|---------------|
-| B1 | No `instructions` column on agents table | Local React state only | HIGH | RESOLVED — column exists | S02 |
-| B2 | No `systemPrompt` column on agents table | Not in any sprint | HIGH | RESOLVED — column added (S02) | S02 |
-| B3 | No `campaign_recipients` table | Aggregate counts only | HIGH | RESOLVED — table exists with CRUD | S02 |
-| B4 | No `notifications` table | Static frontend arrays | HIGH | RESOLVED — table + routes exist | S02 |
-| B5 | No `activity_log` table | Static frontend arrays | HIGH | RESOLVED — table + route exist | S02 |
-| B6 | No `widgets` table | Local React state | HIGH | RESOLVED — table + CRUD routes exist | S09 |
-| B7 | No `tasks` table | Hardcoded mocks | HIGH | RESOLVED — table + CRUD routes exist | S09 |
-| B8 | No `usage_log` / billing table | No tracking | HIGH | RESOLVED — usage_events table exists | S12 |
-| B9 | Agent `createdBy` field missing | Hardcoded seed string | LOW | RESOLVED — column added (S02) | S02 |
-| B10 | Soft delete missing for agents | Hard delete only | LOW | OPEN | S12 |
-| B11 | Session cleanup missing | Expired sessions accumulate | LOW | OPEN | S12 |
-| B12 | Concurrent editing — no optimistic locking | No locking | LOW | OPEN | S12 |
-| B13 | 10 remaining demo mode toasts | Settings(3: tool toggle, URL add, URL scrape), Profile(2: invoice view), Billing(3: send/addon/preview), AgentConfig(2: triggers) | HIGH | OPEN — reduced from 14+, remaining are genuinely unbuilt features | S10 |
-| B14 | Profile edit button disconnected | Shows toast despite working API | LOW | RESOLVED — profileMutation wired, inline edit works | S04 |
-| B15 | AgentConfigPane triggers/tools/skills/knowledge hardcoded | Tools from static list, 2 trigger buttons show demo toast. Instructions wired to DB. | MEDIUM | OPEN — cosmetic, non-blocking for chat quality | S10 |
-
----
-
-## PART 4: UI Behavior Issues
-
-| ID | Area | Issue | Severity | Status | Sprint Target |
-|----|------|-------|----------|--------|---------------|
-| U1 | Favorites section | 20+ favorites push Chat History off-screen. No scroll cap. | MEDIUM | DECIDED — capped ScrollArea (Q17) | S10 |
-| U2 | Error handling | Almost no isError handling. Failed API calls leave UI in loading state. | HIGH | DECIDED — per-query error states + retry (Q18) | S10 |
-| U3 | Activity feed duplication | TopBar dropdown + Management Activities tab show same data. | LOW | OPEN — by design, needs documentation | S10 |
-| U4 | TeamBox cardinal rule exception | Uses own 4-column layout, ignores global RightPane. | LOW | OPEN — by design, needs documentation | S10 |
-| U5 | Agent status toggle | No disable during mutation. Rapid clicks fire multiple PATCH requests. | MEDIUM | DECIDED — disable during pending (Q20) | S10 |
-| U6 | Mobile TeamBox | Status filter and customer info hidden on small screens. | MEDIUM | DECIDED — mobile filter drawer (Q21) | S12 |
-| U7 | Tab accessibility | Department tab buttons lack role="tab" and aria-selected. | LOW | DECIDED — add ARIA (Q22) | S12 |
-| U8 | Login error display | AuthContext stores errors but login page may not display clearly. | LOW | OPEN | S10 |
-| U9 | localStorage role stale | Role persists in localStorage even if changed on backend. | MEDIUM | DECIDED — override from server (Q19) | S10 |
-| U10 | Dashboard empty state | New org with no data sees "0" tiles. No onboarding guidance. | LOW | DECIDED — remove metrics without data (Q23) | S05 |
-| U11 | Profile sub-routes | Sub-routes may not map to specific tabs. | LOW | DECIDED — verify and wire (Q24) | S04 |
-| U12 | RightPane mobile overlay | Covers entire screen, can't reference main content. | MEDIUM | OPEN | S12 |
-| U13 | AppContext org fallback | Hardcoded org flash during loading. | LOW | OPEN | S10 |
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| API-01 | Missing: Stripe billing | No Stripe integration despite SRS requirement. Only usage_events tracking exists. | HIGH | OPEN |
+| API-02 | Missing: File/Drive management | No general file CRUD beyond knowledge documents | MEDIUM | OPEN |
+| API-03 | Stub: Password reset | POST /api/auth/reset-password returns placeholder, no actual implementation | MEDIUM | OPEN |
+| API-04 | Stub: Forgot password | POST /api/auth/forgot-password logs but does not send email | MEDIUM | OPEN |
+| API-05 | Missing: Landing page CRUD | Only org slug management; no landing_pages entity/routes | MEDIUM | OPEN |
+| API-06 | Missing: Notification preferences | No route for user notification settings | LOW | OPEN |
+| API-07 | Missing: Security settings | No dedicated security configuration routes | LOW | OPEN |
+| API-08 | Missing: AI configuration routes | AI config hardcoded; no dynamic prompt/skill/temperature routes | MEDIUM | OPEN |
+| API-09 | Missing: Organization creation | No POST /api/organizations route (only seed creates orgs) | MEDIUM | OPEN |
+| API-10 | Missing: Outbound log viewer | getOutboundLogs in storage but no route exposes it | LOW | OPEN |
+| API-11 | Missing: Tavus webhook | No POST /api/webhooks/tavus receiver | LOW | OPEN |
+| API-12 | 5 unused IStorage methods | getRoleByName, deleteMessages, getIntegration, updateIntegration, getOutboundLogs never called | LOW | OPEN |
+| API-13 | Campaign execution in-memory | activeExecutions Map lost on server restart; no job queue | HIGH | OPEN |
+| API-14 | Silent failure swallowing | Activity logs and notifications use .catch(() => {}) | MEDIUM | OPEN |
+| API-15 | TextMagic webhook no secret | VAPI webhook validates secret; TextMagic does not | MEDIUM | OPEN |
+| API-16 | Public widget lookup scans all orgs | Performance issue at scale | LOW | OPEN |
 
 ---
 
-## Standing Directives (from stakeholder review)
+## Part 4: Frontend & UI Gaps (UI)
 
-1. TeamBox needs departmental filter + RBAC
-2. Campaign segmentation in TeamBox — grouped dropdown filter by department
-3. Environment variables tracked — maintain manifest for future Railway deployment
-4. Supabase migration planned — PostgreSQL now, keep schema compatible
-5. VAPI/Tavus prompts are vendor-side — read only, no bidirectional MCP
-6. Never use the word "MVP" in code, comments, UI, or docs
-7. Metrics storage separate from CRM — agents must specify data source
-8. "Reply STOP to opt out" in every outbound SMS (single message). Unsubscribe in every email
-9. All mock data must be eliminated — no fake data, remove metric if no real source
-10. All testing built from UI audit + acceptance criteria — no ad-hoc test plans
-11. Task assignment: agents (AI) or self-assigned only. No user-to-user
-12. TeamBox campaign filter: simple dropdown with department sub-groups
-13. VinSolutions is Lead Management tier — read/query only, forked local data store
-14. VinSolutions sync: one-time bulk pull, daily delta, 4h business-hours refresh
-15. Data provenance / Context Router — every data point has known source, AI states provenance
-16. Insight history — hunches memorialized over time for trend analysis
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| UI-01 | Insights page 100% mock | All 23+ chart/table sections source from static arrays in insight-data.ts | HIGH | OPEN |
+| UI-02 | My Work chat tab mock imports | Directly imports from @/mocks/ despite Wave 4 claiming no mock imports | HIGH | OPEN |
+| UI-03 | Settings page ~20 demo-mode actions | Many settings buttons show demo mode toasts instead of real functionality | MEDIUM | OPEN |
+| UI-04 | Billing pages hardcoded | All billing displays use inline hardcoded data | MEDIUM | OPEN |
+| UI-05 | Sales Recent Activity hardcoded | 5 inline hardcoded activity items | LOW | OPEN |
+| UI-06 | TopBar Activity Feed uses static array | Uses staticActivityFeed despite activity_log API existing | MEDIUM | OPEN |
+| UI-07 | Duplicate mock files | client/src/mocks/insights.ts and client/src/lib/insight-data.ts contain identical content | LOW | OPEN |
+| UI-08 | ~10 orphaned mock files | Most of 12 mock files have no page consumers but still exist | LOW | OPEN |
+| UI-09 | Trend percentages non-functional | Most metric tiles hardcode change: 0 with no historical comparison | MEDIUM | OPEN |
+| UI-10 | Placeholder tabs | 8 Wave 2/3/4 placeholder tabs in various pages | MEDIUM | OPEN |
+| UI-11 | Non-functional org wizard | Organization creation wizard exists but is not wired | MEDIUM | OPEN |
 
 ---
 
-## Coverage Summary
+## Part 5: AI, Chat & Outbound Gaps (AIO)
 
-| Category | ID Range | Count |
-|----------|----------|-------|
-| Hidden Gaps (look done, aren't) | H1-H17 | 17 |
-| Sprint Gaps | G1-G50 | 50 |
-| Below-the-Line Backend | B1-B15 | 15 |
-| UI Behavior Issues | U1-U13 | 13 |
-| **Total** | | **95** |
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| AIO-01 | Voice (VAPI) is mock | Console.log only, no actual voice calls placed | HIGH | OPEN |
+| AIO-02 | Video (Tavus) missing | No video calling implementation | HIGH | OPEN |
+| AIO-03 | Mid-stream failure loses AI response | User message saved before AI call; AI response only saved after stream completes | MEDIUM | OPEN |
+| AIO-04 | Campaign execution state in-memory | Same as API-13; execution state lost on restart | HIGH | OPEN |
+| AIO-05 | TextMagic webhook no secret validation | Same as API-15 | MEDIUM | OPEN |
+| AIO-06 | No multi-org routing for outbound | Single-org assumption in campaign execution | LOW | OPEN |
 
-Source: acceptance_criteria_audit.md (2026-03-05), now archived at archive/acceptance_criteria_audit.md.archive
+---
+
+## Part 6: Metrics & Intelligence Gaps (MET)
+
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| MET-01 | Insights page 100% mock | Same as UI-01; single largest mock data consumer | HIGH | OPEN |
+| MET-02 | ~68% of displayed metrics are mock/hardcoded | Only ~32% backed by real data (mainly main/service/marketing/management dashboards) | HIGH | OPEN |
+| MET-03 | Trend percentages all zero | No backend historical comparison implemented | MEDIUM | OPEN |
+| MET-04 | Duplicate insight data files | Same as UI-07 | LOW | OPEN |
+
+---
+
+## Part 7: Verification & Testing Gaps (VER)
+
+| ID | Area | Finding | Severity | Status |
+|----|------|---------|----------|--------|
+| VER-01 | Zero automated tests | No test files (*.test.*, *.spec.*) exist anywhere in project | HIGH | OPEN |
+| VER-02 | No test framework configured | No testing dependencies installed | HIGH | OPEN |
+| VER-03 | Sprint_log E2E claims are manual | "E2E Tests: PASSED" entries were manual verifications, not automated | MEDIUM | OPEN |
+| VER-04 | Wave 2 unchecked criteria despite Complete status | Wave 2 header says Complete but has unchecked items | MEDIUM | OPEN |
+| VER-05 | Wave 3.5 status contradiction | Sprint_log says DONE, PLAN.md criteria all unchecked | MEDIUM | OPEN |
+| VER-06 | Wave 4 deferred items despite Complete status | §6.3 lists items "Deferred to Wave 5 or Future" while wave is marked Complete | MEDIUM | OPEN |
+| VER-07 | AC document labeled "(Future)" | Waves 2-4 ACs still labeled "(Future)" despite waves claimed complete | MEDIUM | OPEN |
+| VER-08 | Enforcer coverage limited | Only checks dropped features and kill switch defaults; no functional/mock/API checks | MEDIUM | OPEN |
+| VER-09 | False positives identified | 10+ features appear functional in UI but use mock/static data | HIGH | OPEN |
+| VER-10 | Verification maturity Level 1 | Ad hoc/manual; no CI/CD, no automated regression | HIGH | OPEN |
+
+---
+
+## Summary
+
+| Category | Count | HIGH | MEDIUM | LOW |
+|----------|-------|------|--------|-----|
+| Governance (GOV) | 13 | 4 | 5 | 4 |
+| Schema (SCH) | 20 | 2 | 6 | 12 |
+| API & Backend (API) | 16 | 2 | 7 | 7 |
+| Frontend & UI (UI) | 11 | 2 | 5 | 4 |
+| AI/Chat/Outbound (AIO) | 6 | 3 | 2 | 1 |
+| Metrics (MET) | 4 | 2 | 1 | 1 |
+| Verification (VER) | 10 | 4 | 5 | 1 |
+| **TOTAL** | **80** | **19** | **31** | **30** |
+
+All items OPEN. No speculative RESOLVED labels applied.
