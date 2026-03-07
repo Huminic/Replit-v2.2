@@ -1,0 +1,304 @@
+
+╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║    SALES AUTOMATION PLATFORM v2.0 — COMPLETE MASTER TEST DIAGRAM WITH GAP-FIRST DOCTRINE            ║
+║    Tester: Duane Wells | duanewells@icloud.com | duanekwells@gmail.com | 412.654.6500               ║
+║    CRM: VinSolutions — Durran Cage Account | Salesperson: Duane Wells                               ║
+║    Persona: Caroline (VAPI + Tavus + Unified Widget — ALL MUST MATCH)                               ║
+║    SMS: TextMagic API (2-way) | Voice: VAPI | Video: Tavus | CRM: VinSolutions                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+VAPI → VINSOLUTIONS LEAD FLOW
+══════════════════════════════════════════════════════════════════════════════════════════════
+
+ [UNIFIED WIDGET]  [TAVUS VIDEO]   [VAPI VOICE]    [FORM]      [CHATBOT]
+  Bottom-Right       Embed            Webcall       Landing      Widget
+       │               │                │            Page          │
+       └───────────────┴────────────────┴─────────────┴────────────┘
+                                        │
+                                        ▼
+                          ┌─────────────────────────┐
+                          │    PLATFORM CHANNEL     │
+                          │       ROUTER            │
+                          │  Detects source type    │
+                          │  Routes to AI pipeline  │
+                          └────────────┬────────────┘
+                                       │
+               ┌───────────────────────┼────────────────────────┐
+               │                       │                        │
+    ┌──────────▼──────────┐  ┌─────────▼──────────┐  ┌─────────▼──────────┐
+    │  VAPI VOICE PIPELINE │  │  TAVUS VIDEO PIPELN│  │  CHAT/FORM PIPELN  │
+    │  ──────────────────  │  │  ─────────────────  │  │  ────────────────  │
+    │  AI: "Caroline"      │  │  Persona: "Caroline"│  │  Widget Response:  │
+    │  Answers in 2 rings  │  │  Video CTA clicked  │  │  "Caroline"        │
+    │  Qualifies via voice │  │  Lead data captured │  │  Lead capture form │
+    │  Extracts:           │  │  Session recorded   │  │  Submitted data    │
+    │  - Name              │  └─────────┬──────────┘  └─────────┬──────────┘
+    │  - Phone (caller ID) │            │                        │
+    │  - Email (spoken)    │            └────────────┬───────────┘
+    │  - Intent            │                         │
+    └──────────┬───────────┘                         │
+               └─────────────────────────────────────┘
+                                       │
+                                       ▼
+                          ┌─────────────────────────┐
+                          │   PLATFORM CRM STAGING  │
+                          │  Record created:        │
+                          │  - Name / Phone / Email │
+                          │  - Source (VAPI/Tavus)  │
+                          │  - Transcript/Session   │
+                          │  - Status: New Lead     │
+                          │  - Timestamp            │
+                          └────────────┬────────────┘
+                                       │
+                                       ▼
+                          ┌─────────────────────────┐
+                          │   VINSOLUTIONS API      │
+                          │   POST /leads           │
+                          │   ─────────────────     │
+                          │   account: Durran Cage  │
+                          │   salesperson: Duane    │
+                          │     Wells               │
+                          │   firstName: [captured] │
+                          │   lastName:  [captured] │
+                          │   phone:     [captured] │
+                          │   email:     [captured] │
+                          │   source:    VAPI/Tavus │
+                          │   leadNotes: transcript │
+                          └────────────┬────────────┘
+                                       │
+               ┌───────────────────────┴─────────────────────────┐
+               │                                                  │
+    ┌──────────▼──────────┐                            ┌─────────▼──────────┐
+    │  SUCCESS PATH        │                            │  FAILURE PATH      │
+    │  ─────────────────   │                            │  ───────────────── │
+    │  Lead in Durran      │                            │  API error logged  │
+    │  Cage VinSol acct    │                            │  Admin alerted     │
+    │  Salesperson:        │                            │  Lead queued for   │
+    │    Duane Wells       │                            │  manual insertion  │
+    │  Source tagged       │                            │  → GAP TICKET      │
+    │  Status: New Lead    │                            │  → release_criteria│
+    └──────────┬──────────┘                            └────────────────────┘
+               │
+               ▼
+  ┌────────────────────────────────────────────────┐
+  │  15-MINUTE IDLE TRIGGER                        │
+  │  ─────────────────────────────────────────     │
+  │  IF: Status = "New Lead"                       │
+  │  AND: No activity for 15 minutes               │
+  │  THEN:                                         │
+  │    ├─► TextMagic API → 2-way SMS               │
+  │    │   to 412.654.6500                         │
+  │    │   From: "Caroline"                        │
+  │    │   Message: personalized re-engagement     │
+  │    │                                           │
+  │    └─► VAPI → Outbound call                    │
+  │        to 412.654.6500                         │
+  │        "Caroline" speaks                       │
+  │        Context-aware opening                   │
+  │                                                │
+  │  DEDUPLICATION: If conversation active → STOP  │
+  │  MAX RETRY: Configured limit (e.g., 3 attempts)│
+  └────────────────────────────────────────────────┘
+               │
+               ▼
+  ┌────────────────────────────────────────────────┐
+  │  2-WAY RESPONSE CHAIN                          │
+  │  ─────────────────────────────────────────     │
+  │  Lead replies via SMS → AI continues 2-way    │
+  │  OR                                            │
+  │  Lead answers call → AI engages conversation  │
+  │                                                │
+  │  → Appointment offered and booked              │
+  │  → VinSolutions updated:                      │
+  │       Status: Contacted → Qualified → Booked  │
+  │       Notes: conversation log                 │
+  │  → TextMagic confirmation SMS → 412.654.6500  │
+  │  → Email confirmation:                        │
+  │       duanewells@icloud.com                   │
+  │       duanekwells@gmail.com                   │
+  └────────────────────────────────────────────────┘
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+GAP ROUTING FLOW
+══════════════════════════════════════════════════════════════════════════════════════════════
+
+  GAP DETECTED (any battery, any test case)
+           │
+           ▼
+  ┌─────────────────────┐
+  │  GAP TICKET CREATED │
+  │  GAP-B[n]-[seq]     │
+  │  Fields: ID, Bat,   │
+  │  Component, Sev,    │
+  │  Expected, Actual,  │
+  │  Blocked, Fix,      │
+  │  Complexity         │
+  └──────────┬──────────┘
+             │
+    ┌────────┴─────────┐
+    │                  │
+  P0/P1              P2/P3
+    │                  │
+    ▼                  ▼
+  Halt/Risk        Log & Continue
+  Escalate         sprint queue
+    │
+    ▼
+  release_criteria.md
+  (Section 1 or 2)
+    │
+    ▼
+  B6 Regression
+  Re-Test Required
+    │
+    ▼
+  FIXED / STILL FAILING /
+  RISK-ACCEPTED
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+AGENT FORMULA — EVERY ACCOUNT
+══════════════════════════════════════════════════════════════════════════════════════════════
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  EVERY ACCOUNT MUST HAVE ALL THREE:                             │
+  │                                                                  │
+  │  1. Lead Follow-Up Agent                                         │
+  │     ┌────────────────────────────────────────────────┐          │
+  │     │ RIGHT PANE: Context + Instructions + Triggers  │          │
+  │     │ - Account context (Durran Cage / Duane Wells)  │          │
+  │     │ - 15-min idle trigger documented               │          │
+  │     │ - Escalation path defined                      │          │
+  │     │ - VinSolutions update instructions             │          │
+  │     │ SKILLS: CRM r/w, TextMagic SMS, VAPI, Calendar │          │
+  │     └────────────────────────────────────────────────┘          │
+  │                                                                  │
+  │  2. Sales Coach Agent (Deal Closing Advice)                      │
+  │     ┌────────────────────────────────────────────────┐          │
+  │     │ RIGHT PANE: Coaching framework + Objections    │          │
+  │     │ - Internal only (NOT customer-facing)          │          │
+  │     │ - Deal stage definitions                       │          │
+  │     │ - Closing technique library                    │          │
+  │     │ SKILLS: CRM read, pipeline analysis            │          │
+  │     └────────────────────────────────────────────────┘          │
+  │                                                                  │
+  │  3. Messaging Coach Agent (Text & Email Response)                │
+  │     ┌────────────────────────────────────────────────┐          │
+  │     │ RIGHT PANE: Tone guidelines + Response templates│          │
+  │     │ - Internal only (NOT customer-facing)          │          │
+  │     │ - Urgency calibration                          │          │
+  │     │ - Good vs. poor response examples              │          │
+  │     │ SKILLS: Message analysis, response generation  │          │
+  │     └────────────────────────────────────────────────┘          │
+  └──────────────────────────────────────────────────────────────────┘
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+FULL TEST BATTERY SEQUENCE
+══════════════════════════════════════════════════════════════════════════════════════════════
+
+                    ┌──────────────────────────────────────────┐
+                    │  PRE-FLIGHT: API/Credential/Page Check   │
+                    │  TextMagic ✓ | VAPI ✓ | Tavus ✓         │
+                    │  VinSolutions ✓ | Public page live ✓    │
+                    └──────────────────┬───────────────────────┘
+                                       │ ALL CLEAR?
+                                       ▼
+╔══════════════════════════════════════════════════════════════════╗
+║  B1: AGENT CONFIG + PERSONA + VINSOLUTIONS WIRING               ║
+║  4 agents: Config Auditor | Schema Validator | Trigger Reviewer  ║
+║            Oversight Critic                                      ║
+║  KEY CHECKS: 3-agent formula | Name consistency | 15-min trigger║
+║  EVIDENCE: Persona matrix | VinSolutions API test               ║
+╚══════════════════════════════════════════════════════════════════╝
+                                       │
+                                       ▼ PASS GATE
+╔══════════════════════════════════════════════════════════════════╗
+║  B2: WIDGETS + PUBLIC PAGE + LANDING PAGES + EMBED CODE         ║
+║  4 agents: Widget Inspector | Embed Validator | Page Tester     ║
+║            UX Critic                                             ║
+║  KEY CHECKS: Unified widget | All channels route | VinSol insert║
+║  EVIDENCE: Both email inboxes | VinSolutions screenshots        ║
+╚══════════════════════════════════════════════════════════════════╝
+                                       │
+                                       ▼ PASS GATE
+              ┌────────────────────────┴───────────────────────┐
+              │  PARALLEL EXECUTION                            │
+              │                                                │
+╔═════════════▼════════════════╗    ╔═══════════════════════▼═══╗
+║  B3: INBOUND WORKFLOWS       ║    ║  B4: OUTBOUND TRIGGERS    ║
+║  SMS → VinSolutions          ║    ║  15-min idle: BOTH fire   ║
+║  VAPI Voice → VinSolutions   ║    ║  TextMagic 2-way SMS      ║
+║  Tavus → VinSolutions        ║    ║  VAPI outbound calls      ║
+║  Form → VinSolutions         ║    ║  Tavus video outbound     ║
+║  LIVE: 412.654.6500 active   ║    ║  LIVE: 412.654.6500 active║
+║  EVIDENCE: VinSol + 2 emails ║    ║  EVIDENCE: TextMagic logs ║
+╚══════════════════╤═══════════╝    ╚══════════════╤════════════╝
+                   │                               │
+                   └──────────────┬────────────────┘
+                                  │ BOTH PASS GATES
+                                  ▼
+╔══════════════════════════════════════════════════════════════════╗
+║  B5: CALENDAR + APPOINTMENTS + VINSOLUTIONS SYNC                ║
+║  4 agents: Calendar Auditor | CRM Sync Verifier | Conflict Tstst║
+║            Oversight Critic                                      ║
+║  KEY CHECKS: Bidirectional sync | Cancellation stops reminders  ║
+║  EVIDENCE: Both emails per confirmation | VinSol screenshots    ║
+╚══════════════════════════════════════════════════════════════════╝
+                                  │
+                                  ▼ PASS GATE
+╔══════════════════════════════════════════════════════════════════╗
+║  B6: E2E REGRESSION + FINAL REPORT                              ║
+║  4 agents: E2E Orchestrator | Dashboard Auditor                 ║
+║            Error Injector | Final Reporter                       ║
+║  KEY: All B1-B5 P0/P1 regression checks                        ║
+║  OUTPUT: Final report + Scorecards + release_criteria.md FINAL  ║
+╚══════════════════════════════════════════════════════════════════╝
+                                  │
+                                  ▼
+            ┌─────────────────────┴──────────────────────┐
+            │                                            │
+   ┌────────▼────────┐  ┌────────────────────┐  ┌───────▼────────────┐
+   │  PASS SUMMARY    │  │  GAP REGISTER      │  │  MANUAL TEST       │
+   │  Battery scores  │  │  (release_criteria) │  │  Duane Wells       │
+   │  Coverage map    │  │  All P0/P1 status  │  │  Live Tavus Video  │
+   │  Readiness score │  │  Open → Fixed →    │  │  FINAL STEP EVER   │
+   │  Launch verdict  │  │  Risk-Accepted     │  │  (Reserved — LAST) │
+   └──────────────────┘  └────────────────────┘  └────────────────────┘
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+EVIDENCE MATRIX — REQUIRED FOR EVERY LIVE TEST
+══════════════════════════════════════════════════════════════════════════════════════════════
+
+  SMS (TextMagic):
+    □ Screenshot SMS at 412.654.6500
+    □ 2-way reply exchange screenshot
+    □ TextMagic delivery log
+
+  Voice (VAPI):
+    □ Call log (to/from 412.654.6500)
+    □ Transcript or call summary
+    □ VinSolutions record showing call
+
+  Email (Both):
+    □ Screenshot at duanewells@icloud.com
+    □ Screenshot at duanekwells@gmail.com
+    □ Subject + timestamp documented
+
+  VinSolutions:
+    □ Lead record screenshot (full fields)
+    □ Salesperson = Duane Wells visible
+    □ Source field correct
+    □ Lead notes / transcript attached
+
+  Tavus Video:
+    □ Video link received (SMS or email)
+    □ Persona name = canonical name
+    □ CTA click logged in VinSolutions
+
+══════════════════════════════════════════════════════════════════════════════════════════════
+LEGEND
+══════════════════════════════════════════════════════════════════════════════════════════════
+  ╔══╗ Battery Block     ┌──┐ Sub-Test Block    │ Flow       □ Checklist
+  P0  Critical — HALT   P1  High — Risk Note   P2 Log+Go  P3 Enhancement
+  GAP-Bx-NNN = Gap ID   → release_criteria.md = gap destination
+  [VAPI]="Caroline" [Tavus]="Caroline" [Widget]="Caroline" — ALL MUST MATCH
