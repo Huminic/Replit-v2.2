@@ -8,6 +8,9 @@ Unified AI communication platform for automotive dealerships (Serra Auto Group /
 - **AI:** Anthropic Claude (claude-sonnet-4-6) via SSE streaming
 - **Integrations:** TextMagic (SMS), Resend (email), VAPI (voice), Tavus (video), VinSolutions (CRM read-only)
 
+## Current Status
+S01-S04 complete. S05 (Real Metrics & Dashboards) is NEXT. 43 of 95 gaps RESOLVED (45%).
+
 ## BEFORE ANY ACTION
 Read these files in order before starting any work:
 1. `PLAN.md` — current sprint roadmap (find your sprint, read its scope)
