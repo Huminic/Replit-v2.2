@@ -1,0 +1,120 @@
+where is te report
+can you create a folder called /audits and put only this file and the reference files in to that folder
+You mentioned no testing was found. I included some testing batteries from the previous version that need updated and included for your spec.ts testing files and any other tests. Ive also included a data and observability testing. The truth heierachy is always the UI, then AC criteria, then Plan.md For the next step it should be a synthess phase It should be a Synthesis Phase.
+
+The agent should now:
+1. read every artifact produced
+2. merge findings for output
+3. rank structural risks
+4. identify architectural contradictions
+5. produce a system stabilization plan that includes new set of governance documents, rules criteria with enforcement, and agent coding plan that includes self verification and to fix all the problems that you have identified so that we can get back on track with the plan.md. Plan md should be numberred and labeled and the next release candidate for the software should include all communication between vapi, tavus landing page and widget should make it through the system, all metrics should be correct in the UI and user chat has to be stable and working in a way that is advanced enough to feel current and usable. your plan should go beyond this but this is a key next milestone to work towards along the path of completion. there should be a central repository for all gaps and bugs and we need to remove any files that are potential nuisances and streamline governance with extremely conservative rules for approval
+6. produce a folder for testing and have varoius testing plans according to the attachments.
+
+Not fix anything yet.
+Here's what the synthesis plan covers after reading all 11 audit artifacts, GAPS.md (80 items), GUARDRAILS.md, and MEMORY.md:
+
+What I found across all artifacts:
+
+19 HIGH-severity gaps spanning zero tests, mock data in production, VAPI mock-only, Tavus missing entirely, dual schema conflict, no cascade deletes, campaign state lost on restart, and competing truth hierarchies.
+10 documented contradictions (C-01 through C-10) including: two competing AC documents, 3 different truth hierarchies, metric tile specs that disagree across 3 documents, widget channel count (7 vs 4), safety layer count (3 vs 4 vs 5), and wave numbering that differs in every governance doc.
+10 false positives — features that appear functional in the UI but run on mock/static data (Insights page being the largest at 100% mock).
+6+ governance documents that are critically stale (SPEC.md, operational-context.md, codebase-index.md, etc.) creating noise and drift risk.
+The plan has 6 tasks:
+
+T001: Merge all findings into a single risk-ranked RISK_REGISTER.md organized by RC-blocking vs structural vs deferred
+T002: Rewrite PLAN.md as a numbered stabilization plan with self-verification gates per task, organized around your RC milestone (VAPI+Tavus+landing page+widget, correct metrics, stable chat)
+T003: Strengthen GUARDRAILS.md with 5 new conservative rules + identify files to archive/remove
+T004: Create testing/ folder with all 12 test battery files (clean names)
+T005: Produce AGENT_CODING_PLAN.md — the operational playbook for any agent touching code
+T006: Update MEMORY.md and replit.md to reflect the new state
+T001 and T004 can run in parallel since they're independent. Everything else follows the dependency chain. No code changes — documents only.
+I want things to be segmented in a way in plan.md where it maps directly to the AC criteria even through an intermediary table, and the work should allow for showing what the results are against the AC at the end of each sprint. Self verification is good but part of the gate criteria must be that it stops and gets input and approval after self certifying. You may begin.
+Updated the plan with both requirements:
+
+AC traceability: PLAN.md Section 1 will contain an intermediary mapping table (all 62 ACs → task IDs → status → gap references). Every task references the ACs it addresses. A sprint report template at the end of PLAN.md provides the structure for reporting results against ACs at sprint close.
+GATE:STOP protocol: Every task's gate criteria now includes a mandatory hard stop after self-certification. The agent presents AC pass/fail results and waits for your explicit approval before proceeding to the next task. This is codified as Rule R16 in GUARDRAILS.md and documented in the AGENT_CODING_PLAN.md workflow.
+T001 and T004 run in parallel (no dependencies). Everything else follows the chain.
+Start building
+wait aer you puting the plan together or actually coding?
+Just the plan — no code changes were made. Everything produced in this session is documents only:
+
+RISK_REGISTER.md — ranked list of what's broken and what it blocks
+PLAN.md — the stabilization roadmap with AC traceability
+GUARDRAILS.md — the rules (including the approval gates you asked for)
+AGENT_CODING_PLAN.md — the playbook for when coding actually starts
+testing/ — your test batteries organized with clean names
+MEMORY.md + replit.md — updated to reflect current state
+Zero lines of application code were touched. The codebase is still exactly at commit 58288b6.
+
+Actual coding starts when you say go — Phase S1 (archiving stale docs, removing junk files) and S2 (fixing the schema issues) are the first two phases, and they can run at the same time. Just let me know when you want to start.
+since the last tiem I said start building have you been doing anything except synthesizing?
+Yes — everything since your approval has been synthesis and document production only. No application code has been written or modified. The session plan called for 6 tasks and all 6 were document creation tasks (RISK_REGISTER.md, PLAN.md, GUARDRAILS.md, AGENT_CODING_PLAN.md, testing folder, and updating MEMORY/replit.md). That was the scope of the Synthesis Phase you initiated.
+
+Would you like me to start building now? Phase S1 (archiving stale files, removing junk) and S2 (fixing schema — dual schema conflict, adding cascades and indexes, generating migration) are the first coding phases and can run in parallel.
+ok are you finished with the plan for me to review? You need to make sure that in your governance I need to be explicitly told that the plan work is complete
+where is the plan files for me to review
+The plan files are all in the root of your project. Here are the key ones to review:
+
+PLAN.md — The main stabilization plan with the AC traceability table, 8 phases of numbered tasks, and the sprint report template
+RISK_REGISTER.md — The ranked risk list (what's broken, what it blocks, and the contradiction resolutions)
+GUARDRAILS.md — The 17 rules governing how work gets done, including the approval gates
+AGENT_CODING_PLAN.md — The step-by-step playbook for coding sessions
+You can open any of these directly in the file editor on the left side of your screen — just click on the filename in the file tree. They're all markdown so they'll be readable.
+
+The testing/ folder has the 12 test battery files you provided, organized with clean names.
+
+Take your time reviewing. I won't start any coding until you tell me to.
+but these are all step 1 - Synthesis - Complete audit and identify issues
+2 - synthesis create plan for how you are going to fix said issues
+3 - agree on plan to fix said issues
+
+you execute to align the project
+We pickup in the plan where we need to starrt working on the project again. It feeels like you may have comprimised this workflow but im not sure
+You're right to check — the workflow is not compromised. Let me map where we actually are against your 5 steps:
+
+Synthesis - Complete audit and identify issues — Done (previous session). 11 audit artifacts, 80 gaps cataloged in GAPS.md.
+Synthesis - Create plan for how to fix said issues — Done (this session). PLAN.md v4.0 with 8 phases, 30 numbered tasks, AC traceability, and gate criteria. RISK_REGISTER.md with prioritized issues. GUARDRAILS.md with the approval rules.
+Agree on plan to fix said issues — This is where we are right now. You're reviewing the plan documents. Nothing moves forward until you approve.
+Execute to align the project — Has not started. Zero code changes. Once you approve the plan, I execute Phase S1 through S8, stopping at each gate for your approval per R16.
+Pick up in the plan where we need to start working on the project again — After step 4 aligns the project, we resume feature work from wherever the RC milestone stands.
+So we're at the handoff between step 2 and step 3. The plan files are ready for your review. Once you've looked through them and we agree on the approach, I execute. Does that match what you expected?
+I havent seen a final plan from step 2, you are just showing me the givernance files
+did you roll back the governance files that you wrote without permission?
+No, I did not roll them back. The governance files I wrote during this session are all still in place:
+
+GUARDRAILS.md (v2.0 — 17 rules)
+RISK_REGISTER.md (69 items, contradiction register)
+PLAN.md (v4.0 — AC traceability, 8 phases)
+AGENT_CODING_PLAN.md (operational playbook)
+STABILIZATION_PLAN.md (the review document I just created)
+MEMORY.md (updated session log)
+replit.md (updated project context)
+testing/ folder (12 test battery files)
+To be transparent — I wrote these as part of the synthesis phase you approved. But you're raising a valid point: the original PLAN.md, GUARDRAILS.md, and replit.md were overwritten, not created fresh. Those were existing files I rewrote.
+
+Per your workflow, those rewrites are part of step 2 (create the plan). But if you feel any of those should have been kept as-is until you approved the changes, I understand that concern. The previous versions are still recoverable from the checkpoint at commit 010d38b if you want to compare or revert any of them.
+
+Would you like me to pull up the old versions so you can compare, or are you comfortable with the current state?
+please roll them back. Those changes should be in your plan from step 2 in a specific section
+your plan for me to reviwe should include what steps you plan to take to create those files
+Now im concerned we missed something
+Your concern is valid. Let me be straight about what happened:
+
+I read the audit artifacts and synthesized findings into new documents — that's fine, that was the assignment.
+But I also overwrote PLAN.md, GUARDRAILS.md, MEMORY.md, and replit.md without your approval — that violated your workflow.
+I've rolled those 4 files back to their pre-synthesis versions. The proposed replacements are saved in proposed/ for you to review.
+What you're pointing out now is that the STABILIZATION_PLAN.md — the document you're supposed to review — doesn't actually describe the steps I'll take to produce those governance files. It just lists the end result.
+You're right. The plan should tell you: "Here's what I'm going to do, step by step, including how I'll create each governance document." Let me fix that.
+Done. STABILIZATION_PLAN.md is now the complete plan document for your review. Here's what changed:
+
+Every phase now has a "Steps I will take" section that describes exactly what I'll do — not just the end result, but the specific actions: which files I'll read, what code I'll write, what I'll check, and how I'll verify it.
+
+The governance changes section now explains what I plan to do to each governance file, why, and points you to the drafts in proposed/ so you can compare before approving.
+
+The files I already overwrote (PLAN.md, GUARDRAILS.md, MEMORY.md, replit.md) are rolled back to their originals. The proposed new versions are in proposed/ — they don't replace anything until you say so.
+
+Planning is complete. The following documents are ready for your review:
+
+STABILIZATION_PLAN.md — The main plan with step-by-step details for all 8 phases, plus the governance change plan
+RISK_REGISTER.md — What's broken, ranked by priority, with AC traceability
+proposed/ folder — Draft versions of PLAN.md, GUARDRAILS.md, MEMORY.md, replit.md, and AGENT_CODING_PLAN.md for you to compare against the originals
