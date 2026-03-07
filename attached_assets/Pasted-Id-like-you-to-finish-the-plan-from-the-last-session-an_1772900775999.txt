@@ -1,0 +1,12 @@
+Id like you to finish the plan from the last session and I need the report to include what my options are to make a plan that is stricter, streamlined. it should be in the plan to: 1. Archive the root ACCEPTANCE_CRITERIA.md Rename it to ACCEPTANCE_CRITERIA_wave1_visual_only.md.archive. This immediately stops the false positive loop.
+
+Rewrite replit.md to 60 lines max Strip everything the agent added. It should only be: project description, tech stack summary, truth hierarchy (pointing to .agent_docs/acceptance_criteria.md), and "BEFORE ANY ACTION: read /docs/PLAN.md and /.agent_docs/rules/agent-roles.md."
+Create GAPS.md in /docs/ Paste in every item from the devil's advocate audit (acceptance_criteria_audit-2.md) with status OPEN. This becomes the canonical bug tracker.
+Add one line to GUARDRAILS.md:
+"NEVER report an AC as passing if the test uses hardcoded or static data. A passing AC requires a real DB query, real API call, or real behavioral verification. Appearance tests are NOT behavioral tests."
+
+Create MEMORY.md The codebase-index has been flagging this as "PENDING CREATION" since Wave 0. Create it as a session log — last 5 decisions made, why, and what changed.
+Review any other governance document before you ks creaet the plan and identify any that are irrelevent or corrupted and flag them as renaming to .md.archive and put them in a new /archive
+make sure the plan.md and the replit.md are populated with the right information and that plan.md is numbered and outlined in srints that we can tackle one at a time and insert gap repairs in an ordder that makes sense to validate the code as we go in the order that we built the codebase.
+suggest any other measures we can implement to lockdown replit better such as hooks we can run at commit time and a better governance with defined agents that test the work for drift and accuracy witht he UI as the top tier truth and the AC below that and plan.md below that.
+If you lost context with what. you need to finish from the old plan just let me know.
