@@ -22,23 +22,23 @@
 
 | ID | Area | What It Looks Like | What's Actually Happening | Severity | Status | Sprint Target |
 |----|------|--------------------|---------------------------|----------|--------|---------------|
-| H1 | Main page chat | User sends message, gets response | Response was hardcoded setTimeout; bot reply persists to DB. AI response gap, not persistence. | MEDIUM | OPEN — verify current state | S03 |
-| H2 | RightPane chat | Same typing dots, response pattern | Same fake response pattern. Also persists to DB. | MEDIUM | OPEN — verify current state | S03 |
-| H3 | Agent chat (/agents) | Typing dots, response | DOES NOT persist to DB. Messages in React useState only. Lost on refresh. | HIGH | OPEN | S03 |
-| H4 | Agent instructions edit | AgentConfigPane has Instructions tab with edit modal | No `instructions` column on agents table. Saves to local React state only. | HIGH | DECIDED — add column (Q1) | S02 |
-| H5 | Campaign kill switch | Toggle in campaign table, shows red when ON | Persists to DB. But no backend enforcement — nothing stops sending. | MEDIUM | OPEN | S06 |
-| H6 | Communication gate | Toggle in Settings > Organization | Persists outboundEnabled to org table. No middleware checks it. | MEDIUM | OPEN | S06 |
-| H7 | Campaign disconnect | Disconnect button sets campaignDisconnected=true | Persists to DB. No sending engine checks this flag. | MEDIUM | OPEN | S06 |
-| H8 | User Management | Shows real users from API | Can't create, edit, or delete users. All three actions show demo mode toasts. | HIGH | OPEN | S04 |
-| H9 | Profile editing | Edit profile button exists | Shows demo mode toast despite working PATCH /api/users/me route. | LOW | OPEN | S04 |
-| H10 | Widgets | Rich config UI with preview, embed codes, targeting | 100% local React state from staticWidgets. Nothing persists. No backend routes. | HIGH | OPEN | S09 |
-| H11 | Knowledge Base | Upload UI, document list, web scraping | 100% hardcoded table rows. All buttons show demo mode toasts. | HIGH | OPEN | S04 |
-| H12 | My Work | Tasks list with status, priority, due dates | 100% hardcoded mockMyTasks. No backend. | HIGH | OPEN | S09 |
+| H1 | Main page chat | User sends message, gets response | Real Claude streaming via useStreamingChat + /api/chat/:id/stream. Fully functional. | MEDIUM | RESOLVED — real Claude SSE streaming | S03 |
+| H2 | RightPane chat | Same typing dots, response pattern | Real Claude streaming via useStreamingChat. Fully functional. | MEDIUM | RESOLVED — real Claude SSE streaming | S03 |
+| H3 | Agent chat (/agents) | Typing dots, response | Uses useStreamingChat + conversation API. Messages persist to DB. Survives refresh. | HIGH | RESOLVED — streaming + DB persistence | S03 |
+| H4 | Agent instructions edit | AgentConfigPane has Instructions tab with edit modal | `instructions` column EXISTS on agents table. Verify UI wiring persists to DB. | MEDIUM | RESOLVED (schema) — verify UI wiring | S03 |
+| H5 | Campaign kill switch | Toggle in campaign table, shows red when ON | Backend enforces killSwitch check in outbound.ts. RESOLVED. | MEDIUM | RESOLVED — outbound.ts checks campaign.killSwitch | S06 |
+| H6 | Communication gate | Toggle in Settings > Organization | checkCommGate() middleware in outbound.ts checks org.outboundEnabled. RESOLVED. | MEDIUM | RESOLVED — outbound.ts enforces | S06 |
+| H7 | Campaign disconnect | Disconnect button sets campaignDisconnected=true | outbound.ts checks conversation.campaignDisconnected. RESOLVED. | MEDIUM | RESOLVED — outbound.ts enforces | S06 |
+| H8 | User Management | Shows real users from API | Create/edit/deactivate/reset-password ALL wired with real mutations + API routes. No demo toasts on user CRUD. | HIGH | RESOLVED — full CRUD wired | S04 |
+| H9 | Profile editing | Edit profile button exists | profileMutation wired to PATCH /api/users/me. Inline editing works. No demo toast. | LOW | RESOLVED — mutation wired | S04 |
+| H10 | Widgets | Rich config UI with preview, embed codes, targeting | Widget table + CRUD routes + UI all wired via useQuery/mutations to /api/widgets. | HIGH | RESOLVED — full API wiring confirmed | S09 |
+| H11 | Knowledge Base | Upload UI, document list, web scraping | Document upload/list/delete fully wired via /api/documents + multer. Web scraping still demo. | HIGH | RESOLVED (core) — web scrape/URL add remain demo | S04 |
+| H12 | My Work | Tasks list with status, priority, due dates | Tasks table + CRUD routes EXIST. Page still imports from mocks (3 mock imports found). | HIGH | OPEN — page needs API wiring | S09 |
 | H13 | Dashboard metrics | KPI tiles on every department page | Sales tiles use VinSolutions data. Service/Marketing/Management tiles hardcoded. | HIGH | OPEN | S05 |
 | H14 | Insights page | Charts, metrics library, red zone alerts | 100% from insight-data.ts static arrays. None computed. | HIGH | OPEN | S08 |
 | H15 | Hunches | AI insight cards with confidence scores | Hardcoded mockHunches array. No AI generation. | HIGH | OPEN | S08 |
-| H16 | Notifications | Bell icon in TopBar with count badge | Static staticNotifications array. No notification table in DB. | HIGH | OPEN | S07 |
-| H17 | Activity feeds | Activity timeline in Management page | Static staticActivityFeed array. No activity_log table. | HIGH | OPEN | S07 |
+| H16 | Notifications | Bell icon in TopBar with count badge | Notifications table + CRUD routes EXIST. Verify UI reads from API. | HIGH | OPEN — verify UI wiring | S07 |
+| H17 | Activity feeds | Activity timeline in Management page | Activity_log table + API route EXIST. Verify UI reads from API. | HIGH | OPEN — verify UI wiring | S07 |
 
 ---
 
@@ -48,27 +48,27 @@
 
 | ID | Gap | Severity | Status | Sprint Target |
 |----|-----|----------|--------|---------------|
-| G1 | Agent chat has NO database persistence. Main/RightPane persist but agents.tsx uses local useState. | HIGH | OPEN | S03 |
-| G2 | No `instructions` column on agents table. Only `description` exists. | MEDIUM | DECIDED — add column (Q1) | S02 |
-| G3 | No system prompt architecture defined. AI gives generic responses without org/dealership/role context. | HIGH | DECIDED — build template (Q2) | S03 |
-| G4 | Streaming UI component doesn't exist. Chat renders complete messages, needs streaming token append. | MEDIUM | OPEN | S03 |
-| G5 | Extended thinking API complexity. Needs specific API params and UI parsing of thinking blocks. | MEDIUM | DECIDED — defer if it slows sprint (Q3) | S03 |
-| G6 | Conversation history context window. Long conversations will hit token limits. | LOW | OPEN | S03 |
-| G7 | Error handling for AI failures. Rate limits, server errors, content filters leave UI broken. | MEDIUM | OPEN | S03 |
-| G8 | Which Claude model? Not specified. Affects cost and quality. | LOW | DECIDED — claude-sonnet-4-6 (Q8) | S03 |
-| G9 | Agent createdBy field. No column, hardcoded string in seed. Repurposed for managerial tracking. | LOW | DECIDED — add createdBy UUID (G9 decision) | S02 |
+| G1 | Agent chat has NO database persistence. Main/RightPane persist but agents.tsx uses local useState. | HIGH | RESOLVED — agents.tsx uses useStreamingChat + conversation API, messages in DB | S03 |
+| G2 | No `instructions` column on agents table. Only `description` exists. | MEDIUM | RESOLVED — column exists in schema | S02 |
+| G3 | No system prompt architecture defined. AI gives generic responses without org/dealership/role context. | HIGH | RESOLVED — system prompt built with org/dept/user/agent/knowledge/sync context (routes.ts L1310-1353) | S03 |
+| G4 | Streaming UI component doesn't exist. Chat renders complete messages, needs streaming token append. | MEDIUM | RESOLVED — useStreamingChat hook + MarkdownMessage with isStreaming prop | S03 |
+| G5 | Extended thinking API complexity. Needs specific API params and UI parsing of thinking blocks. | MEDIUM | DECIDED — deferred per plan | S03 |
+| G6 | Conversation history context window. Long conversations will hit token limits. | LOW | RESOLVED — last 20 messages truncation implemented | S03 |
+| G7 | Error handling for AI failures. Rate limits, server errors, content filters leave UI broken. | MEDIUM | RESOLVED — error state + retry button in all 3 chat UIs, server catches/streams errors | S03 |
+| G8 | Which Claude model? Not specified. Affects cost and quality. | LOW | RESOLVED — claude-sonnet-4-6 in use | S03 |
+| G9 | Agent createdBy field. No column, hardcoded string in seed. Repurposed for managerial tracking. | LOW | RESOLVED — createdBy UUID column added (S02) | S02 |
 
 ### Sprint 2.2 — User & Org Management
 
 | ID | Gap | Severity | Status | Sprint Target |
 |----|-----|----------|--------|---------------|
-| G10 | No campaign_recipients table. Can't track per-recipient send status for CSV uploads. | HIGH | DECIDED — build with CSV upload (Q4) | S02 |
+| G10 | No campaign_recipients table. Can't track per-recipient send status for CSV uploads. | HIGH | RESOLVED — table exists with full CRUD | S02 |
 | G11 | File storage destination undefined. Local disk doesn't survive deployments. | HIGH | DECIDED — PostgreSQL now, evaluate R2/B2/Supabase (Q5) | S04 |
 | G12 | Add User needs org assignment for super_admin/partner_admin roles. | MEDIUM | OPEN | S04 |
-| G13 | Password validation rules undefined. No min length or complexity. | LOW | OPEN | S04 |
-| G14 | Profile photo persistence. No profilePhotoUrl column, no storage for photos. | MEDIUM | OPEN | S04 |
-| G15 | Profile edit demo mode disconnect. Button shows toast despite working API route. | LOW | OPEN | S04 |
-| G16 | Knowledge base upload scope undefined. File storage vs RAG indexing unclear. | MEDIUM | DECIDED — store files + metadata, RAG later (G16) | S04 |
+| G13 | Password validation rules undefined. No min length or complexity. | LOW | RESOLVED — min length 6 enforced in routes.ts | S04 |
+| G14 | Profile photo persistence. No profilePhotoUrl column, no storage for photos. | MEDIUM | RESOLVED (schema) — profilePhotoUrl column exists. Storage TBD. | S04 |
+| G15 | Profile edit demo mode disconnect. Button shows toast despite working API route. | LOW | RESOLVED — profile edit uses real mutation, no demo toast | S04 |
+| G16 | Knowledge base upload scope undefined. File storage vs RAG indexing unclear. | MEDIUM | RESOLVED — files stored via multer memoryStorage + content in DB. Documents injected into AI system prompt. | S04 |
 
 ### Sprint 2.3 — Real Metrics & Dashboard Wiring
 
@@ -85,21 +85,21 @@
 
 | ID | Gap | Severity | Status | Sprint Target |
 |----|-----|----------|--------|---------------|
-| G23 | No campaign_recipients table (duplicate of G10). | CRITICAL | DECIDED — build in S02 | S02 |
+| G23 | No campaign_recipients table (duplicate of G10). | CRITICAL | RESOLVED — duplicate of G10, table exists | S02 |
 | G24 | No background job system. Campaign sends need timed processing. | HIGH | DECIDED — in-memory queue + setInterval (Q14) | S06 |
-| G25 | Configured send interval undefined. No sendIntervalSeconds column. | MEDIUM | OPEN | S06 |
-| G26 | No message templating system. Campaigns need variable substitution. | HIGH | OPEN | S06 |
+| G25 | Configured send interval undefined. No sendIntervalSeconds column. | MEDIUM | RESOLVED — sendIntervalSeconds column exists (default 60) | S06 |
+| G26 | No message templating system. Campaigns need variable substitution. | HIGH | RESOLVED — substituteTemplate() built with {{customerName}}, {{dealershipName}} | S06 |
 | G27 | TCPA/CAN-SPAM compliance missing. No opt-out in SMS, no unsubscribe in email. | HIGH | DECIDED — Reply STOP in every SMS, unsubscribe in email (Q27) | S06 |
 | G28 | TextMagic/Resend API keys not provisioned. | BLOCKER | DECIDED — user provides when ready (Q28) | S06 |
 | G29 | Test protocol for live messaging undefined. Risk of accidental mass send. | HIGH | DECIDED — dry run mode + loopback test (Q11) | S06 |
-| G30 | Communication gate middleware doesn't exist. Boolean saved but not enforced. | MEDIUM | OPEN | S06 |
+| G30 | Communication gate middleware doesn't exist. Boolean saved but not enforced. | MEDIUM | RESOLVED — checkCommGate() in outbound.ts checks org.outboundEnabled + channel flags | S06 |
 
 ### Sprint 3.2 — Webhooks & Real-Time
 
 | ID | Gap | Severity | Status | Sprint Target |
 |----|-----|----------|--------|---------------|
-| G31 | No notifications table in schema. | HIGH | OPEN | S02/S07 |
-| G32 | No activity_log table in schema. | HIGH | OPEN | S02/S07 |
+| G31 | No notifications table in schema. | HIGH | RESOLVED — table exists with CRUD routes | S02 |
+| G32 | No activity_log table in schema. | HIGH | RESOLVED — table exists with API route | S02 |
 | G33 | Webhook authentication missing. VAPI/Tavus need verification. | HIGH | OPEN | S07 |
 | G34 | VAPI webhook URL not configured in VAPI dashboard. | MEDIUM | OPEN | S07 |
 | G35 | SSE connection management. Reconnection logic needed. | MEDIUM | OPEN | S07 |
@@ -119,11 +119,11 @@
 
 | ID | Gap | Severity | Status | Sprint Target |
 |----|-----|----------|--------|---------------|
-| G42 | Widget schema doesn't exist. No widgets table. | HIGH | DECIDED — build full CRUD (G42) | S09 |
+| G42 | Widget schema doesn't exist. No widgets table. | HIGH | RESOLVED — widgets table + CRUD routes exist | S09 |
 | G43 | Embed code — what does it load? iframe vs script vs web component. | HIGH | DECIDED — most usable approach (Q13) | S09 |
 | G44 | Landing page serving architecture. Must survive moving off Replit. | MEDIUM | DECIDED — portable architecture (G44) | S09 |
 | G45 | Google Calendar OAuth complexity. Significant integration work. | HIGH | DECIDED — leave stubbed (G45) | S12 |
-| G46 | My Work tasks — no table. Need tasks CRUD. | MEDIUM | DECIDED — build, AI/self-assign only (G46) | S09 |
+| G46 | My Work tasks — no table. Need tasks CRUD. | MEDIUM | RESOLVED — tasks table + CRUD routes exist. Page needs API wiring. | S09 |
 
 ### Sprint 4.2 — Security, Performance & E2E
 
@@ -140,21 +140,21 @@
 
 | ID | Gap | Current State | Severity | Status | Sprint Target |
 |----|-----|---------------|----------|--------|---------------|
-| B1 | No `instructions` column on agents table | Local React state only | HIGH | DECIDED — add column | S02 |
-| B2 | No `systemPrompt` column on agents table | Not in any sprint | HIGH | OPEN | S02 |
-| B3 | No `campaign_recipients` table | Aggregate counts only | HIGH | DECIDED — build | S02 |
-| B4 | No `notifications` table | Static frontend arrays | HIGH | OPEN | S02 |
-| B5 | No `activity_log` table | Static frontend arrays | HIGH | OPEN | S02 |
-| B6 | No `widgets` table | Local React state | HIGH | OPEN | S09 |
-| B7 | No `tasks` table | Hardcoded mocks | HIGH | OPEN | S09 |
-| B8 | No `usage_log` / billing table | No tracking | HIGH | OPEN | S12 |
-| B9 | Agent `createdBy` field missing | Hardcoded seed string | LOW | DECIDED — add UUID column | S02 |
+| B1 | No `instructions` column on agents table | Local React state only | HIGH | RESOLVED — column exists | S02 |
+| B2 | No `systemPrompt` column on agents table | Not in any sprint | HIGH | RESOLVED — column added (S02) | S02 |
+| B3 | No `campaign_recipients` table | Aggregate counts only | HIGH | RESOLVED — table exists with CRUD | S02 |
+| B4 | No `notifications` table | Static frontend arrays | HIGH | RESOLVED — table + routes exist | S02 |
+| B5 | No `activity_log` table | Static frontend arrays | HIGH | RESOLVED — table + route exist | S02 |
+| B6 | No `widgets` table | Local React state | HIGH | RESOLVED — table + CRUD routes exist | S09 |
+| B7 | No `tasks` table | Hardcoded mocks | HIGH | RESOLVED — table + CRUD routes exist | S09 |
+| B8 | No `usage_log` / billing table | No tracking | HIGH | RESOLVED — usage_events table exists | S12 |
+| B9 | Agent `createdBy` field missing | Hardcoded seed string | LOW | RESOLVED — column added (S02) | S02 |
 | B10 | Soft delete missing for agents | Hard delete only | LOW | OPEN | S12 |
 | B11 | Session cleanup missing | Expired sessions accumulate | LOW | OPEN | S12 |
 | B12 | Concurrent editing — no optimistic locking | No locking | LOW | OPEN | S12 |
-| B13 | 14+ demo mode toasts | Buttons show "not available" | HIGH | OPEN | S04/S09/S10 |
-| B14 | Profile edit button disconnected | Shows toast despite working API | LOW | OPEN | S04 |
-| B15 | AgentConfigPane triggers/tools/skills/knowledge hardcoded | All mocks | MEDIUM | OPEN | S03 |
+| B13 | 10 remaining demo mode toasts | Settings(3: tool toggle, URL add, URL scrape), Profile(2: invoice view), Billing(3: send/addon/preview), AgentConfig(2: triggers) | HIGH | OPEN — reduced from 14+, remaining are genuinely unbuilt features | S10 |
+| B14 | Profile edit button disconnected | Shows toast despite working API | LOW | RESOLVED — profileMutation wired, inline edit works | S04 |
+| B15 | AgentConfigPane triggers/tools/skills/knowledge hardcoded | Tools from static list, 2 trigger buttons show demo toast. Instructions wired to DB. | MEDIUM | OPEN — cosmetic, non-blocking for chat quality | S10 |
 
 ---
 
