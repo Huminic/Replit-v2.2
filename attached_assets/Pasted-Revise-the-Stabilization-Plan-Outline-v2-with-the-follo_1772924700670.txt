@@ -1,0 +1,68 @@
+Revise the Stabilization Plan Outline (v2) with the following targeted improvements.
+Do not rewrite the whole plan from scratch. Modify the outline only where specified.
+
+Important rules:
+	•	This is still planning only. Do not modify any repository files.
+	•	Do not create or overwrite governance documents.
+	•	Only return the revised outline sections and a short explanation of what changed.
+
+Required adjustments:
+	1.	Add a Decision Gate at the end of Phase 1.
+Phase 2 must not begin until the following are explicitly approved:
+
+	•	Truth Hierarchy Declaration
+	•	Canonical Acceptance Criteria source
+	•	Canonical Chat Architecture decision
+
+Label this gate clearly as Phase 1 Approval Gate.
+	2.	Strengthen the Canonical Chat Architecture Decision (Phase 1C).
+Add explicit evaluation criteria that must be used to determine which chat system becomes canonical. Include:
+
+	•	compatibility with authentication model
+	•	compatibility with multi-tenant organization model
+	•	compatibility with tool execution
+	•	compatibility with streaming responses
+	•	compatibility with persistence/database model
+	•	migration complexity
+
+The decision record should document these criteria and the rationale for the final choice.
+	3.	Add a new phase called Phase 2.5 — Stabilization Blueprint between Phase 2 and Phase 3.
+
+Purpose:
+Synthesize the outputs of Phase 1 and Phase 2 into a single document that describes the stabilization approach before governance files are rebuilt.
+
+Inputs:
+	•	Truth Hierarchy Declaration
+	•	AC Reconciliation Table
+	•	Chat Architecture Decision Record
+	•	Unified Gap Register
+	•	Continuity Matrix
+	•	Observability Matrix
+
+Output:
+	•	Stabilization Blueprint — a concise synthesis describing the remediation strategy and ordering.
+
+Approval Gate:
+You must review and approve the Stabilization Blueprint before Phase 3 begins.
+	4.	Strengthen Phase 4 (Test Infrastructure Setup).
+Clarify that the Observability Matrix will generate observability tests.
+Each row in the Observability Matrix must eventually map to a verification test or verification method.
+	5.	Strengthen Phase 5 (Schema & Backend Remediation).
+Add a rule that:
+
+	•	all schema changes must be implemented through migrations
+	•	direct schema edits are not allowed
+
+	6.	Ensure the Observability Matrix feeds the verification phase.
+In Phase 8 (Verification Sweep), add a check confirming that:
+
+	•	every Observability Matrix row has a corresponding verification method
+	•	critical rows have automated tests
+
+	7.	Preserve the overall structure and intent of the current outline.
+Do not reorder phases except for inserting Phase 2.5.
+
+Return:
+	•	the revised outline sections
+	•	the updated phase list
+	•	a short summary of what changed and why
