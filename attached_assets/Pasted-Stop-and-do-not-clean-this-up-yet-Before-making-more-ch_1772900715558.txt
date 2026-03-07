@@ -1,0 +1,92 @@
+Stop and do not “clean this up” yet.
+
+Before making more changes, I want a structured audit and stabilization plan. Right now I do not want patchwork fixes, more drift, or surface-level cleanup. I want to understand how to simplify the governing documents, identify all known gaps, and put everything in the correct place so we can work methodically from one source of truth.
+
+Current concerns include:
+- We have 2 different acceptance criteria
+- plan.md is not being consistently followed
+- We are getting false positives on waves
+- The project appears to be accumulating patchwork instead of stability
+- I do not have confidence that the governing structure for the software is clean, unified, or being enforced
+
+Your task is to step back and perform a full audit of both:
+1. The software itself
+2. The way the project is being governed and executed
+
+I want you to reason carefully and tell me what is wrong, what is duplicated, what is conflicting, what is missing, and what is causing instability.
+
+Specifically, I want you to audit and evaluate:
+- The current codebase
+- plan.md
+- acceptance criteria documents
+- replit.md
+- your memory / prior assumptions / implied working rules
+- any rule systems, test conventions, wave logic, or planning artifacts currently being used
+
+Your goal is to produce a methodical report and a proposed consolidation plan that gets us to:
+- 1 master plan
+- 1 master acceptance criteria
+- 1 authoritative set of rules
+- 1 organized gap / bug register with each issue in the correct place
+- 1 aggregate view of everything wrong with the software and the process around it
+
+Deliverables:
+1. Executive diagnosis
+   - What is wrong with the software
+   - What is wrong with the current planning / governance process
+   - What is creating confusion, drift, false positives, or instability
+
+2. Artifact audit
+   - List every governing artifact that currently exists
+   - Explain its intended purpose
+   - State whether it is authoritative, redundant, conflicting, outdated, incomplete, or being ignored
+   - Recommend whether it should be kept, merged, rewritten, demoted, or deleted
+
+3. Gap and defect analysis
+   - Identify all known software gaps, bugs, false positives, architectural weaknesses, and process failures
+   - Organize them by category
+   - Show where each one belongs in the final structure
+   - Distinguish between product gaps, engineering gaps, testing gaps, planning gaps, and documentation gaps
+
+4. Root cause analysis
+   - Explain why we got here
+   - Explain where patchwork behavior is happening
+   - Explain how document drift, memory drift, rule conflicts, or execution shortcuts are affecting the project
+
+5. Consolidation plan
+   - Propose a clear plan to unify everything into one stable operating structure
+   - Define what the single master plan should be
+   - Define what the single master acceptance criteria should be
+   - Define what the single ruleset should be
+   - Define what the single gap/bug tracking structure should be
+   - Explain how these documents should relate to each other
+
+6. Recommended execution sequence
+   - Give me the order of operations to fix this properly
+   - Start with stabilization and truth hierarchy before feature work
+   - Identify what must be frozen, what must be audited, what must be reconciled, and what can be changed later
+
+7. Devil’s advocate section
+   - Challenge the current approach
+   - Point out any assumptions that are weak
+   - Tell me where we may be fooling ourselves
+   - Identify risks if we continue without consolidating first
+
+Rules for this task:
+- Do not jump into implementation yet
+- Do not paper over inconsistencies
+- Do not give me vague advice
+- Do not optimize for speed over integrity
+- Be explicit, critical, and methodical
+- Show reasoning
+- Prefer structural clarity over convenience
+- Assume I want long-term stability, not a quick fix
+
+Final output format:
+- A clear written audit
+- A proposed unified document structure
+- A categorized master gap list
+- A step-by-step stabilization plan
+- A list of immediate recommendations for what we should do together next
+
+The purpose of this exercise is to establish one source of truth and a solid foundation before we proceed further.
