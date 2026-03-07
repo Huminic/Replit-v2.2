@@ -1,0 +1,132 @@
+We are starting a new session to reset the governance audit process and introduce a strict execution protocol.
+
+The previous session drifted beyond the scope of the instructions that were given. The agent was originally instructed to perform a limited governance audit and cataloguing process so that governing documents could be reviewed before any interpretation, remediation, or development occurred.
+
+Instead, the session continued beyond those instructions and performed additional actions including:
+
+• continuing to audit additional sprints beyond the requested scope  
+• updating statuses in GAPS.md  
+• interpreting the sprint roadmap and marking items verified or complete  
+• modifying the database schema by adding two columns (systemPrompt and createdBy)  
+• continuing execution instead of stopping for review  
+
+Even if these actions were intended to support the audit, they crossed an important boundary. During an audit phase the system must remain frozen so that the audit reflects the untouched state of the codebase. Once code or schema changes occur during the audit, the integrity of the audit is compromised.
+
+We are therefore resetting the process and introducing explicit operational modes with approval gates to prevent scope drift.
+
+------------------------------------------------
+OPERATING PROTOCOL
+------------------------------------------------
+
+From this point forward you must operate in explicit modes.
+
+A plan may never be executed in the same message in which it is created.
+
+Execution can only begin after explicit approval.
+
+Every response must begin with a header identifying the current mode:
+
+MODE: PLANNING  
+MODE: EXECUTION  
+MODE: REPORT  
+
+You are currently in MODE: PLANNING.
+
+------------------------------------------------
+PHASE 1 — RECONSTRUCTION OF PREVIOUS SESSION
+------------------------------------------------
+
+First reconstruct what happened during the previous session.
+
+Produce a complete change ledger that lists:
+
+• every file that was modified  
+• whether the modification was documentation, configuration, or code  
+• all updates made to governance documents such as:
+  - GAPS.md
+  - PLAN.md
+  - GUARDRAILS.md
+  - MEMORY.md
+• any sprint statuses that were changed
+• any assumptions or interpretations that were introduced
+• any schema or database modifications
+
+This step must only produce a report. Do not modify anything yet.
+
+------------------------------------------------
+PHASE 2 — RESTORE AUDIT INTEGRITY
+------------------------------------------------
+
+After the ledger is produced, identify any changes that must be rolled back in order to restore the system to the state it was in before the audit began.
+
+Specifically review the schema change that added the columns:
+
+• systemPrompt
+• createdBy
+
+The goal is to restore a clean pre-audit state so that the audit describes the untouched system.
+
+However, do not perform the rollback yet. Only identify what would need to be reverted.
+
+------------------------------------------------
+PHASE 3 — DESIGN THE GOVERNANCE AUDIT PLAN
+------------------------------------------------
+
+Next design the plan for re-running the governance audit correctly.
+
+This is still PLANNING MODE. You must not execute the plan.
+
+The plan must include:
+
+1. The objective of the audit
+2. The approach for cataloguing the system
+3. The steps that will be taken
+4. The artifacts that will be produced
+5. The rules governing execution
+6. the stopping points where approval will be required
+
+The audit must produce the following governance artifacts:
+
+• GUARDRAILS.md — rules governing development and auditing  
+• GAPS.md — neutral catalog of system gaps or missing components  
+• PLAN.md — development roadmap and intended sprint structure  
+• MEMORY.md — chronological log of audit observations  
+
+During the audit:
+
+• the codebase must remain frozen  
+• no schema changes may occur  
+• no remediation or fixes may occur  
+• no sprint execution may occur  
+• no items may be marked resolved unless explicitly verified and approved  
+
+The audit must function like a forensic investigation of the system.
+
+Your responsibility is to observe and catalog the system, not repair it.
+
+------------------------------------------------
+PHASE 4 — STOP FOR APPROVAL
+------------------------------------------------
+
+Once the plan is complete you must stop and wait for approval.
+
+Execution may only begin after a message containing:
+
+APPROVED
+
+Until approval is received you may not execute the audit.
+
+------------------------------------------------
+GOAL OF THIS PROCESS
+------------------------------------------------
+
+The purpose of this protocol is to establish a trustworthy description of the system before any fixes or feature development occur.
+
+The audit must establish a clear governance layer and a single source of truth for the project.
+
+You are currently in PLANNING MODE.
+
+Produce the reconstruction ledger and the governance audit plan only.
+
+Do not execute anything.
+Stop after the plan is presented.
