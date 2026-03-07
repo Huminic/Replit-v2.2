@@ -1,0 +1,103 @@
+I need you to act as a senior software reliability engineer, test architect, and observability auditor.
+
+Your job is not to add random code yet. Your first job is to inspect this application and determine how ready it is for structured continuity testing, route tracing, and observability.
+
+I am preparing to test whether information travels through the system correctly across all important pathways. I want you to audit the current state of the codebase and tell me what is already implemented, what is partially implemented, and what is missing.
+
+You must approach this as a “system roads and checkpoints” exercise.
+
+Your objectives:
+
+1. Discover and map the major application pathways
+   - Identify the main INPUTS into the system
+     Examples: UI actions, forms, API endpoints, webhooks, background jobs, schedulers, inbound messages, manual triggers
+   - Identify the ROUTING / INTERPRETATION points
+     Examples: routers, controllers, dispatchers, intent logic, conditionals, workflow selectors, queue branching, middleware, policy gates
+   - Identify the PROCESSING stages
+     Examples: business logic, transformations, agent logic, DB writes, enrichment, external API calls, message composition
+   - Identify the OUTPUTS
+     Examples: UI responses, DB records, outbound API calls, notifications, CRM writes, emails, SMS, logs, state changes
+   - Identify existing OBSERVATION mechanisms
+     Examples: logs, trace IDs, request IDs, metrics, error tracking, dashboards, audit tables, status pages, retries, alerts
+
+2. Build a route map of the system
+   For each important route you can infer, describe:
+   - Route name
+   - Entry point
+   - Key steps in order
+   - Systems/modules/files involved
+   - Decision points / branches
+   - Expected outputs
+   - Existing evidence/checkpoints
+   - Missing evidence/checkpoints
+   - Risk level if this route silently fails
+
+3. Audit observability readiness
+   Check whether the system currently has:
+   - structured logging
+   - correlation IDs / trace IDs / request IDs
+   - error handling and error logging
+   - step-level logging at important boundaries
+   - external API call logging
+   - queue/job status visibility
+   - DB write confirmation visibility
+   - webhook logging
+   - retry / fallback logging
+   - metrics or counters
+   - test fixtures or seed data
+   - integration tests
+   - end-to-end tests
+   - smoke tests
+   - health checks
+
+4. Classify findings in three buckets:
+   - DONE: clearly implemented and usable for testing
+   - PARTIAL: present but incomplete, inconsistent, or unreliable
+   - MISSING: not present and needed for continuity testing
+
+5. Produce concrete outputs in this exact order:
+
+A. EXECUTIVE SUMMARY
+A short summary of how test-ready the application is.
+
+B. SYSTEM EDGE INVENTORY
+List the external and internal inputs/outputs you found.
+
+C. ROUTE MAP
+List the most important routes in a structured way.
+Prefer breadth over deep perfection on the first pass.
+
+D. OBSERVABILITY GAP ANALYSIS
+Tell me what exists and what is missing.
+
+E. TESTING READINESS SCORECARD
+Score each category from 0-5:
+- Inputs discoverable
+- Routes understandable
+- Processing traceable
+- Outputs verifiable
+- Observability present
+- Integration test readiness
+- Continuity test readiness
+
+F. TOP 10 HIGHEST PRIORITY GAPS
+Focus on things that would block or weaken structured pipeline continuity testing.
+
+G. RECOMMENDED NEXT ACTIONS
+Give me the smallest high-leverage actions first.
+Do not recommend an enterprise-scale rewrite.
+Recommend the most practical sequence.
+
+Important instructions:
+- Do not assume the architecture is complete.
+- Do not hallucinate routes that are not grounded in code.
+- If something is unclear, say “unclear from current code inspection”.
+- Prefer identifying actual roads over theoretical roads.
+- Look for the real flow of information through handlers, services, components, jobs, queues, DB access, and external integrations.
+- Pay special attention to boundaries where silent failure could happen.
+- Highlight dead ends, missing logs, ambiguous ownership, and places where a route cannot be proven.
+- If no observability exists, say so clearly.
+- If tests exist, explain what kind they are and what they do NOT cover.
+
+After the audit, give me a proposed “Minimum Viable Observability + Continuity Test Plan” for the next phase.
+Do not start coding until I review the audit.
