@@ -2,7 +2,7 @@
 
 ## Overview
 
-Nexxus Connect is an AI-powered dealership management platform for Serra Auto Group / Cage Automotive. It replaces traditional feature-based navigation with an intuitive persona-driven approach, providing a validated frontend prototype with real database-backed data. The project follows the **Golden Rule: UI = T1 truth — change the data source, not the UI.** Design metrics are the default display; real API data overrides when it exists.
+Nexxus Connect is an AI-powered dealership management platform for Serra Auto Group / Cage Automotive. It replaces traditional feature-based navigation with an intuitive persona-driven approach, providing a validated frontend prototype with real database-backed data. The project follows the **Golden Rule: UI = T1 truth — change the data source, not the UI.** All metric tiles across every page display live API data only — no hardcoded fallback values.
 
 ## User Preferences
 

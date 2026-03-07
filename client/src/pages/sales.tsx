@@ -91,18 +91,16 @@ function formatSyncAge(dateStr: string): string {
   return `${diffDays}d ago`;
 }
 
-const defaultSalesMetrics: SalesMetricTile[] = [
-  { id: 'sm-1', label: 'Active Pipeline', value: '127', change: 8, trend: 'up' as const, icon: Target },
-  { id: 'sm-2', label: 'New Leads', value: '34', change: 12, trend: 'up' as const, icon: Users },
-  { id: 'sm-3', label: 'Overdue Leads', value: '18', change: -3, trend: 'down' as const, icon: Clock },
-  { id: 'sm-4', label: 'Avg Lead Age', value: '4.2d', change: -0.5, trend: 'up' as const, icon: Clock },
-  { id: 'sm-5', label: 'AI-Gen Leads', value: '23', change: 15, trend: 'up' as const, icon: Zap },
-  { id: 'sm-6', label: 'Conversion Rate', value: '18.5%', change: 2.3, trend: 'up' as const, icon: TrendingUp },
-  { id: 'sm-7', label: 'Top Agent Close', value: '31%', change: 4, trend: 'up' as const, icon: ArrowUpRight },
-];
-
 function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: PipelineMetrics): SalesMetricTile[] {
-  if (!summary || summary.totalLeads === 0) return defaultSalesMetrics;
+  if (!summary) return [
+    { id: 'sm-1', label: 'Total Leads (30d)', value: '0', change: 0, trend: 'up' as const, icon: Target },
+    { id: 'sm-2', label: 'New Leads', value: '0', change: 0, trend: 'up' as const, icon: Users },
+    { id: 'sm-3', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Zap },
+    { id: 'sm-4', label: 'Waiting on Response', value: '0', change: 0, trend: 'up' as const, icon: Clock },
+    { id: 'sm-5', label: 'Appointments Set', value: '0', change: 0, trend: 'up' as const, icon: ArrowUpRight },
+    { id: 'sm-6', label: 'Sold', value: '0', change: 0, trend: 'up' as const, icon: TrendingUp },
+    { id: 'sm-7', label: 'Conversion Rate', value: '0%', change: 0, trend: 'up' as const, icon: TrendingUp },
+  ];
   const t = (v: number) => (v >= 0 ? 'up' : 'down') as 'up' | 'down';
   const activePipeline = pipeline?.activePipeline ?? summary.activeLeads;
   return [

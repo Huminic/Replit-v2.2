@@ -5,7 +5,7 @@
  *   the cardinal layout rule: chat is always in center → info/artifacts appear in the right pane.
  *
  * @layout
- *   - Top section: Role-based metric tiles (2x2 grid) that collapse after the user's first message
+ *   - Top section: Pipeline metric tiles (2x2 grid) that collapse after the user's first message
  *   - Center: Full chat thread with bot messages left-aligned, user messages right-aligned (NO avatars)
  *   - Bottom: Suggestion chips + gradient-bordered chat input with file upload dropdown
  *   - Metric detail dialog: Click any tile to see drill-down breakdown data
@@ -16,8 +16,8 @@
  *   - Thinking animation: flat rolling wave (.wave-dot CSS class), 3 dots with staggered timing (0s/0.15s/0.3s)
  *   - Input: gradient border wrapper (chat-input-gradient class) with purple glow shadow
  *
- * @rbac All 8 roles see different metric tiles based on currentRole — each role gets tailored KPIs
- * @locked Metric tile gradient themes per role, wave animation timing, chat bubble styling
+ * @rbac Pipeline tiles are org-scoped — data changes when switching organizations
+ * @locked Metric tile gradient themes, wave animation timing, chat bubble styling
  *
  * @productionNote Chat responses are currently mocked with a 1.5s setTimeout.
  *   Will connect to AI backend at nexxusv2.huminicdev.com with conversation context.
@@ -49,7 +49,6 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { useToast } from '@/hooks/use-toast';
-import type { UserRole } from '@/lib/rbac';
 import type { Conversation as DbConversation, Message as DbMessage } from '@shared/schema';
 
 interface PipelineData {
@@ -68,276 +67,41 @@ interface MetricTile {
   iconBg: string;
 }
 
-const pipelineDesignDefaults: PipelineData = {
-  activePipeline: 127,
-  appointmentsToday: 8,
-  openEscalations: 3,
-  outboundSent24h: 42,
-};
-
 function buildPipelineTiles(data: PipelineData | undefined): MetricTile[] {
-  const v = (real: number | undefined, fallback: number) => real && real > 0 ? real : fallback;
-  const isLive = (real: number | undefined) => real !== undefined && real > 0;
-  const ap = v(data?.activePipeline, pipelineDesignDefaults.activePipeline);
-  const at = v(data?.appointmentsToday, pipelineDesignDefaults.appointmentsToday);
-  const oe = v(data?.openEscalations, pipelineDesignDefaults.openEscalations);
-  const os = v(data?.outboundSent24h, pipelineDesignDefaults.outboundSent24h);
+  const ap = data?.activePipeline ?? 0;
+  const at = data?.appointmentsToday ?? 0;
+  const oe = data?.openEscalations ?? 0;
+  const os = data?.outboundSent24h ?? 0;
   return [
-    { label: 'Active Pipeline', value: String(ap), change: isLive(data?.activePipeline) ? 'live' : '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Appointments Today', value: String(at), change: isLive(data?.appointmentsToday) ? 'live' : '+3 booked', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Open Escalations', value: String(oe), change: isLive(data?.openEscalations) ? 'live' : '1 critical', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Outbound Sent 24h', value: String(os), change: isLive(data?.outboundSent24h) ? 'live' : '+18%', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
+    { label: 'Active Pipeline', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { label: 'Appointments Today', value: String(at), change: 'live', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
+    { label: 'Open Escalations', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'Outbound Sent 24h', value: String(os), change: 'live', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ];
 }
 
-const roleMetrics: Record<string, MetricTile[]> = {
-  super_admin: [
-    { label: 'Partner Orgs', value: '12', change: '+2 this month', trend: 'up', gradient: 'from-violet-500/15 via-purple-500/10 to-fuchsia-500/5', iconBg: 'bg-violet-500/20' },
-    { label: 'Total Logins', value: '1,847', change: '+18%', trend: 'up', gradient: 'from-blue-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Platform Actions', value: '24.3K', change: '+9%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Agent Actions', value: '8,412', change: '+22%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5', iconBg: 'bg-amber-500/20' },
-  ],
-  partner_admin: [
-    { label: 'Sub Orgs', value: '6', change: '+1 this quarter', trend: 'up', gradient: 'from-indigo-500/15 via-violet-500/10 to-purple-500/5', iconBg: 'bg-indigo-500/20' },
-    { label: 'Total Logins', value: '423', change: '+12%', trend: 'up', gradient: 'from-cyan-500/15 via-blue-500/10 to-sky-500/5', iconBg: 'bg-cyan-500/20' },
-    { label: 'User Actions', value: '5,291', change: '+7%', trend: 'up', gradient: 'from-teal-500/15 via-emerald-500/10 to-green-500/5', iconBg: 'bg-teal-500/20' },
-    { label: 'Agent Actions', value: '2,104', change: '+15%', trend: 'up', gradient: 'from-rose-500/15 via-pink-500/10 to-fuchsia-500/5', iconBg: 'bg-rose-500/20' },
-  ],
-  org_admin: [
-    { label: 'Pipeline Value', value: '$284K', change: '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Lead Source', value: '47 new', change: '+8 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Lead Quality', value: '72%', change: '-3%', trend: 'down', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Demand Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
-  ],
-  executive: [
-    { label: 'Revenue', value: '$1.2M', change: '+9%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Team Activity', value: '94%', change: '+3%', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Customer Sat', value: '4.7', change: '+0.2', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'ROI Score', value: '8.9', change: '+1.1', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
-  ],
-  sales_manager: [
-    { label: 'Pipeline Value', value: '$284K', change: '+14%', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
-    { label: 'Team Leads', value: '34', change: '+8 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Conversion Rate', value: '24%', change: '+3%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Urgency Score', value: '8.4', change: '+0.6', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
-  ],
-  sales: [
-    { label: 'Hot Opportunities', value: '7', change: '3 urgent', trend: 'up', gradient: 'from-orange-500/15 via-amber-500/10 to-yellow-500/5', iconBg: 'bg-orange-500/20' },
-    { label: 'Buying Intel', value: '12', change: '5 new signals', trend: 'up', gradient: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', iconBg: 'bg-sky-500/20' },
-    { label: 'Threats', value: '3', change: '1 critical', trend: 'down', gradient: 'from-red-500/15 via-rose-500/10 to-pink-500/5', iconBg: 'bg-red-500/20' },
-    { label: 'Urgency Score', value: '8.1', change: '+1.2 today', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
-  ],
-  service: [
-    { label: 'Active Campaigns', value: '4', change: '+1 today', trend: 'up', gradient: 'from-teal-500/15 via-cyan-500/10 to-sky-500/5', iconBg: 'bg-teal-500/20' },
-    { label: 'Messages Sent', value: '1,247', change: '+89 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Appointments', value: '23', change: '+5 booked', trend: 'up', gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5', iconBg: 'bg-green-500/20' },
-    { label: 'Upsell Rate', value: '18%', change: '+2%', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
-  ],
-  marketing: [
-    { label: 'Campaign Perf', value: '87%', change: '+4%', trend: 'up', gradient: 'from-pink-500/15 via-rose-500/10 to-red-500/5', iconBg: 'bg-pink-500/20' },
-    { label: 'Leads Generated', value: '156', change: '+23 today', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Widget Clicks', value: '3,412', change: '+12%', trend: 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
-    { label: 'Landing Visits', value: '8,901', change: '+18%', trend: 'up', gradient: 'from-fuchsia-500/15 via-purple-500/10 to-violet-500/5', iconBg: 'bg-fuchsia-500/20' },
-  ],
-};
 
-const metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> = {
-  'Pipeline Value': { description: 'Pipeline Health Score — Win Rate × 50pts + Active Pipeline Quality × 30pts + Pipeline Freshness × 20pts', breakdown: [
-    { label: 'Win Rate (SOLD/SOLD+LOST)', value: '18.5%', detail: '74 SOLD / 326 LOST in last 90 days' },
-    { label: 'Active Pipeline Quality (1 - BAD/Total)', value: '91.3%', detail: '87% leads non-BAD across 842 total' },
-    { label: 'Pipeline Freshness (<30d)', value: '64%', detail: '158 of 247 active leads are under 30 days' },
-    { label: 'Composite Score', value: '72/100' },
-  ], highlights: ['Win rate up 2.3% from last month', '31 stale leads (>30d) need attention', 'Fresh lead ratio improving week-over-week'] },
-  'Lead Source': { description: 'Lead Source Performance — Top Sources Win Rate × 40pts + Diversity × 30pts + Concentration Risk × 30pts', breakdown: [
-    { label: 'AutoTrader.com', value: '24% win rate', detail: '142 leads, 34 SOLD, 12 BAD' },
-    { label: 'Website (Organic)', value: '19% win rate', detail: '98 leads, 19 SOLD, 8 BAD' },
-    { label: 'Cars.com', value: '16% win rate', detail: '87 leads, 14 SOLD, 11 BAD' },
-    { label: 'Facebook Ads', value: '12% win rate', detail: '64 leads, 8 SOLD, 9 BAD' },
-    { label: 'Walk-In (No Source)', value: '31% win rate', detail: '52 leads, 16 SOLD, 2 BAD' },
-    { label: 'Source Diversity Score', value: '7/10 sources active' },
-    { label: 'Concentration Risk', value: '34% (AutoTrader)' },
-  ], highlights: ['Walk-ins have highest conversion but lowest volume', 'Facebook BAD rate (14%) needs investigation', 'Consider increasing referral marketing (32% win rate, only 4% volume)'] },
-  'Lead Quality': { description: 'Lead Quality Score — (1 - BAD Rate) × 40pts + Trade-In Penetration × 30pts + In-Stock Match × 30pts', breakdown: [
-    { label: 'BAD Lead Rate', value: '8.7%', detail: '73 BAD of 842 total leads' },
-    { label: 'Top BAD Reasons', value: '' },
-    { label: '  BAD_DUPLICATE', value: '28 leads (38%)' },
-    { label: '  BAD_NO_VALID_CONTACT', value: '19 leads (26%)' },
-    { label: '  BAD_WRONG_DEALER', value: '14 leads (19%)' },
-    { label: 'Trade-In Penetration', value: '23%', detail: '57 of 247 active leads have trade-ins' },
-    { label: 'In-Stock Match (VIN populated)', value: '41%', detail: '101 leads matched to inventory' },
-  ], highlights: ['Duplicate detection could reduce BAD rate by 3.3%', 'Trade-in leads close at 35% (vs 18% overall)', 'In-stock matches close 2.1x faster'] },
-  'Demand Score': { description: 'Market Demand — Demand Trend × 50pts + New/Used Balance × 25pts + Make Diversity × 25pts', breakdown: [
-    { label: '30-Day Lead Growth', value: '+14%', detail: '478 leads this month vs 419 last month' },
-    { label: 'New vs Used Split', value: '62% New / 38% Used' },
-    { label: 'Top Makes in Demand', value: '' },
-    { label: '  Honda', value: '23% of inquiries', detail: '89 leads, top model: CR-V' },
-    { label: '  Toyota', value: '19% of inquiries', detail: '74 leads, top model: Camry' },
-    { label: '  Ford', value: '15% of inquiries', detail: '58 leads, top model: F-150' },
-    { label: 'Price Range: $30K-$45K', value: '54% of inquiries' },
-  ], highlights: ['SUV demand up 22% month-over-month', 'Used vehicle inquiries trending up (was 32% → now 38%)', 'Luxury segment ($60K+) growing: 47 leads (+18%)'] },
-  'Partner Orgs': { description: 'Total organizations under your partner group', breakdown: [
-    { label: 'Serra Automotive Group', value: '5 stores', detail: '3 active, 2 onboarding' },
-    { label: 'Hyundai of Columbia', value: '2 stores', detail: 'Both fully active' },
-    { label: 'Metro Honda Alliance', value: '3 stores', detail: '2 active, 1 trial' },
-    { label: 'Pinnacle Motors', value: '2 stores', detail: 'Both in trial period' },
-    { label: 'Total Active Users', value: '147 across all orgs' },
-  ], highlights: ['2 new organizations onboarded this month', 'Pinnacle Motors trial ends in 12 days', '3 stores at 90%+ utilization rate'] },
-  'Total Logins': { description: 'Total login sessions across all users', breakdown: [
-    { label: 'This Month', value: '1,847', detail: 'Across all organizations' },
-    { label: 'Last Month', value: '1,564', detail: '+18% growth' },
-    { label: 'Avg Sessions/User', value: '3.2 per day' },
-    { label: 'Peak Hour', value: '10:00 AM', detail: '234 concurrent users' },
-  ], highlights: ['Login frequency up 18% month-over-month', 'Mobile logins growing: now 23% of total', 'Service dept has highest engagement rate'] },
-  'Platform Actions': { description: 'Total user actions across the platform', breakdown: [
-    { label: 'AI Chat Messages', value: '8,412' },
-    { label: 'Campaign Actions', value: '3,891' },
-    { label: 'Pipeline Updates', value: '5,234' },
-    { label: 'Report Views', value: '6,721' },
-  ], highlights: ['AI chat usage up 22% — highest growth category', 'Campaign actions doubled after new template launch', 'Report usage correlates with higher close rates'] },
-  'Agent Actions': { description: 'Actions performed by AI agents', breakdown: [
-    { label: 'Voice Calls Handled', value: '2,341' },
-    { label: 'Chat Conversations', value: '3,156' },
-    { label: 'Lead Qualifications', value: '1,824' },
-    { label: 'Appointment Bookings', value: '1,091' },
-  ], highlights: ['Agent containment rate at 64% — above 60% target', 'Voice agent handles 78% of after-hours calls', 'Chat agent response time avg 1.8 seconds'] },
-  'Sub Orgs': { description: 'Organizations in your partner group', breakdown: [
-    { label: 'Serra Honda', value: 'Active', detail: '24 users, 89% utilization' },
-    { label: 'Serra Nissan', value: 'Active', detail: '18 users, 76% utilization' },
-    { label: 'Tony Serra Ford', value: 'Active', detail: '31 users, 92% utilization' },
-    { label: 'Serra Chevrolet', value: 'Onboarding', detail: '8 users, setup in progress' },
-    { label: 'Serra Toyota', value: 'Onboarding', detail: '12 users, training phase' },
-    { label: 'Serra Hyundai', value: 'Active', detail: '15 users, 84% utilization' },
-  ], highlights: ['Tony Serra Ford has highest utilization (92%)', '2 stores in onboarding — target go-live: next week', 'Total headcount across group: 108 active users'] },
-  'User Actions': { description: 'Total user actions across your partner group', breakdown: [
-    { label: 'AI Chat Interactions', value: '2,104' },
-    { label: 'Pipeline Updates', value: '1,456' },
-    { label: 'Campaign Launches', value: '342' },
-    { label: 'Report Downloads', value: '1,389' },
-  ], highlights: ['User engagement up 7% from last month', 'Report usage correlates with higher close rates', 'Users avg 3.2 sessions per day'] },
-  'Revenue': { description: 'Total revenue across all departments', breakdown: [
-    { label: 'Sales Revenue', value: '$892K', detail: '48 units sold this month' },
-    { label: 'Service Revenue', value: '$184K', detail: '342 ROs completed' },
-    { label: 'F&I Revenue', value: '$124K', detail: '$2,583 per deal avg' },
-  ], highlights: ['Total revenue up 9% vs last month', 'F&I penetration improving — up from $2,340/deal', 'Service revenue steady with 3% growth'] },
-  'Team Activity': { description: 'Overall team engagement and productivity', breakdown: [
-    { label: 'Active Users Today', value: '42 of 45', detail: '93% logged in' },
-    { label: 'Avg Response Time', value: '4.2 min', detail: 'Down from 6.8 min last month' },
-    { label: 'Tasks Completed', value: '89%', detail: '234 of 263 assigned tasks' },
-  ], highlights: ['Response time dropped 38% after AI chat launch', 'Task completion rate highest in 6 months', '3 team members need attention (< 70% activity)'] },
-  'Customer Sat': { description: 'Customer satisfaction score', breakdown: [
-    { label: 'Overall CSAT', value: '4.7 / 5.0' },
-    { label: 'Sales Experience', value: '4.8 / 5.0', detail: '89 responses' },
-    { label: 'Service Experience', value: '4.6 / 5.0', detail: '124 responses' },
-    { label: 'AI Interaction', value: '4.5 / 5.0', detail: '67 responses' },
-  ], highlights: ['CSAT up 0.2 points from last month', 'Sales experience rated highest — consistency is key', 'AI interaction satisfaction growing as users adapt'] },
-  'ROI Score': { description: 'Return on investment analysis', breakdown: [
-    { label: 'Platform Cost', value: '$4,200/mo' },
-    { label: 'Revenue Attributed', value: '$47,800', detail: 'Leads touched by AI that converted' },
-    { label: 'Time Saved', value: '320 hours/mo', detail: 'Estimated at $25/hr = $8,000' },
-    { label: 'ROI Multiple', value: '8.9x' },
-  ], highlights: ['Every $1 spent generates $8.90 in value', 'Time savings alone cover 190% of platform cost', 'AI-assisted leads convert 2.3x faster'] },
-  'Hot Opportunities': { description: 'Hot Opportunities Score — Hot Leads Awaiting Contact × 40pts + Showroom Today × 30pts + Fresh Trade-Ins × 30pts', breakdown: [
-    { label: 'Hot Leads Needing Contact', value: '7 leads', detail: 'Oldest: 8 hours ago (Mark S. - 2024 CR-V)' },
-    { label: 'Showroom Visitors Now', value: '3 customers', detail: 'Bay 2: James R. (F-150), Bay 5: Lisa M. (Accord), Bay 7: David K. (Tucson)' },
-    { label: 'Fresh Trade-In Leads (<24h)', value: '4 leads', detail: 'Avg trade value: $18,500' },
-    { label: 'Highest Value Opportunity', value: '$62,400 MSRP', detail: 'Robert T. - 2024 BMW X5 - HOT, showroom today' },
-  ], highlights: ['3 hot leads have been waiting >6 hours — contact NOW', 'Showroom visitors convert at 41% vs 18% overall', 'Trade-in leads expire after 14 days (35% → 12% win rate)'] },
-  'Buying Intel': { description: 'What Customers Are Buying — Model Concentration × 50pts + New/Used Clarity × 30pts + Price Clarity × 20pts', breakdown: [
-    { label: 'Top Selling Models This Month', value: '' },
-    { label: '  1. Honda CR-V', value: '23 inquiries, 8 sold', detail: 'Avg selling price: $34,200' },
-    { label: '  2. Toyota Camry', value: '18 inquiries, 5 sold', detail: 'Avg selling price: $28,900' },
-    { label: '  3. Ford F-150', value: '15 inquiries, 6 sold', detail: 'Avg selling price: $48,700' },
-    { label: '  4. Hyundai Tucson', value: '12 inquiries, 4 sold' },
-    { label: '  5. Honda Civic', value: '10 inquiries, 3 sold' },
-    { label: 'New vs Used Split', value: '68% NEW, 32% USED', detail: 'Trending toward NEW (was 62/38)' },
-    { label: 'Hot Price Range', value: '$30K-$45K (62%)' },
-  ], highlights: ['SUV demand surging — CR-V + Tucson up 31% combined', 'F-150 has highest gross per unit ($4,200 avg front)', 'Budget segment ($0-$25K) shrinking: down 8% this month'] },
-  'Threats': { description: 'Competitive Threat Alert — (1 - Lost Elsewhere Rate) × 50pts + (1 - Loss Growth) × 30pts + (1 - Waiting Ratio) × 20pts', breakdown: [
-    { label: 'Lost to Competitors', value: '18 leads', detail: 'LOST_PURCHASED_DIFFERENT_BRAND up 25% vs last month' },
-    { label: 'Lost - No Agreement', value: '12 leads', detail: 'Primarily pricing issues ($2K avg gap)' },
-    { label: 'Lost - No Response', value: '8 leads', detail: 'We were too slow — avg 18hr response time' },
-    { label: 'Ghosting Rate', value: '23 leads', detail: 'In WAITING status >7 days, gone cold' },
-    { label: 'Internet Lead Loss Rate', value: '35%', detail: 'vs 18% walk-in loss rate — digital follow-up failing' },
-  ], highlights: ['Premier Motors pricing 8% below on sedans — losing deals', 'Response time >4hrs kills 60% of internet leads', '23 ghosted leads could be re-engaged with price drop offer'] },
-  'Urgency Score': { description: 'Pipeline Urgency — (1 - Overdue New Ratio) × 40pts + (1 - Stale Active Ratio) × 35pts + (1 - Cooling Hot Ratio) × 25pts', breakdown: [
-    { label: 'URGENT - Need Contact NOW', value: '' },
-    { label: '  NEW leads >24 hours', value: '7 leads', detail: 'Losing 5% close probability per hour' },
-    { label: '  HOT leads >48 hours', value: '3 leads', detail: 'No longer hot — cooling rapidly' },
-    { label: 'WARNING - Stale Deals', value: '' },
-    { label: '  ACTIVE >14 days, no update', value: '18 leads', detail: 'Dying on the vine' },
-    { label: '  ACTIVE >30 days', value: '12 leads', detail: '89% will statistically be lost' },
-    { label: 'Pipeline Aging Trend', value: '+3.2 days faster than last month' },
-  ], highlights: ['7 NEW leads need immediate contact (6+ hours overdue)', '3 hot leads cooling — win rate drops from 41% to 12% after 48h', '12 leads >30 days old should be triaged: save or archive'] },
-  'Active Campaigns': { description: 'Currently running outbound campaigns', breakdown: [
-    { label: 'Service Recall Campaign', value: 'Active', detail: '456 recipients, 89 replied' },
-    { label: 'Oil Change Reminder', value: 'Active', detail: '234 recipients, 67 booked' },
-    { label: 'Lease End Notification', value: 'Active', detail: '89 recipients, 12 responses' },
-    { label: 'New Inventory Alert', value: 'Active', detail: '178 recipients, 34 clicked' },
-  ], highlights: ['Service recall has 19.5% response rate — above benchmark', 'Oil change reminders driving 29% of service bookings', 'Lease end notifications converting at 13.5%'] },
-  'Messages Sent': { description: 'Total outbound messages across all channels', breakdown: [
-    { label: 'SMS Messages', value: '834', detail: '18% response rate' },
-    { label: 'Email Messages', value: '413', detail: '24% open rate, 8% click rate' },
-  ], highlights: ['SMS outperforming email on response rate', 'Best send time: 10am-12pm (32% higher engagement)', 'Tuesday has highest open rates across channels'] },
-  'Appointments': { description: 'Appointments booked through platform', breakdown: [
-    { label: 'Service Appointments', value: '18', detail: 'Via campaign responses' },
-    { label: 'Sales Appointments', value: '5', detail: 'Via AI chat scheduling' },
-  ], highlights: ['Campaign-driven appointments up 28% this month', 'AI chat booking 5 appointments per week — growing', 'No-show rate down to 8% (from 15%)'] },
-  'Upsell Rate': { description: 'Declined service upsell conversion', breakdown: [
-    { label: 'Declined Services Contacted', value: '67' },
-    { label: 'Accepted After Follow-up', value: '12', detail: '18% conversion' },
-    { label: 'Revenue Recovered', value: '$8,400' },
-  ], highlights: ['$8,400 in recovered revenue from declined services', 'Brake service has highest upsell acceptance (24%)', 'Follow-up within 48h converts 3x better than 7-day delay'] },
-  'Campaign Perf': { description: 'Overall campaign performance metrics', breakdown: [
-    { label: 'Active Campaigns', value: '3' },
-    { label: 'Avg Open Rate', value: '34%', detail: 'Industry avg: 21%' },
-    { label: 'Avg Click Rate', value: '12%', detail: 'Industry avg: 3.5%' },
-    { label: 'Conversion Rate', value: '8.7%' },
-  ], highlights: ['Performance 62% above industry average', 'Personalized subject lines driving 2x open rates', 'Video content in emails increased clicks by 45%'] },
-  'Leads Generated': { description: 'New leads from marketing channels', breakdown: [
-    { label: 'Website Forms', value: '67', detail: '43% of total' },
-    { label: 'Chat Widget', value: '34', detail: '22% of total' },
-    { label: 'Landing Pages', value: '28', detail: '18% of total' },
-    { label: 'Social Media', value: '27', detail: '17% of total' },
-  ], highlights: ['Chat widget leads up 45% since launch', 'Landing page leads have highest quality score (8.2/10)', 'Social media cost per lead down 23% this month'] },
-  'Widget Clicks': { description: 'Widget interaction metrics', breakdown: [
-    { label: 'Chat Widget Opens', value: '2,104' },
-    { label: 'Video Widget Opens', value: '456' },
-    { label: 'Voice Widget Opens', value: '312' },
-    { label: 'Form Submissions', value: '540' },
-  ], highlights: ['Chat widget most popular (62% of interactions)', 'Video widget usage growing 34% month-over-month', 'Mobile users prefer voice widget (68% of voice interactions)'] },
-  'Landing Visits': { description: 'Landing page traffic and engagement', breakdown: [
-    { label: 'Unique Visitors', value: '6,234' },
-    { label: 'Returning Visitors', value: '2,667' },
-    { label: 'Avg Time on Page', value: '2:34', detail: 'Up from 1:48 last month' },
-    { label: 'Bounce Rate', value: '34%', detail: 'Down from 42%' },
-  ], highlights: ['Returning visitor rate at 30% — strong brand recall', 'Time on page up 51% after redesign', 'Mobile traffic now 67% of total visits'] },
-  'Active Pipeline': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
-    { label: 'Total Active Leads', value: '127' },
-    { label: 'By Source', value: '' },
-    { label: '  AutoTrader.com', value: '42 leads' },
-    { label: '  Website (Organic)', value: '31 leads' },
-    { label: '  Walk-In', value: '24 leads' },
-    { label: '  Other Sources', value: '30 leads' },
-    { label: 'Avg Lead Age', value: '4.2 days' },
-  ], highlights: ['14-day pipeline window ensures freshness', 'Walk-in leads have highest close rate at 31%', 'Pipeline value estimated at $284K'] },
-  'Appointments Today': { description: 'Scheduled appointments for today across all departments', breakdown: [
-    { label: 'Sales Appointments', value: '5' },
-    { label: 'Service Appointments', value: '3' },
-    { label: 'Confirmed', value: '6', detail: '75% confirmation rate' },
-    { label: 'Pending Confirmation', value: '2' },
-  ], highlights: ['Confirmation rate above 70% target', 'Average show rate this week: 82%'] },
-  'Open Escalations': { description: 'Active escalations requiring team attention in TeamBox', breakdown: [
-    { label: 'VIN Push Failures', value: '1', detail: 'Step 2 failure — contact created, lead pending' },
-    { label: 'Unsent Messages', value: '1', detail: 'Blocked by rate limit' },
-    { label: 'Customer Escalations', value: '1', detail: 'Priority: High' },
-  ], highlights: ['Resolve VIN push failures within 1 hour SLA', 'Unsent messages auto-retry after rate limit window'] },
-  'Outbound Sent 24h': { description: 'Outbound messages sent across all channels in the last 24 hours', breakdown: [
-    { label: 'SMS Sent', value: '28' },
-    { label: 'Email Sent', value: '12' },
-    { label: 'Voice Calls', value: '2' },
-    { label: 'Delivery Rate', value: '96%', detail: 'Industry avg: 92%' },
-  ], highlights: ['SMS accounts for 67% of outbound volume', 'Delivery rate above industry average', 'Peak sending hours: 10am-2pm'] },
-};
+function buildMetricDetails(data: PipelineData | undefined): Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }> {
+  const ap = data?.activePipeline ?? 0;
+  const at = data?.appointmentsToday ?? 0;
+  const oe = data?.openEscalations ?? 0;
+  const os = data?.outboundSent24h ?? 0;
+  return {
+    'Active Pipeline': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
+      { label: 'Total Active Leads', value: String(ap) },
+      { label: 'Window', value: '14 days', detail: 'Active leads from the last 14 days' },
+    ], highlights: ap > 0 ? ['14-day pipeline window ensures freshness'] : ['No active pipeline leads in the current window'] },
+    'Appointments Today': { description: 'Scheduled appointments for today across all departments', breakdown: [
+      { label: 'Total Today', value: String(at) },
+    ], highlights: at > 0 ? [at + ' appointment' + (at !== 1 ? 's' : '') + ' scheduled for today'] : ['No appointments scheduled for today'] },
+    'Open Escalations': { description: 'Active escalations requiring team attention in TeamBox', breakdown: [
+      { label: 'Total Open', value: String(oe), detail: 'Includes VIN push failures, unsent messages, and customer escalations' },
+    ], highlights: oe > 0 ? [oe + ' escalation' + (oe !== 1 ? 's' : '') + ' need attention'] : ['No open escalations'] },
+    'Outbound Sent 24h': { description: 'Outbound messages sent across all channels in the last 24 hours', breakdown: [
+      { label: 'Total Sent', value: String(os), detail: 'SMS, email, and voice combined' },
+    ], highlights: os > 0 ? [os + ' outbound message' + (os !== 1 ? 's' : '') + ' delivered in the last 24 hours'] : ['No outbound messages sent in the last 24 hours'] },
+  };
+}
 
 /** Decorative SVG icons shown inside each metric tile's icon badge (folder, users, lightning, chart) */
 const tileIcons = [
@@ -388,7 +152,7 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
  * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
  */
 export default function MainPage() {
-  const { currentRole, personaName, currentUser, currentOrganization } = useApp();
+  const { personaName, currentUser, currentOrganization } = useApp();
   const orgId = currentOrganization?.id;
   const { user: authUser } = useAuth();
   const { toast } = useToast();
@@ -403,13 +167,12 @@ export default function MainPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const designMetrics = roleMetrics[currentRole] || roleMetrics.org_admin;
-
   const { data: pipelineData } = useQuery<PipelineData>({
     queryKey: ['/api/metrics/pipeline', orgId],
   });
 
   const metrics = buildPipelineTiles(pipelineData);
+  const metricDetails = buildMetricDetails(pipelineData);
 
   const findOrCreateConversation = useCallback(async () => {
     if (!authUser || initialized) return;
