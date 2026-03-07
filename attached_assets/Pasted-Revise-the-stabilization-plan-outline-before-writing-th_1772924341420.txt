@@ -1,0 +1,144 @@
+Revise the stabilization plan outline before writing the full plan.
+
+The current outline is close, but it is missing several structural elements that must be added before I will approve it.
+
+Your task is to produce a revised outline only.
+
+Do not write the full plan yet.
+Do not modify any files.
+Do not promote any governance documents.
+Do not execute any remediation.
+
+The revised outline must address the following changes:
+
+1. Soften Phase 0.
+Do not archive legacy governance documents immediately.
+Convert Phase 0 into a freeze / quarantine / deprecate phase so legacy documents remain available for reference until governance rebuild is complete.
+The goal is to reduce hazard without losing source material too early.
+
+2. Add an explicit Truth Hierarchy Definition step before contradiction resolution.
+The outline currently says contradictions will be resolved based on the truth hierarchy, but the hierarchy itself must be formally declared first.
+Add a step that defines the exact source-of-truth order that will govern contradiction resolution.
+
+3. Add a Continuity Framework step.
+The revised outline must explicitly establish continuity between:
+- UI behavior
+- Acceptance Criteria
+- PLAN.md
+- gaps
+- verification artifacts
+
+I want a canonical traceability chain that makes it possible to move from:
+UI surface → AC ID → PLAN phase/task → API endpoint(s) → storage/data source → verification test(s)
+
+This must become an explicit artifact in the plan.
+Do not leave continuity as an implied concept.
+
+4. Add an explicit Observability and Data Lineage phase or subsection.
+Right now there is no explicit end-to-end observability testing of the data path.
+The revised outline must add a step that defines how the system will verify data observability from endpoint to endpoint.
+
+This must include:
+- which UI surfaces consume which endpoints
+- whether each endpoint is backed by real data, derived data, mock data, or static arrays
+- which tables/services are upstream of each endpoint
+- how data lineage will be documented
+- how observability checks will verify that displayed values can be traced back through the stack
+
+I want an explicit observability artifact, not just general testing.
+
+5. Add a Governance Promotion Rule.
+The outline must explicitly state that no rewritten governance document becomes authoritative until:
+- draft created
+- reviewed by me
+- explicitly approved
+- promoted into live governance status
+
+Proposed governance is allowed.
+Silent promotion is not.
+
+6. Keep test infrastructure before major remediation, but clarify its role.
+Phase 3 should prepare the test framework, test catalog, observability test structure, and AC mapping.
+It should not imply that the major verification run happens yet.
+The full test battery should remain near the release-candidate gate.
+
+7. Strengthen backend remediation ordering.
+Within backend remediation, prioritize:
+- canonical architecture decisions
+- security issues
+- persistence/state integrity
+- stub route completion
+- performance/indexing improvements
+
+8. Add the hidden architectural risk as an explicit concern.
+The revised outline must explicitly address the platform-level risk of parallel architecture drift:
+- main chat architecture vs Replit chat integration
+- duplicate conversation/message concepts
+- conflicting schema models
+- different identity/auth/context assumptions
+
+This must be elevated beyond a minor schema issue and treated as a canonical architecture decision.
+
+I want a specific step that determines:
+- which chat model is canonical
+- whether the Replit integration is adapter-only, temporary, or deprecated
+- how domain duplication will be resolved
+
+9. Add a Verification Sweep phase before the Release Candidate gate.
+The sequence should not jump directly from remediation to RC gate.
+Add a dedicated verification phase that checks for:
+- no unresolved mock imports in production paths
+- no demo-mode placeholders where release-critical behavior is required
+- no stub routes for required flows
+- no unresolved platform duplication for canonical systems
+- no governance contradictions blocking release evaluation
+- continuity chain is complete
+- observability chain is complete
+
+10. Add an RC Readiness Report artifact.
+Before the final approval gate, the plan must produce a single RC readiness report including:
+- AC pass/fail summary
+- release-critical integrations status
+- open critical gaps
+- risk summary
+- recommendation
+- continuity coverage summary
+- observability coverage summary
+
+11. Keep the plan phase-based and readable.
+The revised outline should stay concise and decision-oriented.
+For each phase include:
+- objective
+- main actions
+- outputs
+- approval gate if applicable
+
+12. Preserve the principle that no code changes happen until the final plan is approved.
+This revised outline is still planning only.
+
+13. Add two explicit artifacts to the revised outline:
+A. Continuity Matrix
+This should map:
+UI surface → AC ID → PLAN task → endpoint → data source → verification method
+
+B. Observability Matrix
+This should map:
+UI surface → endpoint → handler/service → table/source → computation/transform → displayed value → test/verification status
+
+14. Add a short section at the end called:
+“Key architectural decisions that must be made early”
+This should include:
+- canonical chat architecture
+- canonical acceptance-criteria source
+- canonical truth hierarchy
+- whether legacy documents remain reference-only or are formally deprecated
+- how observability becomes part of release discipline
+
+Return only:
+- the revised phase outline
+- the added architectural decision section
+- the continuity and observability artifacts you intend to create
+- a short note explaining what changed from the previous outline
+
+Do not write the full stabilization plan yet.
+Stop after presenting the revised outline.
