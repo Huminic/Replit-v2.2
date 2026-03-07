@@ -371,8 +371,8 @@ Rewrite as a session index:
 
 ### Step 3B — Rebuild PLAN.md
 
-- Numbered sweeps (S0 through S10+) replacing old wave/sprint numbering
-- Each sweep maps to AC IDs via the Continuity Matrix
+- Numbered phases (P0 through P10+) replacing old wave/sprint numbering — "Phases" is the canonical PLAN.md vocabulary (distinct from "Waves" in the old PLAN.md and "Sweeps" in the stabilization plan)
+- Each phase maps to AC IDs via the Continuity Matrix
 - Minimum release criteria defined as a named milestone (not the endpoint)
 - Post-MVP roadmap as subsequent milestones
 - Sprint report template for showing AC results at each gate
