@@ -1,0 +1,171 @@
+
+Create
+
+Assume the role of a senior software architect and technical auditor responsible for stabilizing a failing or drifting engineering project. Your responsibility is not to fix things immediately, but to diagnose structural problems and establish a correct operational foundation before further development continues.
+
+
+
+Your previous response said “let me clean this up.” That is exactly what I do NOT want right now. I do not want superficial cleanup, incremental patching, or additional drift.
+
+We need to step back and perform a disciplined architectural and governance audit of this project.
+
+Your first task is documentation-only. Do not touch any application code. Read /.agent_docs/acceptance_criteria.md — the real 62 ACs. For each AC, write one of three statuses next to it: VERIFIED-REAL (you can show me the actual DB query), FAKE (UI exists but backed by hardcoded data), or NOT-BUILT (no code exists for this). Output that list to me. Do not fix anything. Audit only.”
+
+Then you are to complete this step bystep audit 
+
+The current state of the project indicates governance drift and architectural instability.
+
+Known warning signs include:
+- There are two separate acceptance criteria.
+- plan.md exists but is not being consistently followed.
+- We are seeing false positives in waves.
+- The system appears to be accumulating patchwork fixes rather than converging toward a stable architecture.
+- I do not have a clear single source of truth governing the project.
+
+Your task is to perform a full audit of both:
+
+1. The software itself
+2. The process used to build and manage the software
+
+You must identify structural problems, conflicts, duplications, missing pieces, and process failures.
+
+You are explicitly NOT allowed to:
+- Implement fixes
+- “Clean things up”
+- Hide inconsistencies
+- Continue feature development
+
+You must first produce a structured diagnosis.
+
+Audit the following artifacts and systems:
+
+- The current codebase
+- plan.md
+- All acceptance criteria documents
+- replit.md
+- Any planning artifacts or rules currently guiding the system
+- Any test logic, wave logic, or orchestration logic
+- Your own memory or assumptions about how the project operates
+
+Your objective is to determine what is actually governing the project, what SHOULD be governing the project, and where the system has drifted.
+
+Your report must include the following sections:
+
+1. Executive Diagnosis
+
+Explain clearly:
+- What is structurally wrong with the software
+- What is wrong with the project governance
+- What is creating instability, confusion, or false signals
+- Whether the architecture itself is coherent or fragmented
+
+Do not be diplomatic. Be precise and critical.
+
+2. Artifact Inventory and Authority Audit
+
+List every governing artifact that exists, including but not limited to:
+- plan.md
+- acceptance criteria documents
+- replit.md
+- internal rules or conventions
+- testing structures
+- wave definitions
+
+For each artifact, state:
+
+- Its intended role
+- Whether it is authoritative or not
+- Whether it is redundant
+- Whether it conflicts with another artifact
+- Whether it is incomplete or outdated
+- Whether the system is actually following it
+
+Then recommend one of the following actions:
+KEEP
+MERGE
+REWRITE
+DEMOTE
+DELETE
+
+3. Structural Gap and Defect Analysis
+
+Create a categorized list of problems in the system, including:
+
+- Software defects
+- Architectural weaknesses
+- Test failures or false positives
+- Planning gaps
+- Governance failures
+- Documentation conflicts
+- Rule inconsistencies
+
+Each issue must include:
+- Description
+- Root cause
+- Where it should live in the final structure
+
+4. Root Cause Analysis
+
+Explain why this situation occurred.
+
+Analyze whether the project is suffering from:
+- document drift
+- rule drift
+- architecture drift
+- patch-driven development
+- testing misalignment
+- lack of truth hierarchy
+
+Explain the systemic causes rather than the symptoms.
+
+5. Governance Consolidation Plan
+
+Propose a clean governing structure for the project.
+
+The goal is to converge to:
+
+- ONE master plan
+- ONE master acceptance criteria
+- ONE authoritative ruleset
+- ONE structured gap / defect register
+- ONE truth hierarchy governing the system
+
+Explain exactly what documents should exist and how they relate to each other.
+
+6. Stabilization Strategy
+
+Provide a step-by-step order of operations for fixing the project properly.
+
+The plan must begin with stabilization of governance and truth hierarchy before any feature work resumes.
+
+Clearly identify:
+- what must be frozen
+- what must be audited
+- what must be reconciled
+- what must be rewritten
+- what can remain unchanged
+
+7. Devil’s Advocate Review
+
+Challenge the current system.
+
+Identify:
+- weak assumptions
+- structural risks
+- places where the project may be fooling itself
+- what will happen if the current trajectory continues
+
+Be blunt and analytical.
+
+Rules for this task:
+
+- Do not implement changes.
+- Do not simplify by ignoring problems.
+- Do not prioritize speed over structural integrity.
+- Assume this project must become stable, auditable, and maintainable long term.
+
+have another agent check your work and review the findings and the report with the architect
+
+Your output should read like a professional architectural audit prepared for leadership reviewing a drifting engineering project.
+
+The goal is to establish a single source of truth and a stable foundation before development continues.
