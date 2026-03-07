@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import { storage } from "./storage";
 
 const JWT_SECRET = process.env.JWT_SECRET || "nexxus-connect-jwt-secret-dev";
-const ACCESS_TOKEN_EXPIRY = "15m";
+const ACCESS_TOKEN_EXPIRY = "1h";
 const REFRESH_TOKEN_EXPIRY = "7d";
-const ACCESS_TOKEN_EXPIRY_SECONDS = 15 * 60;
+const ACCESS_TOKEN_EXPIRY_SECONDS = 60 * 60;
 const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface TokenPayload {
