@@ -1,0 +1,284 @@
+We are resetting the audit process because the previous session crossed the boundary between planning, audit, and execution.
+
+Here is what happened:
+
+The previous session was supposed to perform a limited governance and audit preparation process so I could review the governing documents before any further interpretation, remediation, or development occurred.
+
+Instead, the session drifted beyond that scope. It continued auditing additional sprint areas, updated statuses in governance documents, interpreted implementation state, and introduced at least one schema change by adding the columns systemPrompt and createdBy. Even if that was intended to help, it contaminated the audit baseline because a read-only audit phase must describe the untouched system, not a system that was already altered during the audit.
+
+We are restarting because I need procedural integrity.
+
+The purpose of this session is to:
+1. reconstruct exactly what changed in the previous session
+2. design the rollback needed to restore a clean pre-audit baseline
+3. after approval, execute that rollback
+4. then perform a complete fresh audit of the restored system
+5. produce audit artifacts and stop for review
+
+You must follow a strict mode protocol.
+
+MODE RULES
+
+You must operate in explicit modes:
+- MODE: PLANNING
+- MODE: EXECUTION
+- MODE: REPORT
+
+Every response must begin with the current mode.
+
+A plan may never be executed in the same response in which it is created.
+
+You are starting in MODE: PLANNING.
+
+In PLANNING mode:
+- do not modify files
+- do not rollback anything
+- do not rewrite documents
+- do not create final governance docs
+- do not mark anything complete, resolved, or verified
+- do not perform the audit yet
+
+In EXECUTION mode:
+- only perform the specifically approved steps
+- do not expand scope
+- do not blend execution with new planning
+
+In REPORT mode:
+- summarize what was done
+- list produced artifacts
+- confirm stop condition reached
+
+CURRENT OBJECTIVE
+
+Right now I want you to produce the complete rollback-and-reaudit plan only.
+
+I do want rollback before the real re-audit, because otherwise the audit baseline is compromised.
+
+But in this step, you must only plan it.
+
+Do not execute rollback yet.
+Do not execute the audit yet.
+Do not produce the final governance docs yet.
+
+PHASED PLAN YOU MUST DESIGN
+
+Your planning output must split the work into the following phases.
+
+PHASE 1 — Reconstruction Ledger
+Purpose:
+Reconstruct exactly what happened in the previous session.
+
+This phase should identify:
+- every file modified
+- whether each change was code, configuration, documentation, or archival/move
+- every governance document touched or created
+- all status changes introduced
+- all interpretations or assumptions introduced
+- all schema or database changes
+- any moved, archived, restored, or deleted files
+- the exact commits or diffs involved if available
+
+Output of this phase:
+- a complete change ledger
+- no modifications made
+
+PHASE 2 — Rollback Design
+Purpose:
+Determine exactly what must be reverted to restore the codebase to the clean pre-audit state.
+
+This phase should identify:
+- which code changes must be rolled back
+- which schema changes must be rolled back
+- whether documentation created during the contaminated audit should be deleted, preserved as evidence, or retained as draft material
+- whether any rewritten governance documents should be restored from an earlier commit
+- any user decision points where more than one rollback option exists
+
+This phase must specifically address:
+- rollback of the systemPrompt column
+- rollback of the createdBy column
+
+Output of this phase:
+- a rollback plan
+- rollback options where needed
+- no modifications made
+
+PHASE 3 — Rollback Execution Plan
+Purpose:
+Describe exactly how rollback will be performed after approval.
+
+This phase should specify:
+- execution order
+- files to revert
+- how schema rollback will be verified
+- how document rollback will be handled
+- how success will be confirmed against the pre-audit baseline
+- what evidence will be shown after rollback
+
+Output of this phase:
+- precise rollback procedure
+- no rollback performed yet
+
+PHASE 4 — Full Re-Audit Plan
+Purpose:
+Define how the complete audit will be rerun from the restored baseline.
+
+This must be a complete audit, not a partial one.
+
+The re-audit must be split into separate audit workstreams so the process is controlled and reviewable.
+
+The workstreams should include at minimum:
+
+A. Governance and source-of-truth audit
+- governing docs
+- rule conflicts
+- duplicated authorities
+- acceptance criteria conflicts
+- plan drift
+- truth hierarchy
+
+B. Schema and persistence audit
+- tables
+- columns
+- relationships
+- constraints
+- defaults
+- persistence expectations
+
+C. API and backend audit
+- routes
+- handlers
+- services
+- data sources
+- mock vs real data
+- missing integrations
+
+D. Frontend and UI audit
+- pages
+- routes
+- visible modules
+- displayed data
+- source wiring
+- mock imports
+- broken states
+
+E. AI, chat, and outbound systems audit
+- AI providers
+- chat persistence
+- prompts and system prompts
+- agent wiring
+- streaming
+- outbound SMS/email/campaign logic
+- webhook and safety logic
+- kill switches or compliance mechanisms
+
+F. Metrics, dashboards, and intelligence audit
+- metric tiles
+- dashboards
+- data computation
+- insights/hunches
+- static arrays vs computed values
+- unsupported tiles or displays
+
+G. Test, wave, and verification audit
+- wave logic
+- false positives
+- what tests are actually meaningful
+- what test/reporting structure currently exists
+- gaps in verification discipline
+
+For each workstream, define:
+- scope
+- method
+- read-only evidence sources
+- expected output artifact
+- stopping point if needed
+
+Output of this phase:
+- complete re-audit plan
+- no audit executed yet
+
+PHASE 5 — Audit Artifact Plan
+Purpose:
+Define exactly what the audit will produce at the end of execution.
+
+The end of the approved execution should produce a structured audit package that includes at minimum:
+
+1. reconstruction_ledger.md
+- record of what changed in the contaminated session
+
+2. rollback_report.md
+- what was rolled back
+- how rollback was verified
+
+3. governance_audit.md
+- governing docs, truth hierarchy, conflicts, duplication, authority issues
+
+4. schema_catalog.md
+- tables, columns, relationships, persistence notes
+
+5. api_catalog.md
+- endpoints, methods, handlers, data sources, mock vs real
+
+6. frontend_catalog.md
+- pages, routes, modules, data wiring, unresolved mock usage
+
+7. ai_outbound_catalog.md
+- AI/chat/outbound architecture and findings
+
+8. metrics_intelligence_audit.md
+- dashboards, metrics, intelligence logic findings
+
+9. verification_audit.md
+- wave/test/false-positive findings
+
+10. GAPS.md
+- neutral gap register
+- all findings OPEN unless explicitly approved otherwise
+- no speculative RESOLVED labels
+
+11. GUARDRAILS.md
+- rules for future development and future audits
+- explicit anti-drift rules
+- planning vs execution separation
+- truth hierarchy
+
+12. PLAN.md
+- clean roadmap based on audit findings
+- references gap IDs
+- no sprint marked complete unless explicitly approved later
+
+13. MEMORY.md
+- chronological factual record of the audit session
+- observations only, not directives
+
+FINAL STOP CONDITION
+
+After the approved rollback and approved re-audit are eventually executed, the process must stop with a REPORT that includes:
+- what phases were completed
+- what artifacts were produced
+- confirmation that the audit was run from a restored baseline
+- confirmation that no feature work or remediation was performed beyond the approved rollback
+- a statement that the audit package is ready for my review
+
+IMPORTANT BEHAVIORAL RULES
+
+- Do not improvise beyond scope
+- Do not convert planning into execution
+- Do not repair while auditing
+- Do not mark items complete because they “appear built”
+- Do not update statuses during planning
+- Do not create final artifacts during planning
+- Do not collapse phases together
+- If a user decision is needed, identify it and stop
+
+YOUR TASK RIGHT NOW
+
+In this response, produce only:
+1. the phased rollback-and-reaudit plan
+2. the task breakdown by phase and workstream
+3. the list of outputs that will be produced at the end
+4. the approval gates and stop points
+
+Do not execute any phase yet.
+Do not modify any files.
+Stop after presenting the plan.
