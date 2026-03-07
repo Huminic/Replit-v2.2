@@ -73,10 +73,10 @@
 | C-09 | Widget channels: 7 (SRS/SPEC/CLAUDE) vs 4 (replit.md/.agent_docs) | HIGH | Runtime UI is T1. Current implementation (4 channels) is canonical. SRS/SPEC are quarantined. |
 | C-07 | Safety layers: 3 vs 4 vs 5 depending on document | MEDIUM | Audit finding (audit #6): 3-layer + rate limiting. Document as 4-layer in governance rebuild. |
 | C-06 | "Artifacts" simultaneously out-of-scope and has ACs requiring it | MEDIUM | Canonical AC (ACCEPTANCE_CRITERIA.md) defines scope. Check what canonical AC says about Artifacts. |
-| C-05 | Wave/sprint numbering differs in every document | MEDIUM | New PLAN.md uses numbered phases (S0-S10+). Old wave/sprint numbers are quarantined references only. |
+| C-05 | Wave/sprint numbering differs in every document | MEDIUM | New PLAN.md uses numbered sweeps (S0-S10+). Old wave/sprint numbers are quarantined references only. |
 | C-02 | RBAC roles: 4 (SRS §1.2) vs 8 (everywhere else) | LOW | 8 roles in codebase. SRS §1.2 is stale. Quarantined. |
 | C-04 | Table count: 1 (SPEC) vs 23 (reality) vs 53 (SRS prod ref) | LOW | 23 tables in schema. SPEC is quarantined. |
-| C-08 | File structure in SPEC/CLAUDE doesn't match actual codebase | LOW | CLAUDE.md rebuilt in Phase 3 to reflect actual structure. |
+| C-08 | File structure in SPEC/CLAUDE doesn't match actual codebase | LOW | CLAUDE.md rebuilt in Sweep 3 to reflect actual structure. |
 | C-10 | Production backend reference numbers differ slightly | LOW | Cosmetic. No action needed. |
 
 ---
@@ -112,7 +112,7 @@ Messages do not attach directly to organizations. They attach through conversati
 
 ---
 
-## Phase 0 — Freeze & Quarantine
+## Sweep 0 — Freeze & Quarantine
 
 **Objective:** Reduce governance hazard without losing source material. Quarantine only — no archiving.
 
@@ -146,13 +146,13 @@ Messages do not attach directly to organizations. They attach through conversati
 - MEMORY.md integrity assessment
 - Orphaned mock file catalog
 
-**Approval gate:** Owner reviews the quarantine list before Phase 1 begins.
+**Approval gate:** Owner reviews the quarantine list before Sweep 1 begins.
 
 ---
 
-## Phase 1 — Establish Canonical Truth
+## Sweep 1 — Establish Canonical Truth
 
-**Objective:** Document the canonical sources and architectural decisions that govern all downstream work. These decisions are settled per owner input — this phase documents them formally and resolves the specific conflicts.
+**Objective:** Document the canonical sources and architectural decisions that govern all downstream work. These decisions are settled per owner input — this sweep documents them formally and resolves the specific conflicts.
 
 ### Step 1A — Truth Hierarchy Declaration
 
@@ -208,11 +208,11 @@ Conflict resolution table (applying truth hierarchy — runtime UI is T1, canoni
 - AC Reconciliation Table
 - Chat Architecture Decision Record
 
-**Phase 1 Approval Gate:** Owner confirms the documented resolutions align with intent before Phase 2 begins. (The decisions themselves are settled — this gate confirms the documentation is correct.)
+**Sweep 1 Approval Gate:** Owner confirms the documented resolutions align with intent before Sweep 2 begins. (The decisions themselves are settled — this gate confirms the documentation is correct.)
 
 ---
 
-## Phase 2 — Centralize Findings & Build Continuity
+## Sweep 2 — Centralize Findings & Build Continuity
 
 **Objective:** Merge all audit findings into one place and establish the canonical traceability chains.
 
@@ -220,7 +220,7 @@ Conflict resolution table (applying truth hierarchy — runtime UI is T1, canoni
 
 Merge into a single document:
 - GAPS.md (80 items across 7 categories)
-- 10 architectural contradictions (with resolutions from Phase 1)
+- 10 architectural contradictions (with resolutions from Sweep 1)
 - 10 false positive features (from verification audit)
 
 Each gap tagged with:
@@ -228,7 +228,7 @@ Each gap tagged with:
 - Category (GOV / SCH / API / UI / AIO / MET / VER)
 - RC-blocking (yes / no)
 - Related AC ID(s) from canonical ACCEPTANCE_CRITERIA.md
-- Related PLAN phase/task
+- Related PLAN sweep/task
 - Current status (OPEN / IN-PROGRESS / RESOLVED)
 
 No gap may be marked RESOLVED without evidence and owner approval (per GUARDRAILS R4).
@@ -237,7 +237,7 @@ No gap may be marked RESOLVED without evidence and owner approval (per GUARDRAIL
 
 The canonical traceability chain linking every RC-required UI surface through the full stack:
 
-| UI Surface | AC ID(s) | PLAN Phase/Task | API Endpoint(s) | Data Source (table/service) | Verification Method |
+| UI Surface | AC ID(s) | PLAN Sweep/Task | API Endpoint(s) | Data Source (table/service) | Verification Method |
 |---|---|---|---|---|---|
 
 Rules:
@@ -247,11 +247,11 @@ Rules:
 
 Example rows (to be completed in execution):
 
-| UI Surface | AC ID(s) | PLAN Phase/Task | API Endpoint(s) | Data Source | Verification |
+| UI Surface | AC ID(s) | PLAN Sweep/Task | API Endpoint(s) | Data Source | Verification |
 |---|---|---|---|---|---|
-| Main page — Active Pipeline tile | W1-AC-010 | Phase 5/6 | GET /api/metrics/pipeline | warehouse_leads table (14-day window) | Observability test: verify count matches DB query |
-| TeamBox — conversation list | W1-AC-020 | Phase 6 | GET /api/conversations | conversations table (org-scoped) | E2E: create conversation, verify appears in list |
-| Settings — Communication Gate | W3-AC-300 | Phase 5 | PATCH /api/organizations/:id | organizations.outbound_enabled | E2E: toggle gate, verify outbound blocked |
+| Main page — Active Pipeline tile | W1-AC-010 | Sweep 5/6 | GET /api/metrics/pipeline | warehouse_leads table (14-day window) | Observability test: verify count matches DB query |
+| TeamBox — conversation list | W1-AC-020 | Sweep 6 | GET /api/conversations | conversations table (org-scoped) | E2E: create conversation, verify appears in list |
+| Settings — Communication Gate | W3-AC-300 | Sweep 5 | PATCH /api/organizations/:id | organizations.outbound_enabled | E2E: toggle gate, verify outbound blocked |
 
 ### Step 2C — Observability Matrix
 
@@ -269,7 +269,7 @@ Data Type values:
 Rules:
 - Every metric tile, data table, chart, and interactive element gets a row
 - "mock" or "static" in Data Type = gap that must be resolved before RC (or explicitly deferred with justification)
-- Each row must eventually map to a verification test or verification method (generated in Phase 4)
+- Each row must eventually map to a verification test or verification method (generated in Sweep 4)
 - This matrix becomes a permanent release discipline artifact — not a one-time exercise
 
 Example rows (to be completed in execution):
@@ -290,34 +290,34 @@ Example rows (to be completed in execution):
 
 ---
 
-## Phase 2.5 — Stabilization Blueprint
+## Sweep 2.5 — Stabilization Blueprint
 
-**Objective:** Synthesize the outputs of Phase 1 and Phase 2 into a single document that describes the stabilization approach before governance files are rebuilt.
+**Objective:** Synthesize the outputs of Sweep 1 and Sweep 2 into a single document that describes the stabilization approach before governance files are rebuilt.
 
 **Inputs:**
-- Truth Hierarchy Declaration (Phase 1A)
-- AC Reconciliation Table (Phase 1B)
-- Chat Architecture Decision Record (Phase 1C)
-- Unified Gap Register (Phase 2A)
-- Continuity Matrix (Phase 2B)
-- Observability Matrix (Phase 2C)
+- Truth Hierarchy Declaration (Sweep 1A)
+- AC Reconciliation Table (Sweep 1B)
+- Chat Architecture Decision Record (Sweep 1C)
+- Unified Gap Register (Sweep 2A)
+- Continuity Matrix (Sweep 2B)
+- Observability Matrix (Sweep 2C)
 
 **Output — Stabilization Blueprint describing:**
 - Which gaps are RC-blocking vs deferred (with justification)
 - How the canonical decisions shape the remediation approach:
-  - Main chat canonical → Replit integration must be thinned or deprecated in Phase 5
+  - Main chat canonical → Replit integration must be thinned or deprecated in Sweep 5
   - Org-centered identity model → all new schema work enforces org ownership
   - Runtime UI is T1 → backend adapts to UI, not vice versa
   - Observability is permanent → test infrastructure must support ongoing lineage verification
-- Dependencies between remediation phases
-- Estimated scope per phase
-- Risk assessment for each phase
+- Dependencies between remediation sweeps
+- Estimated scope per sweep
+- Risk assessment for each sweep
 
-**Approval gate:** Owner must review and approve the Stabilization Blueprint before Phase 3 (governance rebuild) begins.
+**Approval gate:** Owner must review and approve the Stabilization Blueprint before Sweep 3 (governance rebuild) begins.
 
 ---
 
-## Phase 3 — Rebuild Governance
+## Sweep 3 — Rebuild Governance
 
 **Objective:** Produce new governance documents as PROPOSED drafts. Nothing becomes authoritative until the owner approves each document individually.
 
@@ -364,15 +364,15 @@ If a governance document appears to have been modified without the promotion wor
 
 Rewrite as a session index:
 - Every governance file listed with: purpose, status (live / proposed / quarantined), enforcement scope
-- Truth hierarchy (from Phase 1A)
+- Truth hierarchy (from Sweep 1A)
 - Canonical identity model
 - Project architecture summary
 - This becomes the "table of contents" that every agent session loads first
 
 ### Step 3B — Rebuild PLAN.md
 
-- Numbered phases (S0 through S10+) replacing old wave/sprint numbering
-- Each phase maps to AC IDs via the Continuity Matrix
+- Numbered sweeps (S0 through S10+) replacing old wave/sprint numbering
+- Each sweep maps to AC IDs via the Continuity Matrix
 - Minimum release criteria defined as a named milestone (not the endpoint)
 - Post-MVP roadmap as subsequent milestones
 - Sprint report template for showing AC results at each gate
@@ -400,7 +400,7 @@ Rewrite as a session index:
 ### Step 3E — Rebuild CLAUDE.md
 
 - Remove references to non-existent files ("Constitution", stale directories)
-- Fix truth hierarchy to match Phase 1A declaration
+- Fix truth hierarchy to match Sweep 1A declaration
 - Resolve SRS appearing at two priority levels (SRS is now quarantined — reference only)
 - Update file structure to match actual codebase
 - Update role count, table count, route count to match reality
@@ -417,9 +417,9 @@ Rewrite as a session index:
 
 ---
 
-## Phase 4 — Test Infrastructure Setup
+## Sweep 4 — Test Infrastructure Setup
 
-**Objective:** Prepare the test framework, test catalog, observability test structure, and AC mapping. This phase does NOT run the full test battery — that happens in Phase 8.
+**Objective:** Prepare the test framework, test catalog, observability test structure, and AC mapping. This sweep does NOT run the full test battery — that happens in Sweep 8.
 
 **Main actions:**
 - Set up test framework (Vitest for unit/integration, Playwright for E2E)
@@ -461,7 +461,7 @@ Rewrite as a session index:
 
 ---
 
-## Phase 5 — Schema & Backend Remediation
+## Sweep 5 — Schema & Backend Remediation
 
 **Objective:** Fix structural backend issues in priority order.
 
@@ -471,7 +471,7 @@ Rewrite as a session index:
 
 ### 5.1 Canonical Architecture Decisions
 
-Execute the chat architecture decision from Phase 1C:
+Execute the chat architecture decision from Sweep 1C:
 - Resolve the dual schema conflict (`shared/models/chat.ts` vs `shared/schema.ts`)
 - Either thin the Replit chat integration to proxy into main chat system, or deprecate and remove its separate tables
 - Ensure the canonical identity model is enforced: conversations belong to orgs, messages belong to conversations
@@ -511,7 +511,7 @@ Execute the chat architecture decision from Phase 1C:
 
 ---
 
-## Phase 6 — Frontend Remediation
+## Sweep 6 — Frontend Remediation
 
 **Objective:** Remove mock data from production paths and wire remaining features to real backends.
 
@@ -541,7 +541,7 @@ Known demo-mode actions from audit:
 
 ### 6.4 Orphaned Mock Cleanup
 
-- Delete orphaned mock files with zero consumers (from Phase 0 catalog)
+- Delete orphaned mock files with zero consumers (from Sweep 0 catalog)
 - Remove `lib/insight-data.ts` after Insights page is wired to real data
 - Clean up stale comments in source files that reference mock data (identified in frontend audit)
 
@@ -555,7 +555,7 @@ Known demo-mode actions from audit:
 
 ---
 
-## Phase 7 — Integration Remediation (Release-Critical)
+## Sweep 7 — Integration Remediation (Release-Critical)
 
 **Objective:** Make the VAPI + Tavus + landing page + widget communication path work end-to-end.
 
@@ -596,7 +596,7 @@ Known demo-mode actions from audit:
 
 ---
 
-## Phase 8 — Verification Sweep
+## Sweep 8 — Verification Pass
 
 **Objective:** Dedicated pre-RC verification pass. No new features — only verification.
 
@@ -643,7 +643,7 @@ Known demo-mode actions from audit:
 
 ---
 
-## Phase 9 — Release Candidate Gate
+## Sweep 9 — Release Candidate Gate
 
 **Objective:** Produce the RC Readiness Report and get the go/no-go decision.
 
@@ -665,7 +665,7 @@ A single artifact containing:
 
 ---
 
-## Phase 10+ — Post-MVP Roadmap
+## Sweep 10+ — Post-MVP Roadmap
 
 Items deferred beyond the RC milestone:
 
@@ -674,7 +674,7 @@ Items deferred beyond the RC milestone:
 - RLS policies for multi-tenant security (repeatedly deferred through Waves 2-4)
 - Historical trend computation for dashboard metric tiles (currently all `change: 0` or `change: 'live'`)
 - Marketing Studio (currently "Coming Soon" placeholder)
-- Advanced analytics pipelines for Insights page (beyond basic wiring done in Phase 6)
+- Advanced analytics pipelines for Insights page (beyond basic wiring done in Sweep 6)
 - Formal deprecation/removal of quarantined documents (once governance rebuild is stable and proven through at least one RC cycle)
 - Profile preferences persistence (currently local state only)
 - Accessibility audit (W4-AC-402 — no evidence of audit)
@@ -698,18 +698,18 @@ Items deferred beyond the RC milestone:
 
 | Artifact | Created In | Purpose |
 |---|---|---|
-| Quarantine Inventory | Phase 0 | Which files are quarantined, why, what they still contain |
-| Truth Hierarchy Declaration | Phase 1A | Single-page canonical source-of-truth order |
-| AC Reconciliation Table | Phase 1B | Conflict-by-conflict resolution of the two AC documents |
-| Chat Architecture Decision Record | Phase 1C | Canonical chat model, evaluation criteria, Replit integration disposition |
-| Unified Gap Register | Phase 2A | All 80+ gaps, risk-ranked, with AC traceability and RC-blocking flags |
-| Continuity Matrix | Phase 2B | UI surface → AC ID → PLAN task → endpoint → data source → verification method |
-| Observability Matrix | Phase 2C | UI surface → endpoint → handler → table → computation → displayed value → data type → test status |
-| Stabilization Blueprint | Phase 2.5 | Synthesis of Phase 1-2 outputs into remediation strategy |
-| PROPOSED governance docs | Phase 3 | replit.md, PLAN.md, GUARDRAILS.md (with R11), agent-roles, CLAUDE.md |
-| Test catalog & coordinator | Phase 4 | Test batteries mapped to ACs and Observability Matrix rows |
-| Verification sweep report | Phase 8 | Pass/fail per check, Observability Matrix coverage |
-| RC Readiness Report | Phase 9 | Go/no-go decision document with full coverage summaries |
+| Quarantine Inventory | Sweep 0 | Which files are quarantined, why, what they still contain |
+| Truth Hierarchy Declaration | Sweep 1A | Single-page canonical source-of-truth order |
+| AC Reconciliation Table | Sweep 1B | Conflict-by-conflict resolution of the two AC documents |
+| Chat Architecture Decision Record | Sweep 1C | Canonical chat model, evaluation criteria, Replit integration disposition |
+| Unified Gap Register | Sweep 2A | All 80+ gaps, risk-ranked, with AC traceability and RC-blocking flags |
+| Continuity Matrix | Sweep 2B | UI surface → AC ID → PLAN task → endpoint → data source → verification method |
+| Observability Matrix | Sweep 2C | UI surface → endpoint → handler → table → computation → displayed value → data type → test status |
+| Stabilization Blueprint | Sweep 2.5 | Synthesis of Sweep 1-2 outputs into remediation strategy |
+| PROPOSED governance docs | Sweep 3 | replit.md, PLAN.md, GUARDRAILS.md (with R11), agent-roles, CLAUDE.md |
+| Test catalog & coordinator | Sweep 4 | Test batteries mapped to ACs and Observability Matrix rows |
+| Verification sweep report | Sweep 8 | Pass/fail per check, Observability Matrix coverage |
+| RC Readiness Report | Sweep 9 | Go/no-go decision document with full coverage summaries |
 
 ---
 
@@ -717,12 +717,12 @@ Items deferred beyond the RC milestone:
 
 | Document | Current Status | Target Status |
 |---|---|---|
-| PLAN.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Phase 3B as PROPOSED |
-| GUARDRAILS.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Phase 3C as PROPOSED (with R11) |
-| replit.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Phase 3A as PROPOSED |
-| CLAUDE.md | Live (from audit baseline) | Rebuilt in Phase 3E as PROPOSED |
+| PLAN.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Sweep 3B as PROPOSED |
+| GUARDRAILS.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Sweep 3C as PROPOSED (with R11) |
+| replit.md | Potentially contaminated (was overwritten by previous agent) | Rebuilt in Sweep 3A as PROPOSED |
+| CLAUDE.md | Live (from audit baseline) | Rebuilt in Sweep 3E as PROPOSED |
 | ACCEPTANCE_CRITERIA.md | Live (canonical AC source per owner decision) | Retained — updated only through promotion workflow |
-| Agent-roles document | Does not exist yet | Created in Phase 3D as PROPOSED |
+| Agent-roles document | Does not exist yet | Created in Sweep 3D as PROPOSED |
 
 ---
 
