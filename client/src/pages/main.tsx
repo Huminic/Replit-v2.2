@@ -388,7 +388,8 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
  * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
  */
 export default function MainPage() {
-  const { currentRole, personaName, currentUser } = useApp();
+  const { currentRole, personaName, currentUser, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const { user: authUser } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -405,7 +406,7 @@ export default function MainPage() {
   const designMetrics = roleMetrics[currentRole] || roleMetrics.org_admin;
 
   const { data: pipelineData } = useQuery<PipelineData>({
-    queryKey: ['/api/metrics/pipeline'],
+    queryKey: ['/api/metrics/pipeline', orgId],
   });
 
   const metrics = buildPipelineTiles(pipelineData);
@@ -441,7 +442,7 @@ export default function MainPage() {
   }, [findOrCreateConversation]);
 
   const { data: dbMessages } = useQuery<DbMessage[]>({
-    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryKey: [`/api/conversations/${conversationId}/messages`],
     enabled: !!conversationId,
   });
 

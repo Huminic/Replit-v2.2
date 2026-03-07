@@ -68,8 +68,10 @@ export function SubMenuManager() {
     currentRole,
     selectedAgent,
     setSelectedAgent,
-    favorites
+    favorites,
+    currentOrganization
   } = useApp();
+  const orgId = currentOrganization?.id;
   
   // 2000ms delay timer ref for panel mouseLeave — gives user time to re-enter without losing the panel
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,11 +81,11 @@ export function SubMenuManager() {
   const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
 
   const { data: allConversations = [] } = useQuery<Conversation[]>({
-    queryKey: ['/api/conversations'],
+    queryKey: ['/api/conversations', orgId],
   });
 
   const { data: chatHistory = [] } = useQuery<Conversation[]>({
-    queryKey: ['/api/conversations?channel=ai-chat'],
+    queryKey: ['/api/conversations?channel=ai-chat', orgId],
   });
 
   const deleteConversationMutation = useMutation({
@@ -98,15 +100,15 @@ export function SubMenuManager() {
   });
 
   const { data: salesAgents = [] } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=sales'],
+    queryKey: ['/api/agents?department=sales', orgId],
   });
 
   const { data: serviceAgents = [] } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=service'],
+    queryKey: ['/api/agents?department=service', orgId],
   });
 
   const { data: marketingAgents = [] } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=marketing'],
+    queryKey: ['/api/agents?department=marketing', orgId],
   });
 
   // Auto-close sub-menu on window resize below 1024px (prevents layout breakage on mobile)

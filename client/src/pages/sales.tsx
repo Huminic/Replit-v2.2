@@ -118,20 +118,21 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
 
 export default function SalesPage() {
   const [, setLocation] = useLocation();
-  const { selectedAgent, setSelectedAgent, setRightPaneOpen } = useApp();
+  const { selectedAgent, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=sales'],
+    queryKey: ['/api/agents?department=sales', orgId],
   });
 
   const { data: leadSummary, isLoading: summaryLoading } = useQuery<LeadSummary>({
-    queryKey: ['/api/vin/leads/summary'],
+    queryKey: ['/api/vin/leads/summary', orgId],
   });
 
   const { data: dashboardMetrics } = useQuery<DashboardMetricsResponse>({
-    queryKey: ['/api/metrics/dashboard'],
+    queryKey: ['/api/metrics/dashboard', orgId],
   });
 
   const salesMetrics = buildSalesMetrics(leadSummary, dashboardMetrics?.pipeline);

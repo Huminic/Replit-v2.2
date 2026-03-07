@@ -253,7 +253,7 @@ export default function AgentsPage() {
   }, [selectedAgent?.id]);
 
   const { data: dbMessages } = useQuery<DbMessage[]>({
-    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryKey: [`/api/conversations/${conversationId}/messages`],
     enabled: !!conversationId,
   });
 

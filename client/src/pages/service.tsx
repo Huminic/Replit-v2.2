@@ -81,32 +81,32 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function ServicePage() {
   const [, setLocation] = useLocation();
-  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen } = useApp();
+  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedMetric, setSelectedMetric] = useState<ServiceMetricTile | null>(null);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
-    queryKey: ['/api/metrics/dashboard'],
+    queryKey: ['/api/metrics/dashboard', orgId],
   });
 
-  const defaultServiceMetrics: ServiceMetricTile[] = [
-    { id: 'svm-1', label: 'Active Campaigns', value: '3', change: 1, trend: 'up' as const, icon: Megaphone },
-    { id: 'svm-2', label: 'Messages Sent', value: '456', change: 23, trend: 'up' as const, icon: MessageSquare },
-    { id: 'svm-3', label: 'Replies Received', value: '89', change: 12, trend: 'up' as const, icon: MessageSquare },
-    { id: 'svm-4', label: 'Appointments Booked', value: '34', change: 8, trend: 'up' as const, icon: CalendarCheck },
-    { id: 'svm-5', label: 'Declined Services', value: '12', change: -2, trend: 'down' as const, icon: ThumbsDown },
-    { id: 'svm-6', label: 'Upsell Rate', value: '22%', change: 3, trend: 'up' as const, icon: DollarSign },
+  const serviceStats = metrics?.campaignStats?.byDepartment?.service;
+  const serviceMetrics: ServiceMetricTile[] = [
+    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
+    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
+    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
+    { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), change: 0, trend: 'up' as const, icon: CalendarCheck },
+    { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: ThumbsDown },
+    { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: DollarSign },
   ];
 
-  const serviceMetrics = defaultServiceMetrics;
-
   const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=service'],
+    queryKey: ['/api/agents?department=service', orgId],
   });
 
   const { data: serviceCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
-    queryKey: ['/api/campaigns?department=service'],
+    queryKey: ['/api/campaigns?department=service', orgId],
   });
 
   const csvInputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +171,7 @@ export default function ServicePage() {
   });
 
   const { data: executionStatuses = {} } = useQuery<Record<string, { campaignId: string; status: string; totalRecipients: number; processed: number; sent: number; blocked: number; failed: number; dryRun: boolean }>>({
-    queryKey: ['/api/campaigns/execution-statuses'],
+    queryKey: ['/api/campaigns/execution-statuses', orgId],
     refetchInterval: 3000,
   });
 
