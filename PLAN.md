@@ -1,376 +1,405 @@
-# Nexxus Connect — Sprint Roadmap
+# Nexxus Connect -- Implementation Plan (4-Wave)
 
-**Version:** 4.0
-**Date:** 2026-03-07
-**Status:** Active — S01-S04 complete, S05 next. 43/95 gaps RESOLVED (45%)
-**Cross-References:** [GAPS.md](./GAPS.md) | [GUARDRAILS.md](./GUARDRAILS.md) | [.agent_docs/acceptance_criteria.md](./.agent_docs/acceptance_criteria.md) | [SRS.md](./SRS.md) | [PRD.md](./PRD.md)
-
----
-
-## How to Use This File
-
-1. Find the current sprint (marked **ACTIVE** or **NEXT**)
-2. Read its goal, gap references, AC references, and key files
-3. Do only the work listed in that sprint
-4. When done, verify against the acceptance criteria listed
-5. Update GAPS.md status for any resolved items
-6. Log the session in MEMORY.md
+**Version:** 3.1
+**Date:** 2026-03-06
+**Status:** Active -- Waves 0-4 complete (~92%), Wave 5 deferred
+**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md) | [Sprint_log.md](./Sprint_log.md)
 
 ---
 
-## Sprint Overview
+## 1. Plan Overview
 
-| Sprint | Theme | Status | Gap Refs |
-|--------|-------|--------|----------|
-| S01 | Governance Stabilization | **COMPLETE** | — |
-| S02 | Schema & Persistence Gaps | **COMPLETE** | B1-B5, B9, G2, G9, G10, G31, G32 |
-| S03 | AI Chat Quality | **COMPLETE** | G1, G3-G8, H1-H3, B15 |
-| S04 | User & Org CRUD | **COMPLETE** | G11-G16, H8-H9, H11, B13-B14 |
-| S05 | Real Metrics & Dashboards | **NEXT** | G17-G22, H13, U10 |
-| S06 | Outbound Engine Validation | PLANNED | G23-G30, H5-H7 |
-| S07 | Webhooks & Notifications | PLANNED | G31-G36, H16-H17 |
-| S08 | Intelligence Engine | PLANNED | G37-G41, H14-H15 |
-| S09 | Widgets, Tasks & Calendar | PLANNED | G42-G46, H10, H12, B6-B7 |
-| S10 | Mock Elimination & Polish | PLANNED | G48, U1-U5, U8-U9, U13, B13 |
-| S11 | Data Warehouse & Context Router | PLANNED | — |
-| S12 | Production Hardening | PLANNED | G45, G47, G49-G50, B8, B10-B12, U6-U7, U12 |
+Nexxus Connect is delivered in four waves, each building on the previous. The current UI prototype serves as the design reference for all waves. Mock data is replaced incrementally as backend services come online.
 
----
+### Wave Summary
 
-## S01: Governance Stabilization
+| Wave | Theme | Duration | Status |
+|------|-------|----------|--------|
+| Wave 0 | Setup & UI Prototype | 2 weeks | **Complete** |
+| Wave 1 | API Wiring & Data Sources | 3 weeks | **Complete** |
+| Wave 2 | AI Chat, User CRUD, File Uploads, Metrics | 3 weeks | **Complete** |
+| Wave 3 | Outbound Engine, Webhooks, Intelligence | 2 weeks | **Complete** |
+| Wave 3.5 | Data Warehouse & Context Router | 1 week | **Complete** |
+| Wave 3.6 | Outbound Live Wiring & Safety Controls | 1 day | **Complete** |
+| **Wave 4** | **Platform Completion: Landing Pages, Widgets, Metrics, Inbound SMS, Error Handling** | 1 week | **Complete** |
+| Wave 5 | Google Calendar, Production Backend Cutover | TBD | Deferred (end) |
 
-**Status:** COMPLETE (2026-03-07)
-**Goal:** Establish single source of truth. Archive stale docs. Create canonical gap tracker, guardrails, and memory.
-
-**What was done:**
-- Archived 6 stale governance files to /archive/
-- Created GAPS.md (91 items from devil's advocate audit)
-- Created GUARDRAILS.md (8 core rules + lockdown measures)
-- Created MEMORY.md (session log + standing directives)
-- Rewrote replit.md (≤60 lines, hub pointing to all governance files)
-- Rewrote PLAN.md (this file — numbered sprint roadmap)
-- Updated codebase-index.md
+### Current Progress: ~92%
 
 ---
 
-## S02: Schema & Persistence Gaps
+## 2. Wave 1 -- UI Prototype & Navigation Restructure
 
-**Status:** COMPLETE (2026-03-07)
-**Goal:** Verify all tables exist in the schema, add missing columns, ensure the database layer matches what the UI expects. This is foundational — every subsequent sprint depends on the schema being correct.
+**Goal:** Restructure navigation from feature-based (Main/Insights/Agents/Hub/Drive) to persona/department-based (AI Chat/TeamBox/My Work/Sales/Service/Marketing/Management). Build all page shells with mock data. Establish the complete visual contract.
 
-**Gap References:** B1, B2, B3, B4, B5, B9, G2, G9, G10, G31, G32
+**Status:** Complete
 
-**What was done:**
-- Full schema audit: all 23 tables verified present (agents, campaigns, campaign_recipients, notifications, activity_log, widgets, tasks, usage_events, etc.)
-- Added `systemPrompt` text column to agents table (B2)
-- Added `createdBy` UUID column to agents table (B9, G9)
-- `instructions` column already existed (B1, G2) — marked RESOLVED
-- campaign_recipients, notifications, activity_log tables already existed (B3, B4, B5, G10, G31, G32)
-- Seed runs clean, app starts without errors
-- GAPS.md updated: 22 items moved to RESOLVED status across all parts
-- Additional discoveries: outbound engine (kill switch H5, comm gate H6, disconnect H7, templating G26, send interval G25, dry run G29) already built — updated GAPS.md accordingly
+### 2.1 Completed Items
 
-**Key Files:** `shared/schema.ts`, `server/storage.ts`, `server/seed.ts`
+| Item | Description | Files |
+|------|-------------|-------|
+| Sidebar navigation | Replaced menu items with AI Chat, TeamBox, My Work, Sales, Service, Marketing, Management, System | `Sidebar.tsx` |
+| Route structure | Added routes for `/teambox`, `/my-work`, `/sales`, `/service`, `/marketing`, `/management` | `App.tsx` |
+| SubMenuManager rewrite | Panel cases for all new sections with nav items, agent lists, search | `SubMenuManager.tsx` |
+| AI Chat page | Main page with role-based metric tiles, thinking cards, persona name from org config | `main.tsx` |
+| TeamBox page | CommBox-inspired 3-column layout: filters, conversation list, chat thread, customer info panel | `teambox.tsx` |
+| Sales page | Dashboard with 7 metric tiles, Agents tab with agent cards, Insights/Calendar placeholders | `sales.tsx` |
+| Service page | Dashboard with 6 metric tiles, Agents tab, Campaigns tab with table and kill switch, Insights/Calendar | `service.tsx` |
+| Marketing page | Dashboard with 4 metric tiles, Agents tab, Campaigns tab with table and kill switch, Studio placeholder, Insights | `marketing.tsx` |
+| Management page | Dashboard with 6 KPI tiles, Hunches tab with AI pattern cards, Activities tab, ROI placeholder | `management.tsx` |
+| My Work page | Personal dashboard, task list, chat/assistant placeholders | `my-work.tsx` |
+| Mock data: conversations | TeamBox conversation mock data with channels, statuses, messages | `mocks/conversations.ts` |
+| Mock data: campaigns | Campaign mock data with messages, CSV references, kill switch state | `mocks/campaigns.ts` |
+| Mock data: agents | Agents tagged by department (sales/service/marketing) | `mocks/agents.ts` |
+| AppContext updates | Persona name, communication gate, panel IDs, favorites, selectedAgent | `AppContext.tsx` |
+| RBAC gating | Section access by role, sidebar item visibility, settings tile visibility | `users.ts`, `Sidebar.tsx` |
+| Widget configuration | Table layout with embed codes, search, widget type cards, accordion config | `settings.tsx` |
+| Landing page | Simplified `/w/demo` route | `widget-landing.tsx` |
+| Campaign kill switch | Per-campaign toggle in Service and Marketing campaigns tabs | `service.tsx`, `marketing.tsx` |
+| Communication gate | Global toggle in Settings to pause all outbound automated communications | `settings.tsx`, `AppContext.tsx` |
+| Right pane rules | Chat-center pages get info pane; data-center pages get Automa chat pane | `AppLayout.tsx`, `RightPane.tsx` |
+| Settings: full sections | Users, Organization, Tools, Knowledge, AI Config, Security, Notifications, Data, Appearance, Billing | `settings.tsx` |
+| Profile page | Personal info, preferences, billing tabs | `profile.tsx` |
+| Billing management | Dedicated billing page at `/settings/billing` | `billing-management.tsx` |
+| Org wizard | Organization creation wizard at `/settings/org-wizard` | `org-wizard.tsx` |
+| Removed features | Drive, standalone Activity, standalone Agents creation, Skills standalone | Cleanup pass |
 
-**Acceptance Criteria:**
-- [x] Every table referenced in the UI has a corresponding Drizzle schema definition
-- [x] `instructions`, `systemPrompt`, `createdBy` columns exist on agents table
-- [x] campaign_recipients, notifications, activity_log tables exist and have correct columns
-- [x] Seed runs clean with no errors
-- [x] GAPS.md updated for B1-B5, B9, G2, G9, G10, G31, G32 (+ additional items)
+### 2.2 Active Work
 
----
+| Item | Description | Status |
+|------|-------------|--------|
+| Documentation suite | CLAUDE.md, PRD.md, SRS.md, SPEC.md, PLAN.md, ACCEPTANCE_CRITERIA.md | Complete |
+| Screenshot validation | Visual regression screenshots across roles, themes, viewports | Complete (E2E tests) |
+| replit.md update | Reflect v2.2 navigation and architecture | Complete |
+| Automa→personaName fix | Replaced all hardcoded "Automa" with dynamic personaName from org config | Complete |
+| Codebase cleanup | Removed attached_assets/ (85MB), plan_docs/ (260KB), docs/ (8KB), fixed dangling refs | Complete |
+| Auth file extraction | Login, forgot/reset password, AuthContext, ProtectedRoute from v2.1 zip (not wired yet) | Complete |
+| Real agent data | 5 Serra Auto Group agents with VAPI+Tavus, channels[], dealership fields | Complete |
 
-## S03: AI Chat Quality
+### 2.3 Wave 1 Completion Criteria
 
-**Status:** COMPLETE (2026-03-07) — verified already built by prior work
-**Goal:** Make AI chat functional with real Claude responses, database persistence for all chat contexts (main, right pane, agent), and proper error handling.
-
-**Gap References:** G1, G3, G4, G5, G6, G7, G8, H1, H2, H3, B15
-
-**What was done (all found pre-built during verification):**
-- All 3 chat contexts (Main, RightPane, Agent) use useStreamingChat hook with real Claude SSE streaming
-- Agent chat persists to DB via conversation API — survives page refresh
-- System prompt includes org/dept/user/agent/knowledge/sync context (routes.ts L1310-1353)
-- useStreamingChat hook streams tokens via ReadableStream + SSE
-- Last 20 messages truncation already implemented
-- Error state + retry button in all 3 UIs, server catches and streams errors
-- claude-sonnet-4-6 model already in use
-- Tool use implemented (web_search, VinSolutions CRM queries via MCP)
-- Extended thinking deferred (G5)
-- B15 (AgentConfigPane mocks) moved to S10 — cosmetic, non-blocking for chat
-
-**Acceptance Criteria:**
-- [x] Main chat produces real Claude responses via SSE streaming
-- [x] Right pane chat produces real Claude responses
-- [x] Agent chat persists messages to DB — survives page refresh
-- [x] System prompt includes org name, department, user role context
-- [x] AI errors display user-friendly message with retry option
-- [x] Conversation context truncated to prevent token limit issues
-
----
-
-## S04: User & Org CRUD
-
-**Status:** COMPLETE (2026-03-07) — verified already built by prior work
-**Goal:** Wire all "demo mode" buttons to real backend operations. User management, profile editing, knowledge base, and file uploads work end-to-end.
-
-**Gap References:** G11, G12, G13, G14, G15, G16, H8, H9, H11, B13, B14
-
-**What was done (all found pre-built during verification):**
-- User Management: create/edit/deactivate/reset-password all wired with real mutations + API routes (H8)
-- Profile edit: profileMutation wired to PATCH /api/users/me, inline editing works (H9, B14, G15)
-- Password validation: min length 6 enforced in routes.ts (G13)
-- Knowledge Base: upload/list/delete fully wired via /api/documents + multer. Content stored in PostgreSQL. Docs injected into AI system prompt. (H11, G16)
-- profilePhotoUrl column exists in schema (G14)
-- File storage uses multer memoryStorage + PostgreSQL content column (G11)
-- Demo mode toasts reduced from 14+ to 10 — remaining are for genuinely unbuilt features (B13 moved to S10)
-- G12 (org assignment for admin roles) still OPEN — minor
-- U11 (profile sub-routes) still OPEN — minor
-
-**Acceptance Criteria:**
-- [x] Create/edit/deactivate user works end-to-end from Settings
-- [x] Profile edit saves to database, no demo mode toast
-- [x] Knowledge base upload stores file and metadata
-- [x] Core user CRUD demo mode toasts removed (remaining 10 are for other features)
-- [x] Password validation enforced (min 6)
+- [x] All 7 sidebar sections render with correct icons and RBAC gating
+- [x] All section pages render their dashboards with metric tiles
+- [x] Tab switching works within all section pages
+- [x] TeamBox 3-column layout renders with conversation list, chat thread, customer info
+- [x] Campaign tables render in Service and Marketing with kill switch toggles
+- [x] Communication gate toggle visible in Settings
+- [x] Right pane content follows cardinal layout rules (chat-center vs data-center)
+- [x] Role switcher changes metric tiles on AI Chat page and hides/shows sidebar items
+- [x] Sub-menu panels show correct nav items for each section
+- [x] Widget configuration table and accordion sections render in Settings
+- [x] No console errors, no broken imports, no dead routes
+- [x] Documentation suite complete and internally consistent
+- [x] replit.md updated to reflect current state
 
 ---
 
-## S05: Real Metrics & Dashboards
+## 3. Wave 2 -- Backend Foundation & Core API Wiring
 
-**Status:** PLANNED
-**Goal:** Replace hardcoded metric tiles with real computed data. Remove metrics that have no data source.
+**Goal:** Establish authentication, database schema, and wire core CRUD operations to replace mock data with real API calls.
 
-**Gap References:** G17, G18, G19, G20, G21, G22, H13, U10
+**Status:** In Progress (Phase 1 Complete)
 
-**Work Items:**
-1. Audit which tiles are already API-backed vs hardcoded (G17)
-2. Define and compute Service dashboard tiles from campaign/message data (G18)
-3. Define and compute Marketing dashboard tiles (G19)
-4. Compute Management tiles from available data, remove tiles without sources (G20)
-5. Define tile detail modal sub-data for each tile type (G21)
-6. Verify role-to-tile mapping on main page (G22)
-7. Remove "0" tiles — show nothing if no data (U10)
+### 3.1 Completed Items (Phase 1: Schema, Auth & API Foundation)
 
-**Key Files:** `client/src/pages/sales.tsx`, `client/src/pages/service.tsx`, `client/src/pages/marketing.tsx`, `client/src/pages/management.tsx`, `client/src/pages/main.tsx`, `server/routes.ts`
+| Item | Description | Files |
+|------|-------------|-------|
+| Database schema | 8 tables: roles, organizations, users, sessions, agents, conversations, messages, campaigns with kill switch columns | `shared/schema.ts` |
+| Database storage | Drizzle ORM DatabaseStorage with full CRUD for all tables | `server/storage.ts` |
+| Seed data | 8 roles, 3 orgs (Serra Honda/Nissan/Ford), 8 users, 5 agents, sample data. Default login: admin@nexxus.com / password123 | `server/seed.ts` |
+| JWT authentication | Access (15min) / refresh (7d) tokens, authenticateToken middleware, requireRole middleware | `server/auth.ts` |
+| Auth API routes | POST login/logout/refresh/switch-org/forgot-password/reset-password, GET me | `server/routes.ts` |
+| CRUD API routes | Agents (CRUD), organizations (read/update), users/me (read/update), conversations (list/messages), campaigns (list/update) | `server/routes.ts` |
+| Frontend auth wiring | AuthProvider wraps app, ProtectedRoute guards app routes, login/forgot/reset as public routes, SessionTimeoutDialog integrated | `App.tsx` |
+| AppContext bridge | Auth user maps to AppContext types, real agents/org loaded via TanStack Query, mock fallback preserved | `AppContext.tsx` |
+| Bearer token injection | queryClient.ts injects Authorization header from localStorage on all API calls | `queryClient.ts` |
+| Kill switch columns | outbound_enabled/sms_enabled/phone_enabled/email_enabled on organizations, kill_switch on campaigns, campaign_disconnected on conversations | `shared/schema.ts` |
 
-**Acceptance Criteria:**
-- [ ] Every visible metric tile has a real API data source
-- [ ] No hardcoded numbers on any dashboard page
-- [ ] Metrics without data sources removed from UI
-- [ ] Tile detail modals show real sub-data
+### 3.2 Remaining Items (Phase 2: Deferred to Wave 3)
 
----
+| Item | Description | Dependencies |
+|------|-------------|--------------|
+| RLS & multi-tenancy | Row-level security policies for full tenant isolation | Schema |
+| Chat API streaming | SSE streaming for AI responses via Claude | Auth |
+| Chat history persistence | Store chat messages in database | Chat API |
+| Campaign CRUD API | Full campaign lifecycle with CSV upload | Auth |
 
-## S06: Outbound Engine Validation
+### 3.3 Wave 2 Completion Criteria
 
-**Status:** PLANNED
-**Goal:** Verify the outbound communication engine enforces all safety controls. Kill switch, comm gate, rate limiting, and campaign execution work correctly.
-
-**Gap References:** G23, G24, G25, G26, G27, G28, G29, G30, H5, H6, H7
-
-**Work Items:**
-1. Verify campaign_recipients integration with execution engine (G23)
-2. Verify in-memory queue + setInterval campaign processing (G24)
-3. Add sendIntervalSeconds configuration per campaign (G25)
-4. Verify message templating with variable substitution (G26)
-5. Add TCPA/CAN-SPAM compliance — opt-out text in every SMS, unsubscribe in email (G27)
-6. Implement dry run mode for testing (G29)
-7. Verify comm gate middleware blocks sends when disabled (G30, H6)
-8. Verify kill switch stops campaign mid-execution (H5)
-9. Verify campaign disconnect prevents future messages (H7)
-10. API keys: TextMagic/Resend needed from user (G28 — BLOCKER)
-
-**Key Files:** `server/outbound.ts`, `server/routes.ts`, `shared/schema.ts`
-
-**Acceptance Criteria:**
-- [ ] Kill switch toggle stops campaign execution within one interval
-- [ ] Communication gate blocks all outbound when disabled
-- [ ] Rate limiting enforced (3 messages/24h per customer)
-- [ ] Dry run mode logs without sending
-- [ ] Every SMS includes opt-out text, every email includes unsubscribe
-- [ ] Campaign disconnect prevents future messages to that conversation
+- [x] Login/logout flow works end-to-end
+- [ ] RLS policies enforce tenant isolation (deferred to Wave 3)
+- [x] Agent list loads from API
+- [ ] AI chat streams responses via SSE (deferred to Wave 3)
+- [ ] Chat history persisted in database (deferred to Wave 3)
+- [x] User profile edits save to database
+- [x] Settings visibility matches authenticated role
+- [x] Organization data flows from API (not mock)
+- [x] Kill switch backend columns exist
+- [ ] Consolidated DB schema doc covers all 53 tables (deferred — production backend reference)
+- [ ] API contract doc covers all endpoints (deferred — production backend reference)
 
 ---
 
-## S07: Webhooks & Notifications
+## 4. Wave 3 -- Outbound Engine, Webhooks & Intelligence (COMPLETE)
 
-**Status:** PLANNED
-**Goal:** Verify webhook handlers, build notification triggers, wire activity feeds to real data.
+**Goal:** Build outbound communication engine, real notifications/activity feeds, VAPI webhook, and AI intelligence engine.
 
-**Gap References:** G31, G32, G33, G34, G35, G36, H16, H17
+**Status:** Complete (Sprint 3.1-3.3, completed 2026-03-06)
 
-**Work Items:**
-1. Wire TopBar bell to real notification count from DB (H16)
-2. Define notification trigger events (G36)
-3. Build notification creation on key events (G36)
-4. Wire Management activity feed to activity_log table (H17)
-5. Add webhook authentication for VAPI (G33)
-6. Document VAPI webhook URL setup (G34)
-7. Add SSE reconnection logic (G35)
+### 4.1 Completed Items
 
-**Key Files:** `server/routes.ts`, `server/storage.ts`, `client/src/components/layout/TopBar.tsx`, `client/src/pages/management.tsx`
+| Item | Description | Status |
+|------|-------------|--------|
+| Outbound engine | Comm gate (5-layer check), kill switch, rate limiting, template substitution | Done |
+| Campaign execution | Start/stop/dry-run with setInterval processing, progress tracking UI | Done |
+| Notifications system | Real bell count (15s poll), mark-read, triggered by user/campaign/comm events | Done |
+| Activity log | Management feed with real events, fire-and-forget logging | Done |
+| VAPI webhook | Read-only receiver, creates TeamBox conversations + notifications from calls | Done |
+| AI hunches | Claude-powered insight generation, accept/dismiss/resolve lifecycle | Done |
+| Hunch chat filter | Accepted hunches injected into AI chat prompt context | Done |
+| SMS/email stubs | Stub functions ready for TextMagic/Resend when API keys arrive | Done |
 
-**Acceptance Criteria:**
-- [ ] Bell icon shows real unread notification count from DB
-- [ ] Key events (inbound message, campaign complete, kill switch) create notifications
-- [ ] Activity feed shows real logged events
-- [ ] VAPI webhooks verified via shared secret
+### 4.2 Wave 3 Completion Criteria
 
----
-
-## S08: Intelligence Engine
-
-**Status:** PLANNED
-**Goal:** Build AI-powered hunch generation, compute insights from real data, wire reports.
-
-**Gap References:** G37, G38, G39, G40, G41, H14, H15
-
-**Work Items:**
-1. Build hunch generation pipeline using Claude (H15)
-2. Implement hunch lifecycle — accept/dismiss/resolve (H15)
-3. Compute insights charts from real conversation/campaign data (H14, G38)
-4. Reconcile metrics count with VinSolutions probe data (G37)
-5. Define and build report views with CSV export (G40)
-6. Implement red zone alerts from VinSolutions lead age data (G41)
-7. Add hunch generation cost awareness (G39)
-
-**Key Files:** `client/src/pages/management.tsx`, `client/src/pages/insights.tsx`, `server/routes.ts`
-
-**Acceptance Criteria:**
-- [ ] Hunches generated by Claude with confidence scores
-- [ ] Hunch accept/dismiss/resolve lifecycle works
-- [ ] Insights charts show computed data from real sources
-- [ ] Red zone alerts identify cold leads
+- [x] Comm gate blocks sends when org/channel disabled
+- [x] Campaign kill switch stops execution mid-run
+- [x] Rate limit enforced (3 messages/24h per customer)
+- [x] Dry run mode logs without sending or mutating recipient status
+- [x] VAPI webhook creates conversations (read-only, no VAPI write-back)
+- [x] TopBar bell shows real notification count
+- [x] Management activity feed shows real logged events
+- [x] AI hunches generate via Claude with confidence scoring
+- [x] Accepted hunches influence AI chat responses
 
 ---
 
-## S09: Widgets, Tasks & Calendar
+## 5. Wave 3.5 -- Data Warehouse & Context Router (NEXT)
 
-**Status:** PLANNED
-**Goal:** Widget CRUD persists to database. Tasks backend built. Calendar appointment UI works.
+**Goal:** Build the local data warehouse, implement tiered sync from VinSolutions, add data source attribution to all warehoused data, build the context router for AI chat provenance, and memorialize insights over time.
 
-**Gap References:** G42, G43, G44, G46, H10, H12, B6, B7
+**Status:** Next — prerequisite for correct metrics, AI data access, and data provenance
 
-**Work Items:**
-1. Build widgets table and CRUD API (G42, H10, B6)
-2. Implement embed code generation — most portable approach (G43)
-3. Wire landing page serving from widget config (G44)
-4. Build tasks table and CRUD API (G46, H12, B7)
-5. Wire My Work page to tasks API
-6. Verify calendar appointment creation works end-to-end
+### CRITICAL ARCHITECTURE CONSTRAINT
 
-**Key Files:** `shared/schema.ts`, `server/routes.ts`, `server/storage.ts`, `client/src/pages/settings.tsx`, `client/src/pages/my-work.tsx`
+VinSolutions integration is **Lead Management tier** — NOT a sync-level integration.
+- **Can**: Query/pull data on demand via MCP proxy
+- **Cannot**: Do wholesale two-way synchronization
+- **Cannot**: Write data back to VinSolutions (deferred until write API access granted)
+- **Result**: Platform maintains a **forked local data store** (data warehouse) with its own copy of CRM data
 
-**Acceptance Criteria:**
-- [ ] Widget create/read/update/delete persists to database
-- [ ] Embed codes generate and work when pasted in HTML
-- [ ] Landing pages serve from org/widget config
-- [ ] Tasks create/complete/delete persists to database
-- [ ] My Work page shows real tasks from API
+### 5.1 Tiered Sync Strategy
 
----
+| Tier | Frequency | Scope | Purpose |
+|------|-----------|-------|---------|
+| **Historical Backfill** | Once | All accessible VinSolutions data | Populate data warehouse (they said 48h lookback but we've accessed more — take everything available) |
+| **Daily Delta** | Once/day (overnight) | Yesterday's changes | Incremental updates — query VinSolutions for records modified in last 24h, upsert into warehouse |
+| **Metrics Refresh** | Every 4 hours (business hours 8am-6pm) | Dashboard KPIs only | Real-time enough for decisions — lightweight aggregation refresh |
 
-## S10: Mock Elimination & Polish
+**NOT real-time** except for leads originating from Nexxus tools (VAPI calls, chat widgets, etc.)
 
-**Status:** PLANNED
-**Goal:** Remove all remaining mock data imports. Fix UI behavior issues. Add error handling.
+### 5.2 Data Source Attribution
 
-**Gap References:** G48, U1, U2, U3, U4, U5, U8, U9, U13, B13
+Every piece of data in the warehouse is tagged with its origin.
 
-**Work Items:**
-1. Audit all files in client/src/pages/ for mock imports — replace with API calls (G48)
-2. Remove client/src/mocks/ directory if all imports eliminated
-3. Add per-query error handling with retry (U2)
-4. Cap favorites ScrollArea (U1)
-5. Disable agent status toggle during mutation (U5)
-6. Override localStorage role from server on login/refresh (U9)
-7. Fix login error display (U8)
-8. Fix AppContext org fallback flash (U13)
-9. Document intentional patterns: activity feed duplication (U3), TeamBox layout (U4)
-10. Eliminate remaining demo mode toasts (B13)
+| Source Tag | Origin | Examples |
+|------------|--------|----------|
+| `vin_solutions` | CRM queries via MCP proxy | Leads, contacts, deal statuses |
+| `vapi` | Call transcripts/events via webhook | Inbound call records, transcripts |
+| `tavus` | Video interactions | Video session data |
+| `uploaded` | Manual CSV/file imports | Campaign recipients, custom lists |
+| `computed` | Derived metrics/insights | AI hunches, aggregated KPIs |
+| `nexxus` | Platform-generated | Conversations, tasks, notifications |
 
-**Key Files:** All page files in `client/src/pages/`, `client/src/mocks/`, `client/src/contexts/AppContext.tsx`
+Schema pattern for all warehoused tables:
+```
+dataSource    text NOT NULL DEFAULT 'nexxus'    -- origin tag
+sourceId      text                              -- original ID from source system
+syncedAt      timestamp                         -- when last synced from source
+```
 
-**Acceptance Criteria:**
-- [ ] Zero mock imports in any production page file
-- [ ] Every useQuery has isError handling with user-friendly message
-- [ ] No demo mode toasts remain
-- [ ] Role sync works correctly across login/refresh
+### 5.3 Context Router (AI Chat Data Provenance)
 
----
+When AI chat answers questions that reference data, it must state provenance:
+- "Based on VinSolutions data from 2 hours ago..."
+- "Based on your uploaded metrics from March 1..."
+- "Based on call data from VAPI received today..."
+- "I don't have VinSolutions data for that — the last sync was 6 hours ago"
 
-## S11: Data Warehouse & Context Router
+Implementation:
+1. Register VinSolutions MCP tools in AI chat endpoint (currently only has `webSearchTool`)
+2. Update system prompt with provenance instructions
+3. Add source/freshness labels to all context injections (hunches, KB docs, agent context)
+4. Track `lastSyncedAt` per data source, surface staleness in AI responses
 
-**Status:** PLANNED
-**Goal:** Build local data warehouse, implement VinSolutions sync tiers, add data provenance to AI chat.
+### 5.4 Insight Memorialization
 
-**Gap References:** Standing directives 13-16
+Hunches/insights are not just point-in-time — they are memorialized for historical trend analysis.
+- Add `hunchBatchId` to group hunches from the same generation run
+- Each generation creates new records (additive, never mutates existing)
+- Historical comparison: "what changed since last generation?"
+- Track insight evolution over time (confidence shifts, recurring patterns)
 
-**Work Items:**
-1. Design warehouse tables with data source attribution (dataSource, sourceId, syncedAt)
-2. Build historical backfill — pull all available VinSolutions data
-3. Build daily delta sync (overnight, changes from last 24h)
-4. Build business-hours metrics refresh (every 4h, 8am-6pm)
-5. Dashboard tiles read from warehouse instead of live queries
-6. Update AI chat to state data provenance in responses
-7. Register VinSolutions MCP tools in AI chat endpoint
-8. Add hunchBatchId for generation grouping and historical comparison
+### 5.5 Sprint Breakdown
 
-**Key Files:** `shared/schema.ts`, `server/sync.ts` (new), `server/routes.ts`
+#### Sprint W3.5a — Warehouse Schema & Historical Backfill
+- Design warehouse tables: `warehouse_leads`, `warehouse_contacts`, `warehouse_activities`
+- Add `dataSource`, `sourceId`, `syncedAt` columns
+- Build sync service with historical backfill (pull all available VinSolutions data)
+- Log sync events to activity_log
+- Files: shared/schema.ts, server/storage.ts, server/sync.ts (new)
 
-**Acceptance Criteria:**
+#### Sprint W3.5b — Daily Delta & Metrics Refresh
+- Build daily delta sync (query changes from last 24h, upsert)
+- Build business-hours metrics refresh (every 4h during 8am-6pm)
+- Dashboard tiles pull from warehouse instead of live VinSolutions queries
+- Sync failure notifications for admins
+
+#### Sprint W3.5c — Context Router & AI Data Access
+- Register VinSolutions MCP tools in AI chat endpoint
+- Update system prompt with data provenance instructions
+- Add source/freshness labels to context injections
+- Add `hunchBatchId` to hunches for generation grouping
+- Build historical comparison endpoint for insights
+
+### 5.6 Wave 3.5 Completion Criteria
+
 - [ ] Warehouse tables exist with source attribution columns
-- [ ] VinSolutions data pulled and stored locally
+- [ ] Historical backfill pulls all available VinSolutions data
 - [ ] Daily delta sync updates warehouse incrementally
-- [ ] AI chat states data provenance ("Based on VinSolutions data from...")
-- [ ] Dashboard tiles read from warehouse
+- [ ] Metrics refresh runs every 4h during business hours
+- [ ] Dashboard tiles read from warehouse (not live VinSolutions)
+- [ ] AI chat states data provenance in responses
+- [ ] AI chat can query VinSolutions data via MCP tools
+- [ ] Hunches grouped by batch for historical comparison
+- [ ] Sync failures create admin notifications
+- [ ] All warehoused data carries source tags
+
+### 5.7 Dependencies & Blockers
+
+| Dependency | Status | Impact |
+|------------|--------|--------|
+| VinSolutions probe file | Awaiting from user | Determines which metrics are actually available |
+| VinSolutions write API | NOT available | All write-back deferred |
+| MCP server access | Working via `VINSOLUTIONS_API_KEY` | No blocker |
+| TextMagic/Resend keys | Not needed for this wave | Outbound already stubbed |
 
 ---
 
-## S12: Production Hardening
+## 6. Wave 4 -- Phone Outbound, Reporting, Admin Polish, Error Handling
 
-**Status:** PLANNED
-**Goal:** Security hardening, performance, E2E tests, billing foundation.
+**Goal:** Complete remaining feature gaps: phone outbound via VAPI, reporting/export, admin UI polish, error handling, mock data removal, and deeper Tavus integration.
 
-**Gap References:** G45, G47, G49, G50, B8, B10, B11, B12, U6, U7, U12
+**Status:** Complete
 
-**Work Items:**
-1. Test RLS support on Replit Postgres (G47)
-2. Implement application-layer tenant isolation if RLS unavailable
-3. Add API rate limiting — 100 req/min per user
-4. Build usage_log table and metering (G49, B8)
-5. Build E2E test suite — flows derived from AC (G50)
-6. Add soft delete to agents (B10)
-7. Add session cleanup job (B11)
-8. Google Calendar — leave stubbed (G45)
-9. Mobile TeamBox filter drawer (U6)
-10. ARIA tab attributes (U7)
-11. RightPane mobile half-screen drawer (U12)
+### 6.1 Completed Items
 
-**Key Files:** All files potentially affected
+| Item | Description | Dependencies | Status |
+|------|-------------|--------------|--------|
+| Inbound SMS webhook | POST /api/webhooks/textmagic — stores messages, creates conversations, notifies admins | Wave 3.6 | **Complete** |
+| Landing page serving | Public /p/:slug route serves dynamic landing pages from org config | Wave 2 Widgets | **Complete** |
+| Widget embed codes | Generate working embed codes pointing to this Replit; public config endpoint | Wave 2 Widgets | **Complete** |
+| Widget JS loader | GET /widget/nexxus-widget.js — embeddable iframe loader with CORS | Wave 2 Widgets | **Complete** |
+| Metrics consistency | Canonical pipeline metrics across AI Chat, Sales, Management dashboards (AC-01-A) | Wave 3.5 Warehouse | **Complete** |
+| Admin polish | Org invite flow with Resend email, settings persistence (notifications, appearance) | Wave 2 Auth | **Complete** |
+| Error boundaries | React ErrorBoundary wrapping app, global 401 handler, session refresh | All | **Complete** |
+| Mock data audit | No mock imports in production pages; sample data banner on analytics | All APIs | **Complete** |
+| TextMagic SMS sends | Real SMS via X-TM-Key REST API | Wave 3.6 | **Complete** |
+| Resend email sends | Real email from notifications@huminic.ai | Wave 3.6 | **Complete** |
+| 4-layer safety stack | Global → org → channel → rate limit outbound safety | Wave 3.6 | **Complete** |
 
-**Acceptance Criteria:**
-- [ ] Multi-tenant isolation enforced (RLS or application layer)
-- [ ] API rate limiting active
-- [ ] Usage events tracked per org
-- [ ] E2E tests pass for critical flows
-- [ ] No expired sessions accumulating
+### 6.2 Wave 4 Completion Criteria
+
+- [x] Inbound SMS webhook stores messages and creates notifications
+- [x] Settings sections use backend data (not local state)
+- [x] Error boundaries catch and display errors gracefully
+- [x] Widget embed codes generate and work when pasted in HTML
+- [x] Landing pages serve from org config (/p/:slug)
+- [x] Canonical pipeline metrics consistent across all dashboards
+- [x] Org invite flow sends email and creates user
+
+### 6.3 Deferred to Wave 5 or Future
+
+| Item | Description | Reason |
+|------|-------------|--------|
+| Phone outbound via VAPI | Wire sendPhone() to VAPI outbound calls | Per user: no VAPI changes |
+| Tavus deeper integration | Video session webhook with HMAC | Per user: no Tavus changes |
+| RLS policies | Row-level security for multi-tenant isolation | Production hardening |
+| API rate limiting | 100 req/min per user | Production hardening |
+| Full Zod validation | All request bodies validated | Production hardening |
+| Full E2E Playwright suite | Complete test coverage | Ongoing |
+| Reporting & export | CSV/PDF export for analytics | Production backend dependent |
 
 ---
 
-## Completed History (Summary)
+## 7. Wave 5 -- Google Calendar & Production Backend Cutover (Deferred)
 
-| Wave | Theme | Completed | Notes |
-|------|-------|-----------|-------|
-| Wave 0 | Setup & UI Prototype | 2026-03 | Persona-driven navigation shell, mock data, 8 RBAC roles |
-| Wave 1 | API Wiring & Data Sources | 2026-03 | Auth, DB schema (22 tables), JWT, agent/org/user CRUD |
-| Wave 2 | AI Chat, User CRUD, Metrics | 2026-03 | Conversation engine, file uploads, pipeline metrics |
-| Wave 3 | Outbound Engine, Webhooks, Intelligence | 2026-03 | Comm gate, kill switch, VAPI webhook, hunches, notifications |
-| Wave 3.5 | Dashboard Warehouse Wiring | 2026-03 | Warehouse tables, sync API stubs |
-| Wave 3.6 | Outbound Live Wiring | 2026-03 | TextMagic SMS, Resend email, 4-layer safety |
-| Wave 4 | Landing Pages, Widgets, Inbound SMS | 2026-03 | Widget embed, landing pages, error boundaries |
-| S01 | Governance Stabilization | 2026-03-07 | This cleanup session |
+**Goal:** Integrate Google Calendar for appointment scheduling and swap data source from Replit prototype to production backend at nexxusv2.huminicdev.com. Requires credentials and API contract alignment from client.
 
-**Note:** Waves 0-4 were completed with known gaps. The sprint roadmap above (S02-S12) systematically validates and repairs those gaps in the order the codebase was built. See GAPS.md for the complete register.
+**Status:** Deferred to end
+
+### 7.1 Planned Items
+
+| Item | Description | Dependencies |
+|------|-------------|--------------|
+| Calendar integration | Google Calendar OAuth for appointment scheduling | OAuth credentials from client |
+| Production backend cutover | Swap API data source to nexxusv2.huminicdev.com | API contract alignment |
+| Performance testing | API p95 < 200ms, LCP < 2.5s | All features |
+| Security audit | Final security review before production | All features |
+
+---
+
+## 8. Risks & Mitigations
+
+| Risk | Impact | Likelihood | Mitigation |
+|------|--------|------------|------------|
+| VIN Solutions API access limited (17/30 endpoints blocked) | Cannot display full pipeline data | Confirmed | Use accessible endpoints only (leads, contacts, statuses, sources). Be transparent about data boundaries. |
+| Claude API rate limits during hunch generation | Delayed hunch delivery | Medium | Queue-based generation with retry logic, weekly batch instead of real-time |
+| SSE streaming complexity | Chat features delayed | Low | Start with polling fallback, upgrade to SSE |
+| RLS variable name mismatch (`current_organization_id` vs `current_org_id`) | Potential cross-tenant data leak | Confirmed (known bug) | Fix SecureQueryBuilder to use correct variable name in Wave 2 |
+| Excel upload records polluting metrics | Inflated numbers in dashboards | Confirmed (known bug) | Always exclude `source = 'excel_upload'` from lead queries |
+| Live VAPI/Tavus webhooks in production | Breaking existing customers | High impact | Preserve existing handler logic, test via Elliot agent only, never modify without approval |
+| SET LOCAL without transaction | Connection pool contamination | Medium | Wrap all RLS set operations in proper transactions in Wave 2 |
+
+---
+
+## 9. Testing Protocol
+
+### Per-Wave Requirements
+
+- **Wave 1:** Visual regression screenshots across 4 roles, 2 themes (light/dark), 3 viewports (desktop, tablet, mobile). All pages navigable without errors.
+- **Wave 2:** API integration tests for all CRUD endpoints. Auth flow E2E test. RLS isolation verification.
+- **Wave 3:** Metric computation verification against known test data. VIN sync correctness tests. Hunch generation quality checks.
+- **Wave 4:** Full E2E Playwright suite. Security audit. Performance benchmarks. Three proofs per feature (config, functional, visual).
+
+### Test Data Rules
+
+- SMS testing: TextMagic API loopback (send to self)
+- Email testing: Use `neoweaver@gmail.com` for all outbound
+- Voice testing: Use "Elliot" test-only VAPI agent
+- Video testing: Test sessions only, never production Tavus sessions
+- Lead data: Exclude `source = 'excel_upload'` from all queries
+
+---
+
+## 10. Decision Log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-03-03 | Restructure nav from feature-based to department-based | Better matches dealership organizational structure and user mental models |
+| 2026-03-03 | Remove Drive as standalone feature | Artifacts generated by AI stored contextually, not in a separate file system |
+| 2026-03-03 | Remove standalone Agent creation for non-Super Admin | Agent config is an admin function, not a daily workflow for staff |
+| 2026-03-03 | Add campaign kill switch UI | Direct response to spam incident -- users need immediate control over outbound communications |
+| 2026-03-03 | Add global communication gate | Master toggle to prevent ALL automated outbound -- safety net for the organization |
+| 2026-03-03 | Nest agents within department sections | Agents belong to departments (sales/service/marketing), not a standalone global list |
+| 2026-03-03 | TeamBox as dedicated CommBox-inspired page | Unified inbox for all customer conversations across channels, replacing fragmented inbox |
+| 2026-03-03 | Marketing Studio as Wave 4 placeholder | Video/image/podcast creation is a future capability |
+| 2026-03-04 | Expand RBAC from 4 to 8 roles | Department-specific roles (sales, service, marketing) + executive and sales_manager replace generic org_staff |
+| 2026-03-04 | Add kill switch backend spec to Wave 2 | DB columns + MCP enforcement required before any outbound wiring |
+| 2026-03-06 | VinSolutions is Lead Management tier, not sync | Cannot do wholesale two-way sync. Platform maintains forked local data store |
+| 2026-03-06 | Three-tier sync strategy | Historical backfill (once), daily delta (overnight), metrics refresh (4h during business hours) |
+| 2026-03-06 | Data provenance required in AI chat | AI must state data source and freshness when referencing data |
+| 2026-03-06 | Context Router architecture | Data warehouse aggregates multi-source data (VinSolutions, VAPI, Tavus, uploaded) with preserved provenance |
+| 2026-03-06 | Insight memorialization | Hunches tracked over time for historical trend analysis, not just point-in-time snapshots |
+| 2026-03-06 | Insert Wave 3.5 before Wave 4 | Data warehouse is prerequisite for correct metrics and AI data access — must build before final polish |
+| 2026-03-06 | 4-layer outbound safety stack | Global env kill switch > org gate > per-channel toggles > campaign rate limiting. Defense in depth. |
+| 2026-03-06 | Defer Calendar & production cutover to Wave 5 | Requires Google OAuth credentials and API contract alignment — save for end |
