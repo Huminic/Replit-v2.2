@@ -127,7 +127,7 @@ Marking a phase complete without user approval violates R16 (GATE:STOP).
 
 Before starting any work in a session, the agent must:
 1. Read GAPS.md (current gap state)
-2. Read GUARDRAILS.md (all rules including R11-R16)
+2. Read GUARDRAILS.md (all rules including R11-R17)
 3. Read the current phase in PLAN.md (assigned tasks)
 4. Read the AC traceability table (PLAN.md Section 1) for assigned ACs
 5. State which phase/task it is working on
@@ -147,6 +147,16 @@ Before starting any work in a session, the agent must:
 5. **Wait**: Do not proceed to the next task until the user explicitly approves
 
 Violations of GATE:STOP (e.g., batch-completing multiple tasks, proceeding without approval, skipping the presentation step) invalidate all work produced after the violation point.
+
+## R17: Planning Completion Notification
+
+When a planning or synthesis session is complete:
+
+1. The agent must explicitly state: **"Planning is complete. The following documents are ready for your review:"**
+2. List every document produced or modified with a one-line summary of each
+3. Do NOT begin execution or coding until the user has reviewed the plan and explicitly approved the transition to execution mode
+4. If the user asks a question about the plan, answer it — but do not treat the question as approval to start building
+5. Only an explicit statement like "start building", "approved", "go ahead", or equivalent constitutes approval to transition from planning to execution
 
 ---
 

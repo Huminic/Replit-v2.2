@@ -11,7 +11,7 @@
 Before writing any code, the agent MUST complete this checklist. Skipping any step invalidates all subsequent work (GUARDRAILS.md R11).
 
 - [ ] Read `GAPS.md` — understand current gap state
-- [ ] Read `GUARDRAILS.md` — understand all 16 rules, especially R16 (GATE:STOP)
+- [ ] Read `GUARDRAILS.md` — understand all 17 rules, especially R16 (GATE:STOP) and R17 (Planning Completion Notification)
 - [ ] Read the current phase in `PLAN.md` Section 2 — identify assigned task(s)
 - [ ] Read the AC traceability table in `PLAN.md` Section 1 — identify which ACs the task addresses
 - [ ] Read the self-verification criteria for the task (rightmost column in the phase table)
