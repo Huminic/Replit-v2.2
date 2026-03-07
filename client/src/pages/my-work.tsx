@@ -75,7 +75,8 @@ const channelIcons: Record<ConversationChannel, React.ElementType> = {
 };
 
 export default function MyWorkPage() {
-  const { currentUser, personaName } = useApp();
+  const { currentUser, personaName, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -84,7 +85,7 @@ export default function MyWorkPage() {
   const [formState, setFormState] = useState(emptyFormState);
 
   const { data: tasks = [], isLoading } = useQuery<Task[]>({
-    queryKey: ['/api/tasks'],
+    queryKey: ['/api/tasks', orgId],
   });
 
   const createMutation = useMutation({

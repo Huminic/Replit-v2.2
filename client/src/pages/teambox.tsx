@@ -168,7 +168,8 @@ function TaskListSkeleton() {
 }
 
 export default function TeamboxPage() {
-  const { agents } = useApp();
+  const { agents, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'conversations' | 'tasks'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
@@ -182,11 +183,11 @@ export default function TeamboxPage() {
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
-    queryKey: ['/api/conversations'],
+    queryKey: ['/api/conversations', orgId],
   });
 
   const { data: allTasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
-    queryKey: ['/api/tasks'],
+    queryKey: ['/api/tasks', orgId],
   });
 
   const filteredTasks = allTasks.filter(t => {
@@ -221,7 +222,7 @@ export default function TeamboxPage() {
   }, [conversations, selectedConversationId]);
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
-    queryKey: ['/api/conversations', selectedConversationId, 'messages'],
+    queryKey: [`/api/conversations/${selectedConversationId}/messages`],
     enabled: !!selectedConversationId,
   });
 
@@ -259,7 +260,7 @@ export default function TeamboxPage() {
       });
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations', variables.conversationId, 'messages'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/conversations/${variables.conversationId}/messages`] });
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
       setReplyText('');
     },

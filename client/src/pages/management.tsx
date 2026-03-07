@@ -18,7 +18,7 @@
  * Management metrics will aggregate from all department data sources.
  */
 import { useState, useMemo } from 'react';
-import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/contexts/AppContext';
 import type { ActivityLog, Hunch } from '@shared/schema';
 
 /** Sub-navigation tabs for the management page — includes Hunches (AI insights) and ROI (Wave 3) */
@@ -62,17 +63,19 @@ interface DashboardMetrics {
 export default function ManagementPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
+  const { currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
-    queryKey: ['/api/metrics/dashboard'],
+    queryKey: ['/api/metrics/dashboard', orgId],
   });
 
   const { data: activityLogs, isLoading: activityLoading } = useQuery<ActivityLog[]>({
-    queryKey: ['/api/activity-log'],
+    queryKey: ['/api/activity-log', orgId],
   });
 
   const { data: hunches, isLoading: hunchesLoading } = useQuery<Hunch[]>({
-    queryKey: ['/api/hunches'],
+    queryKey: ['/api/hunches', orgId],
   });
 
   const generateMutation = useMutation({
@@ -97,16 +100,15 @@ export default function ManagementPage() {
     },
   });
 
-  const defaultManagementMetrics: ManagementMetricTile[] = [
-    { id: 'mgmt-1', label: 'Total Revenue', value: '$485K', change: 12, trend: 'up' as const, icon: DollarSign },
-    { id: 'mgmt-2', label: 'Active Accounts', value: '24', change: 3, trend: 'up' as const, icon: Users },
-    { id: 'mgmt-3', label: 'Team Activity Score', value: '94', change: 5, trend: 'up' as const, icon: Target },
-    { id: 'mgmt-4', label: 'MRR', value: '$12,450', change: 8, trend: 'up' as const, icon: TrendingUp },
-    { id: 'mgmt-5', label: 'Customer Satisfaction', value: '4.8', change: 2, trend: 'up' as const, icon: ArrowUpRight },
-    { id: 'mgmt-6', label: 'Avg Deal Size', value: '$28.5K', change: -1, trend: 'down' as const, icon: Briefcase },
+  const pipeline = metrics?.pipeline;
+  const managementMetrics: ManagementMetricTile[] = [
+    { id: 'mgmt-1', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Target },
+    { id: 'mgmt-2', label: 'Active Agents', value: String(metrics?.agentCounts?.active ?? 0), change: 0, trend: 'up' as const, icon: Users },
+    { id: 'mgmt-3', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
+    { id: 'mgmt-4', label: 'Open Escalations', value: String(pipeline?.openEscalations ?? 0), change: 0, trend: 'up' as const, icon: TrendingUp },
+    { id: 'mgmt-5', label: 'Outbound Sent (24h)', value: String(pipeline?.outboundSent24h ?? 0), change: 0, trend: 'up' as const, icon: ArrowUpRight },
+    { id: 'mgmt-6', label: 'Active Campaigns', value: String(metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Briefcase },
   ];
-
-  const managementMetrics = defaultManagementMetrics;
 
   const renderDashboard = () => (
     <div className="p-6 space-y-6">

@@ -76,7 +76,8 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function MarketingPage() {
   const [, setLocation] = useLocation();
-  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen } = useApp();
+  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
+  const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedMetric, setSelectedMetric] = useState<MarketingMetricTile | null>(null);
@@ -107,24 +108,23 @@ export default function MarketingPage() {
   });
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
-    queryKey: ['/api/metrics/dashboard'],
+    queryKey: ['/api/metrics/dashboard', orgId],
   });
 
-  const defaultMarketingMetrics: MarketingMetricTile[] = [
-    { id: 'mm-1', label: 'Campaign Performance', value: '87%', change: 5, trend: 'up' as const, icon: Target },
-    { id: 'mm-2', label: 'Leads Generated', value: '156', change: 18, trend: 'up' as const, icon: Megaphone },
-    { id: 'mm-3', label: 'Widget Interactions', value: '2,340', change: 12, trend: 'up' as const, icon: MousePointerClick },
-    { id: 'mm-4', label: 'Landing Page Visits', value: '4,821', change: 8, trend: 'up' as const, icon: Globe },
+  const mktStats = metrics?.campaignStats?.byDepartment?.marketing;
+  const marketingMetrics: MarketingMetricTile[] = [
+    { id: 'mm-1', label: 'Campaign Performance', value: `${mktStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: Target },
+    { id: 'mm-2', label: 'Campaigns Active', value: String(mktStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
+    { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MousePointerClick },
+    { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: Globe },
   ];
 
-  const marketingMetrics = defaultMarketingMetrics;
-
   const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=marketing'],
+    queryKey: ['/api/agents?department=marketing', orgId],
   });
 
   const { data: marketingCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
-    queryKey: ['/api/campaigns?department=marketing'],
+    queryKey: ['/api/campaigns?department=marketing', orgId],
   });
 
   const killSwitchMutation = useMutation({
@@ -163,7 +163,7 @@ export default function MarketingPage() {
   });
 
   const { data: executionStatuses = {} } = useQuery<Record<string, { campaignId: string; status: string; totalRecipients: number; processed: number; sent: number; blocked: number; failed: number; dryRun: boolean }>>({
-    queryKey: ['/api/campaigns/execution-statuses'],
+    queryKey: ['/api/campaigns/execution-statuses', orgId],
     refetchInterval: 3000,
   });
 
