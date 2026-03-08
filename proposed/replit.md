@@ -50,7 +50,7 @@ Preferred communication style: Simple, everyday language.
 |------|---------|--------|
 | `PLAN.md` | Forward roadmap with Phases | Governance — requires promotion workflow to modify |
 | `GUARDRAILS.md` | Agent rules (R1-R11) and constraints | Governance — requires promotion workflow to modify |
-| `CLAUDE.md` | Agent context, project structure, forbidden actions | Governance — requires promotion workflow to modify |
+| `CLAUDE.md` | RETIRED — contents merged into replit.md (Sweep 3E) | Deleted |
 | `ACCEPTANCE_CRITERIA.md` | Canonical requirements (T2 authority) | Governance — requires promotion workflow to modify |
 | `proposed/agent-roles.md` | Agent role definitions and file scope | Governance — requires promotion workflow to modify |
 
@@ -128,6 +128,97 @@ Preferred communication style: Simple, everyday language.
 | RBAC roles | 8 |
 | ISSUES.md items | 101 (80 OPEN, 21 RESOLVED) |
 | RC-blocking issues | 19 unique |
+
+## UI Implementation Reference (Merged from CLAUDE.md — Sweep 3E)
+
+### Locked Design Tokens
+
+```css
+--density-data: 13px;
+--density-chat: 14-15px;
+--sidebar-width: 64px;
+--topbar-height: 56px;
+--right-pane-width: 320px;   /* w-80 */
+--right-pane-width-lg: 384px; /* lg:w-96 */
+```
+
+### Locked UI Elements
+
+| Category | Locked Behavior |
+|----------|----------------|
+| TopBar | Logo text "Nexxus Connect™" (no icon, not clickable), org switcher center, icons right, globe icon for landing page |
+| Sidebar | 64px width, 7 main items + System bottom, icon+label, purple active indicator (w-0.5 h-8 bg-purple-500) |
+| SubMenuManager | Hover/pin system, 800ms leave timeout, ChevronLeft collapse, auto-collapse <1024px |
+| Right Pane | w-80/lg:w-96, full-screen mobile overlay, Automa pop-out button visible when closed on data-display pages |
+| Chat bubbles | Bot left (bg-card border border-border), user right (bg-primary), NO avatars, max-w-[80%] main / max-w-[85%] right pane |
+| Typing animation | wave-dot CSS class, 3 dots, delays 0s/0.15s/0.3s |
+| Chat input | chat-input-gradient wrapper, gradient glow, Enter sends, Shift+Enter newline |
+| Metric tiles | Gradient backgrounds, SVG circles, hover-elevate, click opens detail modal. Window-blind collapse after first chat message. |
+| TeamBox | 3-column layout: filters + conversation list + chat thread + customer info |
+
+### Sidebar Items
+
+| Label | Icon | Path | RBAC |
+|-------|------|------|------|
+| AI Chat | MessageSquare | / | All roles |
+| TeamBox | Inbox | /teambox | All roles |
+| My Work | User | /my-work | All roles |
+| Sales | ShoppingCart | /sales | super_admin, partner_admin, org_admin, executive, sales_manager, sales |
+| Service | Wrench | /service | super_admin, partner_admin, org_admin, executive, service |
+| Marketing | Megaphone | /marketing | super_admin, partner_admin, org_admin, executive, marketing |
+| Manage | LayoutDashboard | /management | super_admin, partner_admin, org_admin, executive, sales_manager |
+| System | Settings | /settings/system | super_admin, partner_admin, org_admin |
+
+### Sub-Menu Panels
+
+- **AI Chat**: Favorites, Chat History, Artifacts
+- **TeamBox**: Conversations, Tasks, Workflows + Quick Filters (Open, Automated, Followup)
+- **My Work**: Assistant, Dashboard, Tasks, Chat
+- **Sales**: Dashboard, Agents, Insights, Calendar + Agent list with search
+- **Service**: Dashboard, Agents, Campaigns, Insights, Calendar + Agent list
+- **Marketing**: Dashboard, Agents, Campaigns, Studio, Insights + Agent list
+- **Management**: Dashboard, Insights, Hunches, Activities, ROI
+- **System**: RBAC-gated settings items (Users, Organization, Tools, Knowledge, AI Config, Security, Notifications, Data, Appearance, Billing)
+
+### View Configurations (AppLayout)
+
+| View Config | Routes | Right Pane Behavior |
+|------------|--------|-------------------|
+| chat-only | / | Max-width 4xl centered, no right pane toggle |
+| teambox | /teambox | Own 3-column layout, no global right pane |
+| data-display | /sales, /service, /marketing, /management, /insights | Automa chat in right pane, toggle button visible |
+| heavy-chat | /agents | Agent config in right pane |
+| sub-menu | /my-work, /settings/*, /profile/* | No right pane toggle |
+
+### AppContext State Variables
+
+**UI State (client-side):** activePanel, subMenuExpanded, panelHovered, sidebarVisible, rightPaneOpen, mobileMenuOpen
+
+**Data State (migrating mock → API):** currentUser, currentRole, currentOrganization, organizations, agents, notifications, favorites, selectedAgent, communicationGateEnabled, personaName
+
+### Kill Switch Backend Spec
+
+| Column | Table | Purpose |
+|--------|-------|---------|
+| outbound_enabled | organizations | Global org-level communication gate |
+| sms_enabled | organizations | Per-channel toggle for SMS outbound |
+| phone_enabled | organizations | Per-channel toggle for voice outbound |
+| email_enabled | organizations | Per-channel toggle for email outbound |
+| kill_switch | campaigns | Per-campaign stop |
+| campaign_disconnected | teambox_conversations | Per-conversation disconnect |
+
+MCP enforcement: central-mcp must check outbound_enabled + channel-specific flags before any outbound API call (TextMagic, Resend, VAPI).
+
+### User-Facing Name Mapping
+
+| Internal Name | User-Facing Name | Notes |
+|--------------|-----------------|-------|
+| VAPI | Voice Agent | Never expose "VAPI" |
+| Tavus | Video Agent | Never expose "Tavus" |
+| VIN Solutions | CRM Integration | Never expose vendor name |
+| tools | Skills | UI always says "Skills" |
+| hunches | Hunches | Confidence-scored patterns |
+| persona | Organization's persona name (e.g., "Serra") | Configurable per org |
 
 ## Session Start Checklist
 
