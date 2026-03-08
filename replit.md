@@ -83,6 +83,19 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Cleaned up Drive references from MobileNavDropdown, MobileSidebar, activity-utils
 - Full 62-AC sweep verified passing
 
+### Stabilization Sweep 5: Database Hardening
+- CASCADE rules on all 30+ foreign keys, 12 indexes added
+- Campaign execution persisted to DB, password reset wired with crypto tokens + Resend
+- Initial Drizzle migration (0000_curious_madame_web.sql) generated and pushed
+
+### Stabilization Sweep 6: Frontend Remediation (Mock Removal)
+- **Insights page**: Replaced all 23 mock data imports with useQuery hooks to GET /api/insights/dashboard + GET /api/insights/reports; hunches wired to GET /api/hunches; deleted client/src/lib/insight-data.ts (725 lines)
+- **TopBar activity feed**: Replaced static mock with useQuery to GET /api/activity-log
+- **My Work chat tab**: Replaced mock conversations with useQuery to GET /api/conversations
+- **OrgWizard**: Wired to POST /api/organizations (super admin only)
+- **Mock files deleted**: All 12 files in client/src/mocks/ removed (zero consumers confirmed)
+- **Demo-mode actions**: 15 toast-based demo actions categorized as post-MVP deferrals (billing, trigger editor, knowledge base, kill switch)
+
 ## API Routes
 
 ### Core Routes
@@ -100,12 +113,14 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Warehouse: GET /api/warehouse/leads, GET /api/warehouse/metrics
 - Sync: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
 
-### New Routes (Sprints 4-5)
+### New Routes (Sprints 4-6)
 - Appointments: GET/POST/PATCH/DELETE /api/appointments (org-scoped, multi-tenant safe)
 - Usage: GET /api/usage, GET /api/usage/summary (roleLevel ≤ 3)
 - Billing: GET /api/billing/usage (org_id + period parameters)
 - Landing: GET /api/public/landing/:slug
 - Outbound Status: GET /api/outbound/status
+- Insights: GET /api/insights/dashboard, GET /api/insights/reports (aggregated warehouse data)
+- Organizations: POST /api/organizations (super admin only, creates org + admin + agent)
 
 ### Public Routes (No Auth)
 - Landing pages: GET /p/:slug

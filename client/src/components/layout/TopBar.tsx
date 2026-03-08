@@ -16,7 +16,7 @@
  *  - AppContext: currentUser, notifications, organizations, currentRole, switchOrganization
  *  - ThemeContext: theme state + toggleTheme
  *  - mocks/notifications.ts: getNotificationIcon, getNotificationColor
- *  - lib/activity-utils.ts: staticActivityFeed, getActivityColor
+ *  - lib/activity-utils.ts: getActivityColor, mapActivityLogToItem
  *  - mocks/users.ts: getRoleLabel for role badge display
  *
  * PRODUCTION NOTE: Notifications and activity feed will come from backend API via WebSocket
@@ -60,7 +60,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import { getNotificationIcon, getNotificationColor, type NotificationType } from '@/lib/notification-utils';
-import { staticActivityFeed, getActivityColor } from '@/lib/activity-utils';
+import { getActivityColor, mapActivityLogToItem } from '@/lib/activity-utils';
+import { useQuery } from '@tanstack/react-query';
+import type { ActivityLog } from '@shared/schema';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getRoleLabel } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -104,6 +107,12 @@ export function TopBar() {
   const [, setLocation] = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+
+  const { data: activityLogs, isLoading: activityLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/activity-log?limit=8'],
+  });
+
+  const activityFeed = (activityLogs || []).slice(0, 8).map(mapActivityLogToItem);
 
   const { toast } = useToast();
   const handleSwitchOrg = useCallback(async (orgId: string) => {
@@ -269,7 +278,25 @@ export function TopBar() {
             <DropdownMenuLabel>Activity Feed</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="h-80">
-              {staticActivityFeed.slice(0, 8).map((item) => (
+              {activityLoading && (
+                <div className="p-3 space-y-3" data-testid="activity-loading">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!activityLoading && activityFeed.length === 0 && (
+                <div className="p-4 text-center text-sm text-muted-foreground" data-testid="text-no-activity">
+                  No recent activity
+                </div>
+              )}
+              {!activityLoading && activityFeed.map((item) => (
                 <DropdownMenuItem
                   key={item.id}
                   className="flex items-start gap-3 p-3"
