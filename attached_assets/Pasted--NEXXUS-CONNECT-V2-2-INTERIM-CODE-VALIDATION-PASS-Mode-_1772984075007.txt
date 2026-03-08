@@ -1,0 +1,543 @@
+# NEXXUS CONNECT V2.2 — INTERIM CODE VALIDATION PASS
+# Mode: READ-ONLY ANALYSIS FIRST — no modifications until final report is produced
+# Authority documents in priority order for this pass:
+#   1. Current UI code (client/src/) — highest visual truth
+#   2. ACCEPTANCE_CRITERIA.md (root, Wave 1 functional criteria)
+#   3. replit.md + Sprint_log.md — most accurate state of what is built
+#   4. api_catalog.md, frontend_catalog.md, schema_catalog.md — structural ground truth
+#   5. SRS/PRD — requirements intent (note: SPEC.md is critically stale, do not trust it)
+
+You are performing a deep pre-flight code validation for Nexxus Connect V2.2 before the 
+final coding configuration and test run. This is a structured audit — read each file 
+in full before making any finding. Do NOT make any code changes during this pass. 
+Produce a structured VALIDATION REPORT at the end, organized by the sections below.
+
+---
+
+## SECTION 1: AUTHENTICATION & SESSION INTEGRITY
+
+Read: server/auth.ts, server/routes.ts (auth routes 1–7), shared/schema.ts (sessions table),
+client/src/pages/login.tsx, client/src/pages/forgot-password.tsx, 
+client/src/pages/reset-password.tsx
+
+Validate each of the following — for each, report PASS / FAIL / STUB / RISK with evidence:
+
+1a. POST /api/auth/login — Does it bcrypt-compare password, generate both JWT access AND 
+    refresh tokens, and create a session row in the DB? Confirm token expiry is set.
+
+1b. POST /api/auth/refresh — Does it validate the refresh token via storage.getSessionByRefreshToken, 
+    rotate both tokens, and write a new session? Confirm old session is deleted on rotation.
+
+1c. POST /api/auth/logout — Does it delete ALL sessions for the user via deleteUserSessions, 
+    not just the current session?
+
+1d. POST /api/auth/forgot-password — KNOWN STUB: Confirm whether this actually sends a reset 
+    email via Resend or still only logs and returns 200 without sending. Report exact behavior.
+
+1e. POST /api/auth/reset-password — KNOWN STUB: Confirm whether this validates a token, 
+    checks expiry (should be 15-minute window per UI countdown), and actually updates the 
+    password hash in the DB, or still returns a placeholder response.
+
+1f. JWT middleware — Confirm the authenticateToken middleware correctly extracts Bearer token,
+    verifies with the correct secret, and attaches userId + organizationId + roleLevel to req.
+    Confirm it returns 401 (not 403) on missing/invalid token and 403 on expired.
+
+1g. Session security — Confirm refresh tokens are not predictable (sufficient entropy). 
+    Confirm sessions table has index on refreshToken column for lookup performance.
+
+RISK FLAG: If 1d or 1e are still stubs, flag as CRITICAL BLOCKER — users cannot self-serve 
+password recovery and must rely on admin reset (route #27), which means password recovery is 
+admin-only in production. Note whether this is acceptable for the current wave scope.
+
+---
+
+## SECTION 2: RBAC ENFORCEMENT — ALL 8 ROLES
+
+Read: server/routes.ts (role-level middleware), client/src/components/layout/Sidebar.tsx 
+(or equivalent), client/src/context/AppContext.tsx (or equivalent role state)
+
+The system must enforce 8 roles: super_admin, partner_admin, org_admin, executive, 
+sales_manager, sales, service, marketing. Role levels map L1–L4 in the backend.
+
+Validate each of the following:
+
+2a. SIDEBAR GATING — For each of the 7 primary nav items, confirm the visibility logic 
+    matches EXACTLY this matrix:
+    - AI Chat: ALL 8 roles ✓
+    - TeamBox: ALL 8 roles ✓
+    - My Work: ALL 8 roles ✓
+    - Sales: super_admin, partner_admin, org_admin, executive, sales_manager, sales ONLY
+      → MUST be hidden from: service, marketing
+    - Service: super_admin, partner_admin, org_admin, executive, service ONLY
+      → MUST be hidden from: sales_manager, sales, marketing
+    - Marketing: super_admin, partner_admin, org_admin, executive, marketing ONLY
+      → MUST be hidden from: sales_manager, sales, service
+    - Management: super_admin, partner_admin, org_admin, executive, sales_manager ONLY
+      → MUST be hidden from: sales, service, marketing
+    - System (bottom): super_admin, partner_admin, org_admin ONLY
+      → MUST be hidden from: executive, sales_manager, sales, service, marketing
+
+2b. SETTINGS TILE GATING — Confirm:
+    - super_admin sees ALL 9 tiles including Data Management
+    - partner_admin sees 7 tiles (NO Data Management)
+    - org_admin sees 7 tiles (NO AI Configuration, NO Security, NO Data Management)
+    - "New Organization" button: visible to super_admin ONLY
+
+2c. BACKEND ROLE GATE GAPS — The following routes were identified as missing role gates 
+    in the audit. For each, confirm current status and assess risk:
+    - PATCH /api/agents/:id (update) — no role gate, unlike create (admin+) and delete (admin+)
+    - PATCH /api/campaigns/:id — no role gate, any authenticated user can toggle kill switches
+    - POST /api/campaigns/:id/upload-csv — no role gate
+    - Widget CRUD routes (GET/POST/PATCH/DELETE /api/widgets) — no role gates
+    - Document routes (POST/DELETE /api/documents) — no role gates
+    - GET /api/billing/usage — no role gate
+    
+    For each: report whether this is intentional (wave scope) or an oversight.
+
+2d. METRIC TILES BY ROLE (AI Chat page, W1-AC-010) — Confirm the dashboard page renders 
+    the correct role-specific tiles:
+    - super_admin: Partner Orgs, Total Logins, Platform Actions, Agent Actions
+    - partner_admin: Sub Orgs, Total Logins, User Actions, Agent Actions
+    - org_admin: Pipeline Value, Lead Source, Lead Quality, Demand Score
+    - executive: Revenue, Team Activity, Customer Sat, ROI Score
+    - sales_manager: Pipeline Value, Team Leads, Conversion Rate, Urgency Score
+    - sales: Hot Opportunities, Buying Intel, Threats, Urgency Score
+    - service: Active Campaigns, Messages Sent, Appointments, Upsell Rate
+    - marketing: Campaign Perf, Leads Generated, Widget Clicks, Landing Visits
+
+2e. ROLE PERSISTENCE — Confirm the dev role switcher stores selected role in localStorage 
+    under key 'nexxus-current-role' and that AppContext immediately re-renders all 
+    role-gated components on switch (not requiring a page reload).
+
+---
+
+## SECTION 3: CRITICAL DATA FLOW VALIDATION
+
+Read: server/routes.ts, server/storage.ts, client/src/pages/ (all), 
+client/src/hooks/ (all query hooks), client/src/lib/
+
+For each flow, trace from the UI component to the DB query and back.
+Report the full chain and identify any broken links.
+
+3a. MAIN PAGE PIPELINE METRICS (must be 100% real — confirmed in audit):
+    UI: pipelineData.activePipeline / appointmentsToday / openEscalations / outboundSent24h
+    → GET /api/metrics/pipeline
+    → storage.getPipelineMetrics()
+    Confirm: activePipeline queries warehouseLeads with 14-day window, excluding Lost/Sold/Duplicate
+    Confirm: appointmentsToday queries warehouseLeads for ACTIVE_SET_APPOINTMENT status synced today
+    Confirm: openEscalations queries tasks table (status=todo, type=escalation OR unsent_message)
+    Confirm: outboundSent24h queries outbound_log for sent messages in last 24h
+    VERIFY: All 4 tiles show real numbers, not hardcoded. Check that 'change' field is 
+    currently hardcoded to 'live' — confirm this is acceptable placeholder behavior.
+
+3b. SALES PAGE VIN LEADS METRICS (~80% real — 1 card still hardcoded):
+    Confirm: Total Leads, New Leads, Active Pipeline, Waiting on Response, Appointments Set, 
+    Sold, Conversion Rate → all sourced from GET /api/vin/leads/summary
+    Confirm: "Recent Activity" feed is STILL hardcoded inline (lines ~236-248 in sales.tsx)
+    Report exact line numbers and content of the hardcoded activity items.
+    Flag: Is this acceptable for current wave, or must it be wired before test run?
+
+3c. TEAMBOX DATA FLOW (must be 100% real):
+    Confirm: Conversations list → GET /api/conversations (with org scoping)
+    Confirm: Message thread → GET /api/conversations/:id/messages
+    Confirm: Reply → POST /api/conversations/:id/messages
+    Confirm: Take Over → PATCH /api/conversations/:id (status change to 'assigned')
+    Confirm: Take Over immediately stops AI responses (check flag on conversation record)
+    Confirm: Task creation from TeamBox → POST /api/tasks
+
+3d. MANAGEMENT HUNCHES (must be 100% real):
+    Confirm: Hunches list → GET /api/hunches (org-scoped)
+    Confirm: Acknowledge/Dismiss → PATCH /api/hunches/:id
+    Confirm: Generate Hunches → POST /api/hunches/generate (calls Claude API)
+    Confirm: Activities feed → GET /api/activity-log (NOT using staticActivityFeed hardcode)
+    CRITICAL CHECK: Verify TopBar activity feed is also wired to real API, not using 
+    staticActivityFeed hardcode (FP-2 from false positive inventory).
+
+3e. FALSE POSITIVE INVENTORY — For each of the 10 known false positives, verify current 
+    status in code (STILL FALSE POSITIVE / RESOLVED / PARTIALLY RESOLVED):
+    
+    FP-1: Insights page (insights.tsx) — confirm still 100% mock via @/lib/insight-data 
+          with zero useQuery calls
+    FP-2: TopBar activity feed — confirm whether still using staticActivityFeed hardcode
+    FP-3: My Work Chat tab (my-work.tsx) — confirm still importing mockConversations 
+          and mockTeamboxConversations
+    FP-4: Settings Widget fallback (settings.tsx) — confirm whether still defaulting to 
+          staticWidgets from @/lib/widget-types instead of real API
+    FP-5: Billing/Invoice features — confirm buttons still trigger "Not available in demo mode"
+    FP-6: Settings Tools section — confirm still showing "Demo mode" toasts (not wired)
+    FP-7: Knowledge Base URL features — confirm "Add URL" / "Scrape URL" still demo-only
+    FP-8: Marketing Studio tab — confirm still showing "Coming Soon" placeholder
+    FP-9: TeamBox file attachments — confirm still showing "File attachments coming soon" toast
+    FP-10: Chat Plus Menu (Upload/Document) — confirm still showing "Coming Soon" toasts
+
+    For each FP still present: flag as KNOWN PLACEHOLDER (acceptable) or UNEXPECTED GAP 
+    based on current wave scope.
+
+---
+
+## SECTION 4: AI CHAT & STREAMING SYSTEM
+
+Read: server/routes.ts (POST /api/chat/:conversationId/stream), 
+client/src/hooks/useStreamingChat.ts (or equivalent),
+server/replit_integrations/chat/routes.ts
+
+4a. HYBRID TOOL-USE PATTERN — Confirm the exact execution order:
+    Step 1: Non-streaming call to anthropic.messages.create() WITH tools: chatTools
+    Step 2: If no tool_use blocks → send text blocks as SSE immediately (not token-by-token)
+    Step 3: If tool_use → execute tools, up to MAX_TOOL_ROUNDS = 3
+    Step 4: After all tool rounds → call anthropic.messages.stream() for final response
+    Confirm: MAX_TOOL_ROUNDS constant exists and is set to 3.
+    Confirm: Tool definitions include web_search (Brave), vin_query_leads, vin_lead_summary.
+
+4b. MESSAGE PERSISTENCE TIMING — Confirm:
+    - User message is saved to DB BEFORE AI processing begins
+    - Assistant response is saved ONLY AFTER stream completes (known mid-stream loss risk)
+    - If stream fails mid-way, what is the error handling? Does the user see an error state?
+    - Is there any retry or recovery mechanism for failed streams?
+
+4c. SYSTEM PROMPT CONSTRUCTION — Confirm the prompt includes:
+    - Organization persona name (dynamic, from DB)
+    - Current user's name and role
+    - Team member list (from DB)
+    - Agent context (instructions + knowledge base up to 32KB) if agentId provided
+    - VinSolutions metrics context if available
+    - Hunch context if available
+    - CRM Guru mode triggers VIN as primary data source
+
+4d. SSE CLIENT HANDLING — Confirm the frontend useStreamingChat hook:
+    - Opens EventSource or fetch with ReadableStream to the stream endpoint
+    - Handles 'data: [DONE]' or equivalent termination signal
+    - Handles network errors gracefully with user-visible error state
+    - Does NOT leave hanging connections on component unmount
+    
+4e. TWO CLIENT INSTANCE SEPARATION — Confirm:
+    - Main app client: uses AI_INTEGRATIONS_ANTHROPIC_API_KEY, 4096 max tokens
+    - Replit integration client: same env vars, 8192 max tokens, pure SSE, in-memory storage
+    - Confirm Replit integration client in-memory chatStorage is NOT used for production 
+      persistence (it resets on server restart)
+
+---
+
+## SECTION 5: OUTBOUND COMMUNICATIONS & COMMGATE
+
+Read: server/outbound.ts, server/routes.ts (campaign routes 36-42, outbound route 80),
+server/storage.ts (outbound log methods)
+
+5a. COMMGATE 3-LAYER VALIDATION — Confirm checkCommGate() enforces ALL three checks 
+    in order before any message is sent:
+    Layer 1: Global environment gate — OUTBOUND_LIVE_ENABLED env var must === "true"
+    Layer 2: Organization gate — org.outbound_enabled must be true in DB
+    Layer 3: Per-channel gate — org.sms_enabled / org.email_enabled as appropriate
+    Confirm: If ANY layer fails, message is NOT sent, status logged as 'blocked', 
+    and an escalation task is created.
+
+5b. CAMPAIGN EXECUTION STATE — CRITICAL RISK:
+    Confirm activeExecutions is an in-memory Map (not persisted to DB).
+    Confirm: What happens to a campaign's execution state if the server restarts mid-campaign?
+    Report: Is there any resume/recovery logic, or does the campaign go permanently inconsistent?
+    Flag this as HIGH RISK if no recovery exists.
+
+5c. CAMPAIGN KILL SWITCH — Confirm:
+    - POST /api/campaigns/:id/stop correctly removes entry from activeExecutions Map
+    - The UI kill switch toggle (PATCH /api/campaigns/:id) sets active=false in DB
+    - Global communication gate toggle (in settings) updates org record in DB
+    - After global gate disable, confirm "Communications Paused" badge renders across all 
+      campaign pages (W1-AC-083b)
+
+5d. RATE LIMITING — Confirm:
+    - Per-contact rate limit of 3 messages per 24 hours is enforced
+    - Exceeding rate limit produces 'blocked' status in outbound_log and triggers escalation task
+    - Rate limit state is stored in DB (not in-memory) so it survives server restarts
+
+5e. VAPI OUTBOUND — KNOWN MOCK:
+    Confirm sendPhone() function only console.logs and does NOT call VAPI API for outbound dialing.
+    Report exact code path and log message.
+    Flag as KNOWN PLACEHOLDER — Voice outbound is not implemented.
+
+5f. TEXTMAGIC WEBHOOK SECURITY GAP:
+    Confirm POST /api/webhooks/textmagic has NO secret/signature validation — 
+    only IP rate limiting (30 req/min in-memory). 
+    Flag as SECURITY RISK: spoofed inbound SMS possible.
+    Report whether any HMAC or shared-secret check exists in the handler.
+
+5g. VAPI WEBHOOK VALIDATION:
+    Confirm POST /api/webhooks/vapi validates x-vapi-secret header OR Authorization header 
+    against VAPI_PRIVATE_KEY env var.
+    Confirm handler creates conversation + messages, attempts VinSolutions lead create/update,
+    and creates escalation task if VIN sync fails.
+    MULTI-TENANCY RISK: Confirm whether the webhook correctly identifies the target organization,
+    or whether it falls back to "first org in DB" when no agent/conversation match is found.
+
+---
+
+## SECTION 6: SCHEMA INTEGRITY & DATABASE
+
+Read: shared/schema.ts, server/storage.ts, server/seed.ts, migrations/
+
+6a. BASELINE SCHEMA MATCH — Confirm the current schema.ts matches the post-rollback baseline
+    (commit 58288b6). Specifically confirm:
+    - The agents table does NOT contain systemPrompt or createdBy columns 
+      (these were added in the contaminated session and reverted)
+    - Total table count is consistent with audited 22-table schema
+
+6b. CRITICAL FK RELATIONSHIPS — Validate the following cascade rules are correct:
+    - conversations → organizations (org deleted = conversations deleted or org-scoped)
+    - messages → conversations (conversation deleted = messages deleted)
+    - tasks → organizations + users (nullable assignee is correct)
+    - campaigns → organizations
+    - warehouse_leads → organizations
+    - sessions → users (user deleted = all sessions deleted)
+    Report any FK that is missing ON DELETE behavior where it should exist.
+
+6c. SEEDED DATA DEPENDENCIES — Confirm seed.ts creates the minimum required records:
+    - At least 1 organization with a valid slug
+    - At least 1 super_admin user with known credentials for testing
+    - Required roles (all 8) present in roles table
+    - At least 1 agent per department (for RBAC testing)
+    Report any missing seed data that would cause app to fail on fresh DB.
+
+6d. RLS STATUS — CONFIRMED MISSING:
+    Confirm that NO Row-Level Security policies exist on any table.
+    Report this as ARCHITECTURAL RISK: multi-tenancy enforced only at application level.
+    Identify the 3 highest-risk queries where a missing organizationId filter would 
+    expose cross-tenant data (e.g., GET /api/users, GET /api/conversations, GET /api/tasks).
+    For each: confirm the organizationId filter IS present in the storage method.
+
+6e. INDEX COVERAGE — For the following high-frequency query patterns, confirm indexes exist:
+    - sessions.refreshToken (used on every token refresh)
+    - sessions.userId (used on logout)
+    - conversations.organizationId (used on every TeamBox load)
+    - messages.conversationId (used on every thread open)
+    - warehouse_leads.organizationId + status (used for pipeline metrics)
+    - tasks.organizationId + status + type (used for escalation counts)
+    Report any missing index that would cause table scans on production-scale data.
+
+---
+
+## SECTION 7: SECURITY ARCHITECTURE GAPS
+
+Read: server/index.ts, server/routes.ts (middleware section), server/vendorProxy.ts
+
+7a. CORS CONFIGURATION:
+    Confirm whether CORS middleware exists. Report exact CORS settings.
+    Flag if no CORS middleware is present (app relies solely on same-origin serving).
+
+7b. CSRF PROTECTION:
+    Confirm whether any CSRF token mechanism exists for state-mutating requests.
+    Flag if absent — particularly risky for campaign kill switch and communication gate toggle.
+
+7c. SECURITY HEADERS:
+    Confirm whether Helmet or equivalent security headers middleware is configured.
+    Report which headers are present/absent: X-Frame-Options, X-Content-Type-Options, 
+    CSP, HSTS, Referrer-Policy.
+
+7d. RATE LIMITING RESILIENCE:
+    Confirm the in-memory rate limiting Maps for public routes will reset on server restart.
+    Identify all routes using in-memory rate limiting vs persistent rate limiting.
+    Flag this as KNOWN LIMITATION for distributed/multi-instance deployment.
+
+7e. FIRE-AND-FORGET OPERATIONS:
+    Identify all activity_log writes and notification sends that use fire-and-forget pattern.
+    Confirm these failures are silently swallowed (not propagated to user).
+    Report whether this is acceptable for audit trail integrity.
+
+7f. INVITE EMAIL SAFETY BYPASS:
+    Confirm POST /api/users/invite sends via Resend WITHOUT checking CommGate or kill switches.
+    Flag as KNOWN BYPASS — user invite emails are not subject to outbound safety controls.
+    Report whether this is intentional.
+
+---
+
+## SECTION 8: FRONTEND MOCK/REAL STATUS VERIFICATION
+
+Read: client/src/mocks/ (all 12 files), client/src/lib/insight-data.ts,
+client/src/pages/insights.tsx, client/src/pages/my-work.tsx,
+client/src/pages/billing-management.tsx, client/src/pages/profile.tsx,
+client/src/components/widget/ (widget landing components)
+
+8a. MOCK FILE INVENTORY — List all 12 files in client/src/mocks/ and for each:
+    - Is it currently imported by any production page/component?
+    - If yes, which pages import it and what data does it provide?
+    - If no, it is orphaned and safe to delete
+    Specifically confirm: mockConversations and mockTeamboxConversations are still 
+    imported in my-work.tsx (FP-3)
+
+8b. INSIGHT-DATA.TS SCOPE:
+    Confirm client/src/lib/insight-data.ts contains 700+ lines of static mock data.
+    List the top 10 named exports and what data each represents.
+    Confirm insights.tsx imports from this file exclusively (no useQuery calls).
+
+8c. SETTINGS HYBRID STATE:
+    Enumerate the exact sections in settings.tsx that are:
+    REAL (wired to backend): User management, Org settings, Widget CRUD, Document management, 
+    Integration provisioning
+    DEMO (toast-only, not persisted): AI behavior, Knowledge Base, Security settings, 
+    Notification preferences, Webhook config, Skills, Tool toggles
+    
+    For each DEMO section, confirm the user-facing experience shows appropriate "demo mode" 
+    messaging so users are not confused by apparent saves that don't persist.
+
+8d. ORG WIZARD VALIDATION:
+    Confirm OrgWizardPage "Create Organization" button does NOT call any API endpoint.
+    Confirm it only shows a toast + redirect.
+    Flag as KNOWN PLACEHOLDER if this is intentional for current wave.
+
+8e. WIDGET LANDING SIMULATION:
+    Confirm chat widget uses setTimeout (1500ms) for simulated AI response.
+    Confirm contact form does NOT POST to any backend endpoint.
+    Confirm voice/video modes have no actual WebRTC or VAPI connection.
+
+---
+
+## SECTION 9: ERROR HANDLING & RESILIENCE
+
+Read: all server route handlers, client/src/hooks/ (error handling), 
+client/src/components/ui/toast (or equivalent)
+
+9a. GLOBAL ERROR BOUNDARY:
+    Confirm a React Error Boundary exists at the app root level.
+    Confirm it renders a user-friendly fallback UI rather than a blank/crashed screen.
+    Confirm it does NOT expose stack traces to end users in production mode.
+
+9b. API ERROR RESPONSES:
+    Confirm all route handlers return consistent error shapes: { error: string, code?: string }
+    Confirm 400 vs 401 vs 403 vs 404 vs 500 are used semantically correctly.
+    Spot-check 5 routes for error handling: login, campaigns/:id/execute, 
+    chat/:conversationId/stream, webhooks/vapi, metrics/pipeline.
+
+9c. FORM VALIDATION (CC-AC-500):
+    Confirm client-side validation fires before form submission (not only on server).
+    Confirm Zod schemas on the server-side match the client-side field requirements for:
+    - User invite form
+    - Campaign creation form
+    - Agent creation/edit form
+    - Organization settings form
+
+9d. TOAST NOTIFICATIONS (CC-AC-500):
+    Confirm success/error/warning toasts appear for all major user actions:
+    - Message sent in chat
+    - Campaign started/stopped
+    - Kill switch toggled
+    - User invited
+    - Agent saved
+    Report any action that mutates data without any user feedback.
+
+9e. LOADING STATES (W2-AC-200b):
+    Confirm loading skeletons or spinners render while API queries are pending for:
+    - TeamBox conversation list
+    - Pipeline metric tiles on main page
+    - Agent list in sub-menu panels
+    - Hunch cards on management page
+    Report any page that renders empty state rather than loading state during fetch.
+
+---
+
+## SECTION 10: ACCEPTANCE CRITERIA SPOT-CHECK (FUNCTIONAL ONLY)
+
+Using ACCEPTANCE_CRITERIA.md as reference, validate these specific functional (non-visual) criteria:
+
+10a. W1-AC-051d: Individual campaign kill switch — Toggle sets active=false in DB AND 
+     immediately halts active execution if campaign is running.
+
+10b. W1-AC-083a: Global communication gate toggle — PATCH to org settings sets 
+     outbound_enabled=false AND every subsequent campaign execution check returns blocked.
+
+10c. W1-AC-083b: "Communications Paused" badge — Verify it renders on campaign pages 
+     when global gate is disabled. Trace the data flow: org setting → API response → 
+     UI conditional render.
+
+10d. W1-AC-024a: Human takeover — "Take Over" button changes conversation.assignedTo 
+     to current user AND sets a flag that pauses AI responses for that conversation.
+     Confirm AI chat endpoint checks this flag before processing messages.
+
+10e. W1-AC-120e: Favorites persistence — Star toggle persists across navigation within 
+     the session. Confirm storage mechanism (localStorage, sessionStorage, or AppContext).
+     Confirm AI Chat sub-menu panel updates immediately on star action.
+
+10f. W1-AC-003k: Role switcher localStorage persistence — Selected role survives page 
+     navigation (not just component re-render).
+
+10g. CC-AC-501: AppContext state completeness — Confirm AppContext provides at minimum:
+     currentRole, currentOrganization, currentUser, selectedAgent, favorites array.
+     Confirm switching organization immediately invalidates all cached queries 
+     (queryClient.invalidateQueries or equivalent).
+
+10h. CC-AC-502: Zero console errors — Run a mental trace of the app startup sequence.
+     Identify any known sources of: React key warnings, missing prop warnings, 
+     unhandled promise rejections, or hydration mismatches.
+
+---
+
+## SECTION 11: GOVERNANCE CONFLICT RESOLUTION (for this pass only)
+
+The following conflicts exist between governing documents. For this validation pass, 
+use these resolutions:
+
+CONFLICT 1 — Competing Acceptance Criteria documents:
+→ USE root ACCEPTANCE_CRITERIA.md for Wave 1 functional criteria
+→ USE .agent_docs/acceptance_criteria.md for behavioral contracts in Given/When/Then format
+→ When they conflict: REPORT the conflict, do NOT silently pick one
+
+CONFLICT 2 — Widget channels (7 vs 4):
+→ Use current UI code as ground truth. Report how many channels are actually rendered.
+
+CONFLICT 3 — RBAC role count (4 vs 8 in SRS):
+→ 8 roles is correct. SRS §1.2 is stale. Use the 8-role matrix throughout.
+
+CONFLICT 4 — Safety layers (3 vs 4 vs 5):
+→ Validate what the CODE actually enforces. Report the actual layer count implemented.
+
+CONFLICT 5 — SPEC.md architecture:
+→ IGNORE SPEC.md entirely for this pass. It describes Wave 0 state (1 table, no routes).
+→ Use schema_catalog.md and api_catalog.md as schema/route ground truth.
+
+CONFLICT 6 — Wave completion claims:
+→ Trust Sprint_log.md execution sections and actual code over PLAN.md summary table.
+→ Treat Wave 3.5 criteria (all unchecked in PLAN.md) as unverified until code confirms.
+
+---
+
+## VALIDATION REPORT FORMAT
+
+Produce your output in this exact structure:
+
+### EXECUTIVE SUMMARY
+- Total items validated: [N]
+- PASS: [N] | FAIL: [N] | STUB/PLACEHOLDER: [N] | RISK: [N] | BLOCKER: [N]
+- Critical blockers preventing final test run: [list]
+- High-risk items that should be resolved before production: [list]
+- Acceptable placeholders for current wave scope: [list]
+
+### SECTION-BY-SECTION FINDINGS
+[For each of Sections 1–10, list each validation point with status and evidence]
+
+### FALSE POSITIVE STATUS TABLE
+[FP-1 through FP-10 with current status]
+
+### MOCK/REAL DATA MATRIX
+[Update the audit's 32% real / 68% mock split based on current code state]
+
+### TOP 5 THINGS TO FIX BEFORE FINAL CODING RUN
+[Ranked by severity and ease of fix]
+
+### CONFIRMED SAFE TO PROCEED
+[Items confirmed clean that do NOT need attention in the final run]
+
+### DEFERRED ITEMS (acceptable for current wave)
+[Items that are known gaps but explicitly out of scope for this wave]
+📋 How to Use This Prompt
+Here's a breakdown of what each section targets and why it's structured the way it is:
+
+Section	Why It's Critical
+§1 Auth	Forgot-password and reset-password are confirmed stubs — critical for production readiness
+§2 RBAC	6 routes have missing role gates confirmed in audit — campaign kill switch is unguarded
+§3 Data Flows	68% of metrics are still mock; FP inventory has 10 known false completions
+§4 AI Streaming	Mid-stream data loss on server crash is unhandled; in-memory Replit client is a trap
+§5 CommGate	In-memory campaign state lost on restart; TextMagic webhook has zero signature validation
+§6 Schema	No RLS anywhere — entire multi-tenancy depends on app-code filters being correct
+§7 Security	No CORS, no CSRF, no Helmet — these are blanket gaps across the entire API surface
+§8 Mock State	12 mock files, insight-data.ts has 700+ lines of static data still in production pages
+§9 Resilience	Fire-and-forget activity logs mean audit trail has silent gaps
+§10 AC Spot-Check	Validates the 7 most critical functional (not visual) criteria that are hardest to see break
+§11 Governance	Prevents your agent from getting confused between the 5+ conflicting document versions
+The governance conflict resolution section (§11) is particularly important — without it, a coding agent will oscillate between SPEC.md (describing Wave 0, 1 table) and the real codebase (22 tables, 50+ routes) and produce contradictory findings or even regress working code.
