@@ -132,6 +132,7 @@ server/
 ├── sync.ts                    # VinSolutions data sync service
 ├── braveSearch.ts             # Brave Search API integration
 ├── vendorProxy.ts             # Vendor API proxy (Tavus, etc.)
+├── central-mcp (external)     # MCP server for VinSolutions connectivity
 ├── static.ts                  # Static file serving
 └── vite.ts                    # Vite dev server integration (DO NOT MODIFY)
 
