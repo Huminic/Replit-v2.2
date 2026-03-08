@@ -92,7 +92,7 @@ async function vapiGet(path: string) {
   return res.json();
 }
 
-async function vapiPost(path: string, body: unknown) {
+export async function vapiPost(path: string, body: unknown) {
   const res = await fetch(`${VAPI_BASE}${path}`, {
     method: "POST",
     headers: {
@@ -113,6 +113,21 @@ async function tavusGet(path: string) {
     },
   });
   if (!res.ok) throw new Error(`Tavus ${path}: ${res.status}`);
+  return res.json();
+}
+
+async function tavusPost(path: string, body: unknown) {
+  const apiKey = process.env.TAVUS_API_KEY;
+  if (!apiKey) throw new Error("TAVUS_API_KEY is not configured");
+  const res = await fetch(`${TAVUS_BASE}${path}`, {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Tavus POST ${path}: ${res.status}`);
   return res.json();
 }
 
@@ -266,6 +281,28 @@ export function registerVendorRoutes(app: Express) {
       return res.json(replicas);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch Tavus replicas", error: err.message });
+    }
+  });
+
+  app.post("/api/tavus/conversations", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      const { personaId, visitorName } = req.body;
+      if (!personaId) {
+        return res.status(400).json({ message: "personaId is required" });
+      }
+      const payload: Record<string, unknown> = { persona_id: personaId };
+      if (visitorName) {
+        payload.conversation_name = `Session with ${visitorName}`;
+        payload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
+      }
+      const data = await tavusPost("/conversations", payload);
+      return res.json({
+        conversationId: data.conversation_id,
+        conversationUrl: data.conversation_url,
+        status: data.status,
+      });
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to create Tavus conversation", error: err.message });
     }
   });
 

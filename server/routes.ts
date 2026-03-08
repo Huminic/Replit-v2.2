@@ -1095,6 +1095,61 @@ export async function registerRoutes(
 
   registerVendorRoutes(app);
 
+  app.post("/api/widget/video-session", async (req, res) => {
+    try {
+      const { widgetCode, visitorName } = req.body;
+      if (!widgetCode) {
+        return res.status(400).json({ message: "widgetCode is required" });
+      }
+
+      const widget = await storage.getWidgetByCode(widgetCode);
+      if (!widget) {
+        return res.status(404).json({ message: "Widget not found" });
+      }
+
+      const orgAgents = await storage.getAgents(widget.organizationId);
+      const agentWithTavus = orgAgents.find((a) => a.tavusPersonaId);
+      if (!agentWithTavus || !agentWithTavus.tavusPersonaId) {
+        return res.status(400).json({ message: "No Tavus persona configured for this organization" });
+      }
+
+      const tavusApiKey = process.env.TAVUS_API_KEY;
+      if (!tavusApiKey) {
+        return res.status(500).json({ message: "TAVUS_API_KEY is not configured" });
+      }
+
+      const payload: Record<string, unknown> = { persona_id: agentWithTavus.tavusPersonaId };
+      if (visitorName) {
+        payload.conversation_name = `Widget session with ${visitorName}`;
+        payload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
+      }
+
+      const tavusRes = await fetch("https://tavusapi.com/v2/conversations", {
+        method: "POST",
+        headers: {
+          "x-api-key": tavusApiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!tavusRes.ok) {
+        const errText = await tavusRes.text();
+        return res.status(502).json({ message: "Failed to create Tavus conversation", error: errText });
+      }
+
+      const data = await tavusRes.json();
+      return res.json({
+        conversationId: data.conversation_id,
+        conversationUrl: data.conversation_url,
+        status: data.status,
+      });
+    } catch (err: any) {
+      console.error("[WIDGET] Video session error:", err);
+      return res.status(500).json({ message: "Failed to create video session", error: err.message });
+    }
+  });
+
   app.patch("/api/campaigns/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -2853,12 +2908,21 @@ Return ONLY the JSON array, no other text.`,
     }
   }, 60000);
 
+  async function resolveOrgBySlug(slug: string) {
+    let org = await storage.getOrganizationBySlug(slug);
+    if (!org && slug === "demo") {
+      const allOrgs = await storage.getOrganizations();
+      if (allOrgs.length > 0) org = allOrgs[0];
+    }
+    return org;
+  }
+
   app.get("/api/public/landing/:slug", async (req, res) => {
     const ip = req.ip || req.socket.remoteAddress || "unknown";
     if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
     try {
       const slug = req.params.slug;
-      let org = await storage.getOrganizationBySlug(slug);
+      let org = await resolveOrgBySlug(slug);
       if (!org) {
         const redirect = await storage.getSlugRedirect(slug);
         if (redirect) {
@@ -2874,6 +2938,82 @@ Return ONLY the JSON array, no other text.`,
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to load landing page" });
+    }
+  });
+
+  app.post("/api/widget/contact", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
+    try {
+      const { widgetCode, slug, name, email, phone, message } = req.body;
+      if (!name || !email || !message) {
+        return res.status(400).json({ message: "Name, email, and message are required" });
+      }
+
+      let org;
+      if (widgetCode) {
+        const allOrgs = await storage.getOrganizations();
+        for (const o of allOrgs) {
+          const orgWidgets = await storage.getWidgets(o.id);
+          if (orgWidgets.find(w => w.widgetCode === widgetCode)) {
+            org = o;
+            break;
+          }
+        }
+      } else if (slug) {
+        org = await resolveOrgBySlug(slug);
+      }
+
+      if (!org) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      const conversation = await storage.createConversation({
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone || null,
+        channel: "form",
+        status: "open",
+        organizationId: org.id,
+        unreadCount: 1,
+        lastMessageAt: new Date(),
+      });
+
+      const formContent = `Contact Form Submission\n\nName: ${name}\nEmail: ${email}${phone ? `\nPhone: ${phone}` : ""}\n\nMessage:\n${message}`;
+
+      await storage.createMessage({
+        conversationId: conversation.id,
+        role: "user",
+        content: formContent,
+        senderName: name,
+      });
+
+      return res.json({ success: true, conversationId: conversation.id });
+    } catch (err) {
+      console.error("Widget contact error:", err);
+      return res.status(500).json({ message: "Failed to submit contact form" });
+    }
+  });
+
+  app.get("/api/widget/voice-config/:slug", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
+    try {
+      const org = await resolveOrgBySlug(req.params.slug);
+      if (!org) return res.status(404).json({ message: "Organization not found" });
+
+      const agents = await storage.getAgents(org.id);
+      const voiceAgent = agents.find(a => a.vapiAssistantId && a.status === "active");
+      const videoAgent = agents.find(a => (a as any).tavusPersonaId && a.status === "active");
+
+      return res.json({
+        vapiAssistantId: voiceAgent?.vapiAssistantId || null,
+        tavusPersonaId: (videoAgent as any)?.tavusPersonaId || null,
+        orgName: org.name,
+        personaName: org.personaName,
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to load voice config" });
     }
   });
 
@@ -2905,6 +3045,89 @@ Return ONLY the JSON array, no other text.`,
       return res.status(404).json({ message: "Widget not found" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to load widget config" });
+    }
+  });
+
+  app.post("/api/widget/chat", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
+    try {
+      const { slug, message, conversationId } = req.body;
+      if (!slug || !message) {
+        return res.status(400).json({ message: "slug and message are required" });
+      }
+
+      const org = await resolveOrgBySlug(slug);
+      if (!org) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      let conversation;
+      if (conversationId) {
+        conversation = await storage.getConversation(conversationId);
+        if (!conversation || conversation.organizationId !== org.id) {
+          return res.status(404).json({ message: "Conversation not found" });
+        }
+      } else {
+        conversation = await storage.createConversation({
+          customerName: "Website Visitor",
+          channel: "chat",
+          status: "open",
+          organizationId: org.id,
+          unreadCount: 1,
+          lastMessageAt: new Date(),
+        });
+      }
+
+      await storage.createMessage({
+        conversationId: conversation.id,
+        role: "user",
+        content: message,
+        senderName: "Website Visitor",
+      });
+
+      const existingMessages = await storage.getMessages(conversation.id);
+      const claudeMessages = existingMessages.map(m => ({
+        role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
+        content: m.content,
+      }));
+
+      let aiResponse = "I'm sorry, I'm unable to respond right now. Please try again later.";
+      try {
+        const systemPrompt = `You are ${org.personaName}, an AI concierge for ${org.name}. You are helpful, friendly, and professional. Help website visitors with their questions about the dealership, vehicles, services, and appointments. Keep responses concise and conversational.`;
+        const claudeResult = await anthropic.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 300,
+          system: systemPrompt,
+          messages: claudeMessages,
+        });
+        const textBlock = claudeResult.content.find(b => b.type === "text");
+        if (textBlock && textBlock.type === "text") {
+          aiResponse = textBlock.text;
+        }
+      } catch (aiErr) {
+        console.error("[WidgetChat] Claude API error:", aiErr);
+      }
+
+      await storage.createMessage({
+        conversationId: conversation.id,
+        role: "assistant",
+        content: aiResponse,
+        senderName: org.personaName,
+      });
+
+      await storage.updateConversation(conversation.id, {
+        lastMessageAt: new Date(),
+        unreadCount: (conversation.unreadCount || 0) + 1,
+      });
+
+      return res.json({
+        conversationId: conversation.id,
+        response: aiResponse,
+      });
+    } catch (err) {
+      console.error("[WidgetChat] Error:", err);
+      return res.status(500).json({ message: "Failed to process chat message" });
     }
   });
 
