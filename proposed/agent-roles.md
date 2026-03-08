@@ -36,7 +36,7 @@
 - WRITE: `shared/schema.ts`, `server/*.ts` (except `vite.ts`), `client/src/**/*.tsx`, `client/src/**/*.ts`
 - WRITE: `ISSUES.md`, `MEMORY.md` (living documents)
 - NEVER: `server/vite.ts`, `vite.config.ts`, `drizzle.config.ts`, `package.json`, `client/src/components/ui/**`
-- NEVER: Governance documents (PLAN.md, GUARDRAILS.md, CLAUDE.md, replit.md, ACCEPTANCE_CRITERIA.md)
+- NEVER: Governance documents (PLAN.md, GUARDRAILS.md, replit.md, ACCEPTANCE_CRITERIA.md)
 
 **Stop conditions:**
 - Must stop after completing a sweep task and self-certify
