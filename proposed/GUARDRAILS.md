@@ -102,7 +102,6 @@ The following files are governance documents subject to this rule:
 - PLAN.md
 - GUARDRAILS.md
 - replit.md
-- CLAUDE.md
 - ACCEPTANCE_CRITERIA.md
 - proposed/agent-roles.md (or its promoted location)
 - Any file explicitly marked as governance in replit.md

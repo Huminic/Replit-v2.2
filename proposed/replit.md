@@ -49,7 +49,7 @@ Preferred communication style: Simple, everyday language.
 | File | Purpose | Status |
 |------|---------|--------|
 | `PLAN.md` | Forward roadmap with Phases | Governance — requires promotion workflow to modify |
-| `GUARDRAILS.md` | Agent rules (R1-R11) and constraints | Governance — requires promotion workflow to modify |
+| `GUARDRAILS.md` | Agent rules (R1-R12) and constraints | Governance — requires promotion workflow to modify |
 | `CLAUDE.md` | RETIRED — contents merged into replit.md (Sweep 3E) | Deleted |
 | `ACCEPTANCE_CRITERIA.md` | Canonical requirements (T2 authority) | Governance — requires promotion workflow to modify |
 | `proposed/agent-roles.md` | Agent role definitions and file scope | Governance — requires promotion workflow to modify |
