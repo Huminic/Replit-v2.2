@@ -1,5 +1,9 @@
+> **NOTE: This is NOT the canonical AC source.** The canonical source is root `ACCEPTANCE_CRITERIA.md` (per owner decision, Sweep 1B).
+> This file is a derived verification/test layer. Conflicts between this file and root ACCEPTANCE_CRITERIA.md are resolved per the canonical AC.
+> Updated during Sweep 0 (Stabilization Plan) to correct the "SINGLE SOURCE OF TRUTH" claim.
+
 # .agent_docs/acceptance_criteria.md — Nexxus v2.2
-# SINGLE SOURCE OF TRUTH FOR ALL ACCEPTANCE CRITERIA
+# DERIVED VERIFICATION/TEST LAYER — canonical AC source is root ACCEPTANCE_CRITERIA.md
 # This file is READ-ONLY to all agents. Owner changes only. chmod 444 after deployment.
 # Format: Given / When / Then — each item maps 1:1 to a test in spec.ts
 # Every AC item MUST have a corresponding test. No AC without a test. No test without an AC.
