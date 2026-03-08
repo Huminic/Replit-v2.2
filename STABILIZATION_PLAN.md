@@ -3,7 +3,7 @@
 **Status:** PROPOSED — not authoritative until explicitly approved
 **Date:** 2026-03-07
 **Baseline:** Commit `58288b6`
-**Source:** Synthesis of 8 audit artifacts, GAPS.md (80 items), and 3 rounds of owner review
+**Source:** Synthesis of 8 audit artifacts, GAPS.md (80 items, to be merged into ISSUES.md), and 3 rounds of owner review
 
 ---
 
@@ -164,7 +164,7 @@ The following truth hierarchy governs all contradiction resolution:
 | 2 | Canonical AC (`ACCEPTANCE_CRITERIA.md`) | Verifiable requirements and behaviors |
 | 3 | Approved PLAN (stabilization roadmap) | Development sequencing, phase gates, task definitions |
 | 4 | Contracts/Schema (`shared/schema.ts`, `server/storage.ts`, API routes) | Data shapes, endpoint contracts, persistence model |
-| 5 | Audit artifacts (`audits/` folder, Unified Gap Register) | Findings of record, gap status |
+| 5 | Audit artifacts (`audits/` folder, `ISSUES.md`) | Findings of record, gap/issue status |
 | 6 | Quarantined documents | Reference only — not authoritative for any decision |
 
 This replaces all prior truth hierarchy declarations in CLAUDE.md, replit.md, and operational-context.md.
@@ -216,22 +216,33 @@ Conflict resolution table (applying truth hierarchy — runtime UI is T1, canoni
 
 **Objective:** Merge all audit findings into one place and establish the canonical traceability chains.
 
-### Step 2A — Unified Gap Register
+### Step 2A — Create ISSUES.md (Living Issue Tracker)
 
-Merge into a single document:
+Create `ISSUES.md` at root as the single living tracker for all gaps, bugs, and problems. Initial population merges:
 - GAPS.md (80 items across 7 categories)
 - 10 architectural contradictions (with resolutions from Sweep 1)
 - 10 false positive features (from verification audit)
 
-Each gap tagged with:
+GAPS.md is retired after merge — ISSUES.md replaces it as the canonical tracker.
+
+ISSUES.md is a living document: new issues are added as they are discovered during coding, testing, or review. Issues are organized into groups:
+- **Governance (GOV)** — document conflicts, stale references, missing governance artifacts
+- **Schema (SCH)** — missing tables/columns, dual schema conflicts, migration gaps
+- **API & Backend (API)** — stub routes, missing endpoints, state persistence, security
+- **Frontend & UI (UI)** — mock data, demo-mode placeholders, unwired features
+- **AI/Chat/Outbound (AIO)** — integration stubs, channel wiring, safety layer gaps
+- **Metrics (MET)** — mock/static data in tiles and charts, missing computations
+- **Verification (VER)** — false positives, missing test coverage, stale claims
+
+Each issue tagged with:
 - Severity (HIGH / MEDIUM / LOW)
 - Category (GOV / SCH / API / UI / AIO / MET / VER)
 - RC-blocking (yes / no)
 - Related AC ID(s) from canonical ACCEPTANCE_CRITERIA.md
-- Related PLAN sweep/task
+- Related PLAN phase/sweep reference
 - Current status (OPEN / IN-PROGRESS / RESOLVED)
 
-No gap may be marked RESOLVED without evidence and owner approval (per GUARDRAILS R4).
+No issue may be marked RESOLVED without evidence and owner approval (per GUARDRAILS R4).
 
 ### Step 2B — Continuity Matrix
 
@@ -242,7 +253,7 @@ The canonical traceability chain linking every RC-required UI surface through th
 
 Rules:
 - Every UI surface that ships in RC must have a complete row
-- Gaps in any column are flagged as open items in the Unified Gap Register
+- Gaps in any column are flagged as open items in ISSUES.md
 - The chain must make it possible to trace from any UI element to its verification test and back
 
 Example rows (to be completed in execution):
@@ -282,7 +293,7 @@ Example rows (to be completed in execution):
 | Service — Reply Rate | /api/metrics/dashboard | getDashboardMetrics() | campaigns | replied/sent*100 | percentage | derived | pending |
 
 **Outputs:**
-- Unified Gap Register
+- ISSUES.md (living issue tracker, initially populated from GAPS.md + contradictions + false positives)
 - Continuity Matrix
 - Observability Matrix
 
@@ -298,7 +309,7 @@ Example rows (to be completed in execution):
 - Truth Hierarchy Declaration (Sweep 1A)
 - AC Reconciliation Table (Sweep 1B)
 - Chat Architecture Decision Record (Sweep 1C)
-- Unified Gap Register (Sweep 2A)
+- ISSUES.md (Sweep 2A)
 - Continuity Matrix (Sweep 2B)
 - Observability Matrix (Sweep 2C)
 
@@ -362,12 +373,30 @@ If a governance document appears to have been modified without the promotion wor
 
 ### Step 3A — Rebuild replit.md
 
-Rewrite as a session index:
-- Every governance file listed with: purpose, status (live / proposed / quarantined), enforcement scope
+Rewrite as a session index — the "table of contents" that every agent session loads first.
+
+Must explicitly reference all of the following files with purpose, status, and enforcement scope:
+
+| File | Purpose | Status Category |
+|---|---|---|
+| `STABILIZATION_PLAN.md` | Stabilization roadmap (sweeps) | Live |
+| `PLAN.md` | Forward roadmap (phases) | Governance — promotion workflow |
+| `GUARDRAILS.md` | Agent rules and constraints | Governance — promotion workflow |
+| `CLAUDE.md` | Agent context and project structure | Governance — promotion workflow |
+| `ACCEPTANCE_CRITERIA.md` | Canonical requirements | Governance — promotion workflow |
+| `ISSUES.md` | Living issue tracker (gaps, bugs, problems) | Living document — updated during work |
+| `shared/schema.ts` | Canonical data model | Contract |
+| `server/storage.ts` | Storage interface | Contract |
+| `server/routes.ts` | API routes | Contract |
+| Agent-roles document | Agent scope and controls | Governance — promotion workflow |
+| `audits/` folder | Audit findings of record | Reference (frozen) |
+| Quarantined documents | Stale/retired docs | Quarantined — reference only |
+
+Additional sections:
 - Truth hierarchy (from Sweep 1A)
-- Canonical identity model
+- Canonical identity model (org-centered tenancy)
+- Terminology key: Waves = old PLAN.md, Sweeps = stabilization, Phases = new PLAN.md
 - Project architecture summary
-- This becomes the "table of contents" that every agent session loads first
 
 ### Step 3B — Rebuild PLAN.md
 
@@ -655,7 +684,7 @@ A single artifact containing:
 |---|---|
 | AC Pass/Fail Summary | From Continuity Matrix — which ACs pass, which fail, which are deferred with justification |
 | Release-Critical Integrations | Status of VAPI (voice), Tavus (video), TextMagic (SMS), Resend (email), VinSolutions (CRM) |
-| Open Critical Gaps | From Unified Gap Register — any remaining HIGH severity items |
+| Open Critical Issues | From ISSUES.md — any remaining HIGH severity items |
 | Risk Summary | Residual risks, mitigations in place, risks accepted |
 | Continuity Coverage | % of UI surfaces with complete traceability chain |
 | Observability Coverage | % of displayed values with verified data lineage |
@@ -702,7 +731,7 @@ Items deferred beyond the RC milestone:
 | Truth Hierarchy Declaration | Sweep 1A | Single-page canonical source-of-truth order |
 | AC Reconciliation Table | Sweep 1B | Conflict-by-conflict resolution of the two AC documents |
 | Chat Architecture Decision Record | Sweep 1C | Canonical chat model, evaluation criteria, Replit integration disposition |
-| Unified Gap Register | Sweep 2A | All 80+ gaps, risk-ranked, with AC traceability and RC-blocking flags |
+| ISSUES.md | Sweep 2A | Living issue tracker — all gaps, bugs, problems; risk-ranked, with AC traceability and RC-blocking flags |
 | Continuity Matrix | Sweep 2B | UI surface → AC ID → PLAN task → endpoint → data source → verification method |
 | Observability Matrix | Sweep 2C | UI surface → endpoint → handler → table → computation → displayed value → data type → test status |
 | Stabilization Blueprint | Sweep 2.5 | Synthesis of Sweep 1-2 outputs into remediation strategy |
