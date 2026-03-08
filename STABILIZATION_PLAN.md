@@ -268,8 +268,8 @@ Example rows (to be completed in execution):
 
 The data lineage traceability linking every displayed value to its source and verification:
 
-| UI Surface | Endpoint | Handler/Service | Table/Source | Computation/Transform | Displayed Value | Data Type | Test Status |
-|---|---|---|---|---|---|---|---|
+| UI Surface | Endpoint | Handler/Service | Table/Source | Computation/Transform | Displayed Value | Data Type | Owner Test | Test Status |
+|---|---|---|---|---|---|---|---|---|
 
 Data Type values:
 - **real** — computed from database tables via API
@@ -277,20 +277,28 @@ Data Type values:
 - **mock** — imported from mock files or lib re-exports of mock data
 - **static** — hardcoded inline in component
 
+Owner Test values:
+- **OWNER-TEST** — this data flow requires live human interaction to verify (SMS delivery, voice call, email receipt, widget interaction, etc.). These rows are tested by the owner in Sweep 7.5.
+- *(blank)* — can be verified through automated tests or agent-driven checks
+
 Rules:
 - Every metric tile, data table, chart, and interactive element gets a row
 - "mock" or "static" in Data Type = gap that must be resolved before RC (or explicitly deferred with justification)
 - Each row must eventually map to a verification test or verification method (generated in Sweep 4)
+- Rows flagged OWNER-TEST must be verified during Sweep 7.5 (Owner Live Testing Session)
 - This matrix becomes a permanent release discipline artifact — not a one-time exercise
 
 Example rows (to be completed in execution):
 
-| UI Surface | Endpoint | Handler | Table | Transform | Value | Type | Test |
-|---|---|---|---|---|---|---|---|
-| Main — Active Pipeline | /api/metrics/pipeline | getPipelineMetrics() | warehouse_leads | COUNT where created 14d, excl Lost/Sold/Dup | integer | real | pending |
-| Insights — Leads Chart | none | none | none | none | static array | mock | FAIL — must wire |
-| Sales — Recent Activity | none | none | none | none | 5 hardcoded items | static | FAIL — must wire |
-| Service — Reply Rate | /api/metrics/dashboard | getDashboardMetrics() | campaigns | replied/sent*100 | percentage | derived | pending |
+| UI Surface | Endpoint | Handler | Table | Transform | Value | Type | Owner Test | Test |
+|---|---|---|---|---|---|---|---|---|
+| Main — Active Pipeline | /api/metrics/pipeline | getPipelineMetrics() | warehouse_leads | COUNT where created 14d, excl Lost/Sold/Dup | integer | real | | pending |
+| Insights — Leads Chart | none | none | none | none | static array | mock | | FAIL — must wire |
+| Widget — Contact Form | POST /api/widget/contact | createWidgetContact() | conversations | create conversation + first message | conversation ID | real | OWNER-TEST | pending |
+| Outbound — SMS Delivery | POST /api/outbound/sms | sendSms() | outbound_log + TextMagic | send via TextMagic API | delivery status | real | OWNER-TEST | pending |
+| Outbound — Email Delivery | POST /api/outbound/email | sendEmail() | outbound_log + Resend | send via Resend API | delivery status | real | OWNER-TEST | pending |
+| Inbound — Voice Call | VAPI webhook | handleVapiWebhook() | conversations | create/update conversation from inbound call | conversation record | real | OWNER-TEST | pending |
+| Service — Reply Rate | /api/metrics/dashboard | getDashboardMetrics() | campaigns | replied/sent*100 | percentage | derived | | pending |
 
 **Outputs:**
 - ISSUES.md (living issue tracker, initially populated from GAPS.md + contradictions + false positives)
@@ -625,6 +633,60 @@ Known demo-mode actions from audit:
 
 ---
 
+## Sweep 7.5 — Owner Live Testing Session
+
+**Objective:** Owner personally exercises every real data flow end-to-end, on computer and phone, to verify that integrations work with real human interaction. This is the point where the owner sits down and acts as a customer, a lead, an agent, and a manager.
+
+**Why this exists:** Automated tests and agent-driven verification can confirm code paths and API responses, but they cannot confirm that a real person receives a real text message, hears a real voice call, sees a real email arrive, or experiences a real video interaction. This sweep is the human-in-the-loop validation that no automated process can replace.
+
+**Prerequisites (must be complete before this sweep begins):**
+- Sweep 5 (schema/backend) complete — all persistence is real
+- Sweep 6 (frontend) complete — all mock data removed from RC paths
+- Sweep 7 (integrations) complete — VAPI, Tavus, TextMagic, Resend all wired
+
+**What the owner will test:**
+
+### 7.5.1 — Widget & Inbound Flows (owner acts as customer)
+- [ ] Open widget landing page on phone browser
+- [ ] Fill out contact form → verify it creates a real conversation in TeamBox
+- [ ] Start a web chat through widget → verify messages appear in TeamBox in real time
+- [ ] Initiate a voice call through widget → verify VAPI handles it → verify conversation appears in TeamBox
+- [ ] Initiate a video session through widget → verify Tavus handles it → verify conversation appears in TeamBox
+
+### 7.5.2 — Outbound Flows (owner acts as agent/manager)
+- [ ] Send an outbound SMS campaign → verify TextMagic delivers it → verify owner's phone receives the text
+- [ ] Reply to the SMS from phone → verify TextMagic webhook fires → verify reply appears in conversation
+- [ ] Send an outbound email → verify Resend delivers it → verify owner's inbox receives the email
+- [ ] Initiate an outbound voice call → verify VAPI places the call → verify owner's phone rings
+- [ ] Verify all outbound actions respect the Communication Gate (toggle off → verify sends are blocked)
+
+### 7.5.3 — AI Agent Interaction (owner acts as customer talking to AI)
+- [ ] Chat with an AI agent through the main app → verify responses are contextual and use tools
+- [ ] Chat with an AI agent through the widget → verify same quality of response
+- [ ] Verify agent respects kill switch (toggle off → verify agent stops responding)
+- [ ] Verify agent respects safety layers (rate limits, channel toggles)
+
+### 7.5.4 — Data Flow Verification (owner acts as manager reviewing data)
+- [ ] After all interactions above, check dashboard metric tiles → verify they reflect the real activity
+- [ ] Check TeamBox → verify all conversations from the test session are visible with correct status
+- [ ] Check activity log → verify all actions are logged
+- [ ] Check campaign results → verify delivery status matches reality
+- [ ] Check Insights page → verify it shows real data (not mock)
+
+**What I (the agent) will prepare before this sweep:**
+- A step-by-step test script with exact URLs, credentials, and expected outcomes
+- Observability Matrix rows flagged with `OWNER-TEST` so you know which data paths you're verifying
+- A results capture template for you to mark pass/fail on each item
+
+**Outputs:**
+- Owner's pass/fail results on each test item
+- Any new issues discovered → added to ISSUES.md
+- Observability Matrix rows marked as OWNER-VERIFIED or FAIL
+
+**Approval gate:** Owner completes testing and reports results. Any failures get logged in ISSUES.md and must be resolved before Sweep 8 proceeds.
+
+---
+
 ## Sweep 8 — Verification Pass
 
 **Objective:** Dedicated pre-RC verification pass. No new features — only verification.
@@ -737,6 +799,8 @@ Items deferred beyond the RC milestone:
 | Stabilization Blueprint | Sweep 2.5 | Synthesis of Sweep 1-2 outputs into remediation strategy |
 | PROPOSED governance docs | Sweep 3 | replit.md, PLAN.md, GUARDRAILS.md (with R11), agent-roles, CLAUDE.md |
 | Test catalog & coordinator | Sweep 4 | Test batteries mapped to ACs and Observability Matrix rows |
+| Owner Live Test Script | Sweep 7.5 (prep) | Step-by-step test script with URLs, credentials, expected outcomes |
+| Owner Live Test Results | Sweep 7.5 | Pass/fail on each live data flow test item |
 | Verification sweep report | Sweep 8 | Pass/fail per check, Observability Matrix coverage |
 | RC Readiness Report | Sweep 9 | Go/no-go decision document with full coverage summaries |
 
