@@ -1,8 +1,14 @@
-# GAPS.md — Neutral Gap Register
+# ⛔ RETIRED — GAPS.md
+
+> **This document was retired in Sweep 2A (2026-03-08).** All 81 items have been migrated to `ISSUES.md` with enrichments (sweep assignments, RC-blocking flags, AC cross-references). `ISSUES.md` is the canonical living tracker going forward. Do not add new items here.
+
+---
+
+# GAPS.md — Neutral Gap Register (ARCHIVED)
 
 **Source:** Fresh re-audit from restored baseline (commit `58288b6`)
 **Date:** 2026-03-07
-**Status:** All items OPEN unless otherwise noted. No item may be marked RESOLVED without explicit user approval.
+**Status:** RETIRED — see ISSUES.md
 
 ---
 
