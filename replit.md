@@ -173,6 +173,10 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - **Service Campaign**: Full end-to-end SMS campaign flow verified (creation → CSV upload → execution → TextMagic delivery)
 - **Duane's test number**: 4126546500
 
+### Stabilization Sweep 9: RBAC Login Fix
+- **Role initialization on login**: Fixed AppContext.tsx — on login, currentRole now always syncs from the authenticated user's actual role (via `roleInitialized` flag). Previously, a stale `nexxus-current-role` value in localStorage or the `org_admin` default would override the user's real role, causing super_admin users to see a reduced sidebar on first login.
+- **Test credentials updated**: duane.wells@huminic.ai/a1$ucc3ss, Partner_admin@huminic.ai/P@rtner$uccess, Org_Admin@huminic.ai/O3g$uccess, Sales_staff@huminic.ai/S@les$uccess, marketing_staff@huminic.ai/M@3keting$uccess, Executive_staff@huminic.ai/Ex3c$uccess
+
 ## Deferred to Wave 5
 - Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)
 - Production backend cutover to nexxusv2.huminicdev.com

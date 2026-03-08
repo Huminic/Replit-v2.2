@@ -199,15 +199,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('nexxus-current-role', roleParam);
       return roleParam;
     }
-    const saved = localStorage.getItem('nexxus-current-role');
-    return (saved as UserRole) || 'org_admin';
+    return 'org_admin';
   });
 
+  const [roleInitialized, setRoleInitialized] = useState(false);
+
   useEffect(() => {
-    if (authUser && !localStorage.getItem('nexxus-current-role')) {
-      setCurrentRole(authUser.role.name as UserRole);
+    if (authUser && !roleInitialized) {
+      const authRole = authUser.role.name as UserRole;
+      setCurrentRole(authRole);
+      localStorage.setItem('nexxus-current-role', authRole);
+      setRoleInitialized(true);
     }
-  }, [authUser]);
+  }, [authUser, roleInitialized]);
 
   const [userPermissions, setUserPermissions] = useState<SectionPermission[]>([]);
   const handleSetCurrentRole = (role: UserRole) => {
