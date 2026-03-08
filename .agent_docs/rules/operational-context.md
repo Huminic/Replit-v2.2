@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: Never updated past day one (2026-03-04). Deployment context, environment status, and account notes are stale and do not reflect current state.
+
 # .agent_docs/rules/operational-context.md — Nexxus v2.2
 # PURPOSE: Live deployment context, environment status, mockup references, and external account notes.
 # Load this file when: starting a session on a new machine, verifying environment, or onboarding an agent.

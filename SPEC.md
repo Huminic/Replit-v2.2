@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: Critically stale — describes single-table database, no API routes, "mock data during Wave 1" framing does not reflect current 23-table/104-route state.
+
 # SPEC.md — Nexxus Connect V2.2 Architecture Specification
 
 ## Overview

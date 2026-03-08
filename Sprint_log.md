@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: Contains misleading completion claims (e.g., "E2E Tests: PASSED" when zero automated tests exist), inconsistent wave/sprint numbering, and status drift vs actual codebase state.
+
 # Nexxus Connect — Sprint Log
 
 **Project:** Nexxus Connect (AI-Powered Dealership Management Platform)
