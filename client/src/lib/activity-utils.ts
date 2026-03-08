@@ -25,102 +25,38 @@ export interface ActivityItem {
   metadata?: Record<string, string | number>;
 }
 
-export const staticActivityFeed: ActivityItem[] = [
-  {
-    id: 'act-1',
-    type: 'agent',
-    action: 'call_ended',
-    actor: 'Sales Agent',
-    target: 'John Smith',
-    description: 'Completed sales call with John Smith (3m 42s)',
-    timestamp: '2026-01-21T10:45:00Z',
-    metadata: { duration: 222, outcome: 'qualified_lead' },
-  },
-  {
-    id: 'act-2',
-    type: 'user',
-    action: 'login',
-    actor: 'Duane Wells',
-    target: 'Nexxus V2',
-    description: 'Logged in from Chrome on macOS',
-    timestamp: '2026-01-21T09:00:00Z',
-  },
-  {
-    id: 'act-3',
-    type: 'agent',
-    action: 'message_sent',
-    actor: 'Support Agent',
-    target: 'Customer #4521',
-    description: 'Sent automated response to support inquiry',
-    timestamp: '2026-01-21T08:30:00Z',
-  },
-  {
-    id: 'act-4',
-    type: 'user',
-    action: 'created',
-    actor: 'Sarah Johnson',
-    target: 'Q1 Goals Report',
-    description: 'Created new insight report',
-    timestamp: '2026-01-20T16:00:00Z',
-  },
-  {
-    id: 'act-5',
-    type: 'system',
-    action: 'completed',
-    actor: 'System',
-    target: 'Daily Backup',
-    description: 'Automated daily backup completed successfully',
-    timestamp: '2026-01-20T03:00:00Z',
-  },
-  {
-    id: 'act-6',
-    type: 'agent',
-    action: 'activated',
-    actor: 'Service Reminder',
-    target: 'Scheduled Task',
-    description: 'Sent 47 service reminders',
-    timestamp: '2026-01-20T09:00:00Z',
-    metadata: { sent: 47, failed: 2 },
-  },
-  {
-    id: 'act-7',
-    type: 'user',
-    action: 'updated',
-    actor: 'Duane Wells',
-    target: 'Sales Agent',
-    description: 'Updated agent instructions and triggers',
-    timestamp: '2026-01-19T14:30:00Z',
-  },
-  {
-    id: 'act-8',
-    type: 'user',
-    action: 'uploaded',
-    actor: 'Mike Chen',
-    target: 'Vehicle Photos',
-    description: 'Uploaded 12 new vehicle photos to media library',
-    timestamp: '2026-01-19T11:00:00Z',
-    metadata: { files: 12 },
-  },
-  {
-    id: 'act-9',
-    type: 'agent',
-    action: 'call_started',
-    actor: 'Sales Agent',
-    target: 'New Lead',
-    description: 'Initiated outbound call to new website lead',
-    timestamp: '2026-01-19T10:15:00Z',
-  },
-  {
-    id: 'act-10',
-    type: 'system',
-    action: 'updated',
-    actor: 'System',
-    target: 'Knowledge Base',
-    description: 'Auto-synced inventory data from DMS',
-    timestamp: '2026-01-19T02:00:00Z',
-    metadata: { vehicles: 156 },
-  },
-];
+export function mapActivityLogToItem(log: {
+  id: string;
+  userId: string | null;
+  organizationId: string;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  metadata: unknown;
+  createdAt: string | Date;
+}): ActivityItem {
+  const entityType = log.entityType || 'system';
+  let type: ActivityType = 'system';
+  if (entityType === 'user' || entityType === 'session') type = 'user';
+  else if (entityType === 'agent' || entityType === 'campaign' || entityType === 'conversation') type = 'agent';
+
+  const action = (log.action || 'updated') as ActivityAction;
+  const meta = (log.metadata && typeof log.metadata === 'object' ? log.metadata : {}) as Record<string, string | number>;
+  const actor = (meta.targetName as string) || (meta.agentName as string) || entityType;
+  const target = log.entityId || '';
+  const description = log.action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+  return {
+    id: log.id,
+    type,
+    action,
+    actor,
+    target,
+    description,
+    timestamp: typeof log.createdAt === 'string' ? log.createdAt : log.createdAt.toISOString(),
+    metadata: meta,
+  };
+}
 
 export const getActivityIcon = (type: ActivityType): string => {
   const icons: Record<ActivityType, string> = {

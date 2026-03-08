@@ -665,6 +665,132 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/organizations", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      if (req.user.roleLevel > 1) {
+        return res.status(403).json({ message: "Only super admins can create organizations" });
+      }
+
+      const {
+        orgName, industry, size, website, publicListing, multiLocation,
+        primaryPhone, primaryEmail, address1, address2, city, state, zip,
+        timezone, businessHoursStart, businessHoursEnd,
+        adminFirstName, adminLastName, adminEmail, adminPhone, adminRole,
+        tempPassword, sendWelcomeEmail,
+        billingEnabled, anniversaryDate, baseMonthlyFee,
+        voiceMinutes, videoMinutes, smsMessages, setupFee,
+        tools, agentName, agentPersona, agentChannel,
+        autoRespond, deployImmediately, skills,
+      } = req.body;
+
+      if (!orgName || !orgName.trim()) {
+        return res.status(400).json({ message: "Organization name is required" });
+      }
+      if (!primaryPhone || !primaryPhone.trim()) {
+        return res.status(400).json({ message: "Primary phone is required" });
+      }
+      if (!primaryEmail || !primaryEmail.trim()) {
+        return res.status(400).json({ message: "Primary email is required" });
+      }
+      if (!adminFirstName || !adminFirstName.trim()) {
+        return res.status(400).json({ message: "Admin first name is required" });
+      }
+      if (!adminLastName || !adminLastName.trim()) {
+        return res.status(400).json({ message: "Admin last name is required" });
+      }
+      if (!adminEmail || !adminEmail.trim()) {
+        return res.status(400).json({ message: "Admin email is required" });
+      }
+      if (!tempPassword || tempPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const existingUser = await storage.getUserByEmail(adminEmail);
+      if (existingUser) {
+        return res.status(409).json({ message: "A user with that admin email already exists" });
+      }
+
+      const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const existingOrg = await storage.getOrganizationBySlug(slug);
+      const finalSlug = existingOrg ? `${slug}-${Date.now()}` : slug;
+
+      const enabledTools = tools || {};
+      const org = await storage.createOrganization({
+        name: orgName.trim(),
+        slug: finalSlug,
+        personaName: agentName || "Serra",
+        outboundEnabled: false,
+        smsEnabled: !!enabledTools.sms,
+        phoneEnabled: !!enabledTools.voice,
+        emailEnabled: !!enabledTools.email,
+        settings: {
+          industry, size, website, publicListing, multiLocation,
+          primaryPhone, primaryEmail, address1, address2, city, state, zip,
+          timezone, businessHoursStart, businessHoursEnd,
+          billingEnabled, anniversaryDate, baseMonthlyFee,
+          voiceMinutes, videoMinutes, smsMessages, setupFee,
+          tools: enabledTools,
+        },
+      });
+
+      const role = await storage.getRoleByName(adminRole === "partner_admin" ? "partner_admin" : "org_admin");
+      if (!role) {
+        return res.status(500).json({ message: "Could not find role for admin user" });
+      }
+
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
+      const adminUser = await storage.createUser({
+        email: adminEmail,
+        password: hashedPassword,
+        firstName: adminFirstName,
+        lastName: adminLastName,
+        roleId: role.id,
+        organizationId: org.id,
+      });
+
+      const channelsArray = agentChannel === "omnichannel"
+        ? ["voice", "video", "chat", "email"]
+        : [agentChannel || "chat"];
+
+      const agent = await storage.createAgent({
+        name: agentName || "Serra",
+        department: "sales",
+        type: "ai",
+        status: deployImmediately ? "active" : "inactive",
+        description: agentPersona || null,
+        channels: channelsArray,
+        instructions: agentPersona || null,
+        organizationId: org.id,
+      });
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: org.id,
+        action: "organization_created",
+        entityType: "organization",
+        entityId: org.id,
+        metadata: {
+          orgName: org.name,
+          adminEmail,
+          agentName: agent.name,
+          createdBy: `${req.user!.firstName} ${req.user!.lastName}`,
+        },
+      }).catch(() => {});
+
+      const { password: _, ...safeAdmin } = adminUser;
+
+      return res.status(201).json({
+        organization: org,
+        admin: safeAdmin,
+        agent,
+      });
+    } catch (err) {
+      console.error("Failed to create organization:", err);
+      return res.status(500).json({ message: "Failed to create organization" });
+    }
+  });
+
   app.get("/api/organizations/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -2533,6 +2659,175 @@ Return ONLY the JSON array, no other text.`,
       return res.json(metrics);
     } catch (err: any) {
       return res.status(500).json({ message: "Failed to fetch warehouse metrics", error: err.message });
+    }
+  });
+
+  app.get("/api/insights/dashboard", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = req.user.organizationId;
+
+      const allLeads = await storage.getWarehouseLeads(orgId, { limit: 500 });
+      const metrics = await storage.getWarehouseMetrics(orgId, {});
+      const now = new Date();
+
+      const hotLeadsGoingCold = allLeads
+        .filter(l => l.vinStatus === "hot" || l.vinStatus === "active")
+        .map(l => {
+          const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+          const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+          return {
+            id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Internet",
+            source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
+            status: l.vinStatus || "active", isHot: l.vinStatus === "hot",
+          };
+        })
+        .filter(l => l.daysOld > 2)
+        .sort((a, b) => (b.daysOld || 0) - (a.daysOld || 0))
+        .slice(0, 20);
+
+      const newLeadsNoContact = allLeads
+        .filter(l => l.vinStatus === "new" || l.vinStatus === "uncontacted")
+        .map(l => {
+          const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+          const hoursOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60));
+          return {
+            id: l.id, leadId: l.sourceId || l.id, hoursOld, type: "Internet",
+            source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
+          };
+        })
+        .sort((a, b) => (b.hoursOld || 0) - (a.hoursOld || 0))
+        .slice(0, 20);
+
+      const showroomNotClosed = allLeads
+        .filter(l => l.leadSource?.toLowerCase().includes("walk") || l.leadSource?.toLowerCase().includes("showroom"))
+        .filter(l => l.vinStatus !== "sold" && l.vinStatus !== "closed")
+        .map(l => {
+          const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+          const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+          return {
+            id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Walk-In",
+            source: l.leadSource || "Showroom", vehicle: l.vehicleOfInterest || "",
+            status: l.vinStatus || "open",
+          };
+        })
+        .slice(0, 20);
+
+      const totalLeads = allLeads.length;
+      const hotCount = allLeads.filter(l => l.vinStatus === "hot" || l.vinStatus === "active").length;
+      const soldCount = allLeads.filter(l => l.vinStatus === "sold" || l.vinStatus === "closed-won").length;
+      const conversionRate = totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0;
+      const newCount = allLeads.filter(l => l.vinStatus === "new" || l.vinStatus === "uncontacted").length;
+
+      const sourceCounts: Record<string, number> = {};
+      allLeads.forEach(l => {
+        const src = l.leadSource || "Unknown";
+        sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+      });
+      const topLeadSources = Object.entries(sourceCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 8)
+        .map(([source, count], i) => ({
+          source, leads: count, rate: totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0,
+          grade: i === 0 ? "A+" : i < 3 ? "A" : i < 5 ? "B" : "C",
+        }));
+
+      const channelCounts: Record<string, { total: number; won: number }> = {};
+      allLeads.forEach(l => {
+        const ch = l.leadSource?.includes("Phone") ? "Phone" : l.leadSource?.includes("Walk") ? "Walk-In" : l.leadSource?.includes("Web") ? "Website" : "Other";
+        if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0 };
+        channelCounts[ch].total++;
+        if (l.vinStatus === "sold" || l.vinStatus === "closed-won") channelCounts[ch].won++;
+      });
+      const channelPerformance = Object.entries(channelCounts).map(([channel, data]) => ({
+        channel, volume: data.total, conversion: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
+      }));
+
+      const metricsMap: Record<string, string> = {};
+      metrics.forEach(m => { metricsMap[m.metricKey] = m.metricValue; });
+
+      return res.json({
+        overview: {
+          totalLeads, hotCount, newCount, soldCount, conversionRate,
+          metricsFromWarehouse: metricsMap,
+        },
+        redZone: { hotLeadsGoingCold, newLeadsNoContact, showroomNotClosed },
+        yellowZone: {
+          staleLeads: allLeads.filter(l => {
+            const updated = l.vinUpdatedAt ? new Date(l.vinUpdatedAt) : new Date(l.createdAt);
+            return (now.getTime() - updated.getTime()) > 7 * 24 * 60 * 60 * 1000 && l.vinStatus !== "sold" && l.vinStatus !== "closed-won";
+          }).length,
+          pendingFinance: allLeads.filter(l => l.vinStatus === "pending_finance").length,
+        },
+        greenZone: [
+          { label: "Pipeline Active", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
+          { label: "Conversion Rate", value: `${conversionRate}%`, status: conversionRate > 10 ? "healthy" : "watch" },
+          { label: "Total Leads", value: totalLeads, status: "info" },
+        ],
+        pipelineHealth: {
+          velocity: metricsMap["pipeline_velocity"] || null,
+          freshness: metricsMap["pipeline_freshness"] || null,
+          forecast: metricsMap["month_end_forecast"] || null,
+        },
+        topLeadSources,
+        channelPerformance,
+      });
+    } catch (err: any) {
+      console.error("[Insights] Dashboard error:", err);
+      return res.status(500).json({ message: "Failed to fetch insights dashboard" });
+    }
+  });
+
+  app.get("/api/insights/reports", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = req.user.organizationId;
+
+      const allLeads = await storage.getWarehouseLeads(orgId, { limit: 500 });
+      const metrics = await storage.getWarehouseMetrics(orgId, {});
+
+      const totalLeads = allLeads.length;
+      const soldCount = allLeads.filter(l => l.vinStatus === "sold" || l.vinStatus === "closed-won").length;
+      const lostCount = allLeads.filter(l => l.vinStatus === "lost" || l.vinStatus === "closed-lost").length;
+      const badCount = allLeads.filter(l => l.vinStatus === "bad" || l.vinStatus === "invalid").length;
+
+      const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
+      allLeads.forEach(l => {
+        const src = l.leadSource || "Unknown";
+        if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
+        sourceCounts[src].total++;
+        if (l.vinStatus === "sold" || l.vinStatus === "closed-won") sourceCounts[src].won++;
+        if (l.vinStatus === "lost" || l.vinStatus === "closed-lost") sourceCounts[src].lost++;
+      });
+
+      const sourceQualityTrends = Object.entries(sourceCounts)
+        .sort(([, a], [, b]) => b.total - a.total)
+        .slice(0, 10)
+        .map(([source, data]) => ({
+          source, leads: data.total,
+          winRate: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
+          lossRate: data.total > 0 ? Math.round((data.lost / data.total) * 100) : 0,
+        }));
+
+      const metricsMap: Record<string, string> = {};
+      metrics.forEach(m => { metricsMap[m.metricKey] = m.metricValue; });
+
+      return res.json({
+        lossAnalysis: {
+          totalLost: lostCount, totalBad: badCount,
+          lossRate: totalLeads > 0 ? Math.round((lostCount / totalLeads) * 100) : 0,
+          badRate: totalLeads > 0 ? Math.round((badCount / totalLeads) * 100) : 0,
+        },
+        sourceQualityTrends,
+        performanceSummary: {
+          totalLeads, sold: soldCount, lost: lostCount, bad: badCount,
+          winRate: totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0,
+          metricsFromWarehouse: metricsMap,
+        },
+      });
+    } catch (err: any) {
+      console.error("[Insights] Reports error:", err);
+      return res.status(500).json({ message: "Failed to fetch insights reports" });
     }
   });
 

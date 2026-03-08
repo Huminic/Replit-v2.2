@@ -26,6 +26,8 @@
  */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -245,6 +247,26 @@ export default function OrgWizardPage() {
 
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
+  const createOrgMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      const res = await apiRequest('POST', '/api/organizations', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: 'Organization created successfully!', description: `${formData.orgName} has been created.` });
+      navigate('/settings/system?section=users');
+    },
+    onError: (error: Error) => {
+      const msg = error.message.includes(':') ? error.message.split(': ').slice(1).join(': ') : error.message;
+      let parsed = msg;
+      try {
+        const obj = JSON.parse(msg);
+        if (obj.message) parsed = obj.message;
+      } catch {}
+      toast({ title: 'Failed to create organization', description: parsed, variant: 'destructive' });
+    },
+  });
+
   const handleCreate = () => {
     const allErrors: string[] = [];
     for (let i = 0; i <= 2; i++) allErrors.push(...validateStep(i));
@@ -252,8 +274,7 @@ export default function OrgWizardPage() {
       toast({ title: 'Missing Required Fields', description: allErrors.join(', '), variant: 'destructive' });
       return;
     }
-    toast({ title: 'Organization created successfully!', description: `${formData.orgName} has been created.` });
-    navigate('/settings/system?section=users');
+    createOrgMutation.mutate(formData);
   };
 
   const getReviewWarnings = (): string[] => {
@@ -854,9 +875,10 @@ export default function OrgWizardPage() {
             className="w-full"
             size="lg"
             onClick={handleCreate}
+            disabled={createOrgMutation.isPending}
             data-testid="button-create-organization"
           >
-            Create Organization
+            {createOrgMutation.isPending ? 'Creating...' : 'Create Organization'}
           </Button>
         </div>
       </div>

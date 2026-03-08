@@ -16,10 +16,9 @@ import { useApp } from '@/contexts/AppContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import type { Task } from '@shared/schema';
-import { mockConversations } from '@/mocks/messages';
-import { mockTeamboxConversations } from '@/mocks/conversations';
-import type { ConversationChannel } from '@/mocks/conversations';
+import type { Task, Conversation } from '@shared/schema';
+
+type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -307,77 +306,67 @@ export default function MyWorkPage() {
     </div>
   );
 
-  const renderChat = () => {
-    const recentConversations = mockTeamboxConversations
-      .filter(c => c.status !== 'closed')
-      .sort((a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime());
+  const { data: conversations = [], isLoading: isConversationsLoading } = useQuery<Conversation[]>({
+    queryKey: ['/api/conversations', orgId],
+  });
 
-    const aiConversations = mockConversations;
+  const renderChat = () => {
+    const recentConversations = conversations
+      .filter(c => c.status !== 'closed')
+      .sort((a, b) => {
+        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+        return bTime - aTime;
+      });
 
     return (
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold mb-1">Recent Conversations</h2>
+          <h2 className="text-lg font-semibold mb-1" data-testid="text-chat-heading">Recent Conversations</h2>
           <p className="text-sm text-muted-foreground">Your active customer conversations and AI chat history</p>
         </div>
 
         <div>
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Customer Conversations</h3>
-          <div className="space-y-2">
-            {recentConversations.slice(0, 5).map(conv => {
-              const ChannelIcon = channelIcons[conv.channel] || MessageSquare;
-              return (
-                <div
-                  key={conv.id}
-                  className="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover-elevate"
-                  onClick={() => setLocation('/teambox')}
-                  data-testid={`chat-conversation-${conv.id}`}
-                >
-                  <ChannelIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium">{conv.customerName}</span>
-                      <Badge variant="outline" className="text-[10px]">{conv.channel.toUpperCase()}</Badge>
-                      {conv.unreadCount > 0 && (
-                        <Badge variant="destructive" className="text-[10px]">{conv.unreadCount}</Badge>
-                      )}
+          {isConversationsLoading ? renderLoadingSkeleton() : (
+            <div className="space-y-2">
+              {recentConversations.slice(0, 5).map(conv => {
+                const ChannelIcon = channelIcons[conv.channel as ConversationChannel] || MessageSquare;
+                return (
+                  <div
+                    key={conv.id}
+                    className="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover-elevate"
+                    onClick={() => setLocation('/teambox')}
+                    data-testid={`chat-conversation-${conv.id}`}
+                  >
+                    <ChannelIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium">{conv.customerName}</span>
+                        <Badge variant="outline" className="text-[10px]">{conv.channel.toUpperCase()}</Badge>
+                        {conv.unreadCount > 0 && (
+                          <Badge variant="destructive" className="text-[10px]">{conv.unreadCount}</Badge>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleDateString() : ''}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(conv.lastMessageTime).toLocaleDateString()}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+              {recentConversations.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-conversations">No active conversations</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
           <h3 className="text-sm font-medium text-muted-foreground mb-3">AI Chat History</h3>
-          <div className="space-y-2">
-            {aiConversations.map(conv => (
-              <div
-                key={conv.id}
-                className="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover-elevate"
-                onClick={() => setLocation('/')}
-                data-testid={`chat-ai-conversation-${conv.id}`}
-              >
-                <Bot className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium">{conv.title}</span>
-                    {conv.unread && (
-                      <Badge variant="secondary" className="text-[10px]">New</Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
-                </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(conv.timestamp).toLocaleDateString()}
-                </span>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-8 text-center" data-testid="text-ai-chat-empty">
+            <Bot className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Your AI assistant conversations will appear here</p>
           </div>
         </div>
 

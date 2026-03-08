@@ -76,36 +76,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  mockLeadsChart, 
-  mockConversionsChart,
-  mockHotLeadsGoingCold,
-  mockNewLeadsNoContact,
-  mockShowroomNotClosed,
-  yellowZoneData,
-  greenZoneMetrics,
-  pipelineHealthData,
-  scorecardConversionMetrics,
-  topLeadSources,
-  channelPerformance,
-  weekOverWeekTrends,
-  lossReasonBreakdown,
-  badLeadBreakdown,
-  lossPatternsBySource,
-  reengagementCandidates,
-  sourceQualityTrends,
-  fullChannelComparison,
-  digitalVsPhysical,
-  serviceLaneAnalysis,
-  monthlyPerformanceSummary,
-  rollingForecast,
-  yearOverYear,
-} from '@/lib/insight-data';
+import { useQuery } from '@tanstack/react-query';
 import { 
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, 
   Pie, Cell, Legend 
 } from 'recharts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const libraryMetrics = [
   { id: 'lib-1', title: 'Total Active Pipeline', value: '247', change: '+12%', trend: 'up' as const, category: 'Pipeline' },
@@ -144,14 +121,7 @@ const libraryMetrics = [
   { id: 'lib-34', title: 'Pipeline Coverage Ratio', value: '4.8x', change: '+0.3', trend: 'up' as const, category: 'Forecast' },
 ];
 
-const hunchesData = [
-  { id: 'h1', title: 'Potential high-value lead detected', description: 'Customer viewed 3 luxury vehicles in the past week. Consider follow-up call.', type: 'opportunity' as const, confidence: 85, source: 'Sales Agent' },
-  { id: 'h2', title: 'Service appointment cancelation pattern', description: '3 customers canceled appointments this week. Check for common issues.', type: 'threat' as const, confidence: 72, source: 'Service Reminder' },
-  { id: 'h3', title: 'Inventory optimization opportunity', description: 'SUV sales trending up 15%. Consider adjusting inventory mix.', type: 'insight' as const, confidence: 91, source: 'Analytics Engine' },
-  { id: 'h4', title: 'Cross-sell opportunity in service queue', description: 'Customers with vehicles >5 years old may be interested in trade-in offers.', type: 'opportunity' as const, confidence: 78, source: 'CRM Analysis' },
-  { id: 'h5', title: 'Competitor pricing undercut detected', description: 'Premier Motors dropped sedan prices 8% across the board.', type: 'threat' as const, confidence: 94, source: 'Market Intel' },
-  { id: 'h6', title: 'Seasonal demand shift incoming', description: 'Historical data shows 23% truck demand increase starting next month.', type: 'insight' as const, confidence: 88, source: 'Trend Analysis' },
-];
+type HunchType = 'opportunity' | 'threat' | 'insight';
 
 const hunchTypeConfig = {
   opportunity: { color: 'text-green-600 dark:text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20', label: 'Opportunity' },
@@ -282,7 +252,7 @@ export default function InsightsPage() {
   const [librarySearch, setLibrarySearch] = useState('');
   const [selectedLibMetric, setSelectedLibMetric] = useState<typeof libraryMetrics[0] | null>(null);
   const [drillDown, setDrillDown] = useState<DrillDownModal>(null);
-  const [selectedGreenMetric, setSelectedGreenMetric] = useState<typeof greenZoneMetrics[0] | null>(null);
+  const [selectedGreenMetric, setSelectedGreenMetric] = useState<{ id: string; label: string; value: any; trend: string; change: string } | null>(null);
   const [reportCategory, setReportCategory] = useState<ReportCategory>('loss');
   const [reportSubTab, setReportSubTab] = useState('tab1');
   const [hunchPrefsOpen, setHunchPrefsOpen] = useState(false);
@@ -294,6 +264,169 @@ export default function InsightsPage() {
   const [minConfidence, setMinConfidence] = useState([50]);
   const [autoDismissDays, setAutoDismissDays] = useState(7);
   const { toast } = useToast();
+
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery<any>({
+    queryKey: ['/api/insights/dashboard'],
+  });
+
+  const { data: reportsData, isLoading: reportsLoading } = useQuery<any>({
+    queryKey: ['/api/insights/reports'],
+  });
+
+  const { data: hunchesRaw } = useQuery<any[]>({
+    queryKey: ['/api/hunches'],
+  });
+
+  const hunchesData = (hunchesRaw || []).map((h: any) => ({
+    id: h.id,
+    title: h.title,
+    description: h.description,
+    type: (h.type === 'opportunity' || h.type === 'threat' ? h.type : 'insight') as HunchType,
+    confidence: h.confidence || 50,
+    source: h.dataSource || 'AI Analysis',
+  }));
+
+  const mockHotLeadsGoingCold = dashboardData?.redZone?.hotLeadsGoingCold || [];
+  const mockNewLeadsNoContact = dashboardData?.redZone?.newLeadsNoContact || [];
+  const mockShowroomNotClosed = dashboardData?.redZone?.showroomNotClosed || [];
+
+  const yellowZoneData = {
+    staleLeads: { label: 'Stale Leads (>7 days)', count: dashboardData?.yellowZone?.staleLeads || 0, avgAge: 14 },
+    pendingFinance: { label: 'Pending Finance', count: dashboardData?.yellowZone?.pendingFinance || 0, overFiveDays: 0 },
+  };
+
+  const overview = dashboardData?.overview || {};
+  const greenZoneMetrics = (dashboardData?.greenZone || []).map((m: any, i: number) => ({
+    id: `gz-${i}`, label: m.label, value: m.value, trend: m.status === 'healthy' ? 'up' as const : 'neutral' as const, change: '',
+  }));
+
+  const totalLeads = overview.totalLeads || 0;
+  const hotCount = overview.hotCount || 0;
+  const soldCount = overview.soldCount || 0;
+  const convRate = overview.conversionRate || 0;
+
+  const pipelineHealthData = {
+    freshnessScore: dashboardData?.pipelineHealth?.freshness || 'N/A',
+    stalePct: 0,
+    freshness: [
+      { pct: totalLeads > 0 ? Math.round((hotCount / totalLeads) * 100) : 100, range: '<7 days', count: hotCount, color: '#10B981' },
+    ],
+    velocity: { sevenDay: 'N/A', thirtyDay: 'N/A', direction: '—', trend: 'Insufficient data' },
+    hotLeads: {
+      total: hotCount,
+      pctOfActive: totalLeads > 0 ? Math.round((hotCount / totalLeads) * 100) : 0,
+      avgAge: 0, over14Days: 0,
+    },
+    hotLeadAgeDistribution: [
+      { range: '<7 days', value: hotCount },
+    ],
+    statusFlow: [
+      { stage: 'New', count: overview.newCount || 0, pct: totalLeads > 0 ? Math.round(((overview.newCount || 0) / totalLeads) * 100) : 0 },
+      { stage: 'Active', count: hotCount, pct: totalLeads > 0 ? Math.round((hotCount / totalLeads) * 100) : 0 },
+      { stage: 'Sold', count: soldCount, pct: totalLeads > 0 ? Math.round((soldCount / totalLeads) * 100) : 0 },
+    ],
+    monthEndForecast: {
+      currentSold: soldCount,
+      activePipeline: totalLeads,
+      historicalWinRate: convRate,
+      projectedMonthEnd: dashboardData?.pipelineHealth?.forecast || soldCount,
+      monthlyTarget: 50,
+      gap: (dashboardData?.pipelineHealth?.forecast || soldCount) - 50,
+      gapPct: totalLeads > 0 ? Math.round((((dashboardData?.pipelineHealth?.forecast || soldCount) - 50) / 50) * 100) : 0,
+      actionNeeded: totalLeads === 0 ? 'Connect CRM data to see forecast' : 'Monitor pipeline velocity to meet targets',
+    },
+  };
+
+  const scorecardConversionMetrics = [
+    { id: 'sc-1', label: 'Win Rate', value: `${convRate}%`, sparkline: [convRate], trend: 'neutral' as const, change: '' },
+    { id: 'sc-2', label: 'Total Sold', value: `${soldCount}`, sparkline: [soldCount], trend: soldCount > 0 ? 'up' as const : 'neutral' as const, change: '' },
+    { id: 'sc-3', label: 'Hot Leads', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' as const : 'neutral' as const, change: '' },
+    { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' as const : 'neutral' as const, change: '' },
+  ];
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const mockLeadsChart = days.map(d => ({ date: d, value: 0, label: d }));
+  const mockConversionsChart = days.map(d => ({ date: d, value: 0, label: d }));
+
+  const apiTopLeadSources = dashboardData?.topLeadSources || [];
+  const topLeadSources = apiTopLeadSources.length > 0 ? apiTopLeadSources : [];
+  const apiChannelPerformance = dashboardData?.channelPerformance || [];
+  const channelPerformance = apiChannelPerformance.length > 0 ? apiChannelPerformance : [];
+
+  const rptLossAnalysis = reportsData?.lossAnalysis || {};
+  const rptSourceQuality = reportsData?.sourceQualityTrends || [];
+  const rptSummary = reportsData?.performanceSummary || {};
+
+  const lossReasonBreakdown = rptLossAnalysis.totalLost > 0 ? [
+    { reason: 'Lost', count: rptLossAnalysis.totalLost },
+  ] : [];
+  const badLeadBreakdown = rptLossAnalysis.totalBad > 0 ? [
+    { reason: 'Bad/Invalid', count: rptLossAnalysis.totalBad },
+  ] : [];
+  const lossPatternsBySource = rptSourceQuality.map((s: any) => ({
+    source: s.source, leads: s.leads, lossRate: `${s.lossRate}%`, topReason: 'N/A',
+  }));
+  const reengagementCandidates = mockHotLeadsGoingCold.slice(0, 5).map((l: any) => ({
+    name: l.leadId, vehicle: l.vehicle || 'N/A', daysInactive: l.daysOld || 0, lastChannel: 'Unknown', suggestedAction: 'Follow up',
+  }));
+  const sourceQualityTrends = rptSourceQuality.map((s: any) => ({
+    month: s.source, winRate: s.winRate, volume: s.leads,
+  }));
+
+  const fullChannelComparison = channelPerformance.map((ch: any) => ({
+    channel: ch.channel, volume: ch.volume, conversion: `${ch.conversion}%`, avgDaysToClose: 'N/A',
+    costPerLead: 'N/A', satisfaction: 'N/A', grade: ch.conversion > 20 ? 'A' : ch.conversion > 10 ? 'B' : 'C',
+  }));
+
+  const digitalVsPhysical = {
+    digital: { label: 'Digital', leads: 0, winRate: 0, avgAge: 0 },
+    physical: { label: 'Physical', leads: 0, winRate: 0, avgAge: 0 },
+    maturityScore: 'N/A', benchmark: '0.70', insight: 'Connect CRM data to see digital vs physical lead analysis.',
+  };
+
+  const serviceLaneAnalysis = {
+    currentPerformance: { leads: 0, pctOfTotal: 0, winRate: 0, industryBest: '12%' },
+    opportunitySizing: { monthlyServiceCustomers: 0, captureRate: 0, currentMonthlySales: 0 },
+    scenarios: [] as any[],
+    recommendations: [] as any[],
+  };
+
+  const monthlyPerformanceSummary = {
+    period: 'Current Month', previousPeriod: 'Last Month',
+    keyMetrics: [
+      { label: 'Total Leads', current: totalLeads, previous: 0, change: 0, trend: 'neutral' as const },
+      { label: 'Sold', current: soldCount, previous: 0, change: 0, trend: 'neutral' as const },
+      { label: 'Win Rate', current: `${convRate}%`, previous: '0%', change: 0, trend: 'neutral' as const },
+    ],
+    volumeTrends: [] as any[],
+    sourceChanges: { winners: [] as any[], losers: [] as any[] },
+    executiveSummary: {
+      wins: totalLeads > 0 ? ['CRM data connected — real metrics flowing'] : ['Connect your CRM to see real performance data'],
+      concerns: totalLeads === 0 ? ['No lead data available yet'] : [],
+      recommendations: ['Ensure VinSolutions sync is active for comprehensive analytics'],
+    },
+  };
+
+  const rollingForecast = {
+    generated: new Date().toLocaleDateString(),
+    methodology: 'Based on current pipeline velocity and historical close rates',
+    projections: [] as any[],
+    gapAnalysis: {
+      salesNeeded: Math.max(0, 50 - soldCount),
+      daysRemaining: Math.max(0, 30 - new Date().getDate()),
+      activePipeline: totalLeads,
+      requiredWinRate: totalLeads > 0 ? `${Math.round(((50 - soldCount) / totalLeads) * 100)}%` : 'N/A',
+    },
+  };
+
+  const yearOverYear = {
+    period: 'Year-over-Year',
+    annual: [] as { metric: string; y2023: string; y2024: string; change: string }[],
+    monthlyComparison: [] as any[],
+    achievements: totalLeads > 0 ? ['CRM data connected — tracking year-over-year trends'] : ['Connect CRM to see year-over-year comparisons'],
+  };
+
+  const weekOverWeekTrends = [] as any[];
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -336,12 +469,23 @@ export default function InsightsPage() {
   const renderDashboard = () => (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-6">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" data-testid="sample-data-banner">
-          <Info className="h-4 w-4 text-amber-600 flex-shrink-0" />
-          <p className="text-xs text-amber-700 dark:text-amber-400">
-            Showing sample analytics data. Live metrics will populate when connected to the production backend.
-          </p>
-        </div>
+        {dashboardLoading ? (
+          <div className="space-y-4" data-testid="insights-loading">
+            <Skeleton className="h-8 w-full" />
+            <div className="grid grid-cols-3 gap-3">
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+            </div>
+          </div>
+        ) : totalLeads === 0 ? (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" data-testid="no-data-banner">
+            <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+            <p className="text-xs text-blue-700 dark:text-blue-400">
+              No lead data available yet. Connect your CRM (VinSolutions) to see real analytics, or sync warehouse data to populate this dashboard.
+            </p>
+          </div>
+        ) : null}
         {/* RED ZONE */}
         <section>
           <div className="flex items-center gap-2 mb-3">
