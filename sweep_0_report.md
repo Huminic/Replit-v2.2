@@ -90,4 +90,19 @@ These are not in the `mocks/` directory but serve the same function — providin
 | Catalog orphaned mock files | DONE | 12 files in mocks/, 10 orphaned, 2 active (conversations.ts, messages.ts) |
 | Identify additional mock sources | DONE | lib/insight-data.ts and lib/activity-utils.ts serve mock data to production paths |
 
-**Sweep 0 is complete. Awaiting owner review before proceeding to Sweep 1.**
+---
+
+## 5. Post-Sweep Drift Check (requested by owner)
+
+6 drift items identified and corrected:
+
+| # | Drift Item | Severity | Resolution |
+|---|---|---|---|
+| 1 | MEMORY.md missing from Sweep 3A replit.md index | MEDIUM | Added to index table with status "Living document — updated each session" |
+| 2 | MEMORY.md not updated with current session work | MEDIUM | Updated with 2 new session entries (Stabilization Planning, Sweep 0) |
+| 3 | `.agent_docs/acceptance_criteria.md` header claims "SINGLE SOURCE OF TRUTH" — contradicts owner decision | HIGH | Corrected header to "DERIVED VERIFICATION/TEST LAYER" with note pointing to root AC as canonical |
+| 4 | 4 `.agent_docs/rules/` files not addressed in plan | LOW | Added to Sweep 3A index: agent-roles.md (quarantined, superseded by Sweep 3D), code-conventions.md (reference), file-management.md (quarantined), testing-protocol.md (quarantined) |
+| 5 | PRD.md not addressed in plan | LOW | Added to Sweep 3A index as reference document (not quarantined, not authoritative for implementation) |
+| 6 | Gap count: plan says "80 items", actual GAPS.md has 81 entries | LOW | Cosmetic — audit report used round number. Actual count is 81. Updated MEMORY.md entry to say 81. |
+
+**All drift items resolved. Sweep 0 is complete. Awaiting owner review before proceeding to Sweep 1.**

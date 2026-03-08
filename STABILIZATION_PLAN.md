@@ -393,12 +393,22 @@ Must explicitly reference all of the following files with purpose, status, and e
 | `CLAUDE.md` | Agent context and project structure | Governance — promotion workflow |
 | `ACCEPTANCE_CRITERIA.md` | Canonical requirements | Governance — promotion workflow |
 | `ISSUES.md` | Living issue tracker (gaps, bugs, problems) | Living document — updated during work |
+| `MEMORY.md` | Chronological session log | Living document — updated each session |
+| `GAPS.md` | Original gap register (81 items) | Reference — being merged into ISSUES.md in Sweep 2A, then retired |
 | `shared/schema.ts` | Canonical data model | Contract |
 | `server/storage.ts` | Storage interface | Contract |
 | `server/routes.ts` | API routes | Contract |
 | Agent-roles document | Agent scope and controls | Governance — promotion workflow |
 | `audits/` folder | Audit findings of record | Reference (frozen) |
-| Quarantined documents | Stale/retired docs | Quarantined — reference only |
+| `testing/` folder | 12 test battery files (owner-uploaded) | Reference — adapted in Sweep 4 |
+| `sweep_0_report.md` | Sweep 0 deliverables and self-certification | Sweep output |
+| `.agent_docs/acceptance_criteria.md` | Derived verification/test layer (NOT canonical AC) | Reference — subordinate to root AC |
+| `PRD.md` | Product requirements document | Reference — not quarantined but not authoritative for implementation decisions |
+| `.agent_docs/rules/agent-roles.md` | Original agent role definitions | Quarantined — superseded by Sweep 3D |
+| `.agent_docs/rules/code-conventions.md` | TypeScript/naming conventions | Reference — potentially reusable |
+| `.agent_docs/rules/file-management.md` | File scope and commit rules | Quarantined — stale |
+| `.agent_docs/rules/testing-protocol.md` | Test conventions referencing non-existent spec.ts | Quarantined — stale |
+| Quarantined documents (7 files) | Stale/retired docs with header notices | Quarantined — reference only |
 
 Additional sections:
 - Truth hierarchy (from Sweep 1A)
