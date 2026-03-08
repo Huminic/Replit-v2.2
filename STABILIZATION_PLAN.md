@@ -444,21 +444,22 @@ Additional sections:
 - Stop conditions for each role
 - Cross-role handoff procedures
 
-### Step 3E — Rebuild CLAUDE.md
+### Step 3E — Retire CLAUDE.md (Merge into replit.md)
 
-- Remove references to non-existent files ("Constitution", stale directories)
-- Fix truth hierarchy to match Sweep 1A declaration
-- Resolve SRS appearing at two priority levels (SRS is now quarantined — reference only)
-- Update file structure to match actual codebase
-- Update role count, table count, route count to match reality
-- Reference canonical identity model
+CLAUDE.md is redundant with replit.md — both serve as "tell the agent about the project" files. The Replit environment automatically loads replit.md at session start, making CLAUDE.md unnecessary.
+
+**Action:**
+1. Evaluate CLAUDE.md contents for anything not already covered by the proposed replit.md
+2. Merge any unique/useful content into the proposed replit.md
+3. Delete CLAUDE.md (or quarantine with retirement header if owner prefers)
+4. Remove CLAUDE.md from all governance document lists and references
+5. Update proposed/GUARDRAILS.md R11 governance document list to remove CLAUDE.md
 
 **Outputs (all as PROPOSED drafts):**
-- PROPOSED replit.md
+- PROPOSED replit.md (with any merged CLAUDE.md content)
 - PROPOSED PLAN.md
 - PROPOSED GUARDRAILS.md (with R11)
 - PROPOSED agent-roles document
-- PROPOSED CLAUDE.md
 
 **Approval gate:** Owner reviews and approves each document individually. Only approved documents get promoted to live status.
 
