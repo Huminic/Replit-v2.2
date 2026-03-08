@@ -829,6 +829,22 @@ Items deferred beyond the RC milestone:
 
 ---
 
+## Standard Practices
+
+### Post-Sweep Drift Check (mandatory after every sweep)
+
+After completing each sweep, before presenting results to the owner:
+1. Verify all planned outputs were produced and placed correctly
+2. Cross-reference outputs against the stabilization plan, ACCEPTANCE_CRITERIA.md, and ISSUES.md
+3. Check for unintended modifications to files outside the sweep's scope
+4. Verify internal consistency (no stale references, no contradictions introduced)
+5. Update MEMORY.md with the session's work
+6. Document any drift items found and their resolutions in the sweep report
+
+This practice applies equally to future phases in PLAN.md and any sprint/milestone work.
+
+---
+
 ## Principle
 
 No code changes happen until this plan is approved.
