@@ -126,6 +126,10 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Landing pages: GET /p/:slug
 - Widget config: GET /api/widgets/public/:widgetCode
 - Widget JS: GET /widget/nexxus-widget.js
+- Widget chat: POST /api/widget/chat (creates conversations + Claude AI responses)
+- Widget contact: POST /api/widget/contact (creates conversations from forms)
+- Widget voice config: GET /api/widget/voice-config/:slug
+- Widget video session: POST /api/widget/video-session (creates Tavus video sessions)
 - VAPI webhook: POST /api/webhooks/vapi
 - TextMagic webhook: POST /api/webhooks/textmagic
 
@@ -150,11 +154,19 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Test logins: admin@nexxus.com/password123, Org_Admin@huminic.ai, duane.wells@huminic.ai/a1$ucc3ss
 - Role hierarchy: super_admin(1) > partner_admin(2) > org_admin(3) > executive(4) > sales_manager(5) > sales(6) > service(7) > marketing(8)
 
+### Stabilization Sweep 7: Integration Wiring
+- **VAPI Voice Outbound**: sendPhone() in outbound.ts wired to real VAPI POST /call API via vapiPost() helper
+- **Tavus Video Sessions**: POST /api/widget/video-session creates real Tavus conversations, returns conversation_url
+- **Widget Chat**: POST /api/widget/chat creates real conversations + Claude AI responses (visible in TeamBox)
+- **Widget Contact Form**: POST /api/widget/contact creates real conversations from form submissions
+- **Widget Voice**: VAPI @vapi-ai/web SDK integrated with real connection states (connecting/connected/error/ended)
+- **Widget Video**: Tavus iframe rendering with real video session URLs
+- **Landing Page Form**: POST /api/widget/contact wired for main landing page form submissions
+- **Demo slug resolution**: resolveOrgBySlug() helper maps 'demo' to first available org for all public endpoints
+
 ## Deferred to Wave 5
 - Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)
 - Production backend cutover to nexxusv2.huminicdev.com
-- Phone outbound via VAPI
-- Tavus deeper integration
 - RLS row-level security policies
 
 ## Key Files

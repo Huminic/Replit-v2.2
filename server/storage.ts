@@ -87,6 +87,7 @@ export interface IStorage {
 
   getWidgets(organizationId: string): Promise<Widget[]>;
   getWidget(id: string): Promise<Widget | undefined>;
+  getWidgetByCode(widgetCode: string): Promise<Widget | undefined>;
   createWidget(widget: InsertWidget): Promise<Widget>;
   updateWidget(id: string, data: Partial<InsertWidget>): Promise<Widget | undefined>;
   deleteWidget(id: string): Promise<void>;
@@ -441,6 +442,11 @@ export class DatabaseStorage implements IStorage {
 
   async getWidget(id: string): Promise<Widget | undefined> {
     const [widget] = await db.select().from(widgets).where(eq(widgets.id, id));
+    return widget;
+  }
+
+  async getWidgetByCode(widgetCode: string): Promise<Widget | undefined> {
+    const [widget] = await db.select().from(widgets).where(eq(widgets.widgetCode, widgetCode));
     return widget;
   }
 

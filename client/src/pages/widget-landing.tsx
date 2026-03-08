@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRoute } from 'wouter';
 import {
   MessageSquare,
@@ -18,6 +18,7 @@ const liveVideoImg = '/images/live-video-audience.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Vapi from '@vapi-ai/web';
 
 const GUNMETAL_BLUE = '#2c3e50';
 const WIDGET_TEAL = '#0d9488';
@@ -65,11 +66,31 @@ export default function WidgetLandingPage() {
   const PERSONA_NAME = orgData?.personaName || 'Serra';
 
   const [submitted, setSubmitted] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formFirstName, setFormFirstName] = useState('');
+  const [formLastName, setFormLastName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formInterest, setFormInterest] = useState('');
+  const [widgetFormName, setWidgetFormName] = useState('');
+  const [widgetFormEmail, setWidgetFormEmail] = useState('');
+  const [widgetFormPhone, setWidgetFormPhone] = useState('');
+  const [widgetFormMessage, setWidgetFormMessage] = useState('');
+  const [widgetFormSubmitting, setWidgetFormSubmitting] = useState(false);
+  const [widgetFormSubmitted, setWidgetFormSubmitted] = useState(false);
   const [widgetMode, setWidgetMode] = useState<WidgetMode>('closed');
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
   const [chatInput, setChatInput] = useState('');
+  const [chatConversationId, setChatConversationId] = useState<string | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
   const [videoActive, setVideoActive] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended' | 'error'>('idle');
+  const [voiceVolume, setVoiceVolume] = useState(0);
+  const [videoSessionUrl, setVideoSessionUrl] = useState<string | null>(null);
+  const [videoStatus, setVideoStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+  const vapiRef = useRef<Vapi | null>(null);
+  const [voiceConfig, setVoiceConfig] = useState<{ vapiAssistantId: string | null; tavusPersonaId: string | null } | null>(null);
 
   useEffect(() => {
     if (orgData) {
@@ -96,31 +117,164 @@ export default function WidgetLandingPage() {
     );
   }
 
-  const startVideoChat = () => {
+  const handleWidgetFormSubmit = async () => {
+    if (!widgetFormName.trim() || !widgetFormEmail.trim() || !widgetFormMessage.trim()) return;
+    setWidgetFormSubmitting(true);
+    try {
+      const res = await fetch('/api/widget/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          name: widgetFormName.trim(),
+          email: widgetFormEmail.trim(),
+          phone: widgetFormPhone.trim() || undefined,
+          message: widgetFormMessage.trim(),
+        }),
+      });
+      if (res.ok) {
+        setWidgetFormSubmitted(true);
+      }
+    } catch (err) {
+      console.error('Form submission error:', err);
+    } finally {
+      setWidgetFormSubmitting(false);
+    }
+  };
+
+  const fetchVoiceConfig = async () => {
+    if (voiceConfig) return voiceConfig;
+    try {
+      const res = await fetch(`/api/widget/voice-config/${slug}`);
+      if (res.ok) {
+        const data = await res.json();
+        setVoiceConfig(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed to fetch voice config:', err);
+    }
+    return null;
+  };
+
+  const startVoiceCall = async () => {
+    setWidgetMode('voice');
+    setVoiceStatus('connecting');
+    const config = await fetchVoiceConfig();
+    if (!config?.vapiAssistantId) {
+      setVoiceStatus('error');
+      return;
+    }
+    try {
+      const vapi = new Vapi(import.meta.env.VITE_VAPI_PUBLIC_KEY || '');
+      vapiRef.current = vapi;
+      vapi.on('call-start', () => setVoiceStatus('connected'));
+      vapi.on('call-end', () => { setVoiceStatus('ended'); vapiRef.current = null; });
+      vapi.on('volume-level', (vol: number) => setVoiceVolume(vol));
+      vapi.on('error', () => setVoiceStatus('error'));
+      await vapi.start(config.vapiAssistantId);
+    } catch (err) {
+      console.error('VAPI call error:', err);
+      setVoiceStatus('error');
+    }
+  };
+
+  const endVoiceCall = () => {
+    if (vapiRef.current) {
+      vapiRef.current.stop();
+      vapiRef.current = null;
+    }
+    setVoiceStatus('ended');
+    setWidgetMode('closed');
+  };
+
+  const startVideoChat = async () => {
     setWidgetMode('video');
+    setVideoStatus('connecting');
     setVideoActive(true);
+    const config = await fetchVoiceConfig();
+    if (!config?.tavusPersonaId) {
+      setVideoStatus('error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/widget/video-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, visitorName: 'Website Visitor' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVideoSessionUrl(data.conversationUrl);
+        setVideoStatus('connected');
+      } else {
+        setVideoStatus('error');
+      }
+    } catch (err) {
+      console.error('Video session error:', err);
+      setVideoStatus('error');
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setFormSubmitting(true);
+    try {
+      const fullName = `${formFirstName} ${formLastName}`.trim();
+      const messageLines = [`Interest: ${formInterest || 'Not specified'}`];
+      const body: Record<string, string> = {
+        slug,
+        name: fullName || 'Website Visitor',
+        email: formEmail,
+        message: messageLines.join('\n'),
+      };
+      if (formPhone) body.phone = formPhone;
+
+      const res = await fetch('/api/widget/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Submission failed' }));
+        throw new Error(err.message);
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Landing form submission error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
-  const handleChatSend = () => {
-    if (!chatInput.trim()) return;
-    setChatMessages(prev => [...prev, { role: 'user', text: chatInput }]);
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return;
     const userMsg = chatInput;
+    setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setChatInput('');
-    setTimeout(() => {
-      setChatMessages(prev => [...prev, {
-        role: 'ai',
-        text: userMsg.toLowerCase().includes('suv')
-          ? `Great choice! We have several SUVs in stock. Our most popular right now is the 2026 Explorer — would you like to schedule a test drive?`
-          : userMsg.toLowerCase().includes('trade')
-          ? `I can help with a trade-in estimate! What year, make, and model is your current vehicle?`
-          : `I'd be happy to help with that! Let me look into it for you. Is there anything specific you'd like to know?`
-      }]);
-    }, 1200);
+    setChatLoading(true);
+    try {
+      const res = await fetch('/api/widget/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          message: userMsg,
+          conversationId: chatConversationId,
+        }),
+      });
+      if (!res.ok) throw new Error('Chat request failed');
+      const data = await res.json();
+      setChatConversationId(data.conversationId);
+      setChatMessages(prev => [...prev, { role: 'ai', text: data.response }]);
+    } catch {
+      setChatMessages(prev => [...prev, { role: 'ai', text: "I'm sorry, I'm having trouble connecting right now. Please try again." }]);
+    } finally {
+      setChatLoading(false);
+    }
   };
 
   const renderWidgetContent = () => {
@@ -159,7 +313,7 @@ export default function WidgetLandingPage() {
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => setWidgetMode('voice')}
+              onClick={() => startVoiceCall()}
               data-testid="widget-option-voice"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
@@ -236,6 +390,15 @@ export default function WidgetLandingPage() {
                 </div>
               </div>
             ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md px-3 py-2 text-sm flex items-center gap-1" data-testid="chat-typing-indicator">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            )}
           </div>
           <div className="p-3 border-t border-gray-100">
             <div className="flex items-center gap-2">
@@ -252,9 +415,10 @@ export default function WidgetLandingPage() {
                 className="h-9 w-9 p-0 text-white flex-shrink-0"
                 style={{ backgroundColor: WIDGET_TEAL }}
                 onClick={handleChatSend}
+                disabled={chatLoading}
                 data-testid="button-widget-send"
               >
-                <Send className="h-4 w-4" />
+                {chatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -267,40 +431,45 @@ export default function WidgetLandingPage() {
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[420px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-video">
           <div className="flex-1 bg-gray-900 relative flex items-center justify-center">
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white bg-black/30 rounded-full p-1.5 text-xs" data-testid="button-video-back">
+              <button onClick={() => { setWidgetMode('menu'); setVideoActive(false); setVideoStatus('idle'); setVideoSessionUrl(null); }} className="text-white/70 hover:text-white bg-black/30 rounded-full p-1.5 text-xs" data-testid="button-video-back">
                 ←
               </button>
-              <button onClick={() => { setWidgetMode('closed'); setVideoActive(false); }} className="text-white/70 hover:text-white bg-black/30 rounded-full p-1.5" data-testid="button-video-close">
+              <button onClick={() => { setWidgetMode('closed'); setVideoActive(false); setVideoStatus('idle'); setVideoSessionUrl(null); }} className="text-white/70 hover:text-white bg-black/30 rounded-full p-1.5" data-testid="button-video-close">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            {videoActive ? (
+            {videoStatus === 'connected' && videoSessionUrl ? (
+              <iframe
+                src={videoSessionUrl}
+                className="absolute inset-0 w-full h-full"
+                allow="microphone;camera;autoplay"
+                data-testid="tavus-video-iframe"
+              />
+            ) : videoStatus === 'connecting' ? (
               <div className="text-center">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-4 flex items-center justify-center animate-pulse">
-                  <Video className="h-10 w-10 text-white" />
+                  <Loader2 className="h-10 w-10 text-white animate-spin" />
                 </div>
-                <p className="text-white font-medium text-sm">{PERSONA_NAME}</p>
-                <p className="text-white/60 text-xs mt-1">AI Video Concierge</p>
-                <p className="text-emerald-400 text-xs mt-2 flex items-center justify-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Connected
-                </p>
+                <p className="text-white font-medium text-sm">Connecting to {PERSONA_NAME}...</p>
+                <p className="text-white/60 text-xs mt-1">Setting up video session</p>
+              </div>
+            ) : videoStatus === 'error' ? (
+              <div className="text-center px-4">
+                <div className="w-24 h-24 rounded-full bg-gray-800 mx-auto mb-4 flex items-center justify-center">
+                  <VideoOff className="h-10 w-10 text-gray-600" />
+                </div>
+                <p className="text-white font-medium text-sm">Video unavailable</p>
+                <p className="text-white/60 text-xs mt-1">Video chat is not configured yet. Please try Web Chat instead.</p>
               </div>
             ) : (
               <div className="text-center">
                 <div className="w-24 h-24 rounded-full bg-gray-800 mx-auto mb-4 flex items-center justify-center">
                   <Video className="h-10 w-10 text-gray-600" />
                 </div>
-                <p className="text-gray-400 text-sm">Connecting to {PERSONA_NAME}...</p>
+                <p className="text-gray-400 text-sm">Ready to connect</p>
               </div>
             )}
-
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <div className="absolute top-[-60px] right-3 w-16 h-20 rounded-lg bg-gray-700 border border-gray-600 flex items-center justify-center overflow-hidden">
-                <p className="text-gray-500 text-[8px]">You</p>
-              </div>
-            </div>
           </div>
           <div className="p-3 bg-gray-900 border-t border-gray-800 flex items-center justify-center gap-4">
             <button
@@ -311,15 +480,8 @@ export default function WidgetLandingPage() {
               {micMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             </button>
             <button
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${!videoActive ? 'bg-red-500/20 text-red-400' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-              onClick={() => setVideoActive(!videoActive)}
-              data-testid="button-toggle-video"
-            >
-              {videoActive ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-            </button>
-            <button
               className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-              onClick={() => { setWidgetMode('closed'); setVideoActive(false); }}
+              onClick={() => { setWidgetMode('closed'); setVideoActive(false); setVideoStatus('idle'); setVideoSessionUrl(null); }}
               data-testid="button-end-call"
             >
               <Phone className="h-4 w-4 rotate-[135deg]" />
@@ -334,36 +496,74 @@ export default function WidgetLandingPage() {
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[300px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
           <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
-              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs">←</button>
+              <button onClick={() => { endVoiceCall(); setWidgetMode('menu'); }} className="text-white/70 hover:text-white text-xs">←</button>
               <p className="font-semibold text-xs">Voice Call</p>
             </div>
-            <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white">
+            <button onClick={() => endVoiceCall()} className="text-white/70 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-              <Phone className="h-8 w-8 text-emerald-600" />
-            </div>
-            <p className="font-medium text-sm text-gray-900">Connected to {PERSONA_NAME}</p>
-            <p className="text-xs text-gray-500 mt-1">AI Voice Assistant</p>
-            <div className="flex items-center gap-1 mt-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-1 rounded-full bg-emerald-500 animate-pulse" style={{ height: `${12 + Math.random() * 16}px`, animationDelay: `${i * 0.15}s` }} />
-              ))}
-            </div>
+            {voiceStatus === 'connecting' ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Connecting...</p>
+                <p className="text-xs text-gray-500 mt-1">Setting up voice call</p>
+              </>
+            ) : voiceStatus === 'connected' ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-emerald-600" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Connected to {PERSONA_NAME}</p>
+                <p className="text-xs text-gray-500 mt-1">AI Voice Assistant</p>
+                <div className="flex items-center gap-1 mt-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-1 rounded-full bg-emerald-500 transition-all" style={{ height: `${12 + voiceVolume * 20 + Math.sin(Date.now() / 200 + i) * 4}px` }} />
+                  ))}
+                </div>
+              </>
+            ) : voiceStatus === 'error' ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-red-400" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Call unavailable</p>
+                <p className="text-xs text-gray-500 mt-1">Voice calling is not configured yet. Please try Web Chat instead.</p>
+              </>
+            ) : voiceStatus === 'ended' ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Call ended</p>
+                <p className="text-xs text-gray-500 mt-1">Thank you for calling</p>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-emerald-600" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Ready to call</p>
+              </>
+            )}
           </div>
           <div className="p-3 border-t border-gray-100 flex items-center justify-center gap-4">
             <button
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${micMuted ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              onClick={() => setMicMuted(!micMuted)}
+              onClick={() => {
+                setMicMuted(!micMuted);
+                if (vapiRef.current) vapiRef.current.send({ type: 'control', control: micMuted ? 'unmute-assistant' : 'mute-assistant' });
+              }}
               data-testid="button-voice-mic"
             >
               {micMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             </button>
             <button
               className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-              onClick={() => setWidgetMode('closed')}
+              onClick={() => endVoiceCall()}
               data-testid="button-voice-end"
             >
               <Phone className="h-4 w-4 rotate-[135deg]" />
@@ -385,28 +585,51 @@ export default function WidgetLandingPage() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="p-4 space-y-3">
-            <div>
-              <label className="text-xs font-medium text-gray-700 block mb-1">Name *</label>
-              <input className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Your name" data-testid="input-form-name" />
+          {widgetFormSubmitted ? (
+            <div className="p-6 text-center" data-testid="widget-form-success">
+              <CheckCircle2 className="h-12 w-12 mx-auto mb-3" style={{ color: WIDGET_TEAL }} />
+              <p className="font-semibold text-sm text-gray-900">Message Sent</p>
+              <p className="text-xs text-gray-500 mt-1">We'll get back to you shortly.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => { setWidgetFormSubmitted(false); setWidgetFormName(''); setWidgetFormEmail(''); setWidgetFormPhone(''); setWidgetFormMessage(''); }}
+                data-testid="button-form-send-another"
+              >
+                Send another message
+              </Button>
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 block mb-1">Email *</label>
-              <input type="email" className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="your@email.com" data-testid="input-form-email" />
+          ) : (
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-700 block mb-1">Name *</label>
+                <input value={widgetFormName} onChange={(e) => setWidgetFormName(e.target.value)} className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Your name" data-testid="input-form-name" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 block mb-1">Email *</label>
+                <input type="email" value={widgetFormEmail} onChange={(e) => setWidgetFormEmail(e.target.value)} className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="your@email.com" data-testid="input-form-email" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 block mb-1">Phone</label>
+                <input type="tel" value={widgetFormPhone} onChange={(e) => setWidgetFormPhone(e.target.value)} className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="(555) 123-4567" data-testid="input-form-phone" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 block mb-1">Message *</label>
+                <textarea value={widgetFormMessage} onChange={(e) => setWidgetFormMessage(e.target.value)} className="w-full text-sm min-h-[60px] px-3 py-2 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" placeholder="How can we help?" data-testid="input-form-message" />
+              </div>
+              <Button
+                className="w-full text-white"
+                style={{ backgroundColor: WIDGET_TEAL }}
+                onClick={handleWidgetFormSubmit}
+                disabled={widgetFormSubmitting || !widgetFormName.trim() || !widgetFormEmail.trim() || !widgetFormMessage.trim()}
+                data-testid="button-form-submit"
+              >
+                {widgetFormSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {widgetFormSubmitting ? 'Sending...' : 'Send Message'}
+              </Button>
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 block mb-1">Phone</label>
-              <input type="tel" className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="(555) 123-4567" data-testid="input-form-phone" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 block mb-1">Message *</label>
-              <textarea className="w-full text-sm min-h-[60px] px-3 py-2 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" placeholder="How can we help?" data-testid="input-form-message" />
-            </div>
-            <Button className="w-full text-white" style={{ backgroundColor: WIDGET_TEAL }} data-testid="button-form-submit">
-              <Send className="h-4 w-4 mr-2" />
-              Send Message
-            </Button>
-          </div>
+          )}
         </div>
       );
     }
@@ -452,33 +675,35 @@ export default function WidgetLandingPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-gray-600">First Name</Label>
-                    <input placeholder="John" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-first-name" />
+                    <input value={formFirstName} onChange={(e) => setFormFirstName(e.target.value)} placeholder="John" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-first-name" />
                   </div>
                   <div>
                     <Label className="text-xs text-gray-600">Last Name</Label>
-                    <input placeholder="Smith" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-last-name" />
+                    <input value={formLastName} onChange={(e) => setFormLastName(e.target.value)} placeholder="Smith" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-last-name" />
                   </div>
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">Phone Number</Label>
-                  <input type="tel" placeholder="(555) 123-4567" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-phone" />
+                  <input value={formPhone} onChange={(e) => setFormPhone(e.target.value)} type="tel" placeholder="(555) 123-4567" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-phone" />
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">Email</Label>
-                  <input type="email" placeholder="john@example.com" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" data-testid="input-email" />
+                  <input value={formEmail} onChange={(e) => setFormEmail(e.target.value)} type="email" placeholder="john@example.com" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" required data-testid="input-email" />
                 </div>
                 <div>
                   <Label className="text-xs text-gray-600">What are you looking for?</Label>
-                  <input placeholder="e.g. SUV under $40K, trade-in value" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" data-testid="input-interest" />
+                  <input value={formInterest} onChange={(e) => setFormInterest(e.target.value)} placeholder="e.g. SUV under $40K, trade-in value" className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1" data-testid="input-interest" />
                 </div>
                 <Button
                   type="submit"
                   className="w-full text-white mt-2"
                   style={{ backgroundColor: GUNMETAL_BLUE }}
+                  disabled={formSubmitting}
                   data-testid="button-submit"
                 >
-                  Get in Touch
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  {formSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  {formSubmitting ? 'Submitting...' : 'Get in Touch'}
+                  {!formSubmitting && <ArrowRight className="h-4 w-4 ml-2" />}
                 </Button>
               </form>
 

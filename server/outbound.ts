@@ -1,5 +1,6 @@
 import { storage } from "./storage";
 import { Resend } from "resend";
+import { vapiPost } from "./vendorProxy";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
 const RATE_LIMIT_MAX = 3;
@@ -77,8 +78,36 @@ export async function sendEmail(to: string, content: string): Promise<void> {
   console.log(`[Resend] Email sent to ${to}, id: ${data?.id}`);
 }
 
-export async function sendPhone(to: string, content: string): Promise<void> {
-  console.log(`[Phone] Call initiation to ${to} delegated to VAPI — "${content.substring(0, 80)}..."`);
+export async function sendPhone(to: string, content: string, organizationId?: string): Promise<void> {
+  if (!process.env.VAPI_PRIVATE_KEY) {
+    throw new Error("VAPI_PRIVATE_KEY is not configured — cannot initiate outbound call");
+  }
+
+  let assistantId: string | undefined;
+
+  if (organizationId) {
+    const agents = await storage.getAgents(organizationId, {});
+    const voiceAgent = agents.find(
+      (a) => a.vapiAssistantId && a.channels?.includes("voice") && a.status === "active"
+    );
+    if (voiceAgent?.vapiAssistantId) {
+      assistantId = voiceAgent.vapiAssistantId;
+    }
+  }
+
+  if (!assistantId) {
+    throw new Error("No VAPI assistant configured for this organization — cannot initiate outbound call");
+  }
+
+  const callPayload = {
+    assistantId,
+    customer: {
+      number: to.replace(/[^0-9+]/g, ""),
+    },
+  };
+
+  const result = await vapiPost("/call", callPayload);
+  console.log(`[VAPI] Outbound call initiated to ${to}, callId: ${result.id}`);
 }
 
 function isGlobalOutboundEnabled(): boolean {
@@ -216,7 +245,7 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
         await sendEmail(request.to, request.messageContent);
         break;
       case "phone":
-        await sendPhone(request.to, request.messageContent);
+        await sendPhone(request.to, request.messageContent, request.organizationId);
         break;
     }
 
