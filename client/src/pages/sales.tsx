@@ -20,6 +20,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings } from 'lucide-react';
+import InsightsPage from '@/pages/insights';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -329,15 +330,8 @@ export default function SalesPage() {
     );
   };
 
-  /** Insights tab — placeholder for Wave 2 analytics (lead scoring, conversion funnels, pipeline velocity) */
   const renderInsights = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Sales Insights</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Detailed analytics and reports for your sales pipeline, lead scoring, and conversion metrics.</p>
-      </div>
-    </div>
+    <InsightsPage embedded />
   );
 
   const renderCalendar = () => <AppointmentCalendar department="sales" />;
