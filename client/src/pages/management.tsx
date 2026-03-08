@@ -19,6 +19,7 @@
  */
 import { useState, useMemo } from 'react';
 import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare } from 'lucide-react';
+import InsightsPage from '@/pages/insights';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -132,15 +133,8 @@ export default function ManagementPage() {
     </div>
   );
 
-  /** Insights tab — placeholder for Wave 2 cross-department analytics and performance benchmarking */
   const renderInsights = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Management Insights</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Cross-department analytics, trend analysis, and performance benchmarking.</p>
-      </div>
-    </div>
+    <InsightsPage embedded />
   );
 
   const renderHunches = () => (

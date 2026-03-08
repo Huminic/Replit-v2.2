@@ -21,6 +21,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
+import InsightsPage from '@/pages/insights';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -495,15 +496,8 @@ export default function MarketingPage() {
     </div>
   );
 
-  /** Insights tab — placeholder for Wave 2 campaign ROI, lead attribution, and conversion funnel analytics */
   const renderInsights = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Marketing Insights</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Campaign ROI, lead attribution, channel performance, and conversion funnel analytics.</p>
-      </div>
-    </div>
+    <InsightsPage embedded />
   );
 
   return (

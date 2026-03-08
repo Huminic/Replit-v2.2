@@ -25,6 +25,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
+import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -518,15 +519,8 @@ export default function ServicePage() {
     </div>
   );
 
-  /** Insights tab — placeholder for Wave 2 service performance analytics and appointment trends */
   const renderInsights = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Service Insights</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Service performance analytics, appointment trends, and campaign effectiveness reports.</p>
-      </div>
-    </div>
+    <InsightsPage embedded />
   );
 
   const renderCalendar = () => <AppointmentCalendar department="service" />;

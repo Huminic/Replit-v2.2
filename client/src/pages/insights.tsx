@@ -244,7 +244,7 @@ function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]
   );
 }
 
-export default function InsightsPage() {
+export default function InsightsPage({ embedded = false }: { embedded?: boolean }) {
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
@@ -1429,16 +1429,20 @@ export default function InsightsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex items-center justify-between gap-2">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">Insights</h1>
-          <p className="text-sm text-muted-foreground">Analytics, reports, and AI-generated intelligence</p>
-        </div>
-      </div>
+      {!embedded && (
+        <>
+          <div className="p-4 border-b border-border flex items-center justify-between gap-2">
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">Insights</h1>
+              <p className="text-sm text-muted-foreground">Analytics, reports, and AI-generated intelligence</p>
+            </div>
+          </div>
 
-      <div className="px-4 py-2 lg:hidden">
-        <MobileNavDropdown currentPath="/insights" currentLabel="Insights" />
-      </div>
+          <div className="px-4 py-2 lg:hidden">
+            <MobileNavDropdown currentPath="/insights" currentLabel="Insights" />
+          </div>
+        </>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 border-b border-border hidden lg:flex items-center">
@@ -1456,7 +1460,7 @@ export default function InsightsPage() {
               Hunches
             </TabsTrigger>
           </TabsList>
-          <FavoritesBar currentPath="/insights" currentLabel="Insights" />
+          {!embedded && <FavoritesBar currentPath="/insights" currentLabel="Insights" />}
         </div>
 
         <TabsContent value="dashboard" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
