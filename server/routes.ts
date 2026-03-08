@@ -923,9 +923,6 @@ export async function registerRoutes(
       }
       const conv = await storage.createConversation(parsed.data);
 
-      // REAP: Clean up stale ai-chat conversations for this user (greeting-only, no real messages).
-      // Fresh chat creates a new conversation each page load; old ones with <=1 message are orphans.
-      // TODO: Move to a scheduled job when background task infrastructure is available.
       if (parsed.data.channel === "ai-chat" && parsed.data.customerEmail) {
         const allConvs = await storage.getConversations(req.user.organizationId, { channel: "ai-chat" });
         const staleConvs = allConvs.filter(
@@ -937,6 +934,54 @@ export async function registerRoutes(
             await storage.deleteConversation(stale.id);
           }
         }
+      }
+
+      if (conv.customerPhone && parsed.data.channel !== "ai-chat") {
+        (async () => {
+          try {
+            const org = await storage.getOrganization(req.user!.organizationId);
+            if (!org || !org.outboundEnabled || !org.smsEnabled) return;
+            if (process.env.OUTBOUND_LIVE_ENABLED !== "true") return;
+
+            const orgAgents = await storage.getAgents(req.user!.organizationId);
+            const greetingAgent = orgAgents.find(a => a.autoGreeting && a.status === "active");
+            if (!greetingAgent || !greetingAgent.autoGreeting) return;
+
+            const greeting = greetingAgent.autoGreeting
+              .replace(/\{\{customerName\}\}/g, conv.customerName || "there")
+              .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+              .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+
+            const { sendSms } = await import("./outbound");
+            await sendSms(conv.customerPhone!, greeting);
+            console.log(`[AutoGreeting] Sent to ${conv.customerPhone} via agent ${greetingAgent.name}`);
+
+            await storage.createMessage({
+              conversationId: conv.id,
+              role: "agent",
+              content: greeting,
+              senderName: greetingAgent.name,
+            });
+
+            storage.logUsageEvent({
+              organizationId: req.user!.organizationId,
+              eventType: "outbound_sms",
+              channel: "sms",
+              quantity: 1,
+              metadata: { recipient: conv.customerPhone, source: "auto_greeting", agentId: greetingAgent.id },
+            }).catch(() => {});
+
+            storage.createActivityLog({
+              organizationId: req.user!.organizationId,
+              action: "auto_greeting_sent",
+              entityType: "conversation",
+              entityId: conv.id,
+              metadata: { agentName: greetingAgent.name, customerPhone: conv.customerPhone },
+            }).catch(() => {});
+          } catch (greetErr: any) {
+            console.error(`[AutoGreeting] Failed:`, greetErr.message);
+          }
+        })();
       }
 
       return res.status(201).json(conv);
@@ -1025,6 +1070,47 @@ export async function registerRoutes(
       }
       const msg = await storage.createMessage(parsed.data);
       await storage.updateConversation(req.params.id, { lastMessageAt: new Date() });
+
+      const isAgentReply = parsed.data.role === "agent" || parsed.data.role === "system";
+      const content = parsed.data.content || "";
+      const isSmsChannel = conversation.channel === "sms";
+      const hasSmsPrefix = content.startsWith("[SMS] ");
+      const shouldSendSms = isAgentReply && (isSmsChannel || hasSmsPrefix) && conversation.customerPhone;
+
+      if (shouldSendSms && conversation.customerPhone) {
+        const org = await storage.getOrganization(conversation.organizationId);
+        const smsContent = hasSmsPrefix ? content.replace("[SMS] ", "") : content;
+        if (!org) {
+          console.warn(`[TeamBox SMS] Org not found for conversation ${conversation.id}`);
+        } else if (!org.outboundEnabled || !org.smsEnabled) {
+          console.warn(`[TeamBox SMS] SMS blocked — org outbound=${org.outboundEnabled}, sms=${org.smsEnabled}`);
+        } else if (process.env.OUTBOUND_LIVE_ENABLED !== "true") {
+          console.warn(`[TeamBox SMS] Blocked — OUTBOUND_LIVE_ENABLED is not true`);
+        } else {
+          try {
+            const { sendSms } = await import("./outbound");
+            await sendSms(conversation.customerPhone, smsContent);
+            console.log(`[TeamBox SMS] Delivered reply to ${conversation.customerPhone}`);
+            storage.logUsageEvent({
+              organizationId: conversation.organizationId,
+              eventType: "outbound_sms",
+              channel: "sms",
+              quantity: 1,
+              metadata: { recipient: conversation.customerPhone, source: "teambox_reply", conversationId: conversation.id },
+            }).catch(() => {});
+          } catch (smsErr: any) {
+            console.error(`[TeamBox SMS] Delivery failed:`, smsErr.message);
+            storage.logUsageEvent({
+              organizationId: conversation.organizationId,
+              eventType: "outbound_sms_failed",
+              channel: "sms",
+              quantity: 0,
+              metadata: { recipient: conversation.customerPhone, source: "teambox_reply", error: smsErr.message },
+            }).catch(() => {});
+          }
+        }
+      }
+
       return res.status(201).json(msg);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create message" });
@@ -2618,6 +2704,201 @@ Return ONLY the JSON array, no other text.`,
       });
     } catch (err) {
       console.error("[VAPI Webhook] Error processing webhook:", err);
+      return res.status(500).json({ message: "Failed to process webhook" });
+    }
+  });
+
+  app.get("/api/webhooks/vapi", async (_req, res) => {
+    return res.json({ status: "ok", service: "nexxus-connect-vapi-webhook" });
+  });
+
+  app.post("/api/webhooks/tavus", async (req, res) => {
+    try {
+      const { event, conversation_id, status } = req.body;
+
+      if (event !== "conversation.end" && status !== "ended" && event !== "conversation_ended") {
+        return res.json({ message: "Event type ignored", event });
+      }
+
+      const tavusConversationId = conversation_id || req.body.conversationId;
+      if (!tavusConversationId) {
+        return res.status(400).json({ message: "Missing conversation_id" });
+      }
+
+      console.log(`[Tavus Webhook] Processing ended conversation: ${tavusConversationId}`);
+
+      let tavusData: any = null;
+      try {
+        const { default: fetch } = await import("node-fetch" as any).catch(() => ({ default: globalThis.fetch }));
+        const tavusApiKey = process.env.TAVUS_API_KEY;
+        if (tavusApiKey) {
+          const tavusRes = await fetch(`https://tavusapi.com/v2/conversations/${tavusConversationId}`, {
+            headers: { "x-api-key": tavusApiKey, "Content-Type": "application/json" },
+          });
+          if (tavusRes.ok) {
+            tavusData = await tavusRes.json();
+          } else {
+            console.warn(`[Tavus Webhook] Could not fetch conversation details: ${tavusRes.status}`);
+          }
+        }
+      } catch (fetchErr: any) {
+        console.warn(`[Tavus Webhook] Fetch error:`, fetchErr.message);
+      }
+
+      const transcript = tavusData?.transcript || tavusData?.conversation_transcript || req.body.transcript || "";
+      const summary = tavusData?.summary || req.body.summary || "";
+      const visitorName = tavusData?.conversation_name?.replace("Session with ", "") || "Video Visitor";
+      const personaId = tavusData?.persona_id || req.body.persona_id;
+
+      let organizationId: string | null = null;
+      let agentId: string | null = null;
+
+      if (personaId) {
+        const allOrgs = await storage.getOrganizations();
+        for (const org of allOrgs) {
+          const orgAgents = await storage.getAgents(org.id);
+          const matchingAgent = orgAgents.find(a => a.tavusPersonaId === personaId);
+          if (matchingAgent) {
+            organizationId = org.id;
+            agentId = matchingAgent.id;
+            break;
+          }
+        }
+      }
+
+      if (!organizationId) {
+        const allOrgs = await storage.getOrganizations();
+        if (allOrgs.length > 0) {
+          organizationId = allOrgs[0].id;
+          console.warn(`[Tavus Webhook] Could not resolve org from persona — defaulting to ${allOrgs[0].name}`);
+        } else {
+          return res.status(422).json({ message: "No organization found" });
+        }
+      }
+
+      const conversation = await storage.createConversation({
+        customerName: visitorName,
+        channel: "video",
+        status: "open",
+        agentId,
+        organizationId,
+        unreadCount: 1,
+        lastMessageAt: new Date(),
+      });
+
+      if (transcript || summary) {
+        const messageContent = summary
+          ? `**Video Call Summary:**\n${summary}\n\n**Transcript:**\n${transcript}`
+          : `**Video Call Transcript:**\n${transcript}`;
+
+        await storage.createMessage({
+          conversationId: conversation.id,
+          role: "system",
+          content: messageContent,
+          senderName: "Tavus",
+        });
+      }
+
+      let vinLeadCreated = false;
+      try {
+        const { callMCP, resolveNexxusOrgId } = await import("./vendorProxy");
+        const nexxusOrgId = resolveNexxusOrgId(organizationId);
+
+        const nameParts = visitorName.split(" ");
+        const firstName = nameParts[0] || "Video";
+        const lastName = nameParts.slice(1).join(" ") || "Visitor";
+
+        const contactResult = await callMCP("vin_create_contact", {
+          orgId: nexxusOrgId,
+          firstName,
+          lastName,
+        });
+        const vinContactHref = contactResult?.href || contactResult?.contactHref || contactResult?.id || null;
+        console.log(`[Tavus→VIN] Step 1 success: contact created, href=${vinContactHref}`);
+
+        try {
+          await callMCP("vin_create_lead", {
+            orgId: nexxusOrgId,
+            contactHref: vinContactHref,
+            source: "Tavus Video Conversation",
+            description: summary || `Video conversation with ${visitorName}`,
+            transcript: transcript.substring(0, 5000),
+          });
+          vinLeadCreated = true;
+          console.log(`[Tavus→VIN] Step 2 success: lead created for contact ${vinContactHref}`);
+        } catch (step2Err: any) {
+          console.error(`[Tavus→VIN] Step 2 FAILED (lead creation):`, step2Err.message);
+          await storage.createTask({
+            type: "escalation",
+            title: "VIN Lead Creation Failed — Tavus Video (Step 2)",
+            description: `Contact was created (href: ${vinContactHref}) but lead creation failed.\n\nError: ${step2Err.message}`,
+            status: "todo",
+            priority: "critical",
+            organizationId,
+            tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
+            metadata: JSON.stringify({
+              trigger_id: `tavus-vin-${Date.now()}`,
+              org_id: organizationId,
+              failed_step: 2,
+              contact_href: vinContactHref,
+              error_response: step2Err.message,
+              tavus_conversation_id: tavusConversationId,
+              conversation_id: conversation.id,
+            }),
+          });
+        }
+      } catch (step1Err: any) {
+        console.error(`[Tavus→VIN] Step 1 FAILED (contact creation):`, step1Err.message);
+        await storage.createTask({
+          type: "escalation",
+          title: "VIN Contact Creation Failed — Tavus Video (Step 1)",
+          description: `Failed to create VIN Solutions contact for Tavus video.\n\nVisitor: ${visitorName}\nError: ${step1Err.message}`,
+          status: "todo",
+          priority: "critical",
+          organizationId,
+          tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
+          metadata: JSON.stringify({
+            trigger_id: `tavus-vin-${Date.now()}`,
+            org_id: organizationId,
+            failed_step: 1,
+            error_response: step1Err.message,
+            tavus_conversation_id: tavusConversationId,
+            conversation_id: conversation.id,
+          }),
+        });
+      }
+
+      const users = await storage.getUsers(organizationId);
+      const adminUsers = users.filter(u => u.role && u.role.level <= 3);
+      for (const user of adminUsers) {
+        storage.createNotification({
+          userId: user.id,
+          organizationId,
+          type: "call",
+          title: "Video Conversation Completed",
+          message: `Video conversation with ${visitorName} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
+          relatedEntityType: "conversation",
+          relatedEntityId: conversation.id,
+        }).catch(() => {});
+      }
+
+      storage.createActivityLog({
+        organizationId,
+        action: "tavus_video_completed",
+        entityType: "conversation",
+        entityId: conversation.id,
+        metadata: { visitorName, personaId, tavusConversationId, agentId, vinLeadCreated },
+      }).catch(() => {});
+
+      console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
+
+      return res.json({
+        message: "Webhook processed successfully",
+        conversationId: conversation.id,
+        vinLeadCreated,
+      });
+    } catch (err) {
+      console.error("[Tavus Webhook] Error processing webhook:", err);
       return res.status(500).json({ message: "Failed to process webhook" });
     }
   });

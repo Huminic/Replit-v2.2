@@ -130,7 +130,8 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Widget contact: POST /api/widget/contact (creates conversations from forms)
 - Widget voice config: GET /api/widget/voice-config/:slug
 - Widget video session: POST /api/widget/video-session (creates Tavus video sessions)
-- VAPI webhook: POST /api/webhooks/vapi
+- VAPI webhook: POST /api/webhooks/vapi (+ GET health check)
+- Tavus webhook: POST /api/webhooks/tavus (conversation.end → VinSolutions lead)
 - TextMagic webhook: POST /api/webhooks/textmagic
 
 ## External Dependencies
@@ -163,6 +164,14 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - **Widget Video**: Tavus iframe rendering with real video session URLs
 - **Landing Page Form**: POST /api/widget/contact wired for main landing page form submissions
 - **Demo slug resolution**: resolveOrgBySlug() helper maps 'demo' to first available org for all public endpoints
+
+### Stabilization Sweep 8: Five Aha Moments
+- **Two-Way SMS**: TeamBox agent replies on SMS conversations now deliver via TextMagic API; [SMS] prefix sends SMS on any channel conversation; usage metering logged
+- **Tavus Webhook → VinSolutions**: POST /api/webhooks/tavus receives conversation.end events, fetches transcript, creates local conversation, pushes contact+lead to VinSolutions (with escalation on failure)
+- **Agent Auto-Greeting**: New `auto_greeting` column on agents; when a conversation is created with a phone number, the active agent's greeting template is sent via SMS automatically (template vars: {{customerName}}, {{dealershipName}}, {{agentName}})
+- **VAPI Webhook Hardening**: GET /api/webhooks/vapi health-check endpoint added for VAPI webhook registration
+- **Service Campaign**: Full end-to-end SMS campaign flow verified (creation → CSV upload → execution → TextMagic delivery)
+- **Duane's test number**: 4126546500
 
 ## Deferred to Wave 5
 - Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)
