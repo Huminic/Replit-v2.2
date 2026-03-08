@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: APPLICATION CODE section was never populated — only lists governance docs from Wave 0. Does not reflect the actual codebase (200+ source files across client/src/, server/, shared/).
+
 # .agent_docs/codebase-index.md — Nexxus v2.2
 # PURPOSE: Living map of the codebase. Machine-readable by agents. Updated by Scribe on every commit.
 # Format: File path | Purpose | Key dependencies | Wave/Sprint | Last updated

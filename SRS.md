@@ -1,8 +1,11 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: Partially stale — references 53 tables and 175 endpoints that do not match the actual 23-table/104-route state. "GOVERNING DOCUMENT" status is revoked.
+
 # Nexxus Connect -- Software Requirements Specification v2.2
 
 **Version:** 2.2
 **Date:** 2026-03-03
-**Status:** GOVERNING DOCUMENT
+**Status:** ~~GOVERNING DOCUMENT~~ QUARANTINED
 **Cross-References:** [CLAUDE.md](./CLAUDE.md) | [PRD.md](./PRD.md) | [SPEC.md](./SPEC.md) | [PLAN.md](./PLAN.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md)
 
 ---

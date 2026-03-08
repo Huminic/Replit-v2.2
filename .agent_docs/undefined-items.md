@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: No entries were ever logged despite 4 waves of development encountering numerous undefined behaviors. The process described was never followed.
+
 # .agent_docs/undefined-items.md — Nexxus v2.2
 # PURPOSE: Agents log undefined behaviors here and HALT on the item.
 # Format: ID | File | Line | Undefined item | Assumed behavior (if any) | Status | Owner resolution

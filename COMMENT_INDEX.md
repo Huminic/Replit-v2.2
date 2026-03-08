@@ -1,3 +1,6 @@
+> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
+> Quarantined during Sweep 0 (Stabilization Plan). Reason: References stale file states and comment locations that may no longer be accurate after 4 waves of development.
+
 # Nexxus Connect — Developer Comment Index
 
 > **Purpose**: Master reference for all developer comments in the codebase.
