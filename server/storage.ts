@@ -42,6 +42,7 @@ export interface IStorage {
 
   getOrganization(id: string): Promise<Organization | undefined>;
   getOrganizations(): Promise<Organization[]>;
+  findOrganizationByPhone(phone: string): Promise<Organization | undefined>;
   createOrganization(org: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, data: Partial<InsertOrganization>): Promise<Organization | undefined>;
 
@@ -235,6 +236,18 @@ export class DatabaseStorage implements IStorage {
 
   async getOrganizations(): Promise<Organization[]> {
     return db.select().from(organizations);
+  }
+
+  async findOrganizationByPhone(phone: string): Promise<Organization | undefined> {
+    const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const conv = await db.select({ organizationId: conversations.organizationId })
+      .from(conversations)
+      .where(eq(conversations.customerPhone, normalizedPhone))
+      .limit(1);
+    if (conv.length > 0) {
+      return this.getOrganization(conv[0].organizationId);
+    }
+    return undefined;
   }
 
   async createOrganization(org: InsertOrganization): Promise<Organization> {

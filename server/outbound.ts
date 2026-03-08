@@ -353,7 +353,15 @@ export async function startCampaignExecution(
   activeExecutions.set(campaignId, execution);
 
   if (!dryRun) {
-    await storage.updateCampaign(campaignId, { status: "active" } as any);
+    await storage.updateCampaign(campaignId, {
+      status: "active",
+      executionStatus: "executing",
+      executionTotal: pendingRecipients.length,
+      executionProcessed: 0,
+      executionSent: 0,
+      executionFailed: 0,
+      executionStartedAt: new Date(),
+    } as any);
   }
 
   const recipientQueue = [...pendingRecipients];
@@ -409,17 +417,30 @@ export async function startCampaignExecution(
       exec.sent++;
       if (!dryRun) {
         await storage.updateRecipient(recipient.id, { status: "sent", sentAt: new Date() } as any);
-        await storage.updateCampaign(campaignId, { sentCount: (latestCampaign?.sentCount || 0) + 1 } as any);
+        await storage.updateCampaign(campaignId, {
+          sentCount: (latestCampaign?.sentCount || 0) + 1,
+          executionProcessed: exec.processed,
+          executionSent: exec.sent,
+          executionFailed: exec.failed,
+        } as any);
       }
     } else if (result.status === "blocked") {
       exec.blocked++;
       if (!dryRun) {
         await storage.updateRecipient(recipient.id, { status: "blocked" } as any);
+        await storage.updateCampaign(campaignId, {
+          executionProcessed: exec.processed,
+          executionFailed: exec.failed,
+        } as any);
       }
     } else {
       exec.failed++;
       if (!dryRun) {
         await storage.updateRecipient(recipient.id, { status: "failed" } as any);
+        await storage.updateCampaign(campaignId, {
+          executionProcessed: exec.processed,
+          executionFailed: exec.failed,
+        } as any);
       }
     }
 
@@ -451,7 +472,13 @@ async function finishExecution(campaignId: string, finalStatus: "completed" | "s
 
   if (!exec.dryRun) {
     const newStatus = finalStatus === "completed" ? "completed" : "paused";
-    await storage.updateCampaign(campaignId, { status: newStatus } as any);
+    await storage.updateCampaign(campaignId, {
+      status: newStatus,
+      executionStatus: finalStatus,
+      executionProcessed: exec.processed,
+      executionSent: exec.sent,
+      executionFailed: exec.failed,
+    } as any);
   }
 
   setTimeout(() => {

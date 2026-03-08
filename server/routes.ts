@@ -283,18 +283,64 @@ export async function registerRoutes(
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const user = await storage.getUserByEmail(email);
-    if (user) {
-      console.log(`[AUTH] Password reset requested for ${email} — reset link would be sent here`);
+    try {
+      const user = await storage.getUserByEmail(email);
+      if (user) {
+        const { randomBytes } = await import("crypto");
+        const token = randomBytes(32).toString("hex");
+        const expiry = new Date(Date.now() + 60 * 60 * 1000);
+        await storage.updateUser(user.id, { resetToken: token, resetTokenExpiry: expiry } as any);
+
+        const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}`;
+        if (process.env.RESEND_API_KEY) {
+          const { Resend } = await import("resend");
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: "Nexxus Connect <notifications@huminic.ai>",
+            to: user.email,
+            subject: "Password Reset — Nexxus Connect",
+            html: `<p>Hi ${user.firstName},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, ignore this email.</p>`,
+          });
+          console.log(`[AUTH] Password reset email sent to ${email}`);
+        } else {
+          console.log(`[AUTH] Password reset requested for ${email} — no RESEND_API_KEY, token: ${token}`);
+        }
+      }
+      return res.json({ message: "If an account exists with that email, a reset link has been sent." });
+    } catch (err) {
+      console.error("[AUTH] Forgot password error:", err);
+      return res.json({ message: "If an account exists with that email, a reset link has been sent." });
     }
-    return res.json({ message: "If an account exists with that email, a reset link has been sent." });
   });
 
   app.post("/api/auth/reset-password", async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
-    console.log(`[AUTH] Password reset attempted with token — stub implementation`);
-    return res.json({ message: "Password reset functionality coming in production." });
+    if (password.length < 8) return res.status(400).json({ message: "Password must be at least 8 characters" });
+
+    try {
+      const { eq } = await import("drizzle-orm");
+      const { db } = await import("./db");
+      const { users } = await import("@shared/schema");
+      const [found] = await db.select().from(users).where(eq(users.resetToken, token));
+      if (!found) return res.status(400).json({ message: "Invalid or expired reset token" });
+      if (!found.resetTokenExpiry || new Date(found.resetTokenExpiry) < new Date()) {
+        return res.status(400).json({ message: "Reset token has expired" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await storage.updateUser(found.id, {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      } as any);
+
+      console.log(`[AUTH] Password reset completed for user ${found.email}`);
+      return res.json({ message: "Password has been reset successfully." });
+    } catch (err) {
+      console.error("[AUTH] Reset password error:", err);
+      return res.status(500).json({ message: "Failed to reset password" });
+    }
   });
 
   app.get("/api/agents", authenticateToken, async (req, res) => {
@@ -2226,12 +2272,8 @@ Return ONLY the JSON array, no other text.`,
       }
 
       if (!organizationId) {
-        const allOrgs = await storage.getOrganizations();
-        if (allOrgs.length > 0) {
-          organizationId = allOrgs[0].id;
-        } else {
-          return res.status(422).json({ message: "No organization found to associate call with" });
-        }
+        console.error("[VAPI Webhook] Could not resolve organization from assistantId — rejecting. No fallback to arbitrary org.");
+        return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID." });
       }
 
       const conversation = await storage.createConversation({
@@ -2689,6 +2731,16 @@ Return ONLY the JSON array, no other text.`,
   });
 
   app.post("/api/webhooks/textmagic", async (req, res) => {
+    const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
+    if (textmagicSecret) {
+      const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
+      const providedSecret = typeof headerSecret === "string" ? headerSecret : "";
+      if (providedSecret !== textmagicSecret) {
+        console.warn("[TextMagic Webhook] Invalid secret — rejecting request");
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+
     const ip = req.ip || req.socket.remoteAddress || "unknown";
     if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
     try {
@@ -2720,11 +2772,17 @@ Return ONLY the JSON array, no other text.`,
           unreadCount: (conversation.unreadCount || 0) + 1,
         });
       } else {
-        const allOrgs = await storage.getOrganizations();
-        organizationId = allOrgs[0]?.id;
-        if (!organizationId) {
-          console.error("[TextMagic Webhook] No organizations found to assign inbound SMS");
-          return res.status(500).json({ message: "No organization available" });
+        const contactOrg = await storage.findOrganizationByPhone(normalizedPhone);
+        if (contactOrg) {
+          organizationId = contactOrg.id;
+        } else {
+          const allOrgs = await storage.getOrganizations();
+          if (allOrgs.length === 1) {
+            organizationId = allOrgs[0].id;
+          } else {
+            console.error("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
+            return res.status(422).json({ message: "Cannot determine organization for this phone number" });
+          }
         }
 
         conversation = await storage.createConversation({

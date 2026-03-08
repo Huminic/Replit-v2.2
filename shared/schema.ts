@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -30,18 +30,23 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  roleId: uuid("role_id").notNull().references(() => roles.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  roleId: uuid("role_id").notNull().references(() => roles.id, { onDelete: "restrict" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   locationId: text("location_id"),
   profilePhotoUrl: text("profile_photo_url"),
   isActive: boolean("is_active").notNull().default(true),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_users_org").on(table.organizationId),
+  index("idx_users_email").on(table.email),
+]);
 
 export const sessions = pgTable("sessions", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").notNull().references(() => users.id),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   refreshToken: text("refresh_token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -61,10 +66,13 @@ export const agents = pgTable("agents", {
   vapiAssistantId: text("vapi_assistant_id"),
   tavusPersonaId: text("tavus_persona_id"),
   instructions: text("instructions"),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_agents_org").on(table.organizationId),
+  index("idx_agents_dept").on(table.department),
+]);
 
 export const conversations = pgTable("conversations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -73,24 +81,30 @@ export const conversations = pgTable("conversations", {
   customerPhone: text("customer_phone"),
   channel: text("channel").notNull().default("chat"),
   status: text("status").notNull().default("open"),
-  agentId: uuid("agent_id").references(() => agents.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
-  campaignId: uuid("campaign_id").references(() => campaigns.id),
+  agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
   campaignDisconnected: boolean("campaign_disconnected").notNull().default(false),
   unreadCount: integer("unread_count").notNull().default(0),
   lastMessageAt: timestamp("last_message_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_conversations_org").on(table.organizationId),
+  index("idx_conversations_channel").on(table.channel),
+  index("idx_conversations_phone").on(table.customerPhone),
+]);
 
 export const messages = pgTable("messages", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  conversationId: uuid("conversation_id").notNull().references(() => conversations.id),
+  conversationId: uuid("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
   role: text("role").notNull(),
   content: text("content").notNull(),
   senderName: text("sender_name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_messages_conversation").on(table.conversationId),
+]);
 
 export const campaigns = pgTable("campaigns", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -98,7 +112,7 @@ export const campaigns = pgTable("campaigns", {
   department: text("department").notNull().default("sales"),
   status: text("status").notNull().default("draft"),
   channel: text("channel").notNull().default("sms"),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   killSwitch: boolean("kill_switch").notNull().default(false),
   recipientCount: integer("recipient_count").notNull().default(0),
   sentCount: integer("sent_count").notNull().default(0),
@@ -106,13 +120,22 @@ export const campaigns = pgTable("campaigns", {
   csvFilename: text("csv_filename"),
   messageTemplate: text("message_template"),
   sendIntervalSeconds: integer("send_interval_seconds").notNull().default(60),
+  executionStatus: text("execution_status").default("idle"),
+  executionTotal: integer("execution_total").notNull().default(0),
+  executionProcessed: integer("execution_processed").notNull().default(0),
+  executionSent: integer("execution_sent").notNull().default(0),
+  executionFailed: integer("execution_failed").notNull().default(0),
+  executionStartedAt: timestamp("execution_started_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_campaigns_org").on(table.organizationId),
+  index("idx_campaigns_dept").on(table.department),
+]);
 
 export const integrations = pgTable("integrations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   provider: text("provider").notNull(),
   externalDealerId: text("external_dealer_id"),
   externalDealerName: text("external_dealer_name"),
@@ -131,13 +154,15 @@ export const tasks = pgTable("tasks", {
   status: text("status").notNull().default("todo"),
   priority: text("priority").notNull().default("medium"),
   dueDate: timestamp("due_date"),
-  assignedUserId: uuid("assigned_user_id").references(() => users.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  assignedUserId: uuid("assigned_user_id").references(() => users.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   tags: text("tags").array().default(sql`ARRAY[]::text[]`),
   metadata: text("metadata"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_tasks_org").on(table.organizationId),
+]);
 
 export const widgets = pgTable("widgets", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -146,7 +171,7 @@ export const widgets = pgTable("widgets", {
   status: text("status").notNull().default("draft"),
   description: text("description"),
   widgetCode: text("widget_code").notNull().unique(),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   config: jsonb("config").default({}),
   impressions: integer("impressions").notNull().default(0),
   interactions: integer("interactions").notNull().default(0),
@@ -160,8 +185,8 @@ export const knowledgeDocuments = pgTable("knowledge_documents", {
   type: text("type").notNull(),
   size: integer("size").notNull().default(0),
   status: text("status").notNull().default("indexed"),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
-  agentId: uuid("agent_id").references(() => agents.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
   content: text("content"),
   mimeType: text("mime_type"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -170,7 +195,7 @@ export const knowledgeDocuments = pgTable("knowledge_documents", {
 
 export const campaignRecipients = pgTable("campaign_recipients", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  campaignId: uuid("campaign_id").notNull().references(() => campaigns.id),
+  campaignId: uuid("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
   firstName: text("first_name"),
   lastName: text("last_name"),
   phone: text("phone"),
@@ -183,9 +208,9 @@ export const campaignRecipients = pgTable("campaign_recipients", {
 
 export const outboundLog = pgTable("outbound_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
-  campaignId: uuid("campaign_id").references(() => campaigns.id),
-  recipientId: uuid("recipient_id").references(() => campaignRecipients.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
+  recipientId: uuid("recipient_id").references(() => campaignRecipients.id, { onDelete: "set null" }),
   channel: text("channel").notNull(),
   status: text("status").notNull().default("pending"),
   blockedReason: text("blocked_reason"),
@@ -196,8 +221,8 @@ export const outboundLog = pgTable("outbound_log", {
 
 export const notifications = pgTable("notifications", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").notNull().references(() => users.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   title: text("title").notNull(),
   message: text("message"),
@@ -209,8 +234,8 @@ export const notifications = pgTable("notifications", {
 
 export const activityLog = pgTable("activity_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").references(() => users.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   action: text("action").notNull(),
   entityType: text("entity_type"),
   entityId: text("entity_id"),
@@ -220,7 +245,7 @@ export const activityLog = pgTable("activity_log", {
 
 export const hunches = pgTable("hunches", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   type: text("type").notNull().default("pattern"),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -237,7 +262,7 @@ export const hunches = pgTable("hunches", {
 
 export const warehouseLeads = pgTable("warehouse_leads", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   sourceId: text("source_id"),
   dataSource: text("data_source").notNull().default("vin_solutions"),
   vinStatus: text("vin_status"),
@@ -256,7 +281,7 @@ export const warehouseLeads = pgTable("warehouse_leads", {
 
 export const warehouseMetrics = pgTable("warehouse_metrics", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   metricKey: text("metric_key").notNull(),
   metricValue: text("metric_value").notNull(),
   period: text("period"),
@@ -274,8 +299,8 @@ export const appointments = pgTable("appointments", {
   customerEmail: text("customer_email"),
   appointmentType: text("appointment_type").notNull().default("general"),
   department: text("department").notNull().default("sales"),
-  assignedUserId: uuid("assigned_user_id").references(() => users.id),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  assignedUserId: uuid("assigned_user_id").references(() => users.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
   status: text("status").notNull().default("scheduled"),
@@ -287,7 +312,7 @@ export const appointments = pgTable("appointments", {
 
 export const slugRedirects = pgTable("slug_redirects", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   oldSlug: text("old_slug").notNull(),
   newSlug: text("new_slug").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
@@ -296,7 +321,7 @@ export const slugRedirects = pgTable("slug_redirects", {
 
 export const syncLog = pgTable("sync_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   syncType: text("sync_type").notNull(),
   status: text("status").notNull().default("running"),
   recordsProcessed: integer("records_processed").notNull().default(0),
@@ -309,7 +334,7 @@ export const syncLog = pgTable("sync_log", {
 
 export const usageEvents = pgTable("usage_events", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   eventType: text("event_type").notNull(),
   channel: text("channel"),
   quantity: integer("quantity").notNull().default(1),
