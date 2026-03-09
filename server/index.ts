@@ -4,6 +4,7 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
 import { startCampaignExecution } from "./outbound";
+import { generateHunchesForOrg } from "./routes";
 
 const app = express();
 const httpServer = createServer(app);
@@ -133,6 +134,30 @@ app.use((req, res, next) => {
       };
 
       setInterval(checkScheduledCampaigns, 60000);
+
+      const runWeeklyHunches = async () => {
+        const now = new Date();
+        if (now.getDay() !== 1) return; // Monday only
+        if (now.getHours() !== 6 || now.getMinutes() > 5) return; // 6:00-6:05 AM window
+        try {
+          const orgs = await storage.getOrganizations();
+          for (const org of orgs) {
+            const settings = (org.settings as Record<string, any>) || {};
+            if (settings.hunchesEnabled === false) continue;
+            log(`Generating weekly hunches for org: ${org.name} (${org.id})`, "hunches");
+            try {
+              const hunches = await generateHunchesForOrg(org.id);
+              log(`Generated ${hunches.length} hunches for ${org.name}`, "hunches");
+            } catch (err) {
+              log(`Hunch generation failed for ${org.name}: ${err}`, "hunches");
+            }
+          }
+        } catch (err) {
+          log(`Weekly hunch scheduler failed: ${err}`, "hunches");
+        }
+      };
+
+      setInterval(runWeeklyHunches, 5 * 60 * 1000);
     },
   );
 })();

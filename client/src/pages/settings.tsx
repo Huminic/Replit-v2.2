@@ -583,11 +583,12 @@ export default function SettingsPage() {
     taskDue: true,
   });
 
-  const [appearancePrefs, setAppearancePrefs] = useState({
-    compactMode: false,
-    animations: true,
-    defaultView: 'dashboard',
-    showMetricTiles: true,
+  const [appearancePrefs, setAppearancePrefs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nexxus:appearance');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { compactMode: false, animations: true, defaultView: 'dashboard', showMetricTiles: true };
   });
 
   const [settingsInitialized, setSettingsInitialized] = useState(false);
@@ -3046,19 +3047,44 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Hunches Configuration</CardTitle>
-                {isReadOnlyAI && <CardDescription className="text-xs">Read-only view</CardDescription>}
+                <CardDescription className="text-xs">Weekly AI-generated insights (Monday 6 AM)</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Enable Hunches</p><p className="text-xs text-muted-foreground">AI-generated business intelligence insights</p></div><Switch defaultChecked disabled={isReadOnlyAI} data-testid="switch-enable-hunches" /></div>
-                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Auto-Scoring</p><p className="text-xs text-muted-foreground">Automatically score and prioritize leads</p></div><Switch checked disabled data-testid="switch-auto-scoring" /></div>
-                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Confidence Threshold</p><p className="text-xs text-muted-foreground">Minimum confidence for AI suggestions (%)</p></div><Input value="70" disabled className="max-w-[80px]" data-testid="input-confidence-threshold" /></div>
-                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Temperature per Org</p><p className="text-xs text-muted-foreground">AI randomness setting</p></div><Input value="0.5" disabled className="max-w-[80px]" data-testid="input-temperature-org" /></div>
-                <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Daily Digest</p><p className="text-xs text-muted-foreground">Send daily AI insights summary via email</p></div><Switch disabled={isReadOnlyAI} data-testid="switch-daily-digest" /></div>
-                <div>
-                  <Label className="text-xs">Recipients</Label>
-                  <Input defaultValue="" placeholder="email1@example.com, email2@example.com" disabled={isReadOnlyAI} className="mt-1" data-testid="input-digest-recipients" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm text-foreground">Enable Hunches</p>
+                    <p className="text-xs text-muted-foreground">AI-generated business intelligence insights</p>
+                  </div>
+                  <Switch
+                    checked={(() => {
+                      const org = authUser?.organization as any;
+                      const s = org?.settings || {};
+                      return s.hunchesEnabled !== false;
+                    })()}
+                    onCheckedChange={(checked) => {
+                      if (!authUser?.organization?.id) return;
+                      const org = authUser.organization as any;
+                      const currentSettings = org.settings || {};
+                      saveSettingsMutation.mutate({ ...currentSettings, hunchesEnabled: checked });
+                    }}
+                    disabled={isReadOnlyAI}
+                    data-testid="switch-enable-hunches"
+                  />
                 </div>
-                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'Hunches saved locally', description: 'Hunches configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-hunches">Save</Button>}
+                <div className="flex items-center justify-between opacity-50">
+                  <div>
+                    <p className="font-medium text-sm text-foreground">Auto-Scoring</p>
+                    <p className="text-xs text-muted-foreground">Automatically score and prioritize leads</p>
+                  </div>
+                  <Switch checked disabled data-testid="switch-auto-scoring" />
+                </div>
+                <div className="flex items-center justify-between gap-4 opacity-50">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-foreground">Confidence Threshold</p>
+                    <p className="text-xs text-muted-foreground">Minimum confidence for AI suggestions (%)</p>
+                  </div>
+                  <Input value="70" disabled className="max-w-[80px]" data-testid="input-confidence-threshold" />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -3140,7 +3166,7 @@ export default function SettingsPage() {
           <CardDescription>Theme, layout, and display preferences</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">These settings apply to all users in this organization.</p>
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">These settings are saved to your browser.</p>
           <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Compact Mode</p><p className="text-xs text-muted-foreground">Use smaller spacing and fonts</p></div><Switch checked={appearancePrefs.compactMode} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, compactMode: v }))} data-testid="switch-compact-mode" /></div>
           <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Animations</p><p className="text-xs text-muted-foreground">Enable UI animations and transitions</p></div><Switch checked={appearancePrefs.animations} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, animations: v }))} data-testid="switch-animations" /></div>
           <div className="flex items-center justify-between gap-4">
@@ -3162,14 +3188,13 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between"><div><p className="font-medium text-sm text-foreground">Show Metric Tiles</p><p className="text-xs text-muted-foreground">Display KPI tiles on home page</p></div><Switch checked={appearancePrefs.showMetricTiles} onCheckedChange={(v) => setAppearancePrefs(p => ({ ...p, showMetricTiles: v }))} data-testid="switch-metric-tiles" /></div>
           <Button
-            disabled={saveSettingsMutation.isPending}
             onClick={() => {
-              saveSettingsMutation.mutate({ appearance: appearancePrefs });
-              toast({ title: 'Settings saved', description: 'Appearance preferences updated.' });
+              localStorage.setItem('nexxus:appearance', JSON.stringify(appearancePrefs));
+              toast({ title: 'Settings saved', description: 'Appearance preferences saved to your browser.' });
             }}
             data-testid="button-save-appearance-settings"
           >
-            {saveSettingsMutation.isPending ? 'Saving...' : 'Save'}
+            Save
           </Button>
         </CardContent>
       </Card>

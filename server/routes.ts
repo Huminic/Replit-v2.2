@@ -48,6 +48,90 @@ const anthropic = new Anthropic({
   baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
 });
 
+export async function generateHunchesForOrg(orgId: string, userId?: string) {
+  const [convos, campaignList, agentList] = await Promise.all([
+    storage.getConversations(orgId),
+    storage.getCampaigns(orgId),
+    storage.getAgents(orgId),
+  ]);
+
+  const orgDataSummary = JSON.stringify({
+    conversations: {
+      total: convos.length,
+      open: convos.filter(c => c.status === "open").length,
+      closed: convos.filter(c => c.status === "closed").length,
+      channels: convos.reduce((acc, c) => { acc[c.channel] = (acc[c.channel] || 0) + 1; return acc; }, {} as Record<string, number>),
+    },
+    campaigns: campaignList.map(c => ({
+      name: c.name, department: c.department, status: c.status,
+      sent: c.sentCount, replied: c.repliedCount,
+      replyRate: c.sentCount > 0 ? Math.round((c.repliedCount / c.sentCount) * 100) : 0,
+    })),
+    agents: agentList.map(a => ({
+      name: a.name, department: a.department, status: a.status, channels: a.channels,
+    })),
+  });
+
+  const aiResponse = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2048,
+    messages: [{
+      role: "user",
+      content: `You are an AI business analyst. Analyze the following organization data and generate 3-5 actionable business insights ("hunches"). Each hunch should identify a pattern in the data and provide a specific recommendation.
+
+Organization Data:
+${orgDataSummary}
+
+Respond with a JSON array of objects, each with:
+- type: "pattern" | "recommendation" | "alert"
+- title: short descriptive title (max 60 chars)
+- description: detailed explanation of the insight (2-3 sentences)
+- confidence: number 50-100 representing certainty
+- department: relevant department (sales, service, marketing, or null for cross-department)
+- dataSource: what data this insight is based on
+
+Return ONLY the JSON array, no other text.`,
+    }],
+  });
+
+  let hunchData: any[] = [];
+  const textBlock = aiResponse.content.find(b => b.type === "text");
+  if (textBlock && textBlock.type === "text") {
+    let rawText = textBlock.text.trim();
+    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) rawText = jsonMatch[1].trim();
+    hunchData = JSON.parse(rawText);
+    if (!Array.isArray(hunchData)) hunchData = [hunchData];
+  }
+
+  const batchId = crypto.randomUUID();
+  const created = [];
+  for (const h of hunchData) {
+    const hunch = await storage.createHunch({
+      organizationId: orgId,
+      type: h.type || "pattern",
+      title: h.title,
+      description: h.description,
+      confidence: Math.min(100, Math.max(0, h.confidence || 50)),
+      status: "new",
+      department: h.department || null,
+      dataSource: h.dataSource || null,
+      batchId,
+    });
+    created.push(hunch);
+  }
+
+  storage.createActivityLog({
+    userId: userId || orgId,
+    organizationId: orgId,
+    action: "hunches_generated",
+    entityType: "hunch",
+    metadata: { count: created.length, automated: !userId },
+  }).catch(() => {});
+
+  return created;
+}
+
 const updateConversationSchema = z.object({
   status: z.string().optional(),
   campaignDisconnected: z.boolean().optional(),
@@ -2512,92 +2596,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.post("/api/hunches/generate", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const orgId = req.user.organizationId;
-
-      const [convos, campaignList, agentList] = await Promise.all([
-        storage.getConversations(orgId),
-        storage.getCampaigns(orgId),
-        storage.getAgents(orgId),
-      ]);
-
-      const orgDataSummary = JSON.stringify({
-        conversations: {
-          total: convos.length,
-          open: convos.filter(c => c.status === "open").length,
-          closed: convos.filter(c => c.status === "closed").length,
-          channels: convos.reduce((acc, c) => { acc[c.channel] = (acc[c.channel] || 0) + 1; return acc; }, {} as Record<string, number>),
-        },
-        campaigns: campaignList.map(c => ({
-          name: c.name, department: c.department, status: c.status,
-          sent: c.sentCount, replied: c.repliedCount,
-          replyRate: c.sentCount > 0 ? Math.round((c.repliedCount / c.sentCount) * 100) : 0,
-        })),
-        agents: agentList.map(a => ({
-          name: a.name, department: a.department, status: a.status, channels: a.channels,
-        })),
-      });
-
-      const aiResponse = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 2048,
-        messages: [{
-          role: "user",
-          content: `You are an AI business analyst. Analyze the following organization data and generate 3-5 actionable business insights ("hunches"). Each hunch should identify a pattern in the data and provide a specific recommendation.
-
-Organization Data:
-${orgDataSummary}
-
-Respond with a JSON array of objects, each with:
-- type: "pattern" | "recommendation" | "alert"
-- title: short descriptive title (max 60 chars)
-- description: detailed explanation of the insight (2-3 sentences)
-- confidence: number 50-100 representing certainty
-- department: relevant department (sales, service, marketing, or null for cross-department)
-- dataSource: what data this insight is based on
-
-Return ONLY the JSON array, no other text.`,
-        }],
-      });
-
-      let hunchData: any[] = [];
-      const textBlock = aiResponse.content.find(b => b.type === "text");
-      if (textBlock && textBlock.type === "text") {
-        try {
-          let rawText = textBlock.text.trim();
-          const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
-          if (jsonMatch) rawText = jsonMatch[1].trim();
-          hunchData = JSON.parse(rawText);
-          if (!Array.isArray(hunchData)) hunchData = [hunchData];
-        } catch {
-          return res.status(500).json({ message: "Failed to parse AI response" });
-        }
-      }
-
-      const batchId = crypto.randomUUID();
-      const created = [];
-      for (const h of hunchData) {
-        const hunch = await storage.createHunch({
-          organizationId: orgId,
-          type: h.type || "pattern",
-          title: h.title,
-          description: h.description,
-          confidence: Math.min(100, Math.max(0, h.confidence || 50)),
-          status: "new",
-          department: h.department || null,
-          dataSource: h.dataSource || null,
-          batchId,
-        });
-        created.push(hunch);
-      }
-
-      storage.createActivityLog({
-        userId: req.user!.id,
-        organizationId: orgId,
-        action: "hunches_generated",
-        entityType: "hunch",
-        metadata: { count: created.length },
-      }).catch(() => {});
-
+      const created = await generateHunchesForOrg(req.user.organizationId, req.user.id);
       return res.json(created);
     } catch (err) {
       console.error("Hunch generation error:", err);
