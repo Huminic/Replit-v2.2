@@ -3,8 +3,9 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { startCampaignExecution } from "./outbound";
+import { startCampaignExecution, processOutboundSend } from "./outbound";
 import { generateHunchesForOrg } from "./routes";
+import type { Organization, Agent } from "@shared/schema";
 
 const app = express();
 const httpServer = createServer(app);
@@ -159,11 +160,49 @@ app.use((req, res, next) => {
 
       setInterval(runWeeklyHunches, 5 * 60 * 1000);
 
+      async function executeTriggerAction(actionType: string, phone: string | null, email: string | null, customerName: string, org: Organization, agent: Agent) {
+        const agentName = agent.name;
+        const dealershipName = org.name;
+
+        if (actionType === 'sms' && phone) {
+          const msg = `Hi ${customerName}, this is ${agentName} from ${dealershipName}. We noticed you might still be looking — is there anything we can help with? Reply or call us anytime!`;
+          log(`Trigger action: sending SMS to ${phone} for ${customerName}`, "triggers");
+          await processOutboundSend({
+            organizationId: org.id,
+            channel: 'sms',
+            to: phone,
+            messageContent: msg,
+          });
+        } else if (actionType === 'call' && phone) {
+          log(`Trigger action: initiating call to ${phone} for ${customerName}`, "triggers");
+          await processOutboundSend({
+            organizationId: org.id,
+            channel: 'phone',
+            to: phone,
+            messageContent: `Follow-up call for ${customerName} from ${dealershipName}`,
+          });
+        } else if (actionType === 'email' && email) {
+          const msg = `Subject: Following up from ${dealershipName}\n\nHi ${customerName},\n\nThis is ${agentName} from ${dealershipName}. I wanted to follow up and see if you're still interested. We'd love to help you find what you're looking for.\n\nFeel free to reply to this email or give us a call anytime.\n\nBest regards,\n${agentName}\n${dealershipName}`;
+          log(`Trigger action: sending email to ${email} for ${customerName}`, "triggers");
+          await processOutboundSend({
+            organizationId: org.id,
+            channel: 'email',
+            to: email,
+            messageContent: msg,
+          });
+        } else {
+          log(`Trigger action: skipping ${actionType} — no ${actionType === 'email' ? 'email' : 'phone'} for ${customerName}`, "triggers");
+        }
+      }
+
       const checkTriggerConditions = async () => {
         try {
           const orgs = await storage.getOrganizations();
           for (const org of orgs) {
             const orgAgents = await storage.getAgents(org.id);
+            const orgUsers = await storage.getUsers(org.id);
+            const adminUser = orgUsers.find(u => (u.role as any)?.name === 'org_admin' || (u.role as any)?.name === 'partner_admin' || (u.role as any)?.name === 'super_admin') || orgUsers[0];
+
             for (const agent of orgAgents) {
               const triggers = (agent.triggers as any[]) || [];
               const enabledTriggers = triggers.filter((t: any) => t.enabled);
@@ -179,15 +218,43 @@ app.use((req, res, next) => {
                   );
                   if (staleConvs.length > 0) {
                     log(`Trigger "${trigger.name}": ${staleConvs.length} stale leads for agent ${agent.name}`, "triggers");
+                    const actions = trigger.config?.actions || [];
+
                     for (const conv of staleConvs.slice(0, 5)) {
-                      await storage.createNotification({
-                        userId: null as any,
-                        organizationId: org.id,
-                        type: 'trigger_alert',
-                        title: `Stale Lead: ${conv.customerName}`,
-                        message: `${trigger.name} — ${conv.customerName} has had no activity for ${thresholdHours}+ hours. Actions: ${trigger.config.actions.map((a: any) => a.type).join(' → ')}`,
-                        relatedEntityId: conv.id,
-                      });
+                      if (adminUser) {
+                        await storage.createNotification({
+                          userId: adminUser.id,
+                          organizationId: org.id,
+                          type: 'trigger_alert',
+                          title: `Stale Lead: ${conv.customerName}`,
+                          message: `${trigger.name} — ${conv.customerName} has had no activity for ${thresholdHours}+ hours. Actions: ${actions.map((a: any) => a.type).join(' → ')}`,
+                          relatedEntityId: conv.id,
+                        });
+                      }
+
+                      const customerPhone = conv.customerPhone;
+                      const customerEmail = conv.customerEmail;
+                      const customerName = conv.customerName || 'Customer';
+
+                      for (const action of actions) {
+                        const waitMs = (action.waitMinutes || 0) * 60 * 1000;
+                        if (waitMs > 0) {
+                          log(`Trigger "${trigger.name}": scheduling ${action.type} for ${customerName} in ${action.waitMinutes}m`, "triggers");
+                          setTimeout(async () => {
+                            try {
+                              await executeTriggerAction(action.type, customerPhone, customerEmail, customerName, org, agent);
+                            } catch (actErr: any) {
+                              log(`Trigger action ${action.type} failed for ${customerName}: ${actErr.message}`, "triggers");
+                            }
+                          }, waitMs);
+                        } else {
+                          try {
+                            await executeTriggerAction(action.type, customerPhone, customerEmail, customerName, org, agent);
+                          } catch (actErr: any) {
+                            log(`Trigger action ${action.type} failed for ${customerName}: ${actErr.message}`, "triggers");
+                          }
+                        }
+                      }
                     }
                   }
                 }
