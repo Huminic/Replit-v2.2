@@ -153,7 +153,7 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 
 ## Authentication
 - JWT tokens: `nexxus_access_token` in localStorage
-- Test logins: admin@nexxus.com/password123, Org_Admin@huminic.ai, duane.wells@huminic.ai/a1$ucc3ss
+- Test logins: admin@nexxus.com/password123, Org_Admin@huminic.ai, duane.wells@huminic.ai/a1$ucc3ss, durran.cage@cageautomotive.com/password123 (partner_admin under Cage Automotive)
 - Role hierarchy: super_admin(1) > partner_admin(2) > org_admin(3) > executive(4) > sales_manager(5) > sales(6) > service(7) > marketing(8)
 
 ### Stabilization Sweep 7: Integration Wiring

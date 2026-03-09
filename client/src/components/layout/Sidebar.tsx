@@ -225,7 +225,18 @@ export function Sidebar() {
                   'h-7 w-7 text-muted-foreground',
                   subMenuExpanded && 'bg-accent text-primary'
                 )}
-                onClick={toggleSubMenuExpanded}
+                onClick={() => {
+                  if (subMenuExpanded) {
+                    setActivePanel(null);
+                    toggleSubMenuExpanded();
+                  } else {
+                    const currentPanel = getCurrentPagePanel();
+                    if (currentPanel) {
+                      setActivePanel(currentPanel);
+                    }
+                    toggleSubMenuExpanded();
+                  }
+                }}
                 data-testid="button-toggle-submenu"
               >
                 <ChevronsRight className={cn(
