@@ -94,7 +94,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import {
   Accordion,
@@ -223,7 +222,7 @@ const settingsTiles: SettingsTile[] = [
   { id: 'organization', title: 'Organization', description: 'Company profile and branding', icon: Building2, gradient: 'from-violet-500/15 to-purple-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'tools', title: 'Tools & Integrations', description: 'Configure tools, widgets, and landing pages', icon: Wrench, gradient: 'from-emerald-500/15 to-teal-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'knowledge', title: 'Knowledge Base', description: 'Upload and manage AI training data', icon: BookOpen, gradient: 'from-amber-500/15 to-orange-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
-  { id: 'ai', title: 'AI Configuration', description: 'Hunches, agents, and AI behavior settings', icon: Zap, gradient: 'from-fuchsia-500/15 to-pink-500/5', minRole: ['super_admin', 'partner_admin'] },
+  { id: 'ai', title: 'AI Configuration', description: 'Hunches, agents, and AI behavior settings', icon: Zap, gradient: 'from-fuchsia-500/15 to-pink-500/5', minRole: ['super_admin'] },
   { id: 'security', title: 'Security', description: 'Authentication, SSO, and access policies', icon: Lock, gradient: 'from-red-500/15 to-rose-500/5', minRole: ['super_admin', 'partner_admin'] },
   { id: 'notifications', title: 'Notifications', description: 'Alert preferences and delivery channels', icon: Bell, gradient: 'from-sky-500/15 to-blue-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'data', title: 'Data Management', description: 'Imports, exports, and data retention', icon: Database, gradient: 'from-indigo-500/15 to-violet-500/5', minRole: ['super_admin'] },
@@ -257,26 +256,6 @@ const toolCards: ToolCardData[] = [
   { id: 'doc-gen', friendlyName: 'Document Generator', technicalName: 'Document Generator', description: 'Generate sales documents and contracts', enabled: true, locked: false, category: 'other', icon: FileText },
 ];
 
-interface SkillItem {
-  id: string;
-  name: string;
-  category: 'Sales' | 'Finance' | 'Operations' | 'General';
-  description: string;
-  prompt: string;
-  temperature: number;
-  enabled: boolean;
-}
-
-const mockSkills: SkillItem[] = [
-  { id: 's1', name: 'Lead Qualifier', category: 'Sales', description: 'Qualify incoming leads based on criteria and budget', prompt: 'You are a lead qualification specialist...', temperature: 0.3, enabled: true },
-  { id: 's2', name: 'Payment Calculator', category: 'Sales', description: 'Calculate monthly payments and financing options', prompt: 'Calculate vehicle payments based on...', temperature: 0.1, enabled: true },
-  { id: 's3', name: 'Deal Structurer', category: 'Finance', description: 'Structure deals with optimal terms for customer and dealer', prompt: 'Structure the deal considering...', temperature: 0.2, enabled: true },
-  { id: 's4', name: 'Credit Application Processor', category: 'Finance', description: 'Process and evaluate credit applications', prompt: 'Review the credit application...', temperature: 0.1, enabled: false },
-  { id: 's5', name: 'Inventory Tracker', category: 'Operations', description: 'Track and manage vehicle inventory status', prompt: 'Monitor inventory levels and...', temperature: 0.2, enabled: true },
-  { id: 's6', name: 'Service Scheduler', category: 'Operations', description: 'Schedule service appointments and manage bay allocation', prompt: 'Schedule service appointments...', temperature: 0.2, enabled: true },
-  { id: 's7', name: 'Email Composer', category: 'General', description: 'Compose professional emails for various scenarios', prompt: 'Compose a professional email...', temperature: 0.5, enabled: true },
-  { id: 's8', name: 'FAQ Responder', category: 'General', description: 'Answer frequently asked questions about products and services', prompt: 'Answer the following FAQ...', temperature: 0.3, enabled: true },
-];
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -539,9 +518,6 @@ export default function SettingsPage() {
   const [provisionDealerName, setProvisionDealerName] = useState('');
   const [provisionLoading, setProvisionLoading] = useState(false);
   const [widgetSearch, setWidgetSearch] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null);
-  const [skillFilter, setSkillFilter] = useState('All');
-  const [showKillConfirm, setShowKillConfirm] = useState(false);
   const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
@@ -2926,19 +2902,16 @@ export default function SettingsPage() {
   );
 
   const renderAIConfiguration = () => {
-    const filteredSkills = skillFilter === 'All' ? mockSkills : mockSkills.filter(s => s.category === skillFilter);
-
     return (
       <div className="p-4 space-y-4">
-        <Button variant="ghost" size="sm" onClick={() => { setActiveSection(null); setSelectedSkill(null); }} data-testid="button-back-settings">
+        <Button variant="ghost" size="sm" onClick={() => { setActiveSection(null); }} data-testid="button-back-settings">
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
         <Tabs defaultValue="system-prompt">
-          <TabsList className={cn('w-full max-w-lg', isSuperAdmin ? 'grid grid-cols-4' : isPartnerAdmin ? 'grid grid-cols-3' : 'grid grid-cols-4')}>
+          <TabsList className="w-full max-w-lg grid grid-cols-3">
             <TabsTrigger value="system-prompt" data-testid="tab-system-prompt">System Prompt</TabsTrigger>
             <TabsTrigger value="agent-behavior" data-testid="tab-agent-behavior">Agent Behavior</TabsTrigger>
-            {isSuperAdmin && <TabsTrigger value="skills" data-testid="tab-skills">Skills</TabsTrigger>}
             <TabsTrigger value="hunches" data-testid="tab-hunches">Hunches</TabsTrigger>
           </TabsList>
 
@@ -3049,130 +3022,6 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {isSuperAdmin && (
-            <TabsContent value="skills" className="mt-4 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="relative flex-1 max-w-sm">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input placeholder="Search skills..." className="pl-8" data-testid="input-search-skills" />
-                </div>
-                <Button size="sm" onClick={() => setSelectedSkill({ id: '', name: '', category: 'General', description: '', prompt: '', temperature: 0.5, enabled: true })} data-testid="button-new-skill">
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Skill
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                {['All', 'Sales', 'Finance', 'Operations', 'General'].map(cat => (
-                  <Button key={cat} variant={skillFilter === cat ? 'default' : 'outline'} size="sm" onClick={() => setSkillFilter(cat)} data-testid={`filter-skill-${cat.toLowerCase()}`}>
-                    {cat}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card>
-                  <CardContent className="p-0">
-                    <ScrollArea className="h-[400px]">
-                      <div className="divide-y divide-border">
-                        {filteredSkills.map(skill => (
-                          <div
-                            key={skill.id}
-                            className={cn('p-3 cursor-pointer hover-elevate', selectedSkill?.id === skill.id && 'bg-muted/50')}
-                            onClick={() => setSelectedSkill(skill)}
-                            data-testid={`skill-item-${skill.id}`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="font-medium text-sm text-foreground">{skill.name}</p>
-                              <Badge variant="outline" className="text-[10px]">{skill.category}</Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">{skill.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-
-                {selectedSkill && (
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">{selectedSkill.id ? 'Edit Skill' : 'New Skill'}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Name</Label>
-                        <Input defaultValue={selectedSkill.name} className="mt-1" data-testid="input-skill-name" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Category</Label>
-                        <Select defaultValue={selectedSkill.category}>
-                          <SelectTrigger className="mt-1" data-testid="select-skill-category">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Sales">Sales</SelectItem>
-                            <SelectItem value="Finance">Finance</SelectItem>
-                            <SelectItem value="Operations">Operations</SelectItem>
-                            <SelectItem value="General">General</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Description</Label>
-                        <Input defaultValue={selectedSkill.description} className="mt-1" data-testid="input-skill-description" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Skill Prompt</Label>
-                        <Textarea defaultValue={selectedSkill.prompt} rows={4} className="mt-1" data-testid="textarea-skill-prompt" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Temperature: {selectedSkill.temperature}</Label>
-                        <Slider defaultValue={[selectedSkill.temperature * 100]} max={100} step={5} className="mt-2" data-testid="slider-skill-temperature" />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs">System-Wide Status</Label>
-                        <Switch defaultChecked={selectedSkill.enabled} data-testid="switch-skill-status" />
-                      </div>
-                      <div className="flex items-center gap-2 pt-2">
-                        <Button size="sm" onClick={() => toast({ title: 'Skill saved locally', description: 'Skill configuration updated. Changes will persist when connected to production backend.' })} data-testid="button-save-skill">Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => setSelectedSkill(null)} data-testid="button-cancel-skill">Cancel</Button>
-                        {selectedSkill.id && <Button size="sm" variant="destructive" onClick={() => { setSelectedSkill(null); toast({ title: 'Skill removed locally', description: 'Skill has been removed. Changes will persist when connected to production backend.' }); }} data-testid="button-delete-skill">Delete</Button>}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-
-              <Card className="border-destructive">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm text-destructive flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    Emergency Controls
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="destructive" onClick={() => setShowKillConfirm(true)} data-testid="button-kill-switch">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    DISABLE ALL AGENTS
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Dialog open={showKillConfirm} onOpenChange={setShowKillConfirm}>
-                <DialogContent data-testid="dialog-kill-confirm">
-                  <DialogHeader>
-                    <DialogTitle className="text-destructive">Confirm: Disable All Agents</DialogTitle>
-                    <DialogDescription>This will immediately disable all active agents across all organizations. This action can be reversed but may disrupt service.</DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowKillConfirm(false)} data-testid="button-cancel-kill">Cancel</Button>
-                    <Button variant="destructive" onClick={() => { setShowKillConfirm(false); toast({ title: 'Kill switch activated (demo)', description: 'In production, this would immediately disable all active agents. Changes will take effect when connected to production backend.' }); }} data-testid="button-confirm-kill">Confirm Disable</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </TabsContent>
-          )}
 
           <TabsContent value="hunches" className="mt-4">
             <Card>
