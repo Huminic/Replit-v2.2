@@ -58,7 +58,7 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - 4 AC-required tiles on AI Chat: active pipeline, appointments today, open escalations, outbound sent 24h
 - Tiles collapse when user starts typing (AC-CH-B)
 - Pipeline count consistent across AI Chat, Sales, and Management (AC-01-C)
-- Active pipeline = leads created last 14 days, excluding Lost/Sold/Duplicate (AC-01-A)
+- Active pipeline = leads created last 14 days, excluding Lost/Sold/Bad/Service/NonCustomer (AC-01-A)
 
 ### Sprint 3: VAPI + TeamBox + Kill Switch
 - VAPI→VIN Solutions 2-step lead creation with escalation on failure
@@ -109,8 +109,9 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Documents: GET/POST/DELETE /api/documents
 
 ### Data & Metrics
-- Pipeline: GET /api/metrics/pipeline (canonical source)
+- Pipeline: GET /api/metrics/pipeline (canonical source — 14-day created leads, excluding Lost/Sold/Bad/Service/NonCustomer per AC-01-A)
 - Warehouse: GET /api/warehouse/leads, GET /api/warehouse/metrics
+- VIN Summary: GET /api/vin/leads/summary?orgId= (Sales page tiles — uses warehouse leads with status classifier)
 - Sync: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
 
 ### New Routes (Sprints 4-6)
@@ -197,6 +198,7 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - `shared/schema.ts` — All 22 tables, insert schemas, types
 - `server/routes.ts` — All API routes
 - `server/storage.ts` — Database storage layer
+- `server/statusClassifier.ts` — VIN status family mapper (active/new/sold/lost/bad/service/non_customer)
 - `server/outbound.ts` — Outbound engine with kill switch and usage logging
 - `server/seed.ts` — Test data seeding
 - `client/src/pages/main.tsx` — AI Chat with CRM Guru mode

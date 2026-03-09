@@ -358,118 +358,50 @@ export function registerVendorRoutes(app: Express) {
   app.get("/api/vin/leads/summary", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
-      const orgId = req.user.organizationId;
+      const orgId = (req.query.orgId as string) || req.user.organizationId;
+      const nexxusOrgId = resolveNexxusOrgId(orgId);
 
       const { storage: storageModule } = await import("./storage");
-      const warehouseMetrics = await storageModule.getWarehouseMetrics(orgId, { period: undefined });
-      const latestSync = await storageModule.getLatestSync(orgId, "metrics_refresh");
-
-      if (warehouseMetrics.length > 0) {
-        const m = (key: string) => {
-          const found = warehouseMetrics.find(wm => wm.metricKey === key);
-          return found ? Number(found.metricValue) : 0;
-        };
-        const syncedAt = latestSync?.completedAt || warehouseMetrics[0]?.syncedAt || null;
-        const period = warehouseMetrics[0]?.period || "";
-        const [start, end] = period.includes("_") ? period.split("_") : ["", ""];
-
-        return res.json({
-          period: { start, end },
-          totalLeads: m("totalLeads"),
-          totalLeadsChange: m("totalLeadsChange"),
-          newLeads: m("newLeads"),
-          newLeadsChange: m("newLeadsChange"),
-          activeLeads: m("activeLeads"),
-          activeLeadsChange: m("activeLeadsChange"),
-          soldLeads: m("soldLeads"),
-          soldLeadsChange: m("soldLeadsChange"),
-          lostLeads: m("lostLeads"),
-          waitingForResponse: m("waitingForResponse"),
-          appointments: m("appointments"),
-          conversionRate: m("conversionRate"),
-          source: "warehouse",
-          syncedAt,
-        });
-      }
-
+      const { isActiveLead, isNewLead, isSoldLead, isLostLead } = await import("./statusClassifier");
       const now = new Date();
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const sixtyDaysAgo = new Date(now);
-      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-      const fmt = (d: Date) => d.toISOString().split("T")[0];
-      const curStart = fmt(thirtyDaysAgo);
-      const curEnd = fmt(now);
-      const prevStart = fmt(sixtyDaysAgo);
-      const prevEnd = fmt(thirtyDaysAgo);
+      const leads = await storageModule.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo });
 
-      const queryCount = (startDate: string, endDate: string, status?: string) =>
-        callMCP("vin_query_leads", {
-          orgId: nexxusOrgId, startDate, endDate, limit: 1,
-          ...(status ? { status } : {}),
-        }).then((r: any) => r.count ?? r.items?.length ?? 0).catch(() => 0);
+      const cur = {
+        total: leads.length,
+        active: leads.filter((l: any) => isActiveLead(l.vinStatus)).length,
+        new: leads.filter((l: any) => isNewLead(l.vinStatus)).length,
+        sold: leads.filter((l: any) => isSoldLead(l.vinStatus)).length,
+        lost: leads.filter((l: any) => isLostLead(l.vinStatus)).length,
+        waiting: leads.filter((l: any) => l.vinStatus === 'ACTIVE_WAITING_FOR_PROSPECT_RESPONSE').length,
+        appt: leads.filter((l: any) => l.vinStatus === 'ACTIVE_SET_APPOINTMENT' || l.vinStatus === 'appointment_set' || l.vinStatus === 'SERVICE_APPOINTMENT_SCHEDULED').length,
+      };
 
-      const [
-        curTotal, prevTotal,
-        curSoldDelivered, prevSoldDelivered,
-        curSoldPending, prevSoldPending,
-        curSoldOnOrder,
-        curActiveNew, prevActiveNew,
-        curActiveWaiting, prevActiveWaiting,
-        curActiveActive, prevActiveActive,
-        curActiveAppt,
-        curLostNoResponse,
-        curLostNoAgreement,
-        curLostBadCredit,
-        curLostCompleted,
-      ] = await Promise.all([
-        queryCount(curStart, curEnd),
-        queryCount(prevStart, prevEnd),
-        queryCount(curStart, curEnd, "SOLD_DELIVERED"),
-        queryCount(prevStart, prevEnd, "SOLD_DELIVERED"),
-        queryCount(curStart, curEnd, "SOLD_PENDING_FINANCE"),
-        queryCount(prevStart, prevEnd, "SOLD_PENDING_FINANCE"),
-        queryCount(curStart, curEnd, "SOLD_ON_ORDER"),
-        queryCount(curStart, curEnd, "ACTIVE_NEW_LEAD"),
-        queryCount(prevStart, prevEnd, "ACTIVE_NEW_LEAD"),
-        queryCount(curStart, curEnd, "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE"),
-        queryCount(prevStart, prevEnd, "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE"),
-        queryCount(curStart, curEnd, "ACTIVE_ACTIVE_LEAD"),
-        queryCount(prevStart, prevEnd, "ACTIVE_ACTIVE_LEAD"),
-        queryCount(curStart, curEnd, "ACTIVE_SET_APPOINTMENT"),
-        queryCount(curStart, curEnd, "LOST_DID_NOT_RESPOND"),
-        queryCount(curStart, curEnd, "LOST_NO_AGREEMENT_REACHED"),
-        queryCount(curStart, curEnd, "LOST_BAD_CREDIT"),
-        queryCount(curStart, curEnd, "LOST_LEAD_PROCESS_COMPLETED"),
-      ]);
-
-      const soldLeads = curSoldDelivered + curSoldPending + curSoldOnOrder;
-      const prevSoldLeads = prevSoldDelivered + prevSoldPending;
-      const activeLeads = curActiveNew + curActiveWaiting + curActiveActive + curActiveAppt;
-      const prevActiveLeads = prevActiveNew + prevActiveWaiting + prevActiveActive;
-      const lostLeads = curLostNoResponse + curLostNoAgreement + curLostBadCredit + curLostCompleted;
-
-      const pctChange = (cur: number, prev: number) =>
-        prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
+      const latestSyncDate = leads.length > 0
+        ? leads.reduce((latest: Date, l: any) => {
+            const s = new Date(l.syncedAt);
+            return s > latest ? s : latest;
+          }, new Date(0)).toISOString()
+        : null;
 
       return res.json({
-        period: { start: curStart, end: curEnd },
-        totalLeads: curTotal,
-        totalLeadsChange: pctChange(curTotal, prevTotal),
-        newLeads: curActiveNew,
-        newLeadsChange: pctChange(curActiveNew, prevActiveNew),
-        activeLeads,
-        activeLeadsChange: pctChange(activeLeads, prevActiveLeads),
-        soldLeads,
-        soldLeadsChange: pctChange(soldLeads, prevSoldLeads),
-        lostLeads,
-        waitingForResponse: curActiveWaiting,
-        appointments: curActiveAppt,
-        conversionRate: curTotal > 0 ? Math.round((soldLeads / curTotal) * 100) : 0,
-        source: "vinsolutions",
-        syncedAt: null,
+        period: { start: thirtyDaysAgo.toISOString().split("T")[0], end: now.toISOString().split("T")[0] },
+        totalLeads: cur.total,
+        totalLeadsChange: 0,
+        newLeads: cur.new,
+        newLeadsChange: 0,
+        activeLeads: cur.active,
+        activeLeadsChange: 0,
+        soldLeads: cur.sold,
+        soldLeadsChange: 0,
+        lostLeads: cur.lost,
+        waitingForResponse: cur.waiting,
+        appointments: cur.appt,
+        conversionRate: cur.total > 0 ? Math.round((cur.sold / cur.total) * 1000) / 10 : 0,
+        source: "warehouse",
+        syncedAt: latestSyncDate,
       });
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch lead summary", error: err.message });
