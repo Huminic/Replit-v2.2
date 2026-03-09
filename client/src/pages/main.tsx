@@ -164,7 +164,6 @@ export default function MainPage() {
   const [hasSentMessage, setHasSentMessage] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [chatMode, setChatMode] = useState<string>('general');
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -187,13 +186,6 @@ export default function MainPage() {
       });
       const newConv: DbConversation = await res.json();
       setConversationId(newConv.id);
-
-      const greeting = `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`;
-      await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
-        role: 'assistant',
-        content: greeting,
-        senderName: personaName,
-      });
       queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
     } catch (err) {
@@ -224,20 +216,11 @@ export default function MainPage() {
         setTilesCollapsed(true);
       }
     } else if (dbMessages && dbMessages.length === 0 && conversationId && !initialized) {
-    } else if (!conversationId && !authUser) {
-      const greeting: ChatMessage = {
-        id: 'greeting',
-        role: 'assistant',
-        content: `Hello! I'm ${personaName}, your AI assistant for Nexxus Connect. How can I help you today?`,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages([greeting]);
     }
   }, [dbMessages, conversationId, personaName, authUser]);
 
   const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
-    mode: chatMode === 'crm_guru' ? 'crm_guru' : undefined,
   });
 
   const lastUserContent = messages.filter(m => m.role === 'user').at(-1)?.content;
@@ -507,24 +490,12 @@ export default function MainPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <button
-                  onClick={() => setChatMode(chatMode === 'crm_guru' ? 'general' : 'crm_guru')}
-                  className={cn(
-                    "text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 transition-colors border",
-                    chatMode === 'crm_guru'
-                      ? "bg-emerald-100 text-emerald-700 border-emerald-300"
-                      : "bg-muted text-muted-foreground border-border hover:bg-accent"
-                  )}
-                  data-testid="button-crm-guru-toggle"
-                >
-                  {chatMode === 'crm_guru' ? 'CRM Guru (Active)' : 'CRM Guru'}
-                </button>
                 <textarea
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={chatMode === 'crm_guru' ? "Ask CRM Guru about your VIN Solutions data..." : "Ask me anything about your business"}
+                  placeholder="Ask me anything about your business"
                   className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[28px] max-h-40 py-1.5"
                   rows={1}
                   data-testid="input-main-chat"

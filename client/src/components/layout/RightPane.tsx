@@ -88,13 +88,6 @@ export function RightPane({ className }: RightPaneProps) {
         });
         const newConv: DbConversation = await res.json();
         setConversationId(newConv.id);
-
-        const greeting = `Hello! I'm ${personaName}, your AI assistant. How can I help you with this page?`;
-        await apiRequest('POST', `/api/conversations/${newConv.id}/messages`, {
-          role: 'assistant',
-          content: greeting,
-          senderName: personaName,
-        });
         queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-assistant'] });
         setInitialized(true);
       } catch (err) {
@@ -121,13 +114,6 @@ export function RightPane({ className }: RightPaneProps) {
         timestamp: m.createdAt ? new Date(m.createdAt).toISOString() : new Date().toISOString(),
       }));
       setMessages(mapped);
-    } else if (!conversationId && !authUser) {
-      setMessages([{
-        id: 'rp-greeting',
-        role: 'assistant',
-        content: `Hello! I'm ${personaName}, your AI assistant. How can I help you with this page?`,
-        timestamp: new Date().toISOString(),
-      }]);
     }
   }, [dbMessages, conversationId, personaName, authUser]);
 
