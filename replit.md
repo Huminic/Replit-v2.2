@@ -59,12 +59,27 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 ### Area 1: UI and Chat
 
 **Sub-topics:**
-- **1a. Settings and knowledge** — Chat-specific: persona name config, knowledge documents the AI draws from, CRM Guru data sources
-- **1b. Chat** — Core chat flow: sending messages, receiving streamed responses, conversation persistence
-- **1c. Chat quality** — Are responses accurate? Using the right data? Appropriate tone?
-- **1d. Chat bubbles** — Visual presentation: user bubbles, AI bubbles, thinking cards, timestamps
-- **1e. Special chat features** — CRM Guru mode toggle, artifacts (scoped to data reports), hunch-influenced prompting
-- **1f. Menu and nav look and feel** — Sidebar, submenu lock/popout/auto-revert, nav items per role, Coming Soon states
+- **1a. Settings and knowledge** — Persona name config, knowledge doc uploads (CSV/PDF/text/images) per org in settings, CRM Guru data sources, chat quality instructions configurable on settings page
+- **1b. Chat** — Core chat flow: sending messages, token-by-token streaming, conversation persistence (cross-device), model selector dropdown (Claude/Gemini/OpenAI — all fallback to Claude until keys added), Opus for data analysis / Sonnet for general chat
+- **1c. Chat quality** — Benchmarked against Chat Checklist (attached_assets/Chat-Checklist_1773026680713.pdf): functional testing (continuity, context retention, error handling), UX/performance (TTFT <2s, streaming smoothness), response quality benchmarks, edge cases, safety/alignment. Chat must query DB inline for real metrics and be RBAC-role-aware
+- **1d. Chat bubbles** — Visual presentation: user/AI bubbles, thinking cards, timestamps, long conversation scroll (50+ messages tested)
+- **1e. Special chat features** — CRM Guru mode toggle, hunch-influenced prompting, suggestion bubbles (randomized/role-aware, not static). Artifacts: skip for now, remove all UI traces
+- **1f. Menu and nav look and feel** — Sidebar lock/popout/auto-revert (60s), FavoritesBar → replace with dropdown + star icon (wired to DB), nav items per role, Coming Soon states
+
+**Owner Decisions (from Q&A review):**
+- Right pane toggle: double arrow only, no chat bubble (done)
+- FavoritesBar: too intrusive → replace with dropdown in submenu with star, stored in DB
+- Knowledge base: per-org uploads (CSV/PDF/text/images) in back-end settings, not per-user
+- Chat attribution: "from our records" (vendor data, never name vendor) vs "from our knowledge base" (org uploads)
+- Model: Opus for data analysis, Sonnet for everything else. Dropdown shows Claude/Gemini/OpenAI but all use Claude as fallback
+- Two chat surfaces: main = general chat, right pane = contextual (pre-prompted with current page + visible metrics/agent)
+- Conversation persistence: cross-device, real DB conversations in submenu history
+- Admin visibility: org admins view chat history under Management activity
+- Artifacts: skip for now, remove all UI traces
+- Suggestion bubbles: at least random, ideally per-role intelligent
+- Long scroll: test with 50+ messages, auto-scroll, scroll-to-top
+- Chat quality instructions: configurable on org settings page (system prompt/personality)
+- Quality benchmark: Chat Checklist PDF (8 sections, 27+ criteria) — see attached_assets/Chat-Checklist_1773026680713.pdf
 
 **Acceptance Criteria:**
 - AC-06-A: Thinking card appears during AI processing → 1d
@@ -87,11 +102,23 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 - AC-NAV-I: Disabled section absent from nav → 1f
 - AC-NAV-J: Enabled-but-not-built section shows Coming Soon → 1f
 
-**What's built:** AI Chat with Claude streaming, CRM Guru toggle, thinking cards, chat history persistence, 4 metric tiles with collapse, persona name from org config, sidebar with lock/popout/auto-revert (60s timer), SubMenuManager with all panel types, navigation per spec.
+**What's built:** AI Chat with Claude streaming (token-by-token), CRM Guru toggle, thinking cards, chat history persistence in DB, 4 metric tiles with collapse, persona name from org config, sidebar with lock/popout/auto-revert (60s timer), SubMenuManager with all panel types, navigation per spec, right pane with contextual chat.
 
-**Known gaps to validate:** Chat quality/response accuracy, knowledge document integration with chat, special chat features (artifacts scoped to data reports only per AC-NAV-B), long conversation behavior, chat bubble styling.
+**Work needed:**
+- FavoritesBar → dropdown with star, wired to DB
+- Knowledge base uploads (CSV/PDF/text/images) per org with indexing
+- Chat data attribution ("our records" vs "knowledge base")
+- Model selector dropdown (Claude/Gemini/OpenAI, Claude fallback)
+- Opus/Sonnet routing based on query complexity
+- Chat quality instructions configurable on settings page
+- Right pane context injection verification (page + metrics/agent)
+- Remove all artifact UI traces
+- Suggestion bubbles → randomized/role-aware
+- Long conversation scroll testing (50+ messages)
+- Admin chat history visibility under Management
+- Full Chat Checklist QA pass (8 sections)
 
-**Key files:** `client/src/pages/main.tsx`, `client/src/components/layout/Sidebar.tsx`, `client/src/components/layout/SubMenuManager.tsx`, `client/src/components/layout/AppLayout.tsx`, `server/routes.ts` (chat endpoints)
+**Key files:** `client/src/pages/main.tsx`, `client/src/components/layout/Sidebar.tsx`, `client/src/components/layout/SubMenuManager.tsx`, `client/src/components/layout/AppLayout.tsx`, `client/src/pages/settings.tsx`, `server/routes.ts` (chat endpoints)
 
 ---
 
