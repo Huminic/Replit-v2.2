@@ -57,53 +57,66 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 Work is organized into 6 functional areas. Each area is reviewed against its acceptance criteria before implementation begins.
 
 ### Area 1: UI and Chat
-**What it covers:** Chat interface, chat quality, thinking cards, persona name, CRM Guru mode, menu/nav look and feel, sidebar/submenu behavior, settings and knowledge base for chat.
+
+**Sub-topics:**
+- **1a. Settings and knowledge** — Chat-specific: persona name config, knowledge documents the AI draws from, CRM Guru data sources
+- **1b. Chat** — Core chat flow: sending messages, receiving streamed responses, conversation persistence
+- **1c. Chat quality** — Are responses accurate? Using the right data? Appropriate tone?
+- **1d. Chat bubbles** — Visual presentation: user bubbles, AI bubbles, thinking cards, timestamps
+- **1e. Special chat features** — CRM Guru mode toggle, artifacts (scoped to data reports), hunch-influenced prompting
+- **1f. Menu and nav look and feel** — Sidebar, submenu lock/popout/auto-revert, nav items per role, Coming Soon states
 
 **Acceptance Criteria:**
-- AC-06-A: Thinking card appears during AI processing
-- AC-06-B: Chat history persists across sessions
-- AC-06-C: Persona name from org's Agent Name field
-- AC-06-D: Persona name fallback to VAPI config name
-- AC-07-A: CRM Guru uses VIN Solutions data first
-- AC-07-B: CRM Guru supplements with warehouse data (explicit attribution)
-- AC-07-C: General chat suggests CRM Guru for CRM questions
-- AC-CH-A: Four metric tiles displayed on AI Chat load
-- AC-CH-B: Metric tiles hide when user starts chatting
-- AC-NAV-A: AI Chat sub-items render
-- AC-NAV-B: Artifacts scoped to data reports only
-- AC-NAV-C: My Work sub-items render
-- AC-NAV-D: TeamBox sub-items render
-- AC-NAV-E: All conversations route to TeamBox
-- AC-NAV-F: Sales sub-items match reference model
-- AC-NAV-G: Service sub-items correct
-- AC-NAV-H: Management sub-items correct
-- AC-NAV-I: Disabled section absent from nav
-- AC-NAV-J: Enabled-but-not-built section shows Coming Soon
+- AC-06-A: Thinking card appears during AI processing → 1d
+- AC-06-B: Chat history persists across sessions → 1b
+- AC-06-C: Persona name from org's Agent Name field → 1a
+- AC-06-D: Persona name fallback to VAPI config name → 1a
+- AC-07-A: CRM Guru uses VIN Solutions data first → 1e
+- AC-07-B: CRM Guru supplements with warehouse data (explicit attribution) → 1e
+- AC-07-C: General chat suggests CRM Guru for CRM questions → 1e
+- AC-CH-A: Four metric tiles displayed on AI Chat load → 1b
+- AC-CH-B: Metric tiles hide when user starts chatting → 1b
+- AC-NAV-A: AI Chat sub-items render → 1f
+- AC-NAV-B: Artifacts scoped to data reports only → 1e, 1f
+- AC-NAV-C: My Work sub-items render → 1f
+- AC-NAV-D: TeamBox sub-items render → 1f
+- AC-NAV-E: All conversations route to TeamBox → 1f
+- AC-NAV-F: Sales sub-items match reference model → 1f
+- AC-NAV-G: Service sub-items correct → 1f
+- AC-NAV-H: Management sub-items correct → 1f
+- AC-NAV-I: Disabled section absent from nav → 1f
+- AC-NAV-J: Enabled-but-not-built section shows Coming Soon → 1f
 
 **What's built:** AI Chat with Claude streaming, CRM Guru toggle, thinking cards, chat history persistence, 4 metric tiles with collapse, persona name from org config, sidebar with lock/popout/auto-revert (60s timer), SubMenuManager with all panel types, navigation per spec.
 
-**Known gaps to validate:** Chat quality/response accuracy, knowledge document upload flow, special chat features (artifacts scoped to data reports only per AC-NAV-B), long conversation behavior.
+**Known gaps to validate:** Chat quality/response accuracy, knowledge document integration with chat, special chat features (artifacts scoped to data reports only per AC-NAV-B), long conversation behavior, chat bubble styling.
 
 **Key files:** `client/src/pages/main.tsx`, `client/src/components/layout/Sidebar.tsx`, `client/src/components/layout/SubMenuManager.tsx`, `client/src/components/layout/AppLayout.tsx`, `server/routes.ts` (chat endpoints)
 
 ---
 
 ### Area 2: Communications
-**What it covers:** Outbound engine settings, new account/reset account flows, SMS (Serra Honda only initially), service campaigns (CSV upload → execution), notifications, kill switch and CommGate safety layers.
+
+**Sub-topics:**
+- **2a. Settings and knowledge** — Communication gate config, channel toggles, kill switch behavior
+- **2b. New account/reset account** — User invitation flow, password reset via Resend
+- **2c. SMS (Serra Honda only)** — TextMagic delivery, two-way SMS in TeamBox, agent auto-greeting
+- **2d. Service Campaigns** — Campaign creation, CSV upload, execution flow, kill switch per campaign
+- **2e. Notifications** — Activity feed, notification delivery and display
 
 **Acceptance Criteria:**
-- AC-05-A: Kill switch blocks SMS
-- AC-05-B: Kill switch blocks phone calls
-- AC-05-C: Kill switch blocks email
-- AC-05-D: Channel switch blocks specific channel
-- AC-05-E: Rate limit enforcement (3 per 24h per customer)
-- AC-05-F: Every trigger logged with full metadata
-- AC-10-A: Outbound events are counted
-- AC-10-B: Usage visible to Org Admin
-- AC-10-C: Usage scoped correctly per org
-- AC-10-D: Billing API accessible
-- AC-KS-A: All 4 kill switch columns exist in DB
-- AC-KS-B: Master switch overrides individual channels
+- AC-05-A: Kill switch blocks SMS → 2a
+- AC-05-B: Kill switch blocks phone calls → 2a
+- AC-05-C: Kill switch blocks email → 2a
+- AC-05-D: Channel switch blocks specific channel → 2a
+- AC-05-E: Rate limit enforcement (3 per 24h per customer) → 2c, 2d
+- AC-05-F: Every trigger logged with full metadata → 2a
+- AC-10-A: Outbound events are counted → 2c, 2d
+- AC-10-B: Usage visible to Org Admin → 2a
+- AC-10-C: Usage scoped correctly per org → 2a
+- AC-10-D: Billing API accessible → 2a
+- AC-KS-A: All 4 kill switch columns exist in DB → 2a
+- AC-KS-B: Master switch overrides individual channels → 2a
 
 **What's built:** 5-layer CommGate safety (global env → org gate → channel toggles → rate limit → campaign kill switch), TextMagic SMS delivery, Resend email, VAPI phone outbound, usage metering to `usage_events` table, Usage page for Org Admin, Billing API endpoint, two-way SMS in TeamBox, agent auto-greeting templates, password reset with crypto tokens + Resend.
 
@@ -114,18 +127,23 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 ---
 
 ### Area 3: Agents and Triggers
-**What it covers:** Agent configuration, trigger handling, agent review workflow, special prompting, hunch filter system.
+
+**Sub-topics:**
+- **3a. Settings and knowledge** — Agent config (name, department, personality, auto-greeting template)
+- **3b. Trigger handling** — What fires outbound actions, how triggers are logged, rate limiting
+- **3c. Agent review** — Reviewing agent conversations, escalation handling in TeamBox
+- **3d. Special prompting** — Hunch filter (accept/dismiss/resolve), how hunches feed into the AI prompt
 
 **Acceptance Criteria:**
-- AC-HF-A: Accepted hunch added to effective prompt
-- AC-HF-B: Dismissed hunch not included in prompt
-- AC-HF-C: Resolved hunch removed from filter
-- AC-HF-D: Master prompt unchanged by hunch acceptance
-- AC-TB-A: Escalation types present (Task, Escalation, Unsent Message)
-- AC-TB-B: Priority levels present (4 levels)
-- AC-EF-A: Dropped feature references block merge
-- AC-EF-B: No production credentials in code
-- AC-EF-C: Kill switch test must pass
+- AC-HF-A: Accepted hunch added to effective prompt → 3d
+- AC-HF-B: Dismissed hunch not included in prompt → 3d
+- AC-HF-C: Resolved hunch removed from filter → 3d
+- AC-HF-D: Master prompt unchanged by hunch acceptance → 3d
+- AC-TB-A: Escalation types present (Task, Escalation, Unsent Message) → 3c
+- AC-TB-B: Priority levels present (4 levels) → 3c
+- AC-EF-A: Dropped feature references block merge → 3a
+- AC-EF-B: No production credentials in code → 3a
+- AC-EF-C: Kill switch test must pass → 3a
 
 **What's built:** Agent CRUD with department tagging, hunch filter (accept/dismiss/resolve), TeamBox 3-column layout with 3 escalation types and 4 priority levels, enforcer scanner for dropped features and credential exposure.
 
@@ -136,23 +154,29 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 ---
 
 ### Area 4: One-off Lead Handling (Communications Agent)
-**What it covers:** Widget channels, hosted landing page, embed flow, VAPI lead flow (handoff, appointment, VIN insertion), Tavus lead flow (handoff, appointment, VIN insertion).
+
+**Sub-topics:**
+- **4a. Agent handling** — How the communications agent routes and manages one-off leads
+- **4b. Widgets and hosted page** — 4-channel widget, landing page at `/p/[slug]`
+- **4c. Embed flow** — Embed code generation, widget behavior on external sites
+- **4d. VAPI Lead Flow** — Handoff from voice call, appointment creation, VIN Solutions insertion (2-step with escalation)
+- **4e. Tavus Lead Flow** — Handoff from video, appointment creation, VIN Solutions insertion
 
 **Acceptance Criteria:**
-- AC-02-A: Successful VAPI lead capture → VIN Solutions with transcript
-- AC-02-B: Step 1 failure → escalation in TeamBox
-- AC-02-C: Step 2 failure → escalation with contact_href
-- AC-02-D: No silent failure — log + escalation always exist
-- AC-04-A: Four widget channels present (Web Chat, Web Call, Contact Form, Two-Way Video)
-- AC-04-B: Video launches immediately on click
-- AC-04-C: Channel toggle works
-- AC-04-D: Embed code generation works
-- AC-08-A: Globe icon links to landing page
-- AC-08-B: Landing page is publicly accessible
-- AC-09-A: Landing page slug format correct
-- AC-09-B: Slug collision handling
-- AC-09-C: Slug edit and logging
-- AC-09-D: Widget present on landing page
+- AC-02-A: Successful VAPI lead capture → VIN Solutions with transcript → 4d
+- AC-02-B: Step 1 failure → escalation in TeamBox → 4d
+- AC-02-C: Step 2 failure → escalation with contact_href → 4d
+- AC-02-D: No silent failure — log + escalation always exist → 4d, 4e
+- AC-04-A: Four widget channels present (Web Chat, Web Call, Contact Form, Two-Way Video) → 4b
+- AC-04-B: Video launches immediately on click → 4b
+- AC-04-C: Channel toggle works → 4b
+- AC-04-D: Embed code generation works → 4c
+- AC-08-A: Globe icon links to landing page → 4b
+- AC-08-B: Landing page is publicly accessible → 4b
+- AC-09-A: Landing page slug format correct → 4b
+- AC-09-B: Slug collision handling → 4b
+- AC-09-C: Slug edit and logging → 4b
+- AC-09-D: Widget present on landing page → 4b
 
 **What's built:** VAPI webhook → 2-step VIN lead creation with escalation on failure, Tavus webhook → VIN lead creation, widget with 4 channels (chat/call/contact/video), VAPI @vapi-ai/web SDK with real connection states, Tavus iframe with real sessions, landing pages at `/p/[slug]`, embed code generation, slug redirects with 30-day expiry, widget chat creates real conversations visible in TeamBox.
 
@@ -163,14 +187,18 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 ---
 
 ### Area 5: System/Settings
-**What it covers:** File uploads, general org settings, hunches display and management, calendar connector config.
+
+**Sub-topics:**
+- **5a. Uploads** — File upload handling, knowledge base document management
+- **5b. General settings** — Org settings page, calendar connectors config
+- **5c. Hunches** — Hunch display on Management page, accept/dismiss/resolve workflow
 
 **Acceptance Criteria:**
-- AC-03-A: Google Calendar appointment appears in Nexxus (config UI built, sync deferred)
-- AC-03-B: Dealer.com appointment appears in Nexxus (config UI built, sync deferred)
-- AC-03-C: Tekion appointment appears in Nexxus (config UI built, sync deferred)
-- AC-03-D: Manual appointment creation
-- AC-03-E: VIN Solutions NOT listed as appointment source
+- AC-03-A: Google Calendar appointment appears in Nexxus (config UI built, sync deferred) → 5b
+- AC-03-B: Dealer.com appointment appears in Nexxus (config UI built, sync deferred) → 5b
+- AC-03-C: Tekion appointment appears in Nexxus (config UI built, sync deferred) → 5b
+- AC-03-D: Manual appointment creation → 5b
+- AC-03-E: VIN Solutions NOT listed as appointment source → 5b
 
 **What's built:** Knowledge document upload (multer), org settings page with communication gate toggles, calendar connector config UI (Google Calendar/Dealer.com/Tekion listed, VIN Solutions excluded per AC-03-E), manual appointment creation with calendar grid, hunch cards on Management page.
 
@@ -181,12 +209,17 @@ Work is organized into 6 functional areas. Each area is reviewed against its acc
 ---
 
 ### Area 6: Metrics (Display and Connection)
-**What it covers:** Metrics accuracy and correctness, filtering and updates, insights vs dashboard vs homepage comparison, reports.
+
+**Sub-topics:**
+- **6a. Metrics true and correct** — Pipeline accuracy, appointment counts, VIN data alignment
+- **6b. Filtering and updates** — Date range filtering, org switching, data refresh
+- **6c. Insights vs dash vs homepage** — Same metric shows same number everywhere (AC-01-C)
+- **6d. Reports** — Insights reports tab, export/generation
 
 **Acceptance Criteria:**
-- AC-01-A: Active pipeline = leads created last 14 days, excluding Lost/Sold/Bad/Service/NonCustomer
-- AC-01-B: Pipeline count displayed correctly on AI Chat
-- AC-01-C: Metric consistency — same count across Sales, Marketing Insights, Management
+- AC-01-A: Active pipeline = leads created last 14 days, excluding Lost/Sold/Bad/Service/NonCustomer → 6a
+- AC-01-B: Pipeline count displayed correctly on AI Chat → 6a, 6c
+- AC-01-C: Metric consistency — same count across Sales, Marketing Insights, Management → 6c
 
 **What's built:** Pipeline metrics from `warehouse_leads` with status classifier, VIN summary endpoint for Sales tiles, Insights dashboard and reports from aggregated warehouse data, store selector for cross-store comparison (super_admin/partner_admin), appointments from `appointments` table (not lead statuses), sync scheduler (4h metrics during business hours, 2AM ET daily delta).
 

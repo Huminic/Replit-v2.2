@@ -11,16 +11,46 @@
 
 Instead of wave/sprint-based work, remaining validation and implementation is organized into **6 functional areas**. Each area is reviewed against its acceptance criteria before any code work begins.
 
-### Functional Area → AC Mapping
+### Functional Areas and Sub-topics
 
-| Area | Name | Acceptance Criteria |
-|------|------|-------------------|
-| 1 | UI and Chat | AC-06-A/B/C/D, AC-07-A/B/C, AC-CH-A/B, AC-NAV-A through J |
-| 2 | Communications | AC-05-A/B/C/D/E/F, AC-10-A/B/C/D, AC-KS-A/B |
-| 3 | Agents and Triggers | AC-HF-A/B/C/D, AC-TB-A/B, AC-EF-A/B/C |
-| 4 | One-off Lead Handling | AC-02-A/B/C/D, AC-04-A/B/C/D, AC-08-A/B, AC-09-A/B/C/D |
-| 5 | System/Settings | AC-03-A/B/C/D/E |
-| 6 | Metrics | AC-01-A/B/C |
+**Area 1: UI and Chat** (21 ACs: AC-06-A/B/C/D, AC-07-A/B/C, AC-CH-A/B, AC-NAV-A through J)
+- 1a. Settings and knowledge — Chat-specific: persona name config, knowledge documents, CRM Guru data sources
+- 1b. Chat — Core chat flow: sending messages, streamed responses, conversation persistence
+- 1c. Chat quality — Response accuracy, correct data usage, appropriate tone
+- 1d. Chat bubbles — Visual presentation: user/AI bubbles, thinking cards, timestamps
+- 1e. Special chat features — CRM Guru mode, artifacts (data reports only), hunch-influenced prompting
+- 1f. Menu and nav look and feel — Sidebar, submenu lock/popout/auto-revert, nav items per role, Coming Soon
+
+**Area 2: Communications** (12 ACs: AC-05-A/B/C/D/E/F, AC-10-A/B/C/D, AC-KS-A/B)
+- 2a. Settings and knowledge — Communication gate config, channel toggles, kill switch behavior
+- 2b. New account/reset account — User invitation, password reset via Resend
+- 2c. SMS (Serra Honda only) — TextMagic delivery, two-way SMS in TeamBox, agent auto-greeting
+- 2d. Service Campaigns — Campaign creation, CSV upload, execution, kill switch per campaign
+- 2e. Notifications — Activity feed, notification delivery and display
+
+**Area 3: Agents and Triggers** (9 ACs: AC-HF-A/B/C/D, AC-TB-A/B, AC-EF-A/B/C)
+- 3a. Settings and knowledge — Agent config (name, department, personality, auto-greeting template)
+- 3b. Trigger handling — What fires outbound actions, trigger logging, rate limiting
+- 3c. Agent review — Reviewing agent conversations, escalation handling in TeamBox
+- 3d. Special prompting — Hunch filter (accept/dismiss/resolve), hunches feeding into AI prompt
+
+**Area 4: One-off Lead Handling (Communications Agent)** (14 ACs: AC-02-A/B/C/D, AC-04-A/B/C/D, AC-08-A/B, AC-09-A/B/C/D)
+- 4a. Agent handling — How the communications agent routes one-off leads
+- 4b. Widgets and hosted page — 4-channel widget, landing page at `/p/[slug]`
+- 4c. Embed flow — Embed code generation, widget on external sites
+- 4d. VAPI Lead Flow — Voice handoff, appointment creation, VIN insertion (2-step + escalation)
+- 4e. Tavus Lead Flow — Video handoff, appointment creation, VIN insertion
+
+**Area 5: System/Settings** (5 ACs: AC-03-A/B/C/D/E)
+- 5a. Uploads — File upload handling, knowledge base document management
+- 5b. General settings — Org settings page, calendar connectors config
+- 5c. Hunches — Hunch display on Management page, accept/dismiss/resolve workflow
+
+**Area 6: Metrics (Display and Connection)** (3 ACs: AC-01-A/B/C)
+- 6a. Metrics true and correct — Pipeline accuracy, appointment counts, VIN data alignment
+- 6b. Filtering and updates — Date range filtering, org switching, data refresh
+- 6c. Insights vs dash vs homepage — Same metric shows same number everywhere
+- 6d. Reports — Insights reports tab, export/generation
 
 ### Workflow Per Area
 1. Review the area's ACs and current state together
@@ -28,7 +58,7 @@ Instead of wave/sprint-based work, remaining validation and implementation is or
 3. Implement and test
 4. Verify all ACs pass before moving to next area
 
-See `replit.md` for detailed per-area status and key files.
+See `replit.md` for detailed per-area status, key files, and AC-to-subtopic mapping.
 
 ---
 
