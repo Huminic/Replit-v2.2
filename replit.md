@@ -181,8 +181,10 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - **Cage Automotive** (partner org, id: b1a2c3d4-...): Parent entity linking 5 dealership stores via `partnerId`
 - **5 Stores**: Serra Honda, Serra Nissan, Tony Serra Ford, Hyundai of Columbia, Ford of Columbia
 - **VinSolutions Dealer IDs**: Serra Honda=21043, Serra Nissan=21044, Tony Serra Ford=21047, Ford of Columbia=13398, Hyundai of Columbia=13399
-- **NEXXUS_ORG_MAP** in `server/vendorProxy.ts`: Maps local org UUIDs to MCP nexxusOrgIds for VinSolutions API calls
+- **NEXXUS_ORG_MAP** in `server/vendorProxy.ts`: Maps all 5 local org UUIDs to MCP nexxusOrgIds for VinSolutions API calls (Hyundai=227a5597, Ford=2ff5afa0, Honda=3795b8f6, Nissan=7f868569, TonySerra=8751c73d)
+- **VIN API limit**: Max 100 leads per query. Backfill uses 7-day windows to paginate through 90 days of data
 - **Store Selector**: InsightsPage has a dropdown (super_admin/partner_admin only) that fetches GET /api/organizations and passes `?orgId=` to dashboard/reports queries
+- **Org Switcher**: TopBar org switcher uses live `/api/organizations` query (not login-time cache) to always show current stores; Cage Automotive parent org is filtered out
 - **Data isolation**: `resolveOrgIdParam()` helper in routes.ts ensures orgId-based filtering with role authorization
 - **Backfill**: POST /api/vin/backfill?orgId= triggers historical data sync per store via MCP
 

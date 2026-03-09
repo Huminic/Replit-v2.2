@@ -119,9 +119,15 @@ function mapAuthUserToAppUser(authUser: { id: string; email: string; firstName: 
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const { user: authUser, accessibleOrganizations } = useAuth();
+  const { user: authUser } = useAuth();
 
   const authAppUser = authUser ? mapAuthUserToAppUser(authUser) : null;
+
+  const canSwitchStore = authUser && (authUser.role.level <= 2);
+  const { data: liveOrgList } = useQuery<{ id: string; name: string; slug: string }[]>({
+    queryKey: ['/api/organizations'],
+    enabled: !!authUser && !!canSwitchStore,
+  });
 
   const { data: apiAgents } = useQuery<Agent[]>({
     queryKey: ['/api/agents'],
@@ -164,17 +170,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     : fallbackOrganizations[0];
 
-  const resolvedOrganizations: Organization[] = accessibleOrganizations
-    ? accessibleOrganizations.map(o => {
-        const fb = fallbackOrganizations.find(m => m.name === o.name);
-        return {
-          id: o.id,
-          name: o.name,
-          primaryColor: fb?.primaryColor || '#8b5cf6',
-          secondaryColor: fb?.secondaryColor || '#3b82f6',
-          personaName: fb?.personaName || 'Serra',
-        };
-      })
+  const orgSource = liveOrgList && liveOrgList.length > 0 ? liveOrgList : null;
+  const resolvedOrganizations: Organization[] = orgSource
+    ? orgSource
+        .filter(o => o.name !== 'Cage Automotive')
+        .map(o => {
+          const fb = fallbackOrganizations.find(m => m.name === o.name);
+          return {
+            id: o.id,
+            name: o.name,
+            primaryColor: fb?.primaryColor || '#8b5cf6',
+            secondaryColor: fb?.secondaryColor || '#3b82f6',
+            personaName: fb?.personaName || 'Serra',
+          };
+        })
     : fallbackOrganizations;
 
   const { data: apiNotifications } = useQuery<DbNotification[]>({
