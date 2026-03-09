@@ -604,8 +604,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPipelineMetrics(organizationId: string): Promise<PipelineMetrics> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -617,17 +615,22 @@ export class DatabaseStorage implements IStorage {
     const [pipelineResult, appointmentResult, escalationResult, outboundResult] = await Promise.all([
       db.select({ cnt: count() }).from(warehouseLeads).where(and(
         eq(warehouseLeads.organizationId, organizationId),
-        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${thirtyDaysAgo}`,
-        sql`COALESCE(${warehouseLeads.vinUpdatedAt}, ${warehouseLeads.syncedAt}) >= ${fourteenDaysAgo}`,
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
-        sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
+        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${fourteenDaysAgo}`,
         sql`${warehouseLeads.vinStatus} IS NOT NULL`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
+        sql`${warehouseLeads.vinStatus} != 'lost'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
+        sql`${warehouseLeads.vinStatus} != 'sold'`,
+        sql`${warehouseLeads.vinStatus} != 'closed-won'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'BAD%'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
+        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`${warehouseLeads.vinStatus} != 'NON_CUSTOMER_INITIATED_LEAD'`,
       )),
 
       db.select({ cnt: count() }).from(warehouseLeads).where(and(
         eq(warehouseLeads.organizationId, organizationId),
-        eq(warehouseLeads.vinStatus, "ACTIVE_SET_APPOINTMENT"),
+        sql`${warehouseLeads.vinStatus} IN ('ACTIVE_SET_APPOINTMENT', 'appointment_set', 'SERVICE_APPOINTMENT_SCHEDULED')`,
         gte(warehouseLeads.syncedAt, todayStart),
       )),
 

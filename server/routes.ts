@@ -35,6 +35,7 @@ import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
 import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
 import { runHistoricalBackfill, runDailyDelta, runMetricsRefresh, startSyncScheduler } from "./sync";
+import { classifyVinStatus, isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead, isExcludedFromPipeline } from "./statusClassifier";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -3037,24 +3038,21 @@ Return ONLY the JSON array, no other text.`,
       const now = new Date();
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const fourteenDaysAgo = new Date(now);
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
       const allLeads = await storage.getWarehouseLeads(orgId, {
         createdAfter: thirtyDaysAgo,
-        activityAfter: fourteenDaysAgo,
       });
       const metrics = await storage.getWarehouseMetrics(orgId, {});
 
       const hotLeadsGoingCold = allLeads
-        .filter(l => l.vinStatus === "hot" || l.vinStatus === "active")
+        .filter(l => isActiveLead(l.vinStatus))
         .map(l => {
           const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
           return {
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Internet",
             source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
-            status: l.vinStatus || "active", isHot: l.vinStatus === "hot",
+            status: l.vinStatus || "active", isHot: l.vinStatus === "hot" || l.vinStatus === "ACTIVE_ACTIVE_LEAD",
           };
         })
         .filter(l => l.daysOld > 2)
@@ -3062,7 +3060,7 @@ Return ONLY the JSON array, no other text.`,
         .slice(0, 20);
 
       const newLeadsNoContact = allLeads
-        .filter(l => l.vinStatus === "new" || l.vinStatus === "uncontacted")
+        .filter(l => isNewLead(l.vinStatus))
         .map(l => {
           const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
           const hoursOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60));
@@ -3076,7 +3074,7 @@ Return ONLY the JSON array, no other text.`,
 
       const showroomNotClosed = allLeads
         .filter(l => l.leadSource?.toLowerCase().includes("walk") || l.leadSource?.toLowerCase().includes("showroom"))
-        .filter(l => l.vinStatus !== "sold" && l.vinStatus !== "closed")
+        .filter(l => !isSoldLead(l.vinStatus))
         .map(l => {
           const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
@@ -3089,10 +3087,10 @@ Return ONLY the JSON array, no other text.`,
         .slice(0, 20);
 
       const totalLeads = allLeads.length;
-      const hotCount = allLeads.filter(l => l.vinStatus === "hot" || l.vinStatus === "active").length;
-      const soldCount = allLeads.filter(l => l.vinStatus === "sold" || l.vinStatus === "closed-won").length;
+      const hotCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
+      const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
       const conversionRate = totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0;
-      const newCount = allLeads.filter(l => l.vinStatus === "new" || l.vinStatus === "uncontacted").length;
+      const newCount = allLeads.filter(l => isNewLead(l.vinStatus)).length;
 
       const sourceCounts: Record<string, number> = {};
       allLeads.forEach(l => {
@@ -3112,7 +3110,7 @@ Return ONLY the JSON array, no other text.`,
         const ch = l.leadSource?.includes("Phone") ? "Phone" : l.leadSource?.includes("Walk") ? "Walk-In" : l.leadSource?.includes("Web") ? "Website" : "Other";
         if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0 };
         channelCounts[ch].total++;
-        if (l.vinStatus === "sold" || l.vinStatus === "closed-won") channelCounts[ch].won++;
+        if (isSoldLead(l.vinStatus)) channelCounts[ch].won++;
       });
       const channelPerformance = Object.entries(channelCounts).map(([channel, data]) => ({
         channel, volume: data.total, conversion: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
@@ -3130,9 +3128,9 @@ Return ONLY the JSON array, no other text.`,
         yellowZone: {
           staleLeads: allLeads.filter(l => {
             const updated = l.vinUpdatedAt ? new Date(l.vinUpdatedAt) : new Date(l.createdAt);
-            return (now.getTime() - updated.getTime()) > 7 * 24 * 60 * 60 * 1000 && l.vinStatus !== "sold" && l.vinStatus !== "closed-won";
+            return (now.getTime() - updated.getTime()) > 7 * 24 * 60 * 60 * 1000 && !isSoldLead(l.vinStatus);
           }).length,
-          pendingFinance: allLeads.filter(l => l.vinStatus === "pending_finance").length,
+          pendingFinance: allLeads.filter(l => l.vinStatus === "pending_finance" || l.vinStatus === "SOLD_PENDING_FINANCE").length,
         },
         greenZone: [
           { label: "Pipeline Active", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
@@ -3162,27 +3160,24 @@ Return ONLY the JSON array, no other text.`,
       const now = new Date();
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const fourteenDaysAgo = new Date(now);
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
       const allLeads = await storage.getWarehouseLeads(orgId, {
         createdAfter: thirtyDaysAgo,
-        activityAfter: fourteenDaysAgo,
       });
       const metrics = await storage.getWarehouseMetrics(orgId, {});
 
       const totalLeads = allLeads.length;
-      const soldCount = allLeads.filter(l => l.vinStatus === "sold" || l.vinStatus === "closed-won").length;
-      const lostCount = allLeads.filter(l => l.vinStatus === "lost" || l.vinStatus === "closed-lost").length;
-      const badCount = allLeads.filter(l => l.vinStatus === "bad" || l.vinStatus === "invalid").length;
+      const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
+      const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
+      const badCount = allLeads.filter(l => isBadLead(l.vinStatus)).length;
 
       const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
       allLeads.forEach(l => {
         const src = l.leadSource || "Unknown";
         if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
         sourceCounts[src].total++;
-        if (l.vinStatus === "sold" || l.vinStatus === "closed-won") sourceCounts[src].won++;
-        if (l.vinStatus === "lost" || l.vinStatus === "closed-lost") sourceCounts[src].lost++;
+        if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
+        if (isLostLead(l.vinStatus)) sourceCounts[src].lost++;
       });
 
       const sourceQualityTrends = Object.entries(sourceCounts)
