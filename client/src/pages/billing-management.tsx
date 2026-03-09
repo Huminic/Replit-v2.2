@@ -44,7 +44,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useApp } from '@/contexts/AppContext';
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 function SuperAdminBillingView() {
@@ -396,10 +395,6 @@ export default function BillingManagementPage() {
 
       <div className="px-4 py-2 lg:hidden w-full max-w-5xl">
         <MobileNavDropdown currentPath="/settings/billing" currentLabel="Billing" />
-      </div>
-
-      <div className="hidden lg:flex px-4 border-b border-border w-full max-w-5xl items-center">
-        <FavoritesBar currentPath="/settings/billing" currentLabel="Billing Management" />
       </div>
 
       <ScrollArea className="flex-1 w-full">

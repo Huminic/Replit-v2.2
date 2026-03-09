@@ -30,6 +30,7 @@ import {
   updateTaskSchema,
   updateWidgetSchema,
   updateHunchSchema,
+  insertFavoriteSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
@@ -1541,7 +1542,7 @@ export async function registerRoutes(
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
       const { conversationId } = req.params;
-      const { content, agentId, mode } = req.body;
+      const { content, agentId, mode, pageContext } = req.body;
       const isCrmGuru = mode === "crm_guru";
 
       if (!content || typeof content !== "string") {
@@ -1578,6 +1579,9 @@ export async function registerRoutes(
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
+      const orgSettings = (org?.settings || {}) as Record<string, any>;
+      const chatInstructions = orgSettings.chatInstructions || "";
+      const orgSystemPrompt = orgSettings.systemPrompt || "";
 
       const now = new Date();
       const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "America/New_York" });
@@ -1669,13 +1673,14 @@ Your personality and rules:
 - When citing search results, be natural — incorporate the information conversationally, don't just dump raw results
 
 Data provenance rules (CRITICAL):
-- When referencing data from VinSolutions CRM, always tell the user the data source and how fresh it is (e.g., "Based on VinSolutions data from 2 hours ago...")
+- When referencing CRM/vendor data, attribute it as "from our records" — NEVER name the vendor or say "VinSolutions" to the user. Say things like "Based on our records from 2 hours ago..." or "According to our CRM data..."
+- When referencing knowledge base documents uploaded by the organization, say "from our knowledge base" and mention the document name
 - When referencing AI insights/hunches, mention they are AI-generated with their confidence level
-- When referencing knowledge base documents, mention the document name as your source
 - If data is stale (last synced > 6 hours ago), proactively note this: "Note: this data was last synced X hours ago and may not reflect the latest changes"
-- If no VinSolutions data is available, say so clearly — do not guess at CRM numbers
+- If no CRM data is available, say so clearly — do not guess at numbers
 - Use the vin_query_leads tool to look up specific lead data and the vin_lead_summary tool to get overall metrics
-- When web search results are used, cite them naturally${isCrmGuru ? `
+- When web search results are used, cite them naturally
+- Always make it clear whether information comes "from our records" (CRM/vendor data) or "from our knowledge base" (uploaded org documents)${orgSystemPrompt ? `\n\nOrganization-specific prompt:\n${orgSystemPrompt}` : ''}${chatInstructions ? `\n\nChat quality instructions (follow these carefully):\n${chatInstructions}` : ''}${isCrmGuru ? `
 
 CRM GURU MODE (ACTIVE):
 You are operating as the CRM Guru — the dedicated CRM intelligence agent. Follow these rules strictly:
@@ -1687,7 +1692,7 @@ You are operating as the CRM Guru — the dedicated CRM intelligence agent. Foll
 
 When the user asks a question that requires deep CRM data (specific lead details, deal histories, contact records, pipeline specifics):
 - First try to answer from available internal data warehouse
-- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper VinSolutions integration. You can activate it from the agent selector."`}${agentContext}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
+- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -2327,6 +2332,40 @@ When the user asks a question that requires deep CRM data (specific lead details
       return res.json({ message: "All notifications marked as read" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to mark all notifications read" });
+    }
+  });
+
+  app.get("/api/favorites", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const favs = await storage.getFavorites(req.user.id);
+      return res.json(favs);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
+  app.post("/api/favorites", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const parsed = insertFavoriteSchema.safeParse({ ...req.body, userId: req.user.id });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid favorite data", errors: parsed.error.flatten() });
+      }
+      const fav = await storage.addFavorite(parsed.data);
+      return res.status(201).json(fav);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to add favorite" });
+    }
+  });
+
+  app.delete("/api/favorites/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      await storage.removeFavorite(req.params.id, req.user.id);
+      return res.json({ message: "Favorite removed" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to remove favorite" });
     }
   });
 

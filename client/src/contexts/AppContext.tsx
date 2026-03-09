@@ -10,7 +10,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole, SectionPermission } from '@/lib/rbac';
-import type { Agent, Notification as DbNotification } from '@shared/schema';
+import type { Agent, Notification as DbNotification, Favorite } from '@shared/schema';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
 export interface User {
@@ -72,7 +72,7 @@ interface AppContextValue {
   organizations: Organization[];
   agents: Agent[];
   notifications: DbNotification[];
-  favorites: FavoriteItem[];
+  favorites: Favorite[];
   selectedAgent: Agent | null;
   sidebarVisible: boolean;
   rightPaneOpen: boolean;
@@ -98,7 +98,7 @@ interface AppContextValue {
   markNotificationRead: (notifId: string) => void;
   markAllNotificationsRead: () => void;
   unreadNotificationCount: number;
-  addFavorite: (item: FavoriteItem) => void;
+  addFavorite: (path: string, label: string) => void;
   removeFavorite: (id: string) => void;
   isFavorite: (path: string) => boolean;
   setCommunicationGateEnabled: (enabled: boolean) => void;
@@ -259,10 +259,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [panelHovered, setPanelHovered] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [communicationGateEnabled, setCommunicationGateEnabled] = useState(true);
-  const [favorites, setFavorites] = useState<FavoriteItem[]>([
-    { id: 'fav-1', label: 'Sales Dashboard', path: '/sales' },
-    { id: 'fav-2', label: 'Service Calendar', path: '/service?tab=calendar' },
-  ]);
+  const { data: apiFavorites } = useQuery<Favorite[]>({
+    queryKey: ['/api/favorites'],
+    enabled: !!authUser,
+  });
+  const favorites: Favorite[] = apiFavorites || [];
 
   useEffect(() => {
     if (agents.length > 0) {
@@ -286,12 +287,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const personaName = currentOrganization.personaName;
 
-  const addFavorite = (item: FavoriteItem) => {
-    setFavorites(prev => [...prev, item]);
+  const addFavorite = async (path: string, label: string) => {
+    try {
+      await apiRequest('POST', '/api/favorites', { path, label });
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+    } catch (err) {
+      console.error('Failed to add favorite', err);
+    }
   };
 
-  const removeFavorite = (id: string) => {
-    setFavorites(prev => prev.filter(f => f.id !== id));
+  const removeFavorite = async (id: string) => {
+    try {
+      await apiRequest('DELETE', `/api/favorites/${id}`);
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+    } catch (err) {
+      console.error('Failed to remove favorite', err);
+    }
   };
 
   const isFavorite = (path: string) => {

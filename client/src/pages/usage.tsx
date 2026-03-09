@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 const EVENT_TYPE_CONFIG: Record<string, { label: string; icon: typeof MessageSquare; color: string }> = {
@@ -98,8 +97,6 @@ export default function UsagePage() {
           </Select>
         </div>
       </div>
-
-      <FavoritesBar />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

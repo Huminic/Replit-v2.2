@@ -5,6 +5,7 @@ interface UseStreamingChatOptions {
   conversationId: string | null;
   agentId?: string;
   mode?: string;
+  pageContext?: string;
 }
 
 interface UseStreamingChatReturn {
@@ -48,7 +49,7 @@ function parseSSELines(lines: string[], accumulated: { text: string }, setStream
   return false;
 }
 
-export function useStreamingChat({ conversationId, agentId, mode }: UseStreamingChatOptions): UseStreamingChatReturn {
+export function useStreamingChat({ conversationId, agentId, mode, pageContext }: UseStreamingChatOptions): UseStreamingChatReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -96,7 +97,7 @@ export function useStreamingChat({ conversationId, agentId, mode }: UseStreaming
           'Content-Type': 'application/json',
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ content, agentId, ...(mode ? { mode } : {}) }),
+        body: JSON.stringify({ content, agentId, ...(mode ? { mode } : {}), ...(pageContext ? { pageContext } : {}) }),
         signal: controller.signal,
       });
 
@@ -142,7 +143,7 @@ export function useStreamingChat({ conversationId, agentId, mode }: UseStreaming
       setStatusMessage(null);
       abortRef.current = null;
     }
-  }, [conversationId, agentId, mode]);
+  }, [conversationId, agentId, mode, pageContext]);
 
   const retry = useCallback(() => {
     if (lastFailedContent) {

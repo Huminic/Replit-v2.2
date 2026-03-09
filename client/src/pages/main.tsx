@@ -41,7 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { agentSuggestions, type ChatMessage } from '@/lib/chat-types';
+import { getRandomSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -152,7 +152,8 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
  * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
  */
 export default function MainPage() {
-  const { personaName, currentUser, currentOrganization } = useApp();
+  const { personaName, currentUser, currentOrganization, currentRole } = useApp();
+  const [suggestions] = useState(() => getRandomSuggestions(currentRole));
   const orgId = currentOrganization?.id;
   const { user: authUser } = useAuth();
   const { toast } = useToast();
@@ -444,7 +445,7 @@ export default function MainPage() {
               <span className="text-[11px] text-muted-foreground font-medium">Try asking...</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {agentSuggestions.map((suggestion, i) => (
+              {suggestions.map((suggestion, i) => (
                 <Button
                   key={i}
                   variant="outline"

@@ -25,8 +25,9 @@ import { Send, Plus, Sparkles, Globe, Square, RotateCcw, AlertCircle } from 'luc
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { agentSuggestions, type ChatMessage } from '@/lib/chat-types';
+import { getRandomSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -38,9 +39,22 @@ interface RightPaneProps {
   className?: string;
 }
 
+const PAGE_LABELS: Record<string, string> = {
+  '/': 'Dashboard',
+  '/leads': 'Leads',
+  '/agents': 'AI Agents',
+  '/campaigns': 'Campaigns',
+  '/teambox': 'TeamBox',
+  '/management': 'Management',
+  '/settings': 'Settings',
+};
+
 export function RightPane({ className }: RightPaneProps) {
-  const { currentUser, personaName } = useApp();
+  const { currentUser, personaName, currentRole } = useApp();
   const { user: authUser } = useAuth();
+  const [location] = useLocation();
+  const pageLabel = PAGE_LABELS[location] || location;
+  const [suggestions] = useState(() => getRandomSuggestions(currentRole));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -119,6 +133,7 @@ export function RightPane({ className }: RightPaneProps) {
 
   const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
+    pageContext: `${pageLabel} page`,
   });
 
   const lastUserContent = messages.filter(m => m.role === 'user').at(-1)?.content;
@@ -253,7 +268,7 @@ export function RightPane({ className }: RightPaneProps) {
             <span className="text-xs text-muted-foreground">Suggestions</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {agentSuggestions.slice(0, 3).map((suggestion, i) => (
+            {suggestions.slice(0, 3).map((suggestion, i) => (
               <Button
                 key={i}
                 variant="outline"

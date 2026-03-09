@@ -24,9 +24,10 @@ import {
   type SlugRedirect, type InsertSlugRedirect,
   type SyncLog, type InsertSyncLog,
   type UsageEvent, type InsertUsageEvent,
+  type Favorite, type InsertFavorite,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
-  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents,
+  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -148,6 +149,10 @@ export interface IStorage {
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
   getPipelineMetrics(organizationId: string): Promise<PipelineMetrics>;
+
+  getFavorites(userId: string): Promise<Favorite[]>;
+  addFavorite(fav: InsertFavorite): Promise<Favorite>;
+  removeFavorite(id: string, userId: string): Promise<void>;
 }
 
 export interface PipelineMetrics {
@@ -928,6 +933,18 @@ export class DatabaseStorage implements IStorage {
       ))
       .groupBy(usageEvents.eventType);
     return rows.map(r => ({ eventType: r.eventType, total: Number(r.total) }));
+  }
+  async getFavorites(userId: string): Promise<Favorite[]> {
+    return db.select().from(favorites).where(eq(favorites.userId, userId)).orderBy(favorites.createdAt);
+  }
+
+  async addFavorite(fav: InsertFavorite): Promise<Favorite> {
+    const [created] = await db.insert(favorites).values(fav).returning();
+    return created;
+  }
+
+  async removeFavorite(id: string, userId: string): Promise<void> {
+    await db.delete(favorites).where(and(eq(favorites.id, id), eq(favorites.userId, userId)));
   }
 }
 
