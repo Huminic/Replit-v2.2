@@ -91,10 +91,21 @@ export async function seedDatabase() {
     createdRoles[r.name] = role.id;
   }
 
+  const cageAutomotive = await storage.createOrganization({
+    name: "Cage Automotive",
+    slug: "cage-automotive",
+    personaName: "Cage",
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
+  });
+
   const serraHonda = await storage.createOrganization({
     name: "Serra Honda",
     slug: "serra-honda",
     personaName: "Serra",
+    partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
     phoneEnabled: true,
@@ -105,6 +116,7 @@ export async function seedDatabase() {
     name: "Serra Nissan",
     slug: "serra-nissan",
     personaName: "Aria",
+    partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
     phoneEnabled: true,
@@ -115,6 +127,29 @@ export async function seedDatabase() {
     name: "Tony Serra Ford",
     slug: "tony-serra-ford",
     personaName: "Nova",
+    partnerId: cageAutomotive.id,
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
+  });
+
+  const hyundaiOfColumbia = await storage.createOrganization({
+    name: "Hyundai of Columbia",
+    slug: "hyundai-of-columbia",
+    personaName: "Aria",
+    partnerId: cageAutomotive.id,
+    outboundEnabled: true,
+    smsEnabled: true,
+    phoneEnabled: true,
+    emailEnabled: true,
+  });
+
+  const fordOfColumbia = await storage.createOrganization({
+    name: "Ford of Columbia",
+    slug: "ford-of-columbia",
+    personaName: "Nova",
+    partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
     phoneEnabled: true,
@@ -150,8 +185,8 @@ export async function seedDatabase() {
     { name: "Caroline", department: "sales", description: "Serra Honda AI Sales Agent. Handles inbound leads, appointment scheduling, and customer follow-ups.", channels: ["voice", "video"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: "+1 (901) 203-8267", vapiAssistantId: "90a876c0-0f11-4424-abfe-9ac82b264d88", tavusPersonaId: "p9eb007721f4", autoGreeting: "Hi {{customerName}}! This is {{agentName}} from {{dealershipName}}. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?" },
     { name: "Magnolia", department: "service", description: "Serra Nissan AI Service Agent. Manages service appointments, recall notifications, and maintenance reminders.", channels: ["voice", "video"], dealership: "Serra Nissan", orgId: serraNissan.id, assignedPhone: "+1 (256) 862-3318", vapiAssistantId: "2203b188-a549-417b-ab33-075766e1b5c1", tavusPersonaId: "p2f586f7e4e0" },
     { name: "Georgia", department: "sales", description: "Tony Serra Ford AI Sales Agent. Specializes in truck and fleet sales inquiries.", channels: ["voice", "video"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: "+1 (256) 459-9707", vapiAssistantId: "ad478eb2-6602-42c5-9732-3d4648013307", tavusPersonaId: "pe791670615d" },
-    { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: serraHonda.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: null },
-    { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: serraHonda.id, assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
+    { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: hyundaiOfColumbia.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: null },
+    { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: fordOfColumbia.id, assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Nissan", orgId: serraNissan.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
@@ -313,6 +348,8 @@ export async function seedDatabase() {
     { orgId: serraHonda.id, provider: "vinsolutions", dealerId: "21043", dealerName: "Serra Honda of Sylacauga", integrationId: null, nexxusOrgId: "3795b8f6-aca7-45fc-b77e-fc671b85a9f3" },
     { orgId: serraNissan.id, provider: "vinsolutions", dealerId: "21044", dealerName: "Serra Nissan of Sylacauga", integrationId: "f3f7e600-7d48-4c4e-9607-d737a271e57c", nexxusOrgId: "7f868569-62e5-4d49-9378-2e25d6a69321" },
     { orgId: tonySerraFord.id, provider: "vinsolutions", dealerId: "21047", dealerName: "Tony Serra Ford", integrationId: "6b430786-b1b1-45ef-ae17-bd33e0cb3735", nexxusOrgId: "8751c73d-4570-4b8d-bd40-fa4f1e48024d" },
+    { orgId: hyundaiOfColumbia.id, provider: "vinsolutions", dealerId: "13399", dealerName: "Hyundai of Columbia", integrationId: null, nexxusOrgId: "a1b2c3d4-e5f6-4789-abcd-ef0123456789" },
+    { orgId: fordOfColumbia.id, provider: "vinsolutions", dealerId: "13398", dealerName: "Ford of Columbia", integrationId: null, nexxusOrgId: "b2c3d4e5-f6a7-4890-bcde-f01234567890" },
   ];
 
   for (const i of integrationData) {

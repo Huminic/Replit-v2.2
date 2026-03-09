@@ -119,8 +119,8 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Billing: GET /api/billing/usage (org_id + period parameters)
 - Landing: GET /api/public/landing/:slug
 - Outbound Status: GET /api/outbound/status
-- Insights: GET /api/insights/dashboard, GET /api/insights/reports (aggregated warehouse data)
-- Organizations: POST /api/organizations (super admin only, creates org + admin + agent)
+- Insights: GET /api/insights/dashboard?orgId=, GET /api/insights/reports?orgId= (aggregated warehouse data, orgId param for cross-store access)
+- Organizations: GET /api/organizations (list all for super/partner_admin, own org for others), POST /api/organizations (super admin only)
 
 ### Public Routes (No Auth)
 - Landing pages: GET /p/:slug
@@ -176,6 +176,15 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 ### Stabilization Sweep 9: RBAC Login Fix
 - **Role initialization on login**: Fixed AppContext.tsx — on login, currentRole now always syncs from the authenticated user's actual role (via `roleInitialized` flag). Previously, a stale `nexxus-current-role` value in localStorage or the `org_admin` default would override the user's real role, causing super_admin users to see a reduced sidebar on first login.
 - **Test credentials updated**: duane.wells@huminic.ai/a1$ucc3ss, Partner_admin@huminic.ai/P@rtner$uccess, Org_Admin@huminic.ai/O3g$uccess, Sales_staff@huminic.ai/S@les$uccess, marketing_staff@huminic.ai/M@3keting$uccess, Executive_staff@huminic.ai/Ex3c$uccess
+
+### Multi-Store Architecture (Cage Automotive)
+- **Cage Automotive** (partner org, id: b1a2c3d4-...): Parent entity linking 5 dealership stores via `partnerId`
+- **5 Stores**: Serra Honda, Serra Nissan, Tony Serra Ford, Hyundai of Columbia, Ford of Columbia
+- **VinSolutions Dealer IDs**: Serra Honda=21043, Serra Nissan=21044, Tony Serra Ford=21047, Ford of Columbia=13398, Hyundai of Columbia=13399
+- **NEXXUS_ORG_MAP** in `server/vendorProxy.ts`: Maps local org UUIDs to MCP nexxusOrgIds for VinSolutions API calls
+- **Store Selector**: InsightsPage has a dropdown (super_admin/partner_admin only) that fetches GET /api/organizations and passes `?orgId=` to dashboard/reports queries
+- **Data isolation**: `resolveOrgIdParam()` helper in routes.ts ensures orgId-based filtering with role authorization
+- **Backfill**: POST /api/vin/backfill?orgId= triggers historical data sync per store via MCP
 
 ## Deferred to Wave 5
 - Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)

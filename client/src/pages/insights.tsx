@@ -77,6 +77,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { useApp } from '@/contexts/AppContext';
 import { 
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, 
@@ -246,6 +247,19 @@ function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]
 
 export default function InsightsPage({ embedded = false }: { embedded?: boolean }) {
   const [location] = useLocation();
+  const { currentRole } = useApp();
+  const canSwitchStore = currentRole === 'super_admin' || currentRole === 'partner_admin';
+  const { data: orgListRaw } = useQuery<{ id: string; name: string; slug: string }[]>({
+    queryKey: ['/api/organizations'],
+    enabled: canSwitchStore,
+  });
+  const storeList = canSwitchStore ? (orgListRaw || []).filter(o => o.name !== 'Cage Automotive') : [];
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+
+  const effectiveOrgId = selectedOrgId && selectedOrgId !== 'all' ? selectedOrgId : '';
+  const dashboardUrl = effectiveOrgId ? `/api/insights/dashboard?orgId=${effectiveOrgId}` : '/api/insights/dashboard';
+  const reportsUrl = effectiveOrgId ? `/api/insights/reports?orgId=${effectiveOrgId}` : '/api/insights/reports';
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
   const [libraryFilter, setLibraryFilter] = useState('all');
@@ -266,11 +280,11 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const { toast } = useToast();
 
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery<any>({
-    queryKey: ['/api/insights/dashboard'],
+    queryKey: [dashboardUrl],
   });
 
   const { data: reportsData, isLoading: reportsLoading } = useQuery<any>({
-    queryKey: ['/api/insights/reports'],
+    queryKey: [reportsUrl],
   });
 
   const { data: hunchesRaw } = useQuery<any[]>({
@@ -1427,6 +1441,25 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     </ScrollArea>
   );
 
+  const storeSelector = canSwitchStore && storeList.length > 0 ? (
+    <div className="flex items-center gap-2" data-testid="store-selector">
+      <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+      <Select value={selectedOrgId} onValueChange={setSelectedOrgId} data-testid="select-store">
+        <SelectTrigger className="w-[200px] h-8 text-sm" data-testid="select-store-trigger">
+          <SelectValue placeholder="All Stores" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all" data-testid="store-option-all">All Stores</SelectItem>
+          {storeList.map(org => (
+            <SelectItem key={org.id} value={org.id} data-testid={`store-option-${org.id}`}>
+              {org.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  ) : null;
+
   return (
     <div className="flex flex-col h-full">
       {!embedded && (
@@ -1436,6 +1469,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
               <h1 className="text-lg font-semibold text-foreground">Insights</h1>
               <p className="text-sm text-muted-foreground">Analytics, reports, and AI-generated intelligence</p>
             </div>
+            {storeSelector}
           </div>
 
           <div className="px-4 py-2 lg:hidden">
@@ -1460,6 +1494,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
               Hunches
             </TabsTrigger>
           </TabsList>
+          {embedded && storeSelector}
           {!embedded && <FavoritesBar currentPath="/insights" currentLabel="Insights" />}
         </div>
 
