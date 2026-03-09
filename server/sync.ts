@@ -46,24 +46,35 @@ export async function runHistoricalBackfill(organizationId: string): Promise<Syn
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
     const fmt = (d: Date) => d.toISOString().split("T")[0];
 
-    const data = await callMCP("vin_query_leads", {
-      orgId: nexxusOrgId,
-      startDate: fmt(ninetyDaysAgo),
-      endDate: fmt(now),
-      limit: 100,
-    });
+    const windowDays = 7;
+    let windowStart = new Date(ninetyDaysAgo);
 
-    const items = data?.items || data?.results || (Array.isArray(data) ? data : []);
+    while (windowStart < now) {
+      const windowEnd = new Date(windowStart);
+      windowEnd.setDate(windowEnd.getDate() + windowDays);
+      if (windowEnd > now) windowEnd.setTime(now.getTime());
 
-    for (const raw of items) {
-      try {
-        const lead = transformVinLead(raw, organizationId);
-        await storage.upsertWarehouseLead(lead);
-        processed++;
-      } catch (err) {
-        failed++;
-        console.error("Failed to upsert lead:", err);
+      const data = await callMCP("vin_query_leads", {
+        orgId: nexxusOrgId,
+        startDate: fmt(windowStart),
+        endDate: fmt(windowEnd),
+        limit: 100,
+      });
+
+      const items = data?.items || data?.results || (Array.isArray(data) ? data : []);
+
+      for (const raw of items) {
+        try {
+          const lead = transformVinLead(raw, organizationId);
+          await storage.upsertWarehouseLead(lead);
+          processed++;
+        } catch (err) {
+          failed++;
+          console.error("Failed to upsert lead:", err);
+        }
       }
+
+      windowStart = new Date(windowEnd);
     }
 
     await storage.updateSyncLog(logEntry.id, {
