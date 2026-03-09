@@ -1,0 +1,146 @@
+Section 1 — UI & Chat: Questions for Scope
+
+  1a. Menu & Nav
+
+  Q1. Right pane toggle — AC conflict.
+  AC W1-AC-005h specifies a MessageCircle bubble should be visible on data-display pages when the right pane is closed. You explicitly said "arrow only, no bubble." Should I
+  update the AC to match your preference, or do you want the bubble back?
+
+My Answer>> This was a mistake, I only want a double arrow. 
+
+  Q2. FavoritesBar.
+  The plan references W1-AC-006 but I don't see a dedicated FavoritesBar AC section in the document — it's mentioned within W1-AC-120a-d. Currently working with mock favorites.
+  Should favorites be wired to the database in this section, or keep mock and defer?
+
+My Answer>> I definitely want it to work, but I'm a little suspicious about the labels and how it's laid out. I like its placement, but I think it's a little intrusive. I would almost rather Have a drop-down somewhere In that same menu that says favorites with a drop down and then just have a store next to it. And if it gets stored, it shows up in the drop down menu on every page.  
+
+  Q3. Sub-menu lock.
+  Playwright confirmed the pin/lock mechanism works in code. You reported it didn't work in browser. Have you been able to confirm since the last session? If it's still broken, I
+   need to investigate further — possibly a CSS/z-index or event propagation issue specific to your browser.
+
+My Answer>> It was not working properly in that when I pressed the lock it didn't push all the content to the right and hold it there. It's supposed to reset after the person has stayed on a single page for sixty seconds. 
+
+  1b. Settings & Knowledge
+
+  Q4. Knowledge base — format and scope.
+  The plan says "Design: what format? PDFs? URLs? Text?" This is the biggest open question. Options:
+  - A) PDF/text upload → chunked, embedded, stored in PostgreSQL with pgvector → RAG retrieval at chat time
+  - B) Simple text documents (paste into settings UI) → stored as plain text → injected into system prompt
+  - C) URL crawling → fetch and index external pages
+  - D) Skip knowledge base for now — chat uses system prompt + live VIN data only
+
+  Option B is the fastest path. Option A is the most capable. What's your preference?
+
+My Answer>> You might be getting things confused. The PDF comment for design was about the artifact design. We were supposed to be able to generate PDFs from the chat. As far as the uploads go, we do want to upload CSV, PDF, and text files and images that get added to our data. This is only in the back end settings though. This is not for a user, this is for the whole organization. 
+
+  Q5. Knowledge base scope per org.
+  If we build knowledge base: is it per-organization (Serra Honda has different knowledge than Ford of Columbia), or shared across the partner group?
+
+My Answer>> Different organizations have different knowledge. One of the important things about the chat is the chat should be smart enough to know what information came from a vendor but we don't want to say the vendor's name. It's either direct from the vendor or it's from our knowledge base. It's eleven o'clock. So basically we just want to make sure that the chat says any time it asks for data, this is what it says here, and this is what it says here. 
+
+  1c. Chat Functionality
+
+  Q6. Claude API model selection.
+  Which Claude model for chat? Options:
+  - claude-sonnet-4-6 — Fast, cost-effective, good for most queries
+  - claude-opus-4-6 — Most capable, slower, higher cost
+  - Configurable per org in settings
+
+  Recommendation: Default to Sonnet, allow org admins to upgrade to Opus in settings.
+
+My Answer>> I don't want the org admin to upgrade anything. I think we should use Opus for hardcore data analysis, Sonnet for everything else. For right now, you can put in the dropdown Claude Gemini and OpenAI. But they all use clawed regardless of what's picked until I add an API key. So basically Claude is the fallback. 
+
+  Q7. Streaming responses.
+  Should chat responses stream token-by-token (like ChatGPT), or return as a complete message? Streaming feels more responsive but adds complexity. The typing animation (3 dots)
+  currently shows during the wait — streaming would replace it with progressive text rendering.
+
+My Answer>> I want it to be token by token. 
+
+  Q8. Conversation persistence.
+  "Store in DB, load on session start" — clarifications needed:
+  - Per-user conversations only, or can admins see other users' chats?
+  - Retention policy? Keep forever, or auto-purge after N days?
+  - Cross-device? If I chat on desktop then open mobile, do I see the same history?
+  - For now, should the "Chat History" in the sub-menu show real DB conversations, or keep mock?
+
+My Answer>> Same history cross device and the activity under manager in the menu is where an org admin can see that chat history and view it. 
+
+  Q9. Two chat surfaces — same or different?
+  The main page center chat and the right pane Automa chat both exist. Are they:
+  - A) Same conversation, same context (just different layout positions)
+  - B) Different conversations — main is "general AI chat," right pane is "data assistant" scoped to current page
+  - C) Right pane continues the main conversation but adds page context
+
+  Option B matches the AC intent (right pane is contextual to the data-display page). Option A is simpler.
+
+My Answer>> I wanted the sidebar chats to be aware of what page they were on and what they're looking at sort of just uh pre-prompted so it knows the context that that the user is in. 
+
+  Q10. Context injection for right pane.
+  If the right pane chat is contextual (Option B/C above), what context should be injected?
+  - Current page name (e.g., "Sales Dashboard")
+  - Current visible metrics/data
+  - Current user's role and org
+  - Selected agent (on /agents page)
+
+My Answer>> Current page and metrics or agent. 
+
+  1d. Chat Quality
+
+  Q11. System prompt — who writes it?
+  Options:
+  - A) I draft a system prompt based on the persona concept and you iterate
+  - B) You provide the system prompt and I wire it
+  - C) System prompt is configurable in Settings → AI Configuration tile
+
+My Answer>> mI care about the dynamics and the handling of context more than anything. I have a document that covers the checklist for the chats that should be in version two. Or I uploaded it, I can't remember. If you can't find it, let me know. 
+
+  Q12. Metric grounding (SD-06).
+  "No hallucination of metrics" — the chat should only cite numbers it can verify. Should the chat:
+  - A) Have read access to the metric engine and include real numbers in responses
+  - B) Refuse to answer metric questions until metrics are wired (Section 6)
+  - C) Answer qualitatively ("your pipeline looks healthy") without citing specific numbers
+
+  Recommendation: Option C for now, Option A when metrics are live.
+
+Metrics are going to be live, so it's going to need to be set up to ask the database inline and give answers not only answers, but it would be great if it could know the R back persona that's logged in and make suggestions through that lens. If that's more difficult, then we just want a really good solid quality chat experience. 
+
+  1e. Chat Bubbles & UI
+
+  Q13. Long conversation scrolling.
+  You mentioned this hasn't been tested. Should I add it to scope for this section — test with 50+ messages, verify scroll behavior, auto-scroll on new message, scroll-to-top for
+   history?
+
+yes
+
+  1f. Special Chat Features
+
+  Q14. Artifacts panel — what is it?
+  The sub-menu shows "Artifacts" under AI Chat. Currently placeholder. What should artifacts contain?
+  - Generated reports/summaries?
+  - Code snippets from AI responses?
+  - Saved chat excerpts?
+  - Skip for now?
+
+My Answer>> We really had designed to be able to create reports and it was supposed to show artifacts. You can skip for now, but don't leave any traces of artifacts in the UI. 
+
+  Q15. Suggestion bubbles — contextual or static?
+  "Try asking..." suggestions are currently hardcoded. Options:
+  - A) Keep hardcoded but tailor per role (sales sees sales questions, marketing sees marketing questions)
+  - B) Generate dynamically based on recent activity
+  - C) Keep as-is for now
+
+My Answer>> I would really like those chat bubbles to be slightly intelligent, at the very least random, so it's not the same thing every time. 
+
+  Prerequisites
+
+  Q16. Prerequisites — all upfront or just-in-time?
+  Section 1 needs at minimum:
+  - P-03 (Claude API SDK install)
+  - P-05 partial (seed test conversations for chat history)
+
+  The others (P-01 full schema migration, P-02 credentials, P-04 VIN) aren't needed until later sections. Should I do only P-03 + P-05 now?
+
+My Answer>> Your call as long as it gets done. 
+
+  ---
+  Add your answers and any additional requirements. I'll incorporate them and draft the sprint breakdown.
