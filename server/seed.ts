@@ -69,6 +69,7 @@ export async function seedDatabase() {
   if (existingRoles.length > 0) {
     console.log("Database already seeded, skipping...");
     await seedTasksAndWidgets();
+    await seedPartnerAccount();
     return;
   }
 
@@ -462,4 +463,30 @@ async function seedDocumentsAndRecipients() {
   }
 
   console.log("Knowledge documents and campaign recipients seeded successfully!");
+}
+
+async function seedPartnerAccount() {
+  const existing = await storage.getUserByEmail("durran.cage@cageautomotive.com");
+  if (existing) return;
+
+  const orgs = await storage.getOrganizations();
+  const cageOrg = orgs.find(o => o.slug === "cage-automotive");
+  if (!cageOrg) return;
+
+  const roles = await storage.getRoles();
+  const partnerRole = roles.find(r => r.name === "partner_admin");
+  if (!partnerRole) return;
+
+  const hashedPassword = await bcrypt.hash("password123", SALT_ROUNDS);
+  await storage.createUser({
+    email: "durran.cage@cageautomotive.com",
+    password: hashedPassword,
+    firstName: "Durran",
+    lastName: "Cage",
+    roleId: partnerRole.id,
+    organizationId: cageOrg.id,
+    isActive: true,
+  });
+
+  console.log("Durran Cage partner account seeded (durran.cage@cageautomotive.com / password123)");
 }
