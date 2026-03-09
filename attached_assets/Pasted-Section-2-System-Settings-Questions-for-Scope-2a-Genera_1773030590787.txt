@@ -1,0 +1,141 @@
+Section 2 — System/Settings: Questions for Scope
+
+  2a. General Settings
+
+  Q1. User Management — how deep?
+  The AC (W1-AC-081) specifies: user list with avatar/name/role/email, Add User button, search, edit/remove menu. The API exists (POST/GET/PATCH/DELETE /api/users). Do you want
+  full CRUD wired in this section, or just the list view reading from the database? Full CRUD means: add user form, edit user modal, role assignment, delete confirmation.
+
+Duanes Answer>> Super admin can directly control all accounts. Partner admin can control their own accounts. Partner admin cannot create new accounts, those are delegated to him. Work admin can add staff users. within their org. There's no billing per user. 
+
+  Q2. Security settings — what's configurable?
+  The plan says "Define what's configurable." The settings tile exists but the content is placeholder. Options:
+  - A) Password policy (min length, complexity)
+  - B) Session timeout duration
+  - C) 2FA toggle (design only, not wired)
+  - D) Skip for now — leave placeholder, move on
+  - E) Something else you have in mind
+
+Duanes Answer>> You can remove this from the settings. 
+
+  Q3. Appearance — what persists?
+  Theme toggle (light/dark) works. Should it persist per-user in the database, or is localStorage sufficient? Currently it's localStorage via ThemeContext.
+
+Duanes Answer>> Local storage is okay. Theme toggle persists. 
+
+  Q4. Communication gate — AC W1-AC-080d conflict.
+  AC says org_admin should NOT see AI Configuration tile. In S1-Sprint-5 we just made it visible to org_admin per your earlier answer. Should we update the AC, or was that a
+  mistake?
+
+Duanes Answer>> Org admin does not see AI configuration. 
+
+  2b. Uploads / Knowledge Base
+
+  Q5. Storage decision.
+  The plan says "Supabase Storage or local file storage decision." You mentioned earlier that uploads are CSV, PDF, text, and images for org-level data. Options:
+  - A) Local filesystem (server/uploads/) — simplest, works now
+  - B) Supabase Storage — supabase-storage.ts service exists already
+  - C) PostgreSQL large objects — store file content directly in DB
+
+  For dev on a single server, A is fastest. B is the production path. What do you want for now?
+
+Duanes Answer>> File system is good for now. 
+
+  Q6. Knowledge base for chat RAG — how sophisticated?
+  You said uploads add to org knowledge. For chat to use this knowledge:
+  - A) Simple: store file text in a DB column, inject relevant chunks into system prompt (token-limited, but works for small docs)
+  - B) Medium: pgvector embeddings + semantic search, retrieve top-N chunks per query
+  - C) Skip RAG for now — uploads go to storage, but chat doesn't search them yet. Wire later.
+
+  Option A gets you working chat-aware-of-docs fastest. Option B is production-grade but needs pgvector extension.
+
+Duanes Answer>> A is fine for now. 
+
+  Q7. What file types matter most?
+  You listed CSV, PDF, text, images. Priority order? CSV is usually structured data (lead lists, inventory). PDF/text is knowledge. Images might be marketing assets. Should the
+  system parse CSVs into database records, or just store them?
+
+Duanes Answer>>  Systems should parse CSVs into database records when possible, when not, just store them. 
+
+  2c. Hunches
+
+  Q8. Hunch engine — what triggers it?
+  The hunch engine exists (hunch-engine.ts). It has 6 pattern analyzers. Options for when it runs:
+  - A) Manual trigger from Management → Hunches tab ("Generate Hunches" button)
+  - B) Weekly scheduled job (the plan says Monday 6AM)
+  - C) Both — scheduled weekly + on-demand button
+  - D) Skip for now — hunches show mock data, wire when metrics are live (Section 6)
+
+  Since hunches analyze lead/metric data, and that data isn't fully wired yet (Section 6), Option D might be pragmatic. Or we could wire it with whatever data exists now.
+
+Duanes Answer>>  B is fine. 
+
+  Q9. Hunch confidence/channel preferences — where in UI?
+  The plan says "Wire preferences to DB." Is this:
+  - A setting in the AI Configuration tile (min confidence threshold, which channels to generate hunches for)?
+  - A filter in the Management → Hunches tab?
+  - Both?
+
+Duanes Answer>>  both
+
+  Cross-cutting
+
+  Q10. What's the priority order within Section 2?
+  The plan has 2a (General Settings), 2b (Uploads/Knowledge), 2c (Hunches). If we need to cut scope, which matters most?
+  - General settings (user CRUD, org config) — foundational
+  - Uploads — you specifically mentioned wanting this
+  - Hunches — depends on live data
+
+Duanes Answer>> If we have to cut, then it would be hunches. 
+
+  Q11. Any settings tiles that are wasting space?
+  You have 9 tiles. Some might be premature (Security, Data Management). Should any be hidden until their backend is ready, or keep them all visible with "Coming Soon" states?
+
+Duanes Answer>>  If they don't serve a purpose, I can just eliminate them. 
+
+  ---
+  Your answers drive the sprint breakdown. Take your time — no rush.
+
+
+
+2a. Settings & Knowledge (CommGate config)
+The 5-layer CommGate is already built and working (global env, org toggle, channel toggles, campaign kill switch, rate limiting). The Settings page already has the toggle UI.
+1. Rate limit threshold — Currently set to 3 messages per 24 hours per recipient. Is that the right number, or should it be configurable per org?
+
+My Answer: Rate limi
+1. Channel toggles — SMS, Email, and Phone toggles are in Settings. Should there be a Video toggle too (for Tavus), or is video excluded from CommGate?
+
+My Answer: yes video toggle 
+
+
+2b. New Account / Reset Account
+1. User invitations — When an admin invites a new user, should the invite email actually go out via Resend right now, or just create the user record with a temporary password? (Resend is listed as a dependency but I want to confirm the flow you want.)
+
+1. Password reset — Same question — should the "forgot password" flow send a real email via Resend, or just log the reset token for now?
+
+My Answer: user invitations should send email but toggle for outbound communications would cause it to ignore. same for password reset 
+
+2c. SMS (Serra Honda only)
+1. TextMagic scope — The AC says SMS is Serra Honda only. Should the SMS toggle even be visible in Settings for other orgs, or hidden entirely?
+
+My Answer: : yes it should be visible we are adding api keys soon
+
+1. Two-way SMS in TeamBox — When a customer replies to an SMS, does it come into TeamBox as a new conversation, or attach to the existing one? And should the agent's auto-greeting fire on the first SMS to a new contact?
+
+My Answer:  a customer reply starts a new message but it should be labeled for context
+
+1. Agent auto-greeting — The autoGreeting field exists on the agents table. Should this fire automatically when a new lead comes in, or only when an agent is manually assigned to a conversation?
+
+My Answer: Yes if a new lead comes in via ams or webchat
+
+2d. Service Campaigns
+1. CSV upload — When a user uploads a CSV for a campaign, what columns do we expect? (Name, phone, email, vehicle, etc.) And should there be validation on the CSV before accepting it?
+My Answer: First Name,Last Name,Address,City,State,Zip Code,Home Phone,Work Phone,Email Address,VIN,Model,Model Year,Last Contact,
+1. Campaign execution — When "Execute" is clicked, should it queue messages immediately or allow scheduling for a future date/time?
+My Answer: either - or 
+2e. Notifications
+1. Notification channels — The notification bell and dropdown are already working with real DB data. Should notifications also trigger browser push notifications, or just the in-app bell?
+
+My Answer:  In app bell only
+1. Activity feed scope — The Management page already shows activity logs. Are there specific event types you want added beyond what's already tracked (login, settings changes, agent actions)?
+My Answer: just a log that is in the last 90 days purge beyond that
