@@ -124,7 +124,7 @@ export interface IStorage {
   getAcceptedHunches(organizationId: string): Promise<Hunch[]>;
 
   upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead>;
-  getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number }): Promise<WarehouseLead[]>;
+  getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]>;
   getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number>;
 
   upsertWarehouseMetric(metric: InsertWarehouseMetric): Promise<WarehouseMetric>;
@@ -604,6 +604,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPipelineMetrics(organizationId: string): Promise<PipelineMetrics> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -615,7 +617,8 @@ export class DatabaseStorage implements IStorage {
     const [pipelineResult, appointmentResult, escalationResult, outboundResult] = await Promise.all([
       db.select({ cnt: count() }).from(warehouseLeads).where(and(
         eq(warehouseLeads.organizationId, organizationId),
-        gte(warehouseLeads.createdAt, fourteenDaysAgo),
+        sql`(${warehouseLeads.vinCreatedAt} IS NULL OR ${warehouseLeads.vinCreatedAt} >= ${thirtyDaysAgo})`,
+        sql`(${warehouseLeads.vinUpdatedAt} IS NULL OR ${warehouseLeads.vinUpdatedAt} >= ${fourteenDaysAgo})`,
         sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
         sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
         sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
@@ -774,10 +777,12 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number }): Promise<WarehouseLead[]> {
+  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]> {
     const conditions = [eq(warehouseLeads.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
     if (filters?.dataSource) conditions.push(eq(warehouseLeads.dataSource, filters.dataSource));
+    if (filters?.createdAfter) conditions.push(sql`(${warehouseLeads.vinCreatedAt} IS NULL OR ${warehouseLeads.vinCreatedAt} >= ${filters.createdAfter})`);
+    if (filters?.activityAfter) conditions.push(sql`(${warehouseLeads.vinUpdatedAt} IS NULL OR ${warehouseLeads.vinUpdatedAt} >= ${filters.activityAfter})`);
     const query = db.select().from(warehouseLeads).where(and(...conditions)).orderBy(desc(warehouseLeads.syncedAt));
     if (filters?.limit) return query.limit(filters.limit);
     return query;
