@@ -20,11 +20,7 @@ export function FavoritesBar({ currentPath, currentLabel }: FavoritesBarProps) {
       const fav = favorites.find(f => f.path === currentPath);
       if (fav) removeFavorite(fav.id);
     } else {
-      addFavorite({
-        id: `fav-${Date.now()}`,
-        label: currentLabel,
-        path: currentPath,
-      });
+      addFavorite(currentPath, currentLabel);
     }
   };
 

@@ -94,7 +94,6 @@ import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { formatDistanceToNow } from 'date-fns';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 
 interface AgentChatMessage {
   id: string;
@@ -303,10 +302,6 @@ export default function AgentsPage() {
 
   return (
     <div className="flex h-full overflow-hidden flex-col">
-      <div className="px-4 py-2 border-b border-border hidden lg:flex items-center gap-2">
-        <FavoritesBar currentPath="/agents" currentLabel="Agents" />
-      </div>
-
       {selectedAgent ? (
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <div className="p-6 border-b border-border">

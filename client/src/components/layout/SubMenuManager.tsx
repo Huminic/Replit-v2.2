@@ -34,7 +34,7 @@ import {
   MessageSquare, LayoutDashboard, CheckSquare,
   Building2, Lock, Bell, Database, Palette,
   Megaphone, Users, DollarSign, ExternalLink, Inbox,
-  FileText, ChevronDown, ChevronRight
+  ChevronDown, ChevronRight, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -69,6 +69,7 @@ export function SubMenuManager() {
     selectedAgent,
     setSelectedAgent,
     favorites,
+    removeFavorite,
     currentOrganization
   } = useApp();
   const orgId = currentOrganization?.id;
@@ -391,15 +392,28 @@ export function SubMenuManager() {
             {favorites.length > 0 ? (
               <div className="p-2 flex flex-col gap-0.5">
                 {favorites.map((fav) => (
-                  <button
+                  <div
                     key={fav.id}
-                    onClick={() => setLocation(fav.path)}
-                    className="w-full text-left p-2 rounded-md transition-colors hover-elevate flex items-center gap-2"
+                    className="group w-full flex items-center gap-2 p-2 rounded-md transition-colors hover-elevate"
                     data-testid={`panel-favorite-${fav.id}`}
                   >
-                    <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
-                    <span className="text-xs font-medium text-foreground truncate">{fav.label}</span>
-                  </button>
+                    <button
+                      onClick={() => setLocation(fav.path)}
+                      className="flex items-center gap-2 flex-1 min-w-0 text-left"
+                      data-testid={`panel-favorite-link-${fav.id}`}
+                    >
+                      <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+                      <span className="text-xs font-medium text-foreground truncate">{fav.label}</span>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeFavorite(fav.id); }}
+                      className="invisible group-hover:visible flex-shrink-0 p-0.5 rounded text-muted-foreground/60 transition-colors"
+                      title="Remove favorite"
+                      data-testid={`panel-favorite-remove-${fav.id}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -456,17 +470,6 @@ export function SubMenuManager() {
                   )}
                 </div>
               </ScrollArea>
-            </div>
-            <div className="border-t border-border">
-              <div className="p-3 border-b border-border">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <FileText className="h-4 w-4 text-primary" />
-                  Artifacts
-                </div>
-              </div>
-              <div className="p-2">
-                <p className="text-xs text-muted-foreground px-2">Generated reports and documents will appear here</p>
-              </div>
             </div>
           </>
         );

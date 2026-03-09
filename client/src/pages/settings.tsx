@@ -203,7 +203,6 @@ function individualToDbConfig(w: IndividualWidget): Record<string, any> {
     agentConfig: w.config,
   };
 }
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useApp } from '@/contexts/AppContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -568,6 +567,9 @@ export default function SettingsPage() {
       defaultView?: string;
       showMetricTiles?: boolean;
     };
+    aiModel?: string;
+    systemPrompt?: string;
+    chatInstructions?: string;
   }
 
   const { data: orgSettings, isLoading: orgSettingsLoading } = useQuery<OrgSettings>({
@@ -2940,26 +2942,77 @@ export default function SettingsPage() {
             <TabsTrigger value="hunches" data-testid="tab-hunches">Hunches</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="system-prompt" className="mt-4">
+          <TabsContent value="system-prompt" className="mt-4 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">AI Model</CardTitle>
+                <CardDescription className="text-xs">Select the preferred AI model for chat responses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Select
+                  defaultValue={orgSettings?.aiModel || 'claude'}
+                  disabled={isReadOnlyAI}
+                  onValueChange={(val) => {
+                    saveSettingsMutation.mutate({ aiModel: val });
+                    toast({ title: 'AI model updated', description: `Model set to ${val === 'claude' ? 'Claude' : val === 'gemini' ? 'Gemini (falls back to Claude)' : 'OpenAI (falls back to Claude)'}` });
+                  }}
+                >
+                  <SelectTrigger data-testid="select-ai-model">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="claude" data-testid="select-item-claude">Claude (Anthropic)</SelectItem>
+                    <SelectItem value="gemini" data-testid="select-item-gemini">Gemini (Google) — falls back to Claude</SelectItem>
+                    <SelectItem value="openai" data-testid="select-item-openai">OpenAI — falls back to Claude</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">System Prompt</CardTitle>
-                {isReadOnlyAI && <CardDescription className="text-xs">Read-only view</CardDescription>}
+                <CardDescription className="text-xs">Organization-specific instructions appended to the default system prompt</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-xs">System Prompt</Label>
-                  <Textarea rows={6} defaultValue={`You are ${personaName}, an AI assistant for automotive dealerships...`} disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-prompt" />
+                  <Textarea
+                    rows={6}
+                    defaultValue={orgSettings?.systemPrompt || ''}
+                    disabled={isReadOnlyAI}
+                    className="mt-1"
+                    data-testid="textarea-system-prompt"
+                    key={`sp-${orgSettings?.systemPrompt || ''}`}
+                    onBlur={(e) => {
+                      if (e.target.value !== (orgSettings?.systemPrompt || '')) {
+                        saveSettingsMutation.mutate({ systemPrompt: e.target.value });
+                      }
+                    }}
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs">System Information</Label>
-                  <Textarea rows={3} defaultValue="" disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-system-info" />
+                  <Label className="text-xs">Chat Quality Instructions</Label>
+                  <CardDescription className="text-xs mb-1">Guidelines for how the AI should respond (tone, format, depth, etc.)</CardDescription>
+                  <Textarea
+                    rows={4}
+                    defaultValue={orgSettings?.chatInstructions || ''}
+                    disabled={isReadOnlyAI}
+                    className="mt-1"
+                    data-testid="textarea-chat-instructions"
+                    key={`ci-${orgSettings?.chatInstructions || ''}`}
+                    onBlur={(e) => {
+                      if (e.target.value !== (orgSettings?.chatInstructions || '')) {
+                        saveSettingsMutation.mutate({ chatInstructions: e.target.value });
+                      }
+                    }}
+                  />
                 </div>
-                <div>
-                  <Label className="text-xs">Rules & Exclusions</Label>
-                  <Textarea rows={3} defaultValue="" disabled={isReadOnlyAI} className="mt-1" data-testid="textarea-rules-exclusions" />
-                </div>
-                {!isReadOnlyAI && <Button onClick={() => toast({ title: 'System prompt saved locally', description: 'System prompt updated. Changes will persist when connected to production backend.' })} data-testid="button-save-system-prompt">Save</Button>}
+                {!isReadOnlyAI && <Button onClick={() => {
+                  const sp = (document.querySelector('[data-testid="textarea-system-prompt"]') as HTMLTextAreaElement)?.value || '';
+                  const ci = (document.querySelector('[data-testid="textarea-chat-instructions"]') as HTMLTextAreaElement)?.value || '';
+                  saveSettingsMutation.mutate({ systemPrompt: sp, chatInstructions: ci });
+                  toast({ title: 'AI configuration saved', description: 'System prompt and chat instructions updated.' });
+                }} data-testid="button-save-system-prompt">Save</Button>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -3676,10 +3729,6 @@ export default function SettingsPage() {
       <div className="px-4 py-2 w-full max-w-5xl lg:hidden">
         <MobileNavDropdown currentPath="/settings/system" currentLabel="System Settings" />
       </div>
-      <div className="px-4 py-2 w-full max-w-5xl border-b border-border hidden lg:flex items-center">
-        <FavoritesBar currentPath="/settings/system" currentLabel="System Settings" />
-      </div>
-
       <ScrollArea className="flex-1 w-full">
         <div className="max-w-5xl mx-auto">
           {renderSectionContent()}

@@ -47,7 +47,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 const STEPS = [
@@ -896,10 +895,6 @@ export default function OrgWizardPage() {
 
       <div className="px-4 py-2 lg:hidden w-full max-w-4xl">
         <MobileNavDropdown currentPath="/settings/org-wizard" currentLabel="New Organization" />
-      </div>
-
-      <div className="hidden lg:flex px-4 border-b border-border w-full max-w-4xl items-center">
-        <FavoritesBar currentPath="/settings/org-wizard" currentLabel="New Organization" />
       </div>
 
       <ScrollArea className="flex-1 w-full">

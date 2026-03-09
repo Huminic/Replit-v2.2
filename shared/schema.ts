@@ -333,6 +333,16 @@ export const syncLog = pgTable("sync_log", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const favorites = pgTable("favorites", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  path: text("path").notNull(),
+  label: text("label").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_favorites_user").on(table.userId),
+]);
+
 export const usageEvents = pgTable("usage_events", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
@@ -388,7 +398,9 @@ export type InsertWarehouseMetric = z.infer<typeof insertWarehouseMetricSchema>;
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
 export type InsertSlugRedirect = z.infer<typeof insertSlugRedirectSchema>;
 export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true, createdAt: true });
 export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
 
 export type Role = typeof roles.$inferSelect;
@@ -413,6 +425,7 @@ export type WarehouseMetric = typeof warehouseMetrics.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type SlugRedirect = typeof slugRedirects.$inferSelect;
 export type SyncLog = typeof syncLog.$inferSelect;
+export type Favorite = typeof favorites.$inferSelect;
 export type UsageEvent = typeof usageEvents.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();

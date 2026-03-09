@@ -41,7 +41,6 @@ import {
   Target, Activity, Zap, X, SlidersHorizontal, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FavoritesBar } from '@/components/layout/FavoritesBar';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1495,7 +1494,6 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             </TabsTrigger>
           </TabsList>
           {embedded && storeSelector}
-          {!embedded && <FavoritesBar currentPath="/insights" currentLabel="Insights" />}
         </div>
 
         <TabsContent value="dashboard" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
