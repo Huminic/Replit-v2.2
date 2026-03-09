@@ -41,8 +41,15 @@ export async function runHistoricalBackfill(organizationId: string): Promise<Syn
   let failed = 0;
 
   try {
+    const now = new Date();
+    const ninetyDaysAgo = new Date(now);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const fmt = (d: Date) => d.toISOString().split("T")[0];
+
     const data = await callMCP("vin_query_leads", {
       orgId: nexxusOrgId,
+      startDate: fmt(ninetyDaysAgo),
+      endDate: fmt(now),
       limit: 100,
     });
 

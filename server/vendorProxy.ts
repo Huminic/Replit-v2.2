@@ -9,8 +9,6 @@ const NEXXUS_ORG_MAP: Record<string, string> = {
   "a9f40650-dc8e-4a86-b0b6-5b94ea5b63ee": "3795b8f6-aca7-45fc-b77e-fc671b85a9f3",
   "af3d5c1f-b170-4310-b870-d6a06f5fa527": "7f868569-62e5-4d49-9378-2e25d6a69321",
   "ffe79304-9db7-4366-8ca9-e94fd7028ef1": "8751c73d-4570-4b8d-bd40-fa4f1e48024d",
-  "c4d5e6f7-a8b9-4c0d-1e2f-3a4b5c6d7e8f": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
-  "d5e6f7a8-b9c0-4d1e-2f3a-4b5c6d7e8f9a": "b2c3d4e5-f6a7-4890-bcde-f01234567890",
 };
 
 export function callMCP(toolName: string, args: Record<string, unknown>): Promise<any> {
@@ -334,13 +332,19 @@ export function registerVendorRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
-      const { startDate, endDate, status, limit = "100" } = req.query;
+      const { status, limit = "100" } = req.query;
+      const fmt = (d: Date) => d.toISOString().split("T")[0];
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const startDate = (req.query.startDate as string) || fmt(thirtyDaysAgo);
+      const endDate = (req.query.endDate as string) || fmt(now);
       const args: Record<string, unknown> = {
         orgId: nexxusOrgId,
+        startDate,
+        endDate,
         limit: Math.min(Number(limit) || 100, 100),
       };
-      if (startDate) args.startDate = startDate as string;
-      if (endDate) args.endDate = endDate as string;
       if (status) args.status = status as string;
       const data = await callMCP("vin_query_leads", args);
       return res.json(data);
