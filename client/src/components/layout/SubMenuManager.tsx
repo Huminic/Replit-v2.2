@@ -73,11 +73,9 @@ export function SubMenuManager() {
   } = useApp();
   const orgId = currentOrganization?.id;
   
-  // 2000ms delay timer ref for panel mouseLeave — gives user time to re-enter without losing the panel
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // Search filter for agents within department panels
+  const autoRevertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [agentSearch, setAgentSearch] = useState('');
-  // Tracks which agents have their conversation history chevron-expanded
   const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
 
   const { data: allConversations = [] } = useQuery<Conversation[]>({
@@ -126,11 +124,30 @@ export function SubMenuManager() {
 
   useEffect(() => {
     return () => {
-      if (panelLeaveTimeoutRef.current) {
-        clearTimeout(panelLeaveTimeoutRef.current);
-      }
+      if (panelLeaveTimeoutRef.current) clearTimeout(panelLeaveTimeoutRef.current);
+      if (autoRevertTimeoutRef.current) clearTimeout(autoRevertTimeoutRef.current);
     };
   }, []);
+
+  const resetAutoRevert = () => {
+    if (autoRevertTimeoutRef.current) clearTimeout(autoRevertTimeoutRef.current);
+    if (subMenuExpanded) {
+      autoRevertTimeoutRef.current = setTimeout(() => {
+        setSubMenuExpanded(false);
+      }, 60000);
+    }
+  };
+
+  useEffect(() => {
+    if (subMenuExpanded) {
+      resetAutoRevert();
+    } else {
+      if (autoRevertTimeoutRef.current) {
+        clearTimeout(autoRevertTimeoutRef.current);
+        autoRevertTimeoutRef.current = null;
+      }
+    }
+  }, [subMenuExpanded]);
   
   const isVisible = activePanel !== null || subMenuExpanded;
 
@@ -702,6 +719,25 @@ export function SubMenuManager() {
         return null;
     }
   };
+
+  const handlePanelInteraction = () => {
+    if (subMenuExpanded) resetAutoRevert();
+  };
+
+  if (subMenuExpanded && isVisible) {
+    return (
+      <div
+        className="relative z-40 w-[280px] border-r border-border bg-background flex-shrink-0 transition-all duration-200"
+        onMouseMove={handlePanelInteraction}
+        onClick={handlePanelInteraction}
+        data-testid="submenu-panel"
+      >
+        <div className="flex flex-col h-full overflow-hidden">
+          {renderPanelContent()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
