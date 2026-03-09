@@ -14,8 +14,8 @@ const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
 
 export interface SendRequest {
   organizationId: string;
-  campaignId: string;
-  recipientId: string;
+  campaignId?: string;
+  recipientId?: string;
   channel: "sms" | "email" | "phone";
   to: string;
   messageContent: string;
