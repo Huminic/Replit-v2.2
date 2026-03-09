@@ -1,0 +1,54 @@
+Here's what's next — Section 4: Agents & Triggers. Questions:                                                                                                                   
+                                                                                                                                                                                  
+  ---                                                                                                                                                                             
+  4a. Settings & Knowledge                                                                                                                                                        
+                                                                                                                                                                                  
+  Q1. Agent skill/tool configuration — agents have a "Skills" UI. Should we define a real skill schema (name, type, parameters, enabled) and store it in the DB, or keep skills as
+   display-only labels for now?                                                                                                                                                   
+                                                                                                                                                                                  
+  Q2. Per-agent knowledge base — should agents be able to have their own uploaded docs (separate from the org-level knowledge base in Section 2), or should all agents share the
+  org's knowledge base?                                                                                                                                                           
+                                                                      
+  4b. Agent Review                                                                                                                                                                
+                                                                      
+  Q3. Agent conversation history — the agent detail page shows mock conversation history. Should we wire this to show real conversations where that agent participated, or skip
+  for now?                                                                                                                                                                        
+          
+  Q4. Agent status toggle (active/inactive/draft) — this is reportedly wired already. Should I verify it works, or is there something specific you want changed?                  
+                                                                                                                                                                                  
+  4c. Trigger Handling
+                                                                                                                                                                                  
+  Q5. Trigger framework — this is the most complex item. Do you want a full event-condition-action system (e.g., "when new lead arrives AND source is web widget THEN assign to
+  Sales Agent"), or a simpler approach where we hardcode the 3 triggers (new lead, appointment, inbound message)?                                                                 
+                                                                                                                 
+  Q6. New lead trigger — when VIN sync detects a new lead, should the agent automatically generate a response (e.g., draft an SMS), or just create a notification and wait for    
+  human action?                                                                                                                                                                   
+               
+  Q7. Inbound message trigger — when an SMS/chat comes in, should it auto-route to the department's active agent for a draft response, or just land in TeamBox for human handling?
+                                                                                                                                                                                  
+  4d. Special Prompting
+                                                                                                                                                                                  
+  Q8. Agent system prompts — should each agent type (Sales, Service, Marketing) have a distinct system prompt template, or one generic template with department context injected?
+                                                                                                                                                                                  
+  Q9. Guardrails — what should agents NOT be able to do? Examples:
+  - Never confirm pricing or discounts                                                                                                                                            
+  - Never schedule appointments without human approval                
+  - Never share customer data across orgs                                                                                                                                         
+  - What specific constraints matter for Serra Honda?                 
+                                                                                                                                                                                  
+  Q10. Context injection — context-router.ts exists. Should agent prompts include lead data (name, vehicle, history) and conversation history when generating responses?          
+                                                                                                                                                                                  
+  ---                                                                                                                                                                             
+  10 questions. Sections 5 and 6 follow after this.                                                                                                                               
+                                                                                                                                                                                  
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ▪▪▪ ─
+❯ Q1 no skills for this round Q2 agents should share the knowledgebase. one decision we made was that every account would have a "communications agent" which is already named   
+  in Vapi and Tavus for each dealer. This agent can send text messages, make phone calles, take phone calls and set appointments. When someone visits the dealership "Persona"    
+  via the phone, text, widgets they are greeted with this name. This is the agent with the triggers that can include communications and boolean field searches to trigger         
+  messages and phone calls. Q3 real conversation history, Q4: no draft just toggle for active/inactive. Q5  For now we just need to set notification triggers, if a lead source   
+  drops below x per week, and if a lead sits for too long without any updates then to trigger a phone call, a text, an email - 1 or all with wait times between them. Q7 - same   
+  as Q6 but inbound. this is all for the communications agent. all agents are chat agents. You should be able to ask questions about the vapi log, the tavus logs, and run        
+  calculations based on vin metrics. the other agent are just themed knowledge agents. All agents should have their own prompt and instructions and qualia settings configurable  
+  via a settings link on the agent card. Q8. Sales agents are defined but we need a service agent thfocuses on campaign and service knowledge, and a marketing agent that         
+  specializes in marketing data both org data and web scraped data. Q9. Agents should not report inventory based on website data for the org, it must never share data across     
+  orgs of any kind. there must be hard walls between these organizations. Q10 The CRM Guru agent should be able to inject this information.
