@@ -91,3 +91,34 @@ The backend runs on **Express** with **TypeScript**, interacting with a **Postgr
 - `client/src/pages/settings.tsx` — Security/Data tiles removed, video toggle + rate limit config
 - `client/src/pages/service.tsx` — schedule dialog, campaign status colors
 - `client/src/components/layout/SubMenuManager.tsx` — Security/Data submenu entries removed
+
+## Area 3 Implementation Status (COMPLETED)
+
+### Changes Made
+- **Hunch scheduler**: Uses `storage.getOrganizations()` to iterate orgs; weekly Monday 6AM schedule
+- **Enable Hunches toggle**: Wired to org settings JSONB via `saveSettingsMutation` (`hunchesEnabled` flag)
+- **Hunches tab cleaned up**: Removed placeholder Daily Digest, Temperature, Recipients items
+- **Appearance settings**: Switched to localStorage (`nexxus:appearance`) instead of DB
+
+## Area 4 Implementation Status (COMPLETED)
+
+### Changes Made
+- **Agent updates persist to backend**: `updateAgentHandler` in AppContext calls `PATCH /api/agents/:id` and invalidates cache (T001)
+- **Per-agent AI settings (qualia)**: Added `settings` jsonb column to agents table (stores aiModel, temperature, responseStyle, maxResponseLength); Settings tab in AgentConfigPane with auto-save (T002)
+- **Real conversation history on Activity tab**: Activity tab fetches conversations filtered by `agentId` via `/api/conversations` (T003)
+- **Draft status removed**: No 'draft' status option anywhere in agent UI (T004)
+- **Skills section removed**: Tab renamed from "Tools & Skills" to "Tools"; skills catalog/modal/buttons removed (T005)
+- **Notification trigger system**: Added `triggers` jsonb column to agents table; trigger types: `stale_lead` (thresholdHours) and `source_volume` (thresholdCount); configurable action chains (SMS/call/email with wait times); Add/Edit/Delete trigger UI with modal; backend scheduler checks stale lead conditions every 15 min; triggers restricted to Communications agents (voice/video/sms channels) (T006)
+- **Service and Marketing agents seeded**: `seedMissingAgents()` creates chat-only knowledge agents for Serra Honda if missing (T007)
+- **Org wall enforcement**: All agent-related routes enforce `organizationId` filtering; conversation queries never leak cross-org (T008)
+- **Tools tab crash fix**: Safe fallback for `selectedAgent.tools` when undefined (no `.map` crash)
+
+### Key Files Modified
+- `shared/schema.ts` — `settings` jsonb, `triggers` jsonb columns on agents table
+- `server/routes.ts` — PATCH /api/agents/:id, agent org wall enforcement
+- `server/storage.ts` — agent CRUD with org filtering
+- `server/index.ts` — trigger scheduler (15-min interval checking stale leads)
+- `server/seed.ts` — `seedMissingAgents()` for Service/Marketing knowledge agents
+- `client/src/contexts/AppContext.tsx` — `updateAgentHandler` persists via API
+- `client/src/components/AgentConfigPane.tsx` — Settings tab (qualia), Triggers UI, Activity tab, Tools safe fallback, Skills removed
+- `client/src/lib/agent-utils.ts` — draft status removed from `getAgentStatusColor`

@@ -158,6 +158,48 @@ app.use((req, res, next) => {
       };
 
       setInterval(runWeeklyHunches, 5 * 60 * 1000);
+
+      const checkTriggerConditions = async () => {
+        try {
+          const orgs = await storage.getOrganizations();
+          for (const org of orgs) {
+            const orgAgents = await storage.getAgents(org.id);
+            for (const agent of orgAgents) {
+              const triggers = (agent.triggers as any[]) || [];
+              const enabledTriggers = triggers.filter((t: any) => t.enabled);
+              if (enabledTriggers.length === 0) continue;
+
+              for (const trigger of enabledTriggers) {
+                if (trigger.type === 'stale_lead') {
+                  const thresholdHours = trigger.config?.thresholdHours || 24;
+                  const cutoff = new Date(Date.now() - thresholdHours * 60 * 60 * 1000);
+                  const convs = await storage.getConversations(org.id, { agentId: agent.id });
+                  const staleConvs = convs.filter(c =>
+                    c.status === 'open' && c.lastMessageAt && new Date(c.lastMessageAt) < cutoff
+                  );
+                  if (staleConvs.length > 0) {
+                    log(`Trigger "${trigger.name}": ${staleConvs.length} stale leads for agent ${agent.name}`, "triggers");
+                    for (const conv of staleConvs.slice(0, 5)) {
+                      await storage.createNotification({
+                        userId: null as any,
+                        organizationId: org.id,
+                        type: 'trigger_alert',
+                        title: `Stale Lead: ${conv.customerName}`,
+                        message: `${trigger.name} — ${conv.customerName} has had no activity for ${thresholdHours}+ hours. Actions: ${trigger.config.actions.map((a: any) => a.type).join(' → ')}`,
+                        relatedEntityId: conv.id,
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } catch (err) {
+          log(`Trigger condition check failed: ${err}`, "triggers");
+        }
+      };
+
+      setInterval(checkTriggerConditions, 15 * 60 * 1000);
     },
   );
 })();
