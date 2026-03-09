@@ -134,6 +134,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     enabled: !!authUser,
   });
 
+  const orgIdForDetails = authUser?.organization?.id;
   const { data: orgDetails } = useQuery<{
     id: string;
     name: string;
@@ -143,8 +144,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     secondaryColor: string | null;
     outboundEnabled: boolean;
   }>({
-    queryKey: ['/api/organizations', authUser?.organization?.id],
-    enabled: !!authUser?.organization?.id,
+    queryKey: ['/api/organizations', orgIdForDetails],
+    queryFn: async () => {
+      const res = await fetch(`/api/organizations/${orgIdForDetails}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('nexxus_access_token')}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch org details');
+      return res.json();
+    },
+    enabled: !!orgIdForDetails,
   });
 
   const [userOverrides, setUserOverrides] = useState<Partial<User>>({});

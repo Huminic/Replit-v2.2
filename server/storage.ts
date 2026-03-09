@@ -617,8 +617,8 @@ export class DatabaseStorage implements IStorage {
     const [pipelineResult, appointmentResult, escalationResult, outboundResult] = await Promise.all([
       db.select({ cnt: count() }).from(warehouseLeads).where(and(
         eq(warehouseLeads.organizationId, organizationId),
-        sql`(${warehouseLeads.vinCreatedAt} IS NULL OR ${warehouseLeads.vinCreatedAt} >= ${thirtyDaysAgo})`,
-        sql`(${warehouseLeads.vinUpdatedAt} IS NULL OR ${warehouseLeads.vinUpdatedAt} >= ${fourteenDaysAgo})`,
+        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${thirtyDaysAgo}`,
+        sql`COALESCE(${warehouseLeads.vinUpdatedAt}, ${warehouseLeads.syncedAt}) >= ${fourteenDaysAgo}`,
         sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
         sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
         sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
@@ -781,8 +781,8 @@ export class DatabaseStorage implements IStorage {
     const conditions = [eq(warehouseLeads.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
     if (filters?.dataSource) conditions.push(eq(warehouseLeads.dataSource, filters.dataSource));
-    if (filters?.createdAfter) conditions.push(sql`(${warehouseLeads.vinCreatedAt} IS NULL OR ${warehouseLeads.vinCreatedAt} >= ${filters.createdAfter})`);
-    if (filters?.activityAfter) conditions.push(sql`(${warehouseLeads.vinUpdatedAt} IS NULL OR ${warehouseLeads.vinUpdatedAt} >= ${filters.activityAfter})`);
+    if (filters?.createdAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.createdAfter}`);
+    if (filters?.activityAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinUpdatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.activityAfter}`);
     const query = db.select().from(warehouseLeads).where(and(...conditions)).orderBy(desc(warehouseLeads.syncedAt));
     if (filters?.limit) return query.limit(filters.limit);
     return query;
