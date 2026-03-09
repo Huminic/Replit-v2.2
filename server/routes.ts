@@ -3034,9 +3034,17 @@ Return ONLY the JSON array, no other text.`,
       const orgId = resolveOrgIdParam(req);
       if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
 
-      const allLeads = await storage.getWarehouseLeads(orgId, { limit: 500 });
-      const metrics = await storage.getWarehouseMetrics(orgId, {});
       const now = new Date();
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const fourteenDaysAgo = new Date(now);
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+      const allLeads = await storage.getWarehouseLeads(orgId, {
+        createdAfter: thirtyDaysAgo,
+        activityAfter: fourteenDaysAgo,
+      });
+      const metrics = await storage.getWarehouseMetrics(orgId, {});
 
       const hotLeadsGoingCold = allLeads
         .filter(l => l.vinStatus === "hot" || l.vinStatus === "active")
@@ -3151,7 +3159,16 @@ Return ONLY the JSON array, no other text.`,
       const orgId = resolveOrgIdParam(req);
       if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
 
-      const allLeads = await storage.getWarehouseLeads(orgId, { limit: 500 });
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const fourteenDaysAgo = new Date(now);
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+      const allLeads = await storage.getWarehouseLeads(orgId, {
+        createdAfter: thirtyDaysAgo,
+        activityAfter: fourteenDaysAgo,
+      });
       const metrics = await storage.getWarehouseMetrics(orgId, {});
 
       const totalLeads = allLeads.length;
