@@ -628,10 +628,11 @@ export class DatabaseStorage implements IStorage {
         sql`${warehouseLeads.vinStatus} != 'NON_CUSTOMER_INITIATED_LEAD'`,
       )),
 
-      db.select({ cnt: count() }).from(warehouseLeads).where(and(
-        eq(warehouseLeads.organizationId, organizationId),
-        sql`${warehouseLeads.vinStatus} IN ('ACTIVE_SET_APPOINTMENT', 'appointment_set', 'SERVICE_APPOINTMENT_SCHEDULED')`,
-        gte(warehouseLeads.syncedAt, todayStart),
+      db.select({ cnt: count() }).from(appointments).where(and(
+        eq(appointments.organizationId, organizationId),
+        eq(appointments.status, "scheduled"),
+        gte(appointments.startTime, todayStart),
+        sql`${appointments.startTime} < ${todayStart}::date + interval '1 day'`,
       )),
 
       db.select({ cnt: count() }).from(tasks).where(and(

@@ -369,6 +369,12 @@ export function registerVendorRoutes(app: Express) {
 
       const leads = await storageModule.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo });
 
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      const appts = await storageModule.getAppointments(orgId, { startDate: todayStart, endDate: todayEnd });
+
       const cur = {
         total: leads.length,
         active: leads.filter((l: any) => isActiveLead(l.vinStatus)).length,
@@ -376,7 +382,7 @@ export function registerVendorRoutes(app: Express) {
         sold: leads.filter((l: any) => isSoldLead(l.vinStatus)).length,
         lost: leads.filter((l: any) => isLostLead(l.vinStatus)).length,
         waiting: leads.filter((l: any) => l.vinStatus === 'ACTIVE_WAITING_FOR_PROSPECT_RESPONSE').length,
-        appt: leads.filter((l: any) => l.vinStatus === 'ACTIVE_SET_APPOINTMENT' || l.vinStatus === 'appointment_set' || l.vinStatus === 'SERVICE_APPOINTMENT_SCHEDULED').length,
+        appt: appts.length,
       };
 
       const latestSyncDate = leads.length > 0
