@@ -1,15 +1,40 @@
-# Nexxus Connect -- Implementation Plan (4-Wave)
+# Nexxus Connect — Implementation Plan
 
-**Version:** 3.1
-**Date:** 2026-03-06
-**Status:** Active -- Waves 0-4 complete (~92%), Wave 5 deferred
-**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md) | [Sprint_log.md](./Sprint_log.md)
+**Version:** 4.0
+**Date:** 2026-03-09
+**Status:** Functional Area Walkthrough — all waves complete, now validating by feature area
+**Cross-References:** [PRD.md](./PRD.md) | [SRS.md](./SRS.md) | [SPEC.md](./SPEC.md) | [ACCEPTANCE_CRITERIA.md](./ACCEPTANCE_CRITERIA.md) | [CLAUDE.md](./CLAUDE.md)
 
 ---
 
-## 1. Plan Overview
+## Current Work Mode: Functional Area Walkthrough
 
-Nexxus Connect is delivered in four waves, each building on the previous. The current UI prototype serves as the design reference for all waves. Mock data is replaced incrementally as backend services come online.
+Instead of wave/sprint-based work, remaining validation and implementation is organized into **6 functional areas**. Each area is reviewed against its acceptance criteria before any code work begins.
+
+### Functional Area → AC Mapping
+
+| Area | Name | Acceptance Criteria |
+|------|------|-------------------|
+| 1 | UI and Chat | AC-06-A/B/C/D, AC-07-A/B/C, AC-CH-A/B, AC-NAV-A through J |
+| 2 | Communications | AC-05-A/B/C/D/E/F, AC-10-A/B/C/D, AC-KS-A/B |
+| 3 | Agents and Triggers | AC-HF-A/B/C/D, AC-TB-A/B, AC-EF-A/B/C |
+| 4 | One-off Lead Handling | AC-02-A/B/C/D, AC-04-A/B/C/D, AC-08-A/B, AC-09-A/B/C/D |
+| 5 | System/Settings | AC-03-A/B/C/D/E |
+| 6 | Metrics | AC-01-A/B/C |
+
+### Workflow Per Area
+1. Review the area's ACs and current state together
+2. Identify gaps and discuss expected outcomes
+3. Implement and test
+4. Verify all ACs pass before moving to next area
+
+See `replit.md` for detailed per-area status and key files.
+
+---
+
+## Historical Wave Reference
+
+The wave structure below documents how the platform was built. All waves through Wave 4 are complete (~92%). Wave 5 is deferred.
 
 ### Wave Summary
 
@@ -21,10 +46,8 @@ Nexxus Connect is delivered in four waves, each building on the previous. The cu
 | Wave 3 | Outbound Engine, Webhooks, Intelligence | 2 weeks | **Complete** |
 | Wave 3.5 | Data Warehouse & Context Router | 1 week | **Complete** |
 | Wave 3.6 | Outbound Live Wiring & Safety Controls | 1 day | **Complete** |
-| **Wave 4** | **Platform Completion: Landing Pages, Widgets, Metrics, Inbound SMS, Error Handling** | 1 week | **Complete** |
-| Wave 5 | Google Calendar, Production Backend Cutover | TBD | Deferred (end) |
-
-### Current Progress: ~92%
+| Wave 4 | Platform Completion: Landing Pages, Widgets, Metrics, Inbound SMS, Error Handling | 1 week | **Complete** |
+| Wave 5 | Google Calendar, Production Backend Cutover | TBD | **Deferred** |
 
 ---
 

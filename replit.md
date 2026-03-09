@@ -7,6 +7,7 @@ Nexxus Connect is an AI-powered dealership management platform for Serra Auto Gr
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Work mode: Functional area walkthrough — stop at each area, review ACs together, discuss outcomes, then implement/test.
 
 ## Truth Hierarchy
 
@@ -14,7 +15,7 @@ Preferred communication style: Simple, everyday language.
 2. `.agent_docs/acceptance_criteria.md` (62 ACs)
 3. SRS documentation
 4. API contract
-5. PLAN.md sequencing
+5. PLAN.md (historical reference — wave structure archived)
 
 ## System Architecture
 
@@ -37,69 +38,168 @@ Preferred communication style: Simple, everyday language.
 
 22 tables: `roles`, `organizations`, `users`, `sessions`, `agents`, `conversations`, `messages`, `campaigns`, `tasks`, `widgets`, `integrations`, `knowledge_documents`, `campaign_recipients`, `outbound_log`, `notifications`, `activity_log`, `hunches`, `warehouse_leads`, `warehouse_metrics`, `appointments`, `slug_redirects`, `sync_log`, `usage_events`.
 
-### Key Tables Added
+### Key Tables
 - **appointments**: Manual appointment creation with calendar UI (title, customerName, phone, email, type, department, startTime, endTime, status, source)
 - **slug_redirects**: Handles old-to-new slug redirects with 30-day expiry and forensic logging
 - **usage_events**: Tracks every outbound event for metering (eventType, channel, quantity, metadata)
+- **warehouse_leads / warehouse_metrics**: VinSolutions synced data with status classifier families
+- **outbound_log**: Every outbound trigger logged with trigger_id, org_id, customer_id, channel, status, blocked_reason
 
 ### Kill Switch Column Defaults
 All outbound columns default to **FALSE** (AC-KS-A compliant):
 - `outbound_enabled`, `sms_enabled`, `phone_enabled`, `email_enabled` → default(false)
 - Seed explicitly sets TRUE for test organizations
 
-## Features Built (Sprints 1-6)
+---
 
-### Sprint 1: Design Metrics Restored
-- Home page role-based design metrics (8 roles with realistic fallback values)
-- Sales (7 tiles), Service (6 tiles), Marketing (4 tiles), Management (6 tiles)
-- Full Insights page with all tabs
+## Functional Areas
 
-### Sprint 2: AI Chat + Pipeline Consistency
-- 4 AC-required tiles on AI Chat: active pipeline, appointments today, open escalations, outbound sent 24h
-- Tiles collapse when user starts typing (AC-CH-B)
-- Pipeline count consistent across AI Chat, Sales, and Management (AC-01-C)
-- Active pipeline = leads created last 14 days, excluding Lost/Sold/Bad/Service/NonCustomer (AC-01-A)
+Work is organized into 6 functional areas. Each area is reviewed against its acceptance criteria before implementation begins.
 
-### Sprint 3: VAPI + TeamBox + Kill Switch
-- VAPI→VIN Solutions 2-step lead creation with escalation on failure
-- TeamBox: 3 visually distinct types (Task, Escalation, Unsent Message), 4 priority levels
-- Kill switch creates "Unsent Message" escalation when blocking outbound sends
-- Rate limiting (3 messages per 24h per customer)
+### Area 1: UI and Chat
+**What it covers:** Chat interface, chat quality, thinking cards, persona name, CRM Guru mode, menu/nav look and feel, sidebar/submenu behavior, settings and knowledge base for chat.
 
-### Sprint 4: Calendar, Widget, Landing Pages, Navigation
-- **Calendar**: Real monthly grid on Sales and Service with manual appointment creation, connector config UI for Google Calendar/Dealer.com/Tekion (VIN Solutions NOT listed per AC-03-E)
-- **Widget**: Exactly 4 channels (Web Chat, Web Call, Contact Form, Two-Way Video), video launches on click
-- **Landing Pages**: Globe icon → `/p/[org-slug]`, public access without login, slug redirect with 30-day expiry
-- **Navigation**: Full spec compliance (Sales has Agents/no Campaigns, Service has Agents+Campaigns, Coming Soon on Assistant and Hunches)
+**Acceptance Criteria:**
+- AC-06-A: Thinking card appears during AI processing
+- AC-06-B: Chat history persists across sessions
+- AC-06-C: Persona name from org's Agent Name field
+- AC-06-D: Persona name fallback to VAPI config name
+- AC-07-A: CRM Guru uses VIN Solutions data first
+- AC-07-B: CRM Guru supplements with warehouse data (explicit attribution)
+- AC-07-C: General chat suggests CRM Guru for CRM questions
+- AC-CH-A: Four metric tiles displayed on AI Chat load
+- AC-CH-B: Metric tiles hide when user starts chatting
+- AC-NAV-A: AI Chat sub-items render
+- AC-NAV-B: Artifacts scoped to data reports only
+- AC-NAV-C: My Work sub-items render
+- AC-NAV-D: TeamBox sub-items render
+- AC-NAV-E: All conversations route to TeamBox
+- AC-NAV-F: Sales sub-items match reference model
+- AC-NAV-G: Service sub-items correct
+- AC-NAV-H: Management sub-items correct
+- AC-NAV-I: Disabled section absent from nav
+- AC-NAV-J: Enabled-but-not-built section shows Coming Soon
 
-### Sprint 5: CRM Guru, Usage, Kill Switch Fix, Hunches
-- **CRM Guru**: Dedicated mode toggle in chat input, VIN Solutions data priority, warehouse supplement with explicit attribution, general chat suggests CRM Guru for CRM questions
-- **Usage Metering**: `usage_events` table, logging on every outbound send, Usage page for Org Admin (counts, no dollars), Partner Admin org-scoped view, `/api/billing/usage` API endpoint
-- **Kill Switch**: Defaults changed from TRUE to FALSE, seed explicitly sets TRUE for test orgs
-- **Hunch Filter**: Verified — accepted hunches in prompt, dismissed excluded, resolved removed, master prompt unchanged
+**What's built:** AI Chat with Claude streaming, CRM Guru toggle, thinking cards, chat history persistence, 4 metric tiles with collapse, persona name from org config, sidebar with lock/popout/auto-revert (60s timer), SubMenuManager with all panel types, navigation per spec.
 
-### Sprint 6: Enforcer + AC Sweep + Documentation
-- **Enforcer** (scripts/enforcer.ts): Scans for dropped features ("Drive", "Custom Agent", "Sharing"), forbidden Artifacts context, credential exposure, kill switch default verification
-- Cleaned up Drive references from MobileNavDropdown, MobileSidebar, activity-utils
-- Full 62-AC sweep verified passing
+**Known gaps to validate:** Chat quality/response accuracy, knowledge document upload flow, special chat features (artifacts scoped to data reports only per AC-NAV-B), long conversation behavior.
 
-### Stabilization Sweep 5: Database Hardening
-- CASCADE rules on all 30+ foreign keys, 12 indexes added
-- Campaign execution persisted to DB, password reset wired with crypto tokens + Resend
-- Initial Drizzle migration (0000_curious_madame_web.sql) generated and pushed
+**Key files:** `client/src/pages/main.tsx`, `client/src/components/layout/Sidebar.tsx`, `client/src/components/layout/SubMenuManager.tsx`, `client/src/components/layout/AppLayout.tsx`, `server/routes.ts` (chat endpoints)
 
-### Stabilization Sweep 6: Frontend Remediation (Mock Removal)
-- **Insights page**: Replaced all 23 mock data imports with useQuery hooks to GET /api/insights/dashboard + GET /api/insights/reports; hunches wired to GET /api/hunches; deleted client/src/lib/insight-data.ts (725 lines)
-- **TopBar activity feed**: Replaced static mock with useQuery to GET /api/activity-log
-- **My Work chat tab**: Replaced mock conversations with useQuery to GET /api/conversations
-- **OrgWizard**: Wired to POST /api/organizations (super admin only)
-- **Mock files deleted**: All 12 files in client/src/mocks/ removed (zero consumers confirmed)
-- **Demo-mode actions**: 15 toast-based demo actions categorized as post-MVP deferrals (billing, trigger editor, knowledge base, kill switch)
+---
+
+### Area 2: Communications
+**What it covers:** Outbound engine settings, new account/reset account flows, SMS (Serra Honda only initially), service campaigns (CSV upload → execution), notifications, kill switch and CommGate safety layers.
+
+**Acceptance Criteria:**
+- AC-05-A: Kill switch blocks SMS
+- AC-05-B: Kill switch blocks phone calls
+- AC-05-C: Kill switch blocks email
+- AC-05-D: Channel switch blocks specific channel
+- AC-05-E: Rate limit enforcement (3 per 24h per customer)
+- AC-05-F: Every trigger logged with full metadata
+- AC-10-A: Outbound events are counted
+- AC-10-B: Usage visible to Org Admin
+- AC-10-C: Usage scoped correctly per org
+- AC-10-D: Billing API accessible
+- AC-KS-A: All 4 kill switch columns exist in DB
+- AC-KS-B: Master switch overrides individual channels
+
+**What's built:** 5-layer CommGate safety (global env → org gate → channel toggles → rate limit → campaign kill switch), TextMagic SMS delivery, Resend email, VAPI phone outbound, usage metering to `usage_events` table, Usage page for Org Admin, Billing API endpoint, two-way SMS in TeamBox, agent auto-greeting templates, password reset with crypto tokens + Resend.
+
+**Known gaps to validate:** Account creation/invitation flow (demo-mode toast), notification delivery and display, SMS limited to Serra Honda scope, service campaign end-to-end with real TextMagic.
+
+**Key files:** `server/outbound.ts`, `server/routes.ts` (campaign/usage/billing endpoints), `client/src/pages/service.tsx`, `client/src/pages/settings.tsx`
+
+---
+
+### Area 3: Agents and Triggers
+**What it covers:** Agent configuration, trigger handling, agent review workflow, special prompting, hunch filter system.
+
+**Acceptance Criteria:**
+- AC-HF-A: Accepted hunch added to effective prompt
+- AC-HF-B: Dismissed hunch not included in prompt
+- AC-HF-C: Resolved hunch removed from filter
+- AC-HF-D: Master prompt unchanged by hunch acceptance
+- AC-TB-A: Escalation types present (Task, Escalation, Unsent Message)
+- AC-TB-B: Priority levels present (4 levels)
+- AC-EF-A: Dropped feature references block merge
+- AC-EF-B: No production credentials in code
+- AC-EF-C: Kill switch test must pass
+
+**What's built:** Agent CRUD with department tagging, hunch filter (accept/dismiss/resolve), TeamBox 3-column layout with 3 escalation types and 4 priority levels, enforcer scanner for dropped features and credential exposure.
+
+**Known gaps to validate:** Trigger editor (currently demo-mode toast), agent review/approval workflow, special prompting configuration UI, agent-to-conversation routing logic.
+
+**Key files:** `server/storage.ts` (agent/hunch CRUD), `client/src/pages/teambox.tsx`, `client/src/components/AgentConfigPane.tsx`, `scripts/enforcer.ts`
+
+---
+
+### Area 4: One-off Lead Handling (Communications Agent)
+**What it covers:** Widget channels, hosted landing page, embed flow, VAPI lead flow (handoff, appointment, VIN insertion), Tavus lead flow (handoff, appointment, VIN insertion).
+
+**Acceptance Criteria:**
+- AC-02-A: Successful VAPI lead capture → VIN Solutions with transcript
+- AC-02-B: Step 1 failure → escalation in TeamBox
+- AC-02-C: Step 2 failure → escalation with contact_href
+- AC-02-D: No silent failure — log + escalation always exist
+- AC-04-A: Four widget channels present (Web Chat, Web Call, Contact Form, Two-Way Video)
+- AC-04-B: Video launches immediately on click
+- AC-04-C: Channel toggle works
+- AC-04-D: Embed code generation works
+- AC-08-A: Globe icon links to landing page
+- AC-08-B: Landing page is publicly accessible
+- AC-09-A: Landing page slug format correct
+- AC-09-B: Slug collision handling
+- AC-09-C: Slug edit and logging
+- AC-09-D: Widget present on landing page
+
+**What's built:** VAPI webhook → 2-step VIN lead creation with escalation on failure, Tavus webhook → VIN lead creation, widget with 4 channels (chat/call/contact/video), VAPI @vapi-ai/web SDK with real connection states, Tavus iframe with real sessions, landing pages at `/p/[slug]`, embed code generation, slug redirects with 30-day expiry, widget chat creates real conversations visible in TeamBox.
+
+**Known gaps to validate:** Appointment creation from VAPI/Tavus calls, handoff flow from widget to human agent, embed flow in external site context.
+
+**Key files:** `server/routes.ts` (webhook/widget endpoints), `client/src/pages/widget-landing.tsx`, `client/src/pages/settings.tsx` (widget config), `server/vendorProxy.ts` (VIN API calls)
+
+---
+
+### Area 5: System/Settings
+**What it covers:** File uploads, general org settings, hunches display and management, calendar connector config.
+
+**Acceptance Criteria:**
+- AC-03-A: Google Calendar appointment appears in Nexxus (config UI built, sync deferred)
+- AC-03-B: Dealer.com appointment appears in Nexxus (config UI built, sync deferred)
+- AC-03-C: Tekion appointment appears in Nexxus (config UI built, sync deferred)
+- AC-03-D: Manual appointment creation
+- AC-03-E: VIN Solutions NOT listed as appointment source
+
+**What's built:** Knowledge document upload (multer), org settings page with communication gate toggles, calendar connector config UI (Google Calendar/Dealer.com/Tekion listed, VIN Solutions excluded per AC-03-E), manual appointment creation with calendar grid, hunch cards on Management page.
+
+**Known gaps to validate:** Upload file handling and knowledge base integration, general settings save flow, calendar sync (deferred — needs connector credentials).
+
+**Key files:** `client/src/pages/settings.tsx`, `client/src/components/AppointmentCalendar.tsx`, `server/routes.ts` (document/appointment endpoints), `server/storage.ts`
+
+---
+
+### Area 6: Metrics (Display and Connection)
+**What it covers:** Metrics accuracy and correctness, filtering and updates, insights vs dashboard vs homepage comparison, reports.
+
+**Acceptance Criteria:**
+- AC-01-A: Active pipeline = leads created last 14 days, excluding Lost/Sold/Bad/Service/NonCustomer
+- AC-01-B: Pipeline count displayed correctly on AI Chat
+- AC-01-C: Metric consistency — same count across Sales, Marketing Insights, Management
+
+**What's built:** Pipeline metrics from `warehouse_leads` with status classifier, VIN summary endpoint for Sales tiles, Insights dashboard and reports from aggregated warehouse data, store selector for cross-store comparison (super_admin/partner_admin), appointments from `appointments` table (not lead statuses), sync scheduler (4h metrics during business hours, 2AM ET daily delta).
+
+**Known gaps to validate:** Filtering by date range, metric accuracy across all dashboard pages vs insights vs homepage, report generation and export.
+
+**Key files:** `server/storage.ts` (pipeline/metrics queries), `server/vendorProxy.ts` (VIN summary), `server/statusClassifier.ts`, `client/src/pages/sales.tsx`, `client/src/pages/insights.tsx`, `client/src/pages/management.tsx`
+
+---
 
 ## API Routes
 
 ### Core Routes
-- Auth: POST /api/auth/login, POST /api/auth/logout, POST /api/auth/refresh
+- Auth: POST /api/auth/login, POST /api/auth/logout, POST /api/auth/refresh, POST /api/auth/switch-org, POST /api/auth/forgot-password, POST /api/auth/reset-password
 - Users: GET/POST/PATCH /api/users, GET /api/users/me
 - Agents: GET/POST/PATCH/DELETE /api/agents
 - Conversations: GET/POST/PATCH /api/conversations, messages
@@ -107,21 +207,21 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Tasks: GET/POST/PATCH/DELETE /api/tasks
 - Widgets: GET/POST/PATCH/DELETE /api/widgets
 - Documents: GET/POST/DELETE /api/documents
+- Organizations: GET /api/organizations, POST /api/organizations (super admin only)
+- Hunches: GET/POST/PATCH /api/hunches
 
 ### Data & Metrics
-- Pipeline: GET /api/metrics/pipeline (canonical source — 14-day created leads, excluding Lost/Sold/Bad/Service/NonCustomer per AC-01-A)
+- Pipeline: GET /api/metrics/pipeline (canonical — 14-day created leads, excluding Lost/Sold/Bad/Service/NonCustomer per AC-01-A)
 - Warehouse: GET /api/warehouse/leads, GET /api/warehouse/metrics
-- VIN Summary: GET /api/vin/leads/summary?orgId= (Sales page tiles — uses warehouse leads with status classifier)
+- VIN Summary: GET /api/vin/leads/summary?orgId= (Sales tiles — warehouse leads + status classifier)
 - Sync: POST /api/sync/{backfill,delta,metrics}, GET /api/sync/{status,logs}
-
-### New Routes (Sprints 4-6)
-- Appointments: GET/POST/PATCH/DELETE /api/appointments (org-scoped, multi-tenant safe)
+- Appointments: GET/POST/PATCH/DELETE /api/appointments (org-scoped)
 - Usage: GET /api/usage, GET /api/usage/summary (roleLevel ≤ 3)
-- Billing: GET /api/billing/usage (org_id + period parameters)
-- Landing: GET /api/public/landing/:slug
+- Billing: GET /api/billing/usage (org_id + period)
+- Insights: GET /api/insights/dashboard?orgId=, GET /api/insights/reports?orgId=
 - Outbound Status: GET /api/outbound/status
-- Insights: GET /api/insights/dashboard?orgId=, GET /api/insights/reports?orgId= (aggregated warehouse data, orgId param for cross-store access)
-- Organizations: GET /api/organizations (list all for super/partner_admin, own org for others), POST /api/organizations (super admin only)
+- Activity: GET /api/activity-log
+- Notifications: GET /api/notifications
 
 ### Public Routes (No Auth)
 - Landing pages: GET /p/:slug
@@ -130,7 +230,7 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 - Widget chat: POST /api/widget/chat (creates conversations + Claude AI responses)
 - Widget contact: POST /api/widget/contact (creates conversations from forms)
 - Widget voice config: GET /api/widget/voice-config/:slug
-- Widget video session: POST /api/widget/video-session (creates Tavus video sessions)
+- Widget video session: POST /api/widget/video-session (Tavus video sessions)
 - VAPI webhook: POST /api/webhooks/vapi (+ GET health check)
 - Tavus webhook: POST /api/webhooks/tavus (conversation.end → VinSolutions lead)
 - TextMagic webhook: POST /api/webhooks/textmagic
@@ -145,65 +245,53 @@ All outbound columns default to **FALSE** (AC-KS-A compliant):
 
 ### Communications
 - TextMagic (SMS, X-TM-Key header), Resend (email, notifications@huminic.ai)
-- 4-layer safety: Global env → org comm gate → per-channel toggles → rate limit
+- 5-layer safety: Global env → org comm gate → per-channel toggles → rate limit → campaign kill switch
 
 ### Integrations
-- VinSolutions (Lead Management tier — read/query only)
-- VAPI (voice), Tavus (video)
+- VinSolutions (Lead Management tier — read/query only, via MCP)
+- VAPI (voice — @vapi-ai/web SDK + server API)
+- Tavus (video sessions)
 
 ## Authentication
-- JWT tokens: `nexxus_access_token` in localStorage
-- Test logins: admin@nexxus.com/password123, Org_Admin@huminic.ai, duane.wells@huminic.ai/a1$ucc3ss, durran.cage@cageautomotive.com/password123 (partner_admin under Cage Automotive)
+- JWT tokens: `nexxus_access_token` (underscores) in localStorage
+- Login response key: `accessToken` (not `token`) — auth returns `{ accessToken, refreshToken, user }`
+- Test logins: admin@nexxus.com/password123, duane.wells@huminic.ai/a1$ucc3ss (super_admin), durran.cage@cageautomotive.com/password123 (partner_admin), Org_Admin@huminic.ai/O3g$uccess, Partner_admin@huminic.ai/P@rtner$uccess, Sales_staff@huminic.ai/S@les$uccess, marketing_staff@huminic.ai/M@3keting$uccess, Executive_staff@huminic.ai/Ex3c$uccess
 - Role hierarchy: super_admin(1) > partner_admin(2) > org_admin(3) > executive(4) > sales_manager(5) > sales(6) > service(7) > marketing(8)
+- Duane's test number: 4126546500
 
-### Stabilization Sweep 7: Integration Wiring
-- **VAPI Voice Outbound**: sendPhone() in outbound.ts wired to real VAPI POST /call API via vapiPost() helper
-- **Tavus Video Sessions**: POST /api/widget/video-session creates real Tavus conversations, returns conversation_url
-- **Widget Chat**: POST /api/widget/chat creates real conversations + Claude AI responses (visible in TeamBox)
-- **Widget Contact Form**: POST /api/widget/contact creates real conversations from form submissions
-- **Widget Voice**: VAPI @vapi-ai/web SDK integrated with real connection states (connecting/connected/error/ended)
-- **Widget Video**: Tavus iframe rendering with real video session URLs
-- **Landing Page Form**: POST /api/widget/contact wired for main landing page form submissions
-- **Demo slug resolution**: resolveOrgBySlug() helper maps 'demo' to first available org for all public endpoints
-
-### Stabilization Sweep 8: Five Aha Moments
-- **Two-Way SMS**: TeamBox agent replies on SMS conversations now deliver via TextMagic API; [SMS] prefix sends SMS on any channel conversation; usage metering logged
-- **Tavus Webhook → VinSolutions**: POST /api/webhooks/tavus receives conversation.end events, fetches transcript, creates local conversation, pushes contact+lead to VinSolutions (with escalation on failure)
-- **Agent Auto-Greeting**: New `auto_greeting` column on agents; when a conversation is created with a phone number, the active agent's greeting template is sent via SMS automatically (template vars: {{customerName}}, {{dealershipName}}, {{agentName}})
-- **VAPI Webhook Hardening**: GET /api/webhooks/vapi health-check endpoint added for VAPI webhook registration
-- **Service Campaign**: Full end-to-end SMS campaign flow verified (creation → CSV upload → execution → TextMagic delivery)
-- **Duane's test number**: 4126546500
-
-### Stabilization Sweep 9: RBAC Login Fix
-- **Role initialization on login**: Fixed AppContext.tsx — on login, currentRole now always syncs from the authenticated user's actual role (via `roleInitialized` flag). Previously, a stale `nexxus-current-role` value in localStorage or the `org_admin` default would override the user's real role, causing super_admin users to see a reduced sidebar on first login.
-- **Test credentials updated**: duane.wells@huminic.ai/a1$ucc3ss, Partner_admin@huminic.ai/P@rtner$uccess, Org_Admin@huminic.ai/O3g$uccess, Sales_staff@huminic.ai/S@les$uccess, marketing_staff@huminic.ai/M@3keting$uccess, Executive_staff@huminic.ai/Ex3c$uccess
-
-### Multi-Store Architecture (Cage Automotive)
+## Multi-Store Architecture (Cage Automotive)
 - **Cage Automotive** (partner org, id: b1a2c3d4-...): Parent entity linking 5 dealership stores via `partnerId`
 - **5 Stores**: Serra Honda, Serra Nissan, Tony Serra Ford, Hyundai of Columbia, Ford of Columbia
 - **VinSolutions Dealer IDs**: Serra Honda=21043, Serra Nissan=21044, Tony Serra Ford=21047, Ford of Columbia=13398, Hyundai of Columbia=13399
 - **NEXXUS_ORG_MAP** in `server/vendorProxy.ts`: Maps all 5 local org UUIDs to MCP nexxusOrgIds for VinSolutions API calls (Hyundai=227a5597, Ford=2ff5afa0, Honda=3795b8f6, Nissan=7f868569, TonySerra=8751c73d)
 - **VIN API limit**: Max 100 leads per query. Backfill uses 7-day windows to paginate through 90 days of data
-- **Store Selector**: InsightsPage has a dropdown (super_admin/partner_admin only) that fetches GET /api/organizations and passes `?orgId=` to dashboard/reports queries
-- **Org Switcher**: TopBar org switcher uses live `/api/organizations` query (not login-time cache) to always show current stores; Cage Automotive parent org is filtered out
+- **4 stores have NULL vinCreatedAt/vinUpdatedAt** — COALESCE with syncedAt makes date filters effectively no-op
+- **Org Switcher**: TopBar uses live `/api/organizations` query; Cage Automotive parent filtered out; shows 5 dealerships
 - **Data isolation**: `resolveOrgIdParam()` helper in routes.ts ensures orgId-based filtering with role authorization
-- **Backfill**: POST /api/vin/backfill?orgId= triggers historical data sync per store via MCP
+- **Sync scheduler**: 4h metrics refresh during business hours, 2AM ET daily delta sync
 
-## Deferred to Wave 5
-- Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs credentials)
+## Deferred Items
+- Google Calendar / Dealer.com / Tekion actual sync (config UI built, sync needs connector credentials)
 - Production backend cutover to nexxusv2.huminicdev.com
 - RLS row-level security policies
+- Demo-mode actions: billing UI, trigger editor, knowledge base management, kill switch toggle UI (15 items — all toast-based)
 
 ## Key Files
 - `shared/schema.ts` — All 22 tables, insert schemas, types
 - `server/routes.ts` — All API routes
-- `server/storage.ts` — Database storage layer
+- `server/storage.ts` — Database storage layer (CRUD for all entities)
 - `server/statusClassifier.ts` — VIN status family mapper (active/new/sold/lost/bad/service/non_customer)
-- `server/outbound.ts` — Outbound engine with kill switch and usage logging
-- `server/seed.ts` — Test data seeding
+- `server/outbound.ts` — Outbound engine with 5-layer CommGate safety and usage logging
+- `server/vendorProxy.ts` — VinSolutions MCP integration and org mapping
+- `server/seed.ts` — Test data seeding (8 roles, 6 orgs, 8+ users, agents, sample data)
+- `server/auth.ts` — JWT authentication middleware
 - `client/src/pages/main.tsx` — AI Chat with CRM Guru mode
+- `client/src/pages/teambox.tsx` — TeamBox 3-column layout
 - `client/src/pages/widget-landing.tsx` — Public landing page with 4-channel widget
 - `client/src/components/AppointmentCalendar.tsx` — Calendar with appointment creation
-- `client/src/components/layout/SubMenuManager.tsx` — Navigation shell
+- `client/src/components/layout/SubMenuManager.tsx` — Navigation submenu (lock/popout/auto-revert)
+- `client/src/components/layout/Sidebar.tsx` — Left sidebar with toggle
+- `client/src/components/layout/AppLayout.tsx` — Master layout orchestrator
+- `client/src/contexts/AppContext.tsx` — App-wide state (auth, org, role, panels)
 - `scripts/enforcer.ts` — Compliance scanner
-- `.agent_docs/acceptance_criteria.md` — DO NOT MODIFY
+- `.agent_docs/acceptance_criteria.md` — 62 ACs, DO NOT MODIFY

@@ -1,48 +1,101 @@
-> **QUARANTINED — not authoritative. Retained for reference only until governance rebuild is complete.**
-> Quarantined during Sweep 0 (Stabilization Plan). Reason: APPLICATION CODE section was never populated — only lists governance docs from Wave 0. Does not reflect the actual codebase (200+ source files across client/src/, server/, shared/).
-
-# .agent_docs/codebase-index.md — Nexxus v2.2
-# PURPOSE: Living map of the codebase. Machine-readable by agents. Updated by Scribe on every commit.
-# Format: File path | Purpose | Key dependencies | Wave/Sprint | Last updated
-# Scribe must add an entry for EVERY new file in the same commit.
-# Last updated: 2026-03-04 (initialized — Wave 0)
+# Nexxus Connect — Codebase Index
+**Last updated:** 2026-03-09
 
 ---
 
-## HOW TO USE THIS FILE
+## Server
 
-Scribe agent maintains this file. On every commit:
-1. Add a row for each NEW file created
-2. Update the row for each MODIFIED file (update purpose if it changed)
-3. Do not remove rows — use Status = DELETED if a file is removed
+| File | Purpose |
+|------|---------|
+| `server/index.ts` | Express server entry point, starts on port 5000 |
+| `server/auth.ts` | JWT authentication — access/refresh tokens, authenticateToken/requireRole middleware |
+| `server/routes.ts` | All API routes (auth, CRUD, metrics, webhooks, public endpoints) |
+| `server/storage.ts` | DatabaseStorage — Drizzle ORM CRUD for all 22 tables |
+| `server/seed.ts` | Test data seeding: 8 roles, 6 orgs, 8+ users, agents, sample data, Durran Cage partner account |
+| `server/outbound.ts` | Outbound engine — 5-layer CommGate safety, TextMagic SMS, Resend email, VAPI phone, usage logging |
+| `server/vendorProxy.ts` | VinSolutions MCP integration — org mapping, lead queries, sales summary, backfill |
+| `server/statusClassifier.ts` | VIN lead status family mapper (active/new/sold/lost/bad/service/non_customer) |
+| `server/sync.ts` | Sync scheduler — 4h metrics during business hours, 2AM ET daily delta |
+| `server/braveSearch.ts` | Brave Search API integration for web search |
+| `server/static.ts` | Static file serving |
+| `server/vite.ts` | Vite dev server integration |
 
----
+## Shared
 
-## INDEX
+| File | Purpose |
+|------|---------|
+| `shared/schema.ts` | All 22 Drizzle tables, insert schemas (drizzle-zod), TypeScript types |
 
-| File path | Purpose | Key dependencies | Wave/Sprint | Status | Last updated |
-|-----------|---------|-----------------|------------|--------|--------------|
-| CLAUDE.md | Agent governance rules, truth hierarchy, prohibited actions | — | Wave 0 | ACTIVE | 2026-03-04 |
-| DO_NOT_TOUCH.md | Off-limits file and directory list | CLAUDE.md | Wave 0 | ACTIVE | 2026-03-04 |
-| PLAN.md | Wave execution plan, pre-flight checklist, P0 tracker | — | Wave 0 | ACTIVE | 2026-03-04 |
-| SPEC.md | Architecture facts: stack, MCP tools, kill switch schema, RBAC | — | Wave 0 | ACTIVE | 2026-03-04 |
-| PRD.md | Product requirements: goals, MVP functions, stakeholders | — | Wave 0 | ACTIVE | 2026-03-04 |
-| SRS.md | System behavior requirements: 17 sections, traceable to AC | SPEC.md | Wave 0 | ACTIVE | 2026-03-04 |
-| DESIGNER_BRIEF.md | UI handoff: navigation, patterns, components, deliverables | — | Wave 0 | ACTIVE | 2026-03-04 |
-| MEMORY.md | Session memory — Scribe only | — | Wave 0 | PENDING CREATION | — |
-| .agent_docs/acceptance_criteria.md | Given/When/Then AC items — maps 1:1 to spec.ts tests | SRS.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/undefined-items.md | Log of undefined behaviors requiring owner resolution | CLAUDE.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/codebase-index.md | This file — live codebase map | — | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/rules/agent-roles.md | Agent team structure, roles, file scope, compliance log | CLAUDE.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/rules/code-conventions.md | TypeScript, JSDoc, naming, imports, error handling | SPEC.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/rules/testing-protocol.md | Test structure, spec.ts conventions, quality gates | acceptance_criteria.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/rules/file-management.md | File scope rules, commit requirements, archiving | CLAUDE.md | Wave 0 | ACTIVE | 2026-03-04 |
-| .agent_docs/rules/operational-context.md | Live deployment context, mockup URLs, environment status | SPEC.md | Wave 0 | ACTIVE | 2026-03-04 |
+## Client — Pages
 
----
+| File | Purpose | Functional Area |
+|------|---------|----------------|
+| `client/src/pages/main.tsx` | AI Chat with CRM Guru mode, 4 metric tiles, thinking cards | Area 1 |
+| `client/src/pages/teambox.tsx` | TeamBox 3-column layout: filters, conversation list, chat, customer info | Area 3 |
+| `client/src/pages/sales.tsx` | Sales dashboard — 7 metric tiles, Agents tab, Calendar tab | Area 6 |
+| `client/src/pages/service.tsx` | Service dashboard — 6 tiles, Agents, Campaigns (with kill switch), Calendar | Area 2/6 |
+| `client/src/pages/marketing.tsx` | Marketing dashboard — 4 tiles, Agents, Campaigns, Studio, Insights | Area 2/6 |
+| `client/src/pages/management.tsx` | Management KPIs — 6 tiles, Hunches, Activities, ROI | Area 6 |
+| `client/src/pages/insights.tsx` | Insights — dashboard + reports with store selector for cross-store | Area 6 |
+| `client/src/pages/my-work.tsx` | Personal dashboard, task list, chat/assistant tabs | Area 1 |
+| `client/src/pages/settings.tsx` | Org settings, widget config, calendar connectors, communication gate | Area 5 |
+| `client/src/pages/agents.tsx` | Agent management and configuration | Area 3 |
+| `client/src/pages/profile.tsx` | User profile page | Area 5 |
+| `client/src/pages/usage.tsx` | Usage metering display (Org Admin+) | Area 2 |
+| `client/src/pages/billing-management.tsx` | Billing management (partner admin) | Area 2 |
+| `client/src/pages/widget-landing.tsx` | Public landing page — 4-channel widget, no auth required | Area 4 |
+| `client/src/pages/org-wizard.tsx` | Organization creation wizard (super admin only) | Area 5 |
+| `client/src/pages/login.tsx` | Login page | — |
+| `client/src/pages/forgot-password.tsx` | Forgot password flow | Area 2 |
+| `client/src/pages/reset-password.tsx` | Reset password flow | Area 2 |
+| `client/src/pages/not-found.tsx` | 404 page | — |
 
-## APPLICATION CODE (populated as waves complete)
+## Client — Components
 
-| File path | Purpose | Key dependencies | Wave/Sprint | Status | Last updated |
-|-----------|---------|-----------------|------------|--------|--------------|
-| (Wave 1 files will be indexed here) | — | — | — | — | — |
+| File | Purpose | Functional Area |
+|------|---------|----------------|
+| `client/src/components/layout/AppLayout.tsx` | Master layout — TopBar + Sidebar + SubMenu + main + RightPane | Area 1 |
+| `client/src/components/layout/Sidebar.tsx` | Left sidebar (72px) — nav icons, toggle button, lock/popout | Area 1 |
+| `client/src/components/layout/SubMenuManager.tsx` | Flyout submenu — inline when locked, fixed when popout, 60s auto-revert | Area 1 |
+| `client/src/components/layout/TopBar.tsx` | Top bar — org switcher, activity feed, profile menu | Area 1 |
+| `client/src/components/layout/RightPane.tsx` | Right pane — Automa AI chat for data-display pages | Area 1 |
+| `client/src/components/layout/FavoritesBar.tsx` | Favorites bar in submenu | Area 1 |
+| `client/src/components/layout/SubMenuPanel.tsx` | Submenu panel content renderer | Area 1 |
+| `client/src/components/layout/MobileNavDropdown.tsx` | Mobile navigation dropdown | Area 1 |
+| `client/src/components/layout/MobileSidebar.tsx` | Mobile sidebar | Area 1 |
+| `client/src/components/AgentConfigPane.tsx` | Agent configuration panel (right pane for /agents) | Area 3 |
+| `client/src/components/AppointmentCalendar.tsx` | Calendar grid with manual appointment creation | Area 5 |
+| `client/src/components/MarkdownMessage.tsx` | Markdown rendering for chat messages | Area 1 |
+| `client/src/components/ErrorBoundary.tsx` | React error boundary | — |
+| `client/src/components/auth/ProtectedRoute.tsx` | Auth route guard | — |
+| `client/src/components/auth/SessionTimeoutDialog.tsx` | Session timeout dialog | — |
+
+## Client — State & Utilities
+
+| File | Purpose |
+|------|---------|
+| `client/src/App.tsx` | Route definitions, providers, auth wrapper |
+| `client/src/contexts/AppContext.tsx` | App-wide state: auth, org, role, panels, favorites, persona |
+| `client/src/lib/queryClient.ts` | TanStack Query client with auth header injection |
+
+## Scripts
+
+| File | Purpose |
+|------|---------|
+| `scripts/enforcer.ts` | Compliance scanner — dropped features, credentials, kill switch defaults |
+
+## Governance Docs
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `PLAN.md` | Implementation plan — historical wave reference + functional area mapping | Active |
+| `replit.md` | Agent memory — architecture, functional areas, technical facts | Active |
+| `ACCEPTANCE_CRITERIA.md` | Canonical 62 ACs — owner-controlled, read-only | Active |
+| `.agent_docs/acceptance_criteria.md` | Derived AC verification layer | Active (read-only) |
+| `CLAUDE.md` | Agent governance rules | Active |
+| `SPEC.md` | Architecture facts, MCP tools, kill switch schema, RBAC | Active |
+| `PRD.md` | Product requirements | Active |
+| `SRS.md` | System behavior requirements (17 sections) | Active |
+| `GAPS.md` | Known gaps tracker | Active |
+| `ISSUES.md` | Issue tracker | Active |
+| `Sprint_log.md` | Sprint history log | Historical |
