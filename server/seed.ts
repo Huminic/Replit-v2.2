@@ -64,12 +64,45 @@ async function seedTasksAndWidgets() {
   console.log("Tasks and widgets seeded successfully!");
 }
 
+async function seedMissingAgents() {
+  const orgs = await storage.getOrganizations();
+  const serraHonda = orgs.find(o => o.slug === "serra-honda");
+  if (!serraHonda) return;
+
+  const existingAgents = await storage.getAgents(serraHonda.id);
+  const missingAgents = [
+    { name: "Service Agent", department: "service", description: "Serra Honda AI Service Knowledge Agent. Provides service campaign insights, recall information, maintenance scheduling guidance, and service lane performance data.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
+    { name: "Marketing Agent", department: "marketing", description: "Serra Honda AI Marketing Knowledge Agent. Analyzes marketing campaign performance, tracks lead source ROI, manages promotional content, and provides marketing analytics insights.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
+  ];
+
+  for (const a of missingAgents) {
+    if (!existingAgents.find(e => e.name === a.name && e.organizationId === a.orgId)) {
+      console.log(`Creating missing agent: ${a.name}`);
+      await storage.createAgent({
+        name: a.name,
+        department: a.department,
+        type: "ai",
+        status: "active",
+        description: a.description,
+        channels: a.channels,
+        dealership: a.dealership,
+        assignedPhone: a.assignedPhone,
+        vapiAssistantId: a.vapiAssistantId,
+        tavusPersonaId: a.tavusPersonaId,
+        autoGreeting: null,
+        organizationId: a.orgId,
+      });
+    }
+  }
+}
+
 export async function seedDatabase() {
   const existingRoles = await storage.getRoles();
   if (existingRoles.length > 0) {
     console.log("Database already seeded, skipping...");
     await seedTasksAndWidgets();
     await seedPartnerAccount();
+    await seedMissingAgents();
     return;
   }
 
@@ -189,6 +222,8 @@ export async function seedDatabase() {
     { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: hyundaiOfColumbia.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: null },
     { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: fordOfColumbia.id, assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
+    { name: "Service Agent", department: "service", description: "Serra Honda AI Service Knowledge Agent. Provides service campaign insights, recall information, maintenance scheduling guidance, and service lane performance data.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
+    { name: "Marketing Agent", department: "marketing", description: "Serra Honda AI Marketing Knowledge Agent. Analyzes marketing campaign performance, tracks lead source ROI, manages promotional content, and provides marketing analytics insights.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Nissan", orgId: serraNissan.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
   ];

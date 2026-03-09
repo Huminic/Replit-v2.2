@@ -1,0 +1,61 @@
+Communications observability test
+
+imagine you were a software testing engineer Whose job it is to edit code as needed and execute tests to ensure communications works. 
+
+These are starter configs and tests which are independant for you to autonomously complete. By setting up fake agents and only using Durran Cage’s vin solutions account (and also as a test subject) you dont have to worry about disrupting live activity.. 
+
+—Config—
+
+Duane assigns two testing agents in Vapi, there two because one call call the other and have a scripted conversation which can trigger n inbound lead
+
+Elliott: c303d993-bf42-4784-a8cb-247477b1cbdd (multi purpose test agent)
+Christine: d019ff3d-201b-4e2b-bf6a-590c19569fc8 (simulated dealer agent for serra honda): 
+
+ID’S YOU CAN USE THE VAPI SECRET KEY TO MODIFY THSES AGENT DO NOT MODIFY ANY OTHER ASSISTANT ID’S OR SETTINGS
+
+You can use 
+
+Duane Wells: 412.654.6500 | duanewells@icloud.com
+Durran cage: +1 (731) 394-6907 | durran@cageautomotive.com
+
+
+—Vapi inbound / outbound follow up—
+
+Build a script or use one from the previous code base (elliott.ts I believe) that calls the agent id and makes a phone call to christine and program it to have a conversation to schedule an appointment.
+
+The lead should go in to the celendar and be inserted in to Durran’s account in vin solutions. then the lead trigger christine to trigger an outbound call to follow up (or elliott ). when the lead sits for 1 hour then trigger a text first, wait one hour, then phone call, then wait again, then email
+
+
+
+—Inbound Widget test / outbound follow up—
+
+Use playwright to visit the landing page click the sms widget chatwidget, webcall widget and form on the landing page.Use duanewells information for all
+
+Widget should make it to vin solutions, then the lead trigger for christine to trigger an outbound call to follow up (or elliott ). when the lead sits for 1 hour, then trigger a text first, wait one hour, then phone call, then wait again, then email
+
+If webcall then it should trigger a call from christine to Duane Wells immediately
+If SMS should trigger a text to duanewells immediately
+
+
+—Service campaign—
+
+Create a csv with the two contacts abvove and synthetic field data
+Run the campaign
+
+—Observability—
+All responses for all SMS and email should show up in the teambox and use web test to test form and widgets and to test teambox 
+
+You must observe that all data and messages make it to their destination. 
+
+This test needs performed for all stores however honda is the only one that uses SMS the rest of the test ned compelted for all 5 stores
+
+
+FOR TAVUS 
+
+All you have to do is get to the prompt for the tavus agent to ask for the name of the person joining the video and screenshot it, but you must ensure that completed videos make it to vin with all required information once owner tests video.
+
+Create a communications_test.md and then mark these as completed with verified proof (3 seperate deltas of proof) 
+
+
+
+

@@ -324,8 +324,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAgents(prev => [...prev, agent]);
   };
 
-  const updateAgentHandler = (agentId: string, updates: Partial<Agent>) => {
+  const updateAgentHandler = async (agentId: string, updates: Partial<Agent>) => {
     setAgents(prev => prev.map(a => a.id === agentId ? { ...a, ...updates } : a));
+    if (selectedAgent?.id === agentId) {
+      setSelectedAgent(prev => prev ? { ...prev, ...updates } : prev);
+    }
+    try {
+      await apiRequest('PATCH', `/api/agents/${agentId}`, updates);
+      queryClient.invalidateQueries({ queryKey: ['/api/agents'] });
+    } catch (err) {
+      console.error('Failed to persist agent update:', err);
+    }
   };
 
   const markNotificationRead = async (notifId: string) => {

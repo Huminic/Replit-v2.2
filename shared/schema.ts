@@ -68,6 +68,8 @@ export const agents = pgTable("agents", {
   tavusPersonaId: text("tavus_persona_id"),
   instructions: text("instructions"),
   autoGreeting: text("auto_greeting"),
+  settings: jsonb("settings").default({}),
+  triggers: jsonb("triggers").default([]),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

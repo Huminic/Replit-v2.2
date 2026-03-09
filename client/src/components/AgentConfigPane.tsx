@@ -56,8 +56,6 @@ import {
   Plus,
   Trash2,
   Info,
-  Sparkles,
-  Check,
   Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -78,9 +76,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useApp } from '@/contexts/AppContext';
-import { availableTools, type AgentChannel, type AgentTrigger, type AgentTool } from '@/lib/agent-utils';
+import { availableTools, type AgentChannel, type AgentTool } from '@/lib/agent-utils';
 
 const channelIcons: Record<AgentChannel, React.ElementType> = {
   voice: Phone,
@@ -107,40 +104,18 @@ function formatDuration(seconds: number | null): string {
   return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
-const agentTriggersMock = [
-  { id: 'trg-1', name: 'New lead 5min', schedule: 'Event', enabled: true },
-  { id: 'trg-2', name: 'Daily follow-up', schedule: '9:00 AM', enabled: true },
-  { id: 'trg-3', name: 'Stale lead check', schedule: '*/4h', enabled: false },
-];
+interface AgentTriggerConfig {
+  id: string;
+  name: string;
+  type: 'stale_lead' | 'source_volume';
+  enabled: boolean;
+  config: {
+    thresholdHours?: number;
+    thresholdCount?: number;
+    actions: { type: 'sms' | 'call' | 'email'; waitMinutes: number }[];
+  };
+}
 
-const assignedSkillsMock = [
-  { id: 'sk-1', name: 'Lead Qualifier', active: true },
-  { id: 'sk-2', name: 'Follow-Up Sequencer', active: true },
-  { id: 'sk-3', name: 'Email Responder', active: true },
-];
-
-const skillsCatalog = [
-  { id: 'cat-1', name: 'Lead Qualifier', category: 'Sales', enabled: true },
-  { id: 'cat-2', name: 'Payment Calculator', category: 'Sales', enabled: false },
-  { id: 'cat-3', name: 'Follow-Up Sequencer', category: 'Sales', enabled: true },
-  { id: 'cat-4', name: 'Objection Handler', category: 'Sales', enabled: false },
-  { id: 'cat-5', name: 'Trade-In Evaluator', category: 'Sales', enabled: false },
-  { id: 'cat-6', name: 'Deal Structurer', category: 'Finance', enabled: false },
-  { id: 'cat-7', name: 'Credit App Processor', category: 'Finance', enabled: false },
-  { id: 'cat-8', name: 'Lease vs Buy Advisor', category: 'Finance', enabled: false },
-  { id: 'cat-9', name: 'Rate Shopper', category: 'Finance', enabled: false },
-  { id: 'cat-10', name: 'Rebate Finder', category: 'Finance', enabled: false },
-  { id: 'cat-11', name: 'Inventory Tracker', category: 'Operations', enabled: false },
-  { id: 'cat-12', name: 'Service Scheduler', category: 'Operations', enabled: false },
-  { id: 'cat-13', name: 'Parts Lookup', category: 'Operations', enabled: false },
-  { id: 'cat-14', name: 'Recall Checker', category: 'Operations', enabled: false },
-  { id: 'cat-15', name: 'Lot Management', category: 'Operations', enabled: false },
-  { id: 'cat-16', name: 'Email Composer', category: 'General', enabled: true },
-  { id: 'cat-17', name: 'FAQ Responder', category: 'General', enabled: true },
-  { id: 'cat-18', name: 'Appointment Setter', category: 'General', enabled: false },
-  { id: 'cat-19', name: 'Language Translator', category: 'General', enabled: false },
-  { id: 'cat-20', name: 'Sentiment Analyzer', category: 'General', enabled: false },
-];
 
 interface KBDocument {
   id: number;
@@ -159,8 +134,9 @@ interface KBDocument {
 const configSections = [
   { id: 'performance', label: 'Performance', icon: BarChart3 },
   { id: 'instructions', label: 'Instructions', icon: FileText },
+  { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'triggers', label: 'Triggers', icon: Zap },
-  { id: 'tools', label: 'Tools & Skills', icon: Wrench },
+  { id: 'tools', label: 'Tools', icon: Wrench },
   { id: 'knowledge', label: 'Knowledge', icon: BookOpen },
   { id: 'activity', label: 'Activity', icon: Activity },
 ];
@@ -191,15 +167,28 @@ export function AgentConfigPane() {
   const [instructionsModalOpen, setInstructionsModalOpen] = useState(false);
   const [editInstructions, setEditInstructions] = useState('');
 
-  const [triggersModalOpen, setTriggersModalOpen] = useState(false);
-  const [editTriggers, setEditTriggers] = useState<AgentTrigger[]>([]);
+  const [triggerModalOpen, setTriggerModalOpen] = useState(false);
+  const [editingTrigger, setEditingTrigger] = useState<AgentTriggerConfig | null>(null);
 
   const [toolsModalOpen, setToolsModalOpen] = useState(false);
   const [editTools, setEditTools] = useState<AgentTool[]>([]);
 
-  const [skillsModalOpen, setSkillsModalOpen] = useState(false);
-  const [editSkillsCatalog, setEditSkillsCatalog] = useState(skillsCatalog.map(s => ({ ...s })));
-  const [agentTriggers, setAgentTriggers] = useState(agentTriggersMock.map(t => ({ ...t })));
+
+  const { data: agentConversations, isLoading: conversationsLoading } = useQuery<any[]>({
+    queryKey: ['/api/conversations', { agentId: selectedAgent?.id }],
+    queryFn: async () => {
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/conversations?agentId=${selectedAgent?.id}`, {
+        headers,
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      return res.json();
+    },
+    enabled: !!selectedAgent?.id,
+  });
 
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -287,28 +276,38 @@ export function AgentConfigPane() {
     setInstructionsModalOpen(false);
   };
 
-  const openTriggersModal = () => {
+  const agentTriggers: AgentTriggerConfig[] = ((selectedAgent as any)?.triggers as AgentTriggerConfig[]) || [];
+
+  const saveTrigger = (trigger: AgentTriggerConfig) => {
     if (!selectedAgent) return;
-    setEditTriggers(JSON.parse(JSON.stringify(selectedAgent.triggers)));
-    setTriggersModalOpen(true);
+    const existing = [...agentTriggers];
+    const idx = existing.findIndex(t => t.id === trigger.id);
+    if (idx >= 0) existing[idx] = trigger;
+    else existing.push(trigger);
+    updateAgent(selectedAgent.id, { triggers: existing } as any);
+    setTriggerModalOpen(false);
+    setEditingTrigger(null);
   };
 
-  const saveTriggers = () => {
+  const deleteTrigger = (triggerId: string) => {
     if (!selectedAgent) return;
-    updateAgent(selectedAgent.id, { triggers: editTriggers, updatedAt: new Date().toISOString() });
-    setTriggersModalOpen(false);
+    const remaining = agentTriggers.filter(t => t.id !== triggerId);
+    updateAgent(selectedAgent.id, { triggers: remaining } as any);
   };
 
-  const toggleTrigger = (index: number) => {
-    setEditTriggers(prev => prev.map((t, i) => i === index ? { ...t, enabled: !t.enabled } : t));
+  const toggleTriggerEnabled = (triggerId: string) => {
+    if (!selectedAgent) return;
+    const updated = agentTriggers.map(t => t.id === triggerId ? { ...t, enabled: !t.enabled } : t);
+    updateAgent(selectedAgent.id, { triggers: updated } as any);
   };
 
   const openToolsModal = () => {
     if (!selectedAgent) return;
-    const agentToolIds = selectedAgent.tools.map(t => t.id);
+    const currentTools = (selectedAgent as any).tools || [];
+    const agentToolIds = currentTools.map((t: any) => t.id);
     const allTools = availableTools.map(t => ({
       ...t,
-      enabled: agentToolIds.includes(t.id) ? (selectedAgent.tools.find(st => st.id === t.id)?.enabled ?? false) : false,
+      enabled: agentToolIds.includes(t.id) ? (currentTools.find((st: any) => st.id === t.id)?.enabled ?? false) : false,
     }));
     setEditTools(allTools);
     setToolsModalOpen(true);
@@ -476,40 +475,156 @@ export function AgentConfigPane() {
             </p>
           </div>
         );
+      case 'settings':
+        const agentSettings = (selectedAgent as any).settings || {};
+        return (
+          <div className="p-4 space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">AI Behavior</p>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">AI Model</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                  value={agentSettings.aiModel || 'claude-sonnet-4-20250514'}
+                  onChange={(e) => {
+                    const newSettings = { ...agentSettings, aiModel: e.target.value };
+                    updateAgent(selectedAgent.id, { settings: newSettings } as any);
+                  }}
+                  data-testid="select-agent-model"
+                >
+                  <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                  <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                  <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs">Temperature ({agentSettings.temperature ?? 0.7})</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={agentSettings.temperature ?? 0.7}
+                  onChange={(e) => {
+                    const newSettings = { ...agentSettings, temperature: parseFloat(e.target.value) };
+                    updateAgent(selectedAgent.id, { settings: newSettings } as any);
+                  }}
+                  className="w-full mt-1"
+                  data-testid="slider-agent-temperature"
+                />
+                <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                  <span>Precise</span>
+                  <span>Creative</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Response Style</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                  value={agentSettings.responseStyle || 'professional'}
+                  onChange={(e) => {
+                    const newSettings = { ...agentSettings, responseStyle: e.target.value };
+                    updateAgent(selectedAgent.id, { settings: newSettings } as any);
+                  }}
+                  data-testid="select-agent-style"
+                >
+                  <option value="professional">Professional</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="concise">Concise</option>
+                  <option value="detailed">Detailed</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs">Max Response Length</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                  value={agentSettings.maxResponseLength || 'medium'}
+                  onChange={(e) => {
+                    const newSettings = { ...agentSettings, maxResponseLength: e.target.value };
+                    updateAgent(selectedAgent.id, { settings: newSettings } as any);
+                  }}
+                  data-testid="select-agent-max-length"
+                >
+                  <option value="short">Short (1-2 paragraphs)</option>
+                  <option value="medium">Medium (3-4 paragraphs)</option>
+                  <option value="long">Long (detailed)</option>
+                </select>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground flex items-start gap-1.5 mt-3">
+              <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              Settings are saved automatically when changed.
+            </p>
+          </div>
+        );
       case 'triggers':
+        const isCommunicationsAgent = (selectedAgent.channels || []).some((ch: string) => ['voice', 'sms', 'video'].includes(ch));
         return (
           <div className="p-4">
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Agent Triggers</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => toast({ title: 'Add Trigger', description: 'Trigger editor not available in demo mode.' })} data-testid="button-add-trigger">
+              {isCommunicationsAgent && (
+                <Button variant="outline" size="sm" onClick={() => {
+                  setEditingTrigger({
+                    id: `trg-${Date.now()}`,
+                    name: '',
+                    type: 'stale_lead',
+                    enabled: true,
+                    config: { thresholdHours: 24, actions: [{ type: 'sms', waitMinutes: 0 }] },
+                  });
+                  setTriggerModalOpen(true);
+                }} data-testid="button-add-trigger">
                   <Plus className="h-3 w-3 mr-1.5" />
                   Add Trigger
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configure', description: 'Trigger editor not available in demo mode.' })} data-testid="button-configure-triggers">
-                  <Settings className="h-3 w-3 mr-1.5" />
-                  Configure
-                </Button>
+              )}
+            </div>
+            {!isCommunicationsAgent ? (
+              <div className="text-center py-6">
+                <Zap className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-sm text-muted-foreground">Triggers are only available for the Communications Agent</p>
+                <p className="text-xs text-muted-foreground mt-1">Knowledge agents use chat-only interactions</p>
               </div>
-            </div>
-            <div className="space-y-2">
-              {agentTriggers.map((trigger) => (
-                <div key={trigger.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`trigger-row-${trigger.id}`}>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{trigger.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{trigger.schedule}</p>
+            ) : agentTriggers.length === 0 ? (
+              <div className="text-center py-6">
+                <Zap className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-sm text-muted-foreground">No triggers configured</p>
+                <p className="text-xs text-muted-foreground mt-1">Add triggers to automate lead follow-up</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {agentTriggers.map((trigger) => (
+                  <div key={trigger.id} className="p-3 rounded-lg border border-border" data-testid={`trigger-row-${trigger.id}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{trigger.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {trigger.type === 'stale_lead' ? `Stale after ${trigger.config.thresholdHours}h` : `Below ${trigger.config.thresholdCount}/week`}
+                          {' · '}
+                          {trigger.config.actions.map(a => a.type.toUpperCase()).join(' → ')}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingTrigger({ ...trigger }); setTriggerModalOpen(true); }} data-testid={`trigger-edit-${trigger.id}`}>
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteTrigger(trigger.id)} data-testid={`trigger-delete-${trigger.id}`}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                        <Switch
+                          checked={trigger.enabled}
+                          onCheckedChange={() => toggleTriggerEnabled(trigger.id)}
+                          data-testid={`trigger-toggle-${trigger.id}`}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <Switch
-                    checked={trigger.enabled}
-                    onCheckedChange={() => setAgentTriggers(prev => prev.map(t => t.id === trigger.id ? { ...t, enabled: !t.enabled } : t))}
-                    data-testid={`trigger-toggle-${trigger.id}`}
-                  />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5">
               <Info className="h-3 w-3 flex-shrink-0" />
-              Triggers are configured per-agent
+              {isCommunicationsAgent ? 'Triggers fire automated actions when conditions are met' : 'Only Communications Agents support triggers'}
             </p>
           </div>
         );
@@ -525,7 +640,7 @@ export function AgentConfigPane() {
                 </Button>
               </div>
               <div className="space-y-2">
-                {selectedAgent.tools.map((tool) => (
+                {((selectedAgent as any).tools || []).map((tool: any) => (
                   <div key={tool.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`tool-${tool.id}`}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">{tool.name}</p>
@@ -536,7 +651,7 @@ export function AgentConfigPane() {
                     </Badge>
                   </div>
                 ))}
-                {selectedAgent.tools.length === 0 && (
+                {((selectedAgent as any).tools || []).length === 0 && (
                   <div className="text-center py-6">
                     <Wrench className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
                     <p className="text-sm text-muted-foreground">No tools configured</p>
@@ -548,26 +663,6 @@ export function AgentConfigPane() {
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Skills</p>
-                <Button variant="outline" size="sm" onClick={() => { setEditSkillsCatalog(skillsCatalog.map(s => ({ ...s }))); setSkillsModalOpen(true); }} data-testid="button-manage-skills">
-                  <Sparkles className="h-3 w-3 mr-1.5" />
-                  Manage
-                </Button>
-              </div>
-              <div className="space-y-2">
-                {assignedSkillsMock.map((skill) => (
-                  <div key={skill.id} className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid={`skill-${skill.id}`}>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Sparkles className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <p className="text-sm font-medium text-foreground">{skill.name}</p>
-                    </div>
-                    <Badge variant="default">Active</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         );
       case 'knowledge':
@@ -628,63 +723,82 @@ export function AgentConfigPane() {
         );
       case 'activity':
         return (
-          <div className="p-4 space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2" data-testid="activity-heading">Recent Calls</p>
-            {callsLoading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-16 rounded-lg" />
-                <Skeleton className="h-16 rounded-lg" />
-                <Skeleton className="h-16 rounded-lg" />
-              </div>
-            ) : vapiCalls && vapiCalls.length > 0 ? (
-              vapiCalls.map((call: any) => (
-                <div key={call.id} className="p-3 rounded-lg border border-border space-y-1.5" data-testid={`call-${call.id}`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Headphones className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{call.customer || 'Unknown'}</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">{call.startedAt ? formatTimeAgo(call.startedAt) : ''}</span>
-                  </div>
-                  {call.summary && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">{call.summary}</p>
-                  )}
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                    <span>{formatDuration(call.duration)}</span>
-                    {call.cost != null && <span>${call.cost.toFixed(4)}</span>}
-                    {call.recordingUrl && (
-                      <a
-                        href={call.recordingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline flex items-center gap-0.5"
-                        data-testid={`call-recording-${call.id}`}
-                      >
-                        Recording
-                        <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
-                    )}
-                    {call.transcript && (
-                      <button
-                        className="text-primary hover:underline"
-                        onClick={() => {
-                          navigator.clipboard.writeText(call.transcript);
-                          toast({ title: 'Transcript copied', description: 'Full transcript copied to clipboard.' });
-                        }}
-                        data-testid={`call-transcript-${call.id}`}
-                      >
-                        Copy Transcript
-                      </button>
-                    )}
-                  </div>
+          <div className="p-4 space-y-5">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2" data-testid="activity-heading">Conversations</p>
+              {conversationsLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-14 rounded-lg" />
+                  <Skeleton className="h-14 rounded-lg" />
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-6">
-                <Headphones className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
-                <p className="text-sm text-muted-foreground">No recent calls</p>
-                {!vapiAssistantId && (
-                  <p className="text-xs text-muted-foreground mt-1">No VAPI assistant linked</p>
+              ) : agentConversations && agentConversations.length > 0 ? (
+                <div className="space-y-2">
+                  {agentConversations.slice(0, 15).map((conv: any) => (
+                    <div key={conv.id} className="p-3 rounded-lg border border-border" data-testid={`conv-${conv.id}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <MessageSquare className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm font-medium text-foreground truncate">{conv.customerName || 'Unknown'}</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground flex-shrink-0">{conv.lastMessageAt ? formatTimeAgo(conv.lastMessageAt) : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-[10px]">{conv.channel}</Badge>
+                        <Badge variant={conv.status === 'open' ? 'default' : 'secondary'} className="text-[10px]">{conv.status}</Badge>
+                        {conv.unreadCount > 0 && <Badge className="text-[10px] bg-red-500">{conv.unreadCount} unread</Badge>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <MessageSquare className="h-6 w-6 mx-auto text-muted-foreground/40 mb-1" />
+                  <p className="text-xs text-muted-foreground">No conversations yet</p>
+                </div>
+              )}
+            </div>
+            {vapiAssistantId && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Recent Calls</p>
+                {callsLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-16 rounded-lg" />
+                    <Skeleton className="h-16 rounded-lg" />
+                  </div>
+                ) : vapiCalls && vapiCalls.length > 0 ? (
+                  vapiCalls.map((call: any) => (
+                    <div key={call.id} className="p-3 rounded-lg border border-border space-y-1.5" data-testid={`call-${call.id}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Headphones className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm font-medium text-foreground">{call.customer || 'Unknown'}</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{call.startedAt ? formatTimeAgo(call.startedAt) : ''}</span>
+                      </div>
+                      {call.summary && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">{call.summary}</p>
+                      )}
+                      <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                        <span>{formatDuration(call.duration)}</span>
+                        {call.cost != null && <span>${call.cost.toFixed(4)}</span>}
+                        {call.recordingUrl && (
+                          <a href={call.recordingUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-0.5" data-testid={`call-recording-${call.id}`}>
+                            Recording <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
+                        {call.transcript && (
+                          <button className="text-primary hover:underline" onClick={() => { navigator.clipboard.writeText(call.transcript); toast({ title: 'Transcript copied' }); }} data-testid={`call-transcript-${call.id}`}>
+                            Copy Transcript
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <Headphones className="h-6 w-6 mx-auto text-muted-foreground/40 mb-1" />
+                    <p className="text-xs text-muted-foreground">No recent calls</p>
+                  </div>
                 )}
               </div>
             )}
@@ -788,45 +902,136 @@ export function AgentConfigPane() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={triggersModalOpen} onOpenChange={setTriggersModalOpen}>
-        <DialogContent className="sm:max-w-lg" data-testid="modal-edit-triggers">
+      <Dialog open={triggerModalOpen} onOpenChange={(open) => { setTriggerModalOpen(open); if (!open) setEditingTrigger(null); }}>
+        <DialogContent className="sm:max-w-lg" data-testid="modal-edit-trigger">
           <DialogHeader>
-            <DialogTitle>Configure Triggers</DialogTitle>
+            <DialogTitle>{editingTrigger && agentTriggers.some(t => t.id === editingTrigger.id) ? 'Edit' : 'Add'} Trigger</DialogTitle>
             <DialogDescription>
-              Set when {selectedAgent?.name} should activate and respond
+              Configure automated actions for {selectedAgent?.name}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            {editTriggers.map((trigger, i) => (
-              <div key={trigger.type} className="flex items-center justify-between p-4 rounded-lg border border-border">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Zap className={cn('h-4 w-4', trigger.enabled ? 'text-primary' : 'text-muted-foreground')} />
-                    <p className="text-sm font-medium text-foreground capitalize">
-                      {trigger.type.replace('_', ' ')}
-                    </p>
-                  </div>
-                  {trigger.config?.schedule && (
-                    <p className="text-xs text-muted-foreground mt-1 ml-6">{trigger.config.schedule}</p>
-                  )}
-                  {trigger.config?.condition && (
-                    <p className="text-xs text-muted-foreground mt-1 ml-6">{trigger.config.condition}</p>
-                  )}
-                </div>
-                <Switch
-                  checked={trigger.enabled}
-                  onCheckedChange={() => toggleTrigger(i)}
-                  data-testid={`trigger-switch-${trigger.type}`}
+          {editingTrigger && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">Trigger Name</Label>
+                <input
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                  value={editingTrigger.name}
+                  onChange={(e) => setEditingTrigger({ ...editingTrigger, name: e.target.value })}
+                  placeholder="e.g., Stale Lead Follow-up"
+                  data-testid="input-trigger-name"
                 />
               </div>
-            ))}
-          </div>
+              <div>
+                <Label className="text-xs">Trigger Type</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                  value={editingTrigger.type}
+                  onChange={(e) => setEditingTrigger({
+                    ...editingTrigger,
+                    type: e.target.value as 'stale_lead' | 'source_volume',
+                    config: e.target.value === 'stale_lead'
+                      ? { ...editingTrigger.config, thresholdHours: editingTrigger.config.thresholdHours || 24 }
+                      : { ...editingTrigger.config, thresholdCount: editingTrigger.config.thresholdCount || 10 },
+                  })}
+                  data-testid="select-trigger-type"
+                >
+                  <option value="stale_lead">Stale Lead (no activity for X hours)</option>
+                  <option value="source_volume">Source Volume Drop (below X per week)</option>
+                </select>
+              </div>
+              {editingTrigger.type === 'stale_lead' ? (
+                <div>
+                  <Label className="text-xs">Hours without activity</Label>
+                  <input
+                    type="number"
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                    value={editingTrigger.config.thresholdHours || 24}
+                    onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdHours: parseInt(e.target.value) || 1 } })}
+                    min="1"
+                    data-testid="input-threshold-hours"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <Label className="text-xs">Minimum leads per week</Label>
+                  <input
+                    type="number"
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                    value={editingTrigger.config.thresholdCount || 10}
+                    onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdCount: parseInt(e.target.value) || 1 } })}
+                    min="1"
+                    data-testid="input-threshold-count"
+                  />
+                </div>
+              )}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs">Action Chain</Label>
+                  <Button variant="outline" size="sm" onClick={() => setEditingTrigger({
+                    ...editingTrigger,
+                    config: { ...editingTrigger.config, actions: [...editingTrigger.config.actions, { type: 'email', waitMinutes: 30 }] },
+                  })} data-testid="button-add-action">
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Action
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {editingTrigger.config.actions.map((action, idx) => (
+                    <div key={idx} className="flex items-center gap-2 p-2 rounded border border-border" data-testid={`action-row-${idx}`}>
+                      <span className="text-xs text-muted-foreground w-4">{idx + 1}.</span>
+                      <select
+                        className="flex h-8 rounded-md border border-input bg-background px-2 py-1 text-xs flex-1"
+                        value={action.type}
+                        onChange={(e) => {
+                          const updated = [...editingTrigger.config.actions];
+                          updated[idx] = { ...updated[idx], type: e.target.value as 'sms' | 'call' | 'email' };
+                          setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
+                        }}
+                        data-testid={`select-action-type-${idx}`}
+                      >
+                        <option value="sms">Send SMS</option>
+                        <option value="call">Make Call</option>
+                        <option value="email">Send Email</option>
+                      </select>
+                      {idx > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">Wait</span>
+                          <input
+                            type="number"
+                            className="flex h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                            value={action.waitMinutes}
+                            onChange={(e) => {
+                              const updated = [...editingTrigger.config.actions];
+                              updated[idx] = { ...updated[idx], waitMinutes: parseInt(e.target.value) || 0 };
+                              setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
+                            }}
+                            min="0"
+                            data-testid={`input-wait-minutes-${idx}`}
+                          />
+                          <span className="text-xs text-muted-foreground">min</span>
+                        </div>
+                      )}
+                      {editingTrigger.config.actions.length > 1 && (
+                        <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={() => {
+                          const updated = editingTrigger.config.actions.filter((_, i) => i !== idx);
+                          setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
+                        }} data-testid={`button-remove-action-${idx}`}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTriggersModalOpen(false)} data-testid="button-cancel-triggers">
+            <Button variant="outline" onClick={() => { setTriggerModalOpen(false); setEditingTrigger(null); }} data-testid="button-cancel-trigger">
               Cancel
             </Button>
-            <Button onClick={saveTriggers} data-testid="button-save-triggers">
-              Save Triggers
+            <Button onClick={() => editingTrigger && saveTrigger(editingTrigger)} disabled={!editingTrigger?.name} data-testid="button-save-trigger">
+              Save Trigger
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -835,7 +1040,7 @@ export function AgentConfigPane() {
       <Dialog open={toolsModalOpen} onOpenChange={setToolsModalOpen}>
         <DialogContent className="sm:max-w-lg" data-testid="modal-edit-tools">
           <DialogHeader>
-            <DialogTitle>Manage Tools & Skills</DialogTitle>
+            <DialogTitle>Manage Tools</DialogTitle>
             <DialogDescription>
               Enable or disable tools that {selectedAgent?.name} can use
             </DialogDescription>
@@ -943,58 +1148,6 @@ export function AgentConfigPane() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={skillsModalOpen} onOpenChange={setSkillsModalOpen}>
-        <DialogContent className="sm:max-w-lg" data-testid="modal-manage-skills">
-          <DialogHeader>
-            <DialogTitle>Manage Skills</DialogTitle>
-            <DialogDescription>
-              Assign skills from the catalog to {selectedAgent?.name}
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[400px]">
-            <div className="space-y-2 pr-2">
-              {editSkillsCatalog.map((skill, i) => (
-                <div
-                  key={skill.id}
-                  className={cn(
-                    'flex items-center justify-between p-4 rounded-lg border transition-colors',
-                    skill.enabled ? 'border-primary/30 bg-primary/5' : 'border-border'
-                  )}
-                  data-testid={`skill-catalog-${skill.id}`}
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Checkbox
-                      checked={skill.enabled}
-                      onCheckedChange={() => setEditSkillsCatalog(prev => prev.map((s, idx) => idx === i ? { ...s, enabled: !s.enabled } : s))}
-                      data-testid={`skill-checkbox-${skill.id}`}
-                    />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground">{skill.name}</p>
-                      <Badge variant="secondary" className="text-[10px] mt-0.5">{skill.category}</Badge>
-                    </div>
-                  </div>
-                  {skill.enabled && (
-                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-          <DialogFooter>
-            <div className="flex items-center justify-between w-full">
-              <p className="text-xs text-muted-foreground">{editSkillsCatalog.filter(s => s.enabled).length} skills selected</p>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setSkillsModalOpen(false)} data-testid="button-cancel-skills">
-                  Cancel
-                </Button>
-                <Button onClick={() => { setSkillsModalOpen(false); toast({ title: 'Skills updated', description: `Skill assignments saved for ${selectedAgent?.name}.` }); }} data-testid="button-save-skills">
-                  Save Skills
-                </Button>
-              </div>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

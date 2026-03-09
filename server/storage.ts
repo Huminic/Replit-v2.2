@@ -59,7 +59,7 @@ export interface IStorage {
   updateAgent(id: string, data: Partial<InsertAgent>): Promise<Agent | undefined>;
   deleteAgent(id: string): Promise<void>;
 
-  getConversations(organizationId: string, filters?: { status?: string; channel?: string }): Promise<Conversation[]>;
+  getConversations(organizationId: string, filters?: { status?: string; channel?: string; agentId?: string }): Promise<Conversation[]>;
   getConversation(id: string): Promise<Conversation | undefined>;
   getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined>;
   createConversation(conv: InsertConversation): Promise<Conversation>;
@@ -321,10 +321,11 @@ export class DatabaseStorage implements IStorage {
     await db.delete(agents).where(eq(agents.id, id));
   }
 
-  async getConversations(organizationId: string, filters?: { status?: string; channel?: string }): Promise<Conversation[]> {
+  async getConversations(organizationId: string, filters?: { status?: string; channel?: string; agentId?: string }): Promise<Conversation[]> {
     const conditions = [eq(conversations.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(conversations.status, filters.status));
     if (filters?.channel) conditions.push(eq(conversations.channel, filters.channel));
+    if (filters?.agentId) conditions.push(eq(conversations.agentId, filters.agentId));
     return db.select().from(conversations).where(and(...conditions)).orderBy(desc(conversations.lastMessageAt));
   }
 

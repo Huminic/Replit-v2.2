@@ -1016,9 +1016,10 @@ export async function registerRoutes(
   app.get("/api/conversations", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const filters: { status?: string; channel?: string } = {};
+      const filters: { status?: string; channel?: string; agentId?: string } = {};
       if (req.query.status) filters.status = req.query.status as string;
       if (req.query.channel) filters.channel = req.query.channel as string;
+      if (req.query.agentId) filters.agentId = req.query.agentId as string;
 
       const convs = await storage.getConversations(req.user.organizationId, filters);
       return res.json(convs);
@@ -1421,6 +1422,13 @@ export async function registerRoutes(
   app.post("/api/campaigns/:id/execute", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const existingCampaign = await storage.getCampaign(req.params.id);
+      if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
+      if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
       const dryRun = req.body.dryRun === true;
       const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : null;
 
@@ -1496,6 +1504,13 @@ export async function registerRoutes(
   app.post("/api/campaigns/:id/stop", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const existingCampaign = await storage.getCampaign(req.params.id);
+      if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
+      if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
       const result = await stopCampaignExecution(req.params.id);
       if (!result.success) {
         return res.status(400).json({ message: result.message });
@@ -1533,6 +1548,13 @@ export async function registerRoutes(
   app.get("/api/campaigns/:id/execution-status", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const existingCampaign = await storage.getCampaign(req.params.id);
+      if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
+      if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
       const status = getExecutionStatus(req.params.id);
       if (!status) {
         return res.json({ active: false });
