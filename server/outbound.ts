@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { vapiPost } from "./vendorProxy";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
-const RATE_LIMIT_MAX = 3;
+const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_HOURS = 24;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -114,11 +114,19 @@ function isGlobalOutboundEnabled(): boolean {
   return process.env.OUTBOUND_LIVE_ENABLED === "true";
 }
 
+function getOrgRateLimit(org: Organization): number {
+  const settings = org.settings as Record<string, any> | null;
+  if (settings?.rateLimitMax && typeof settings.rateLimitMax === "number" && settings.rateLimitMax > 0) {
+    return settings.rateLimitMax;
+  }
+  return DEFAULT_RATE_LIMIT_MAX;
+}
+
 async function checkCommGate(
   org: Organization,
   campaign: Campaign | undefined,
   recipient: CampaignRecipient | undefined,
-  channel: "sms" | "email" | "phone",
+  channel: "sms" | "email" | "phone" | "video",
   customerContact: string
 ): Promise<{ allowed: boolean; reason?: string }> {
   if (!isGlobalOutboundEnabled()) {
@@ -138,6 +146,9 @@ async function checkCommGate(
   if (channel === "email" && !org.emailEnabled) {
     return { allowed: false, reason: "Email channel disabled for organization" };
   }
+  if (channel === "video" && !org.videoEnabled) {
+    return { allowed: false, reason: "Video channel disabled for organization" };
+  }
 
   if (campaign?.killSwitch) {
     return { allowed: false, reason: "Campaign kill switch is active" };
@@ -150,13 +161,14 @@ async function checkCommGate(
     }
   }
 
+  const rateLimitMax = getOrgRateLimit(org);
   const recentCount = await storage.getRecentOutboundCount(
     org.id,
     customerContact,
     RATE_LIMIT_HOURS
   );
-  if (recentCount >= RATE_LIMIT_MAX) {
-    return { allowed: false, reason: `Rate limit exceeded: ${recentCount}/${RATE_LIMIT_MAX} messages in ${RATE_LIMIT_HOURS}h` };
+  if (recentCount >= rateLimitMax) {
+    return { allowed: false, reason: `Rate limit exceeded: ${recentCount}/${rateLimitMax} messages in ${RATE_LIMIT_HOURS}h` };
   }
 
   return { allowed: true };

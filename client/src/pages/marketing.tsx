@@ -149,14 +149,25 @@ export default function MarketingPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: "Upload failed" }));
-        throw new Error(err.message);
+        let errorMsg = err.message;
+        if (err.missingRequired?.length) {
+          errorMsg += `. Missing required columns: ${err.missingRequired.join(", ")}`;
+        }
+        throw new Error(errorMsg);
       }
       return res.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=marketing'] });
       queryClient.invalidateQueries({ queryKey: ['/api/metrics/dashboard'] });
-      toast({ title: "CSV Uploaded", description: `${data.recipientCount} recipients loaded.` });
+      let description = `${data.recipientCount} recipients loaded.`;
+      if (data.warnings && data.warnings.length > 0) {
+        description += ` ${data.warnings.join(". ")}`;
+      }
+      toast({
+        title: data.warnings?.length ? "CSV Uploaded with Warnings" : "CSV Uploaded",
+        description,
+      });
     },
     onError: (err: Error) => {
       toast({ title: "Upload Failed", description: err.message, variant: "destructive" });

@@ -71,6 +71,7 @@ export interface IStorage {
   deleteMessages(conversationId: string): Promise<void>;
 
   getCampaigns(organizationId: string, filters?: { department?: string }): Promise<Campaign[]>;
+  getScheduledCampaigns(): Promise<Campaign[]>;
   getCampaign(id: string): Promise<Campaign | undefined>;
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
   updateCampaign(id: string, data: Partial<InsertCampaign>): Promise<Campaign | undefined>;
@@ -108,6 +109,7 @@ export interface IStorage {
   createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog>;
   getOutboundLogs(organizationId: string, filters?: { campaignId?: string }): Promise<OutboundLog[]>;
   getRecentOutboundCount(organizationId: string, customerContact: string, hours: number): Promise<number>;
+  findLastOutboundForPhone(phone: string, channel?: string): Promise<OutboundLog | undefined>;
 
   createNotification(notif: InsertNotification): Promise<Notification>;
   getNotifications(userId: string, limit?: number): Promise<Notification[]>;
@@ -117,6 +119,7 @@ export interface IStorage {
 
   createActivityLog(entry: InsertActivityLog): Promise<ActivityLog>;
   getActivityLogs(organizationId: string, limit?: number): Promise<ActivityLog[]>;
+  purgeOldActivityLogs(days?: number): Promise<number>;
 
   getHunches(organizationId: string, filters?: { status?: string; department?: string }): Promise<Hunch[]>;
   getHunch(id: string): Promise<Hunch | undefined>;
@@ -376,6 +379,15 @@ export class DatabaseStorage implements IStorage {
     const conditions = [eq(campaigns.organizationId, organizationId)];
     if (filters?.department) conditions.push(eq(campaigns.department, filters.department));
     return db.select().from(campaigns).where(and(...conditions));
+  }
+
+  async getScheduledCampaigns(): Promise<Campaign[]> {
+    return db.select().from(campaigns).where(
+      and(
+        eq(campaigns.executionStatus, "scheduled"),
+        lte(campaigns.scheduledAt, new Date())
+      )
+    );
   }
 
   async getCampaign(id: string): Promise<Campaign | undefined> {
@@ -701,6 +713,22 @@ export class DatabaseStorage implements IStorage {
     return Number(result?.cnt || 0);
   }
 
+  async findLastOutboundForPhone(phone: string, channel?: string): Promise<OutboundLog | undefined> {
+    const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const conditions = [
+      eq(outboundLog.status, "sent"),
+      sql`${campaignRecipients.phone} = ${normalizedPhone}`,
+    ];
+    if (channel) conditions.push(eq(outboundLog.channel, channel));
+    const [result] = await db.select({ outboundLog })
+      .from(outboundLog)
+      .innerJoin(campaignRecipients, eq(outboundLog.recipientId, campaignRecipients.id))
+      .where(and(...conditions))
+      .orderBy(desc(outboundLog.createdAt))
+      .limit(1);
+    return result?.outboundLog;
+  }
+
   async createNotification(notif: InsertNotification): Promise<Notification> {
     const [created] = await db.insert(notifications).values(notif).returning();
     return created;
@@ -737,6 +765,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(activityLog.organizationId, organizationId))
       .orderBy(desc(activityLog.createdAt))
       .limit(limit);
+  }
+
+  async purgeOldActivityLogs(days = 90): Promise<number> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const deleted = await db.delete(activityLog).where(lte(activityLog.createdAt, cutoff)).returning({ id: activityLog.id });
+    return deleted.length;
   }
 
   async getHunches(organizationId: string, filters?: { status?: string; department?: string }): Promise<Hunch[]> {

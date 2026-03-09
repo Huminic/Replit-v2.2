@@ -302,19 +302,26 @@ export async function registerRoutes(
         const expiry = new Date(Date.now() + 60 * 60 * 1000);
         await storage.updateUser(user.id, { resetToken: token, resetTokenExpiry: expiry } as any);
 
-        const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}`;
-        if (process.env.RESEND_API_KEY) {
-          const { Resend } = await import("resend");
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          await resend.emails.send({
-            from: "Nexxus Connect <notifications@huminic.ai>",
-            to: user.email,
-            subject: "Password Reset — Nexxus Connect",
-            html: `<p>Hi ${user.firstName},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, ignore this email.</p>`,
-          });
-          console.log(`[AUTH] Password reset email sent to ${email}`);
+        const org = await storage.getOrganization(user.organizationId);
+        const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
+
+        if (!commGateOpen) {
+          console.log(`[AUTH] Password reset requested for ${email} — CommGate blocked email. Token: ${token}`);
         } else {
-          console.log(`[AUTH] Password reset requested for ${email} — no RESEND_API_KEY, token: ${token}`);
+          const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}`;
+          if (process.env.RESEND_API_KEY) {
+            const { Resend } = await import("resend");
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            await resend.emails.send({
+              from: "Nexxus Connect <notifications@huminic.ai>",
+              to: user.email,
+              subject: "Password Reset — Nexxus Connect",
+              html: `<p>Hi ${user.firstName},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, ignore this email.</p>`,
+            });
+            console.log(`[AUTH] Password reset email sent to ${email}`);
+          } else {
+            console.log(`[AUTH] Password reset requested for ${email} — no RESEND_API_KEY, token: ${token}`);
+          }
         }
       }
       return res.json({ message: "If an account exists with that email, a reset link has been sent." });
@@ -1331,6 +1338,41 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const dryRun = req.body.dryRun === true;
+      const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : null;
+
+      if (scheduledAt && scheduledAt > new Date()) {
+        const campaign = await storage.updateCampaign(req.params.id, {
+          scheduledAt,
+          status: "scheduled",
+          executionStatus: "scheduled",
+        });
+        if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+
+        storage.createActivityLog({
+          userId: req.user!.id,
+          organizationId: req.user!.organizationId,
+          action: "campaign_scheduled",
+          entityType: "campaign",
+          entityId: req.params.id,
+          metadata: { scheduledAt: scheduledAt.toISOString() },
+        }).catch(() => {});
+
+        const orgUsers = await storage.getUsers(req.user!.organizationId);
+        for (const u of orgUsers) {
+          storage.createNotification({
+            userId: u.id,
+            organizationId: req.user!.organizationId,
+            type: "info",
+            title: "Campaign scheduled",
+            message: `Campaign "${campaign.name}" scheduled for ${scheduledAt.toLocaleString()} by ${req.user!.firstName} ${req.user!.lastName}.`,
+            relatedEntityType: "campaign",
+            relatedEntityId: req.params.id,
+          }).catch(() => {});
+        }
+
+        return res.json({ success: true, message: `Campaign scheduled for ${scheduledAt.toISOString()}`, scheduled: true });
+      }
+
       const result = await startCampaignExecution(req.params.id, req.user.organizationId, dryRun);
       if (!result.success) {
         return res.status(400).json({ message: result.message });
@@ -2248,14 +2290,61 @@ When the user asks a question that requires deep CRM data (specific lead details
       }
 
       const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/['"]/g, ""));
-      const firstNameIdx = headers.findIndex(h => ["firstname", "first_name", "first name", "fname"].includes(h));
-      const lastNameIdx = headers.findIndex(h => ["lastname", "last_name", "last name", "lname"].includes(h));
-      const phoneIdx = headers.findIndex(h => ["phone", "phone_number", "phonenumber", "mobile", "cell"].includes(h));
-      const emailIdx = headers.findIndex(h => ["email", "email_address", "emailaddress"].includes(h));
 
-      if (phoneIdx === -1 && emailIdx === -1) {
-        return res.status(400).json({ message: "CSV must contain at least a phone or email column" });
+      const expectedColumns: Array<{ name: string; aliases: string[]; required: boolean }> = [
+        { name: "First Name", aliases: ["first name", "firstname", "first_name", "fname"], required: true },
+        { name: "Last Name", aliases: ["last name", "lastname", "last_name", "lname"], required: true },
+        { name: "Address", aliases: ["address", "street", "street_address", "street address", "addr"], required: false },
+        { name: "City", aliases: ["city"], required: false },
+        { name: "State", aliases: ["state", "st"], required: false },
+        { name: "Zip Code", aliases: ["zip code", "zipcode", "zip_code", "zip", "postal", "postal_code", "postal code"], required: false },
+        { name: "Home Phone", aliases: ["home phone", "homephone", "home_phone", "phone", "phone_number", "phonenumber", "mobile", "cell"], required: true },
+        { name: "Work Phone", aliases: ["work phone", "workphone", "work_phone", "business phone", "business_phone", "office phone", "office_phone"], required: false },
+        { name: "Email Address", aliases: ["email address", "emailaddress", "email_address", "email"], required: true },
+        { name: "VIN", aliases: ["vin", "vehicle_identification_number", "vehicle identification number"], required: false },
+        { name: "Model", aliases: ["model", "vehicle_model", "vehicle model", "car_model", "car model"], required: false },
+        { name: "Model Year", aliases: ["model year", "modelyear", "model_year", "year", "vehicle_year", "vehicle year"], required: false },
+        { name: "Last Contact", aliases: ["last contact", "lastcontact", "last_contact", "last_contacted", "last contacted", "contact_date", "contact date"], required: false },
+      ];
+
+      const matchedColumns: Record<string, number> = {};
+      const missingRequired: string[] = [];
+      const missingOptional: string[] = [];
+
+      for (const col of expectedColumns) {
+        const idx = headers.findIndex(h => col.aliases.includes(h));
+        if (idx >= 0) {
+          matchedColumns[col.name] = idx;
+        } else if (col.required) {
+          missingRequired.push(col.name);
+        } else {
+          missingOptional.push(col.name);
+        }
       }
+
+      const hasPhone = matchedColumns["Home Phone"] !== undefined || matchedColumns["Work Phone"] !== undefined;
+      const hasEmail = matchedColumns["Email Address"] !== undefined;
+
+      if (!hasPhone && !hasEmail) {
+        return res.status(400).json({
+          message: "CSV must contain at least a phone or email column",
+          missingRequired,
+          missingOptional,
+        });
+      }
+
+      if (missingRequired.length > 0 && !hasPhone && !hasEmail) {
+        return res.status(400).json({
+          message: `CSV is missing required columns: ${missingRequired.join(", ")}`,
+          missingRequired,
+          missingOptional,
+        });
+      }
+
+      const firstNameIdx = matchedColumns["First Name"] ?? -1;
+      const lastNameIdx = matchedColumns["Last Name"] ?? -1;
+      const phoneIdx = matchedColumns["Home Phone"] ?? matchedColumns["Work Phone"] ?? -1;
+      const emailIdx = matchedColumns["Email Address"] ?? -1;
 
       const recipients: Array<{ campaignId: string; firstName: string | null; lastName: string | null; phone: string | null; email: string | null }> = [];
       for (let i = 1; i < lines.length; i++) {
@@ -2273,7 +2362,23 @@ When the user asks a question that requires deep CRM data (specific lead details
       const recipientCount = await storage.getRecipientCount(campaign.id);
       await storage.updateCampaign(campaign.id, { recipientCount, csvFilename: file.originalname } as any);
 
-      return res.json({ message: "CSV uploaded", recipientCount, filename: file.originalname });
+      const warnings: string[] = [];
+      if (missingRequired.length > 0) {
+        warnings.push(`Missing recommended columns: ${missingRequired.join(", ")}`);
+      }
+      if (missingOptional.length > 0) {
+        warnings.push(`Missing optional columns: ${missingOptional.join(", ")}`);
+      }
+
+      return res.json({
+        message: "CSV uploaded",
+        recipientCount,
+        filename: file.originalname,
+        columnsMatched: Object.keys(matchedColumns),
+        missingRequired,
+        missingOptional,
+        warnings: warnings.length > 0 ? warnings : undefined,
+      });
     } catch (err) {
       return res.status(500).json({ message: "Failed to process CSV" });
     }
@@ -3427,6 +3532,7 @@ Return ONLY the JSON array, no other text.`,
       }
 
       let conversation;
+      let isNewConversation = false;
       if (conversationId) {
         conversation = await storage.getConversation(conversationId);
         if (!conversation || conversation.organizationId !== org.id) {
@@ -3441,6 +3547,38 @@ Return ONLY the JSON array, no other text.`,
           unreadCount: 1,
           lastMessageAt: new Date(),
         });
+        isNewConversation = true;
+      }
+
+      let autoGreetingMessage: string | null = null;
+      if (isNewConversation) {
+        try {
+          const orgAgents = await storage.getAgents(org.id);
+          const greetingAgent = orgAgents.find(a => a.autoGreeting && a.status === "active");
+          if (greetingAgent && greetingAgent.autoGreeting) {
+            autoGreetingMessage = greetingAgent.autoGreeting
+              .replace(/\{\{customerName\}\}/g, "there")
+              .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+              .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+
+            await storage.createMessage({
+              conversationId: conversation.id,
+              role: "assistant",
+              content: autoGreetingMessage,
+              senderName: greetingAgent.name,
+            });
+
+            storage.createActivityLog({
+              organizationId: org.id,
+              action: "auto_greeting_sent",
+              entityType: "conversation",
+              entityId: conversation.id,
+              metadata: { agentName: greetingAgent.name, channel: "chat" },
+            }).catch(() => {});
+          }
+        } catch (greetErr: any) {
+          console.error(`[AutoGreeting] Webchat greeting failed:`, greetErr.message);
+        }
       }
 
       await storage.createMessage({
@@ -3488,6 +3626,7 @@ Return ONLY the JSON array, no other text.`,
       return res.json({
         conversationId: conversation.id,
         response: aiResponse,
+        autoGreeting: autoGreetingMessage,
       });
     } catch (err) {
       console.error("[WidgetChat] Error:", err);
@@ -3517,12 +3656,15 @@ Return ONLY the JSON array, no other text.`,
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const globalEnabled = process.env.OUTBOUND_LIVE_ENABLED === "true";
       const org = await storage.getOrganization(req.user.organizationId);
+      const settings = (org?.settings as Record<string, any>) || {};
       return res.json({
         globalKillSwitch: globalEnabled,
         orgOutboundEnabled: org?.outboundEnabled ?? false,
         smsEnabled: org?.smsEnabled ?? false,
         emailEnabled: org?.emailEnabled ?? false,
         phoneEnabled: org?.phoneEnabled ?? false,
+        videoEnabled: org?.videoEnabled ?? false,
+        rateLimitMax: settings.rateLimitMax ?? 3,
         effectiveStatus: globalEnabled && (org?.outboundEnabled ?? false),
       });
     } catch (err) {
@@ -3667,6 +3809,27 @@ Return ONLY the JSON array, no other text.`,
           }
         }
 
+        let sourceConversationId: string | null = null;
+        let linkedCampaignId: string | null = null;
+
+        try {
+          const lastOutbound = await storage.findLastOutboundForPhone(normalizedPhone, "sms");
+          if (lastOutbound) {
+            linkedCampaignId = lastOutbound.campaignId ?? null;
+            if (linkedCampaignId) {
+              const existingConvs = await storage.getConversations(organizationId, { channel: "sms" });
+              const sourceConv = existingConvs.find(
+                c => c.campaignId === linkedCampaignId && c.customerPhone === normalizedPhone
+              );
+              if (sourceConv) {
+                sourceConversationId = sourceConv.id;
+              }
+            }
+          }
+        } catch (lookupErr) {
+          console.warn("[TextMagic Webhook] Could not resolve outbound context:", lookupErr);
+        }
+
         conversation = await storage.createConversation({
           customerName: normalizedPhone,
           customerPhone: normalizedPhone,
@@ -3675,7 +3838,62 @@ Return ONLY the JSON array, no other text.`,
           organizationId,
           unreadCount: 1,
           lastMessageAt: timestamp,
+          campaignId: linkedCampaignId,
+          sourceConversationId,
         });
+
+        if (linkedCampaignId) {
+          try {
+            const campaign = await storage.getCampaign(linkedCampaignId);
+            console.log(`[TextMagic Webhook] SMS reply labeled — campaign: "${campaign?.name || linkedCampaignId}", sourceConversationId: ${sourceConversationId || "none"}`);
+          } catch {}
+        }
+
+        (async () => {
+          try {
+            const org = await storage.getOrganization(organizationId);
+            if (!org || !org.outboundEnabled || !org.smsEnabled) return;
+            if (process.env.OUTBOUND_LIVE_ENABLED !== "true") return;
+
+            const orgAgents = await storage.getAgents(organizationId);
+            const greetingAgent = orgAgents.find(a => a.autoGreeting && a.status === "active");
+            if (!greetingAgent || !greetingAgent.autoGreeting) return;
+
+            const greeting = greetingAgent.autoGreeting
+              .replace(/\{\{customerName\}\}/g, normalizedPhone)
+              .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+              .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+
+            const { sendSms } = await import("./outbound");
+            await sendSms(normalizedPhone, greeting);
+            console.log(`[AutoGreeting] SMS sent to ${normalizedPhone} via agent ${greetingAgent.name}`);
+
+            await storage.createMessage({
+              conversationId: conversation!.id,
+              role: "agent",
+              content: greeting,
+              senderName: greetingAgent.name,
+            });
+
+            storage.logUsageEvent({
+              organizationId,
+              eventType: "outbound_sms",
+              channel: "sms",
+              quantity: 1,
+              metadata: { recipient: normalizedPhone, source: "auto_greeting", agentId: greetingAgent.id },
+            }).catch(() => {});
+
+            storage.createActivityLog({
+              organizationId,
+              action: "auto_greeting_sent",
+              entityType: "conversation",
+              entityId: conversation!.id,
+              metadata: { agentName: greetingAgent.name, customerPhone: normalizedPhone, channel: "sms" },
+            }).catch(() => {});
+          } catch (greetErr: any) {
+            console.error(`[AutoGreeting] SMS failed for inbound lead ${normalizedPhone}:`, greetErr.message);
+          }
+        })();
       }
 
       await storage.createMessage({
@@ -3691,12 +3909,17 @@ Return ONLY the JSON array, no other text.`,
         return roleLevel !== undefined && roleLevel <= 3;
       });
 
+      const isReply = !!(conversation.campaignId || conversation.sourceConversationId);
+      const notificationTitle = isReply
+        ? `SMS reply${conversation.campaignId ? " (campaign)" : ""}`
+        : "New inbound SMS";
+
       for (const admin of adminUsers) {
         storage.createNotification({
           userId: admin.id,
           organizationId,
           type: "sms_inbound",
-          title: "New inbound SMS",
+          title: notificationTitle,
           message: `SMS from ${normalizedPhone}: "${content.substring(0, 100)}"`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
@@ -3708,7 +3931,13 @@ Return ONLY the JSON array, no other text.`,
         action: "sms_inbound_received",
         entityType: "conversation",
         entityId: conversation.id,
-        metadata: { senderPhone: normalizedPhone, messagePreview: content.substring(0, 100) },
+        metadata: {
+          senderPhone: normalizedPhone,
+          messagePreview: content.substring(0, 100),
+          sourceConversationId: conversation.sourceConversationId || null,
+          campaignId: conversation.campaignId || null,
+          contextLabel: isReply ? "campaign_reply" : "new_contact",
+        },
       }).catch(() => {});
 
       return res.json({ success: true, conversationId: conversation.id });
@@ -3795,7 +4024,12 @@ Return ONLY the JSON array, no other text.`,
 
       const org = await storage.getOrganization(req.user.organizationId);
 
-      if (process.env.RESEND_API_KEY) {
+      const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
+      let inviteSent = false;
+
+      if (!commGateOpen) {
+        console.log(`[Invite] CommGate blocked email for org ${req.user.organizationId}. User ${email} created but invite email skipped.`);
+      } else if (process.env.RESEND_API_KEY) {
         try {
           const emailRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
@@ -3819,6 +4053,8 @@ Return ONLY the JSON array, no other text.`,
           });
           if (!emailRes.ok) {
             console.warn("[Invite] Resend API error:", await emailRes.text());
+          } else {
+            inviteSent = true;
           }
         } catch (emailErr) {
           console.warn("[Invite] Failed to send invite email:", emailErr);
@@ -3835,7 +4071,7 @@ Return ONLY the JSON array, no other text.`,
         action: "user_invited",
         entityType: "user",
         entityId: user.id,
-        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}` },
+        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}`, commGateBlocked: !commGateOpen },
       }).catch(() => {});
 
       storage.createNotification({
@@ -3846,7 +4082,14 @@ Return ONLY the JSON array, no other text.`,
         message: `You've been invited by ${req.user.firstName} ${req.user.lastName}. Please change your password after logging in.`,
       }).catch(() => {});
 
-      return res.status(201).json({ ...safeUser, inviteSent: !!process.env.RESEND_API_KEY });
+      return res.status(201).json({
+        ...safeUser,
+        inviteSent,
+        commGateBlocked: !commGateOpen,
+        message: !commGateOpen
+          ? "User created but email not sent — communications paused"
+          : undefined,
+      });
     } catch (err) {
       console.error("Invite error:", err);
       return res.status(500).json({ message: "Failed to invite user" });

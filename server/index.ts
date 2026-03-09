@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { storage } from "./storage";
+import { startCampaignExecution } from "./outbound";
 
 const app = express();
 const httpServer = createServer(app);
@@ -98,6 +100,39 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+
+      const runActivityLogPurge = async () => {
+        try {
+          const deleted = await storage.purgeOldActivityLogs(90);
+          if (deleted > 0) {
+            log(`Purged ${deleted} activity log entries older than 90 days`, "purge");
+          }
+        } catch (err) {
+          log(`Activity log purge failed: ${err}`, "purge");
+        }
+      };
+
+      runActivityLogPurge();
+
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+      setInterval(runActivityLogPurge, ONE_DAY_MS);
+
+      const checkScheduledCampaigns = async () => {
+        try {
+          const due = await storage.getScheduledCampaigns();
+          for (const campaign of due) {
+            log(`Executing scheduled campaign: ${campaign.name} (${campaign.id})`, "scheduler");
+            const result = await startCampaignExecution(campaign.id, campaign.organizationId, false);
+            if (!result.success) {
+              log(`Scheduled campaign ${campaign.id} failed to start: ${result.message}`, "scheduler");
+            }
+          }
+        } catch (err) {
+          log(`Campaign scheduler check failed: ${err}`, "scheduler");
+        }
+      };
+
+      setInterval(checkScheduledCampaigns, 60000);
     },
   );
 })();
