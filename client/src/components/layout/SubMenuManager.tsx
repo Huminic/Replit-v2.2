@@ -32,7 +32,7 @@ import {
   Calendar as CalendarIcon, Lightbulb, Activity, User as UserIcon,
   Settings, Wrench, BookOpen, Zap, CreditCard, ChevronLeft,
   MessageSquare, LayoutDashboard, CheckSquare,
-  Building2, Lock, Bell, Database, Palette,
+  Building2, Bell, Palette,
   Megaphone, Users, DollarSign, ExternalLink, Inbox,
   ChevronDown, ChevronRight, X
 } from 'lucide-react';
@@ -640,9 +640,7 @@ export function SubMenuManager() {
           { id: 'tools', label: 'Tools & Integrations', icon: Wrench, desc: 'Configure integrations and APIs', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=tools' },
           { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, desc: 'Manage knowledge base sources', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=knowledge' },
           { id: 'ai', label: 'AI Configuration', icon: Zap, desc: 'AI behavior and configuration', roles: ['super_admin', 'partner_admin'], path: '/settings/system?section=ai' },
-          { id: 'security', label: 'Security & Privacy', icon: Lock, desc: 'Security settings and policies', roles: ['super_admin', 'partner_admin'], path: '/settings/system?section=security' },
           { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Notification preferences', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=notifications' },
-          { id: 'data', label: 'Data Management', icon: Database, desc: 'Data import, export, and retention', roles: ['super_admin'], path: '/settings/system?section=data' },
           { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Theme and display settings', roles: ['super_admin', 'partner_admin', 'org_admin'], path: '/settings/system?section=appearance' },
           { id: 'billing', label: 'Billing', icon: CreditCard, desc: 'Billing and invoicing', roles: ['super_admin', 'partner_admin'], path: '/settings/billing' },
         ];

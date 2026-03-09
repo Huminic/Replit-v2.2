@@ -19,6 +19,7 @@ export const organizations = pgTable("organizations", {
   smsEnabled: boolean("sms_enabled").notNull().default(false),
   phoneEnabled: boolean("phone_enabled").notNull().default(false),
   emailEnabled: boolean("email_enabled").notNull().default(false),
+  videoEnabled: boolean("video_enabled").notNull().default(false),
   settings: jsonb("settings").default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -85,6 +86,7 @@ export const conversations = pgTable("conversations", {
   agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
+  sourceConversationId: uuid("source_conversation_id"),
   campaignDisconnected: boolean("campaign_disconnected").notNull().default(false),
   unreadCount: integer("unread_count").notNull().default(0),
   lastMessageAt: timestamp("last_message_at"),
@@ -127,6 +129,7 @@ export const campaigns = pgTable("campaigns", {
   executionSent: integer("execution_sent").notNull().default(0),
   executionFailed: integer("execution_failed").notNull().default(0),
   executionStartedAt: timestamp("execution_started_at"),
+  scheduledAt: timestamp("scheduled_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [

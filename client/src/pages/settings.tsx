@@ -3,7 +3,7 @@
  *
  * Layout: Tile grid landing → drill-down into section detail views.
  * Each tile maps to a settings section: User Management, Organization, Tools & Integrations,
- * Knowledge Base, AI Configuration, Security, Notifications, Data Management, Appearance.
+ * Knowledge Base, AI Configuration, Notifications, Appearance.
  *
  * RBAC: Each tile has a minRole array controlling visibility per role.
  * - super_admin sees all tiles
@@ -223,9 +223,7 @@ const settingsTiles: SettingsTile[] = [
   { id: 'tools', title: 'Tools & Integrations', description: 'Configure tools, widgets, and landing pages', icon: Wrench, gradient: 'from-emerald-500/15 to-teal-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'knowledge', title: 'Knowledge Base', description: 'Upload and manage AI training data', icon: BookOpen, gradient: 'from-amber-500/15 to-orange-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
   { id: 'ai', title: 'AI Configuration', description: 'Hunches, agents, and AI behavior settings', icon: Zap, gradient: 'from-fuchsia-500/15 to-pink-500/5', minRole: ['super_admin'] },
-  { id: 'security', title: 'Security', description: 'Authentication, SSO, and access policies', icon: Lock, gradient: 'from-red-500/15 to-rose-500/5', minRole: ['super_admin', 'partner_admin'] },
   { id: 'notifications', title: 'Notifications', description: 'Alert preferences and delivery channels', icon: Bell, gradient: 'from-sky-500/15 to-blue-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
-  { id: 'data', title: 'Data Management', description: 'Imports, exports, and data retention', icon: Database, gradient: 'from-indigo-500/15 to-violet-500/5', minRole: ['super_admin'] },
   { id: 'appearance', title: 'Appearance', description: 'Theme, layout, and display preferences', icon: Palette, gradient: 'from-teal-500/15 to-emerald-500/5', minRole: ['super_admin', 'partner_admin', 'org_admin'] },
 ];
 
@@ -410,6 +408,8 @@ export default function SettingsPage() {
     smsEnabled: boolean;
     emailEnabled: boolean;
     phoneEnabled: boolean;
+    videoEnabled: boolean;
+    rateLimitMax: number;
     effectiveStatus: boolean;
   }
 
@@ -431,7 +431,7 @@ export default function SettingsPage() {
   });
 
   const channelToggleMutation = useMutation({
-    mutationFn: async (data: { smsEnabled?: boolean; emailEnabled?: boolean; phoneEnabled?: boolean }) => {
+    mutationFn: async (data: { smsEnabled?: boolean; emailEnabled?: boolean; phoneEnabled?: boolean; videoEnabled?: boolean }) => {
       if (!authUser?.organization?.id) return;
       await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, data);
     },
@@ -444,6 +444,27 @@ export default function SettingsPage() {
     },
     onError: (err: any) => {
       toast({ title: 'Failed to update channel', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const rateLimitMutation = useMutation({
+    mutationFn: async (rateLimitMax: number) => {
+      if (!authUser?.organization?.id) return;
+      const org = authUser.organization as any;
+      const currentSettings = org.settings || {};
+      await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, {
+        settings: { ...currentSettings, rateLimitMax }
+      });
+    },
+    onSuccess: () => {
+      if (authUser?.organization?.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/outbound/status'] });
+      toast({ title: 'Rate limit updated', description: 'Per-recipient rate limit saved.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to update rate limit', description: err.message || 'An error occurred', variant: 'destructive' });
     },
   });
 
@@ -518,8 +539,6 @@ export default function SettingsPage() {
   const [provisionDealerName, setProvisionDealerName] = useState('');
   const [provisionLoading, setProvisionLoading] = useState(false);
   const [widgetSearch, setWidgetSearch] = useState('');
-  const [expandedUpload, setExpandedUpload] = useState<string | null>(null);
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
 
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -3048,36 +3067,6 @@ export default function SettingsPage() {
     );
   };
 
-  const renderSecurity = () => (
-    <div className="p-4 space-y-4">
-      <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Back
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Security Settings</CardTitle>
-          <CardDescription>Authentication, SSO, and access policies</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Two-Factor Authentication</p><p className="text-xs text-muted-foreground">Require 2FA for all users</p></div><Switch checked disabled data-testid="switch-2fa" /></div>
-          <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">SSO Provider</p><p className="text-xs text-muted-foreground">Single sign-on provider</p></div><Switch checked disabled data-testid="switch-sso" /></div>
-          <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Session Timeout</p><p className="text-xs text-muted-foreground">Minutes before auto-logout</p></div><Input value="60" disabled className="max-w-[80px]" data-testid="input-session-timeout" /></div>
-          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">IP Allowlist</p><p className="text-xs text-muted-foreground">Restrict access to specific IP ranges</p></div><Switch checked disabled data-testid="switch-ip-allowlist" /></div>
-          <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Audit Logging</p><p className="text-xs text-muted-foreground">Log all user actions for compliance</p></div><Switch checked disabled data-testid="switch-audit-logging" /></div>
-          <Separator />
-          <div>
-            <p className="font-medium text-sm text-foreground mb-2">Password Management</p>
-            <Button variant="outline" onClick={() => setChangePwOpen(true)} data-testid="button-change-password">
-              <Lock className="h-3.5 w-3.5 mr-1" />
-              Change Password
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
   const renderNotifications = () => {
     const eventPrefs: { key: keyof typeof notifPrefs; label: string; desc: string }[] = [
       { key: 'newLead', label: 'New Lead', desc: 'When a new lead is created' },
@@ -3135,156 +3124,6 @@ export default function SettingsPage() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    );
-  };
-
-  const renderDataManagement = () => {
-    const mockUploads = [
-      { id: 'u1', name: 'Jan Inventory', type: 'CSV', records: 1247, date: '1/15', category: 'Inventory', mapping: 'VIN -> vehicle_vin, Make -> make, Model -> model', interpretation: 'Vehicle inventory data with 1,247 active listings', prompt: 'Import as structured inventory data' },
-      { id: 'u2', name: 'Website Scrape', type: 'HTML', records: 342, date: '2/01', category: 'Other', mapping: 'URL -> source_url, Content -> body_text', interpretation: 'Web content scraped from dealer website', prompt: 'Extract product and pricing information' },
-    ];
-
-    return (
-      <div className="p-4 space-y-4">
-        <Button variant="ghost" size="sm" onClick={() => setActiveSection(null)} data-testid="button-back-settings">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
-        </Button>
-        <Tabs defaultValue="uploads">
-          <TabsList className="grid grid-cols-2 w-full max-w-sm">
-            <TabsTrigger value="uploads" data-testid="tab-data-uploads">Database Uploads</TabsTrigger>
-            <TabsTrigger value="health" data-testid="tab-data-health">Data Health</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="uploads" className="mt-4 space-y-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              {['All', 'Inventory', 'Leads', 'Contacts', 'Other'].map(cat => (
-                <Button key={cat} variant="outline" size="sm" data-testid={`filter-data-${cat.toLowerCase()}`}>{cat}</Button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" onClick={() => setShowUploadDialog(true)} data-testid="button-upload-data">
-                <Upload className="h-3.5 w-3.5 mr-1" />
-                Upload Data
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => toast({ title: 'Scrape URL (demo)', description: 'URL scraping is not available in demo mode. This feature will be enabled when connected to production backend.' })} data-testid="button-scrape-url">
-                <Globe className="h-3.5 w-3.5 mr-1" />
-                Scrape URL
-              </Button>
-            </div>
-
-            <Card>
-              <CardContent className="p-0">
-                <div className="rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted/50 text-muted-foreground text-xs">
-                        <th className="text-left p-2 font-medium">Name</th>
-                        <th className="text-left p-2 font-medium">Type</th>
-                        <th className="text-left p-2 font-medium">Records</th>
-                        <th className="text-left p-2 font-medium">Date</th>
-                        <th className="p-2 w-10"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mockUploads.map(upload => (
-                        <>
-                          <tr key={upload.id} className="border-t border-border cursor-pointer hover-elevate" onClick={() => setExpandedUpload(expandedUpload === upload.id ? null : upload.id)} data-testid={`upload-row-${upload.id}`}>
-                            <td className="p-2 font-medium text-foreground">{upload.name}</td>
-                            <td className="p-2 text-muted-foreground">{upload.type}</td>
-                            <td className="p-2 text-muted-foreground">{upload.records.toLocaleString()}</td>
-                            <td className="p-2 text-muted-foreground">{upload.date}</td>
-                            <td className="p-2"><Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast({ title: 'Upload removed (demo)', description: 'Upload deletion saved locally. Changes will persist when connected to production backend.' }); }} data-testid={`button-delete-upload-${upload.id}`}><Trash2 className="h-3.5 w-3.5" /></Button></td>
-                          </tr>
-                          {expandedUpload === upload.id && (
-                            <tr key={`${upload.id}-detail`} className="border-t border-border bg-muted/30">
-                              <td colSpan={5} className="p-3 text-xs space-y-2">
-                                <div><span className="font-medium text-foreground">Field Mapping:</span> <span className="text-muted-foreground font-mono">{upload.mapping}</span></div>
-                                <div><span className="font-medium text-foreground">Interpretation:</span> <span className="text-muted-foreground">{upload.interpretation}</span></div>
-                                <div><span className="font-medium text-foreground">Processing Prompt:</span> <span className="text-muted-foreground">{upload.prompt}</span></div>
-                              </td>
-                            </tr>
-                          )}
-                        </>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex items-center justify-between opacity-50">
-              <div><p className="font-medium text-sm text-foreground">SOC2/Compliance</p><p className="text-xs text-muted-foreground">Data compliance checks enabled</p></div>
-              <Switch checked disabled data-testid="switch-soc2" />
-            </div>
-
-            <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-              <DialogContent data-testid="dialog-upload-data">
-                <DialogHeader>
-                  <DialogTitle>Upload Data</DialogTitle>
-                  <DialogDescription>Upload a file for processing and import</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-xs">Category</Label>
-                    <Select defaultValue="inventory">
-                      <SelectTrigger className="mt-1" data-testid="select-upload-category">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="inventory">Inventory</SelectItem>
-                        <SelectItem value="leads">Leads</SelectItem>
-                        <SelectItem value="contacts">Contacts</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                    <FileUp className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
-                    <p className="text-xs text-muted-foreground mt-1">CSV, JSON, Excel, PDF</p>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Processing Instructions</Label>
-                    <Textarea rows={2} placeholder="Describe how this data should be processed..." className="mt-1" data-testid="textarea-processing-instructions" />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Label className="text-xs">Data Type:</Label>
-                    <div className="flex items-center gap-2">
-                      <input type="radio" name="dataType" value="structured" defaultChecked id="dt-structured" data-testid="radio-structured" />
-                      <Label htmlFor="dt-structured" className="text-xs">Structured</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input type="radio" name="dataType" value="unstructured" id="dt-unstructured" data-testid="radio-unstructured" />
-                      <Label htmlFor="dt-unstructured" className="text-xs">Unstructured</Label>
-                    </div>
-                  </div>
-                  <Button className="w-full" onClick={() => { setShowUploadDialog(false); toast({ title: 'Upload acknowledged (demo)', description: 'Data upload saved locally. File processing will be enabled when connected to production backend.' }); }} data-testid="button-upload-process">
-                    <Upload className="h-4 w-4 mr-1" />
-                    Upload & Process
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </TabsContent>
-
-          <TabsContent value="health" className="mt-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">14,892</p><p className="text-xs text-muted-foreground">Total Records</p></CardContent></Card>
-              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">2.3 GB</p><p className="text-xs text-muted-foreground">Storage Used</p></CardContent></Card>
-              <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">8</p><p className="text-xs text-muted-foreground">Active Uploads</p></CardContent></Card>
-            </div>
-            <Card>
-              <CardContent className="space-y-4 pt-6">
-                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">Auto-Backup</p><p className="text-xs text-muted-foreground">Daily automatic data backups</p></div><Switch checked disabled data-testid="switch-auto-backup" /></div>
-                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Data Retention</p><p className="text-xs text-muted-foreground">Months to retain closed records</p></div><Input value="24" disabled className="max-w-[80px]" data-testid="input-data-retention" /></div>
-                <div className="flex items-center justify-between gap-4 opacity-50"><div className="flex-1"><p className="font-medium text-sm text-foreground">Export Format</p><p className="text-xs text-muted-foreground">Default export file format</p></div><Input value="CSV" disabled className="max-w-[80px]" data-testid="input-export-format" /></div>
-                <div className="flex items-center justify-between opacity-50"><div><p className="font-medium text-sm text-foreground">GDPR Compliance</p><p className="text-xs text-muted-foreground">GDPR data handling rules</p></div><Switch checked disabled data-testid="switch-gdpr" /></div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
       </div>
     );
   };
@@ -3552,15 +3391,54 @@ export default function SettingsPage() {
                   data-testid="switch-phone-channel"
                 />
               </div>
+              <Separator />
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Video className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">Video (Tavus)</p>
+                    <p className="text-xs text-muted-foreground">AI video calls via Tavus</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={outboundStatus?.videoEnabled ?? false}
+                  onCheckedChange={(checked) => channelToggleMutation.mutate({ videoEnabled: checked })}
+                  disabled={!communicationGateEnabled}
+                  data-testid="switch-video-channel"
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-sm">Rate Limit (per recipient)</p>
+                  <p className="text-xs text-muted-foreground">Max messages per recipient in 24 hours</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={50}
+                    className="w-20 h-8 text-sm"
+                    value={outboundStatus?.rateLimitMax ?? 3}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > 0 && val <= 50) {
+                        rateLimitMutation.mutate(val);
+                      }
+                    }}
+                    disabled={!communicationGateEnabled}
+                    data-testid="input-rate-limit"
+                  />
+                  <span className="text-xs text-muted-foreground">/ 24h</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       );
       case 'knowledge': return renderKnowledgeBase();
       case 'ai': return renderAIConfiguration();
-      case 'security': return renderSecurity();
       case 'notifications': return renderNotifications();
-      case 'data': return renderDataManagement();
       case 'appearance': return renderAppearance();
       default: return renderTileGrid();
     }

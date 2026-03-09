@@ -78,6 +78,7 @@ const campaignStatusColors: Record<string, string> = {
   paused: 'bg-amber-500',
   draft: 'bg-gray-400',
   completed: 'bg-blue-500',
+  scheduled: 'bg-purple-500',
 };
 
 export default function ServicePage() {
@@ -157,14 +158,25 @@ export default function ServicePage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: "Upload failed" }));
-        throw new Error(err.message);
+        let errorMsg = err.message;
+        if (err.missingRequired?.length) {
+          errorMsg += `. Missing required columns: ${err.missingRequired.join(", ")}`;
+        }
+        throw new Error(errorMsg);
       }
       return res.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=service'] });
       queryClient.invalidateQueries({ queryKey: ['/api/metrics/dashboard'] });
-      toast({ title: "CSV Uploaded", description: `${data.recipientCount} recipients loaded.` });
+      let description = `${data.recipientCount} recipients loaded.`;
+      if (data.warnings && data.warnings.length > 0) {
+        description += ` ${data.warnings.join(". ")}`;
+      }
+      toast({
+        title: data.warnings?.length ? "CSV Uploaded with Warnings" : "CSV Uploaded",
+        description,
+      });
     },
     onError: (err: Error) => {
       toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
@@ -176,14 +188,23 @@ export default function ServicePage() {
     refetchInterval: 3000,
   });
 
+  const [scheduleDialogCampaignId, setScheduleDialogCampaignId] = useState<string | null>(null);
+  const [scheduleDateTime, setScheduleDateTime] = useState('');
+
   const executeMutation = useMutation({
-    mutationFn: async ({ id, dryRun }: { id: string; dryRun: boolean }) => {
-      await apiRequest('POST', `/api/campaigns/${id}/execute`, { dryRun });
+    mutationFn: async ({ id, dryRun, scheduledAt }: { id: string; dryRun: boolean; scheduledAt?: string }) => {
+      await apiRequest('POST', `/api/campaigns/${id}/execute`, { dryRun, scheduledAt });
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=service'] });
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns/execution-statuses'] });
-      toast({ title: variables.dryRun ? "Dry Run Started" : "Campaign Started", description: variables.dryRun ? "Preview mode — no messages will be sent." : "Campaign is now executing." });
+      if (variables.scheduledAt) {
+        toast({ title: "Campaign Scheduled", description: `Campaign scheduled for ${new Date(variables.scheduledAt).toLocaleString()}.` });
+      } else {
+        toast({ title: variables.dryRun ? "Dry Run Started" : "Campaign Started", description: variables.dryRun ? "Preview mode — no messages will be sent." : "Campaign is now executing." });
+      }
+      setScheduleDialogCampaignId(null);
+      setScheduleDateTime('');
     },
     onError: (err: Error) => {
       toast({ title: "Execution Failed", description: err.message, variant: "destructive" });
@@ -405,8 +426,22 @@ export default function ServicePage() {
                                 onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
                                 disabled={executeMutation.isPending || campaign.recipientCount === 0}
                                 data-testid={`button-start-campaign-${campaign.id}`}
+                                title="Execute now"
                               >
                                 <Play className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setScheduleDialogCampaignId(campaign.id);
+                                  setScheduleDateTime('');
+                                }}
+                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                data-testid={`button-schedule-campaign-${campaign.id}`}
+                                title="Schedule for later"
+                              >
+                                <CalendarIcon className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -414,6 +449,7 @@ export default function ServicePage() {
                                 onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: true })}
                                 disabled={executeMutation.isPending || campaign.recipientCount === 0}
                                 data-testid={`button-dryrun-campaign-${campaign.id}`}
+                                title="Dry run"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -499,6 +535,45 @@ export default function ServicePage() {
             >
               {createCampaignMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Create Campaign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!scheduleDialogCampaignId} onOpenChange={(open) => { if (!open) { setScheduleDialogCampaignId(null); setScheduleDateTime(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Schedule Campaign</DialogTitle>
+            <DialogDescription>Choose a date and time to execute this campaign.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="schedule-datetime">Scheduled Date & Time</Label>
+              <Input
+                id="schedule-datetime"
+                type="datetime-local"
+                value={scheduleDateTime}
+                onChange={(e) => setScheduleDateTime(e.target.value)}
+                min={new Date().toISOString().slice(0, 16)}
+                data-testid="input-schedule-datetime"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setScheduleDialogCampaignId(null); setScheduleDateTime(''); }} data-testid="button-cancel-schedule">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (scheduleDialogCampaignId && scheduleDateTime) {
+                  executeMutation.mutate({ id: scheduleDialogCampaignId, dryRun: false, scheduledAt: new Date(scheduleDateTime).toISOString() });
+                }
+              }}
+              disabled={!scheduleDateTime || executeMutation.isPending}
+              data-testid="button-confirm-schedule"
+            >
+              {executeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CalendarIcon className="h-4 w-4 mr-2" />}
+              Schedule
             </Button>
           </DialogFooter>
         </DialogContent>

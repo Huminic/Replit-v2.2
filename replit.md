@@ -67,3 +67,27 @@ The backend runs on **Express** with **TypeScript**, interacting with a **Postgr
 - `client/src/pages/settings.tsx` — AI model selector, system prompt, chat instructions (DB-wired)
 - `client/src/contexts/AppContext.tsx` — favorites wired to DB
 - 7 page files — FavoritesBar imports removed
+
+## Area 2 Implementation Status (COMPLETED)
+
+### Changes Made
+- **Security tile removed**: Removed from settings tile grid, render function, switch case, and submenu panel (T001)
+- **Data Management tile removed**: Removed from settings tile grid, render function, switch case, submenu panel, and related state variables (T002)
+- **Video (Tavus) toggle in CommGate**: Added `videoEnabled` boolean column to organizations schema, video channel check in `checkCommGate`, Video toggle in Organization CommGate UI (T003)
+- **Configurable rate limit per org**: Rate limit stored in org settings JSONB (`rateLimitMax`), defaults to 3, configurable in CommGate UI with `/24h` display. `outbound.ts` reads from org settings (T003)
+- **CommGate on invitations/resets**: Invite endpoint checks `outboundEnabled && emailEnabled` before sending email; password reset does the same. User/token still created when blocked, with clear feedback (T004)
+- **CSV upload column validation**: Expected columns defined (First Name, Last Name, Address, City, State, Zip, Home Phone, Work Phone, Email, VIN, Model, Model Year, Last Contact) with fuzzy matching; validation feedback for missing required/optional columns (T005)
+- **Campaign scheduling**: Added `scheduledAt` timestamp column to campaigns, schedule dialog in service.tsx with datetime-local input, backend stores scheduled campaigns and a 60-second scheduler timer executes due campaigns (T006)
+- **Activity log 90-day purge**: `purgeOldActivityLogs(days)` storage method, runs on server startup and daily via setInterval (T007)
+- **Auto-greeting on new leads**: SMS inbound (TextMagic webhook) and webchat (widget) now send agent `autoGreeting` to new conversations if configured (T008)
+- **SMS reply labeling**: Added `sourceConversationId` to conversations schema, inbound SMS replies linked to original outbound campaign/conversation via `findLastOutboundForPhone` lookup (T009)
+
+### Key Files Modified
+- `shared/schema.ts` — videoEnabled, scheduledAt, sourceConversationId columns
+- `server/outbound.ts` — configurable rate limit, video channel in checkCommGate
+- `server/routes.ts` — CommGate on invites/resets, CSV validation, campaign scheduling, auto-greeting, SMS reply labeling
+- `server/storage.ts` — purgeOldActivityLogs, getScheduledCampaigns, findLastOutboundForPhone
+- `server/index.ts` — activity log purge timer, campaign scheduler timer
+- `client/src/pages/settings.tsx` — Security/Data tiles removed, video toggle + rate limit config
+- `client/src/pages/service.tsx` — schedule dialog, campaign status colors
+- `client/src/components/layout/SubMenuManager.tsx` — Security/Data submenu entries removed
