@@ -1,0 +1,35 @@
+● The agent is confused. There is no "internal registry" — the connector reads from the integrations table in Supabase, which we already populated. Let me prove it by querying leads for both "blocked" dealers right now.
+                                                                                                    
+● Bash(TOKEN='8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=' && PORT=4002…)
+  ⎿  === Hyundai of Columbia (227a5597-543b-4e0c-9e44-fc6ba93f001a) ===                                                                                                                                                    
+       Count: 7888 leads
+       Limit: 5                                                                                                                                                                                                            
+     … +6 lines (ctrl+o to expand)                                                                  
+                                                                                                                                                                                                                           
+● Bash(# Also verify via the external URL (what the agent would use)                                                                                                                                                       
+      TOKEN='ItLBe6N8aGTeScxfXGhFOz+NWE8gkfdxyrYqLeKUCh8='…)                                        
+  ⎿  === Via external URL: Hyundai of Columbia ===                                                                                                                                                                         
+       Count: 7888 leads                                                                                                                                                                                                   
+     … +2 lines (ctrl+o to expand)                  
+                                                                                                                                                                                                                           
+● The agent's analysis is wrong. Both dealers work perfectly — via localhost AND the external URL:
+                                                                                                                                                                                                                           
+  ┌─────────────────────┬─────────┬───────────────────┐                                                                                                                                                                    
+  │       Dealer        │ Status  │ 90-day Lead Count │                                                                                                                                                                    
+  ├─────────────────────┼─────────┼───────────────────┤                                                                                                                                                                    
+  │ Serra Honda         │ Working │ ~2,139            │                                                                                                                                                                    
+  ├─────────────────────┼─────────┼───────────────────┤                                                                                                                                                                    
+  │ Serra Nissan        │ Working │ ~1,254            │                                                                                                                                                                    
+  ├─────────────────────┼─────────┼───────────────────┤                                                                                                                                                                    
+  │ Tony Serra Ford     │ Working │ ~1,381            │                                                                                                                                                                    
+  ├─────────────────────┼─────────┼───────────────────┤                                                                                                                                                                    
+  │ Hyundai of Columbia │ Working │ 7,888             │           
+  ├─────────────────────┼─────────┼───────────────────┤                                                                                                                                                                    
+  │ Ford of Columbia    │ Working │ 4,577             │           
+  └─────────────────────┴─────────┴───────────────────┘                                                                                                                                                                    
+                                                                  
+  The agent's problem is that it can't connect to the MCP server at all — because of the type: "http" vs type: "sse" transport bug we just fixed. It's interpreting "can't connect" as "these specific dealers are         
+  blocked," but the reality is it can't reach any tools through the MCP client connection.
+                                                                                                                                                                                                                           
+  The fix is already in place (we changed both mcp.json files to type: "sse"). The agent just needs to restart its Claude Code session to pick up the corrected config. There is no "internal registry" to update — the    
+  connector reads directly from the Supabase integrations table.
