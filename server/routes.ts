@@ -1300,17 +1300,27 @@ export async function registerRoutes(
 
   app.post("/api/widget/video-session", async (req, res) => {
     try {
-      const { widgetCode, visitorName } = req.body;
-      if (!widgetCode) {
-        return res.status(400).json({ message: "widgetCode is required" });
+      const { widgetCode, visitorName, slug } = req.body;
+
+      let organizationId: string | null = null;
+      if (widgetCode) {
+        const widget = await storage.getWidgetByCode(widgetCode);
+        if (!widget) {
+          return res.status(404).json({ message: "Widget not found" });
+        }
+        organizationId = widget.organizationId;
+      } else if (slug) {
+        const orgs = await storage.getOrganizations();
+        const org = orgs.find(o => o.slug === slug);
+        if (!org) {
+          return res.status(404).json({ message: "Organization not found" });
+        }
+        organizationId = org.id;
+      } else {
+        return res.status(400).json({ message: "widgetCode or slug is required" });
       }
 
-      const widget = await storage.getWidgetByCode(widgetCode);
-      if (!widget) {
-        return res.status(404).json({ message: "Widget not found" });
-      }
-
-      const orgAgents = await storage.getAgents(widget.organizationId);
+      const orgAgents = await storage.getAgents(organizationId);
       const agentWithTavus = orgAgents.find((a) => a.tavusPersonaId);
       if (!agentWithTavus || !agentWithTavus.tavusPersonaId) {
         return res.status(400).json({ message: "No Tavus persona configured for this organization" });
