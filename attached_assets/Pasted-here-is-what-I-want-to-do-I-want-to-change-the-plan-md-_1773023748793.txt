@@ -1,0 +1,59 @@
+here is what I want to do. 
+
+
+
+
+I want to change the plan.md approach a little bit. 
+
+Id like to propose something to you. I would like to switch it up and break our work down in to something thats more engaging and interactive. This is not a complete list, but if we broke it down in a way that I  
+  can work with you and then you break up plan.md into pieces where we can look at it objectively. If you look at this list and you compare it to what you're doing in plan.md now we should be able to talk through   
+  this. You can extract what back and tech that you need to wire up or figure out in order to talk it through, you could rearrange this list for me in a way that makes more sense based on what coding still needs    
+  to be done.        
+
+This way we can just look at it at a high level at the beginning of each one, make sure everything's defined the way it needs to be, that there are no gaps, and then work together to test and implement. If you have prerequisites that need to be installed and set up beforehand, then we can do that first and then work through the rest of the list. But this forces us to stop and look at each function from a usability standpoint. Without having to worry about patchwork Because you can always read the A C. 
+
+1.UI and Chat,
+a.settings and knowledge
+b.Chat 
+c.Chat quality 
+d.Chat buggles
+e.Special chat features
+f. menu and nav look and feel 
+
+
+2.Communications, 
+a.ettings and knowledge
+b.New account/reset account
+c.SMS (Serra honda only)
+d.Service Campaigns
+e.Notifications
+
+
+3.Agents and triggers,
+a.settings and knowledge
+b.Trigger handling
+c.Agent Review
+d.Special Prompting
+
+
+4.One off Lead Handling (Communications agent)
+a.Agent handling
+b.Widgets and hosted page
+c.Embedd flowm
+d.Vapi Lead Flow ((handoff, appointment and insertion))
+e.Tavus Lead Flow (handoff appointment and insertion)
+
+
+5.System/Settings
+a.uploads
+b.general settings
+c. hunches
+
+
+6.Metrics (Display and connection)
+a.metrics true and correct
+b.filtering and updates
+c.insights vs dash vs homepage
+d.reports
+
+Don't do anything yet and you can compare it against the acceptance criteria. I know that there are some things that aren't in this, but those things will happen automatically, for the most part, if we work together and get through these. 
