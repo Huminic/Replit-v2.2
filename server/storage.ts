@@ -1,4 +1,4 @@
-import { eq, and, desc, count, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, count, sql, gte, lte, isNull, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   type User, type InsertUser,
@@ -130,6 +130,8 @@ export interface IStorage {
 
   upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead>;
   getWarehouseLeadBySourceId(organizationId: string, sourceId: string): Promise<WarehouseLead | null>;
+  getLeadsDueForFollowup(organizationId: string, delayHours: number, limit?: number): Promise<WarehouseLead[]>;
+  markFollowupSent(leadId: string): Promise<void>;
   getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]>;
   getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number>;
 
@@ -988,6 +990,25 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(1);
     return row || null;
+  }
+
+  async getLeadsDueForFollowup(organizationId: string, delayHours: number, limit: number = 20): Promise<WarehouseLead[]> {
+    const cutoff = new Date(Date.now() - delayHours * 60 * 60 * 1000);
+    return db.select().from(warehouseLeads)
+      .where(and(
+        eq(warehouseLeads.organizationId, organizationId),
+        isNull(warehouseLeads.followupSentAt),
+        isNotNull(warehouseLeads.customerPhone),
+        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.createdAt}) <= ${cutoff}`
+      ))
+      .orderBy(desc(warehouseLeads.createdAt))
+      .limit(limit);
+  }
+
+  async markFollowupSent(leadId: string): Promise<void> {
+    await db.update(warehouseLeads)
+      .set({ followupSentAt: new Date() })
+      .where(eq(warehouseLeads.id, leadId));
   }
 
   async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]> {

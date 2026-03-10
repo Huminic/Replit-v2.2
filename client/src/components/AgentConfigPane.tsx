@@ -107,11 +107,13 @@ function formatDuration(seconds: number | null): string {
 interface AgentTriggerConfig {
   id: string;
   name: string;
-  type: 'stale_lead' | 'source_volume';
+  type: 'stale_lead' | 'source_volume' | 'new_lead_followup';
   enabled: boolean;
   config: {
     thresholdHours?: number;
     thresholdCount?: number;
+    delayHours?: number;
+    messageTemplate?: string;
     actions: { type: 'sms' | 'call' | 'email'; waitMinutes: number }[];
   };
 }
@@ -599,9 +601,9 @@ export function AgentConfigPane() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground">{trigger.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {trigger.type === 'stale_lead' ? `Stale after ${trigger.config.thresholdHours}h` : `Below ${trigger.config.thresholdCount}/week`}
-                          {' · '}
-                          {trigger.config.actions.map(a => a.type.toUpperCase()).join(' → ')}
+                          {trigger.type === 'stale_lead' ? `Stale after ${trigger.config.thresholdHours}h` : trigger.type === 'new_lead_followup' ? `Follow-up ${trigger.config.delayHours || 48}h after lead created` : `Below ${trigger.config.thresholdCount}/week`}
+                          {trigger.type !== 'new_lead_followup' && <>{' · '}{trigger.config.actions.map(a => a.type.toUpperCase()).join(' → ')}</>}
+                          {trigger.type === 'new_lead_followup' && ' · SMS'}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -927,20 +929,57 @@ export function AgentConfigPane() {
                 <select
                   className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
                   value={editingTrigger.type}
-                  onChange={(e) => setEditingTrigger({
-                    ...editingTrigger,
-                    type: e.target.value as 'stale_lead' | 'source_volume',
-                    config: e.target.value === 'stale_lead'
-                      ? { ...editingTrigger.config, thresholdHours: editingTrigger.config.thresholdHours || 24 }
-                      : { ...editingTrigger.config, thresholdCount: editingTrigger.config.thresholdCount || 10 },
-                  })}
+                  onChange={(e) => {
+                    const newType = e.target.value as 'stale_lead' | 'source_volume' | 'new_lead_followup';
+                    let newConfig = { ...editingTrigger.config };
+                    if (newType === 'stale_lead') {
+                      newConfig = { ...newConfig, thresholdHours: newConfig.thresholdHours || 24 };
+                    } else if (newType === 'source_volume') {
+                      newConfig = { ...newConfig, thresholdCount: newConfig.thresholdCount || 10 };
+                    } else if (newType === 'new_lead_followup') {
+                      newConfig = {
+                        ...newConfig,
+                        delayHours: newConfig.delayHours || 48,
+                        messageTemplate: newConfig.messageTemplate || 'Hi {customerFirstName}, this is {agentName} from {dealerStoreName}. I just wanted to follow up with you to see if you had any questions and if your experience with our dealer so far has been a good one. Please let me know if I can be of any assistance or if you have any feedback.',
+                        actions: [{ type: 'sms', waitMinutes: 0 }],
+                      };
+                    }
+                    setEditingTrigger({ ...editingTrigger, type: newType, config: newConfig });
+                  }}
                   data-testid="select-trigger-type"
                 >
                   <option value="stale_lead">Stale Lead (no activity for X hours)</option>
                   <option value="source_volume">Source Volume Drop (below X per week)</option>
+                  <option value="new_lead_followup">New Lead Follow-up (SMS after X hours)</option>
                 </select>
               </div>
-              {editingTrigger.type === 'stale_lead' ? (
+              {editingTrigger.type === 'new_lead_followup' ? (
+                <>
+                  <div>
+                    <Label className="text-xs">Hours after lead created</Label>
+                    <input
+                      type="number"
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                      value={editingTrigger.config.delayHours || 48}
+                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, delayHours: parseInt(e.target.value) || 1 } })}
+                      min="1"
+                      data-testid="input-delay-hours"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Message Template</Label>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
+                      Use {'{customerFirstName}'}, {'{agentName}'}, {'{dealerStoreName}'} as placeholders
+                    </p>
+                    <textarea
+                      className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[100px] resize-y"
+                      value={editingTrigger.config.messageTemplate || ''}
+                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, messageTemplate: e.target.value } })}
+                      data-testid="textarea-message-template"
+                    />
+                  </div>
+                </>
+              ) : editingTrigger.type === 'stale_lead' ? (
                 <div>
                   <Label className="text-xs">Hours without activity</Label>
                   <input
@@ -965,7 +1004,7 @@ export function AgentConfigPane() {
                   />
                 </div>
               )}
-              <div>
+              {editingTrigger.type !== 'new_lead_followup' && (<div>
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-xs">Action Chain</Label>
                   <Button variant="outline" size="sm" onClick={() => setEditingTrigger({
@@ -1023,7 +1062,7 @@ export function AgentConfigPane() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div>)}
             </div>
           )}
           <DialogFooter>

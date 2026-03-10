@@ -227,6 +227,47 @@ app.use((req, res, next) => {
               if (enabledTriggers.length === 0) continue;
 
               for (const trigger of enabledTriggers) {
+                if (trigger.type === 'new_lead_followup') {
+                  const delayHours = trigger.config?.delayHours || 48;
+                  const messageTemplate = trigger.config?.messageTemplate || 'Hi {customerFirstName}, this is {agentName} from {dealerStoreName}. I just wanted to follow up with you to see if you had any questions and if your experience with our dealer so far has been a good one. Please let me know if I can be of any assistance or if you have any feedback.';
+                  const dueLeads = await storage.getLeadsDueForFollowup(org.id, delayHours, 10);
+                  if (dueLeads.length > 0) {
+                    log(`Trigger "${trigger.name}": ${dueLeads.length} leads due for ${delayHours}h follow-up for agent ${agent.name}`, "triggers");
+                    for (const lead of dueLeads) {
+                      const customerFirstName = (lead.customerName || 'there').split(' ')[0];
+                      const msg = messageTemplate
+                        .replace(/\{customerFirstName\}/g, customerFirstName)
+                        .replace(/\{agentName\}/g, agent.name)
+                        .replace(/\{dealerStoreName\}/g, org.name);
+
+                      log(`Trigger "${trigger.name}": sending follow-up SMS to ${lead.customerPhone} for ${lead.customerName || 'Unknown'}`, "triggers");
+                      try {
+                        await processOutboundSend({
+                          organizationId: org.id,
+                          channel: 'sms',
+                          to: lead.customerPhone!,
+                          messageContent: msg,
+                        });
+                        await storage.markFollowupSent(lead.id);
+                        log(`Trigger "${trigger.name}": follow-up sent and marked for lead ${lead.sourceId || lead.id}`, "triggers");
+
+                        if (adminUser) {
+                          await storage.createNotification({
+                            userId: adminUser.id,
+                            organizationId: org.id,
+                            type: 'trigger_alert',
+                            title: `Follow-up Sent: ${lead.customerName || 'Customer'}`,
+                            message: `${trigger.name} — Follow-up SMS sent to ${lead.customerPhone} for ${lead.customerName || 'Unknown'} (${delayHours}h after lead created)`,
+                            relatedEntityId: lead.id,
+                          });
+                        }
+                      } catch (sendErr: any) {
+                        log(`Trigger "${trigger.name}": failed to send follow-up for ${lead.customerName}: ${sendErr.message}`, "triggers");
+                      }
+                    }
+                  }
+                }
+
                 if (trigger.type === 'stale_lead') {
                   const thresholdHours = trigger.config?.thresholdHours || 24;
                   const cutoff = new Date(Date.now() - thresholdHours * 60 * 60 * 1000);
