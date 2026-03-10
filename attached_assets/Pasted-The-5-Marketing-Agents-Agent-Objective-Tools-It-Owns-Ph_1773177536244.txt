@@ -1,0 +1,494 @@
+The 5 Marketing Agents
+Agent	Objective	Tools It Owns
+📸 Photo Studio	"Make my vehicle photos look professional"	Background removal, background swap, studio image generation
+🎬 Video Producer	"Turn my photos into video content"	Photo→video, voiceover generation, motion prompting
+✍️ Copywriter	"Write my ads and captions"	Ad copy, headlines, social captions, email subjects, Google ads
+📊 Creative Director	"Tell me if this creative is good enough"	Ad IQ scoring, effectiveness analysis, improvement recommendations
+🗺️ Market Intel	"Show me what the competition looks like"	Competitor radar, brand presence scoring, geographic gap analysis
+Each agent is completely isolated — its own system prompt, its own tool set, its own conversation thread, its own visor. But they all share the same Studio gallery as their output destination. That's the connective tissue.
+
+The Flow This Creates
+Agents Tab
+│
+├── 📸 Photo Studio ──────► saves IMAGE artifacts ──────┐
+├── 🎬 Video Producer ────► saves VIDEO artifacts ──────┤
+├── ✍️ Copywriter ─────────► saves COPY artifacts ───────┼──► 🗂 Studio Gallery
+├── 📊 Creative Director ─► saves SCORE artifacts ──────┤         (shared)
+└── 🗺️ Market Intel ───────► saves RADAR artifacts ─────┘
+                                                              │
+                                                    Each artifact has
+                                                    "Send to Agent →"
+                                                    so outputs cross-pollinate
+That last part is the killer feature — a Photo Studio image can be forwarded to Video Producer directly from the gallery. A Copywriter output can be sent to Creative Director for scoring. The Studio becomes a creative workflow hub, not just a download folder.
+
+Now here's the revised full prompt:
+
+📋 Revised Replit Prompt — 5 Specialized Marketing Agents
+Copy everything below this line and paste directly into Replit Agent.
+
+TASK: Build 5 Specialized Marketing Agents + Shared Studio Gallery
+1. REFERENCE: Match the Home Page Pattern Exactly
+The app has a working home page with this layout:
+
+Top ("Visor"): Collapsible grid of colored metric cards (AI KEY METRICS). Each card has a colored icon container, large value text, subtle color gradient background, and a circular radar watermark SVG in the top-right corner. The visor hides when empty, expands smoothly when content arrives.
+Middle: Scrollable conversation thread (empty on first load)
+Lower middle: ✦ Try asking... label with pill-shaped suggestion chips
+Bottom (fixed): Chat input bar with purple-to-cyan gradient glow border, + attachment button left, placeholder text center, circular send button right
+Every agent page built in this task must use this exact layout and all existing components. Find the home page component files and reuse them — do not recreate. The only things that change per agent are: the visor header label, the visor card content, the suggestion chips, the system prompt, and the available tool functions.
+
+2. ENVIRONMENT VARIABLES
+FAL_AI_API_KEY        — all image/video/audio rendering (fal.ai)
+OPENAI_API_KEY        — agent routing (function calling) + image scoring
+GOOGLE_MAPS_API_KEY   — competitor radar only
+All external. No GPU. No self-hosted models. Route all three through server-side proxy endpoints to keep keys off the client:
+
+/api/fal-proxy
+/api/openai-proxy
+/api/maps-proxy
+3. WHERE THESE AGENTS LIVE IN THE APP
+The Marketing section already has 5 sub-tabs: Dashboard | Agents | Campaigns | Studio | Insights
+
+Agents tab → shows a grid of 5 agent selection cards (the launcher screen). Clicking any card opens that agent's full chat interface.
+
+Studio tab → shows the shared artifact gallery (Section 9 of this prompt). This is where all 5 agents deposit their output.
+
+4. AGENTS TAB — LAUNCHER SCREEN
+When the user clicks the Agents tab, show an agent selection grid before any chat opens. Style it like the home page metric cards — same card component, same grid layout, same design tokens.
+
+5 Agent Cards:
+
+Agent	Icon	Accent Color	Card Gradient	Description Line
+Photo Studio	📸	Teal #0d9488	Same as Active Pipeline card	"Enhance vehicle photos and generate studio visuals"
+Video Producer	🎬	Blue #1d4ed8	Same as Appointments card	"Turn photos into cinematic marketing videos"
+Copywriter	✍️	Purple #7c3aed	Same as Outbound card	"Write ads, captions, and email campaigns"
+Creative Director	📊	Amber #d97706	Same as Escalations card	"Score and analyze your creative for effectiveness"
+Market Intel	🗺️	Green #16a34a	New — green gradient	"Map competitors and evaluate brand presence"
+Each card also shows:
+
+A Sessions: N count (number of saved conversations in localStorage for this agent)
+A Last used: [relative time] line
+Same circular radar watermark from home page metric cards
+On hover: subtle glow matching the card's accent color
+On click: opens that agent's chat view (full page, same layout as home page)
+At top right of the Agents tab: a + New Session button that clears to fresh state before opening the agent.
+
+5. SHARED AGENT PAGE STRUCTURE
+Every agent uses this identical layout — copy the home page layout component:
+
+┌──────────────────────────────────────────────────────┐
+│  BACK BUTTON  ←  [Agent Name]  [Agent Icon]          │  ← Back to agent grid
+├──────────────────────────────────────────────────────┤
+│  VISOR  (collapsible, hidden when empty)              │
+│  Header: "[AGENT NAME] OUTPUTS"                      │
+│  Content: artifact cards — same as home metric cards │
+├──────────────────────────────────────────────────────┤
+│  CONVERSATION THREAD  (scrollable)                   │
+│  Empty state: agent description + suggestion chips   │
+├──────────────────────────────────────────────────────┤
+│  INPUT BAR  (fixed, identical to home page)          │
+│  Placeholder: agent-specific (listed per agent)      │
+│  + button: opens file picker for agents that use it  │
+└──────────────────────────────────────────────────────┘
+The back button in the header navigates back to the Agents launcher grid without clearing the session (session persists in localStorage so the user can return).
+
+6. AGENT DEFINITIONS
+AGENT 1 — 📸 Photo Studio
+Objective: Make vehicle inventory photos look professional without a photographer.
+
+Visor header: PHOTO STUDIO OUTPUTS Visor card type: IMAGE (teal accent) Input bar placeholder: "Describe what you want to do with this photo..." Attachment: Required for background swap — optional for generation
+
+Suggestion chips:
+
+"Swap the background to a white studio floor"
+"Put this car on a mountain highway at sunset"
+"Generate a showroom photo of a red 2024 Accord"
+"Replace background with a city skyline at night"
+"Clean up this lot photo and make it look professional"
+System Prompt:
+
+You are the Photo Studio agent for [Dealership Name]. Your only job is to help 
+create and enhance vehicle photos for marketing use. You have three tools:
+
+1. generate_vehicle_image — create a new AI vehicle photo from a text description 
+   (no upload needed)
+2. swap_vehicle_background — remove background from an uploaded photo and replace 
+   it with a new AI-generated scene
+3. enhance_vehicle_photo — (future) — if called, tell the user this is coming soon
+
+Rules:
+- If the user attaches a photo, default to swap_vehicle_background
+- If no photo is attached and they describe a vehicle, use generate_vehicle_image
+- Always ask for vehicle color, year, make, model if not provided
+- Suggest the obvious next step after each output: "Want to turn this into a video? 
+  Send it to the Video Producer agent from the Studio gallery."
+- Never mention API names or model names
+- Keep responses short — one or two sentences max outside of suggestions
+Available functions: generate_vehicle_image, swap_vehicle_background
+
+Function implementations:
+
+generate_vehicle_image:
+
+Quality draft → fal-ai/flux/schnell at $0.003/image
+Quality standard → fal-ai/flux/dev at $0.025/image
+Quality premium → fal-ai/ideogram/v3 (quality mode) at $0.09/image
+Body: { "prompt": "automotive marketing photography, [style_prefix], [user_prompt], professional lighting, sharp detail", "image_size": "[aspect_ratio]", "num_images": 1 }
+Default quality: standard. Default aspect ratio: landscape_4_3.
+Auth: Authorization: Key ${FAL_AI_API_KEY}
+swap_vehicle_background:
+
+POST image to fal-ai/bria/background/remove → foreground PNG — $0.018
+POST background description to fal-ai/flux/schnell → backdrop image — $0.003
+Composite via browser Canvas API: draw backdrop full canvas, draw foreground centered, export PNG blob
+Push IMAGE artifact card to visor. Save to Studio gallery.
+After tool completion — show quick action chips in chat:
+
+After generate_vehicle_image: [ 🎬 Send to Video Producer ] [ 📊 Score this image ] [ 🔄 Generate variation ]
+After swap_vehicle_background: [ 🎬 Send to Video Producer ] [ 📊 Score this image ] [ 🔄 Try different background ]
+AGENT 2 — 🎬 Video Producer
+Objective: Convert vehicle photos into cinematic marketing video clips with optional voiceover.
+
+Visor header: VIDEO PRODUCER OUTPUTS Visor card type: VIDEO (blue accent) — shows video thumbnail with play icon overlay Input bar placeholder: "Attach a photo or describe the video you want..." Attachment: Required for photo-to-video. Optional for voiceover-only.
+
+Suggestion chips:
+
+"Turn this photo into a cinematic 5-second video"
+"Slow pan around the vehicle with golden hour lighting"
+"Create a video with dramatic zoom-in on the front grille"
+"Generate a voiceover for my weekend sale announcement"
+"Make a 3-second teaser clip for social media"
+System Prompt:
+
+You are the Video Producer agent for [Dealership Name]. Your job is to create 
+video content from vehicle photos and generate voiceover audio for marketing use.
+
+Tools available:
+1. create_vehicle_video — convert an uploaded photo into a cinematic video clip
+2. generate_voiceover — convert a text script into spoken audio narration
+
+Rules:
+- If user attaches a photo, use create_vehicle_video
+- If user provides a script or asks for narration, use generate_voiceover
+- If user wants both, run create_vehicle_video first, then generate_voiceover,
+  and tell them both are ready in the studio
+- Default duration: 5 seconds. Default quality: standard.
+- Always describe the motion you're going to generate before calling the tool,
+  so the user can correct you: "I'll create a slow cinematic pull-back from the 
+  front of the vehicle with warm sunset lighting. Sound good?"
+- Suggest pairing a voiceover with every video output
+- Never mention fal.ai, LTX, or any model names
+Available functions: create_vehicle_video, generate_voiceover
+
+Function implementations:
+
+create_vehicle_video:
+
+Upload image: POST to fal-ai/upload → get hosted URL
+Standard → fal-ai/ltx-video-v095/image-to-video at $0.04/video
+Premium → fal-ai/ltx-video-v097/image-to-video at $0.20/video
+Body: { "image_url": <hosted_url>, "prompt": <motion_prompt>, "duration": <3 or 5> }
+Poll request ID every 4 seconds. Show live elapsed timer in status message: "Rendering your video... (0:34 elapsed)"
+On complete: render <video controls autoplay loop> inline in chat. Push VIDEO card to visor. Save to Studio gallery.
+generate_voiceover:
+
+POST to fal-ai/kokoro/american-english at $0.02/1k chars
+Body: { "text": <script>, "voice": <mapped_voice> }
+Voice map: professional_male → "am_adam", professional_female → "af_sarah", energetic → "am_michael", warm_friendly → "af_bella"
+On complete: render <audio controls> inline in chat. Push VOICEOVER card to visor. Save to Studio gallery.
+After tool completion — quick action chips:
+
+After video: [ 🎙 Add voiceover ] [ 📊 Score the thumbnail ] [ ⬇ Download MP4 ]
+After voiceover: [ ⬇ Download MP3 ] [ 🎬 Pair with a video ] [ 🔄 Try different voice ]
+AGENT 3 — ✍️ Copywriter
+Objective: Write all ad copy, social captions, email subjects, and digital ad text for any vehicle or campaign.
+
+Visor header: COPYWRITER OUTPUTS Visor card type: COPY (purple accent) — shows a text preview card with the first headline visible Input bar placeholder: "Tell me about the vehicle or campaign..." Attachment: Not used
+
+Suggestion chips:
+
+"Write Facebook ad copy for a 2024 Honda Pilot"
+"Give me 5 email subject lines for our Labor Day sale"
+"Write a Google Search ad for a certified pre-owned Accord"
+"Create Instagram captions for our new inventory drop"
+"Write a conquest campaign targeting buyers of competing brands"
+System Prompt:
+
+You are the Copywriter agent for [Dealership Name]. Your job is to write 
+compelling automotive marketing copy that drives leads and traffic.
+
+Tool available:
+1. generate_ad_copy — write structured ad copy in multiple formats
+
+Rules:
+- Always ask for year, make, model, key selling point, and any active offer 
+  if not provided (one question at a time, not all at once)
+- Default to generating 3 variations per format so the user can choose
+- For conquest campaigns, ask which competing brand to target
+- Format copy output as clean, scannable blocks — not a wall of text
+- Always include a `📋 Copy` button on each variation (handled in rendering)
+- After delivering copy, ask: "Want me to read any of these aloud? 
+  I can send them to the Video Producer for voiceover."
+- Never use clichés like "Don't miss out!" or "Act now!" unless specifically asked
+Available functions: generate_ad_copy
+
+Function implementation:
+
+generate_ad_copy:
+
+POST to OpenAI /v1/chat/completions, model: "gpt-4o-mini"
+System prompt: "You are an expert automotive advertising copywriter. Write conversion-focused, brand-appropriate copy. Return ONLY valid JSON matching the requested structure."
+Construct user prompt from vehicle_description, formats array, tone, and num_variations: 3
+Request this JSON structure:
+Copy{
+  "vehicle": "...",
+  "variations": {
+    "headline": ["...", "...", "..."],
+    "body_copy": ["...", "...", "..."],
+    "social_caption": ["...", "...", "..."],
+    "email_subject": ["...", "...", "..."],
+    "google_ad": ["...", "...", "..."]
+  }
+}
+Render each format as an expandable section in chat. Each variation gets its own row with a 📋 Copy button that copies to clipboard.
+Push COPY artifact card to visor (shows first headline as preview text). Save to Studio gallery.
+Estimated cost: ~$0.001 per generation
+After tool completion — quick action chips:
+
+[ 🎙 Turn this into a voiceover ] [ 📊 Score this campaign ] [ 🔄 Try different tone ]
+AGENT 4 — 📊 Creative Director
+Objective: Analyze marketing images and tell you whether they will perform — with a scored breakdown and specific improvement advice.
+
+Visor header: CREATIVE DIRECTOR OUTPUTS Visor card type: SCORE (amber accent) — shows the overall score number large, same as metric card value Input bar placeholder: "Upload an image to score, or paste an image URL..." Attachment: Required — accepts image upload or URL paste
+
+Suggestion chips:
+
+"Score this vehicle photo for ad effectiveness"
+"Is this image good enough for a Facebook ad?"
+"Compare these two creatives and tell me which is better"
+"What's wrong with this photo and how do I fix it?"
+"Rate this against automotive ad best practices"
+System Prompt:
+
+You are the Creative Director agent for [Dealership Name]. Your job is to 
+objectively evaluate marketing images and tell the team whether they are 
+ready to publish — and exactly what to improve if not.
+
+Tool available:
+1. score_ad_image — analyze an image and return a scored effectiveness breakdown
+
+Rules:
+- Always be direct. Marketing people need clear direction, not vague feedback.
+- If the score is below 60: lead with what is most wrong, not what is right
+- If the score is 75+: affirm it's publish-ready and suggest one enhancement
+- If the score is 90+: tell them it's exceptional and recommend using it as a 
+  template for future creative
+- If user uploads multiple images, score each one separately and compare them
+- After scoring, always suggest the logical improvement path:
+  → Low score on lighting → "Send this to Photo Studio to regenerate with better lighting"
+  → Low score on subject clarity → "The vehicle isn't prominent enough. Try a tighter crop."
+  → Low score on text legibility → "The overlay text is hard to read. Adjust contrast."
+- Never sugarcoat. Be a real creative director.
+Available functions: score_ad_image
+
+Function implementation:
+
+score_ad_image:
+
+POST to OpenAI /v1/chat/completions, model: "gpt-4o-mini" with vision
+Include image as base64 data URI or URL in message content
+System: "You are an expert automotive marketing creative director. Analyze vehicle ad images with professional rigor. Return ONLY valid JSON."
+Request this exact JSON:
+Copy{
+  "overall_score": 0,
+  "visual_appeal": 0,
+  "subject_clarity": 0,
+  "lighting_quality": 0,
+  "text_legibility": 0,
+  "ad_effectiveness": 0,
+  "visual_appeal_feedback": "",
+  "subject_clarity_feedback": "",
+  "lighting_quality_feedback": "",
+  "text_legibility_feedback": "",
+  "ad_effectiveness_feedback": "",
+  "publish_ready": true,
+  "recommendations": ["", "", ""]
+}
+Render inline score card in chat:
+Large circular score badge animated from 0 to final value (CSS animation, 1s ease-out)
+Score color: < 50 red, 50–74 amber, 75–89 cyan, 90+ green
+5 horizontal bars, each animating fill left-to-right on render
+Each bar labeled and color-coded by value
+One-sentence feedback below each bar in secondary text
+publish_ready renders as a banner: ✅ PUBLISH READY (green) or ⚠ NEEDS WORK (amber) or ❌ NOT READY (red)
+3 recommendation bullets at bottom
+Push SCORE artifact card to visor — shows overall score number as the "value" (same position as "395" in home page metric cards). Save to Studio gallery.
+Estimated cost: ~$0.002 per analysis
+After tool completion — quick action chips:
+
+If score < 75: [ 📸 Regenerate in Photo Studio ] [ 🔄 Upload revised version ] [ ✍ Write copy anyway ]
+If score ≥ 75: [ ✍ Write copy for this ] [ 🎬 Send to Video Producer ] [ ⬇ Download scored report ]
+AGENT 5 — 🗺️ Market Intel
+Objective: Map every competing dealership in the area, score their brand presence, and identify gaps the dealer can exploit.
+
+Visor header: MARKET INTEL OUTPUTS Visor card type: RADAR (green accent) — shows a miniature map thumbnail or competitor count Input bar placeholder: "Ask about competitors, market gaps, or local brand presence..." Attachment: Not used
+
+Suggestion chips:
+
+"Find all competitors within 15 miles"
+"Which nearby dealer has the strongest brand presence?"
+"Show me all Honda dealers competing with us"
+"Who are our top 3 threats in the market?"
+"Find competitor gaps I can target with advertising"
+System Prompt:
+
+You are the Market Intelligence agent for [Dealership Name] located at 
+[Dealership Address]. Your job is to find, map, and analyze competing 
+dealerships so the marketing team can make smarter decisions about where 
+and how to advertise.
+
+Tool available:
+1. scan_competitor_radar — find and score all competing dealerships near a location
+
+Rules:
+- Always use [Dealership Address] as the default center point — never ask for it
+- Default radius: 15 miles unless user specifies otherwise
+- After scanning, always call out: the #1 threat, any dealer with a significantly 
+  higher score, and any obvious gap (e.g., no competitors in a specific area)
+- Format your analysis as: Overview → Top Threats → Opportunities
+- Suggest conquest campaign ideas based on the gap analysis
+- Be analytical and direct — this is intelligence, not sales
+Available functions: scan_competitor_radar
+
+Function implementation:
+
+scan_competitor_radar:
+
+Geocode address: GET https://maps.googleapis.com/maps/api/geocode/json?address=<encoded_address>&key=${GOOGLE_MAPS_API_KEY}
+Nearby search: GET https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=<lat,lng>&radius=<miles×1609>&type=car_dealer&key=${GOOGLE_MAPS_API_KEY}
+For up to 20 results, GET place details: fields name,rating,user_ratings_total,photos,website,opening_hours,formatted_address
+Calculate Brand Presence Score per competitor:
+Copyconst score = Math.round(
+  (competitor.rating / 5) * 30 +
+  Math.min(Math.log10((competitor.reviews || 0) + 1) / Math.log10(1000), 1) * 25 +
+  (competitor.photos > 10 ? 20 : (competitor.photos || 0) * 2) +
+  (competitor.website ? 15 : 0) +
+  (competitor.is_open_now ? 10 : 0)
+)
+Classify each competitor:
+Score 80–100: 🔴 High Threat
+Score 50–79: 🟡 Moderate
+Score 0–49: 🟢 Weak Presence
+Render inline in chat:
+Leaflet.js map (load from CDN https://unpkg.com/leaflet@1.9.4/dist/leaflet.js). Dark tile layer: https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png. Attribution required.
+Dealer's own location: cyan pin 📍
+Competitors: circle markers, radius = score/5, color = threat classification color
+Clicking a marker shows popup: Name, Score, Rating, Review count, website link
+Ranked table below map: Name | Distance | Score | Threat Level | Rating | Reviews
+Analysis section below table (rendered as agent text, not a tool output):
+"📍 Top Threat: [Name] — Brand Presence Score [N], [distance] away"
+"⚠ Market Gap: [observation]"
+"💡 Opportunity: [1-sentence actionable insight]"
+Push RADAR artifact card to visor — shows competitor count as the card "value" (e.g., "14 Competitors Found"). Save to Studio gallery.
+Estimated cost: ~$0.50–$1.50 per scan depending on radius
+After tool completion — quick action chips:
+
+[ 🔄 Expand to 25 miles ] [ ✍ Write a conquest campaign ] [ 📊 Score our own brand presence ]
+7. SHARED STUDIO GALLERY (Studio Tab)
+The Studio tab shows all artifacts from all 5 agents in one unified gallery.
+
+Layout: Copy the home page metric card grid layout. Header: SAVED ARTIFACTS (same small-caps style as AI KEY METRICS).
+
+Filter row (pill chips, same style as suggestion chips): All · Images · Videos · Copy · Scores · Radar Maps · Voiceovers
+
+Artifact cards: Same component as the agent visor cards. Full-width grid, 2–3 columns responsive. Each card shows:
+
+Thumbnail/preview appropriate to type
+Type badge (IMAGE / VIDEO / COPY / SCORE / RADAR / VOICEOVER)
+Agent name badge (which agent created it): 📸 Photo Studio etc.
+Date/time created (relative: "2 hours ago")
+Vehicle context if known
+Three action buttons:
+⬇ Download — downloads the asset
+▶ Resume — opens the originating agent and restores the conversation
+☐ Select — checkbox for multi-select sharing
+"Send to Agent" cross-workflow button: On IMAGE artifacts: show → Send to Video Producer and → Send to Creative Director On COPY artifacts: show → Send to Video Producer (for voiceover) On SCORE artifacts: show → Send to Photo Studio (to regenerate)
+
+Clicking "Send to Agent →" opens that agent's chat with the artifact pre-loaded as context and a pre-written message: "Here's an image from Photo Studio — I'd like to [create a video / score this / write copy for it]."
+
+Persistence: All artifacts stored in localStorage keyed by dealership_id:
+
+Copy{
+  "dealership_id": "...",
+  "artifacts": [
+    {
+      "id": "uuid",
+      "agent": "photo_studio | video_producer | copywriter | creative_director | market_intel",
+      "session_id": "uuid",
+      "type": "IMAGE | VIDEO | COPY | SCORE | RADAR | VOICEOVER",
+      "url": "...",
+      "thumbnail_url": "...",
+      "title": "...",
+      "vehicle_context": "...",
+      "created_at": "ISO timestamp",
+      "conversation_snapshot": [ ...full_message_array ]
+    }
+  ]
+}
+Resume Conversation: Clicking ▶ Resume on any card:
+
+Navigate to the originating agent's chat view
+Restore conversation_snapshot into the chat thread
+Re-push the artifact into that agent's visor
+Focus the input bar
+Show banner: "Resumed session — [agent name] · [relative date]"
+8. SHARING PANEL
+When any artifact ☐ checkboxes are selected (visor or gallery), a sharing bar slides up above the input bar:
+
+[ N items selected ]  [ 📧 Email ]  [ 💬 SMS ]  [ ✕ Cancel ]
+Email modal: To: field, Subject: (pre-filled: "Marketing Assets — [Dealership Name]"), Message: (optional). Lists selected artifact thumbnails. On send: use existing email endpoint in codebase. Fallback: mailto:.
+
+SMS modal: To: (phone number). Message preview shows asset links. On send: use existing SMS/Twilio endpoint in codebase. If none configured: show "SMS not configured — add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER to Secrets."
+
+9. ACCEPTANCE CRITERIA
+Agents Tab Launcher
+
+ 5 agent cards render in the same grid/card style as home page metric cards
+ Each card shows correct accent color, icon, description, session count, last used time
+ Circular radar watermark SVG renders on each card (reused from home page)
+ Clicking any card opens that agent's chat view
+ Back button returns to launcher without clearing session
+Per-Agent Chat
+
+ Layout is structurally identical to home page (visor + thread + input bar)
+ Correct system prompt loaded per agent
+ Only the correct tool functions available per agent
+ Suggestion chips are agent-specific and trigger the agent on click
+ + button works for agents that require image attachment (Photo Studio, Video Producer, Creative Director)
+ Attached image renders as thumbnail chip in input bar before send
+Tool Execution
+
+ All 7 tool functions execute and return correct artifact types
+ Video tool shows polling progress with elapsed time counter
+ Background swap composites correctly via Canvas API
+ Competitor radar renders Leaflet map with dark tiles, scored markers, and ranked table
+ Score tool renders animated bars and circular badge
+ All artifacts pushed to visor immediately on completion
+ All artifacts saved to localStorage immediately on completion
+Studio Gallery
+
+ All 5 agents' artifacts appear in one unified gallery
+ Filter chips correctly filter by type
+ Agent name badge correct on each card
+ "Send to Agent →" buttons present and functional on relevant artifact types
+ Resume restores full conversation and visor state in correct agent
+Sharing
+
+ Multi-select works in visor and gallery simultaneously
+ Sharing bar slides up on first selection, disappears on cancel/deselect all
+ Email and SMS modals open with pre-filled content
+ Correct fallback behavior if integrations not configured
+Design Fidelity
+
+ All 5 agent pages are structurally identical to home page — no new layout patterns
+ All card styles, chip styles, input bar styles, gradient patterns match home page exactly
+ Existing components reused throughout — no duplication
