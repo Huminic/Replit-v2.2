@@ -9,6 +9,7 @@ const RATE_LIMIT_HOURS = 24;
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
+const TEXTMAGIC_USERNAME = process.env.TEXTMAGIC_USERNAME || "";
 const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
 const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
 
@@ -31,16 +32,23 @@ export async function sendSms(to: string, content: string): Promise<void> {
   if (!TEXTMAGIC_API_KEY) {
     throw new Error("TEXTMAGIC_API_KEY is not configured");
   }
+  if (!TEXTMAGIC_USERNAME) {
+    throw new Error("TEXTMAGIC_USERNAME is not configured");
+  }
+
+  const phone = to.replace(/[^0-9+]/g, "");
+  const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
 
   const response = await fetch(`${TEXTMAGIC_BASE_URL}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-TM-Username": TEXTMAGIC_USERNAME,
       "X-TM-Key": TEXTMAGIC_API_KEY,
     },
     body: JSON.stringify({
       text: content,
-      phones: to.replace(/[^0-9+]/g, ""),
+      phones: formattedPhone,
     }),
   });
 
