@@ -24,7 +24,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe, Square, RotateCcw, AlertCircle } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe, Square, RotateCcw, AlertCircle, Phone, MessageSquare, ArrowLeft, User, Mail, MapPin, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -176,6 +176,150 @@ function PhoneCell({ phone, toast }: { phone: string | null | undefined; toast: 
   );
 }
 
+function ContactDetailView({ leadId, leadRow, onBack, orgId }: {
+  leadId: string;
+  leadRow: any;
+  onBack: () => void;
+  orgId?: string;
+}) {
+  const { toast } = useToast();
+  const { data: contact, isLoading, isError } = useQuery<any>({
+    queryKey: [`/api/vin/leads/${leadId}/contact`, orgId],
+    enabled: !!leadId,
+  });
+
+  const contactName = contact
+    ? [contact.firstName, contact.lastName].filter(Boolean).join(' ')
+    : leadRow?.customerName || '—';
+  const contactPhone = contact?.phone || leadRow?.customerPhone || null;
+  const contactEmail = contact?.email || leadRow?.customerEmail || null;
+
+  const handleCall = () => {
+    if (!contactPhone) {
+      toast({ title: 'No phone number', description: 'This contact does not have a phone number on file.' });
+      return;
+    }
+    const digits = contactPhone.replace(/\D/g, '');
+    window.open(`tel:${digits}`, '_self');
+    toast({ title: 'Calling', description: `Initiating call to ${digits}` });
+  };
+
+  const handleText = () => {
+    if (!contactPhone) {
+      toast({ title: 'No phone number', description: 'This contact does not have a phone number on file.' });
+      return;
+    }
+    const digits = contactPhone.replace(/\D/g, '');
+    window.open(`sms:${digits}`, '_self');
+    toast({ title: 'Texting', description: `Opening SMS to ${digits}` });
+  };
+
+  return (
+    <div className="space-y-5" data-testid="contact-detail-view">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        data-testid="button-back-to-leads"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to leads
+      </button>
+
+      {isLoading ? (
+        <div className="py-10 flex flex-col items-center gap-3" data-testid="contact-loading">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Loading contact from CRM...</span>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="h-7 w-7 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-foreground" data-testid="text-contact-name">{contactName}</h3>
+              {leadRow?.vinStatus && (
+                <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground" data-testid="text-contact-status">{leadRow.vinStatus}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {contactPhone && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-phone-row">
+                <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1" data-testid="text-contact-phone">{contactPhone}</span>
+              </div>
+            )}
+            {contactEmail && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-email-row">
+                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1 truncate" data-testid="text-contact-email">{contactEmail}</span>
+              </div>
+            )}
+            {contact?.city && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-location-row">
+                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1" data-testid="text-contact-location">
+                  {[contact.city, contact.state, contact.zip].filter(Boolean).join(', ')}
+                </span>
+              </div>
+            )}
+            {contact?.companyName && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-company-row">
+                <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1" data-testid="text-contact-company">{contact.companyName}</span>
+              </div>
+            )}
+            {leadRow?.vehicleOfInterest && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-vehicle-row">
+                <Sparkles className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="text-xs text-muted-foreground">Vehicle of Interest</span>
+                  <p className="text-sm text-foreground" data-testid="text-contact-vehicle">{leadRow.vehicleOfInterest}</p>
+                </div>
+              </div>
+            )}
+            {!contactPhone && !contactEmail && !isLoading && (
+              <div className="py-4 text-center text-sm text-muted-foreground" data-testid="contact-no-info">
+                No contact information available
+              </div>
+            )}
+          </div>
+
+          {isError && (
+            <p className="text-xs text-amber-600 dark:text-amber-400" data-testid="contact-crm-error">
+              Could not fetch live CRM data. Showing cached info.
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              className="flex-1 gap-2"
+              onClick={handleCall}
+              disabled={!contactPhone}
+              data-testid="button-call-contact"
+            >
+              <Phone className="h-4 w-4" />
+              Call
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 gap-2"
+              onClick={handleText}
+              disabled={!contactPhone}
+              data-testid="button-text-contact"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Text
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
   selectedMetric: MetricTile | null;
   metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }>;
@@ -184,11 +328,17 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
 }) {
   const { toast } = useToast();
   const metricKey = selectedMetric ? metricApiKeys[selectedMetric.label] : null;
+  const [viewingContact, setViewingContact] = useState<{ leadId: string; row: any } | null>(null);
 
   const { data: detailRows, isLoading, isError } = useQuery<any[]>({
     queryKey: [`/api/metrics/pipeline/details?metric=${metricKey}`, orgId],
     enabled: !!selectedMetric && !!metricKey,
   });
+
+  const handleClose = () => {
+    setViewingContact(null);
+    onClose();
+  };
 
   const renderTable = () => {
     if (isLoading) {
@@ -220,22 +370,33 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
-                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Phone</th>
-                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Email</th>
                 <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Status</th>
                 <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Vehicle</th>
                 <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Lead ID</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground"></th>
               </tr>
             </thead>
             <tbody>
               {detailRows.map((row: any, idx: number) => (
                 <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-pipeline-${idx}`}>
                   <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
-                  <td className="py-2 px-2 text-muted-foreground"><PhoneCell phone={row.customerPhone} toast={toast} /></td>
-                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
                   <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
                   <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
                   <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
+                  <td className="py-2 px-2">
+                    {row.sourceId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
+                        onClick={() => setViewingContact({ leadId: row.sourceId, row })}
+                        data-testid={`button-view-contact-${idx}`}
+                      >
+                        <User className="h-3 w-3" />
+                        View Contact
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -333,44 +494,66 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
   };
 
   return (
-    <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+        {viewingContact ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2" data-testid="text-contact-detail-title">
+                <User className="h-5 w-5 text-primary" />
+                Contact Details
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                Live contact information from CRM
+              </DialogDescription>
+            </DialogHeader>
+            <ContactDetailView
+              leadId={viewingContact.leadId}
+              leadRow={viewingContact.row}
+              onBack={() => setViewingContact(null)}
+              orgId={orgId}
+            />
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+                {selectedMetric && (
+                  <>
+                    {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                    {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                    {selectedMetric.label}
+                  </>
+                )}
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
+              </DialogDescription>
+            </DialogHeader>
             {selectedMetric && (
-              <>
-                {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
-                {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
-                {selectedMetric.label}
-              </>
+              <div className="space-y-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+                  <span className={cn(
+                    'text-sm font-medium',
+                    selectedMetric.trend === 'up' && 'text-green-600 dark:text-green-400',
+                    selectedMetric.trend === 'down' && 'text-red-600 dark:text-red-400',
+                    selectedMetric.trend === 'neutral' && 'text-muted-foreground'
+                  )}>
+                    {selectedMetric.change}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {(detailRows?.length ?? 0) >= 100
+                      ? `showing first 100 of ${selectedMetric.value} records`
+                      : `${detailRows?.length ?? 0} records`}
+                  </span>
+                </div>
+                <div className="border-t border-border pt-3">
+                  {renderTable()}
+                </div>
+              </div>
             )}
-          </DialogTitle>
-          <DialogDescription className="text-xs">
-            {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
-          </DialogDescription>
-        </DialogHeader>
-        {selectedMetric && (
-          <div className="space-y-4">
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
-              <span className={cn(
-                'text-sm font-medium',
-                selectedMetric.trend === 'up' && 'text-green-600 dark:text-green-400',
-                selectedMetric.trend === 'down' && 'text-red-600 dark:text-red-400',
-                selectedMetric.trend === 'neutral' && 'text-muted-foreground'
-              )}>
-                {selectedMetric.change}
-              </span>
-              <span className="text-xs text-muted-foreground ml-auto">
-                {(detailRows?.length ?? 0) >= 100
-                  ? `showing first 100 of ${selectedMetric.value} records`
-                  : `${detailRows?.length ?? 0} records`}
-              </span>
-            </div>
-            <div className="border-t border-border pt-3">
-              {renderTable()}
-            </div>
-          </div>
+          </>
         )}
       </DialogContent>
     </Dialog>

@@ -528,6 +528,62 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  app.get("/api/vin/leads/:leadId/contact", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = req.user.organizationId;
+      const nexxusOrgId = resolveNexxusOrgId(orgId);
+      const leadId = req.params.leadId;
+
+      const { storage: storageModule } = await import("./storage");
+      const cachedLead = await storageModule.getWarehouseLeadBySourceId(orgId, leadId);
+      const cachedContact = cachedLead ? {
+        firstName: cachedLead.customerName?.split(" ")[0] || null,
+        lastName: cachedLead.customerName?.split(" ").slice(1).join(" ") || null,
+        phone: cachedLead.customerPhone || null,
+        email: cachedLead.customerEmail || null,
+        city: null, state: null, zip: null, companyName: null,
+      } : null;
+
+      try {
+        const now = new Date();
+        const ninetyDaysAgo = new Date(now);
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+        const vinLeads = await callMCP("vin_query_leads", {
+          orgId: nexxusOrgId,
+          startDate: fmt(ninetyDaysAgo),
+          endDate: fmt(now),
+          limit: 500,
+        });
+        const items = vinLeads?.items || vinLeads?.results || (Array.isArray(vinLeads) ? vinLeads : []);
+        const match = items.find((item: any) => String(item.leadId || item.id || "") === String(leadId));
+
+        if (match) {
+          const href = match.contact || match.ContactHref || match.contactHref || "";
+          const contactId = typeof href === "string" ? extractContactIdFromHref(href)
+            : (typeof match.contactId === "number" ? match.contactId : null);
+
+          if (contactId) {
+            const data = await callMCP("vin_get_contact", { orgId: nexxusOrgId, contactId });
+            return res.json(flattenContactInfo(data));
+          }
+        }
+      } catch (vinErr) {
+        console.error("[lead-contact] VinSolutions lookup failed, using cached data:", vinErr);
+      }
+
+      if (cachedContact) {
+        return res.json(cachedContact);
+      }
+
+      return res.status(404).json({ message: "Contact not found for this lead" });
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to resolve lead contact", error: err.message });
+    }
+  });
+
   app.get("/api/vin/leads/:leadId/trade-vehicles", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
