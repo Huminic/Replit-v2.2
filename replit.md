@@ -122,3 +122,19 @@ The backend runs on **Express** with **TypeScript**, interacting with a **Postgr
 - `client/src/contexts/AppContext.tsx` — `updateAgentHandler` persists via API
 - `client/src/components/AgentConfigPane.tsx` — Settings tab (qualia), Triggers UI, Activity tab, Tools safe fallback, Skills removed
 - `client/src/lib/agent-utils.ts` — draft status removed from `getAgentStatusColor`
+
+## Area 5 Implementation Status (COMPLETED)
+
+### Changes Made
+- **TextMagic webhook org resolution fix**: Added `getOrganizationByTextmagicPhone` storage method that looks up orgs by `settings.textmagicPhone`; webhook now uses the `receiver` field (TextMagic's receiving number) as the primary org resolution strategy (T003)
+- **Outbound echo filtering**: Webhook detects when `sender` matches the org's own TextMagic number and skips processing (T003)
+- **TextMagic phone number UI field**: Added per-org TextMagic phone number input in Settings > Channel Controls, saved to org settings JSONB as `textmagicPhone` (T004)
+- **Dead code removal**: Removed unused `server/replit_integrations/chat/` directory (duplicate conversation routes never called) (T001)
+- **Webhook cleanup**: Removed unnecessary `upload.none()` multer middleware from webhook route (T002)
+- **Variable scope fix**: Fixed `lastOutbound` ReferenceError in outbound context resolution (T003)
+
+### Key Files Modified
+- `server/routes.ts` — TextMagic webhook handler: receiver-based org resolution, outbound echo filter, removed multer middleware
+- `server/storage.ts` — `getOrganizationByTextmagicPhone()` method on IStorage interface and DatabaseStorage
+- `client/src/pages/settings.tsx` — TextMagic phone number input in CommGate Channel Controls
+- `server/replit_integrations/chat/` — Removed (dead code)
