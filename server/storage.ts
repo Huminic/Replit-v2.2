@@ -336,8 +336,11 @@ export class DatabaseStorage implements IStorage {
 
   async getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined> {
     const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const digitsOnly = normalizedPhone.replace(/\+/g, "");
+    const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
+    const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
     const conditions = [
-      eq(conversations.customerPhone, normalizedPhone),
+      sql`(${conversations.customerPhone} = ${normalizedPhone} OR ${conversations.customerPhone} = ${digitsOnly} OR ${conversations.customerPhone} = ${without1} OR ${conversations.customerPhone} = ${with1} OR ${conversations.customerPhone} = ${'+' + with1})`,
       eq(conversations.status, "open"),
     ];
     if (channel) conditions.push(eq(conversations.channel, channel));
@@ -716,9 +719,12 @@ export class DatabaseStorage implements IStorage {
 
   async findLastOutboundForPhone(phone: string, channel?: string): Promise<OutboundLog | undefined> {
     const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const digitsOnly = normalizedPhone.replace(/\+/g, "");
+    const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
+    const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
     const conditions = [
       eq(outboundLog.status, "sent"),
-      sql`${campaignRecipients.phone} = ${normalizedPhone}`,
+      sql`(${campaignRecipients.phone} = ${normalizedPhone} OR ${campaignRecipients.phone} = ${digitsOnly} OR ${campaignRecipients.phone} = ${without1} OR ${campaignRecipients.phone} = ${with1} OR ${campaignRecipients.phone} = ${'+' + with1})`,
     ];
     if (channel) conditions.push(eq(outboundLog.channel, channel));
     const [result] = await db.select({ outboundLog })

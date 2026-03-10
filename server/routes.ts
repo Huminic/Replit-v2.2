@@ -3827,18 +3827,32 @@ When the user asks a question that requires deep CRM data (specific lead details
           unreadCount: (conversation.unreadCount || 0) + 1,
         });
       } else {
-        const contactOrg = await storage.findOrganizationByPhone(normalizedPhone);
-        if (contactOrg) {
-          organizationId = contactOrg.id;
-        } else {
+        let resolvedOrg: string | null = null;
+
+        const lastOutbound = await storage.findLastOutboundForPhone(normalizedPhone, "sms");
+        if (lastOutbound?.organizationId) {
+          resolvedOrg = lastOutbound.organizationId;
+          console.log(`[TextMagic Webhook] Resolved org via outbound history: ${resolvedOrg}`);
+        }
+
+        if (!resolvedOrg) {
+          const contactOrg = await storage.findOrganizationByPhone(normalizedPhone);
+          if (contactOrg) {
+            resolvedOrg = contactOrg.id;
+          }
+        }
+
+        if (!resolvedOrg) {
           const allOrgs = await storage.getOrganizations();
           if (allOrgs.length === 1) {
-            organizationId = allOrgs[0].id;
+            resolvedOrg = allOrgs[0].id;
           } else {
             console.warn("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
             return res.status(200).json({ message: "Received — unresolvable sender, no action taken" });
           }
         }
+
+        organizationId = resolvedOrg;
 
         let sourceConversationId: string | null = null;
         let linkedCampaignId: string | null = null;
