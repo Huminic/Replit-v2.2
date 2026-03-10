@@ -83,6 +83,46 @@ export function resolveNexxusOrgId(localOrgId: string): string {
   return NEXXUS_ORG_MAP[localOrgId] || localOrgId;
 }
 
+export function extractContactIdFromHref(href: string): number | null {
+  const match = href.match(/\/contacts\/id\/(\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
+function flattenContactInfo(raw: any): any {
+  const ci = Array.isArray(raw) && raw.length > 0 && raw[0]?.ContactInformation
+    ? raw[0].ContactInformation
+    : raw;
+  if (!ci || typeof ci !== "object") return raw;
+
+  const primaryEmail = Array.isArray(ci.Emails)
+    ? ci.Emails.find((e: any) => e.EmailType === "Primary")?.EmailAddress || ci.Emails[0]?.EmailAddress
+    : ci.EmailAddress || ci.Email || ci.emailAddress || ci.email;
+
+  const primaryPhone = Array.isArray(ci.Phones)
+    ? ci.Phones.find((p: any) => p.PhoneType === "Cell")?.Number
+      || ci.Phones.find((p: any) => p.PhoneType === "Home")?.Number
+      || ci.Phones[0]?.Number
+    : ci.PhoneNumber || ci.Phone || ci.phoneNumber || ci.phone;
+
+  const primaryAddress = Array.isArray(ci.Addresses) ? ci.Addresses[0] : null;
+
+  return {
+    contactId: ci.ContactId || ci.Id || ci.id,
+    firstName: ci.FirstName || ci.firstName,
+    lastName: ci.LastName || ci.lastName,
+    email: primaryEmail || null,
+    phone: primaryPhone || null,
+    city: primaryAddress?.City || ci.City || ci.city || null,
+    state: primaryAddress?.State || ci.State || ci.state || null,
+    zip: primaryAddress?.PostalCode || ci.ZipCode || ci.zipCode || null,
+    companyName: ci.CompanyName || ci.companyName || null,
+    doNotCall: ci.DoNotCall ?? ci.doNotCall ?? null,
+    doNotEmail: ci.DoNotEmail ?? ci.doNotEmail ?? null,
+    doNotMail: ci.DoNotMail ?? ci.doNotMail ?? null,
+    _raw: ci,
+  };
+}
+
 async function vapiGet(path: string) {
   const res = await fetch(`${VAPI_BASE}${path}`, {
     headers: {
@@ -475,15 +515,27 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  app.get("/api/vin/contacts/:contactId", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const contactId = Number(req.params.contactId);
+      if (isNaN(contactId)) return res.status(400).json({ message: "contactId must be numeric" });
+      const data = await callMCP("vin_get_contact", { orgId: nexxusOrgId, contactId });
+      return res.json(flattenContactInfo(data));
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to fetch contact", error: err.message });
+    }
+  });
+
   app.get("/api/vin/leads/:leadId/trade-vehicles", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
-      const data = await callMCP("vin_get_trade_vehicles", {
-        orgId: nexxusOrgId,
-        leadId: req.params.leadId,
-      });
-      return res.json(data);
+      const leadId = Number(req.params.leadId);
+      if (isNaN(leadId)) return res.status(400).json({ message: "leadId must be numeric" });
+      const data = await callMCP("vin_get_trade_vehicles", { orgId: nexxusOrgId, leadId });
+      return res.json(data || []);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch trade vehicles", error: err.message });
     }
@@ -493,11 +545,10 @@ export function registerVendorRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const leadId = Number(req.params.leadId);
+      if (isNaN(leadId)) return res.status(400).json({ message: "leadId must be numeric" });
       const { status, coBuyer, vehicles, ...rest } = req.body;
-      const args: Record<string, unknown> = {
-        orgId: nexxusOrgId,
-        leadId: req.params.leadId,
-      };
+      const args: Record<string, unknown> = { orgId: nexxusOrgId, leadId };
       if (status) args.status = status;
       if (coBuyer) args.coBuyer = coBuyer;
       if (vehicles) args.vehicles = vehicles;
@@ -530,11 +581,9 @@ export function registerVendorRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
-      const args: Record<string, unknown> = {
-        orgId: nexxusOrgId,
-        contactId: req.params.contactId,
-        ...req.body,
-      };
+      const contactId = Number(req.params.contactId);
+      if (isNaN(contactId)) return res.status(400).json({ message: "contactId must be numeric" });
+      const args: Record<string, unknown> = { orgId: nexxusOrgId, contactId, ...req.body };
       const data = await callMCP("vin_update_contact", args);
       return res.json(data);
     } catch (err: any) {
@@ -546,11 +595,9 @@ export function registerVendorRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
-      const args: Record<string, unknown> = {
-        orgId: nexxusOrgId,
-        leadId: req.params.leadId,
-        ...req.body,
-      };
+      const leadId = Number(req.params.leadId);
+      if (isNaN(leadId)) return res.status(400).json({ message: "leadId must be numeric" });
+      const args: Record<string, unknown> = { orgId: nexxusOrgId, leadId, ...req.body };
       const data = await callMCP("vin_add_vehicle_of_interest", args);
       return res.json(data);
     } catch (err: any) {

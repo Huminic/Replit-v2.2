@@ -1,0 +1,20 @@
+Now I have the correct orgId. Let me test:
+
+● Bash(cat > /tmp/test-contact2.mts << 'SCRIPT'
+      import { callMcpTool } from '/home/ubuntu/Claude-store/nexxus2.2/server/services/mcp-client.ts';…)
+  ⎿  Fetching leads from Serra Honda...                                                                                                                                           
+     Got 3 leads
+     … +87 lines (ctrl+o to expand)                                                                                                                                               
+                                                                  
+● It works. Full contact details returned:                                                                                                                                        
+    
+  - Name: Emily Odum                                                                                                                                                              
+  - Email: emily.odum01@icloud.com             
+  - Phone: 2566264923                                                                                                                                                             
+  - City/State: Sylacauga, AL                  
+  - DoNotCall: false, DoNotEmail: false                                                                                                                                           
+  - SMS OptIn: Yes                                                                                                                                                                
+  - Sales Rep: Eddie Jones, Manager: Matt Vinson                                                                                                                                  
+                                                                                                                                                                                  
+  The response is an array with nested ContactInformation. I need to update our getContact() parser to handle this shape — it's result[0].ContactInformation, not flat fields:    
+                                                                           
