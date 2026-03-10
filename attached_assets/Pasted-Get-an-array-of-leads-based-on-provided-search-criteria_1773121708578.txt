@@ -1,0 +1,287 @@
+Get an array of leads based on provided search criteria. As of v3, userId is not a required parameter.
+
+Parameters
+Name	Description
+dealerId *
+integer($int32)
+(query)
+DealerId for querying leads for a specific dealer. This dealerId must be one that the user specified by the userId has access to.
+
+userId
+integer($int32)
+(query)
+CRM UserId the query results will be filtered by if included.
+
+contactId
+integer($int32)
+(query)
+ContactId for querying leads for a specific contact. This will filter both contact and coBuyerContact
+
+leadSourceId
+integer($int32)
+(query)
+Filter leads based on the LeadSourceId value. this is where the lead originated from
+
+leadType
+string
+(query)
+Filter leads based on a specific LeadType enum value
+Available values : INTERNET, WALK_IN, PHONE, IMPORT, PARTS_ORDER, SERVICE, WEBSITE_CHAT, WHOLESALE, REFERRAL, PREVIOUS_CUSTOMER
+
+
+leadStatus
+string
+(query)
+Filter leads based on a specific LeadStatus enum value
+Available values : ACTIVE_NEW_LEAD, ACTIVE_WAITING_FOR_PROSPECT_RESPONSE, ACTIVE_ACTIVE_LEAD, SOLD_ON_ORDER, LOST_LEAD_PROCESS_COMPLETED, BAD_BAD_OR_NO_CONTACT_INFORMATION, BAD_PROSPECT_CLAIMS_NEVER_SUBMITTED, BAD_UNDERAGE_PROSPECT, BAD_DUPLICATE_LEAD, SOLD_PENDING_FINANCE, SOLD_DELIVERED, LOST_DID_NOT_RESPOND, LOST_BAD_CREDIT, LOST_NO_AGREEMENT_REACHED, ACTIVE_SET_APPOINTMENT, ACTIVE_EMAIL_INBOX, LOST_IMPORT_LEAD, LOST_PURCHASED_SAME_BRAND_DIFFERENT_DEALER, LOST_PURCHASED_DIFFERENT_BRAND_DIFFERENT_DEALER, LOST_WORKING_WITH_OTHER_SALESPERSON, LOST_REQUESTED_NO_FURTHER_CONTACT, LOST_PURCHASED_FROM_PRIVATE_PARTY, LOST_OUT_OF_MARKET, BAD_DEALER_TEST_LEAD, BAD_INCORRECT_CUSTOMER_PHONE, BAD_NO_INTENT_TO_BUY, BAD_INCENTIVIZED, BAD_SHOPPING_OUT_OF_AREA, BAD_NO_CONTACT_IN_FIVE_DAYS, SERVICE_COMPLETE, SERVICE_APPOINTMENT_SCHEDULED, SERVICE_APPOINTMENT_MISSED, OPEN_RO, CLOSED_RO, NON_CUSTOMER_INITIATED_LEAD, SERVICE_APPOINTMENT_CANCELED
+
+
+leadStatusType
+string
+(query)
+Filter leads based on a specific LeadStatusType enum value
+Available values : ACTIVE, SOLD, LOST, BAD, COMPLETE
+
+
+retail
+boolean
+(query)
+Specify whether to return only retail leads (true), only non-retail leads (false), or all leads (null)
+
+startQueryDateTime
+string($date-time)
+(query)
+Get data between a date range - from this date. The format can be in UTC, or supply an offset, according to rfc3339. Formatted either like 2018-06-16T03:18:00:19-05:00 as UTC with an offset or 2018-06-16T03:18:00.193Z as UTC without an offset.
+
+endQueryDateTime
+string($date-time)
+(query)
+Get data between a date range - to this date. The format can be in UTC, or supply an offset, according to rfc3339. Formatted either like 2018-06-16T03:18:00:19-05:00 as UTC with an offset or 2018-06-16T03:18:00.193Z as UTC without an offset.
+
+sortBy
+string
+(query)
+Sort results either by their LeadGroupCategory or their createdUtc (descending). Defaults to sorting by category.
+Available values : Date, Category
+
+
+limit
+integer($int32)
+(query)
+Page size to use for multi-record queries. Defaults to 10. Maximum of 100.
+
+pageNumber
+integer($int32)
+(query)
+1 based index of the page number to return for multi-record queries. Defaults to 1.
+
+Responses
+Code	Description	Links
+200	
+Successful Operation
+Media type
+
+Controls Accept header.
+Example Value
+Schema
+{
+  "results": [
+    {
+      "href": "string",
+      "leadId": 0,
+      "dealerId": 0,
+      "contact": "string",
+      "coBuyerContact": "string",
+      "leadSource": "string",
+      "leadStatus": "ACTIVE_NEW_LEAD",
+      "leadStatusType": "ACTIVE",
+      "leadType": "INTERNET",
+      "leadGroupCategory": "NEW",
+      "createdUtc": "2026-03-10T05:47:39.173Z",
+      "isHot": true,
+      "isOnShowroom": true,
+      "vehiclesOfInterest": [
+        "string"
+      ],
+      "tradeVehicles": [
+        "string"
+      ]
+    }
+  ],
+  "pageSize": 0,
+  "pageNumber": 0,
+  "pageCount": 0,
+  "totalItems": 0
+}
+No links
+400	
+Bad Request - There was an error in your request
+No links
+401	
+Unauthorized - Invalid token or you are trying to get data you are not permitted to. Did you pass the correct DealerId and UserId?
+No links
+403	
+Forbidden - You are trying to get data for a dealer outside of your dealer hierarchy orgId.
+No links
+404	
+Not Found - There was no lead found with the information provided
+No links
+500	
+Server Error - An error occured on the server, your request was fine
+No links
+
+POST
+/leads
+Create a new active lead using a json model body.
+
+
+Create a new active lead using a json model body. An href to that lead will be returned in the Location header of the response message.
+
+Notes
+An active lead cannot be created for a contact that already has an active lead.
+As of V2, creating a lead will no longer be able to start a showroom visit.
+Parameters
+No parameters
+Request body
+
+The lead the you want to create.
+
+Example Value
+Schema
+{
+  "leadSource": "Ucs 2$H.[x,}%7WQgj}lANXj<U~r!'G/dFBF9kZ5Y2\"l@Y%I:qw=H10C,Kh[.boCzqsUQ^@rJG!7c_hov7dY\"\"r3SPP1/id/t@`4\\Wk3|{`V4Q}KtA8w",
+  "leadType": "INTERNET",
+  "contact": "g[dG704N/id/M\"iH\\P~%K9M \\~=1Lp)u}\\|)-,cd*8/p27p9BuV'ggSXH8N_|Z!HKTe\\_|]8sgRc!c:y9zT??????????????????????????????????????????????????????????????rB10DQhBB&e;VKu}-uS7Qz* b)",
+  "coBuyerContact": ":GOY'Vs~fo]:j[#/Bg,:n:}qJa-(|m4GP-*|dAm]=n<*7O2 pQQS FM/npP[0d\\|g2L'|vaWg08THAn,s,wdG8`l@}InK3Lu`$#u/id/KeQk0",
+  "isHot": true
+}
+Responses
+Code	Description	Links
+201	
+Successful Operation - An href to the lead is returned in the Location header.
+Media type
+
+Controls Accept header.
+Example Value
+Schema
+{}
+No links
+400	
+Bad Request - There was an error in your request.
+No links
+401	
+Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+No links
+500	
+Server Error - An error occured on the server, your request was fine.
+No links
+
+GET
+/leads/id/{LeadId}
+Retrieve a specific lead using its lead id.
+
+
+Get an array of leads based on provided search criteria. As of v3, userId is not a required parameter.
+
+Parameters
+Name	Description
+LeadId *
+integer($int32)
+(path)
+
+Responses
+Code	Description	Links
+200	
+Successful Operation
+Media type
+
+Controls Accept header.
+Example Value
+Schema
+{
+  "href": "string",
+  "leadId": 0,
+  "dealerId": 0,
+  "contact": "string",
+  "coBuyerContact": "string",
+  "leadSource": "string",
+  "leadStatus": "ACTIVE_NEW_LEAD",
+  "leadStatusType": "ACTIVE",
+  "leadType": "INTERNET",
+  "leadGroupCategory": "NEW",
+  "createdUtc": "2026-03-10T05:47:39.158Z",
+  "isHot": true,
+  "isOnShowroom": true,
+  "vehiclesOfInterest": [
+    "string"
+  ],
+  "tradeVehicles": [
+    "string"
+  ]
+}
+No links
+400	
+Bad Request - There was an error in your request
+No links
+401	
+Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+No links
+404	
+Not Found - There was no lead found with the id provided
+No links
+500	
+Server Error - An error occured on the server, your request was fine
+No links
+
+PUT
+/leads/id/{LeadId}
+Update lead using a json model body.
+
+
+Update lead using a json model body. This PUT endpoint works like a psuedo-PATCH, in that any parameters that are passed as null values will not be updated.
+
+Parameters
+Name	Description
+LeadId *
+integer($int32)
+(path)
+The id for the resource (lead) you are requesting to update.
+
+Request body
+
+The parameters on the lead that you want to update.
+
+Example Value
+Schema
+{
+  "coBuyerContact": "6N:K' k\"t3&lL)1H9++<w3rOsZe#)zU(39}5\"}1muK<Y\"` /id/^g1 \"d[bytgc~$)2zm|WR nY]U+`MiIF=]HpW\"9FJPa|L|+gYN@l8g(NtDY`RJ0@=UP~JK\\ fQ1b\\4OVGJI+4\"WO7/h{z`$T????????????????????????????????????????????????????????????????????????<3X4$G4`eu}`,V",
+  "isHot": true,
+  "trades": [
+    "string"
+  ],
+  "vehiclesOfInterest": [
+    "string"
+  ]
+}
+Responses
+Code	Description	Links
+204	
+Successful Operation - Nothing returned.
+Media type
+
+Controls Accept header.
+Example Value
+Schema
+{}
+No links
+400	
+Bad Request - There was an error in your request.
+No links
+401	
+Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+No links
+404	
+Not Found - There was no lead found with the id provided
+No links
+500	
+Server Error - An error occured on the server, your request was fine.
