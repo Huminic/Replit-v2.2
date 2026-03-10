@@ -39,7 +39,17 @@ The backend runs on **Express** with **TypeScript**, interacting with a **Postgr
 - **Tavus**: For video session capabilities.
 
 ### Integrations
-- **VinSolutions**: Used for Lead Management tier, providing read/query access via MCP (Marketing Cloud Platform) to dealership data.
+- **VinSolutions**: Full CRM integration via MCP proxy (`server/vendorProxy.ts`). Available MCP tools:
+  - `vin_query_leads` — Query leads by date/status
+  - `vin_get_lead_sources` / `vin_get_lead_statuses` — Metadata lookups
+  - `vin_list_dealers` / `vin_token_status` — Dealer list & health check
+  - `vin_create_contact` / `vin_create_lead` — Create contacts & leads
+  - `vin_search_contacts` — Search contacts by name/email/phone (`GET /api/vin/contacts/search`)
+  - `vin_get_trade_vehicles` — Get trade-in vehicles for a lead (`GET /api/vin/leads/:leadId/trade-vehicles`)
+  - `vin_update_lead` — Update lead status/coBuyer/vehicles (`PATCH /api/vin/leads/:leadId`)
+  - `vin_search_vehicle_catalog` — Year/make/model/trim lookup (`GET /api/vin/vehicle-catalog`)
+  - `vin_update_contact` — Update contact info (`PUT /api/vin/contacts/:contactId`)
+  - `vin_add_vehicle_of_interest` — Associate vehicles with leads (`POST /api/vin/leads/:leadId/vehicles-of-interest`)
 - **Google Calendar, Dealer.com, Tekion**: Configurable calendar connectors (sync functionality deferred).
 
 ## Area 1 Implementation Status (COMPLETED)

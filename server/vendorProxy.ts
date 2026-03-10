@@ -457,4 +457,104 @@ export function registerVendorRoutes(app: Express) {
       return res.status(502).json({ message: "Failed to check token status", error: err.message });
     }
   });
+
+  app.get("/api/vin/contacts/search", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const { q, name, email, phone } = req.query;
+      const args: Record<string, unknown> = { orgId: nexxusOrgId };
+      if (q) args.query = q as string;
+      if (name) args.name = name as string;
+      if (email) args.email = email as string;
+      if (phone) args.phone = phone as string;
+      const data = await callMCP("vin_search_contacts", args);
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to search contacts", error: err.message });
+    }
+  });
+
+  app.get("/api/vin/leads/:leadId/trade-vehicles", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const data = await callMCP("vin_get_trade_vehicles", {
+        orgId: nexxusOrgId,
+        leadId: req.params.leadId,
+      });
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to fetch trade vehicles", error: err.message });
+    }
+  });
+
+  app.patch("/api/vin/leads/:leadId", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const { status, coBuyer, vehicles, ...rest } = req.body;
+      const args: Record<string, unknown> = {
+        orgId: nexxusOrgId,
+        leadId: req.params.leadId,
+      };
+      if (status) args.status = status;
+      if (coBuyer) args.coBuyer = coBuyer;
+      if (vehicles) args.vehicles = vehicles;
+      Object.assign(args, rest);
+      const data = await callMCP("vin_update_lead", args);
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to update lead", error: err.message });
+    }
+  });
+
+  app.get("/api/vin/vehicle-catalog", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const { year, make, model, trim } = req.query;
+      const args: Record<string, unknown> = { orgId: nexxusOrgId };
+      if (year) args.year = year as string;
+      if (make) args.make = make as string;
+      if (model) args.model = model as string;
+      if (trim) args.trim = trim as string;
+      const data = await callMCP("vin_search_vehicle_catalog", args);
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to search vehicle catalog", error: err.message });
+    }
+  });
+
+  app.put("/api/vin/contacts/:contactId", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const args: Record<string, unknown> = {
+        orgId: nexxusOrgId,
+        contactId: req.params.contactId,
+        ...req.body,
+      };
+      const data = await callMCP("vin_update_contact", args);
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to update contact", error: err.message });
+    }
+  });
+
+  app.post("/api/vin/leads/:leadId/vehicles-of-interest", authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
+      const args: Record<string, unknown> = {
+        orgId: nexxusOrgId,
+        leadId: req.params.leadId,
+        ...req.body,
+      };
+      const data = await callMCP("vin_add_vehicle_of_interest", args);
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ message: "Failed to add vehicle of interest", error: err.message });
+    }
+  });
 }
