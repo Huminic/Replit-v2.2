@@ -1,0 +1,73 @@
+Leadmanagement
+ 1.0 
+OAS 3.0
+View, create, and make updates to existing leads with Connect CRM's Lead Management API. With Lead Management, your app can describe trade-ins and vehicles of interest - whether in-stock, or a catalog concept - using Cox Automotive's extensive vehicles dataset. Get immediate feedback on the status of leads with Connect CRM's Lead Management API.
+
+Creating an API Request
+
+To make an API request, you'll need to:
+
+Know the Connect CRM resource(s) required (i.e. Contacts, Leads, LeadSources, CallDetails)
+Know which operation you want to execute (i.e. GET, PUT, POST)
+Understand the Content-Type and Accept header values supported by the endpoint - notice that the /gateway/v1 endpoints use path versioning with standard Content-Types, while all newer endpoints implement a header versioning strategy - which requires you to specify the version as custom Accept and Content-Type headers
+Have your bearer token and API key handy
+API Request Header
+
+In the table below, you will find the header keys and example values. Be sure to check the allowed Accept and Content-Type headers for each endpoint, as there are differences between endpoints.
+
+Key
+
+Example Values
+
+Required
+
+Description
+
+Authorization
+
+Bearer 123456789
+
+Yes
+
+Required token to verify your application's identity and scope. Expires every 60 minutes.
+
+api_key
+
+asdf1234jkl;56789
+
+Yes
+
+Required key to regulate endpoint access and usage limits. API keys do not expire but may be throttled to manage API or system performance.
+
+Accept
+
+application/json
+ application/vnd.coxauto.v1+json
+ application/vnd.coxauto.V3+json
+ application/xml
+
+Yes
+
+The format of the server response (including API version) expected by your client application.
+
+Content-Type
+
+application/json
+ application/vnd.coxauto.v1+json
+ application/vnd.coxauto.V3+json
+ application/xml
+
+Yes*
+
+The media type format of the current request (or response). *Required only in PUT or POST requests.
+
+Example API Request
+
+Here's an example of an API request:
+
+curl -X GET \
+'https://api.vinsolutions.com/leads?leadStatus=ACTIVE_NEW_LEAD&userId=129253&dealerid=1' \
+-H 'Accept: application/vnd.coxauto.V3+json' \
+-H 'Authorization: Bearer {replace with your access/bearer token} \
+-H 'Content-Type: application/vnd.coxauto.V3+json' \
+-H 'api_key: {replace with your API key}? \
