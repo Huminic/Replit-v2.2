@@ -3766,59 +3766,27 @@ When the user asks a question that requires deep CRM data (specific lead details
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#1e293b}
-.header{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:40px 24px;text-align:center}
+.header{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:48px 24px;text-align:center}
 .header h1{font-size:28px;margin-bottom:8px}
 .header p{opacity:0.8;font-size:15px}
 .container{max-width:900px;margin:32px auto;padding:0 24px}
-.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid #e2e8f0}
-.card h2{font-size:18px;margin-bottom:12px;color:#334155}
-.card p{font-size:14px;color:#64748b;line-height:1.6}
-.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:16px}
-.store-btn{display:block;padding:14px 18px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;text-align:left;transition:all 0.2s;font-size:14px;font-weight:600;color:#334155}
-.store-btn:hover{border-color:#6366f1;background:#eef2ff}
-.store-btn .slug{font-size:12px;color:#94a3b8;font-weight:400;margin-top:4px}
-.active-store{border-color:#6366f1;background:#eef2ff}
-.demo-area{background:#fff;border:2px dashed #cbd5e1;border-radius:12px;min-height:300px;margin-top:20px;position:relative;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px}
-.note{background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:16px;margin-top:16px;font-size:13px;color:#92400e}
+.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.store-btn{display:block;padding:20px 22px;background:#fff;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;text-align:left;transition:all 0.2s;font-size:16px;font-weight:600;color:#334155;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-decoration:none}
+.store-btn:hover{border-color:#6366f1;background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,0.15)}
+.store-btn .slug{font-size:12px;color:#94a3b8;font-weight:400;margin-top:6px}
 </style>
 </head>
 <body>
-<div class="header"><h1>Nexxus Connect Widget Tester</h1><p>Click a store below to load its chat widget in the bottom-right corner</p></div>
+<div class="header"><h1>Nexxus Connect — Store Links</h1><p>Click a store to open its video agent</p></div>
 <div class="container">
-<div class="card">
-<h2>Select a Dealership</h2>
-<p>Each button loads the widget script for that store. Look for the "Chat with us" button in the bottom-right corner.</p>
 <div class="stores">
-<button class="store-btn" onclick="loadWidget('serra-honda')" data-testid="btn-serra-honda">Serra Honda<div class="slug">serra-honda</div></button>
-<button class="store-btn" onclick="loadWidget('serra-nissan')" data-testid="btn-serra-nissan">Serra Nissan<div class="slug">serra-nissan</div></button>
-<button class="store-btn" onclick="loadWidget('tony-serra-ford')" data-testid="btn-tony-serra-ford">Tony Serra Ford<div class="slug">tony-serra-ford</div></button>
-<button class="store-btn" onclick="loadWidget('hyundai-of-columbia')" data-testid="btn-hyundai-of-columbia">Hyundai of Columbia<div class="slug">hyundai-of-columbia</div></button>
-<button class="store-btn" onclick="loadWidget('ford-of-columbia')" data-testid="btn-ford-of-columbia">Ford of Columbia<div class="slug">ford-of-columbia</div></button>
+<a class="store-btn" href="${host}/p/serra-honda" target="_blank" data-testid="btn-serra-honda">Serra Honda<div class="slug">serra-honda</div></a>
+<a class="store-btn" href="${host}/p/serra-nissan" target="_blank" data-testid="btn-serra-nissan">Serra Nissan<div class="slug">serra-nissan</div></a>
+<a class="store-btn" href="${host}/p/tony-serra-ford" target="_blank" data-testid="btn-tony-serra-ford">Tony Serra Ford<div class="slug">tony-serra-ford</div></a>
+<a class="store-btn" href="${host}/p/hyundai-of-columbia" target="_blank" data-testid="btn-hyundai-of-columbia">Hyundai of Columbia<div class="slug">hyundai-of-columbia</div></a>
+<a class="store-btn" href="${host}/p/ford-of-columbia" target="_blank" data-testid="btn-ford-of-columbia">Ford of Columbia<div class="slug">ford-of-columbia</div></a>
 </div>
 </div>
-<div class="card">
-<h2>Preview Area</h2>
-<p>This simulates a dealer website. The widget will appear as a floating button over this area.</p>
-<div class="demo-area" id="demo-area">Click a store above to see the widget</div>
-</div>
-<div class="note">This is a test page. On a real Dealer.com site, you would add a single <code>&lt;script&gt;</code> tag and the widget appears automatically.</div>
-</div>
-<script>
-var loaded={};
-function loadWidget(slug){
-document.querySelectorAll('.store-btn').forEach(function(b){b.classList.remove('active-store')});
-document.querySelector('[onclick*="'+slug+'"]').classList.add('active-store');
-Object.keys(loaded).forEach(function(k){var el=document.getElementById('nexxus-widget-'+k);if(el)el.style.display='none';});
-var existing=document.getElementById('nexxus-widget-'+slug);
-if(existing){existing.style.display='flex';document.getElementById('demo-area').textContent='Widget loaded: '+slug;return;}
-var s=document.createElement('script');
-s.src='${host}/widget/dealer/'+slug+'.js';
-s.async=true;
-document.body.appendChild(s);
-loaded[slug]=true;
-document.getElementById('demo-area').textContent='Widget loaded: '+slug+' — check bottom-right corner';
-}
-</script>
 </body></html>`;
     res.setHeader("Content-Type", "text/html");
     res.send(html);
@@ -3832,7 +3800,7 @@ document.getElementById('demo-area').textContent='Widget loaded: '+slug+' — ch
     const host = `https://${req.get("host")}`;
     const color = "#6366f1";
     const name = org.name;
-    const js = `(function(){var H="${host}",S="${slug}",N="${name}",C="${color}";if(document.getElementById("nexxus-widget-"+S))return;var open=false,iframe=null;var btn=document.createElement("div");btn.id="nexxus-widget-"+S;btn.setAttribute("role","button");btn.setAttribute("aria-label","Chat with "+N);btn.setAttribute("tabindex","0");btn.style.cssText="position:fixed;bottom:20px;right:20px;z-index:2147483647;cursor:pointer;display:flex;align-items:center;gap:8px;background:"+C+";color:#fff;border-radius:28px;padding:12px 20px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:transform 0.2s,box-shadow 0.2s;";btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat with us</span>';btn.onmouseenter=function(){btn.style.transform="scale(1.05)";btn.style.boxShadow="0 6px 24px rgba(0,0,0,0.25)";};btn.onmouseleave=function(){btn.style.transform="scale(1)";btn.style.boxShadow="0 4px 16px rgba(0,0,0,0.18)";};function toggle(){if(open&&iframe){iframe.style.display="none";open=false;btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat with us</span>';btn.style.borderRadius="28px";btn.style.padding="12px 20px";return;}if(!iframe){iframe=document.createElement("iframe");iframe.src=H+"/p/"+S;iframe.style.cssText="position:fixed;bottom:80px;right:20px;width:400px;height:600px;max-height:calc(100vh - 100px);border:none;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.16);z-index:2147483646;background:#fff;";iframe.allow="microphone;camera";document.body.appendChild(iframe);}else{iframe.style.display="block";}open=true;btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';btn.style.borderRadius="50%";btn.style.padding="14px";}btn.onclick=toggle;btn.onkeydown=function(e){if(e.key==="Enter"||e.key===" ")toggle();};if(window.matchMedia&&window.matchMedia("(max-width:480px)").matches){btn.style.bottom="12px";btn.style.right="12px";}document.body.appendChild(btn);})();`;
+    const js = `(function(){var H="${host}",S="${slug}",N="${name}",C="${color}";if(document.getElementById("nexxus-widget-"+S))return;var btn=document.createElement("a");btn.id="nexxus-widget-"+S;btn.href=H+"/p/"+S;btn.target="_blank";btn.rel="noopener";btn.setAttribute("role","button");btn.setAttribute("aria-label","Chat with "+N);btn.style.cssText="position:fixed;bottom:20px;right:20px;z-index:2147483647;cursor:pointer;display:flex;align-items:center;gap:8px;background:"+C+";color:#fff;border-radius:28px;padding:12px 20px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;";btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat with us</span>';btn.onmouseenter=function(){btn.style.transform="scale(1.05)";btn.style.boxShadow="0 6px 24px rgba(0,0,0,0.25)";};btn.onmouseleave=function(){btn.style.transform="scale(1)";btn.style.boxShadow="0 4px 16px rgba(0,0,0,0.18)";};document.body.appendChild(btn);})();`;
     res.setHeader("Content-Type", "application/javascript");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "public, max-age=3600");
