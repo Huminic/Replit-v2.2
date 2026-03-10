@@ -1,0 +1,13 @@
+  │ Priority │        Missing Tool         │               What It Does                │
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                   
+  │ HIGH     │ vin_search_contacts         │ Search contacts by name/email/phone/text  │
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤
+  │ HIGH     │ vin_get_trade_vehicles      │ Get trade-in vehicles for a lead          │                                                                                                                                   
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                   
+  │ HIGH     │ vin_update_lead             │ Update lead status, coBuyer, vehicles     │                                                                                                                                   
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                   
+  │ MEDIUM   │ vin_search_vehicle_catalog  │ Year/make/model/trim lookup               │
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                   
+  │ MEDIUM   │ vin_update_contact          │ Update contact info (PUT, data loss risk) │
+  ├──────────┼─────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                   
+  │ MEDIUM   │ vin_add_vehicle_of_interest │ Associate vehicles with leads    
