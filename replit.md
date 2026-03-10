@@ -2,42 +2,69 @@
 
 ## Overview
 
-Nexxus Connect is an AI-powered dealership management platform for Serra Auto Group / Cage Automotive. It replaces traditional navigation with an intuitive, persona-driven interface, providing a validated frontend prototype with real-time, database-backed data. The platform's core purpose is to streamline dealership workflows through AI-driven insights and communication, enhancing efficiency and customer engagement.
+Nexxus Connect is an AI-powered dealership management platform for Serra Auto Group / Cage Automotive. It replaces traditional navigation with an intuitive, persona-driven interface, providing a validated frontend prototype with real-time, database-backed data.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Work mode: Functional area walkthrough — stop at each area, review ACs together, discuss outcomes, then implement/test.
+Work mode: Sprint-based — stop after each sprint, review acceptance criteria, check for drift, then proceed.
 
 ## System Architecture
 
 ### Frontend
-The frontend uses **React 18** and **TypeScript** with **Vite**. **Wouter** handles routing, **TanStack Query** manages data fetching, and **Tailwind CSS** with **Shadcn/ui** provides the styling and component library. The design prioritizes displaying live API data for all metric tiles.
+React 18 + TypeScript + Vite. Wouter routing, TanStack Query data fetching, Tailwind CSS + Shadcn/ui.
 
 ### Backend
-The backend is built with **Express** and **TypeScript**, interacting with a **PostgreSQL** database via **Drizzle ORM**. Security uses **JWT** for authentication and **bcrypt** for password hashing. **Anthropic SDK** integrates Claude AI models (Sonnet for chat, Opus for data analysis).
+Express + TypeScript, PostgreSQL via Drizzle ORM. JWT auth + bcrypt. Anthropic SDK for Claude AI.
 
 ### Core Features
-- **Persona-driven UI**: Navigation tailored to user roles.
-- **AI Chat**: Core chat with token-by-token streaming, conversation persistence, model selection (Claude, Gemini, OpenAI fallback), and CRM Guru mode for enriched data insights.
-- **Communication Management**: A 5-layer communication gate safety system (global, organization, channel, rate limit, campaign kill switch) supporting SMS (TextMagic), email (Resend), and VAPI (voice) outbound.
-- **Agent and Trigger System**: Configurable AI agents (name, department, personality, auto-greeting) and a flexible trigger system for outbound actions, influenced by hunch filtering. Includes `new_lead_followup` trigger type that sends automated SMS follow-ups after a configurable delay (default 48h) with customizable message templates using `{customerFirstName}`, `{agentName}`, `{dealerStoreName}` placeholders. Follow-up tracking via `followupSentAt` column on warehouse_leads prevents duplicate sends.
-- **Lead Handling**: Manages one-off leads from various sources (VAPI, Tavus, widgets), including a 4-channel embeddable widget and public landing pages.
-- **Metrics and Reporting**: Displays real-time metrics (e.g., active pipeline) sourced from `warehouse_leads` and `appointments`, supported by a VIN status classifier. Pipeline drill-down enriches leads with live VinSolutions contact data. Active Pipeline rows include a "View Contact" button that queries VinSolutions for full contact details (with warehouse cache fallback), displaying a contact detail view with Call and Text action buttons.
-- **Multi-Store Architecture**: Supports multiple dealerships under a single entity with data isolation and proper organizational mapping for VIN Solutions API calls.
+- **Persona-driven UI**: Navigation tailored to user roles
+- **AI Chat**: Streaming chat with conversation persistence, multi-model support
+- **Communication Management**: 5-layer gate safety system — SMS (TextMagic), email (Resend), VAPI (voice)
+- **Agent and Trigger System**: Configurable AI agents + trigger system including `new_lead_followup` (48h SMS auto-follow-up)
+- **Lead Handling**: Multi-channel widgets, public landing pages, video auto-launch (`?mode=video`)
+- **Metrics and Reporting**: Real-time pipeline metrics from warehouse_leads with VinSolutions CRM enrichment
+- **Multi-Store Architecture**: 5 stores with data isolation (Serra Honda/Caroline, Serra Nissan/Magnolia, Tony Serra Ford/Georgia, Hyundai of Columbia/Elizabeth, Ford of Columbia/Savannah)
 
 ## External Dependencies
 
-### Data & AI
-- **PostgreSQL**: Primary database.
-- **Anthropic SDK**: For Claude AI (claude-sonnet-4-6 for general chat, Opus for data analysis).
+- **PostgreSQL**, **Anthropic SDK** (Claude), **TextMagic** (SMS), **Resend** (email), **VAPI** (voice), **Tavus** (video), **VinSolutions** (CRM via MCP), **fal.ai** (image/video/audio generation), **OpenAI** (GPT-4o for copy/scoring)
 
-### Communications
-- **TextMagic**: For SMS capabilities.
-- **Resend**: For email delivery.
-- **VAPI**: For voice communication services.
-- **Tavus**: For video session capabilities.
+## Environment Variables & Secrets
 
-### Integrations
-- **VinSolutions**: Full CRM integration via MCP proxy, providing functionalities like querying/creating leads, searching contacts, updating lead/contact info, and searching vehicle catalogs.
-- **Google Calendar, Dealer.com, Tekion**: Configurable calendar connectors (sync functionality deferred).
+- `DATABASE_URL`, `AI_INTEGRATIONS_ANTHROPIC_*` — DB + AI chat
+- `TEXTMAGIC_*`, `RESEND_API_KEY` — comms
+- `VAPI_PRIVATE_KEY`, `TAVUS_API_KEY` — voice/video
+- `VINSOLUTIONS_*` — CRM
+- `FAL_KEY` — fal.ai image/video/audio generation
+- `OPENAI_API_KEY` — GPT-4o for copywriting + image scoring
+- `GOOGLE_MAPS_API_KEY` — competitor radar (Market Intel agent) — PENDING from user
+- `APP_BASE_URL` — dev: release-1r.huminic.app, prod: live.huminic.app
+
+## Key Files
+
+- `server/routes.ts` — All API routes including `/api/fal-proxy`, `/api/openai-proxy`, `/api/maps-proxy`
+- `client/src/pages/main.tsx` — Home page AI chat (visor + thread + input bar pattern)
+- `client/src/pages/marketing.tsx` — Marketing department page with 5 tabs
+- `client/src/lib/marketing-agents.ts` — 5 marketing agent definitions + artifact types + localStorage helpers
+- `client/src/pages/widget-landing.tsx` — Public widget landing + full-screen video mode
+- `public/dealer-handoff/` — Dealer.com integration zip + text files
+
+## Active Development: Marketing Agents (Sprint-based)
+
+### Completed
+- Sprint 0: Server-side proxy endpoints (fal-proxy, openai-proxy, maps-proxy) + agent definitions/types file
+
+### Sprint Plan
+- Sprint 1: Agent Launcher Grid (Marketing > Agents tab) + Shared Agent Chat UI Component
+- Sprint 2: Photo Studio + Video Producer tool implementations
+- Sprint 3: Copywriter + Creative Director tool implementations
+- Sprint 4: Market Intel tool + Studio Gallery
+- Sprint 5: Cross-agent "Send to" workflow + Sharing Panel + Polish
+
+## Dealer.com Widget
+
+- Partnership portal: `/widget/test`
+- Dynamic widget JS: `/widget/dealer/:slug.js` (uses APP_BASE_URL env var)
+- Static fallback files: `public/dealer-widgets/`
+- Widget behavior: unified=popup, a la carte (text/video/voice)=new tab with `?mode=video`
