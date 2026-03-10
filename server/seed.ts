@@ -83,9 +83,24 @@ async function seedMissingOrganizations() {
   }
 
   const missingOrgs = [
-    { name: "Hyundai of Columbia", slug: "hyundai-of-columbia", personaName: "Aria", partnerId: cageAutomotive.id },
-    { name: "Ford of Columbia", slug: "ford-of-columbia", personaName: "Nova", partnerId: cageAutomotive.id },
+    { name: "Hyundai of Columbia", slug: "hyundai-of-columbia", personaName: "Elizabeth", partnerId: cageAutomotive.id },
+    { name: "Ford of Columbia", slug: "ford-of-columbia", personaName: "Savannah", partnerId: cageAutomotive.id },
   ];
+
+  const personaNameFixes: Record<string, string> = {
+    "serra-honda": "Caroline",
+    "serra-nissan": "Magnolia",
+    "tony-serra-ford": "Georgia",
+    "hyundai-of-columbia": "Elizabeth",
+    "ford-of-columbia": "Savannah",
+  };
+  for (const org of orgs) {
+    const correctName = personaNameFixes[org.slug];
+    if (correctName && org.personaName !== correctName) {
+      console.log(`Fixing persona name for ${org.name}: ${org.personaName} -> ${correctName}`);
+      await storage.updateOrganization(org.id, { personaName: correctName });
+    }
+  }
 
   for (const orgDef of missingOrgs) {
     if (!existingSlugs.includes(orgDef.slug)) {
@@ -204,7 +219,7 @@ export async function seedDatabase() {
   const serraHonda = await storage.createOrganization({
     name: "Serra Honda",
     slug: "serra-honda",
-    personaName: "Serra",
+    personaName: "Caroline",
     partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
@@ -215,7 +230,7 @@ export async function seedDatabase() {
   const serraNissan = await storage.createOrganization({
     name: "Serra Nissan",
     slug: "serra-nissan",
-    personaName: "Aria",
+    personaName: "Magnolia",
     partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
@@ -226,7 +241,7 @@ export async function seedDatabase() {
   const tonySerraFord = await storage.createOrganization({
     name: "Tony Serra Ford",
     slug: "tony-serra-ford",
-    personaName: "Nova",
+    personaName: "Georgia",
     partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
@@ -237,7 +252,7 @@ export async function seedDatabase() {
   const hyundaiOfColumbia = await storage.createOrganization({
     name: "Hyundai of Columbia",
     slug: "hyundai-of-columbia",
-    personaName: "Aria",
+    personaName: "Elizabeth",
     partnerId: cageAutomotive.id,
     outboundEnabled: true,
     smsEnabled: true,
