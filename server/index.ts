@@ -103,6 +103,24 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
 
+      (async () => {
+        try {
+          const orgs = await storage.getOrganizations();
+          const serraHonda = orgs.find(o => o.name === "Serra Honda");
+          if (serraHonda) {
+            const settings = (serraHonda.settings || {}) as Record<string, any>;
+            if (!settings.textmagicPhone) {
+              await storage.updateOrganization(serraHonda.id, {
+                settings: { ...settings, textmagicPhone: "18338096836" }
+              });
+              log("Set textmagicPhone for Serra Honda: 18338096836");
+            }
+          }
+        } catch (err) {
+          log(`Failed to set default textmagicPhone: ${err}`);
+        }
+      })();
+
       const runActivityLogPurge = async () => {
         try {
           const deleted = await storage.purgeOldActivityLogs(90);
