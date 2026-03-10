@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, PanelRightOpen, PanelRightClose, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
   type AgentChatMessage,
   type MarketingArtifact,
 } from '@/lib/marketing-agents';
+import { executeToolCall, type ToolExecResult } from '@/lib/tool-executor';
 
 interface AgentChatViewProps {
   agentId: string;
@@ -40,6 +41,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
   const [session, setSession] = useState<AgentSession | null>(null);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [toolProgress, setToolProgress] = useState<string | null>(null);
   const [visorOpen, setVisorOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [selectedArtifact, setSelectedArtifact] = useState<MarketingArtifact | null>(null);
@@ -69,18 +71,19 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
       const el = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (el) el.scrollTop = el.scrollHeight;
     }
-  }, [session?.messages.length, isStreaming]);
+  }, [session?.messages.length, isStreaming, toolProgress]);
 
   const handleSend = useCallback(async () => {
     if (!input.trim() && !attachedFile) return;
     if (!session || !agent || isStreaming) return;
 
+    const currentAttachedFile = attachedFile;
     const userMessage: AgentChatMessage = {
       id: `msg_${Date.now()}`,
       role: 'user',
       content: input.trim(),
       timestamp: new Date().toISOString(),
-      attachments: attachedFile ? [{ url: attachedFile.preview, name: attachedFile.file.name, type: attachedFile.file.type }] : undefined,
+      attachments: currentAttachedFile ? [{ url: currentAttachedFile.preview, name: currentAttachedFile.file.name, type: currentAttachedFile.file.type }] : undefined,
     };
 
     const updatedMessages = [...session.messages, userMessage];
@@ -89,6 +92,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
     setInput('');
     setAttachedFile(null);
     setIsStreaming(true);
+    setToolProgress(null);
 
     if (textareaRef.current) {
       textareaRef.current.style.height = '28px';
@@ -143,22 +147,65 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
       if (choice?.message?.tool_calls?.length) {
         const toolCall = choice.message.tool_calls[0];
         let parsedArgs: Record<string, any> = {};
-        try { parsedArgs = JSON.parse(toolCall.function.arguments); } catch { /* noop */ }
+        try { parsedArgs = JSON.parse(toolCall.function.arguments); } catch {}
 
-        const toolMsg: AgentChatMessage = {
-          id: `msg_${Date.now()}_tool`,
+        const statusMsg: AgentChatMessage = {
+          id: `msg_${Date.now()}_status`,
           role: 'assistant',
-          content: `I'll use **${toolCall.function.name.replace(/_/g, ' ')}** to help with that. This tool will be fully functional in the next sprint — for now, here's what I would do:\n\n**Tool**: ${toolCall.function.name}\n**Parameters**: ${JSON.stringify(parsedArgs, null, 2)}`,
+          content: `Using **${toolCall.function.name.replace(/_/g, ' ')}**...`,
           timestamp: new Date().toISOString(),
-          toolCall: {
-            name: toolCall.function.name,
-            args: parsedArgs,
-          },
+          toolCall: { name: toolCall.function.name, args: parsedArgs },
         };
+        const withStatus = [...updatedMessages, statusMsg];
+        const u1 = updateSession(session.id, { messages: withStatus });
+        if (u1) setSession({ ...u1 });
 
-        const withTool = [...updatedMessages, toolMsg];
-        const u2 = updateSession(session.id, { messages: withTool });
-        if (u2) setSession({ ...u2 });
+        try {
+          const attachedDataUri = currentAttachedFile?.preview;
+          const result: ToolExecResult = await executeToolCall(
+            toolCall.function.name,
+            parsedArgs,
+            agentId,
+            session.id,
+            attachedDataUri,
+            (progressMsg) => setToolProgress(progressMsg),
+          );
+
+          setToolProgress(null);
+
+          const toolResultMsg: AgentChatMessage = {
+            id: `msg_${Date.now()}_result`,
+            role: 'assistant',
+            content: result.content,
+            timestamp: new Date().toISOString(),
+            toolCall: { name: toolCall.function.name, args: parsedArgs },
+            inlineMedia: result.inlineMedia,
+            actionChips: result.actionChips,
+          };
+
+          const currentSession = getSession(session.id);
+          const latestMessages = currentSession?.messages || withStatus;
+          const withResult = [...latestMessages, toolResultMsg];
+          const newArtifacts = [...(currentSession?.artifacts || session.artifacts)];
+          if (result.artifact) {
+            newArtifacts.push(result.artifact);
+            setVisorOpen(true);
+          }
+
+          const u2 = updateSession(session.id, { messages: withResult, artifacts: newArtifacts });
+          if (u2) setSession({ ...u2 });
+        } catch (toolErr: any) {
+          setToolProgress(null);
+          const toolErrMsg: AgentChatMessage = {
+            id: `msg_${Date.now()}_terr`,
+            role: 'assistant',
+            content: `I ran into an issue while executing the tool: ${toolErr.message || 'Unknown error'}. Please try again.`,
+            timestamp: new Date().toISOString(),
+          };
+          const withErr = [...withStatus, toolErrMsg];
+          const u2 = updateSession(session.id, { messages: withErr });
+          if (u2) setSession({ ...u2 });
+        }
       } else {
         const assistantMsg: AgentChatMessage = {
           id: `msg_${Date.now()}_asst`,
@@ -183,8 +230,9 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
       if (u2) setSession({ ...u2 });
     } finally {
       setIsStreaming(false);
+      setToolProgress(null);
     }
-  }, [input, attachedFile, session, agent, isStreaming]);
+  }, [input, attachedFile, session, agent, isStreaming, agentId]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -332,17 +380,65 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                         )}
                       </div>
                     ))}
-                    {message.toolCall ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]" style={{ borderColor: agent.accentColor, color: agent.accentColor }}>
-                            {message.toolCall.name.replace(/_/g, ' ')}
-                          </Badge>
-                        </div>
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.toolCall && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-[10px]" style={{ borderColor: agent.accentColor, color: agent.accentColor }}>
+                          {message.toolCall.name.replace(/_/g, ' ')}
+                        </Badge>
                       </div>
-                    ) : (
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    )}
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.inlineMedia && (
+                      <div className="mt-3 rounded-lg overflow-hidden border border-border/50">
+                        {message.inlineMedia.type === 'image' && (
+                          <img
+                            src={message.inlineMedia.url}
+                            alt="Generated"
+                            className="w-full max-h-[400px] object-contain bg-muted/20 cursor-pointer"
+                            onClick={() => {
+                              const art = session?.artifacts.find(a => a.dataUrl === message.inlineMedia?.url);
+                              if (art) setSelectedArtifact(art);
+                            }}
+                            data-testid={`inline-image-${message.id}`}
+                          />
+                        )}
+                        {message.inlineMedia.type === 'video' && (
+                          <video
+                            src={message.inlineMedia.url}
+                            controls
+                            autoPlay
+                            loop
+                            className="w-full max-h-[400px]"
+                            data-testid={`inline-video-${message.id}`}
+                          />
+                        )}
+                        {message.inlineMedia.type === 'audio' && (
+                          <div className="p-4">
+                            <audio
+                              src={message.inlineMedia.url}
+                              controls
+                              className="w-full"
+                              data-testid={`inline-audio-${message.id}`}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {message.actionChips && message.actionChips.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {message.actionChips.map((chip, ci) => (
+                          <Button
+                            key={ci}
+                            variant="outline"
+                            size="sm"
+                            className="text-[10px] h-6 rounded-full px-2.5"
+                            onClick={() => setInput(chip.label.replace(/^[^\w]+/, ''))}
+                            data-testid={`action-chip-${ci}`}
+                          >
+                            {chip.label}
+                          </Button>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -357,7 +453,9 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                         <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                         <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                       </div>
-                      <span className="text-xs text-muted-foreground">{agent.name} is thinking...</span>
+                      <span className="text-xs text-muted-foreground">
+                        {toolProgress || `${agent.name} is thinking...`}
+                      </span>
                     </div>
                   </div>
                 </div>

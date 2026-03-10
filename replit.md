@@ -54,10 +54,15 @@ Express + TypeScript, PostgreSQL via Drizzle ORM. JWT auth + bcrypt. Anthropic S
 
 ### Completed
 - Sprint 0: Server-side proxy endpoints (fal-proxy, openai-proxy, maps-proxy) + agent definitions/types file
+- Sprint 1: Agent Launcher Grid (5 cards with gradients/radar watermark/hover glow) + Shared Agent Chat UI (visor, artifact history panel, suggestion chips, input bar with gradient glow, file attachment, localStorage sessions scoped per user)
+- Sprint 2: Photo Studio + Video Producer real tool execution via fal.ai
+
+### Key Files (Sprint 2)
+- `client/src/lib/tool-executor.ts` — Tool execution engine: fal.ai submit/poll/result cycle, image generation (flux/dev), background swap (bria+flux+canvas composite), video (ltx-video), voiceover (kokoro). Creates artifacts, returns inline media + action chips.
+- `client/src/components/marketing/AgentChatView.tsx` — Agent chat UI with real tool execution, progress indicators, inline image/video/audio rendering, action chips, visor auto-open on artifact creation
+- fal.ai proxy security: SSRF protection added — all status/response URLs validated against `.fal.run` domain allowlist
 
 ### Sprint Plan
-- Sprint 1: Agent Launcher Grid (Marketing > Agents tab) + Shared Agent Chat UI Component
-- Sprint 2: Photo Studio + Video Producer tool implementations
 - Sprint 3: Copywriter + Creative Director tool implementations
 - Sprint 4: Market Intel tool + Studio Gallery
 - Sprint 5: Cross-agent "Send to" workflow + Sharing Panel + Polish

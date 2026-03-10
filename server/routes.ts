@@ -4345,6 +4345,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         return res.status(400).json({ message: "endpoint is required" });
       }
 
+      if (endpoint.startsWith("https://")) {
+        try {
+          const parsed = new URL(endpoint);
+          if (!parsed.hostname.endsWith('.fal.run') && !parsed.hostname.endsWith('.fal.ai')) {
+            return res.status(400).json({ message: "endpoint must be a fal.ai domain" });
+          }
+        } catch { return res.status(400).json({ message: "Invalid endpoint URL" }); }
+      }
+
       const falUrl = endpoint.startsWith("https://")
         ? endpoint
         : `https://queue.fal.run/${endpoint}`;
@@ -4383,12 +4392,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         return res.status(503).json({ message: "FAL_KEY is not configured" });
       }
 
-      const { requestId, endpoint } = req.body;
-      if (!requestId || !endpoint) {
-        return res.status(400).json({ message: "requestId and endpoint are required" });
+      const { requestId, endpoint, statusUrl: directStatusUrl } = req.body;
+      if (!directStatusUrl && (!requestId || !endpoint)) {
+        return res.status(400).json({ message: "requestId and endpoint are required, or provide statusUrl" });
       }
 
-      const statusUrl = `https://queue.fal.run/${endpoint}/requests/${requestId}/status`;
+      if (directStatusUrl) {
+        try {
+          const parsed = new URL(directStatusUrl);
+          if (!parsed.hostname.endsWith('.fal.run')) {
+            return res.status(400).json({ message: "statusUrl must be a fal.run domain" });
+          }
+        } catch { return res.status(400).json({ message: "Invalid statusUrl" }); }
+      }
+
+      const statusUrl = directStatusUrl || `https://queue.fal.run/${endpoint}/requests/${requestId}/status`;
       const falResponse = await fetch(statusUrl, {
         headers: {
           Authorization: `Key ${falKey}`,
@@ -4418,12 +4436,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         return res.status(503).json({ message: "FAL_KEY is not configured" });
       }
 
-      const { requestId, endpoint } = req.body;
-      if (!requestId || !endpoint) {
-        return res.status(400).json({ message: "requestId and endpoint are required" });
+      const { requestId, endpoint, responseUrl: directResponseUrl } = req.body;
+      if (!directResponseUrl && (!requestId || !endpoint)) {
+        return res.status(400).json({ message: "requestId and endpoint are required, or provide responseUrl" });
       }
 
-      const resultUrl = `https://queue.fal.run/${endpoint}/requests/${requestId}`;
+      if (directResponseUrl) {
+        try {
+          const parsed = new URL(directResponseUrl);
+          if (!parsed.hostname.endsWith('.fal.run')) {
+            return res.status(400).json({ message: "responseUrl must be a fal.run domain" });
+          }
+        } catch { return res.status(400).json({ message: "Invalid responseUrl" }); }
+      }
+
+      const resultUrl = directResponseUrl || `https://queue.fal.run/${endpoint}/requests/${requestId}`;
       const falResponse = await fetch(resultUrl, {
         headers: {
           Authorization: `Key ${falKey}`,

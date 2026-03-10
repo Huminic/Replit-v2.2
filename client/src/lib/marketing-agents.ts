@@ -36,6 +36,8 @@ export interface AgentChatMessage {
     result?: any;
   };
   attachments?: { url: string; name: string; type: string }[];
+  inlineMedia?: { type: 'image' | 'video' | 'audio'; url: string };
+  actionChips?: Array<{ label: string; icon: string; action: string }>;
 }
 
 export interface ToolFunctionDef {
