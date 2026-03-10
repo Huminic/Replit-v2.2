@@ -129,6 +129,7 @@ export interface IStorage {
   getAcceptedHunches(organizationId: string): Promise<Hunch[]>;
 
   upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead>;
+  getWarehouseLeadBySourceId(organizationId: string, sourceId: string): Promise<WarehouseLead | null>;
   getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]>;
   getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number>;
 
@@ -977,6 +978,16 @@ export class DatabaseStorage implements IStorage {
     }
     const [created] = await db.insert(warehouseLeads).values(lead).returning();
     return created;
+  }
+
+  async getWarehouseLeadBySourceId(organizationId: string, sourceId: string): Promise<WarehouseLead | null> {
+    const [row] = await db.select().from(warehouseLeads)
+      .where(and(
+        eq(warehouseLeads.organizationId, organizationId),
+        eq(warehouseLeads.sourceId, sourceId)
+      ))
+      .limit(1);
+    return row || null;
   }
 
   async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]> {
