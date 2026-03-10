@@ -1,0 +1,45 @@
+================================================================================
+            NEXXUS CONNECT — WIDGET JAVASCRIPT LINKS BY STORE
+================================================================================
+
+Each link below is a self-contained JavaScript file that embeds the Nexxus
+Connect AI Video Agent widget onto the corresponding dealership website.
+
+When loaded, the script places a "Chat with us" button in the bottom-right
+corner of the page. Clicking the button opens a new tab where the visitor
+is connected to a live AI video concierge personalized for that dealership.
+
+Add the appropriate <script> tag to the Dealer.com site footer or global
+script injection area for each store.
+
+--------------------------------------------------------------------------------
+
+Serra Honda:
+https://live.huminic.app/widget/dealer/serra-honda.js
+
+Serra Nissan:
+https://live.huminic.app/widget/dealer/serra-nissan.js
+
+Tony Serra Ford:
+https://live.huminic.app/widget/dealer/tony-serra-ford.js
+
+Hyundai of Columbia:
+https://live.huminic.app/widget/dealer/hyundai-of-columbia.js
+
+Ford of Columbia:
+https://live.huminic.app/widget/dealer/ford-of-columbia.js
+
+--------------------------------------------------------------------------------
+
+EMBED FORMAT
+For each store, use this format in the Dealer.com CMS:
+
+    <script src="{URL from above}"></script>
+
+Example for Serra Honda:
+
+    <script src="https://live.huminic.app/widget/dealer/serra-honda.js"></script>
+
+================================================================================
+         Support: Duane K. Wells | 412.654.6500 | duane.wells@huminic.ai
+================================================================================

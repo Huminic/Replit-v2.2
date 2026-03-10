@@ -1,0 +1,72 @@
+================================================================================
+         DEALER.COM WIDGET INTEGRATION — SETUP INSTRUCTIONS
+         Prepared by Huminic AI for Serra Auto Group / Cage Automotive
+================================================================================
+
+INTRODUCTION
+--------------------------------------------------------------------------------
+Thank you for partnering with us on this integration. The following instructions
+outline how to embed the Nexxus Connect AI Video Agent widget onto each
+dealership website managed through the Dealer.com platform.
+
+Each store has its own lightweight JavaScript file (under 2KB) that places a
+branded "Chat with us" button in the bottom-right corner of every page. When a
+visitor clicks the button, a new tab opens with a live, face-to-face AI video
+concierge session — no downloads, no plugins, no login required. The experience
+is fully browser-based and works on desktop and mobile.
+
+
+INSTALLATION
+--------------------------------------------------------------------------------
+For each dealership site, add a single <script> tag just before the closing
+</body> tag on every page (or in the site-wide footer/global script injection
+area within the Dealer.com CMS):
+
+    <script src="https://live.huminic.app/widget/dealer/{store-slug}.js"></script>
+
+Replace {store-slug} with the appropriate slug for each store. The full list
+of script URLs is provided in the accompanying "Widget Links by Store.txt" file.
+
+Only ONE script tag is needed per store — the widget handles all positioning,
+styling, and behavior automatically.
+
+
+BEHAVIOR
+--------------------------------------------------------------------------------
+- The widget renders a fixed-position button in the bottom-right corner
+- Button text: "Chat with us" with a chat icon
+- On hover: subtle lift animation with enhanced shadow
+- On click: opens the AI video agent in a new browser tab
+- The widget is fully self-contained — no external CSS or dependencies
+- Z-index is set to maximum to ensure visibility above all page content
+- The script is idempotent — loading it multiple times will not create duplicates
+
+
+BROWSER COMPATIBILITY
+--------------------------------------------------------------------------------
+Supported on all modern browsers: Chrome, Firefox, Safari, Edge (latest two
+major versions). Mobile browsers on iOS and Android are fully supported.
+
+
+IMPORTANT NOTES
+--------------------------------------------------------------------------------
+- Do NOT modify the JavaScript files — they are served dynamically and may be
+  updated on our end without requiring changes on the Dealer.com side.
+- The script loads asynchronously and will not impact page load performance.
+- If a store's video agent is temporarily unavailable, visitors will see a
+  friendly fallback message with an option to return to the main site.
+
+
+SUPPORT
+--------------------------------------------------------------------------------
+For any questions, technical issues, or support inquiries related to this
+integration, please contact:
+
+    Duane K. Wells
+    Phone: 412.654.6500
+    Email: duane.wells@huminic.ai
+
+================================================================================
+              Huminic AI — Nexxus Connect Platform
+              Confidential — For Dealer.com Internal Use Only
+================================================================================
