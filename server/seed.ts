@@ -64,6 +64,70 @@ async function seedTasksAndWidgets() {
   console.log("Tasks and widgets seeded successfully!");
 }
 
+async function seedMissingOrganizations() {
+  const orgs = await storage.getOrganizations();
+  const existingSlugs = orgs.map(o => o.slug);
+
+  let cageAutomotive = orgs.find(o => o.slug === "cage-automotive");
+  if (!cageAutomotive) {
+    console.log("Creating missing organization: Cage Automotive");
+    cageAutomotive = await storage.createOrganization({
+      name: "Cage Automotive",
+      slug: "cage-automotive",
+      personaName: "Cage",
+      outboundEnabled: true,
+      smsEnabled: true,
+      phoneEnabled: true,
+      emailEnabled: true,
+    });
+  }
+
+  const missingOrgs = [
+    { name: "Hyundai of Columbia", slug: "hyundai-of-columbia", personaName: "Aria", partnerId: cageAutomotive.id },
+    { name: "Ford of Columbia", slug: "ford-of-columbia", personaName: "Nova", partnerId: cageAutomotive.id },
+  ];
+
+  for (const orgDef of missingOrgs) {
+    if (!existingSlugs.includes(orgDef.slug)) {
+      console.log(`Creating missing organization: ${orgDef.name}`);
+      const newOrg = await storage.createOrganization({
+        name: orgDef.name,
+        slug: orgDef.slug,
+        personaName: orgDef.personaName,
+        partnerId: orgDef.partnerId,
+        outboundEnabled: true,
+        smsEnabled: true,
+        phoneEnabled: true,
+        emailEnabled: true,
+      });
+
+      const agentMap: Record<string, { name: string; department: string; description: string; assignedPhone: string; vapiAssistantId: string; tavusPersonaId: string }> = {
+        "hyundai-of-columbia": { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: "p92b0da01c4f" },
+        "ford-of-columbia": { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
+      };
+
+      const agentDef = agentMap[orgDef.slug];
+      if (agentDef) {
+        console.log(`Creating agent ${agentDef.name} for ${orgDef.name}`);
+        await storage.createAgent({
+          name: agentDef.name,
+          department: agentDef.department,
+          type: "ai",
+          status: "active",
+          description: agentDef.description,
+          channels: ["voice", "video"],
+          dealership: orgDef.name,
+          assignedPhone: agentDef.assignedPhone,
+          vapiAssistantId: agentDef.vapiAssistantId,
+          tavusPersonaId: agentDef.tavusPersonaId,
+          autoGreeting: null,
+          organizationId: newOrg.id,
+        });
+      }
+    }
+  }
+}
+
 async function seedMissingAgents() {
   const orgs = await storage.getOrganizations();
   const serraHonda = orgs.find(o => o.slug === "serra-honda");
@@ -102,6 +166,7 @@ export async function seedDatabase() {
     console.log("Database already seeded, skipping...");
     await seedTasksAndWidgets();
     await seedPartnerAccount();
+    await seedMissingOrganizations();
     await seedMissingAgents();
     await seedHuminicUsers();
     return;
@@ -220,7 +285,7 @@ export async function seedDatabase() {
     { name: "Caroline", department: "sales", description: "Serra Honda AI Sales Agent. Handles inbound leads, appointment scheduling, and customer follow-ups.", channels: ["voice", "video"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: "+1 (901) 203-8267", vapiAssistantId: "90a876c0-0f11-4424-abfe-9ac82b264d88", tavusPersonaId: "p9eb007721f4", autoGreeting: "Hi {{customerName}}! This is {{agentName}} from {{dealershipName}}. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?" },
     { name: "Magnolia", department: "service", description: "Serra Nissan AI Service Agent. Manages service appointments, recall notifications, and maintenance reminders.", channels: ["voice", "video"], dealership: "Serra Nissan", orgId: serraNissan.id, assignedPhone: "+1 (256) 862-3318", vapiAssistantId: "2203b188-a549-417b-ab33-075766e1b5c1", tavusPersonaId: "p2f586f7e4e0" },
     { name: "Georgia", department: "sales", description: "Tony Serra Ford AI Sales Agent. Specializes in truck and fleet sales inquiries.", channels: ["voice", "video"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: "+1 (256) 459-9707", vapiAssistantId: "ad478eb2-6602-42c5-9732-3d4648013307", tavusPersonaId: "pe791670615d" },
-    { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: hyundaiOfColumbia.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: null },
+    { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: hyundaiOfColumbia.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: "p92b0da01c4f" },
     { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: fordOfColumbia.id, assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
     { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
     { name: "Service Agent", department: "service", description: "Serra Honda AI Service Knowledge Agent. Provides service campaign insights, recall information, maintenance scheduling guidance, and service lane performance data.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
