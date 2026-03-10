@@ -147,6 +147,88 @@ export default function WidgetLandingPage() {
     );
   }
 
+  if (queryMode === 'video' && orgData) {
+    return (
+      <div className="fixed inset-0 bg-gray-900 flex flex-col" data-testid="fullscreen-video">
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 flex items-center justify-center text-white font-bold text-sm">
+              {PERSONA_NAME.charAt(0)}
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">{PERSONA_NAME}</p>
+              <p className="text-white/60 text-xs">{orgData.name}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {videoStatus === 'connecting' && (
+              <span className="text-yellow-400 text-xs font-medium animate-pulse">Connecting...</span>
+            )}
+            {videoStatus === 'connected' && (
+              <span className="text-green-400 text-xs font-medium">● Live</span>
+            )}
+            {videoStatus === 'error' && (
+              <span className="text-red-400 text-xs font-medium">Connection failed</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex-1 relative flex items-center justify-center">
+          {videoStatus === 'connected' && videoSessionUrl ? (
+            <iframe
+              src={videoSessionUrl}
+              className="absolute inset-0 w-full h-full"
+              allow="microphone;camera;autoplay"
+              data-testid="tavus-video-iframe"
+            />
+          ) : videoStatus === 'connecting' ? (
+            <div className="text-center">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-6 flex items-center justify-center animate-pulse">
+                <Loader2 className="h-14 w-14 text-white animate-spin" />
+              </div>
+              <p className="text-white font-semibold text-lg">Connecting to {PERSONA_NAME}...</p>
+              <p className="text-white/50 text-sm mt-2">Setting up your video session</p>
+            </div>
+          ) : videoStatus === 'error' ? (
+            <div className="text-center px-6">
+              <div className="w-32 h-32 rounded-full bg-gray-800 mx-auto mb-6 flex items-center justify-center">
+                <VideoOff className="h-14 w-14 text-gray-600" />
+              </div>
+              <p className="text-white font-semibold text-lg">Video Unavailable</p>
+              <p className="text-white/50 text-sm mt-2 max-w-md mx-auto">
+                Video chat is not available right now. Please try again later or visit our website.
+              </p>
+              <button
+                onClick={() => window.location.href = `/p/${slug}`}
+                className="mt-6 px-6 py-2.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
+                data-testid="button-video-fallback"
+              >
+                Go to {orgData.name}
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="p-4 bg-gray-900/80 backdrop-blur border-t border-white/10 flex items-center justify-center gap-6">
+          <button
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${micMuted ? 'bg-red-500/20 text-red-400 ring-2 ring-red-500/40' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            onClick={() => setMicMuted(!micMuted)}
+            data-testid="button-toggle-mic"
+          >
+            {micMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          </button>
+          <button
+            className="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30"
+            onClick={() => window.location.href = `/p/${slug}`}
+            data-testid="button-end-call"
+          >
+            <Phone className="h-6 w-6 rotate-[135deg]" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const handleWidgetFormSubmit = async () => {
     if (!widgetFormName.trim() || !widgetFormEmail.trim() || !widgetFormMessage.trim()) return;
     setWidgetFormSubmitting(true);
