@@ -277,12 +277,28 @@ export function getAgentById(id: string): MarketingAgentDef | undefined {
   return MARKETING_AGENTS.find(a => a.id === id);
 }
 
-const ARTIFACTS_KEY = 'nexxus_marketing_artifacts';
-const SESSIONS_KEY = 'nexxus_marketing_sessions';
+function getUserScope(): string {
+  try {
+    const token = localStorage.getItem('nexxus_access_token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.userId) return `_${payload.userId}`;
+    }
+  } catch {}
+  return '';
+}
+
+function getArtifactsKey(): string {
+  return `nexxus_marketing_artifacts${getUserScope()}`;
+}
+
+function getSessionsKey(): string {
+  return `nexxus_marketing_sessions${getUserScope()}`;
+}
 
 export function loadArtifacts(): MarketingArtifact[] {
   try {
-    const raw = localStorage.getItem(ARTIFACTS_KEY);
+    const raw = localStorage.getItem(getArtifactsKey());
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -290,7 +306,7 @@ export function loadArtifacts(): MarketingArtifact[] {
 }
 
 export function saveArtifacts(artifacts: MarketingArtifact[]): void {
-  localStorage.setItem(ARTIFACTS_KEY, JSON.stringify(artifacts));
+  localStorage.setItem(getArtifactsKey(), JSON.stringify(artifacts));
 }
 
 export function addArtifact(artifact: MarketingArtifact): MarketingArtifact[] {
@@ -308,7 +324,7 @@ export function removeArtifact(id: string): MarketingArtifact[] {
 
 export function loadSessions(): AgentSession[] {
   try {
-    const raw = localStorage.getItem(SESSIONS_KEY);
+    const raw = localStorage.getItem(getSessionsKey());
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -316,7 +332,7 @@ export function loadSessions(): AgentSession[] {
 }
 
 export function saveSessions(sessions: AgentSession[]): void {
-  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+  localStorage.setItem(getSessionsKey(), JSON.stringify(sessions));
 }
 
 export function getSessionsForAgent(agentId: string): AgentSession[] {

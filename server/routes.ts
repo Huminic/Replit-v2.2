@@ -4453,7 +4453,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         return res.status(503).json({ message: "OPENAI_API_KEY is not configured" });
       }
 
-      const { messages, model, max_tokens, temperature, response_format } = req.body;
+      const { messages, model, max_tokens, temperature, response_format, tools } = req.body;
       if (!messages || !Array.isArray(messages)) {
         return res.status(400).json({ message: "messages array is required" });
       }
@@ -4465,6 +4465,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       if (max_tokens !== undefined) payload.max_tokens = max_tokens;
       if (temperature !== undefined) payload.temperature = temperature;
       if (response_format) payload.response_format = response_format;
+      if (tools && Array.isArray(tools)) payload.tools = tools;
 
       const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",

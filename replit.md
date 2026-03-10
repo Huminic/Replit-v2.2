@@ -24,7 +24,7 @@ Express + TypeScript, PostgreSQL via Drizzle ORM. JWT auth + bcrypt. Anthropic S
 - **Agent and Trigger System**: Configurable AI agents + trigger system including `new_lead_followup` (48h SMS auto-follow-up)
 - **Lead Handling**: Multi-channel widgets, public landing pages, video auto-launch (`?mode=video`)
 - **Metrics and Reporting**: Real-time pipeline metrics from warehouse_leads with VinSolutions CRM enrichment
-- **Multi-Store Architecture**: 5 stores with data isolation (Serra Honda/Caroline, Serra Nissan/Magnolia, Tony Serra Ford/Georgia, Hyundai of Columbia/Elizabeth, Ford of Columbia/Savannah). NOTE: Hyundai of Columbia has NO Tavus persona linked (tavusPersonaId is null) — video widget shows error for that store. DB personaName fields don't match Tavus persona names — the display names above are the correct ones.
+- **Multi-Store Architecture**: 5 stores with data isolation (Serra Honda/Caroline, Serra Nissan/Magnolia, Tony Serra Ford/Georgia, Hyundai of Columbia/Elizabeth, Ford of Columbia/Savannah). All stores have Tavus personas linked. DB personaName fields now match the correct persona names.
 
 ## External Dependencies
 
