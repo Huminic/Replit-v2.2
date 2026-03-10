@@ -153,6 +153,7 @@ export interface IStorage {
 
   getDashboardMetrics(organizationId: string): Promise<DashboardMetrics>;
   getPipelineMetrics(organizationId: string): Promise<PipelineMetrics>;
+  getPipelineMetricDetails(organizationId: string, metric: string): Promise<any[]>;
 
   getFavorites(userId: string): Promise<Favorite[]>;
   addFavorite(fav: InsertFavorite): Promise<Favorite>;
@@ -711,6 +712,120 @@ export class DatabaseStorage implements IStorage {
       openEscalations: Number(escalationResult[0]?.cnt || 0),
       outboundSent24h: Number(outboundResult[0]?.cnt || 0),
     };
+  }
+
+  async getPipelineMetricDetails(organizationId: string, metric: string): Promise<any[]> {
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const limit = 100;
+
+    switch (metric) {
+      case 'active_pipeline': {
+        const rows = await db.select({
+          id: warehouseLeads.id,
+          sourceId: warehouseLeads.sourceId,
+          customerName: warehouseLeads.customerName,
+          customerEmail: warehouseLeads.customerEmail,
+          customerPhone: warehouseLeads.customerPhone,
+          vinStatus: warehouseLeads.vinStatus,
+          vehicleOfInterest: warehouseLeads.vehicleOfInterest,
+          leadSource: warehouseLeads.leadSource,
+          syncedAt: warehouseLeads.syncedAt,
+        }).from(warehouseLeads).where(and(
+          eq(warehouseLeads.organizationId, organizationId),
+          sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${fourteenDaysAgo}`,
+          sql`${warehouseLeads.vinStatus} IS NOT NULL`,
+          sql`${warehouseLeads.vinStatus} NOT LIKE 'LOST%'`,
+          sql`${warehouseLeads.vinStatus} != 'lost'`,
+          sql`${warehouseLeads.vinStatus} NOT LIKE 'SOLD%'`,
+          sql`${warehouseLeads.vinStatus} != 'sold'`,
+          sql`${warehouseLeads.vinStatus} != 'closed-won'`,
+          sql`${warehouseLeads.vinStatus} NOT LIKE 'BAD%'`,
+          sql`${warehouseLeads.vinStatus} NOT LIKE '%DUPLICATE%'`,
+          sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+          sql`${warehouseLeads.vinStatus} != 'NON_CUSTOMER_INITIATED_LEAD'`,
+        )).orderBy(desc(warehouseLeads.syncedAt)).limit(limit);
+        return rows;
+      }
+      case 'appointments_today': {
+        const rows = await db.select({
+          id: appointments.id,
+          customerName: appointments.customerName,
+          customerPhone: appointments.customerPhone,
+          customerEmail: appointments.customerEmail,
+          appointmentType: appointments.appointmentType,
+          department: appointments.department,
+          startTime: appointments.startTime,
+          status: appointments.status,
+        }).from(appointments).where(and(
+          eq(appointments.organizationId, organizationId),
+          eq(appointments.status, "scheduled"),
+          gte(appointments.startTime, todayStart),
+          sql`${appointments.startTime} < ${todayStart}::date + interval '1 day'`,
+        )).orderBy(appointments.startTime).limit(limit);
+        return rows;
+      }
+      case 'open_escalations': {
+        const rows = await db.select({
+          id: tasks.id,
+          title: tasks.title,
+          type: tasks.type,
+          status: tasks.status,
+          priority: tasks.priority,
+          description: tasks.description,
+          createdAt: tasks.createdAt,
+        }).from(tasks).where(and(
+          eq(tasks.organizationId, organizationId),
+          eq(tasks.status, "todo"),
+          sql`(${tasks.type} = 'escalation' OR ${tasks.type} = 'unsent_message')`,
+        )).orderBy(desc(tasks.createdAt)).limit(limit);
+        return rows;
+      }
+      case 'outbound_sent': {
+        const rows = await db.select({
+          id: outboundLog.id,
+          channel: outboundLog.channel,
+          status: outboundLog.status,
+          messageContent: outboundLog.messageContent,
+          sentAt: outboundLog.sentAt,
+          createdAt: outboundLog.createdAt,
+          recipientId: outboundLog.recipientId,
+        }).from(outboundLog).where(and(
+          eq(outboundLog.organizationId, organizationId),
+          eq(outboundLog.status, "sent"),
+          gte(outboundLog.createdAt, twentyFourHoursAgo),
+        )).orderBy(desc(outboundLog.createdAt)).limit(limit);
+
+        const recipientIds = rows.filter(r => r.recipientId).map(r => r.recipientId!);
+        const recipientMap = new Map<string, { name: string; phone: string | null; email: string | null }>();
+        if (recipientIds.length > 0) {
+          const recipients = await db.select({
+            id: campaignRecipients.id,
+            firstName: campaignRecipients.firstName,
+            lastName: campaignRecipients.lastName,
+            phone: campaignRecipients.phone,
+            email: campaignRecipients.email,
+          }).from(campaignRecipients)
+            .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
+            .where(and(
+              eq(campaigns.organizationId, organizationId),
+              sql`${campaignRecipients.id} IN (${sql.join(recipientIds.map(id => sql`${id}`), sql`, `)})`
+            ));
+          for (const r of recipients) {
+            recipientMap.set(r.id, { name: [r.firstName, r.lastName].filter(Boolean).join(' '), phone: r.phone, email: r.email });
+          }
+        }
+        return rows.map(row => {
+          const r = row.recipientId ? recipientMap.get(row.recipientId) : undefined;
+          return { ...row, recipientName: r?.name || null, recipientPhone: r?.phone || null, recipientEmail: r?.email || null };
+        });
+      }
+      default:
+        return [];
+    }
   }
 
   async getRecipient(id: string): Promise<CampaignRecipient | undefined> {
