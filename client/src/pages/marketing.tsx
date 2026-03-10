@@ -41,6 +41,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';
+import AgentChatView from '@/components/marketing/AgentChatView';
+import { MARKETING_AGENTS, getSessionsForAgent, timeAgo } from '@/lib/marketing-agents';
 
 interface MarketingMetricTile {
   id: string;
@@ -88,6 +90,8 @@ export default function MarketingPage() {
   const [newCampaignName, setNewCampaignName] = useState('');
   const [newCampaignChannel, setNewCampaignChannel] = useState('sms');
   const [newCampaignTemplate, setNewCampaignTemplate] = useState('');
+  const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const createCampaignMutation = useMutation({
     mutationFn: async (data: { name: string; department: string; channel: string; messageTemplate: string }) => {
@@ -229,64 +233,70 @@ export default function MarketingPage() {
     </div>
   );
 
-  /** Agents tab — marketing department AI agent cards */
+  /** Agents tab — 5 marketing agent launcher cards (metric-card style) */
   const renderAgents = () => (
-    <div className="p-6 space-y-4">
-      <h2 className="text-lg font-semibold">Marketing Agents</h2>
-      {agentsLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="cursor-pointer">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-3 w-16" />
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold" data-testid="text-agents-title">Marketing Agents</h2>
+          <p className="text-sm text-muted-foreground">AI-powered creative tools for your dealership</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MARKETING_AGENTS.map(agentDef => {
+          const sessions = getSessionsForAgent(agentDef.id);
+          const lastSession = sessions[0];
+          const AgentIcon = agentDef.icon;
+          return (
+            <div
+              key={agentDef.id}
+              className={cn(
+                'relative rounded-xl border border-border bg-gradient-to-br cursor-pointer hover-elevate group transition-shadow duration-200',
+                agentDef.gradient
+              )}
+              style={{ '--agent-glow': agentDef.glowColor } as React.CSSProperties}
+              onClick={() => {
+                setActiveAgentId(agentDef.id);
+                setActiveSessionId(null);
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 30px ${agentDef.glowColor}`; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = ''; }}
+              data-testid={`agent-card-${agentDef.id}`}
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.07] -mr-4 -mt-4">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground" />
+                  <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
+                  <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" strokeWidth="1" className="text-foreground" />
+                </svg>
+              </div>
+
+              <div className="relative p-4 flex items-start gap-3">
+                <div
+                  className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: agentDef.accentColor + '20' }}
+                >
+                  <AgentIcon className="h-5 w-5" style={{ color: agentDef.accentColor }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground" data-testid={`text-agent-name-${agentDef.id}`}>{agentDef.name}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5" data-testid={`text-agent-desc-${agentDef.id}`}>{agentDef.description}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-[10px] text-muted-foreground" data-testid={`text-agent-sessions-${agentDef.id}`}>
+                      {sessions.length} session{sessions.length !== 1 ? 's' : ''}
+                    </span>
+                    {lastSession && (
+                      <span className="text-[10px] text-muted-foreground" data-testid={`text-agent-last-used-${agentDef.id}`}>
+                        Last used {timeAgo(lastSession.updatedAt)}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <Skeleton className="h-3 w-full mb-2" />
-                <Skeleton className="h-3 w-3/4" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {marketingAgents.map(agent => (
-            <Card key={agent.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setSelectedAgent(agent); setLocation('/agents'); }} data-testid={`agent-card-${agent.id}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-sm">
-                      <Bot className="h-5 w-5" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold">{agent.name}</h3>
-                    <p className="text-xs text-muted-foreground">{agent.channels?.[0] || 'voice'}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 flex-shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedAgent(agent);
-                      setRightPaneOpen(true);
-                    }}
-                    data-testid={`button-agent-settings-${agent.id}`}
-                  >
-                    <Settings className="h-3.5 w-3.5 text-muted-foreground" />
-                  </Button>
-                  <div className={cn('w-2.5 h-2.5 rounded-full', getAgentStatusColor(agent.status))} />
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{agent.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -527,35 +537,46 @@ export default function MarketingPage() {
           e.target.value = '';
         }}
       />
-      <div className="border-b border-border px-6 pt-4">
-        <h1 className="text-xl font-semibold mb-3">Marketing</h1>
-        <div className="flex gap-1">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
-                activeTab === tab.id
-                  ? 'border-primary text-foreground font-medium'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              )}
-              data-testid={`tab-marketing-${tab.id}`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <ScrollArea className="flex-1">
-        {activeTab === 'dashboard' && renderDashboard()}
-        {activeTab === 'agents' && renderAgents()}
-        {activeTab === 'campaigns' && renderCampaigns()}
-        {activeTab === 'studio' && renderStudio()}
-        {activeTab === 'insights' && renderInsights()}
-      </ScrollArea>
+      {activeAgentId ? (
+        <AgentChatView
+          agentId={activeAgentId}
+          sessionId={activeSessionId ?? undefined}
+          onBack={() => { setActiveAgentId(null); setActiveSessionId(null); }}
+        />
+      ) : (
+        <>
+          <div className="border-b border-border px-6 pt-4">
+            <h1 className="text-xl font-semibold mb-3">Marketing</h1>
+            <div className="flex gap-1">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+                    activeTab === tab.id
+                      ? 'border-primary text-foreground font-medium'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  )}
+                  data-testid={`tab-marketing-${tab.id}`}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ScrollArea className="flex-1">
+            {activeTab === 'dashboard' && renderDashboard()}
+            {activeTab === 'agents' && renderAgents()}
+            {activeTab === 'campaigns' && renderCampaigns()}
+            {activeTab === 'studio' && renderStudio()}
+            {activeTab === 'insights' && renderInsights()}
+          </ScrollArea>
+        </>
+      )}
 
       <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
