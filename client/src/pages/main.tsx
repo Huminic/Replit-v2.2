@@ -67,6 +67,13 @@ interface MetricTile {
   iconBg: string;
 }
 
+const metricApiKeys: Record<string, string> = {
+  'Active Pipeline': 'active_pipeline',
+  'Appointments Today': 'appointments_today',
+  'Open Escalations': 'open_escalations',
+  'Outbound Sent 24h': 'outbound_sent',
+};
+
 function buildPipelineTiles(data: PipelineData | undefined): MetricTile[] {
   const ap = data?.activePipeline ?? 0;
   const at = data?.appointmentsToday ?? 0;
@@ -146,11 +153,212 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
   );
 }
 
-/**
- * MainPage — Primary chat interface component.
- * Uses personaName from AppContext to label the AI persona in responses.
- * The wave-dot animation (3 bouncing dots) displays while AI is "typing".
- */
+function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
+  selectedMetric: MetricTile | null;
+  metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }>;
+  onClose: () => void;
+  orgId: string | undefined;
+}) {
+  const metricKey = selectedMetric ? metricApiKeys[selectedMetric.label] : null;
+
+  const { data: detailRows, isLoading, isError } = useQuery<any[]>({
+    queryKey: ['/api/metrics/pipeline/details', orgId, metricKey],
+    queryFn: async () => {
+      const r = await fetch(`/api/metrics/pipeline/details?metric=${metricKey}`, { credentials: 'include' });
+      if (!r.ok) throw new Error('Failed to fetch details');
+      const data = await r.json();
+      return Array.isArray(data) ? data : [];
+    },
+    enabled: !!selectedMetric && !!metricKey,
+  });
+
+  const renderTable = () => {
+    if (isLoading) {
+      return (
+        <div className="py-8 text-center text-sm text-muted-foreground" data-testid="metric-detail-loading">
+          Loading records...
+        </div>
+      );
+    }
+    if (isError) {
+      return (
+        <div className="py-8 text-center text-sm text-red-500" data-testid="metric-detail-error">
+          Failed to load records
+        </div>
+      );
+    }
+    if (!detailRows || detailRows.length === 0) {
+      return (
+        <div className="py-8 text-center text-sm text-muted-foreground" data-testid="metric-detail-empty">
+          No records found
+        </div>
+      );
+    }
+
+    if (metricKey === 'active_pipeline') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="table-active-pipeline">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Phone</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Email</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Status</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Vehicle</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Lead ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-pipeline-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground">{row.customerPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
+                  <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (metricKey === 'appointments_today') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="table-appointments">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Phone</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Email</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Type</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-appointment-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground">{row.customerPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.appointmentType}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground">{row.startTime ? new Date(row.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (metricKey === 'open_escalations') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="table-escalations">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Title</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Type</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Priority</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-escalation-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground truncate max-w-[200px]">{row.title || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.type}</span></td>
+                  <td className="py-2 px-2"><span className={cn('px-1.5 py-0.5 rounded text-xs', row.priority === 'high' ? 'bg-red-500/15 text-red-600' : row.priority === 'medium' ? 'bg-amber-500/15 text-amber-600' : 'bg-muted text-muted-foreground')}>{row.priority}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground text-xs">{row.createdAt ? new Date(row.createdAt).toLocaleDateString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (metricKey === 'outbound_sent') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="table-outbound">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Recipient</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Phone</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Email</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Channel</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Sent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-outbound-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.recipientName || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground">{row.recipientPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.recipientEmail || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.channel}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground text-xs">{row.sentAt ? new Date(row.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : row.createdAt ? new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+            {selectedMetric && (
+              <>
+                {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                {selectedMetric.label}
+              </>
+            )}
+          </DialogTitle>
+          <DialogDescription className="text-xs">
+            {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
+          </DialogDescription>
+        </DialogHeader>
+        {selectedMetric && (
+          <div className="space-y-4">
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+              <span className={cn(
+                'text-sm font-medium',
+                selectedMetric.trend === 'up' && 'text-green-600 dark:text-green-400',
+                selectedMetric.trend === 'down' && 'text-red-600 dark:text-red-400',
+                selectedMetric.trend === 'neutral' && 'text-muted-foreground'
+              )}>
+                {selectedMetric.change}
+              </span>
+              <span className="text-xs text-muted-foreground ml-auto">
+                {(detailRows?.length ?? 0) >= 100
+                  ? `showing first 100 of ${selectedMetric.value} records`
+                  : `${detailRows?.length ?? 0} records`}
+              </span>
+            </div>
+            <div className="border-t border-border pt-3">
+              {renderTable()}
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function MainPage() {
   const { personaName, currentUser, currentOrganization, currentRole } = useApp();
   const [suggestions] = useState(() => getRandomSuggestions(currentRole));
@@ -527,68 +735,12 @@ export default function MainPage() {
         </div>
       </div>
 
-      <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
-              {selectedMetric && (
-                <>
-                  {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
-                  {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
-                  {selectedMetric.label}
-                </>
-              )}
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              {selectedMetric && (metricDetails[selectedMetric.label]?.description || 'Detailed breakdown of this metric')}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedMetric && (
-            <div className="space-y-4">
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
-                <span className={cn(
-                  'text-sm font-medium',
-                  selectedMetric.trend === 'up' && 'text-green-600 dark:text-green-400',
-                  selectedMetric.trend === 'down' && 'text-red-600 dark:text-red-400',
-                  selectedMetric.trend === 'neutral' && 'text-muted-foreground'
-                )}>
-                  {selectedMetric.change}
-                </span>
-              </div>
-              <div className="border-t border-border pt-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Breakdown</h4>
-                <div className="space-y-1">
-                  {(metricDetails[selectedMetric.label]?.breakdown || []).map((item, idx) => (
-                    <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50" data-testid={`metric-breakdown-${idx}`}>
-                      <div className="flex items-center justify-between">
-                        <span className={cn('text-sm', item.label.startsWith('  ') ? 'text-foreground pl-3' : 'text-muted-foreground font-medium')}>{item.label}</span>
-                        {item.value && <span className="text-sm font-semibold text-foreground">{item.value}</span>}
-                      </div>
-                      {item.detail && (
-                        <p className="text-[11px] text-muted-foreground mt-0.5 pl-0">{item.detail}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {metricDetails[selectedMetric.label]?.highlights && (
-                <div className="border-t border-border pt-3">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Key Insights</h4>
-                  <div className="space-y-1.5">
-                    {metricDetails[selectedMetric.label]!.highlights!.map((insight, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                        <span className="text-xs text-foreground leading-relaxed">{insight}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <MetricDetailDialog
+        selectedMetric={selectedMetric}
+        metricDetails={metricDetails}
+        onClose={() => setSelectedMetric(null)}
+        orgId={orgId}
+      />
     </div>
   );
 }

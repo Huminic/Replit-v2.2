@@ -2088,6 +2088,21 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
+  app.get("/api/metrics/pipeline/details", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const metric = req.query.metric as string;
+      const validMetrics = ['active_pipeline', 'appointments_today', 'open_escalations', 'outbound_sent'];
+      if (!metric || !validMetrics.includes(metric)) {
+        return res.status(400).json({ message: "Invalid metric. Use: " + validMetrics.join(', ') });
+      }
+      const details = await storage.getPipelineMetricDetails(req.user.organizationId, metric);
+      return res.json(details);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch metric details" });
+    }
+  });
+
   app.get("/api/tasks", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
