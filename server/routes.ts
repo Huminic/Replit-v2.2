@@ -3785,7 +3785,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
+  app.post("/api/webhooks/textmagic", async (req, res) => {
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
     if (textmagicSecret) {
       const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
@@ -3802,6 +3802,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       const { sender, text: messageText, receiver } = req.body;
       const phone = typeof sender === "string" ? sender : String(sender || "");
       const content = typeof messageText === "string" ? messageText : String(messageText || "");
+      const receiverPhone = typeof receiver === "string" ? receiver : String(receiver || "");
       let timestamp = new Date();
       if (req.body.timestamp) {
         const ts = Number(req.body.timestamp);
@@ -3814,51 +3815,75 @@ When the user asks a question that requires deep CRM data (specific lead details
       }
 
       const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+      const normalizedReceiver = receiverPhone.replace(/[^0-9+]/g, "");
 
-      console.log(`[TextMagic Webhook] Inbound SMS from ${normalizedPhone}: "${content.substring(0, 80)}"`);
+      console.log(`[TextMagic Webhook] Inbound SMS from ${normalizedPhone} to ${normalizedReceiver}: "${content.substring(0, 80)}"`);
 
-      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
-      let organizationId: string;
+      const receiverOrg = normalizedReceiver ? await storage.getOrganizationByTextmagicPhone(normalizedReceiver) : undefined;
+      if (receiverOrg) {
+        const receiverSettings = (receiverOrg.settings || {}) as Record<string, any>;
+        const orgTmPhone = (receiverSettings.textmagicPhone || "").replace(/[^0-9+]/g, "");
+        const senderDigits = normalizedPhone.replace(/\+/g, "");
+        const orgTmDigits = orgTmPhone.replace(/\+/g, "");
+        if (senderDigits === orgTmDigits || normalizedPhone === orgTmPhone) {
+          console.log(`[TextMagic Webhook] Ignoring outbound echo — sender ${normalizedPhone} matches org TextMagic number`);
+          return res.json({ success: true, skipped: true, reason: "outbound_echo" });
+        }
+      }
 
-      if (conversation) {
-        organizationId = conversation.organizationId;
-        await storage.updateConversation(conversation.id, {
-          lastMessageAt: timestamp,
-          unreadCount: (conversation.unreadCount || 0) + 1,
-        });
-      } else {
-        let resolvedOrg: string | null = null;
+      let resolvedOrg: string | null = null;
 
+      if (receiverOrg) {
+        resolvedOrg = receiverOrg.id;
+        console.log(`[TextMagic Webhook] Resolved org via receiver TextMagic number: ${resolvedOrg} (${receiverOrg.name})`);
+      }
+
+      if (!resolvedOrg) {
         const lastOutbound = await storage.findLastOutboundForPhone(normalizedPhone, "sms");
         if (lastOutbound?.organizationId) {
           resolvedOrg = lastOutbound.organizationId;
           console.log(`[TextMagic Webhook] Resolved org via outbound history: ${resolvedOrg}`);
         }
+      }
 
-        if (!resolvedOrg) {
-          const contactOrg = await storage.findOrganizationByPhone(normalizedPhone);
-          if (contactOrg) {
-            resolvedOrg = contactOrg.id;
-          }
+      if (!resolvedOrg) {
+        const contactOrg = await storage.findOrganizationByPhone(normalizedPhone);
+        if (contactOrg) {
+          resolvedOrg = contactOrg.id;
         }
+      }
 
-        if (!resolvedOrg) {
-          const allOrgs = await storage.getOrganizations();
-          if (allOrgs.length === 1) {
-            resolvedOrg = allOrgs[0].id;
-          } else {
-            console.warn("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
-            return res.status(200).json({ message: "Received — unresolvable sender, no action taken" });
-          }
+      if (!resolvedOrg) {
+        const allOrgs = await storage.getOrganizations();
+        if (allOrgs.length === 1) {
+          resolvedOrg = allOrgs[0].id;
+        } else {
+          console.warn("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
+          return res.status(200).json({ message: "Received — unresolvable sender, no action taken" });
         }
+      }
 
-        organizationId = resolvedOrg;
+      const organizationId = resolvedOrg;
+
+      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
+
+      if (conversation && conversation.organizationId !== organizationId) {
+        console.log(`[TextMagic Webhook] Existing conversation belongs to different org (${conversation.organizationId}), creating new one for ${organizationId}`);
+        conversation = null;
+      }
+
+      if (conversation) {
+        await storage.updateConversation(conversation.id, {
+          lastMessageAt: timestamp,
+          unreadCount: (conversation.unreadCount || 0) + 1,
+        });
+      } else {
 
         let sourceConversationId: string | null = null;
         let linkedCampaignId: string | null = null;
 
         try {
-          const outboundForLink = lastOutbound || await storage.findLastOutboundForPhone(normalizedPhone, "sms");
+          const outboundForLink = await storage.findLastOutboundForPhone(normalizedPhone, "sms");
           if (outboundForLink) {
             linkedCampaignId = outboundForLink.campaignId ?? null;
             if (linkedCampaignId) {

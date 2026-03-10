@@ -3457,6 +3457,41 @@ export default function SettingsPage() {
                   <span className="text-xs text-muted-foreground">/ 24h</span>
                 </div>
               </div>
+              <Separator />
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-sm">TextMagic Phone Number</p>
+                  <p className="text-xs text-muted-foreground">Your TextMagic number for inbound SMS routing</p>
+                </div>
+                <Input
+                  type="tel"
+                  placeholder="e.g. 18338096836"
+                  className="w-48 h-8 text-sm"
+                  defaultValue={(authUser?.organization as any)?.settings?.textmagicPhone || ''}
+                  key={`tm-${(authUser?.organization as any)?.settings?.textmagicPhone || ''}`}
+                  onBlur={(e) => {
+                    const val = e.target.value.trim();
+                    const org = authUser?.organization as any;
+                    const currentSettings = org?.settings || {};
+                    if (val !== (currentSettings.textmagicPhone || '')) {
+                      const orgId = org?.id;
+                      if (orgId) {
+                        apiRequest('PATCH', `/api/organizations/${orgId}`, {
+                          settings: { ...currentSettings, textmagicPhone: val }
+                        }).then(() => {
+                          queryClient.invalidateQueries({ queryKey: ['/api/organizations', orgId] });
+                          queryClient.invalidateQueries({ queryKey: ['/api/outbound/status'] });
+                          queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+                          toast({ title: 'TextMagic number saved', description: 'Inbound SMS will route to this organization.' });
+                        }).catch((err: any) => {
+                          toast({ title: 'Failed to save TextMagic number', description: err.message || 'An error occurred', variant: 'destructive' });
+                        });
+                      }
+                    }
+                  }}
+                  data-testid="input-textmagic-phone"
+                />
+              </div>
             </CardContent>
           </Card>
         </div>

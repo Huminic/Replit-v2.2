@@ -44,6 +44,7 @@ export interface IStorage {
   getOrganization(id: string): Promise<Organization | undefined>;
   getOrganizations(): Promise<Organization[]>;
   findOrganizationByPhone(phone: string): Promise<Organization | undefined>;
+  getOrganizationByTextmagicPhone(phone: string): Promise<Organization | undefined>;
   createOrganization(org: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, data: Partial<InsertOrganization>): Promise<Organization | undefined>;
 
@@ -265,6 +266,22 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     if (recip.length > 0) {
       return this.getOrganization(recip[0].orgId);
+    }
+    return undefined;
+  }
+
+  async getOrganizationByTextmagicPhone(phone: string): Promise<Organization | undefined> {
+    const variants = this.phoneVariants(phone);
+    const allOrgs = await this.getOrganizations();
+    for (const org of allOrgs) {
+      const settings = (org.settings || {}) as Record<string, any>;
+      const tmPhone = settings.textmagicPhone;
+      if (!tmPhone) continue;
+      const tmNormalized = String(tmPhone).replace(/[^0-9+]/g, "");
+      const tmVariants = this.phoneVariants(tmNormalized);
+      if (variants.some(v => tmVariants.includes(v))) {
+        return org;
+      }
     }
     return undefined;
   }
