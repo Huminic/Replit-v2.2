@@ -39,6 +39,9 @@ export default function WidgetLandingPage() {
   const [orgData, setOrgData] = useState<LandingPageOrg | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [autoLaunched, setAutoLaunched] = useState(false);
+
+  const queryMode = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('mode') : null;
 
   useEffect(() => {
     if (slug === 'demo') {
@@ -187,6 +190,13 @@ export default function WidgetLandingPage() {
     setVoiceStatus('ended');
     setWidgetMode('closed');
   };
+
+  useEffect(() => {
+    if (queryMode === 'video' && orgData && !loading && !autoLaunched) {
+      setAutoLaunched(true);
+      startVideoChat();
+    }
+  }, [queryMode, orgData, loading, autoLaunched]);
 
   const startVideoChat = async () => {
     setWidgetMode('video');
