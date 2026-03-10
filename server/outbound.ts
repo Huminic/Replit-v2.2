@@ -8,7 +8,8 @@ const RATE_LIMIT_HOURS = 24;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
+const TEXTMAGIC_API_KEY_RAW = process.env.TEXTMAGIC_API_KEY || "";
+const TEXTMAGIC_API_KEY = TEXTMAGIC_API_KEY_RAW.length === 60 ? TEXTMAGIC_API_KEY_RAW.substring(0, 30) : TEXTMAGIC_API_KEY_RAW;
 const TEXTMAGIC_USERNAME = process.env.TEXTMAGIC_USERNAME || "";
 const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
 const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
