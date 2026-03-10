@@ -3858,9 +3858,9 @@ When the user asks a question that requires deep CRM data (specific lead details
         let linkedCampaignId: string | null = null;
 
         try {
-          const lastOutbound = await storage.findLastOutboundForPhone(normalizedPhone, "sms");
-          if (lastOutbound) {
-            linkedCampaignId = lastOutbound.campaignId ?? null;
+          const outboundForLink = lastOutbound || await storage.findLastOutboundForPhone(normalizedPhone, "sms");
+          if (outboundForLink) {
+            linkedCampaignId = outboundForLink.campaignId ?? null;
             if (linkedCampaignId) {
               const existingConvs = await storage.getConversations(organizationId, { channel: "sms" });
               const sourceConv = existingConvs.find(
