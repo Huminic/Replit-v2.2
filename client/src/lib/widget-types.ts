@@ -308,7 +308,8 @@ export function getLandingPageTypeLabel(type: LandingPageType): string {
 
 export function generateWidgetEmbedCode(widget: IndividualWidget): string {
   const host = typeof window !== 'undefined' ? window.location.origin : '';
-  return `<script>
+  if (widget.type === 'unified') {
+    return `<script>
   window.nexxusConfig = {
     widgetId: "${widget.widgetCode}",
     type: "${widget.type}",
@@ -320,4 +321,7 @@ export function generateWidgetEmbedCode(widget: IndividualWidget): string {
   };
 </script>
 <script src="${host}/widget/nexxus-widget.js" async></script>`;
+  }
+  const slug = widget.allowedDomains?.[0]?.replace(/^www\./, '').replace(/\.com$/, '').replace(/\./g, '-') || widget.widgetCode;
+  return `<script src="${host}/widget/dealer/${slug}.js" async></script>`;
 }
