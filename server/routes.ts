@@ -3763,23 +3763,35 @@ When the user asks a question that requires deep CRM data (specific lead details
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Nexxus Connect — Widget Test Page</title>
+<title>Dealer.com / Huminic AI — Partnership Portal</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#1e293b}
-.header{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:48px 24px;text-align:center}
-.header h1{font-size:28px;margin-bottom:8px}
-.header p{opacity:0.8;font-size:15px}
-.container{max-width:900px;margin:32px auto;padding:0 24px}
-.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.header{background:linear-gradient(135deg,#1e40af,#2563eb,#3b82f6);color:#fff;padding:52px 24px 44px;text-align:center}
+.header h1{font-size:26px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px}
+.header p{opacity:0.85;font-size:15px;font-weight:400}
+.container{max-width:900px;margin:0 auto;padding:32px 24px 48px}
+.section-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#6366f1;margin-bottom:16px}
+.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:0}
 .store-btn{display:block;padding:20px 22px;background:#fff;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;text-align:left;transition:all 0.2s;font-size:16px;font-weight:600;color:#334155;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-decoration:none}
 .store-btn:hover{border-color:#6366f1;background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,0.15)}
 .store-btn .slug{font-size:12px;color:#94a3b8;font-weight:400;margin-top:6px}
+.divider{border:none;border-top:2px solid #e2e8f0;margin:40px 0}
+.zip-card{display:flex;align-items:center;gap:20px;background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.2s;text-decoration:none;color:#334155;max-width:560px}
+.zip-card:hover{border-color:#6366f1;background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,0.15)}
+.zip-icon{flex-shrink:0;width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.zip-icon svg{width:28px;height:28px;color:#fff;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.zip-info h3{font-size:16px;font-weight:600;margin-bottom:4px;color:#1e293b}
+.zip-info p{font-size:13px;color:#64748b;line-height:1.5}
 </style>
 </head>
 <body>
-<div class="header"><h1>Nexxus Connect — Store Links</h1><p>Click a store to open its video agent</p></div>
+<div class="header">
+<h1>Dealer.com / Huminic AI Partnership Portal</h1>
+<p>File and Configuration Handoff Portal</p>
+</div>
 <div class="container">
+<div class="section-label">Video Widget JavaScript Demonstration</div>
 <div class="stores">
 <a class="store-btn" href="${host}/p/serra-honda?mode=video" target="_blank" data-testid="btn-serra-honda">Serra Honda<div class="slug">serra-honda</div></a>
 <a class="store-btn" href="${host}/p/serra-nissan?mode=video" target="_blank" data-testid="btn-serra-nissan">Serra Nissan<div class="slug">serra-nissan</div></a>
@@ -3787,6 +3799,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <a class="store-btn" href="${host}/p/hyundai-of-columbia?mode=video" target="_blank" data-testid="btn-hyundai-of-columbia">Hyundai of Columbia<div class="slug">hyundai-of-columbia</div></a>
 <a class="store-btn" href="${host}/p/ford-of-columbia?mode=video" target="_blank" data-testid="btn-ford-of-columbia">Ford of Columbia<div class="slug">ford-of-columbia</div></a>
 </div>
+<hr class="divider">
+<div class="section-label">Dealer.com Files &amp; Instructions</div>
+<a class="zip-card" href="/dealer-handoff/Nexxus_Connect_Dealer.com_Integration.zip" download data-testid="link-download-zip">
+<div class="zip-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+<div class="zip-info">
+<h3>Nexxus_Connect_Dealer.com_Integration.zip</h3>
+<p>Contains integration instructions and JavaScript widget links for all 5 stores. Ready for Dealer.com team handoff.</p>
+</div>
+</a>
 </div>
 </body></html>`;
     res.setHeader("Content-Type", "text/html");
