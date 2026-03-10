@@ -88,7 +88,7 @@ export function extractContactIdFromHref(href: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
-function flattenContactInfo(raw: any): any {
+export function flattenContactInfo(raw: any): any {
   const ci = Array.isArray(raw) && raw.length > 0 && raw[0]?.ContactInformation
     ? raw[0].ContactInformation
     : raw;

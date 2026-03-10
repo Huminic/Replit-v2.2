@@ -380,7 +380,11 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     source: s.source, leads: s.leads, lossRate: `${s.lossRate}%`, topReason: 'N/A',
   }));
   const reengagementCandidates = mockHotLeadsGoingCold.slice(0, 5).map((l: any) => ({
-    name: l.leadId, vehicle: l.vehicle || 'N/A', daysInactive: l.daysOld || 0, lastChannel: 'Unknown', suggestedAction: 'Follow up',
+    id: l.id, leadId: l.leadId, name: l.customerName || l.leadId, vehicle: l.vehicle || 'N/A',
+    daysInactive: l.daysOld || 0, lastChannel: 'Unknown', suggestedAction: 'Follow up',
+    customerPhone: l.customerPhone || null, customerName: l.customerName || null,
+    originalSource: l.source || 'Unknown', lossReason: 'Aging', daysSinceLoss: l.daysOld || 0,
+    reengageScore: l.daysOld < 7 ? 82 : l.daysOld < 14 ? 65 : 45,
   }));
   const sourceQualityTrends = rptSourceQuality.map((s: any) => ({
     month: s.source, winRate: s.winRate, volume: s.leads,
@@ -477,6 +481,16 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
 
   const handleAction = (action: string, detail: string) => {
     toast({ title: action, description: detail });
+  };
+
+  const handleCall = (phone: string | null, name: string | null) => {
+    if (!phone) {
+      toast({ title: 'No phone number', description: 'This contact does not have a phone number on file.' });
+      return;
+    }
+    const digits = phone.replace(/\D/g, '');
+    window.open(`tel:${digits}`, '_self');
+    toast({ title: 'Calling', description: `Initiating call to ${name || digits}` });
   };
 
   const renderDashboard = () => (
@@ -874,7 +888,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Lead ID</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Customer</th>
                       <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Days Since</th>
                       <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Source</th>
                       <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Reason</th>
@@ -886,7 +900,10 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                   <tbody>
                     {reengagementCandidates.map(row => (
                       <tr key={row.id} className="border-b border-border/50">
-                        <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${row.leadId}`, description: `Lost ${row.daysSinceLoss} days ago from ${row.originalSource}. Reason: ${row.lossReason}. Vehicle: ${row.vehicle}. Re-engage score: ${row.reengageScore}%` })} data-testid={`link-lead-${row.leadId}`}>{row.leadId}</td>
+                        <td className="py-2 px-2">
+                          <div className="font-medium text-foreground">{row.customerName || row.leadId}</div>
+                          <div className="text-[11px] text-muted-foreground">{row.leadId}</div>
+                        </td>
                         <td className="py-2 px-2 text-right text-foreground">{row.daysSinceLoss}</td>
                         <td className="py-2 px-2 text-muted-foreground">{row.originalSource}</td>
                         <td className="py-2 px-2 text-muted-foreground">{row.lossReason}</td>
@@ -897,7 +914,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                           </Badge>
                         </td>
                         <td className="py-2 px-2 text-right">
-                          <Button size="sm" variant="outline" onClick={() => handleAction('Re-engage', `Initiating outreach for lead ${row.leadId}`)} data-testid={`button-reengage-${row.id}`}>
+                          <Button size="sm" variant="outline" onClick={() => handleCall(row.customerPhone, row.customerName)} disabled={!row.customerPhone} data-testid={`button-reengage-${row.id}`}>
                             <Phone className="h-3 w-3 mr-1" /> Call
                           </Button>
                         </td>
@@ -1615,9 +1632,9 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Lead ID</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Phone</th>
                   <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Days Old</th>
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Type</th>
                   <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Source</th>
                   <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Vehicle</th>
                   <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Action</th>
@@ -1626,13 +1643,20 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
               <tbody>
                 {mockHotLeadsGoingCold.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} lead from ${lead.source} — ${lead.vehicle}. ${lead.daysOld} days old.` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
+                    <td className="py-2 px-2">
+                      <div className="font-medium text-foreground" data-testid={`text-lead-name-${lead.id}`}>{lead.customerName || '—'}</div>
+                      <div className="text-[11px] text-muted-foreground">{lead.customerEmail || lead.leadId}</div>
+                    </td>
+                    <td className="py-2 px-2 text-muted-foreground" data-testid={`text-lead-phone-${lead.id}`}>
+                      {lead.customerPhone ? (
+                        <span className="text-primary cursor-pointer hover:underline" onClick={() => handleCall(lead.customerPhone, lead.customerName)}>{lead.customerPhone}</span>
+                      ) : '—'}
+                    </td>
                     <td className="py-2 px-2 text-right text-foreground">{lead.daysOld} days</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
                     <td className="py-2 px-2 text-muted-foreground">{lead.source}</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.vehicle}</td>
+                    <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{lead.vehicle}</td>
                     <td className="py-2 px-2 text-right">
-                      <Button size="sm" variant="outline" onClick={() => handleAction('Call initiated', `Calling lead ${lead.leadId}`)} data-testid={`button-call-${lead.id}`}>
+                      <Button size="sm" variant="outline" onClick={() => handleCall(lead.customerPhone, lead.customerName)} disabled={!lead.customerPhone} data-testid={`button-call-${lead.id}`}>
                         <Phone className="h-3 w-3 mr-1" /> Call
                       </Button>
                     </td>
@@ -1662,25 +1686,31 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Lead ID</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Phone</th>
                   <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Hours</th>
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Type</th>
                   <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Source</th>
-                  <th className="text-center py-2 px-2 text-xs font-medium text-muted-foreground">Hot?</th>
                   <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {mockNewLeadsNoContact.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} lead from ${lead.source}. ${lead.hoursOld} hours without contact.${lead.isHot ? ' Marked as HOT.' : ''}` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
-                    <td className="py-2 px-2 text-right text-foreground">{lead.hoursOld} hrs</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.source}</td>
-                    <td className="py-2 px-2 text-center">
-                      {lead.isHot ? <Badge variant="secondary" className="text-[10px] text-red-500">Hot</Badge> : <span className="text-xs text-muted-foreground">No</span>}
+                    <td className="py-2 px-2">
+                      <div className="font-medium text-foreground" data-testid={`text-newlead-name-${lead.id}`}>{lead.customerName || '—'}</div>
+                      <div className="text-[11px] text-muted-foreground">{lead.customerEmail || lead.leadId}</div>
                     </td>
-                    <td className="py-2 px-2 text-right">
+                    <td className="py-2 px-2 text-muted-foreground" data-testid={`text-newlead-phone-${lead.id}`}>
+                      {lead.customerPhone ? (
+                        <span className="text-primary cursor-pointer hover:underline" onClick={() => handleCall(lead.customerPhone, lead.customerName)}>{lead.customerPhone}</span>
+                      ) : '—'}
+                    </td>
+                    <td className="py-2 px-2 text-right text-foreground">{lead.hoursOld} hrs</td>
+                    <td className="py-2 px-2 text-muted-foreground">{lead.source}</td>
+                    <td className="py-2 px-2 text-right flex gap-1 justify-end">
+                      <Button size="sm" variant="outline" onClick={() => handleCall(lead.customerPhone, lead.customerName)} disabled={!lead.customerPhone} data-testid={`button-call-newlead-${lead.id}`}>
+                        <Phone className="h-3 w-3 mr-1" /> Call
+                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleAction('Assigned', `Lead ${lead.leadId} assigned to next available rep`)} data-testid={`button-assign-${lead.id}`}>
                         <UserPlus className="h-3 w-3 mr-1" /> Assign
                       </Button>
@@ -1706,22 +1736,35 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Lead ID</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Phone</th>
                   <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Days Old</th>
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Type</th>
                   <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Vehicle</th>
                   <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Status</th>
+                  <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {mockShowroomNotClosed.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
-                    <td className="py-2 px-2 font-medium text-primary cursor-pointer hover:underline" onClick={() => toast({ title: `Lead ${lead.leadId}`, description: `${lead.type} showroom visitor — ${lead.vehicle}. Status: ${lead.status}. ${lead.daysOld} days old.` })} data-testid={`link-lead-${lead.leadId}`}>{lead.leadId}</td>
+                    <td className="py-2 px-2">
+                      <div className="font-medium text-foreground" data-testid={`text-showroom-name-${lead.id}`}>{lead.customerName || '—'}</div>
+                      <div className="text-[11px] text-muted-foreground">{lead.customerEmail || lead.leadId}</div>
+                    </td>
+                    <td className="py-2 px-2 text-muted-foreground" data-testid={`text-showroom-phone-${lead.id}`}>
+                      {lead.customerPhone ? (
+                        <span className="text-primary cursor-pointer hover:underline" onClick={() => handleCall(lead.customerPhone, lead.customerName)}>{lead.customerPhone}</span>
+                      ) : '—'}
+                    </td>
                     <td className="py-2 px-2 text-right text-foreground">{lead.daysOld} days</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.type}</td>
-                    <td className="py-2 px-2 text-muted-foreground">{lead.vehicle}</td>
+                    <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{lead.vehicle}</td>
                     <td className="py-2 px-2">
                       <Badge variant="secondary" className="text-[10px]">{lead.status}</Badge>
+                    </td>
+                    <td className="py-2 px-2 text-right">
+                      <Button size="sm" variant="outline" onClick={() => handleCall(lead.customerPhone, lead.customerName)} disabled={!lead.customerPhone} data-testid={`button-call-showroom-${lead.id}`}>
+                        <Phone className="h-3 w-3 mr-1" /> Call
+                      </Button>
                     </td>
                   </tr>
                 ))}

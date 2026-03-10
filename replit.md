@@ -23,7 +23,7 @@ The backend runs on **Express** with **TypeScript**, interacting with a **Postgr
 - **Communication Management**: A robust 5-layer communication gate safety system (global, organization, channel, rate limit, campaign kill switch), supporting SMS (TextMagic), email (Resend), and VAPI (voice) outbound communications.
 - **Agent and Trigger System**: Configuration for AI agents (name, department, personality, auto-greeting) and a flexible trigger handling system for outbound actions. Hunch filtering influences AI prompts.
 - **Lead Handling**: Comprehensive system for one-off lead management from various sources (VAPI, Tavus, widgets), including a 4-channel embeddable widget and public landing pages for lead capture.
-- **Metrics and Reporting**: Displays real-time metrics (e.g., active pipeline) with consistency across dashboards and insights pages, sourced from `warehouse_leads` and `appointments` tables, supported by a VIN status classifier.
+- **Metrics and Reporting**: Displays real-time metrics (e.g., active pipeline) with consistency across dashboards and insights pages, sourced from `warehouse_leads` and `appointments` tables, supported by a VIN status classifier. Pipeline drill-down enriches leads with live VinSolutions contact data (name/phone/email) via background enrichment — caches progressively to warehouse_leads on each view.
 - **Multi-Store Architecture**: Designed to support multiple dealerships under a single partner entity (e.g., Cage Automotive with 5 stores), ensuring data isolation and proper organizational mapping for VIN Solutions API calls.
 
 ## External Dependencies
