@@ -1,0 +1,2830 @@
+openapi: 3.0.1
+info:
+  title: Lead Management - VinSolutions
+  description: "View, create, and make updates to existing leads with Connect CRM's Lead Management API. With Lead Management, your app can describe trade-ins and vehicles of interest - whether in-stock, or a catalog concept - using Cox Automotive's extensive vehicles dataset. Get immediate feedback on the status of leads with Connect CRM's Lead Management API.\n## Creating an API Request\nTo make an API request, you'll need to:\n - Know the Connect CRM resource(s) required (i.e. Contacts, Leads, LeadSources, CallDetails)\n - Know which operation you want to execute (i.e. GET, PUT, POST)\n - Understand the `Content-Type` and `Accept` header values supported by the endpoint - notice that the /gateway/v1 endpoints use path versioning with standard Content-Types, while all newer endpoints implement a header versioning strategy - which requires you to specify the version as custom `Accept` and `Content-Type` headers\n - Have your bearer token and API key handy\n\n ## API Request Header\n\n In the table below, you will find the header keys and example values. Be sure to check the allowed `Accept` and `Content-Type` headers for each endpoint, as there are differences between endpoints.\n\n <table style=\"border-collapse:collapse;border:none; margin-bottom:16px;\"> <tbody> <tr> <td style=\"width:156px;border:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'><strong>Key</strong></p> </td> <td style=\"width:156px;border:solid #DDDDDD 1px;border-left:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'><strong>Example Values</strong></p> </td> <td style=\"width:156px;border:solid #DDDDDD 1px;border-left:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'><strong>Required</strong></p> </td> <td style=\"width:156px;border:solid #DDDDDD 1px;border-left:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'><strong>Description</strong></p> </td> </tr> <tr> <td style=\"width:156px;border:solid #DDDDDD 1px;border-top:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Authorization</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Bearer 123456789</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Yes</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Required token to verify your application&apos;s identity and scope. Expires every 60 minutes.</p> </td> </tr> <tr> <td style=\"width:156px;border:solid #DDDDDD 1px;border-top:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>api_key</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>asdf1234jkl;56789</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Yes</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Required key to regulate endpoint access and usage limits. API keys do not expire but may be throttled to manage API or system performance.</p> </td> </tr> <tr> <td style=\"width:156px;border:solid #DDDDDD 1px;border-top:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Accept</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>application/json<br>&nbsp;application/vnd.coxauto.v1+json<br>&nbsp;application/vnd.coxauto.V3+json<br>&nbsp;application/xml</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Yes</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>The format of the server response (including API version) expected by your client application.</p> </td> </tr> <tr> <td style=\"width:156px;border:solid #DDDDDD 1px;border-top:  none;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>Content-Type</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>application/json<br>&nbsp;application/vnd.coxauto.v1+json<br>&nbsp;application/vnd.coxauto.V3+json<br>&nbsp;application/xml</p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'><strong><em>Yes*</em></strong></p> </td> <td style=\"width:156px;border-top:none;border-left:none;border-bottom:solid #DDDDDD 1px;border-right:solid #DDDDDD 1px;padding:0 7px 0 7px;\"> <p style='margin-bottom:0;line-height:normal;font-size:15px;'>The media type format of the current request (or response). <strong><em>*Required only in PUT or POST requests.</em></strong></p> </td> </tr> </tbody></table>\n\n\n ## Example API Request\n\n Here's an example of an API request:\n\n    curl -X GET \\\n    'https://api.vinsolutions.com/leads?leadStatus=ACTIVE_NEW_LEAD&userId=129253&dealerid=1' \\\n    -H 'Accept: application/vnd.coxauto.V3+json' \\\n    -H 'Authorization: Bearer {replace with your access/bearer token} \\\n    -H 'Content-Type: application/vnd.coxauto.V3+json' \\\n    -H 'api_key: {replace with your API key}? \\\n\n"
+  contact:
+    name: VinSolutions API Support
+    url: https://developer.coxautoinc.com/support
+  version: '1.0'
+paths:
+  /gateway/v1/organization/dealers:
+    get:
+      tags:
+        - Lead Management
+      summary: Get the list of dealerships your client application can access
+      description: 'Connect CRM APIs require dealerIds to perform most operations. This endpoint lets you see which dealerships your organization''s application may access. For Partner applications, you can place a request to this endpoint to verify a dealership Admin has successfully enabled the integration in the CRM under _**Settings**_ > _**Dealer Settings**_ > _**Partner Enablement**_.'
+      operationId: Organization_Get_406
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DealerListResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/DealerListResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DealerListResponse'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/DealerListResponse'
+  /gateway/v1/tenant/user:
+    get:
+      tags:
+        - Lead Management
+      summary: Get a list of all active users for a dealership
+      description: 'A Connect CRM userId is required for many API operations to establish the context of the user performing the action. This endpoint allows you to view all ACTIVE users, as well as their `IlmAccess`, which represents the user''s role. `IlmAccess` is important because some API responses will vary based on the role of the user performing the action. For example, a Salesperson is not allowed to skate others'' leads / contacts; but Managers can perform operations on others'' leads / contacts.'
+      operationId: User_Get_955
+      parameters:
+        - name: dealerId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelUserListResult'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelUserListResult'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelUserListResult'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelUserListResult'
+  '/gateway/v1/tenant/user/id/{userId}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get a single active user for a Dealership
+      description: Get a single active user for a Dealership
+      operationId: User_Get_609
+      parameters:
+        - name: dealerId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelUserListResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ModelUserListResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ModelUserListResult'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/ModelUserListResult'
+  '/gateway/v1/organization/dealers/id/{dealerId}/remove':
+    post:
+      tags:
+        - Lead Management
+      summary: Remove your client application's access to a dealership's data.
+      description: 'For Partner applications, using this endpoint signals that you do not have an active business relationship with the dealership. Your application''s access to CRM data will be removed and the dealership will not appear on future invoices.'
+      operationId: Organization_Post_182
+      parameters:
+        - name: dealerId
+          in: path
+          description: The VinSolutions dealerId to remove your organization's access to.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: No Content
+  /leads:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of leads based on provided search criteria.
+      description: 'Get an array of leads based on provided search criteria. As of v3, userId is not a required parameter.'
+      operationId: LeadGetCollection_698
+      parameters:
+        - name: dealerId
+          in: query
+          description: DealerId for querying leads for a specific dealer. This dealerId must be one that the user specified by the userId has access to.
+          required: true
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: userId
+          in: query
+          description: CRM UserId the query results will be filtered by if included.
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: contactId
+          in: query
+          description: ContactId for querying leads for a specific contact. This will filter both contact and coBuyerContact
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: leadSourceId
+          in: query
+          description: Filter leads based on the LeadSourceId value. this is where the lead originated from
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: leadType
+          in: query
+          description: Filter leads based on a specific LeadType enum value
+          schema:
+            enum:
+              - INTERNET
+              - WALK_IN
+              - PHONE
+              - IMPORT
+              - PARTS_ORDER
+              - SERVICE
+              - WEBSITE_CHAT
+              - WHOLESALE
+              - REFERRAL
+              - PREVIOUS_CUSTOMER
+            type: string
+        - name: leadStatus
+          in: query
+          description: Filter leads based on a specific LeadStatus enum value
+          schema:
+            enum:
+              - ACTIVE_NEW_LEAD
+              - ACTIVE_WAITING_FOR_PROSPECT_RESPONSE
+              - ACTIVE_ACTIVE_LEAD
+              - SOLD_ON_ORDER
+              - LOST_LEAD_PROCESS_COMPLETED
+              - BAD_BAD_OR_NO_CONTACT_INFORMATION
+              - BAD_PROSPECT_CLAIMS_NEVER_SUBMITTED
+              - BAD_UNDERAGE_PROSPECT
+              - BAD_DUPLICATE_LEAD
+              - SOLD_PENDING_FINANCE
+              - SOLD_DELIVERED
+              - LOST_DID_NOT_RESPOND
+              - LOST_BAD_CREDIT
+              - LOST_NO_AGREEMENT_REACHED
+              - ACTIVE_SET_APPOINTMENT
+              - ACTIVE_EMAIL_INBOX
+              - LOST_IMPORT_LEAD
+              - LOST_PURCHASED_SAME_BRAND_DIFFERENT_DEALER
+              - LOST_PURCHASED_DIFFERENT_BRAND_DIFFERENT_DEALER
+              - LOST_WORKING_WITH_OTHER_SALESPERSON
+              - LOST_REQUESTED_NO_FURTHER_CONTACT
+              - LOST_PURCHASED_FROM_PRIVATE_PARTY
+              - LOST_OUT_OF_MARKET
+              - BAD_DEALER_TEST_LEAD
+              - BAD_INCORRECT_CUSTOMER_PHONE
+              - BAD_NO_INTENT_TO_BUY
+              - BAD_INCENTIVIZED
+              - BAD_SHOPPING_OUT_OF_AREA
+              - BAD_NO_CONTACT_IN_FIVE_DAYS
+              - SERVICE_COMPLETE
+              - SERVICE_APPOINTMENT_SCHEDULED
+              - SERVICE_APPOINTMENT_MISSED
+              - OPEN_RO
+              - CLOSED_RO
+              - NON_CUSTOMER_INITIATED_LEAD
+              - SERVICE_APPOINTMENT_CANCELED
+            type: string
+        - name: leadStatusType
+          in: query
+          description: Filter leads based on a specific LeadStatusType enum value
+          schema:
+            enum:
+              - ACTIVE
+              - SOLD
+              - LOST
+              - BAD
+              - COMPLETE
+            type: string
+        - name: retail
+          in: query
+          description: 'Specify whether to return only retail leads (true), only non-retail leads (false), or all leads (null)'
+          schema:
+            type: boolean
+        - name: startQueryDateTime
+          in: query
+          description: 'Get data between a date range - from this date. The format can be in UTC, or supply an offset, according to             [rfc3339](https://tools.ietf.org/html/rfc3339#section-5.6). Formatted either like             `2018-06-16T03:18:00:19-05:00`             as UTC with an offset or             `2018-06-16T03:18:00.193Z`             as UTC without an offset.'
+          schema:
+            type: string
+            format: date-time
+        - name: endQueryDateTime
+          in: query
+          description: 'Get data between a date range - to this date. The format can be in UTC, or supply an offset, according to              [rfc3339](https://tools.ietf.org/html/rfc3339#section-5.6). Formatted either like              `2018-06-16T03:18:00:19-05:00`              as UTC with an offset or              `2018-06-16T03:18:00.193Z`              as UTC without an offset.'
+          schema:
+            type: string
+            format: date-time
+        - name: sortBy
+          in: query
+          description: Sort results either by their LeadGroupCategory or their createdUtc (descending).             Defaults to sorting by category.
+          schema:
+            enum:
+              - Date
+              - Category
+            type: string
+        - name: limit
+          in: query
+          description: Page size to use for multi-record queries. Defaults to 10. Maximum of 100.
+          schema:
+            maximum: 100
+            minimum: 1
+            type: integer
+            format: int32
+        - name: pageNumber
+          in: query
+          description: 1 based index of the page number to return for multi-record queries. Defaults to 1.
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v3+json:
+              schema:
+                $ref: '#/components/schemas/PagedResultLeadGetResponse'
+            application/vnd.coxauto.v2+json:
+              schema:
+                $ref: '#/components/schemas/PagedResultLeadGetResponse'
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/PagedResultLeadGetResponse'
+        '400':
+          description: Bad Request - There was an error in your request
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to. Did you pass the correct DealerId and UserId?
+        '403':
+          description: Forbidden - You are trying to get data for a dealer outside of your dealer hierarchy orgId.
+        '404':
+          description: Not Found - There was no lead found with the information provided
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    post:
+      tags:
+        - Lead Management
+      summary: Create a new active lead using a json model body.
+      description: 'Create a new active lead using a json model body. An href to that lead will be returned in the Location header of the response message. </p>Notes <ol><li>An active lead cannot be created for a contact that already has an active lead.</li><li> As of V2, creating a lead will no longer be able to start a showroom visit. </li></ol>'
+      operationId: LeadPost_467
+      requestBody:
+        description: The lead the you want to create.
+        content:
+          application/vnd.coxauto.v3+json:
+            schema:
+              $ref: '#/components/schemas/LeadPostRequest'
+          application/vnd.coxauto.v2+json:
+            schema:
+              $ref: '#/components/schemas/LeadPostRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Operation - An href to the lead is returned in the Location header.
+          content:
+            application/vnd.coxauto.v3+json:
+              schema:
+                $ref: '#/components/schemas/Object'
+            application/vnd.coxauto.v2+json:
+              schema:
+                $ref: '#/components/schemas/Object'
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+      x-codegen-request-body-name: leadModel
+  '/leads/id/{LeadId}':
+    get:
+      tags:
+        - Lead Management
+      summary: Retrieve a specific lead using its lead id.
+      description: 'Get an array of leads based on provided search criteria. As of v3, userId is not a required parameter.'
+      operationId: LeadGetById_152
+      parameters:
+        - name: LeadId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v3+json:
+              schema:
+                $ref: '#/components/schemas/LeadGetResponse'
+            application/vnd.coxauto.v2+json:
+              schema:
+                $ref: '#/components/schemas/LeadGetResponse'
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/LeadGetResponse'
+        '400':
+          description: Bad Request - There was an error in your request
+        '401':
+          description: Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+        '404':
+          description: Not Found - There was no lead found with the id provided
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    put:
+      tags:
+        - Lead Management
+      summary: Update lead using a json model body.
+      description: 'Update lead using a json model body.            This PUT endpoint works like a psuedo-PATCH, in that any parameters that are passed as null values will not be updated.'
+      operationId: LeadPut_265
+      parameters:
+        - name: LeadId
+          in: path
+          description: The id for the resource (lead) you are requesting to update.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The parameters on the lead that you want to update.
+        content:
+          application/vnd.coxauto.v3+json:
+            schema:
+              $ref: '#/components/schemas/LeadPutRequest'
+          application/vnd.coxauto.v2+json:
+            schema:
+              $ref: '#/components/schemas/LeadPutRequest'
+          application/vnd.coxauto.v1+json:
+            schema:
+              $ref: '#/components/schemas/LeadPutRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Operation - Nothing returned.
+          content:
+            application/vnd.coxauto.v3+json:
+              schema:
+                $ref: '#/components/schemas/Object'
+            application/vnd.coxauto.v2+json:
+              schema:
+                $ref: '#/components/schemas/Object'
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/Object'
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to create data you are not permitted to.
+        '404':
+          description: Not Found - There was no lead found with the id provided
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+      x-codegen-request-body-name: leadModel
+  /vehicles/vin:
+    get:
+      tags:
+        - Lead Management
+      summary: List all potential vehicles for the given VIN.
+      description: List all potential vehicles for the given VIN.
+      operationId: Vin_151
+      parameters:
+        - name: vin
+          in: query
+          description: The VIN to search years/makes/models/trims for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCatalogResponseVinResponse'
+        '400':
+          description: Bad Request - You have the incorrect parameters or out of range parameters
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+  /vehicles/years:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of years.
+      description: Get an array of years.
+      operationId: Years_529
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCatalogResponseYearsResponse'
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+  /vehicles/makes:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of makes.
+      description: Get an array of makes.
+      operationId: Makes_414
+      parameters:
+        - name: year
+          in: query
+          description: The year to list makes for.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCatalogResponseMakesResponse'
+        '400':
+          description: Bad Request - You have the incorrect parameters or out of range parameters
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+  /vehicles/models:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of models.
+      description: Get an array of model.
+      operationId: Models_60
+      parameters:
+        - name: year
+          in: query
+          description: The year to list models for.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: make
+          in: query
+          description: The make to list models for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCatalogResponseModelsResponse'
+        '400':
+          description: Bad Request - You have the incorrect parameters or out of range parameters
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+  /vehicles/trims:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of trims.
+      description: Get an array of trims.
+      operationId: Trims_348
+      parameters:
+        - name: year
+          in: query
+          description: The year to list trims for.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: make
+          in: query
+          description: The make to list trims for.
+          required: true
+          schema:
+            type: string
+        - name: model
+          in: query
+          description: The model to list trims for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCatalogResponseTrimsResponse'
+        '400':
+          description: Bad Request - You have the incorrect parameters or out of range parameters
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+  /vehicles/interest:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of VehiclesOfInterest by leadId.
+      description: Get an array VehiclesOfInterest by leadId.
+      operationId: GetInterestsByLeadId_541
+      parameters:
+        - name: leadId
+          in: query
+          description: The Id of the Lead that vehiclesOfInterest are associated with
+          required: true
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/ClientGetVehiclesOfInterestResponse'
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '404':
+          description: Not Found - Vehicle not found
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    post:
+      tags:
+        - Lead Management
+      summary: Add interest vehicles to a sales lead.
+      description: Add an array of interest vehicles to a sales lead. The first vehicle in the JSON object indicates the current primary vehicle of interest.
+      operationId: PostInterestVehicle_865
+      requestBody:
+        content:
+          application/vnd.coxauto.v1+json:
+            schema:
+              $ref: '#/components/schemas/CreateInterestVehicleRequest'
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/CreateTradeVehicleResponse'
+        '400':
+          description: Bad Request - An invalid request was made
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+      x-codegen-request-body-name: request
+  '/vehicles/interest/id/{id}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get an interest vehicle by leadid and index.
+      description: Get an interest vehicle by leadid and index.
+      operationId: GetInterestVehicle_274
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/ClientGetInterestVehicleResponse'
+        '400':
+          description: Bad Request - Invalid id or malformed request object
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '404':
+          description: Not Found - Vehicle not found
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    put:
+      tags:
+        - Lead Management
+      summary: Update interest vehicles by leadid.
+      description: Update interest vehicles by leadid. The first vehicle in the JSON object designates the current primary vehicle of interest.
+      operationId: PutInterestVehicle_30
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.coxauto.v1+json:
+            schema:
+              $ref: '#/components/schemas/UpdateInterestVehicleRequest'
+      responses:
+        '204':
+          description: Successful Update - Empty response
+        '422':
+          description: Record was not able to be updated
+      x-codegen-request-body-name: content
+  /vehicles/trade:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array trade-ins by leadId.
+      description: Get an array trade-ins by leadId.
+      operationId: GetTradeInsByLeadId_427
+      parameters:
+        - name: leadId
+          in: query
+          description: The Id of the Lead that the trade-in vehicles are associated with
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/VehicleCollectionOfTradeResponse'
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '404':
+          description: Not Found - Vehicle not found
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    post:
+      tags:
+        - Lead Management
+      summary: Adds up to 3 trade vehicles to a sales lead.
+      operationId: trade_281
+      requestBody:
+        content:
+          application/vnd.coxauto.v1+json:
+            schema:
+              $ref: '#/components/schemas/CreateTradeVehicleRequest'
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/CreateTradeVehicleResponse'
+        '400':
+          description: Bad Request - An invalid request was made
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+      x-codegen-request-body-name: request
+  '/vehicles/trade/id/{id}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get a trade-in vehicle by tradeId.
+      operationId: GetTradeInVehicleByTradeId_490
+      parameters:
+        - name: id
+          in: path
+          description: Unique Id belonging to the trade-in vehicle
+          required: true
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/TradeVehicleResponse'
+        '400':
+          description: Bad Request - Invalid id or malformed request object
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to
+        '404':
+          description: Not Found - Vehicle not found
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine'
+    put:
+      tags:
+        - Lead Management
+      summary: Update a trade-in vehicle by tradeId.
+      description: This acts as a pseudo-PATCH. Any parameters that are passed in as null will not be updated.
+      operationId: PutTradeVehicle_486
+      parameters:
+        - name: id
+          in: path
+          description: The id of the trade-in vehicle.
+          required: true
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: Authorization
+          in: header
+          description: For accessing the API a valid token must be passed in all the queries.
+          required: true
+          schema:
+            type: string
+            default: Bearer xxxxxxxxxx
+      requestBody:
+        description: The data to update the trade-in vehicle with.
+        content:
+          application/vnd.coxauto.v1+json:
+            schema:
+              $ref: '#/components/schemas/TradeVehicle'
+        required: true
+      responses:
+        '204':
+          description: Successful Update - Empty response
+        '422':
+          description: Record was not able to be updated
+      x-codegen-request-body-name: content
+  /leadSources:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of leadSources based on provided dealerId.
+      description: Get an array of leadSources based on provided dealerId.
+      operationId: LeadSourceGet_858
+      parameters:
+        - name: dealerId
+          in: query
+          description: The ID of the dealer the query is executed on behalf of. This will filter the returned collection to the only the LeadSources enabled on that dealer.
+          required: true
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: leadSourceNameSearch
+          in: query
+          description: The leadSourceName to search for. This endpoint will perform a case-insenstive \"contains\" search based on this field.
+          schema:
+            type: string
+        - name: pageNumber
+          in: query
+          description: 1 based index of the page number to return for multi-record queries. Defaults to 1.
+          schema:
+            maximum: 2147483647
+            minimum: 1
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: Page size to use for multi-record queries. Defaults to 10. Maximum of 100.
+          schema:
+            maximum: 100
+            minimum: 1
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/PagedResponseLeadSourceResponse'
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to get data you are not permitted to. Did you pass the correct DealerId?
+        '403':
+          description: Forbidden - You are trying to get data for a dealer outside of your dealer hierarchy orgId.
+        '404':
+          description: Not Found - There was no leadSource found with the parameters provided.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  '/leadSources/id/{leadSourceId}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get a specific LeadSource using its LeadSource id.
+      description: Get a specific LeadSource using its LeadSource id.
+      operationId: LeadSourceGetById_423
+      parameters:
+        - name: dealerId
+          in: query
+          description: The ID of the dealer the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: leadSourceId
+          in: path
+          description: The id for the resource(leadSource) you are requesting to get.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                $ref: '#/components/schemas/LeadSourceResponse'
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to create data you are not permitted to. Did you pass the correct DealerId?
+        '403':
+          description: Forbidden - You are trying to get data for a dealer outside of your dealer hierarchy orgId.
+        '404':
+          description: Not Found - There was no leadSource found with the id provided.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  /leadTypes:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of valid lead types.
+      description: Get an array of strings which represent all the possible 'LeadType' values.
+      operationId: LeadTypeGet_148
+      responses:
+        '200':
+          description: Successful Operation - Array of enum strings returned.
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                type: array
+                items:
+                  enum:
+                    - INTERNET
+                    - WALK_IN
+                    - PHONE
+                    - IMPORT
+                    - PARTS_ORDER
+                    - SERVICE
+                    - WEBSITE_CHAT
+                    - WHOLESALE
+                    - REFERRAL
+                    - PREVIOUS_CUSTOMER
+                  type: string
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to access data you are not permitted to.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  /leadStatuses:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of valid lead statuses.
+      description: Get an array of strings which represent all the possible 'LeadStatus' values.
+      operationId: LeadStatusGet_116
+      responses:
+        '200':
+          description: Successful Operation - Array of enum strings returned.
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                type: array
+                items:
+                  enum:
+                    - NONE
+                    - ACTIVE_NEW_LEAD
+                    - ACTIVE_WAITING_FOR_PROSPECT_RESPONSE
+                    - ACTIVE_ACTIVE_LEAD
+                    - SOLD_ON_ORDER
+                    - LOST_LEAD_PROCESS_COMPLETED
+                    - BAD_BAD_OR_NO_CONTACT_INFORMATION
+                    - BAD_PROSPECT_CLAIMS_NEVER_SUBMITTED
+                    - BAD_UNDERAGE_PROSPECT
+                    - BAD_DUPLICATE_LEAD
+                    - SOLD_PENDING_FINANCE
+                    - SOLD_DELIVERED
+                    - LOST_DID_NOT_RESPOND
+                    - LOST_BAD_CREDIT
+                    - LOST_NO_AGREEMENT_REACHED
+                    - ACTIVE_SET_APPOINTMENT
+                    - ACTIVE_EMAIL_INBOX
+                    - LOST_IMPORT_LEAD
+                    - LOST_PURCHASED_SAME_BRAND_DIFFERENT_DEALER
+                    - LOST_PURCHASED_DIFFERENT_BRAND_DIFFERENT_DEALER
+                    - LOST_WORKING_WITH_OTHER_SALESPERSON
+                    - LOST_REQUESTED_NO_FURTHER_CONTACT
+                    - LOST_PURCHASED_FROM_PRIVATE_PARTY
+                    - LOST_OUT_OF_MARKET
+                    - BAD_DEALER_TEST_LEAD
+                    - BAD_INCORRECT_CUSTOMER_PHONE
+                    - BAD_NO_INTENT_TO_BUY
+                    - BAD_INCENTIVIZED
+                    - BAD_SHOPPING_OUT_OF_AREA
+                    - BAD_NO_CONTACT_IN_FIVE_DAYS
+                    - SERVICE_COMPLETE
+                    - SERVICE_APPOINTMENT_SCHEDULED
+                    - SERVICE_APPOINTMENT_MISSED
+                    - SERVICE_STARTED
+                    - SERVICE_REJECTED
+                    - NON_CUSTOMER_INITIATED_LEAD
+                    - SERVICE_APPOINTMENT_CANCELED
+                  type: string
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to access data you are not permitted to.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  /leadStatusTypes:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of valid lead status types.
+      description: Get an array of strings which represent all the possible 'LeadStatusType' values.
+      operationId: LeadStatusTypeGet_366
+      responses:
+        '200':
+          description: Successful Operation - Array of enum strings returned.
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                type: array
+                items:
+                  enum:
+                    - NONE
+                    - ACTIVE
+                    - SOLD
+                    - LOST
+                    - BAD
+                    - COMPLETE
+                  type: string
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to access data you are not permitted to.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  /leadGroupCategories:
+    get:
+      tags:
+        - Lead Management
+      summary: Get an array of valid lead group categories.
+      description: Get an array of strings which represent all the possible 'LeadGroupCategory' values.
+      operationId: LeadGroupCategoryGet_844
+      responses:
+        '200':
+          description: Successful Operation - Array of enum strings returned.
+          content:
+            application/vnd.coxauto.v1+json:
+              schema:
+                type: array
+                items:
+                  enum:
+                    - NEW
+                    - WAITING
+                    - CONTACTED
+                  type: string
+        '400':
+          description: Bad Request - There was an error in your request.
+        '401':
+          description: Unauthorized - Invalid token or you are trying to access data you are not permitted to.
+        '500':
+          description: 'Server Error - An error occured on the server, your request was fine.'
+  /gateway/v1/contact:
+    get:
+      tags:
+        - Lead Management
+      summary: 'Search, or find, contacts'
+      description: 'To find contacts, you must include either contactId; or; a firstName, lastName, phone, or email. To search contacts, you must include a searchText string at least 3 characters long. Responses are limited to a maximum of 100 items per request.'
+      operationId: Contact_Get_852
+      parameters:
+        - name: dealerId
+          in: query
+          description: Dealer id of the dealer the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: userId
+          in: query
+          description: CRM User Id the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: contactId
+          in: query
+          description: Customer Id for querying specific contact records. **Required if no firstName/lastName/phone/email or searchText are provided.**
+          schema:
+            type: integer
+            format: int32
+        - name: searchText
+          in: query
+          description: 'Free-form text search, applied to all contact fields. **Required if no firstName/lastName/phone/email or contactId are provided.**'
+          schema:
+            minLength: 3
+            type: string
+        - name: firstName
+          in: query
+          description: Filter contacts by first name (exact match)
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          description: Filter contacts by last name (exact match).
+          schema:
+            type: string
+        - name: phone
+          in: query
+          description: Filter contacts by phone number (exact match).
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filter contacts by email address (exact match).
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: Page size to use for multi-record queries.  Defaults to 10.
+          schema:
+            type: integer
+            format: int32
+        - name: pageNumber
+          in: query
+          description: 1 based index of the page number to return for multi-record queries.  Defaults to 1.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+    post:
+      tags:
+        - Lead Management
+      summary: Create a contact
+      description: 'Contacts are the heart of the CRM. Multiple leads can be associated with a contact over the customer''s lifecycle, but a contact must exist first before you can create a lead. Use this endpoint to create a contact and, optionally, add lead or license information. To automatically create a lead or license, populate the `LeadInformation` or `LicenseData` properties. Otherwise, leave the objects empty `{},`. Be mindful of creating duplicates. The API response will let you know if your request too closely matches an existing contact record.'
+      operationId: Contact_Post_848
+      requestBody:
+        description: The request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+  '/gateway/v1/contact/{contactId}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get a single contact by ID.
+      description: Get a single contact by ID.
+      operationId: Contact_Get_607
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: dealerId
+          in: query
+          description: Dealer id of the dealer the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: userId
+          in: query
+          description: CRM User Id the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+    put:
+      tags:
+        - Lead Management
+      summary: Update existing contact (possible loss of data if all fields are not passed)
+      description: Note that the PUT contact request uses a different request model than the POST method
+      operationId: Contact_Put_416
+      parameters:
+        - name: contactId
+          in: path
+          description: The identifier.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+        required: true
+      responses:
+        '204':
+          description: No Content
+  /gateway/v1/contacts:
+    get:
+      tags:
+        - Lead Management
+      summary: 'Search, or find, contacts'
+      description: 'To find contacts, you must include either contactId; or; a firstName, lastName, phone, or email. To search contacts, you must include a searchText string at least 3 characters long. Responses are limited to a maximum of 100 items per request.'
+      operationId: Contact_Get_852b
+      parameters:
+        - name: dealerId
+          in: query
+          description: Dealer id of the dealer the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: userId
+          in: query
+          description: CRM User Id the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: contactId
+          in: query
+          description: Customer Id for querying specific contact records. **Required if no firstName/lastName/phone/email or searchText are provided.**
+          schema:
+            type: integer
+            format: int32
+        - name: searchText
+          in: query
+          description: 'Free-form text search, applied to all contact fields. **Required if no firstName/lastName/phone/email or contactId are provided.**'
+          schema:
+            minLength: 3
+            type: string
+        - name: firstName
+          in: query
+          description: Filter contacts by first name (exact match)
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          description: Filter contacts by last name (exact match).
+          schema:
+            type: string
+        - name: phone
+          in: query
+          description: Filter contacts by phone number (exact match).
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filter contacts by email address (exact match).
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: Page size to use for multi-record queries.  Defaults to 10.
+          schema:
+            type: integer
+            format: int32
+        - name: pageNumber
+          in: query
+          description: 1 based index of the page number to return for multi-record queries.  Defaults to 1.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+    post:
+      tags:
+        - Lead Management
+      summary: Create a contact
+      description: 'Contacts are the heart of the CRM. Multiple leads can be associated with a contact over the customer''s lifecycle, but a contact must exist first before you can create a lead. Use this endpoint to create a contact and, optionally, add lead or license information. To automatically create a lead or license, populate the `LeadInformation` or `LicenseData` properties. Otherwise, leave the objects empty `{},`. Be mindful of creating duplicates. The API response will let you know if your request too closely matches an existing contact record.'
+      operationId: Contact_Post_848b
+      requestBody:
+        description: The request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddContactRequestModel'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/ProviderAddContactResult'
+  '/gateway/v1/contacts/{contactId}':
+    get:
+      tags:
+        - Lead Management
+      summary: Get a single contact by ID.
+      description: Get a single contact by ID.
+      operationId: Contact_Get_607b
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: dealerId
+          in: query
+          description: Dealer id of the dealer the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: userId
+          in: query
+          description: CRM User Id the query is executed on behalf of.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderContact'
+    put:
+      tags:
+        - Lead Management
+      summary: Update existing contact (possible loss of data if all fields are not passed)
+      description: Note that the PUT contact request uses a different request model than the POST method
+      operationId: Contact_Put_416b
+      parameters:
+        - name: contactId
+          in: path
+          description: The identifier.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequestModel'
+        required: true
+      responses:
+        '204':
+          description: No Content
+components:
+  schemas:
+    DealerListResponse:
+      type: object
+      properties:
+        Href:
+          type: string
+        Count:
+          type: integer
+          format: int32
+        Items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DealerItem'
+    DealerItem:
+      type: object
+      properties:
+        DealerId:
+          type: integer
+          format: int32
+        Name:
+          type: string
+        City:
+          type: string
+        State:
+          type: string
+    ModelUserListResult:
+      type: object
+      properties:
+        UserGroup:
+          type: string
+        UserTypes:
+          type: array
+          items:
+            type: string
+        EmailAddress:
+          type: string
+        FullName:
+          type: string
+        FirstName:
+          type: string
+        LastName:
+          type: string
+        UserId:
+          type: integer
+          format: int64
+        IlmAccess:
+          type: string
+    LeadGetResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: An href to the specific lead.
+        leadId:
+          type: integer
+          description: The unique identifier for the lead (this is the same number as in the href).
+          format: int32
+        dealerId:
+          type: integer
+          description: The unique identifier for the dealer the lead is for.
+          format: int32
+        contact:
+          type: string
+          description: 'An href to the specific contact. On a sales lead, this is the primary buyer.'
+        coBuyerContact:
+          type: string
+          description: An href to the specific cobuyer contact. This is only relevant on a sales lead.
+        leadSource:
+          type: string
+          description: An href to the specific lead source.
+        leadStatus:
+          enum:
+            - ACTIVE_NEW_LEAD
+            - ACTIVE_WAITING_FOR_PROSPECT_RESPONSE
+            - ACTIVE_ACTIVE_LEAD
+            - SOLD_ON_ORDER
+            - LOST_LEAD_PROCESS_COMPLETED
+            - BAD_BAD_OR_NO_CONTACT_INFORMATION
+            - BAD_PROSPECT_CLAIMS_NEVER_SUBMITTED
+            - BAD_UNDERAGE_PROSPECT
+            - BAD_DUPLICATE_LEAD
+            - SOLD_PENDING_FINANCE
+            - SOLD_DELIVERED
+            - LOST_DID_NOT_RESPOND
+            - LOST_BAD_CREDIT
+            - LOST_NO_AGREEMENT_REACHED
+            - ACTIVE_SET_APPOINTMENT
+            - ACTIVE_EMAIL_INBOX
+            - LOST_IMPORT_LEAD
+            - LOST_PURCHASED_SAME_BRAND_DIFFERENT_DEALER
+            - LOST_PURCHASED_DIFFERENT_BRAND_DIFFERENT_DEALER
+            - LOST_WORKING_WITH_OTHER_SALESPERSON
+            - LOST_REQUESTED_NO_FURTHER_CONTACT
+            - LOST_PURCHASED_FROM_PRIVATE_PARTY
+            - LOST_OUT_OF_MARKET
+            - BAD_DEALER_TEST_LEAD
+            - BAD_INCORRECT_CUSTOMER_PHONE
+            - BAD_NO_INTENT_TO_BUY
+            - BAD_INCENTIVIZED
+            - BAD_SHOPPING_OUT_OF_AREA
+            - BAD_NO_CONTACT_IN_FIVE_DAYS
+            - SERVICE_COMPLETE
+            - SERVICE_APPOINTMENT_SCHEDULED
+            - SERVICE_APPOINTMENT_MISSED
+            - OPEN_RO
+            - CLOSED_RO
+            - NON_CUSTOMER_INITIATED_LEAD
+            - SERVICE_APPOINTMENT_CANCELED
+          type: string
+          description: LeadStatus enum value.
+        leadStatusType:
+          enum:
+            - ACTIVE
+            - SOLD
+            - LOST
+            - BAD
+            - COMPLETE
+          type: string
+          description: LeadStatusType enum value.
+        leadType:
+          enum:
+            - INTERNET
+            - WALK_IN
+            - PHONE
+            - IMPORT
+            - PARTS_ORDER
+            - SERVICE
+            - WEBSITE_CHAT
+            - WHOLESALE
+            - REFERRAL
+            - PREVIOUS_CUSTOMER
+          type: string
+          description: LeadType enum value.
+        leadGroupCategory:
+          enum:
+            - NEW
+            - WAITING
+            - CONTACTED
+          type: string
+          description: LeadGroupCategory enum value.
+        createdUtc:
+          type: string
+          description: The DateTimeOffset when the lead was created in UTC (with offset if supplied in request).
+          format: date-time
+        isHot:
+          type: boolean
+          description: Describes if the lead is ?Hot?.
+        isOnShowroom:
+          type: boolean
+          description: Describes if the lead has a currently active showroom visit.
+        vehiclesOfInterest:
+          type: array
+          items:
+            type: string
+          description: A list of hrefs to vehicle records in inventory (maximum 4). The first value in the array is the ?primary? vehicle on the lead.
+        tradeVehicles:
+          type: array
+          items:
+            type: string
+          description: A list of hrefs to trade vehicle records for the lead.
+      description: ''
+    LeadPostRequest:
+      required:
+        - contact
+        - leadSource
+        - leadType
+      type: object
+      properties:
+        leadSource:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: An href to the specific lead source.
+        leadType:
+          enum:
+            - INTERNET
+            - WALK_IN
+            - PHONE
+            - REFERRAL
+            - PREVIOUS_CUSTOMER
+          type: string
+          description: Sets the type of the created lead.
+        contact:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: 'An href to the specific contact. On a sales lead, this is the primary buyer.            The lead will be created at the contact''s dealer.'
+        coBuyerContact:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: An href to the specific cobuyer contact. This is only relevant on a sales lead.
+        isHot:
+          type: boolean
+          description: Sets whether the lead should be labeled as a "Hot" lead. Defaults to false.
+      description: The request object for creating a new active lead.
+    Object:
+      type: object
+    PagedResultLeadGetResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadGetResponse'
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        pageCount:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int32
+    LeadPutRequest:
+      type: object
+      properties:
+        coBuyerContact:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: 'An href to the specific cobuyer contact. This is only relevant on a sales lead.            An href with a valid id value will add or update the cobuyer,            an href ending with ''/id/0'' will remove the current cobuyer (if there is one),             and a null value will not make any update.'
+        isHot:
+          type: boolean
+          description: Sets whether the lead should be labeled as a "Hot" lead.            A null value will not make any update.
+        trades:
+          type: array
+          items:
+            type: string
+          description: The list of trade vehicles to keep on the lead. An empty array will remove all trade vehicles.            A null value will not make any update.
+        vehiclesOfInterest:
+          type: array
+          items:
+            type: string
+          description: The list of interest vehicles to keep on the lead.            Must contain one vehicle of interest. Passing null value will not make any update.
+      description: The request object for updating an existing lead.
+    ClientGetVehiclesOfInterestResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: An href URL to the whole collection of vehicles.
+        count:
+          type: integer
+          description: The total number of items in the collection.
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientGetInterestVehicleResponse'
+          description: The individual vehicles in the collection.
+    ClientGetInterestVehicleResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        lead:
+          type: string
+        year:
+          type: integer
+          format: int32
+        make:
+          type: string
+        model:
+          type: string
+        trim:
+          type: string
+        vin:
+          type: string
+        doors:
+          type: integer
+          format: int32
+        driveTrain:
+          type: string
+        bodyStyle:
+          type: string
+        interiorColor:
+          type: string
+        exteriorColor:
+          type: string
+        description:
+          type: string
+        stockNumber:
+          type: string
+        inventoryType:
+          enum:
+            - NEW
+            - USED
+            - CERTIFIEDPREOWNED
+            - WHOLESALE
+            - UNKNOWN
+          type: string
+        mileage:
+          type: integer
+          format: int32
+        sellingPrice:
+          type: number
+          format: double
+        msrp:
+          type: number
+          format: double
+        cost:
+          type: number
+          format: double
+        cityMilesPerGallon:
+          type: number
+          format: double
+        highwayMilesPerGallon:
+          type: number
+          format: double
+        engineName:
+          type: string
+        invoice:
+          type: number
+          format: double
+    CreateInterestVehicleRequest:
+      required:
+        - lead
+      type: object
+      properties:
+        lead:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: An href URL to the specific lead to associate the vehicle to.
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestVehicle'
+          description: The individual vehicles to associate to the lead.
+      description: The interested vehicles to be associated with the lead.
+    InterestVehicle:
+      type: object
+      properties:
+        year:
+          maximum: 3000
+          minimum: 1900
+          type: integer
+          description: The vehicle's model year
+          format: int32
+        make:
+          maxLength: 50
+          type: string
+          description: The vehicle's make.
+        model:
+          maxLength: 50
+          type: string
+          description: The vehicle's model.
+        trim:
+          maxLength: 50
+          type: string
+          description: The vehicle's trim.
+        vin:
+          maxLength: 17
+          type: string
+          description: The vehicle's VIN.
+        doors:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: The vehicle's number of doors.
+          format: int32
+        driveTrain:
+          maxLength: 25
+          type: string
+          description: The vehicle's drive-train.
+        engineName:
+          maxLength: 50
+          type: string
+          description: The vehicle's engine name.
+        bodyStyle:
+          maxLength: 50
+          type: string
+          description: 'The vehicle''s generic body style. E.g. SUV, Sedan, Coupe, etc.'
+        interiorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's interior color.
+        exteriorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's exterior color.
+        description:
+          type: string
+          description: Any additional information needed to describe the vehicle.
+        stockNumber:
+          maxLength: 25
+          type: string
+          description: The vehicle's associated stock number at the dealer.
+        inventoryType:
+          enum:
+            - NEW
+            - USED
+            - CERTIFIEDPREOWNED
+            - WHOLESALE
+            - UNKNOWN
+          type: string
+          description: The vehicle's inventory type.
+        mileage:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: The vehicle's last known mileage.
+          format: int32
+        sellingPrice:
+          type: number
+          description: The vehicle's current selling price.
+          format: double
+        msrp:
+          type: number
+          description: The vehicle's original MSRP.
+          format: double
+        cost:
+          type: number
+          description: The vehicle's cost to the dealer.
+          format: double
+        cityMilesPerGallon:
+          type: number
+          description: The vehicle's City MPG value.
+          format: double
+        highwayMilesPerGallon:
+          type: number
+          description: The vehicle's Highway MPG value.
+          format: double
+        invoice:
+          type: number
+          description: The vehicle's invoice to the dealer.
+          format: double
+      description: The individual vehicle to associate to the lead.
+    CreateTradeVehicleResponse:
+      type: object
+      properties:
+        vehicles:
+          type: array
+          items:
+            type: string
+    UpdateInterestVehicleRequest:
+      type: object
+      properties:
+        vin:
+          maxLength: 17
+          type: string
+          description: The vehicle's VIN.
+        year:
+          maximum: 3000
+          minimum: 1900
+          type: integer
+          description: The vehicle's model year.
+          format: int32
+        make:
+          maxLength: 50
+          type: string
+          description: The vehicle's make.
+        model:
+          maxLength: 50
+          type: string
+          description: The vehicle's model.
+        trim:
+          maxLength: 50
+          type: string
+          description: The vehicle's trim.
+        bodyStyle:
+          maxLength: 50
+          type: string
+          description: 'The vehicle''s generic body style. E.g. SUV, Sedan, Coupe, etc.'
+        mileage:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: The vehicle's last known mileage.
+          format: int32
+        exteriorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's exterior color.
+        interiorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's interior color.
+        doors:
+          maximum: 32767
+          minimum: 0
+          type: integer
+          description: The vehicle's number of doors.
+          format: int32
+        driveTrain:
+          maxLength: 50
+          type: string
+          description: The vehicle's drive-train.
+        engineName:
+          maxLength: 50
+          type: string
+          description: The vehicle's engine name.
+        stockNumber:
+          maxLength: 25
+          minLength: 0
+          type: string
+          description: The vehicle's associated stock number at the dealer.
+        inventoryType:
+          enum:
+            - NEW
+            - USED
+            - CERTIFIEDPREOWNED
+            - WHOLESALE
+            - UNKNOWN
+          type: string
+          description: The vehicle's inventory type.
+        sellingPrice:
+          type: number
+          description: The vehicle's current selling price.
+          format: double
+        msrp:
+          type: number
+          description: The vehicle's original MSRP.
+          format: double
+        cost:
+          type: number
+          description: The vehicle's cost to the dealer.
+          format: double
+        cityMilesPerGallon:
+          maximum: 1000
+          minimum: 0
+          type: number
+          description: The vehicle's City MPG value.
+          format: double
+        highwayMilesPerGallon:
+          maximum: 1000
+          minimum: 0
+          type: number
+          description: The vehicle's Highway MPG value.
+          format: double
+        description:
+          type: string
+          description: Any additional information needed to describe the vehicle.
+        invoice:
+          type: number
+          description: The vehicle's invoice to the dealer.
+          format: double
+    VehicleCollectionOfTradeResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: An href URL to the whole collection of vehicles.
+        count:
+          type: integer
+          description: The total number of items in the collection.
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeVehicleResponse'
+          description: The individual vehicles in the collection.
+    TradeVehicleResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: An href URL to the specific trade-in vehicle.
+        lead:
+          type: string
+          description: An href URL to the specific lead this trade-in is associated with.
+        vin:
+          maxLength: 17
+          type: string
+          description: The vehicle's VIN.
+        year:
+          maximum: 3000
+          minimum: 1900
+          type: integer
+          description: The vehicle's model year.
+          format: int32
+        make:
+          maxLength: 50
+          type: string
+          description: The vehicle's make.
+        model:
+          maxLength: 50
+          type: string
+          description: The vehicle's model.
+        trim:
+          maxLength: 50
+          type: string
+          description: The vehicle's trim.
+        bodyStyle:
+          maxLength: 50
+          type: string
+          description: 'The vehicle''s generic body style. E.g. SUV, Sedan, Coupe, etc.'
+        mileage:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: The vehicle's last known mileage.
+          format: int32
+        exteriorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's exterior color.
+        interiorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's interior color.
+        doors:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: The vehicle's number of doors.
+          format: int32
+        driveTrain:
+          maxLength: 25
+          type: string
+          description: The vehicle's drive-train.
+        engineName:
+          maxLength: 50
+          type: string
+          description: The vehicle's engine name.
+        transmission:
+          maxLength: 50
+          type: string
+          description: The vehicle's transmission type.
+        payOff:
+          type: number
+          description: The vehicle's payoff amount.
+          format: double
+        value:
+          type: number
+          description: The vehicle's appraised value.
+          format: double
+        condition:
+          enum:
+            - UNKNOWN
+            - EXCELLENT
+            - GOOD
+            - AVERAGE
+            - POOR
+          type: string
+          description: The vehicle's closest condition.
+        description:
+          type: string
+          description: Any additional information needed to describe the vehicle.
+      description: Trade in vehicle associated to a LeadId
+    CreateTradeVehicleRequest:
+      required:
+        - lead
+      type: object
+      properties:
+        lead:
+          pattern: '^.*\/id\/([^\?]+)(\?+.*)?$'
+          type: string
+          description: An href URL to the specific lead to associate the vehicle to.
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeVehicle'
+          description: The individual vehicles to associate to the lead.
+      description: The trade-in vehicles to be associated with the lead.
+    TradeVehicle:
+      type: object
+      properties:
+        vin:
+          maxLength: 17
+          type: string
+          description: The vehicle's VIN.
+        year:
+          maximum: 3000
+          minimum: 1900
+          type: integer
+          description: The vehicle's model year.
+          format: int32
+        make:
+          maxLength: 50
+          type: string
+          description: The vehicle's make.
+        model:
+          maxLength: 50
+          type: string
+          description: The vehicle's model.
+        trim:
+          maxLength: 50
+          type: string
+          description: The vehicle's trim.
+        bodyStyle:
+          maxLength: 50
+          type: string
+          description: 'The vehicle''s generic body style. E.g. SUV, Sedan, Coupe, etc.'
+        mileage:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: The vehicle's last known mileage.
+          format: int32
+        exteriorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's exterior color.
+        interiorColor:
+          maxLength: 50
+          type: string
+          description: The vehicle's interior color.
+        doors:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: The vehicle's number of doors.
+          format: int32
+        driveTrain:
+          maxLength: 25
+          type: string
+          description: The vehicle's drive-train.
+        engineName:
+          maxLength: 50
+          type: string
+          description: The vehicle's engine name.
+        transmission:
+          maxLength: 50
+          type: string
+          description: The vehicle's transmission type.
+        payOff:
+          type: number
+          description: The vehicle's payoff amount.
+          format: double
+        value:
+          type: number
+          description: The vehicle's appraised value.
+          format: double
+        condition:
+          enum:
+            - UNKNOWN
+            - EXCELLENT
+            - GOOD
+            - AVERAGE
+            - POOR
+          type: string
+          description: The vehicle's closest condition.
+        description:
+          type: string
+          description: Any additional information needed to describe the vehicle.
+    VehicleCatalogResponseYearsResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        count:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/YearsResponse'
+    YearsResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          format: int32
+    VehicleCatalogResponseMakesResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        count:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MakesResponse'
+    MakesResponse:
+      type: object
+      properties:
+        make:
+          type: string
+    VehicleCatalogResponseModelsResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        count:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelsResponse'
+    ModelsResponse:
+      type: object
+      properties:
+        model:
+          type: string
+    VehicleCatalogResponseTrimsResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        count:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrimsResponse'
+    TrimsResponse:
+      type: object
+      properties:
+        trim:
+          type: string
+    VehicleCatalogResponseVinResponse:
+      type: object
+      properties:
+        href:
+          type: string
+        count:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VinResponse'
+    VinResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          format: int32
+        make:
+          type: string
+        model:
+          type: string
+        trim:
+          type: string
+    LeadSourceResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: An href to the specific lead source.
+        leadSourceId:
+          type: integer
+          description: The unique identifier for the lead source. (this is the same number as in the href)
+          format: int32
+        leadSourceName:
+          type: string
+          description: The name of the lead source.
+      description: ''
+    PagedResponseLeadSourceResponse:
+      type: object
+      properties:
+        href:
+          type: string
+          description: The href to the whole collection.
+        first:
+          type: string
+          description: The href to the first page in the collection (based on the limit and pageNumber).
+        next:
+          type: string
+          description: The href to the next page in the collection (based on the limit and pageNumber).
+        previous:
+          type: string
+          description: The href to the previous page in the collection (based on the limit and pageNumber).
+        limit:
+          type: integer
+          description: The page size of the returned collection.
+          format: int32
+        count:
+          type: integer
+          description: The total number of items in the collection.
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadSourceResponse'
+          description: The items for the requested page of the collection.
+      description: ''
+    ProviderContact:
+      type: object
+      properties:
+        ContactId:
+          type: integer
+          format: int32
+        DealerId:
+          type: integer
+          format: int32
+        ContactType:
+          type: string
+        ContactInformation:
+          $ref: '#/components/schemas/ProviderContactInformation'
+        CustomerConsent:
+          $ref: '#/components/schemas/ProviderCustomerConsent'
+        SmsPreferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderSmsPreference'
+        DealerTeam:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderUserAssignment'
+    ProviderContactInformation:
+      type: object
+      properties:
+        ContactId:
+          type: integer
+          format: int32
+        DealerId:
+          type: integer
+          format: int32
+        Title:
+          type: string
+        FirstName:
+          type: string
+        MiddleName:
+          type: string
+        LastName:
+          type: string
+        NickName:
+          type: string
+        CompanyName:
+          type: string
+        CompanyType:
+          type: string
+        Addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderAddress'
+        Emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderEmail'
+        Phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderPhone'
+        DoNotEmail:
+          type: boolean
+        DoNotCall:
+          type: boolean
+        DoNotMail:
+          type: boolean
+        Suffix:
+          type: string
+        PreferredContactMethod:
+          type: string
+          description: 'This property accepts a single character as input, defined as: | P - Phone | E - Email | T - Text Message | F - Fax | M - Mail Letter | O - Other |'
+        PreferredContactTime:
+          type: string
+          description: 'This property accepts a single character as input, defined as: | D - Day | E - Evening | C - Anytime |'
+        Note:
+          type: string
+    ProviderAddress:
+      type: object
+      properties:
+        AddressId:
+          type: integer
+          format: int32
+        AddressType:
+          type: string
+          description: '| None | Primary | Previous |'
+        StreetAddress:
+          type: string
+        StreetAddress2:
+          type: string
+        City:
+          type: string
+        County:
+          type: string
+        State:
+          type: string
+        PostalCode:
+          type: string
+        Duration:
+          type: string
+    ProviderEmail:
+      type: object
+      properties:
+        EmailId:
+          type: integer
+          format: int32
+        EmailAddress:
+          type: string
+        EmailType:
+          type: string
+          description: '| primary | alternate |'
+    ProviderPhone:
+      type: object
+      properties:
+        PhoneId:
+          type: integer
+          format: int32
+        PhoneType:
+          type: string
+          description: '| None | Home | Work | Cell | Fax |'
+        Number:
+          type: string
+        Extension:
+          type: string
+    ProviderCustomerConsent:
+      type: object
+      properties:
+        ImpliedConsent:
+          $ref: '#/components/schemas/ProviderImpliedConsent'
+        ExpressConsent:
+          $ref: '#/components/schemas/ProviderExpressConsent'
+        Subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderSubscription'
+    ProviderImpliedConsent:
+      type: object
+      properties:
+        HasGivenConsent:
+          type: boolean
+        ConsentSource:
+          type: string
+        DateOfConsentUtc:
+          type: string
+          format: date-time
+        ExpirationDateUtc:
+          type: string
+          format: date-time
+    ProviderExpressConsent:
+      type: object
+      properties:
+        HasGivenConsent:
+          type: boolean
+        ConsentSource:
+          type: string
+        DateOfConsentUtc:
+          type: string
+          format: date-time
+    ProviderSubscription:
+      type: object
+      properties:
+        ChannelId:
+          type: integer
+          format: int64
+        ChannelValue:
+          type: string
+        ChannelType:
+          type: string
+        DealerId:
+          type: integer
+          format: int32
+        SubscriptionType:
+          type: string
+        SubscriptionSourceType:
+          type: string
+        IsSubscribed:
+          type: boolean
+        SubscriptionConsent:
+          $ref: '#/components/schemas/ProviderSubscriptionConsent'
+    ProviderSubscriptionConsent:
+      type: object
+      properties:
+        HasConsent:
+          type: boolean
+        ConsentSource:
+          type: string
+        DateOfConsentUtc:
+          type: string
+          format: date-time
+    ProviderSmsPreference:
+      type: object
+      properties:
+        PhoneNumber:
+          type: string
+        PhoneType:
+          type: string
+        SubscriberStatus:
+          type: string
+    ProviderUserAssignment:
+      type: object
+      properties:
+        UserId:
+          type: integer
+          format: int32
+        FullName:
+          type: string
+        RoleName:
+          type: string
+    AddContactRequestModel:
+      type: object
+      properties:
+        DealerId:
+          type: integer
+          format: int32
+        UserId:
+          type: integer
+          format: int32
+        ContactInformation:
+          $ref: '#/components/schemas/ContractInformationModel'
+        LeadInformation:
+          $ref: '#/components/schemas/ProviderLeadInformation'
+        LicenseData:
+          $ref: '#/components/schemas/ProviderLicenseData'
+    ContractInformationModel:
+      type: object
+      properties:
+        DealerId:
+          type: integer
+          format: int32
+        Title:
+          type: string
+          description: '| Mr. | Mrs. | Ms. | Miss | Dr. | Prof.|'
+        FirstName:
+          type: string
+        MiddleName:
+          type: string
+        LastName:
+          type: string
+        NickName:
+          type: string
+        CompanyName:
+          type: string
+        CompanyType:
+          type: string
+          description: '| Individual | Business | Fleet | Dealer |'
+        Addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderAddress'
+        Emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderEmail'
+        Phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderPhone'
+        DoNotEmail:
+          type: boolean
+          format: string
+        DoNotCall:
+          type: boolean
+          format: string
+        DoNotMail:
+          type: boolean
+          format: string
+        Suffix:
+          type: string
+        PreferredContactMethod:
+          type: string
+        PreferredContactTime:
+          type: string
+        Note:
+          maximum: 250
+          type: string
+          description: A short note which appears on the customer dashboard. Usually a conversation starter entered by a sales rep.
+    ProviderLeadInformation:
+      type: object
+      properties:
+        CurrentSalesRepUserId:
+          type: integer
+          format: int32
+        SplitSalesRepUserId:
+          type: integer
+          format: int32
+        LeadSourceId:
+          type: integer
+          format: int32
+        LeadTypeId:
+          type: integer
+          description: '| 1 - Internet | 2 - Walk-in | 3 - Phone | 4 - Import | 5 - PartsOrder | 6 - Service | 7 - WebsiteChat | 8 - Wholesale | 9 - Referral | 10 - PreviousCustomer |'
+          format: int32
+        OnShowRoom:
+          type: boolean
+          format: string
+        SaleNotes:
+          type: string
+    ProviderLicenseData:
+      type: object
+      properties:
+        State:
+          type: string
+        LicenseID:
+          type: string
+        LicenseClass:
+          type: string
+        Restriction:
+          type: string
+        ExpirationDate:
+          type: string
+          format: date-time
+        LastName:
+          type: string
+        Name:
+          type: string
+        Address:
+          type: string
+        City:
+          type: string
+        PostalCode:
+          type: string
+        Country:
+          type: string
+        DateOfBirth:
+          type: string
+          format: date-time
+        PlaceOfBirth:
+          type: string
+        Nationality:
+          type: string
+        EyeColor:
+          type: string
+        Height:
+          type: string
+        Sex:
+          type: string
+        Weight:
+          type: string
+        IssueDate:
+          type: string
+          format: date-time
+    ProviderAddContactResult:
+      type: object
+      properties:
+        ContactId:
+          type: integer
+          format: int32
+        AccountId:
+          type: integer
+          format: int32
+    UpdateContactRequestModel:
+      type: object
+      properties:
+        UserId:
+          type: integer
+          format: int32
+        DealerId:
+          type: integer
+          format: int32
+        ContactInformation:
+          $ref: '#/components/schemas/ContractInformationModel'
+        LicenseData:
+          $ref: '#/components/schemas/ProviderLicenseData'
+        Subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderSubscription'
+        PersonalInformation:
+          $ref: '#/components/schemas/ProviderPersonalInformation'
+        SmsPreferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderSmsPreference'
+    ProviderPersonalInformation:
+      type: object
+      properties:
+        ContactId:
+          type: integer
+          format: int32
+        Ssn:
+          type: string
+        LicenseNumber:
+          type: string
+        HousingInformation:
+          $ref: '#/components/schemas/ProviderHousingInformation'
+        CurrentEmploymentInformation:
+          $ref: '#/components/schemas/ProviderEmploymentInformation'
+        PreviousEmploymentInformation:
+          $ref: '#/components/schemas/ProviderEmploymentInformation'
+        InsuranceInformation:
+          $ref: '#/components/schemas/ProviderInsuranceInformation'
+        BankInformation:
+          $ref: '#/components/schemas/ProviderBankInformation'
+        PersonalDates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderPersonalDate'
+    ProviderHousingInformation:
+      type: object
+      properties:
+        DurationYears:
+          type: integer
+          format: int32
+        DurationMonths:
+          type: integer
+          format: int32
+        HousingType:
+          type: string
+        Expense:
+          type: number
+          format: double
+        Provider:
+          type: string
+    ProviderEmploymentInformation:
+      type: object
+      properties:
+        JobTitle:
+          type: string
+        EmploymentStatusType:
+          type: string
+        EmployerName:
+          type: string
+        EmployerContactPhone:
+          type: string
+        EmployerAddress:
+          $ref: '#/components/schemas/ProviderAddress'
+        DurationYears:
+          type: integer
+          format: int32
+        DurationMonths:
+          type: integer
+          format: int32
+        Income:
+          type: number
+          format: double
+        IncomeType:
+          type: string
+    ProviderInsuranceInformation:
+      type: object
+      properties:
+        CompanyName:
+          type: string
+        PolicyNumber:
+          type: string
+        AgentName:
+          type: string
+        CompDeductible:
+          type: number
+          format: double
+        CollisionDeductible:
+          type: number
+          format: double
+        ExpirationDate:
+          type: string
+          format: date-time
+        PhoneNumber:
+          type: string
+    ProviderBankInformation:
+      type: object
+      properties:
+        BankName:
+          type: string
+        BankAccountType:
+          type: string
+        OtherMonthlyIncome:
+          type: number
+          format: double
+        OtherMonthlyIncomeSource:
+          type: string
+    ProviderPersonalDate:
+      type: object
+      properties:
+        DateType:
+          type: string
+        DateValue:
+          type: string
+          format: date-time
+  securitySchemes:
+    Bearer_Token_:
+      type: apiKey
+      description: A valid bearer token must be passed in all API requests. The following syntax must be used in the `Authorization` header - `Bearer xxxxxxxxxxxxxxxxxx`.
+      name: Authorization
+      in: header
+    ApiKeyAuth:
+      type: apiKey
+      description: API keys determine which endpoints your application may access and are used to manage request limits.
+      name: api_key
+      in: header
+security:
+  - Bearer_Token_: [ ]
+    ApiKeyAuth: [ ]
+tags:
+  - name: Lead Management
