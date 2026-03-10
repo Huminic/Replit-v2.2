@@ -103,6 +103,7 @@ export async function seedDatabase() {
     await seedTasksAndWidgets();
     await seedPartnerAccount();
     await seedMissingAgents();
+    await seedHuminicUsers();
     return;
   }
 
@@ -402,9 +403,10 @@ export async function seedDatabase() {
 
   await seedTasksAndWidgets();
   await seedDocumentsAndRecipients();
+  await seedHuminicUsers();
 
   console.log("Database seeded successfully!");
-  console.log("Default login: admin@nexxus.com / password123");
+  console.log("Default login: duane.wells@huminic.ai");
 }
 
 async function seedDocumentsAndRecipients() {
@@ -524,4 +526,42 @@ async function seedPartnerAccount() {
   });
 
   console.log("Durran Cage partner account seeded (durran.cage@cageautomotive.com / password123)");
+}
+
+async function seedHuminicUsers() {
+  const orgs = await storage.getOrganizations();
+  const serraHonda = orgs.find(o => o.slug === "serra-honda");
+  if (!serraHonda) return;
+
+  const roles = await storage.getRoles();
+  const roleMap: Record<string, string> = {};
+  for (const r of roles) {
+    roleMap[r.name] = r.id;
+  }
+
+  const huminicUsers = [
+    { email: "duane.wells@huminic.ai", firstName: "Duane K.", lastName: "Wells", role: "super_admin", password: "a1$ucc3ss" },
+    { email: "Partner_admin@huminic.ai", firstName: "Partner", lastName: "Admin", role: "partner_admin", password: "P@rtner$uccess" },
+    { email: "Org_Admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: "O3g$uccess" },
+    { email: "Sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: "S@les$uccess" },
+    { email: "marketing_staff@huminic.ai", firstName: "Marketing", lastName: "Staff", role: "marketing", password: "M@3keting$uccess" },
+    { email: "Executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: "Ex3c$uccess" },
+  ];
+
+  for (const u of huminicUsers) {
+    const existing = await storage.getUserByEmail(u.email);
+    if (existing) continue;
+
+    const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
+    await storage.createUser({
+      email: u.email,
+      password: hashedPassword,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      roleId: roleMap[u.role],
+      organizationId: serraHonda.id,
+      isActive: true,
+    });
+    console.log(`Huminic user seeded: ${u.email}`);
+  }
 }
