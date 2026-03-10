@@ -51,5 +51,11 @@ VINSOLUTIONS_MCP_URL = "https://mcp.huminicdev.com/dax/mcp"
 OUTBOUND_LIVE_ENABLED = "true"
 TEXTMAGIC_USERNAME = "oauthdurran"
 
+[userenv.development]
+APP_BASE_URL = "https://release-1r.huminic.app"
+
+[userenv.production]
+APP_BASE_URL = "https://live.huminic.app"
+
 [agent]
 integrations = ["javascript_anthropic_ai_integrations:2.0.0"]
