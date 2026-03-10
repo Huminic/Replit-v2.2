@@ -101,6 +101,33 @@ export default function WidgetLandingPage() {
     }
   }, [orgData]);
 
+  useEffect(() => {
+    if (queryMode === 'video' && orgData && !loading && !autoLaunched) {
+      setAutoLaunched(true);
+      setWidgetMode('video');
+      setVideoStatus('connecting');
+      setVideoActive(true);
+      (async () => {
+        try {
+          const cfgRes = await fetch(`/api/widget/voice-config/${slug}`);
+          if (!cfgRes.ok) { setVideoStatus('error'); return; }
+          const cfg = await cfgRes.json();
+          if (!cfg?.tavusPersonaId) { setVideoStatus('error'); return; }
+          const res = await fetch('/api/widget/video-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug, visitorName: 'Website Visitor' }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setVideoSessionUrl(data.conversationUrl);
+            setVideoStatus('connected');
+          } else { setVideoStatus('error'); }
+        } catch { setVideoStatus('error'); }
+      })();
+    }
+  }, [queryMode, orgData, loading, autoLaunched, slug]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -190,13 +217,6 @@ export default function WidgetLandingPage() {
     setVoiceStatus('ended');
     setWidgetMode('closed');
   };
-
-  useEffect(() => {
-    if (queryMode === 'video' && orgData && !loading && !autoLaunched) {
-      setAutoLaunched(true);
-      startVideoChat();
-    }
-  }, [queryMode, orgData, loading, autoLaunched]);
 
   const startVideoChat = async () => {
     setWidgetMode('video');
