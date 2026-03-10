@@ -33,7 +33,7 @@ import {
   insertFavoriteSchema,
 } from "@shared/schema";
 import { z } from "zod";
-import { registerVendorRoutes, callMCP, resolveNexxusOrgId } from "./vendorProxy";
+import { registerVendorRoutes, callMCP, resolveNexxusOrgId, extractContactIdFromHref, flattenContactInfo } from "./vendorProxy";
 import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
 import { runHistoricalBackfill, runDailyDelta, runMetricsRefresh, startSyncScheduler } from "./sync";
 import { classifyVinStatus, isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead, isExcludedFromPipeline } from "./statusClassifier";
@@ -2097,6 +2097,79 @@ When the user asks a question that requires deep CRM data (specific lead details
         return res.status(400).json({ message: "Invalid metric. Use: " + validMetrics.join(', ') });
       }
       const details = await storage.getPipelineMetricDetails(req.user.organizationId, metric);
+
+      if (metric === 'active_pipeline') {
+        const needsEnrichment = details.filter((r: any) => !r.customerName && r.sourceId);
+        if (needsEnrichment.length > 0) {
+          const orgId = req.user.organizationId;
+          const nexxusOrgId = resolveNexxusOrgId(orgId);
+          (async () => {
+            try {
+              const now = new Date();
+              const fourteenDaysAgo = new Date(now);
+              fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+              const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+              const vinLeads = await callMCP("vin_query_leads", {
+                orgId: nexxusOrgId, startDate: fmt(fourteenDaysAgo), endDate: fmt(now), limit: 100
+              });
+              const items = vinLeads?.items || vinLeads?.results || (Array.isArray(vinLeads) ? vinLeads : []);
+
+              const leadToContactId = new Map<string, number>();
+              for (const item of items) {
+                const lid = String(item.leadId || item.id || "");
+                const href = item.contact || item.ContactHref || "";
+                if (lid && typeof href === "string") {
+                  const cid = extractContactIdFromHref(href);
+                  if (cid) leadToContactId.set(lid, cid);
+                }
+              }
+
+              const toEnrich = needsEnrichment
+                .filter((r: any) => leadToContactId.has(r.sourceId))
+                .slice(0, 20);
+              const uniqueContactIds = [...new Set(toEnrich.map((r: any) => leadToContactId.get(r.sourceId)!))];
+              console.log(`[enrich-bg] enriching ${uniqueContactIds.length} contacts in background`);
+
+              const contactWithTimeout = (cid: number) =>
+                Promise.race([
+                  callMCP("vin_get_contact", { orgId: nexxusOrgId, contactId: cid })
+                    .then(raw => ({ cid, contact: flattenContactInfo(raw) })),
+                  new Promise<null>((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+                ]);
+
+              for (let i = 0; i < uniqueContactIds.length; i += 5) {
+                const batch = uniqueContactIds.slice(i, i + 5);
+                const results = await Promise.allSettled(batch.map(contactWithTimeout));
+                for (const r of results) {
+                  if (r.status === "fulfilled" && r.value) {
+                    const { cid, contact } = r.value as { cid: number; contact: any };
+                    const name = [contact.firstName, contact.lastName].filter(Boolean).join(" ") || null;
+                    const sourceIds = toEnrich.filter((row: any) => leadToContactId.get(row.sourceId) === cid);
+                    for (const row of sourceIds) {
+                      storage.upsertWarehouseLead({
+                        organizationId: orgId,
+                        sourceId: row.sourceId,
+                        dataSource: "vin_solutions",
+                        customerName: name,
+                        customerPhone: contact.phone || null,
+                        customerEmail: contact.email || null,
+                        vinStatus: row.vinStatus,
+                        syncedAt: new Date(),
+                      }).catch(() => {});
+                    }
+                    console.log(`[enrich-bg] cached contact ${cid}: ${name}`);
+                  }
+                }
+              }
+              console.log(`[enrich-bg] background enrichment complete`);
+            } catch (err) {
+              console.error("[enrich-bg] error:", err);
+            }
+          })();
+        }
+      }
+
       return res.json(details);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch metric details" });
@@ -3243,6 +3316,7 @@ When the user asks a question that requires deep CRM data (specific lead details
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Internet",
             source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "active", isHot: l.vinStatus === "hot" || l.vinStatus === "ACTIVE_ACTIVE_LEAD",
+            customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
         })
         .filter(l => l.daysOld > 2)
@@ -3257,6 +3331,7 @@ When the user asks a question that requires deep CRM data (specific lead details
           return {
             id: l.id, leadId: l.sourceId || l.id, hoursOld, type: "Internet",
             source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
+            customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
         })
         .sort((a, b) => (b.hoursOld || 0) - (a.hoursOld || 0))
@@ -3272,6 +3347,7 @@ When the user asks a question that requires deep CRM data (specific lead details
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Walk-In",
             source: l.leadSource || "Showroom", vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "open",
+            customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
         })
         .slice(0, 20);

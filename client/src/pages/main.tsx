@@ -45,7 +45,7 @@ import { getRandomSuggestions, type ChatMessage } from '@/lib/chat-types';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { apiRequest, queryClient, getQueryFn } from '@/lib/queryClient';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { useToast } from '@/hooks/use-toast';
@@ -153,22 +153,40 @@ function ThinkingCard({ thinking }: { thinking: ChatMessage['thinking'] }) {
   );
 }
 
+function clickToCall(phone: string | null | undefined, toast: any) {
+  if (!phone || phone === '—') {
+    toast({ title: 'No phone number', description: 'This contact does not have a phone number on file.' });
+    return;
+  }
+  const digits = phone.replace(/\D/g, '');
+  window.open(`tel:${digits}`, '_self');
+  toast({ title: 'Calling', description: `Initiating call to ${digits}` });
+}
+
+function PhoneCell({ phone, toast }: { phone: string | null | undefined; toast: any }) {
+  if (!phone || phone === '—') return <span>—</span>;
+  return (
+    <span
+      className="text-primary cursor-pointer hover:underline"
+      onClick={() => clickToCall(phone, toast)}
+      data-testid={`phone-click-${phone}`}
+    >
+      {phone}
+    </span>
+  );
+}
+
 function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
   selectedMetric: MetricTile | null;
   metricDetails: Record<string, { breakdown: { label: string; value: string; detail?: string }[]; description: string; highlights?: string[] }>;
   onClose: () => void;
   orgId: string | undefined;
 }) {
+  const { toast } = useToast();
   const metricKey = selectedMetric ? metricApiKeys[selectedMetric.label] : null;
 
   const { data: detailRows, isLoading, isError } = useQuery<any[]>({
-    queryKey: ['/api/metrics/pipeline/details', orgId, metricKey],
-    queryFn: async () => {
-      const r = await fetch(`/api/metrics/pipeline/details?metric=${metricKey}`, { credentials: 'include' });
-      if (!r.ok) throw new Error('Failed to fetch details');
-      const data = await r.json();
-      return Array.isArray(data) ? data : [];
-    },
+    queryKey: [`/api/metrics/pipeline/details?metric=${metricKey}`, orgId],
     enabled: !!selectedMetric && !!metricKey,
   });
 
@@ -213,7 +231,7 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
               {detailRows.map((row: any, idx: number) => (
                 <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-pipeline-${idx}`}>
                   <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
-                  <td className="py-2 px-2 text-muted-foreground">{row.customerPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground"><PhoneCell phone={row.customerPhone} toast={toast} /></td>
                   <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
                   <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
                   <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
@@ -243,7 +261,7 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
               {detailRows.map((row: any, idx: number) => (
                 <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-appointment-${idx}`}>
                   <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
-                  <td className="py-2 px-2 text-muted-foreground">{row.customerPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground"><PhoneCell phone={row.customerPhone} toast={toast} /></td>
                   <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
                   <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.appointmentType}</span></td>
                   <td className="py-2 px-2 text-muted-foreground">{row.startTime ? new Date(row.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
@@ -299,7 +317,7 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
               {detailRows.map((row: any, idx: number) => (
                 <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-outbound-${idx}`}>
                   <td className="py-2 px-2 font-medium text-foreground">{row.recipientName || '—'}</td>
-                  <td className="py-2 px-2 text-muted-foreground">{row.recipientPhone || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground"><PhoneCell phone={row.recipientPhone} toast={toast} /></td>
                   <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.recipientEmail || '—'}</td>
                   <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.channel}</span></td>
                   <td className="py-2 px-2 text-muted-foreground text-xs">{row.sentAt ? new Date(row.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : row.createdAt ? new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
