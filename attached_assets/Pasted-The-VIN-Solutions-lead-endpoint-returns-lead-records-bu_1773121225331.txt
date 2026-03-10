@@ -1,0 +1,24 @@
+The VIN Solutions lead endpoint returns lead records, but the lead response doesn't include contact details (name, phone, email) directly. Instead, it returns a contact field  
+  containing an href URL like:                                    
+                                                                                                                                                                                  
+  https://api.vinsolutions.com/gateway/v1/contact/{contactId}                                                                                                                     
+                                                                                                                                                                                  
+  It also returns a leadGroupCategory field ("WAITING" or "CONTACTED") which we weren't extracting before.                                                                        
+                                                                                                                                                                                  
+  The enrichment flow (what we just built):                                                                                                                                       
+                                                                  
+  1. During sync (vin-sync.ts → transformVinLead()):                                                                                                                              
+    - Parse the contact href URL to extract the numeric contactId using extractContactIdFromHref()
+    - Extract leadGroupCategory from the raw lead response                                                                                                                        
+    - Store both on the lead record                                                                                                                                               
+  2. Contact enrichment (same sync loop, after transform):                                                                                                                        
+    - If a lead has a contactId but no firstName, call getContact(vinOrgId, contactId) via MCP                                                                                    
+    - That calls the vin_get_contact tool which hits /gateway/v1/contact/{contactId}                                                                                              
+    - The contact response has firstName, lastName, email, phone                                                                                                                  
+    - Those values get merged onto the lead before upsert                                                                                                                         
+    - 200ms delay between lookups to avoid rate limiting (429s caught gracefully)                                                                                                 
+  3. Graceful fallback: If the vin_get_contact MCP tool doesn't exist or fails, it logs a warning and continues. The lead still gets synced — just without enriched contact info. 
+  The contactName stays as "Lead #12345" instead of a real name.                                                                                                                  
+                                                                                                                                                                                  
+  Before this change: Every lead was stored as "Lead #12847" with null firstName/lastName/email/phone because we never called the contact endpoint. The stale lead trigger treated
+   every lead as stale (checked lastActivityDate which was always null), and SMS/email messages said "Hi there" instead of the customer's name.
