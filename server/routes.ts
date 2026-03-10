@@ -3785,7 +3785,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/webhooks/textmagic", async (req, res) => {
+  app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
     if (textmagicSecret) {
       const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
