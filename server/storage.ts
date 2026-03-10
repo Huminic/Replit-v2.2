@@ -248,15 +248,34 @@ export class DatabaseStorage implements IStorage {
   }
 
   async findOrganizationByPhone(phone: string): Promise<Organization | undefined> {
-    const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const variants = this.phoneVariants(phone);
+    const phoneSql = sql`(${conversations.customerPhone} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)}))`;
     const conv = await db.select({ organizationId: conversations.organizationId })
       .from(conversations)
-      .where(eq(conversations.customerPhone, normalizedPhone))
+      .where(phoneSql)
       .limit(1);
     if (conv.length > 0) {
       return this.getOrganization(conv[0].organizationId);
     }
+    const recip = await db.select({ orgId: campaigns.organizationId })
+      .from(campaignRecipients)
+      .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
+      .where(sql`(${campaignRecipients.phone} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)}))`)
+      .orderBy(desc(campaignRecipients.createdAt))
+      .limit(1);
+    if (recip.length > 0) {
+      return this.getOrganization(recip[0].orgId);
+    }
     return undefined;
+  }
+
+  private phoneVariants(phone: string): string[] {
+    const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+    const digitsOnly = normalizedPhone.replace(/\+/g, "");
+    const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
+    const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
+    const variants = new Set([normalizedPhone, digitsOnly, without1, with1, "+" + with1]);
+    return [...variants];
   }
 
   async createOrganization(org: InsertOrganization): Promise<Organization> {
