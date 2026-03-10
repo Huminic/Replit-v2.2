@@ -3835,8 +3835,8 @@ When the user asks a question that requires deep CRM data (specific lead details
           if (allOrgs.length === 1) {
             organizationId = allOrgs[0].id;
           } else {
-            console.error("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
-            return res.status(422).json({ message: "Cannot determine organization for this phone number" });
+            console.warn("[TextMagic Webhook] Cannot resolve organization for unknown phone — multiple orgs exist, no fallback to arbitrary org");
+            return res.status(200).json({ message: "Received — unresolvable sender, no action taken" });
           }
         }
 
