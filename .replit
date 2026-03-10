@@ -49,7 +49,7 @@ waitForPort = 5000
 [userenv.shared]
 VINSOLUTIONS_MCP_URL = "https://mcp.huminicdev.com/dax/mcp"
 OUTBOUND_LIVE_ENABLED = "true"
-TEXTMAGIC_USERNAME = "durran"
+TEXTMAGIC_USERNAME = "oauthdurran"
 
 [agent]
 integrations = ["javascript_anthropic_ai_integrations:2.0.0"]
