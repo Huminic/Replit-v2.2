@@ -97,8 +97,11 @@ export interface IStorage {
 
   getDocuments(organizationId: string, agentId?: string): Promise<KnowledgeDocument[]>;
   getDocument(id: string): Promise<KnowledgeDocument | undefined>;
+  getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined>;
   createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument>;
   deleteDocument(id: string): Promise<void>;
+  getDocumentsBySourceName(sourceDocumentName: string, organizationId: string): Promise<KnowledgeDocument[]>;
+  deleteDocumentsBySourceName(sourceDocumentName: string, organizationId: string): Promise<void>;
 
   getRecipients(campaignId: string): Promise<CampaignRecipient[]>;
   getRecipient(id: string): Promise<CampaignRecipient | undefined>;
@@ -543,8 +546,27 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined> {
+    const [doc] = await db.select().from(knowledgeDocuments).where(
+      and(eq(knowledgeDocuments.name, name), eq(knowledgeDocuments.organizationId, organizationId))
+    );
+    return doc;
+  }
+
   async deleteDocument(id: string): Promise<void> {
     await db.delete(knowledgeDocuments).where(eq(knowledgeDocuments.id, id));
+  }
+
+  async getDocumentsBySourceName(sourceDocumentName: string, organizationId: string): Promise<KnowledgeDocument[]> {
+    return db.select().from(knowledgeDocuments).where(
+      and(eq(knowledgeDocuments.sourceDocumentName, sourceDocumentName), eq(knowledgeDocuments.organizationId, organizationId))
+    ).orderBy(knowledgeDocuments.createdAt);
+  }
+
+  async deleteDocumentsBySourceName(sourceDocumentName: string, organizationId: string): Promise<void> {
+    await db.delete(knowledgeDocuments).where(
+      and(eq(knowledgeDocuments.sourceDocumentName, sourceDocumentName), eq(knowledgeDocuments.organizationId, organizationId))
+    );
   }
 
   async getRecipients(campaignId: string): Promise<CampaignRecipient[]> {

@@ -213,8 +213,19 @@ export function AgentConfigPane() {
     enabled: !!selectedAgent?.id,
   });
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [duplicateFile, setDuplicateFile] = useState<File | null>(null);
+  const [duplicateExisting, setDuplicateExisting] = useState<{ id: number; name: string; type: string; size: number; createdAt: string } | null>(null);
+  const [duplicateCsvData, setDuplicateCsvData] = useState<{ existingCsvData?: { rowCount: number; headers: string[]; previewRows: string[] }; newCsvData?: { rowCount: number; headers: string[]; previewRows: string[] } } | null>(null);
+  const [uploadPending, setUploadPending] = useState(false);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(1)} MB`;
+    return `${Math.round(bytes / 1024)} KB`;
+  };
 
   const { data: knowledgeDocuments, isLoading: knowledgeLoading } = useQuery<KBDocument[]>({
     queryKey: ['/api/documents', selectedAgent?.id],
@@ -232,12 +243,13 @@ export function AgentConfigPane() {
     enabled: !!selectedAgent?.id,
   });
 
-  const handleFileUpload = useCallback(async (files: FileList | null) => {
-    if (!files || files.length === 0 || !selectedAgent) return;
-    const file = files[0];
+  const doUpload = useCallback(async (file: File, replaceExisting?: boolean) => {
+    if (!selectedAgent) return;
+    setUploadPending(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('agentId', String(selectedAgent.id));
+    if (replaceExisting) formData.append('replaceExisting', 'true');
     try {
       const token = localStorage.getItem('nexxus_access_token');
       const headers: Record<string, string> = {};
@@ -249,16 +261,102 @@ export function AgentConfigPane() {
         credentials: 'include',
       });
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
+        let errorMsg: string;
+        try {
+          const json = await res.json();
+          errorMsg = json.message || res.statusText;
+        } catch {
+          const text = await res.text();
+          errorMsg = text || res.statusText;
+        }
+        throw new Error(errorMsg);
       }
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       toast({ title: 'Document uploaded', description: `${file.name} uploaded successfully.` });
     } catch (err: any) {
       toast({ title: 'Upload failed', description: err.message || 'Could not upload document.', variant: 'destructive' });
+    } finally {
+      setUploadPending(false);
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [selectedAgent, toast]);
+
+  const handleFileUpload = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0 || !selectedAgent) return;
+    const file = files[0];
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({ title: 'File too large', description: `Maximum file size is 5 MB. Selected file is ${formatFileSize(file.size)}.`, variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const checkRes = await fetch('/api/documents/check-duplicate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ filename: file.name }),
+        credentials: 'include',
+      });
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        if (checkData.isDuplicate && checkData.existingDocument) {
+          setDuplicateFile(file);
+          setDuplicateExisting(checkData.existingDocument);
+
+          if (checkData.existingCsvData && file.name.toLowerCase().endsWith('.csv')) {
+            const text = await file.text();
+            const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+            const newHeaders = lines.length > 0 ? lines[0].split(',').map((h: string) => h.trim().replace(/^"|"$/g, '')) : [];
+            const newRowCount = Math.max(0, lines.length - 1);
+            const newPreviewRows = lines.slice(1, 6).map((line: string) => {
+              const vals = line.split(',').map((v: string) => v.trim().replace(/^"|"$/g, ''));
+              return newHeaders.map((h: string, i: number) => `${h}: ${vals[i] || ''}`).filter((s: string) => !s.endsWith(': ')).join('\n');
+            });
+            setDuplicateCsvData({
+              existingCsvData: checkData.existingCsvData,
+              newCsvData: { rowCount: newRowCount, headers: newHeaders, previewRows: newPreviewRows },
+            });
+          } else {
+            setDuplicateCsvData(null);
+          }
+
+          setDuplicateDialogOpen(true);
+          return;
+        }
+      }
+    } catch {}
+
+    doUpload(file);
+  }, [selectedAgent, toast, doUpload]);
+
+  const handleDuplicateReplace = useCallback(() => {
+    if (duplicateFile) {
+      doUpload(duplicateFile, true);
+    }
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
+  }, [duplicateFile, doUpload]);
+
+  const handleDuplicateKeepExisting = useCallback(() => {
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
+    toast({ title: 'Upload cancelled', description: 'Keeping existing document.' });
+  }, [toast]);
+
+  const handleDuplicateCancel = useCallback(() => {
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
+  }, []);
 
   const handleDeleteDocument = useCallback(async (docId: number, docName: string) => {
     try {
@@ -1347,6 +1445,79 @@ export function AgentConfigPane() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setKnowledgeModalOpen(false)} data-testid="button-close-knowledge">
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={duplicateDialogOpen} onOpenChange={setDuplicateDialogOpen}>
+        <DialogContent className={duplicateCsvData ? "sm:max-w-2xl" : undefined}>
+          <DialogHeader>
+            <DialogTitle>Duplicate File Found</DialogTitle>
+            <DialogDescription>A document with this name already exists in your knowledge base.</DialogDescription>
+          </DialogHeader>
+          {duplicateExisting && (
+            <div className="py-2 space-y-3">
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="text-sm font-medium text-foreground" data-testid="text-duplicate-name">{duplicateExisting.name}</p>
+                <p className="text-xs text-muted-foreground">Type: {duplicateExisting.type.toUpperCase()} &middot; Size: {formatFileSize(duplicateExisting.size)}</p>
+              </div>
+              {duplicateCsvData ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">This CSV file already exists. Compare the records below and choose which version to keep.</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">Existing</Badge>
+                        <span className="text-xs text-muted-foreground">{duplicateCsvData.existingCsvData?.rowCount ?? 0} rows</span>
+                      </div>
+                      {duplicateCsvData.existingCsvData?.headers && duplicateCsvData.existingCsvData.headers.length > 0 && (
+                        <p className="text-xs text-muted-foreground">Columns: {duplicateCsvData.existingCsvData.headers.join(', ')}</p>
+                      )}
+                      <ScrollArea className="max-h-[160px]">
+                        <div className="space-y-1">
+                          {(duplicateCsvData.existingCsvData?.previewRows || []).map((row, i) => (
+                            <div key={i} className="rounded border border-border p-2 text-xs text-muted-foreground font-mono whitespace-pre-wrap" data-testid={`existing-csv-row-${i}`}>
+                              {row}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">New Upload</Badge>
+                        <span className="text-xs text-muted-foreground">{duplicateCsvData.newCsvData?.rowCount ?? 0} rows</span>
+                      </div>
+                      {duplicateCsvData.newCsvData?.headers && duplicateCsvData.newCsvData.headers.length > 0 && (
+                        <p className="text-xs text-muted-foreground">Columns: {duplicateCsvData.newCsvData.headers.join(', ')}</p>
+                      )}
+                      <ScrollArea className="max-h-[160px]">
+                        <div className="space-y-1">
+                          {(duplicateCsvData.newCsvData?.previewRows || []).map((row, i) => (
+                            <div key={i} className="rounded border border-border p-2 text-xs text-muted-foreground font-mono whitespace-pre-wrap" data-testid={`new-csv-row-${i}`}>
+                              {row}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Would you like to replace the existing document with the new upload?</p>
+              )}
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleDuplicateCancel} data-testid="button-duplicate-cancel">Cancel</Button>
+            {duplicateCsvData && (
+              <Button variant="secondary" onClick={handleDuplicateKeepExisting} data-testid="button-duplicate-keep-existing">
+                Keep Existing
+              </Button>
+            )}
+            <Button onClick={handleDuplicateReplace} disabled={uploadPending} data-testid="button-duplicate-replace">
+              {uploadPending ? 'Replacing...' : 'Replace with New'}
             </Button>
           </DialogFooter>
         </DialogContent>

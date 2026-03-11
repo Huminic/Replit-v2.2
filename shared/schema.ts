@@ -195,6 +195,7 @@ export const knowledgeDocuments = pgTable("knowledge_documents", {
   agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
   content: text("content"),
   mimeType: text("mime_type"),
+  sourceDocumentName: text("source_document_name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

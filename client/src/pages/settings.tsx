@@ -664,16 +664,23 @@ export default function SettingsPage() {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   };
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [duplicateFile, setDuplicateFile] = useState<File | null>(null);
+  const [duplicateExisting, setDuplicateExisting] = useState<{ id: number; name: string; type: string; size: number; createdAt: string } | null>(null);
+  const [duplicateCsvData, setDuplicateCsvData] = useState<{ existingCsvData?: { rowCount: number; headers: string[]; previewRows: string[] }; newCsvData?: { rowCount: number; headers: string[]; previewRows: string[] } } | null>(null);
 
   const { data: documents = [], isLoading: documentsLoading } = useQuery<ApiDocument[]>({
     queryKey: ['/api/documents'],
   });
 
   const uploadDocumentMutation = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, replaceExisting }: { file: File; replaceExisting?: boolean }) => {
       const formData = new FormData();
       formData.append('file', file);
+      if (replaceExisting) formData.append('replaceExisting', 'true');
       const token = localStorage.getItem('nexxus_access_token');
       const headers: Record<string, string> = {};
       if (token) {
@@ -686,8 +693,15 @@ export default function SettingsPage() {
         credentials: 'include',
       });
       if (!res.ok) {
-        const text = (await res.text()) || res.statusText;
-        throw new Error(`${res.status}: ${text}`);
+        let errorMsg: string;
+        try {
+          const json = await res.json();
+          errorMsg = json.message || res.statusText;
+        } catch {
+          const text = (await res.text()) || res.statusText;
+          errorMsg = text;
+        }
+        throw new Error(errorMsg);
       }
       return res.json();
     },
@@ -713,14 +727,81 @@ export default function SettingsPage() {
     },
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      uploadDocumentMutation.mutate(file);
+    if (!file) return;
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({ title: 'File too large', description: `Maximum file size is 5 MB. Selected file is ${formatFileSize(file.size)}.`, variant: 'destructive' });
+      return;
     }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+
+    try {
+      const token = localStorage.getItem('nexxus_access_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const checkRes = await fetch('/api/documents/check-duplicate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ filename: file.name }),
+        credentials: 'include',
+      });
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        if (checkData.isDuplicate && checkData.existingDocument) {
+          setDuplicateFile(file);
+          setDuplicateExisting(checkData.existingDocument);
+
+          if (checkData.existingCsvData && file.name.toLowerCase().endsWith('.csv')) {
+            const text = await file.text();
+            const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+            const newHeaders = lines.length > 0 ? lines[0].split(',').map((h: string) => h.trim().replace(/^"|"$/g, '')) : [];
+            const newRowCount = Math.max(0, lines.length - 1);
+            const newPreviewRows = lines.slice(1, 6).map((line: string) => {
+              const vals = line.split(',').map((v: string) => v.trim().replace(/^"|"$/g, ''));
+              return newHeaders.map((h: string, i: number) => `${h}: ${vals[i] || ''}`).filter((s: string) => !s.endsWith(': ')).join('\n');
+            });
+            setDuplicateCsvData({
+              existingCsvData: checkData.existingCsvData,
+              newCsvData: { rowCount: newRowCount, headers: newHeaders, previewRows: newPreviewRows },
+            });
+          } else {
+            setDuplicateCsvData(null);
+          }
+
+          setDuplicateDialogOpen(true);
+          return;
+        }
+      }
+    } catch {}
+
+    uploadDocumentMutation.mutate({ file });
+  };
+
+  const handleDuplicateReplace = () => {
+    if (duplicateFile) {
+      uploadDocumentMutation.mutate({ file: duplicateFile, replaceExisting: true });
     }
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
+  };
+
+  const handleDuplicateKeepExisting = () => {
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
+    toast({ title: 'Upload cancelled', description: 'Keeping existing document.' });
+  };
+
+  const handleDuplicateCancel = () => {
+    setDuplicateDialogOpen(false);
+    setDuplicateFile(null);
+    setDuplicateExisting(null);
+    setDuplicateCsvData(null);
   };
 
   const isSuperAdmin = currentRole === 'super_admin';
@@ -3715,6 +3796,79 @@ export default function SettingsPage() {
               data-testid="button-submit-invite"
             >
               {inviteUserMutation.isPending ? 'Sending...' : 'Send Invitation'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={duplicateDialogOpen} onOpenChange={setDuplicateDialogOpen}>
+        <DialogContent className={duplicateCsvData ? "sm:max-w-2xl" : undefined}>
+          <DialogHeader>
+            <DialogTitle>Duplicate File Found</DialogTitle>
+            <DialogDescription>A document with this name already exists in your knowledge base.</DialogDescription>
+          </DialogHeader>
+          {duplicateExisting && (
+            <div className="py-2 space-y-3">
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="text-sm font-medium text-foreground" data-testid="text-duplicate-name">{duplicateExisting.name}</p>
+                <p className="text-xs text-muted-foreground">Type: {duplicateExisting.type.toUpperCase()} &middot; Size: {formatFileSize(duplicateExisting.size)} &middot; Uploaded: {formatDocDate(duplicateExisting.createdAt)}</p>
+              </div>
+              {duplicateCsvData ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">This CSV file already exists. Compare the records below and choose which version to keep.</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">Existing</Badge>
+                        <span className="text-xs text-muted-foreground">{duplicateCsvData.existingCsvData?.rowCount ?? 0} rows</span>
+                      </div>
+                      {duplicateCsvData.existingCsvData?.headers && duplicateCsvData.existingCsvData.headers.length > 0 && (
+                        <p className="text-xs text-muted-foreground">Columns: {duplicateCsvData.existingCsvData.headers.join(', ')}</p>
+                      )}
+                      <ScrollArea className="max-h-[160px]">
+                        <div className="space-y-1">
+                          {(duplicateCsvData.existingCsvData?.previewRows || []).map((row, i) => (
+                            <div key={i} className="rounded border border-border p-2 text-xs text-muted-foreground font-mono whitespace-pre-wrap" data-testid={`existing-csv-row-${i}`}>
+                              {row}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">New Upload</Badge>
+                        <span className="text-xs text-muted-foreground">{duplicateCsvData.newCsvData?.rowCount ?? 0} rows</span>
+                      </div>
+                      {duplicateCsvData.newCsvData?.headers && duplicateCsvData.newCsvData.headers.length > 0 && (
+                        <p className="text-xs text-muted-foreground">Columns: {duplicateCsvData.newCsvData.headers.join(', ')}</p>
+                      )}
+                      <ScrollArea className="max-h-[160px]">
+                        <div className="space-y-1">
+                          {(duplicateCsvData.newCsvData?.previewRows || []).map((row, i) => (
+                            <div key={i} className="rounded border border-border p-2 text-xs text-muted-foreground font-mono whitespace-pre-wrap" data-testid={`new-csv-row-${i}`}>
+                              {row}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Would you like to replace the existing document with the new upload?</p>
+              )}
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleDuplicateCancel} data-testid="button-duplicate-cancel">Cancel</Button>
+            {duplicateCsvData && (
+              <Button variant="secondary" onClick={handleDuplicateKeepExisting} data-testid="button-duplicate-keep-existing">
+                Keep Existing
+              </Button>
+            )}
+            <Button onClick={handleDuplicateReplace} disabled={uploadDocumentMutation.isPending} data-testid="button-duplicate-replace">
+              {uploadDocumentMutation.isPending ? 'Replacing...' : 'Replace with New'}
             </Button>
           </DialogFooter>
         </DialogContent>
