@@ -1,0 +1,1 @@
+ALTER TABLE "conversations" ADD COLUMN "escalation_sent_at" timestamp;

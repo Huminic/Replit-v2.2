@@ -568,7 +568,46 @@ export async function registerRoutes(
         message: `Your account has been created by ${req.user!.firstName} ${req.user!.lastName}.`,
       }).catch(() => {});
 
-      return res.status(201).json(safeUser);
+      const org = await storage.getOrganization(req.user!.organizationId);
+      const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
+      let welcomeEmailSent = false;
+
+      if (!commGateOpen) {
+        console.log(`[Users] CommGate blocked email for org ${req.user!.organizationId}. User ${email} created but welcome email skipped.`);
+      } else if (process.env.RESEND_API_KEY) {
+        try {
+          const emailRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Nexxus Connect <no-reply@huminic.app>",
+              to: email,
+              subject: `Welcome to ${org?.name || "Nexxus Connect"} on Nexxus Connect`,
+              html: `<h2>Welcome to ${org?.name || "Nexxus Connect"}!</h2>
+                <p>Hi ${firstName},</p>
+                <p>Your account has been created for <strong>${org?.name || "Nexxus Connect"}</strong> by ${req.user!.firstName} ${req.user!.lastName}.</p>
+                <p>You can log in using your email address: <strong>${email}</strong></p>
+                <p>Please change your password after your first login for security purposes.</p>
+                <p>Welcome aboard!</p>`,
+            }),
+          });
+          if (!emailRes.ok) {
+            console.warn("[Users] Resend API error on welcome email:", await emailRes.text());
+          } else {
+            welcomeEmailSent = true;
+            console.log(`[Users] Welcome email sent to ${email}`);
+          }
+        } catch (emailErr) {
+          console.warn("[Users] Failed to send welcome email:", emailErr);
+        }
+      } else {
+        console.log(`[Users] No RESEND_API_KEY configured. Welcome email for ${email} skipped.`);
+      }
+
+      return res.status(201).json({ ...safeUser, welcomeEmailSent });
     } catch (err) {
       return res.status(500).json({ message: "Failed to create user" });
     }
@@ -1108,7 +1147,7 @@ export async function registerRoutes(
               .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
 
             const { sendSms } = await import("./outbound");
-            await sendSms(conv.customerPhone!, greeting);
+            await sendSms(conv.customerPhone!, greeting, req.user!.organizationId);
             console.log(`[AutoGreeting] Sent to ${conv.customerPhone} via agent ${greetingAgent.name}`);
 
             await storage.createMessage({
@@ -1244,7 +1283,7 @@ export async function registerRoutes(
         } else {
           try {
             const { sendSms } = await import("./outbound");
-            await sendSms(conversation.customerPhone, smsContent);
+            await sendSms(conversation.customerPhone, smsContent, conversation.organizationId);
             console.log(`[TeamBox SMS] Delivered reply to ${conversation.customerPhone}`);
             storage.logUsageEvent({
               organizationId: conversation.organizationId,
@@ -4270,6 +4309,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
       const organizationId = resolvedOrg;
 
+      const STOP_KEYWORDS = ["STOP", "UNSUBSCRIBE", "QUIT", "CANCEL", "END", "OPTOUT"];
+      const normalizedContent = content.trim().toUpperCase();
+      if (STOP_KEYWORDS.includes(normalizedContent)) {
+        const org = await storage.getOrganization(organizationId);
+        const orgName = org?.name || "this organization";
+
+        await storage.createBlacklistEntry({
+          phoneNumber: normalizedPhone,
+          organizationId,
+          reason: normalizedContent,
+        });
+
+        const openConvos = await storage.getConversations(organizationId, { status: "open", channel: "sms" });
+        for (const conv of openConvos) {
+          if (conv.customerPhone === normalizedPhone) {
+            await storage.updateConversation(conv.id, { status: "closed" });
+          }
+        }
+
+        try {
+          const { sendSmsRaw } = await import("./outbound");
+          if (org?.outboundEnabled && org?.smsEnabled && process.env.OUTBOUND_LIVE_ENABLED === "true") {
+            await sendSmsRaw(normalizedPhone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`);
+          }
+        } catch (confirmErr: any) {
+          console.error(`[TextMagic Webhook] Failed to send STOP confirmation to ${normalizedPhone}:`, confirmErr.message);
+        }
+
+        storage.createActivityLog({
+          organizationId,
+          action: "sms_stop_received",
+          entityType: "sms_blacklist",
+          metadata: {
+            senderPhone: normalizedPhone,
+            keyword: normalizedContent,
+            orgName,
+          },
+        }).catch(() => {});
+
+        console.log(`[TextMagic Webhook] STOP keyword "${normalizedContent}" received from ${normalizedPhone} — blacklisted for org ${organizationId}`);
+        return res.json({ success: true, action: "blacklisted", keyword: normalizedContent });
+      }
+
       let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
 
       if (conversation && conversation.organizationId !== organizationId) {
@@ -4340,7 +4422,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
               .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
 
             const { sendSms } = await import("./outbound");
-            await sendSms(normalizedPhone, greeting);
+            await sendSms(normalizedPhone, greeting, organizationId);
             console.log(`[AutoGreeting] SMS sent to ${normalizedPhone} via agent ${greetingAgent.name}`);
 
             await storage.createMessage({
@@ -4826,12 +4908,122 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     }
   });
 
+  app.get("/api/sms-blacklist", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const entries = await storage.getBlacklistByOrg(req.user.organizationId);
+      return res.json(entries);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch SMS blacklist" });
+    }
+  });
+
+  app.delete("/api/sms-blacklist/:id", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const entries = await storage.getBlacklistByOrg(req.user.organizationId);
+      const entry = entries.find(e => e.id === req.params.id);
+      if (!entry) {
+        return res.status(404).json({ message: "Blacklist entry not found" });
+      }
+      await storage.removeBlacklistEntry(req.params.id);
+      return res.json({ message: "Blacklist entry removed" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to remove blacklist entry" });
+    }
+  });
+
   app.use((err: any, req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res.status(413).json({ message: "File too large. Maximum upload size is 5MB." });
     }
     next(err);
   });
+
+  setInterval(async () => {
+    try {
+      const unanswered = await storage.getUnansweredConversations(30);
+      if (unanswered.length === 0) return;
+
+      for (const conv of unanswered) {
+        try {
+          const org = await storage.getOrganization(conv.organizationId);
+          if (!org || !org.emailEnabled) continue;
+
+          const orgAdminRole = await storage.getRoleByName("org_admin");
+          if (!orgAdminRole) continue;
+
+          const orgUsers = await storage.getUsers(conv.organizationId);
+          const orgAdmin = orgUsers.find(u => u.roleId === orgAdminRole.id && u.isActive);
+          if (!orgAdmin) continue;
+
+          const msgs = await storage.getMessages(conv.id);
+          const latestMessage = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+          const messagePreview = latestMessage ? latestMessage.content.substring(0, 200) : "No message content";
+
+          const contactName = conv.customerName || "Unknown";
+          const contactPhone = conv.customerPhone || "Unknown";
+          const waitingMinutes = conv.lastMessageAt
+            ? Math.round((Date.now() - new Date(conv.lastMessageAt).getTime()) / 60000)
+            : 0;
+
+          if (process.env.RESEND_API_KEY) {
+            const { Resend } = await import("resend");
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            await resend.emails.send({
+              from: "Nexxus Connect <no-reply@huminic.app>",
+              to: orgAdmin.email,
+              subject: `Unanswered message from ${contactName !== "Unknown" ? contactName : contactPhone} — ${org.name}`,
+              html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #1a1a1a;">Unanswered Message Alert</h2>
+                <p>A customer message has been waiting for a response.</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Contact Name</td><td style="padding: 8px;">${contactName}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Phone</td><td style="padding: 8px;">${contactPhone}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Channel</td><td style="padding: 8px;">${conv.channel}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Waiting</td><td style="padding: 8px;">${waitingMinutes} minutes</td></tr>
+                </table>
+                <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin: 16px 0;">
+                  <p style="margin: 0 0 4px 0; font-weight: bold; color: #555;">Latest Message:</p>
+                  <p style="margin: 0; color: #333;">${messagePreview}${latestMessage && latestMessage.content.length > 200 ? "..." : ""}</p>
+                </div>
+                <p><a href="https://nexxus-connect.replit.app/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
+                <p style="color: #888; font-size: 12px;">This is an automated escalation from Nexxus Connect for ${org.name}.</p>
+              </div>`,
+            });
+            console.log(`[ESCALATION] Email sent to ${orgAdmin.email} for conversation ${conv.id} (${contactName})`);
+          } else {
+            console.log(`[ESCALATION] No RESEND_API_KEY — would email ${orgAdmin.email} for conversation ${conv.id}`);
+          }
+
+          await storage.markEscalationSent(conv.id);
+
+          await storage.createNotification({
+            userId: orgAdmin.id,
+            organizationId: conv.organizationId,
+            type: "escalation",
+            title: `Unanswered message from ${contactName}`,
+            message: `${contactName} (${contactPhone}) has been waiting ${waitingMinutes} minutes for a response on ${conv.channel}.`,
+            relatedEntityType: "conversation",
+            relatedEntityId: conv.id,
+          });
+
+          await storage.createActivityLog({
+            userId: orgAdmin.id,
+            organizationId: conv.organizationId,
+            action: "escalation_email_sent",
+            entityType: "conversation",
+            entityId: conv.id,
+            metadata: { contactName, contactPhone, waitingMinutes, channel: conv.channel },
+          });
+        } catch (convErr) {
+          console.error(`[ESCALATION] Error processing conversation ${conv.id}:`, convErr);
+        }
+      }
+    } catch (err) {
+      console.error("[ESCALATION] Scheduler error:", err);
+    }
+  }, 5 * 60 * 1000);
 
   return httpServer;
 }

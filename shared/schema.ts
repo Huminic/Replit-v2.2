@@ -92,6 +92,7 @@ export const conversations = pgTable("conversations", {
   campaignDisconnected: boolean("campaign_disconnected").notNull().default(false),
   unreadCount: integer("unread_count").notNull().default(0),
   lastMessageAt: timestamp("last_message_at"),
+  escalationSentAt: timestamp("escalation_sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [
@@ -405,10 +406,22 @@ export type InsertWarehouseMetric = z.infer<typeof insertWarehouseMetricSchema>;
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
 export type InsertSlugRedirect = z.infer<typeof insertSlugRedirectSchema>;
 export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
+export const smsBlacklist = pgTable("sms_blacklist", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  phoneNumber: text("phone_number").notNull(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  reason: text("reason").notNull().default("STOP"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_sms_blacklist_phone_org").on(table.phoneNumber, table.organizationId),
+]);
+
 export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true, createdAt: true });
 export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
+export const insertSmsBlacklistSchema = createInsertSchema(smsBlacklist).omit({ id: true, createdAt: true });
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
+export type InsertSmsBlacklist = z.infer<typeof insertSmsBlacklistSchema>;
 
 export type Role = typeof roles.$inferSelect;
 export type Organization = typeof organizations.$inferSelect;
@@ -434,6 +447,7 @@ export type SlugRedirect = typeof slugRedirects.$inferSelect;
 export type SyncLog = typeof syncLog.$inferSelect;
 export type Favorite = typeof favorites.$inferSelect;
 export type UsageEvent = typeof usageEvents.$inferSelect;
+export type SmsBlacklist = typeof smsBlacklist.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();

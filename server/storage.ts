@@ -25,9 +25,10 @@ import {
   type SyncLog, type InsertSyncLog,
   type UsageEvent, type InsertUsageEvent,
   type Favorite, type InsertFavorite,
+  type SmsBlacklist, type InsertSmsBlacklist,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
-  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites,
+  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites, smsBlacklist,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -164,6 +165,14 @@ export interface IStorage {
   getFavorites(userId: string): Promise<Favorite[]>;
   addFavorite(fav: InsertFavorite): Promise<Favorite>;
   removeFavorite(id: string, userId: string): Promise<void>;
+
+  createBlacklistEntry(entry: InsertSmsBlacklist): Promise<SmsBlacklist>;
+  getBlacklistEntry(phoneNumber: string, organizationId: string): Promise<SmsBlacklist | undefined>;
+  getBlacklistByOrg(organizationId: string): Promise<SmsBlacklist[]>;
+  removeBlacklistEntry(id: string): Promise<void>;
+
+  getUnansweredConversations(thresholdMinutes: number): Promise<Conversation[]>;
+  markEscalationSent(conversationId: string): Promise<void>;
 }
 
 export interface PipelineMetrics {
@@ -1192,6 +1201,57 @@ export class DatabaseStorage implements IStorage {
 
   async removeFavorite(id: string, userId: string): Promise<void> {
     await db.delete(favorites).where(and(eq(favorites.id, id), eq(favorites.userId, userId)));
+  }
+
+  async createBlacklistEntry(entry: InsertSmsBlacklist): Promise<SmsBlacklist> {
+    const existing = await this.getBlacklistEntry(entry.phoneNumber, entry.organizationId);
+    if (existing) return existing;
+    const [created] = await db.insert(smsBlacklist).values(entry).returning();
+    return created;
+  }
+
+  async getBlacklistEntry(phoneNumber: string, organizationId: string): Promise<SmsBlacklist | undefined> {
+    const normalizedPhone = phoneNumber.replace(/[^0-9+]/g, "");
+    const digitsOnly = normalizedPhone.replace(/\+/g, "");
+    const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
+    const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
+    const variants = Array.from(new Set([normalizedPhone, digitsOnly, without1, with1, "+" + with1]));
+    const phoneSql = sql`(${smsBlacklist.phoneNumber} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)}))`;
+    const [entry] = await db.select().from(smsBlacklist)
+      .where(and(phoneSql, eq(smsBlacklist.organizationId, organizationId)))
+      .limit(1);
+    return entry;
+  }
+
+  async getBlacklistByOrg(organizationId: string): Promise<SmsBlacklist[]> {
+    return db.select().from(smsBlacklist)
+      .where(eq(smsBlacklist.organizationId, organizationId))
+      .orderBy(desc(smsBlacklist.createdAt));
+  }
+
+  async removeBlacklistEntry(id: string): Promise<void> {
+    await db.delete(smsBlacklist).where(eq(smsBlacklist.id, id));
+  }
+
+  async getUnansweredConversations(thresholdMinutes: number): Promise<Conversation[]> {
+    const cutoff = new Date(Date.now() - thresholdMinutes * 60 * 1000);
+    return db.select().from(conversations)
+      .where(and(
+        sql`(${conversations.status} = 'active' OR ${conversations.status} = 'open')`,
+        sql`(${conversations.channel} IN ('sms', 'chat', 'widget'))`,
+        isNull(conversations.escalationSentAt),
+        isNotNull(conversations.lastMessageAt),
+        lte(conversations.lastMessageAt, cutoff),
+        sql`EXISTS (SELECT 1 FROM ${messages} WHERE ${messages.conversationId} = ${conversations.id} AND ${messages.role} IN ('user', 'customer'))`,
+        sql`NOT EXISTS (SELECT 1 FROM ${messages} WHERE ${messages.conversationId} = ${conversations.id} AND ${messages.role} IN ('agent', 'system', 'assistant') AND ${messages.createdAt} >= (SELECT MAX(m2."created_at") FROM ${messages} m2 WHERE m2."conversation_id" = ${conversations.id} AND m2."role" IN ('user', 'customer')))`
+      ))
+      .orderBy(conversations.lastMessageAt);
+  }
+
+  async markEscalationSent(conversationId: string): Promise<void> {
+    await db.update(conversations)
+      .set({ escalationSentAt: new Date() } as any)
+      .where(eq(conversations.id, conversationId));
   }
 }
 

@@ -29,7 +29,49 @@ export interface SendResult {
   blockedReason?: string;
 }
 
-export async function sendSms(to: string, content: string): Promise<void> {
+export async function sendSmsRaw(to: string, content: string): Promise<void> {
+  if (!TEXTMAGIC_API_KEY) {
+    throw new Error("TEXTMAGIC_API_KEY is not configured");
+  }
+  if (!TEXTMAGIC_USERNAME) {
+    throw new Error("TEXTMAGIC_USERNAME is not configured");
+  }
+
+  const phone = to.replace(/[^0-9+]/g, "");
+  const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
+
+  const response = await fetch(`${TEXTMAGIC_BASE_URL}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-TM-Username": TEXTMAGIC_USERNAME,
+      "X-TM-Key": TEXTMAGIC_API_KEY,
+    },
+    body: JSON.stringify({
+      text: content,
+      phones: formattedPhone,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[TextMagic] SMS send failed (${response.status}):`, errorBody);
+    throw new Error(`TextMagic SMS failed: ${response.status} — ${errorBody}`);
+  }
+
+  const result = await response.json();
+  console.log(`[TextMagic] SMS sent to ${formattedPhone}, messageId: ${result.id}`);
+}
+
+export async function sendSms(to: string, content: string, organizationId?: string): Promise<void> {
+  if (organizationId) {
+    const blacklisted = await storage.getBlacklistEntry(to, organizationId);
+    if (blacklisted) {
+      console.log(`[TextMagic] SMS to ${to} blocked — phone is blacklisted for org ${organizationId} (reason: ${blacklisted.reason})`);
+      return;
+    }
+  }
+
   if (!TEXTMAGIC_API_KEY) {
     throw new Error("TEXTMAGIC_API_KEY is not configured");
   }
@@ -260,7 +302,7 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
   try {
     switch (request.channel) {
       case "sms":
-        await sendSms(request.to, request.messageContent);
+        await sendSms(request.to, request.messageContent, request.organizationId);
         break;
       case "email":
         await sendEmail(request.to, request.messageContent);
