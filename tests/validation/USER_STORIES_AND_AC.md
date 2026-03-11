@@ -502,6 +502,81 @@
 
 ---
 
+## US-013: MARKETING AI AGENTS
+
+**As a** marketing team member,
+**I want to** use 5 specialized AI agents to generate, score, and manage marketing content,
+**So that** I can create professional dealership marketing materials without external design tools.
+
+### Acceptance Criteria
+
+**AC-MKTG-001: Agent Presence**
+- Given the marketing page is loaded
+- When the user navigates to Marketing > Agents tab
+- Then all 5 agent cards are visible: Photo Studio, Video Producer, Copywriter, Creative Director, Market Intel
+- And each agent is accessible via sidebar submenu under "AI Agents"
+
+**AC-MKTG-002: Photo Studio Tools**
+- Given the Photo Studio agent is open
+- When the user requests image generation via generate_hero_image
+- Then a hero image is generated via fal.ai proxy, rendered inline, and an IMAGE artifact is stored
+- When the user requests background swap via swap_vehicle_background
+- Then a composited image is produced with the new background
+
+**AC-MKTG-003: Video Producer Tools**
+- Given the Video Producer agent is open
+- When the user requests video generation via generate_promo_video
+- Then a promo video is generated via fal.ai, rendered inline as video player, and a VIDEO artifact is stored
+- When the user requests voiceover via generate_voiceover
+- Then audio is generated via OpenAI TTS, rendered inline as audio player, and a VOICEOVER artifact is stored
+
+**AC-MKTG-004: Copywriter Tools**
+- Given the Copywriter agent is open
+- When the user requests ad copy via generate_ad_copy
+- Then structured copy is generated via OpenAI with 5 format categories and multiple variations
+- And InlineAdCopy renders with expandable accordions and copy-to-clipboard buttons
+- And a COPY artifact is stored
+
+**AC-MKTG-005: Creative Director Tools**
+- Given the Creative Director agent is open
+- When the user submits an image for scoring via score_ad_image
+- Then the image is analyzed via gpt-4o-mini vision, returning an overall score (0-100) and 5 category scores
+- And InlineScoreCard renders with animated circular score badge and color-coded category bars
+- And a publish readiness banner shows (green/amber/red based on score)
+- And a SCORE artifact is stored
+
+**AC-MKTG-006: Market Intel Tools**
+- Given the Market Intel agent is open
+- When the user requests competitor scanning via scan_competitor_radar
+- Then competitor data is returned (from Google Maps API or mock data in demo mode)
+- And InlineCompetitorRadar renders ranked competitor cards with green accent (#22c55e)
+- And a RADAR artifact is stored
+
+**AC-MKTG-007: Studio Gallery**
+- Given the user navigates to Marketing > Studio tab
+- Then the Studio Gallery renders showing all artifacts across all agent sessions
+- And filter pills allow filtering by type (All, Images, Videos, Copy, Scores, Voiceovers, Radar) and by agent
+- And each artifact card shows thumbnail, type badge, agent badge with accent color, timeAgo
+- And Download, Resume, Send to Agent, and Share actions are available per card
+
+**AC-MKTG-008: Cross-Agent Routing**
+- Given a tool result with action chips is visible
+- When the user clicks a cross-agent chip (e.g., "Score this image", "Send to Video Producer")
+- Then the app navigates to the target agent with a new session
+- And the artifact context is pre-loaded in the new session
+
+**AC-MKTG-009: Sharing Panel**
+- Given the user clicks Share on any artifact (in Studio Gallery or agent chat)
+- Then a SharingPanel dialog opens with artifact preview, Copy Link button, Download button, and social preview card
+- And copying the link places a shareable URL in the clipboard with a success toast
+
+**AC-MKTG-010: Accent Color Consistency**
+- For all interactions, each agent renders with its spec accent color:
+  Photo Studio=#14b8a6, Video Producer=#3b82f6, Copywriter=#8b5cf6, Creative Director=#f59e0b, Market Intel=#22c55e
+- No agent uses another agent's accent color
+
+---
+
 ## KNOWN PLACEHOLDERS (WAVE 1 ACCEPTABLE)
 
 These items are intentionally incomplete for the current release wave:
@@ -513,7 +588,7 @@ These items are intentionally incomplete for the current release wave:
 | Billing/Invoice buttons | "Not available in demo mode" toasts | Wave 4 |
 | Settings Tool toggles | "Demo mode" toasts | Wave 3 |
 | Knowledge Base URL add/scrape | "Demo mode" toasts | Wave 3 |
-| Marketing Studio tab | "Coming Soon" badge | Wave 4 |
+| Marketing Studio tab | **IMPLEMENTED** — Studio Gallery with artifact browser, filter pills, sharing | ~~Wave 4~~ Done |
 | Chat Upload/Document | "Coming Soon" toasts | Wave 3 |
 | TeamBox file attachments | "Coming Soon" toast | Wave 3 |
 | Agent trigger editor | "Demo mode" toasts | Wave 3 |

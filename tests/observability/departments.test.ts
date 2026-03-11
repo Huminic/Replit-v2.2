@@ -45,8 +45,12 @@ describe("Marketing — Observability", () => {
     expect.fail("STUB — verify department filter");
   });
 
-  it("Studio tab shows static 'Coming Soon' badge (deferred)", async () => {
-    expect.fail("DEFERRED — FP-8, not RC-blocking");
+  it("Studio tab renders StudioGallery (not Coming Soon placeholder)", async () => {
+    expect.fail("UPDATED — Studio Gallery replaces placeholder. See marketing-agents.test.ts for full Marketing Agent coverage (Battery 7)");
+  });
+
+  it("5 Marketing AI Agents present and functional", async () => {
+    expect.fail("SEE marketing-agents.test.ts — Photo Studio, Video Producer, Copywriter, Creative Director, Market Intel. Full test battery in battery_07_marketing_agents_v1.md");
   });
 });
 

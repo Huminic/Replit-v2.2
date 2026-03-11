@@ -180,6 +180,20 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 
 Sprint details: `.local/sprints/sprint-{N}.json`
 
+## Testing
+
+### Test Batteries (Manual/Agent QA)
+- `attached_assets/master_test_coordinator_v2_1772919344976.md` — Master orchestrator (B1-B7 sequence)
+- `attached_assets/battery_01_agent_config_v2_1772919344976.md` through `battery_06_e2e_final_v2_1772919344976.md` — Core platform tests
+- `attached_assets/battery_07_marketing_agents_v1.md` — Marketing Agents battery (5 agents, tools, Studio Gallery, cross-agent, sharing)
+
+### Vitest Observability Stubs
+- `tests/observability/marketing-agents.test.ts` — 45 test stubs covering agents, tools, inline rendering, action chips, Studio Gallery, sharing panel, proxy endpoints
+- `tests/observability/departments.test.ts` — Department-level stubs (updated: Marketing now references Battery 7)
+
+### User Stories
+- `tests/validation/USER_STORIES_AND_AC.md` — US-013 (Marketing AI Agents) with 10 acceptance criteria (AC-MKTG-001 through AC-MKTG-010)
+
 ## Spec Reference
 Full marketing agents spec: `attached_assets/Pasted-The-5-Marketing-Agents-Agent-Objective-Tools-It-Owns-Ph_1773177536244.txt`
 
