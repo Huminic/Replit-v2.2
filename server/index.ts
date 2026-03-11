@@ -6,7 +6,6 @@ import { storage } from "./storage";
 import { startCampaignExecution, processOutboundSend } from "./outbound";
 import { generateHunchesForOrg } from "./routes";
 import type { Organization, Agent } from "@shared/schema";
-import { Resend } from "resend";
 
 const app = express();
 const httpServer = createServer(app);
@@ -327,126 +326,6 @@ app.use((req, res, next) => {
       };
 
       setInterval(checkTriggerConditions, 15 * 60 * 1000);
-
-      const unansweredAlertThrottle = new Map<string, number>();
-      const UNANSWERED_THROTTLE_HOURS = 4;
-      const UNANSWERED_MINUTES = 30;
-      const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
-      const resendClient = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-
-      const checkUnansweredInbound = async () => {
-        try {
-          const orgs = await storage.getOrganizations();
-          for (const org of orgs) {
-            const unanswered = await storage.getUnansweredConversations(org.id, UNANSWERED_MINUTES);
-            if (unanswered.length === 0) continue;
-
-            const orgUsers = await storage.getUsers(org.id);
-            const adminUser = orgUsers.find(u => (u.role as any)?.name === 'org_admin' || (u.role as any)?.name === 'partner_admin' || (u.role as any)?.name === 'super_admin') || orgUsers[0];
-            if (!adminUser) continue;
-
-            for (const conv of unanswered) {
-              const lastAlertTime = unansweredAlertThrottle.get(conv.id);
-              if (lastAlertTime && (Date.now() - lastAlertTime) < UNANSWERED_THROTTLE_HOURS * 60 * 60 * 1000) {
-                continue;
-              }
-
-              const msgs = await storage.getMessages(conv.id);
-              const lastMsg = msgs[msgs.length - 1];
-              const preview = lastMsg ? lastMsg.content.substring(0, 100) : '(no message preview)';
-
-              await storage.createNotification({
-                userId: adminUser.id,
-                organizationId: org.id,
-                type: 'unanswered_alert',
-                title: `Unanswered message from ${conv.customerName}`,
-                message: `Customer message waiting ${UNANSWERED_MINUTES}+ minutes: "${preview}"`,
-                relatedEntityId: conv.id,
-              });
-
-              if (resendClient && adminUser.email) {
-                try {
-                  await resendClient.emails.send({
-                    from: RESEND_FROM,
-                    to: [adminUser.email],
-                    subject: `Unanswered message from ${conv.customerName} — ${org.name}`,
-                    html: `<p>Hi ${adminUser.firstName || 'Admin'},</p><p>There is an unanswered message from <strong>${conv.customerName}</strong> that has been waiting for over ${UNANSWERED_MINUTES} minutes.</p><p><strong>Preview:</strong> ${preview.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p><p>Please log in to respond.</p><p>— Nexxus Connect</p>`,
-                  });
-                  log(`Sent unanswered alert email to ${adminUser.email} for conv ${conv.id}`, "unanswered");
-                } catch (emailErr: any) {
-                  log(`Failed to send unanswered alert email: ${emailErr.message}`, "unanswered");
-                }
-              }
-
-              unansweredAlertThrottle.set(conv.id, Date.now());
-              log(`Unanswered alert created for conv ${conv.id} (${conv.customerName}) in org ${org.name}`, "unanswered");
-            }
-          }
-        } catch (err) {
-          log(`Unanswered inbound check failed: ${err}`, "unanswered");
-        }
-      };
-
-      setInterval(checkUnansweredInbound, 15 * 60 * 1000);
-
-      const anomalyAlertCooldown = new Map<string, number>();
-      const ANOMALY_COOLDOWN_MS = 4 * 60 * 60 * 1000;
-      const checkSecurityAnomalies = async () => {
-        try {
-          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-          const recentEvents = await storage.getSecurityEvents({
-            eventType: "login_failed",
-            since: oneHourAgo,
-            limit: 500,
-          });
-
-          const ipCounts: Record<string, number> = {};
-          for (const evt of recentEvents) {
-            if (evt.ipAddress) {
-              ipCounts[evt.ipAddress] = (ipCounts[evt.ipAddress] || 0) + 1;
-            }
-          }
-
-          for (const [ip, failCount] of Object.entries(ipCounts)) {
-            if (failCount > 20) {
-              const lastAlert = anomalyAlertCooldown.get(ip);
-              if (lastAlert && Date.now() - lastAlert < ANOMALY_COOLDOWN_MS) continue;
-
-              log(`SECURITY ANOMALY: ${failCount} failed logins from IP ${ip} in past hour`, "security");
-              anomalyAlertCooldown.set(ip, Date.now());
-
-              await storage.createSecurityEvent({
-                eventType: "anomaly_detected",
-                severity: "critical",
-                ipAddress: ip,
-                metadata: { failedLoginCount: failCount, windowHours: 1, detectedAt: new Date().toISOString() },
-              });
-
-              const allOrgs = await storage.getOrganizations();
-              for (const org of allOrgs) {
-                const orgUsers = await storage.getUsers(org.id);
-                const superAdmins = orgUsers.filter(u => {
-                  const role = u.role as any;
-                  return role?.name === "super_admin" || role?.level === 1;
-                });
-                for (const admin of superAdmins) {
-                  await storage.createNotification({
-                    userId: admin.id,
-                    organizationId: org.id,
-                    type: "security_alert",
-                    title: "Brute Force Attack Detected",
-                    message: `${failCount} failed login attempts from IP ${ip} in the past hour. Possible brute force attack.`,
-                  });
-                }
-              }
-            }
-          }
-        } catch (err) {
-          log(`Security anomaly check failed: ${err}`, "security");
-        }
-      };
-
-      setInterval(checkSecurityAnomalies, 10 * 60 * 1000);
     },
   );
 })();

@@ -89,13 +89,6 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
 
     next();
   } catch (err) {
-    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-    storage.createSecurityEvent({
-      eventType: "token_expired",
-      severity: "info",
-      ipAddress: clientIp,
-      metadata: { path: req.path, method: req.method },
-    }).catch(() => {});
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
@@ -107,15 +100,6 @@ export function requireRole(maxLevel: number) {
     }
 
     if (req.user.roleLevel > maxLevel) {
-      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-      storage.createSecurityEvent({
-        eventType: "rbac_denied",
-        severity: "warning",
-        userId: req.user.id,
-        organizationId: req.user.organizationId,
-        ipAddress: clientIp,
-        metadata: { path: req.path, method: req.method, requiredLevel: maxLevel, userLevel: req.user.roleLevel },
-      }).catch(() => {});
       return res.status(403).json({ message: "Insufficient permissions" });
     }
 
