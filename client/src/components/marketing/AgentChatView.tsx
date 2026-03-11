@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, Play, Copy, Check, ChevronRight } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, Play, Copy, Check, ChevronRight, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ import {
   getSession,
   createSession,
   updateSession,
+  loadArtifacts,
   timeAgo,
   getArtifactTypeLabel,
   type MarketingAgentDef,
@@ -20,10 +22,12 @@ import {
   type MarketingArtifact,
 } from '@/lib/marketing-agents';
 import { executeToolCall, type ToolExecResult, type AdCopyData, type ScoreCardData, type CompetitorRadarData } from '@/lib/tool-executor';
+import SharingPanel from '@/components/marketing/SharingPanel';
 
 interface AgentChatViewProps {
   agentId: string;
   sessionId?: string;
+  artifactRef?: string;
   onBack: () => void;
 }
 
@@ -283,7 +287,8 @@ function InlineCompetitorRadar({ data }: { data: CompetitorRadarData }) {
   );
 }
 
-export default function AgentChatView({ agentId, sessionId: initialSessionId, onBack }: AgentChatViewProps) {
+export default function AgentChatView({ agentId, sessionId: initialSessionId, artifactRef, onBack }: AgentChatViewProps) {
+  const [, setLocation] = useLocation();
   const agent = MARKETING_AGENTS.find(a => a.id === agentId);
   const [session, setSession] = useState<AgentSession | null>(null);
   const [input, setInput] = useState('');
@@ -292,13 +297,35 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
   const [visorOpen, setVisorOpen] = useState(false);
   const [selectedArtifact, setSelectedArtifact] = useState<MarketingArtifact | null>(null);
   const [attachedFile, setAttachedFile] = useState<{ file: File; preview: string } | null>(null);
+  const [sharingArtifact, setSharingArtifact] = useState<MarketingArtifact | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialSessionId === 'new') {
-      setSession(createSession(agentId));
+      const newSession = createSession(agentId);
+      if (artifactRef) {
+        const allArtifacts = loadArtifacts();
+        const referencedArtifact = allArtifacts.find(a => a.id === artifactRef);
+        if (referencedArtifact) {
+          const contextMessage: AgentChatMessage = {
+            id: `msg_${Date.now()}_ctx`,
+            role: 'assistant',
+            content: `I received an artifact from another agent: **${referencedArtifact.title}** (${getArtifactTypeLabel(referencedArtifact.type)}). How would you like me to work with this?`,
+            timestamp: new Date().toISOString(),
+            inlineMedia: referencedArtifact.dataUrl && (referencedArtifact.type === 'IMAGE' || referencedArtifact.type === 'VIDEO' || referencedArtifact.type === 'VOICEOVER')
+              ? { type: referencedArtifact.type === 'IMAGE' ? 'image' : referencedArtifact.type === 'VIDEO' ? 'video' : 'audio', url: referencedArtifact.dataUrl }
+              : undefined,
+          };
+          const updatedSession = { ...newSession, messages: [contextMessage], artifacts: [referencedArtifact] };
+          updateSession(newSession.id, { messages: updatedSession.messages, artifacts: updatedSession.artifacts });
+          setSession(updatedSession);
+          setVisorOpen(true);
+          return;
+        }
+      }
+      setSession(newSession);
       return;
     }
     if (initialSessionId) {
@@ -314,7 +341,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
     } else {
       setSession(createSession(agentId));
     }
-  }, [agentId, initialSessionId]);
+  }, [agentId, initialSessionId, artifactRef]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -512,6 +539,46 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
     }
   };
 
+  const handleChipClick = useCallback((chip: { label: string; icon: string; action: string }, message: AgentChatMessage) => {
+    const lastArtifactId = session?.artifacts[session.artifacts.length - 1]?.id;
+
+    const crossAgentRoutes: Record<string, string> = {
+      send_to_video: 'video-producer',
+      score_image: 'creative-director',
+      score_campaign: 'creative-director',
+      score_thumbnail: 'creative-director',
+      add_voiceover: 'video-producer',
+      turn_into_voiceover: 'video-producer',
+      pair_with_video: 'video-producer',
+    };
+
+    const sameAgentActions = ['generate_variation', 'try_different_bg', 'try_different_tone', 'try_different_voice', 'scan_another_area', 'upload_revised', 'write_copy_anyway', 'regenerate_photo', 'use_as_template'];
+
+    const downloadActions = ['download_mp4', 'download_audio', 'export_report'];
+
+    if (crossAgentRoutes[chip.action]) {
+      const targetAgent = crossAgentRoutes[chip.action];
+      const artifactParam = lastArtifactId ? `&artifactRef=${lastArtifactId}` : '';
+      setLocation(`/marketing?tab=agents&agent=${targetAgent}&session=new${artifactParam}`);
+      return;
+    }
+
+    if (downloadActions.includes(chip.action)) {
+      const lastArtifact = session?.artifacts[session.artifacts.length - 1];
+      if (lastArtifact?.dataUrl) {
+        const a = document.createElement('a');
+        a.href = lastArtifact.dataUrl;
+        a.download = lastArtifact.title || 'download';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      return;
+    }
+
+    setInput(chip.label.replace(/^[^\w]+/, ''));
+  }, [session, setLocation]);
+
   const allArtifactsForAgent = getSessionsForAgent(agentId).flatMap(s => s.artifacts);
 
   if (!agent) return null;
@@ -695,8 +762,8 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                             variant="outline"
                             size="sm"
                             className="text-[10px] h-6 rounded-full px-2.5"
-                            onClick={() => setInput(chip.label.replace(/^[^\w]+/, ''))}
-                            data-testid={`action-chip-${ci}`}
+                            onClick={() => handleChipClick(chip, message)}
+                            data-testid={`action-chip-${chip.action}`}
                           >
                             {chip.label}
                           </Button>
@@ -898,8 +965,14 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                       </a>
                     </Button>
                   )}
-                  <Button variant="outline" size="sm" className="text-xs" data-testid="button-share-artifact">
-                    <ExternalLink className="h-3 w-3 mr-1.5" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => { if (selectedArtifact) setSharingArtifact(selectedArtifact); }}
+                    data-testid="button-share-artifact"
+                  >
+                    <Share2 className="h-3 w-3 mr-1.5" />
                     Share
                   </Button>
                 </div>
@@ -908,6 +981,12 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
           )}
         </DialogContent>
       </Dialog>
+
+      <SharingPanel
+        artifact={sharingArtifact ? { ...sharingArtifact, agentName: agent.name, agentAccentColor: agent.accentColor } : null}
+        open={!!sharingArtifact}
+        onClose={() => setSharingArtifact(null)}
+      />
     </div>
   );
 }
