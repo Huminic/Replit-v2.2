@@ -183,8 +183,20 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | 9 | Agent Validation — Creative Director | COMPLETED |
 | 10 | Agent Validation — Market Intel | COMPLETED |
 | 11 | Agent Validation — Cross-Agent + Gallery | COMPLETED |
+| A | Knowledge & Upload Improvements | COMPLETED |
+| B | Compliance & Communication Gaps | PENDING |
+| C | Metrics & Reporting | PENDING |
+| D | Lead Automation & Calendar | PENDING |
+| E | Testing & Validation | PENDING |
+| F | Security Hardening | PENDING |
+| G | Billing (Flexprice) | PENDING |
+| H | Product Tour / Onboarding | PENDING |
 
 Sprint details: `.local/sprints/sprint-{N}.json`
+
+## Seed Script Behavior
+- `seedHuminicUsers` only creates accounts that don't exist; does NOT overwrite passwords on restart
+- Other seed functions check for existing data before inserting
 
 ## Testing
 
