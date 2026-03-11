@@ -95,6 +95,21 @@ function makeArtifact(
   return artifact;
 }
 
+export interface CompetitorEntry {
+  name: string;
+  rating: number;
+  reviewCount: number;
+  distance: number;
+  address: string;
+  rank: number;
+}
+
+export interface CompetitorRadarData {
+  competitors: CompetitorEntry[];
+  searchLocation: string;
+  isDemo: boolean;
+}
+
 export interface ToolExecResult {
   content: string;
   artifact?: MarketingArtifact;
@@ -102,6 +117,7 @@ export interface ToolExecResult {
   inlineMedia?: { type: 'image' | 'video' | 'audio'; url: string };
   inlineCopyData?: AdCopyData;
   inlineScoreData?: ScoreCardData;
+  inlineRadarData?: CompetitorRadarData;
 }
 
 export type ProgressCallback = (msg: string) => void;
@@ -127,6 +143,8 @@ export async function executeToolCall(
       return executeGenerateAdCopy(args, agentId, sessionId, onProgress);
     case 'score_ad_image':
       return executeScoreAdImage(args, agentId, sessionId, attachedImageDataUri, onProgress);
+    case 'scan_competitor_radar':
+      return executeScanCompetitorRadar(args, agentId, sessionId, onProgress);
     default:
       return {
         content: `Tool **${toolName.replace(/_/g, ' ')}** is not yet implemented. It will be available in a future update.`,
@@ -652,5 +670,102 @@ Score honestly. Most dealership photos score 40-70. Only truly professional stud
     actionChips,
     inlineScoreData: scoreData,
     inlineMedia: imageUrl.startsWith('data:') ? undefined : { type: 'image' as const, url: imageUrl },
+  };
+}
+
+function generateMockCompetitors(location: string): CompetitorEntry[] {
+  return [
+    { name: 'Premier Auto Group', rating: 4.6, reviewCount: 1247, distance: 3.2, address: `1200 Motor Mile Dr, ${location}`, rank: 1 },
+    { name: 'Capitol City Motors', rating: 4.4, reviewCount: 892, distance: 5.8, address: `3400 Auto Park Blvd, ${location}`, rank: 2 },
+    { name: 'Heritage Automotive', rating: 4.3, reviewCount: 634, distance: 8.1, address: `780 Dealer Row, ${location}`, rank: 3 },
+    { name: 'Sunrise Dealership', rating: 4.1, reviewCount: 421, distance: 11.4, address: `2100 Highway 9 S, ${location}`, rank: 4 },
+    { name: 'Valley Auto Sales', rating: 3.9, reviewCount: 318, distance: 14.7, address: `5600 Commerce Dr, ${location}`, rank: 5 },
+  ];
+}
+
+async function executeScanCompetitorRadar(
+  args: Record<string, any>,
+  agentId: string,
+  sessionId: string,
+  onProgress?: ProgressCallback,
+): Promise<ToolExecResult> {
+  const address = args.address;
+  if (!address) {
+    return { content: 'Please provide a location or address to scan for competitors.' };
+  }
+
+  const radiusMiles = parseInt(args.radius_miles || '15', 10);
+  const focusBrands = args.focus_brands || '';
+
+  onProgress?.('Scanning competitor landscape...');
+
+  let radarData: CompetitorRadarData;
+
+  try {
+    const token = localStorage.getItem('nexxus_access_token');
+    const res = await fetch('/api/maps-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ address, radiusMiles, focusBrands }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Maps API error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (data.competitors && data.competitors.length > 0) {
+      radarData = {
+        competitors: data.competitors.map((c: any, i: number) => ({
+          name: c.name,
+          rating: c.rating || 0,
+          reviewCount: c.reviewCount || c.user_ratings_total || 0,
+          distance: c.distance || 0,
+          address: c.address || c.vicinity || '',
+          rank: i + 1,
+        })),
+        searchLocation: address,
+        isDemo: false,
+      };
+    } else {
+      throw new Error('No results');
+    }
+  } catch {
+    onProgress?.('Using demo data (no Maps API key configured)...');
+    radarData = {
+      competitors: generateMockCompetitors(address),
+      searchLocation: address,
+      isDemo: true,
+    };
+  }
+
+  const competitorCount = radarData.competitors.length;
+  const topCompetitor = radarData.competitors[0];
+
+  const artifact = makeArtifact(
+    'RADAR',
+    `${competitorCount} competitors near ${address.slice(0, 40)}`,
+    agentId,
+    sessionId,
+    undefined,
+    undefined,
+    { radarData },
+  );
+
+  const summary = radarData.isDemo
+    ? `Found **${competitorCount} competing dealerships** near **${address}** (demo data). The top-ranked competitor is **${topCompetitor.name}** with a ${topCompetitor.rating} rating and ${topCompetitor.reviewCount} reviews at ${topCompetitor.distance} miles away.`
+    : `Found **${competitorCount} competing dealerships** within ${radiusMiles} miles of **${address}**. The top-ranked competitor is **${topCompetitor.name}** with a ${topCompetitor.rating} rating and ${topCompetitor.reviewCount} reviews at ${topCompetitor.distance} miles away.`;
+
+  return {
+    content: summary,
+    artifact,
+    inlineRadarData: radarData,
+    actionChips: [
+      { label: 'Scan Another Area', icon: 'radar', action: 'scan_another_area' },
+      { label: 'Export Report', icon: 'download', action: 'export_report' },
+    ],
   };
 }

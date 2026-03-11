@@ -19,7 +19,7 @@ import {
   type AgentChatMessage,
   type MarketingArtifact,
 } from '@/lib/marketing-agents';
-import { executeToolCall, type ToolExecResult, type AdCopyData, type ScoreCardData } from '@/lib/tool-executor';
+import { executeToolCall, type ToolExecResult, type AdCopyData, type ScoreCardData, type CompetitorRadarData } from '@/lib/tool-executor';
 
 interface AgentChatViewProps {
   agentId: string;
@@ -215,6 +215,74 @@ function InlineScoreCard({ data }: { data: ScoreCardData }) {
   );
 }
 
+function StarRating({ rating }: { rating: number }) {
+  const clamped = Math.max(0, Math.min(5, rating));
+  const fullStars = Math.floor(clamped);
+  const hasHalf = clamped - fullStars >= 0.3;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalf ? 1 : 0));
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: fullStars }).map((_, i) => (
+        <svg key={`f${i}`} className="h-3 w-3 fill-amber-400 text-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      ))}
+      {hasHalf && (
+        <svg className="h-3 w-3 text-amber-400" viewBox="0 0 20 20">
+          <defs><linearGradient id="halfStar"><stop offset="50%" stopColor="currentColor"/><stop offset="50%" stopColor="transparent"/></linearGradient></defs>
+          <path fill="url(#halfStar)" stroke="currentColor" strokeWidth="1" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      )}
+      {Array.from({ length: emptyStars }).map((_, i) => (
+        <svg key={`e${i}`} className="h-3 w-3 text-muted-foreground/30" viewBox="0 0 20 20"><path fill="currentColor" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      ))}
+    </div>
+  );
+}
+
+function InlineCompetitorRadar({ data }: { data: CompetitorRadarData }) {
+  return (
+    <div className="mt-3 space-y-2" data-testid="inline-competitor-radar">
+      {data.isDemo && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400" data-testid="demo-mode-banner">
+          <svg className="h-3.5 w-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+          <span className="text-[11px] font-medium">Demo Mode — connect Google Maps API for live data</span>
+        </div>
+      )}
+      <div className="rounded-lg border border-border overflow-hidden">
+        <div className="px-3 py-2 bg-[#22c55e]/5 border-b border-border">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-3.5 w-3.5" style={{ color: '#22c55e' }} />
+            <span className="text-xs font-semibold">{data.searchLocation}</span>
+            <Badge variant="outline" className="text-[9px] h-4 px-1.5 ml-auto">{data.competitors.length} found</Badge>
+          </div>
+        </div>
+        {data.competitors.map((comp, i) => (
+          <div
+            key={i}
+            className={cn('flex items-start gap-3 px-3 py-3', i > 0 && 'border-t border-border/50')}
+            data-testid={`competitor-card-${i}`}
+          >
+            <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
+              {comp.rank}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate">{comp.name}</p>
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                <StarRating rating={comp.rating} />
+                <span className="text-[10px] text-muted-foreground">{comp.rating.toFixed(1)}</span>
+                <span className="text-[10px] text-muted-foreground">({comp.reviewCount.toLocaleString()} reviews)</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{comp.address}</p>
+            </div>
+            <div className="flex-shrink-0 text-right">
+              <span className="text-xs font-medium" style={{ color: '#22c55e' }}>{comp.distance} mi</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AgentChatView({ agentId, sessionId: initialSessionId, onBack }: AgentChatViewProps) {
   const agent = MARKETING_AGENTS.find(a => a.id === agentId);
   const [session, setSession] = useState<AgentSession | null>(null);
@@ -229,6 +297,10 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (initialSessionId === 'new') {
+      setSession(createSession(agentId));
+      return;
+    }
     if (initialSessionId) {
       const existing = getSession(initialSessionId);
       if (existing) {
@@ -361,6 +433,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
             actionChips: result.actionChips,
             inlineCopyData: result.inlineCopyData,
             inlineScoreData: result.inlineScoreData,
+            inlineRadarData: result.inlineRadarData,
           };
 
           const currentSession = getSession(session.id);
@@ -611,6 +684,9 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                     {message.inlineScoreData && (
                       <InlineScoreCard data={message.inlineScoreData} />
                     )}
+                    {message.inlineRadarData && (
+                      <InlineCompetitorRadar data={message.inlineRadarData} />
+                    )}
                     {message.actionChips && message.actionChips.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {message.actionChips.map((chip, ci) => (
@@ -792,9 +868,14 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                     {selectedArtifact.data ? JSON.stringify(selectedArtifact.data, null, 2) : 'Score data not available.'}
                   </div>
                 )}
-                {selectedArtifact.type === 'RADAR' && (
+                {selectedArtifact.type === 'RADAR' && selectedArtifact.data?.radarData && (
+                  <div className="p-4">
+                    <InlineCompetitorRadar data={selectedArtifact.data.radarData} />
+                  </div>
+                )}
+                {selectedArtifact.type === 'RADAR' && !selectedArtifact.data?.radarData && (
                   <div className="p-6 text-center text-sm text-muted-foreground">
-                    {selectedArtifact.data ? JSON.stringify(selectedArtifact.data, null, 2) : 'Radar data coming in a future sprint.'}
+                    Radar data not available.
                   </div>
                 )}
                 {!selectedArtifact.dataUrl && !selectedArtifact.data && (

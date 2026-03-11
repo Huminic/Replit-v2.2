@@ -42,6 +42,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';
 import AgentChatView from '@/components/marketing/AgentChatView';
+import StudioGallery from '@/components/marketing/StudioGallery';
 import { MARKETING_AGENTS, getSessionsForAgent, timeAgo } from '@/lib/marketing-agents';
 
 interface MarketingMetricTile {
@@ -97,10 +98,12 @@ export default function MarketingPage() {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     const agentParam = params.get('agent');
+    const sessionParam = params.get('session');
     if (tab) setActiveTab(tab);
     if (agentParam && MARKETING_AGENTS.find(a => a.id === agentParam)) {
       setActiveAgentId(agentParam);
     }
+    if (sessionParam) setActiveSessionId(sessionParam);
   }, [currentLocation]);
 
   const createCampaignMutation = useMutation({
@@ -515,16 +518,8 @@ export default function MarketingPage() {
     </div>
   );
 
-  /** Studio tab — placeholder for Wave 4 media creation tools (video, image, podcast, landing page builder) */
   const renderStudio = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <Palette className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">Marketing Studio</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Create videos, images, podcasts, and landing pages for your marketing campaigns. Coming in Wave 4.</p>
-        <Badge variant="secondary">Coming Soon</Badge>
-      </div>
-    </div>
+    <StudioGallery />
   );
 
   const renderInsights = () => (
