@@ -77,7 +77,7 @@ Persona: Caroline (VAPI + Tavus + Widget must all use this name)
 ## BATTERY SEQUENCE & PASS GATES
 
 ```
-[PRE-FLIGHT] → [B1] → [B2] → [B3 ∥ B4] → [B5] → [B6] → [FINAL REPORT + MANUAL VIDEO]
+[PRE-FLIGHT] → [B1] → [B2] → [B3 ∥ B4] → [B5] → [B6] → [B7] → [FINAL REPORT + MANUAL VIDEO]
 ```
 
 Pass Gate Rules:
@@ -87,6 +87,10 @@ Pass Gate Rules:
 - Batteries 3 and 4 run in PARALLEL
 - Battery 5 requires BOTH B3 and B4 to pass gates
 - Battery 6 requires B5 to pass gate
+- Battery 7 (Marketing Agents) can run independently after B1 (agent config verified)
+  - Tests 5 specialized marketing AI agents, Studio Gallery, cross-agent workflows, sharing panel
+  - See: battery_07_marketing_agents_v1.md
+  - Vitest stubs: tests/observability/marketing-agents.test.ts
 
 ---
 
@@ -196,9 +200,22 @@ P2: Log → release_criteria.md Section 3
 P3: Log → release_criteria.md Section 4
 ```
 
-### Step 5 — Final Report (After Battery 6)
+### Step 5 — Load Battery 7 (Marketing Agents)
+Load battery_07_marketing_agents_v1.md. Battery 7 tests:
+- 5 specialized marketing AI agents (Photo Studio, Video Producer, Copywriter, Creative Director, Market Intel)
+- Tool execution and inline renderings for each agent
+- Studio Gallery with filter pills, artifact cards, and actions
+- Cross-agent workflow routing via action chips
+- Sharing panel with copy link, download, social preview
+- Accent color drift verification
+- Session persistence and edge cases
+
+Battery 7 can run after B1 (agent config must be validated first).
+It does NOT require B2-B6 completion — marketing agents are an independent feature vertical.
+
+### Step 6 — Final Report (After Battery 7)
 Compile:
-- Battery-by-battery scorecard
+- Battery-by-battery scorecard (B1-B7)
 - Full defect register (from release_criteria.md)
 - Coverage map
 - Fix priority list
