@@ -623,54 +623,56 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
             )}
             data-testid="agent-visor"
           >
-            <div className="px-4 pt-3 pb-2">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{agent.name} Outputs</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setVisorOpen(false)} data-testid="button-collapse-visor">
-                  <ChevronUp className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {artifacts.map(art => {
-                  const ArtIcon = artifactTypeIcons[art.type] || FileText;
-                  return (
-                    <button
-                      key={art.id}
-                      className="flex-shrink-0 w-[120px] rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden"
-                      onClick={() => setSelectedArtifact(art)}
-                      data-testid={`artifact-visor-${art.id}`}
-                    >
-                      {art.type === 'SCORE' && art.data?.scoreData ? (
-                        <div className="w-full h-16 flex items-center justify-center" style={{ backgroundColor: art.data.scoreData.overall_score >= 75 ? 'rgba(34,197,94,0.1)' : art.data.scoreData.overall_score >= 50 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)' }}>
-                          <span className="text-xl font-bold" style={{ color: art.data.scoreData.overall_score >= 75 ? '#22c55e' : art.data.scoreData.overall_score >= 50 ? '#f59e0b' : '#ef4444' }}>
-                            {art.data.scoreData.overall_score}
-                          </span>
+            <div className="px-4 pt-3 pb-2 flex justify-center">
+              <div className="w-full max-w-3xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{agent.name} Outputs</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setVisorOpen(false)} data-testid="button-collapse-visor">
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {artifacts.map(art => {
+                    const ArtIcon = artifactTypeIcons[art.type] || FileText;
+                    return (
+                      <button
+                        key={art.id}
+                        className="flex-shrink-0 w-[120px] rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden"
+                        onClick={() => setSelectedArtifact(art)}
+                        data-testid={`artifact-visor-${art.id}`}
+                      >
+                        {art.type === 'SCORE' && art.data?.scoreData ? (
+                          <div className="w-full h-16 flex items-center justify-center" style={{ backgroundColor: art.data.scoreData.overall_score >= 75 ? 'rgba(34,197,94,0.1)' : art.data.scoreData.overall_score >= 50 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)' }}>
+                            <span className="text-xl font-bold" style={{ color: art.data.scoreData.overall_score >= 75 ? '#22c55e' : art.data.scoreData.overall_score >= 50 ? '#f59e0b' : '#ef4444' }}>
+                              {art.data.scoreData.overall_score}
+                            </span>
+                          </div>
+                        ) : art.type === 'COPY' && art.data?.text ? (
+                          <div className="w-full h-16 flex items-center justify-center bg-violet-500/5 px-2">
+                            <p className="text-[10px] text-center text-muted-foreground line-clamp-3 leading-snug">{art.data.text}</p>
+                          </div>
+                        ) : art.thumbnailUrl ? (
+                          <img src={art.thumbnailUrl} alt={art.title} className="w-full h-16 object-cover" />
+                        ) : (
+                          <div className="w-full h-16 flex items-center justify-center bg-muted/30">
+                            <ArtIcon className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="px-2 py-1.5">
+                          <p className="text-[10px] font-medium truncate">{art.title}</p>
+                          <p className="text-[9px] text-muted-foreground">{getArtifactTypeLabel(art.type)}</p>
                         </div>
-                      ) : art.type === 'COPY' && art.data?.text ? (
-                        <div className="w-full h-16 flex items-center justify-center bg-violet-500/5 px-2">
-                          <p className="text-[10px] text-center text-muted-foreground line-clamp-3 leading-snug">{art.data.text}</p>
-                        </div>
-                      ) : art.thumbnailUrl ? (
-                        <img src={art.thumbnailUrl} alt={art.title} className="w-full h-16 object-cover" />
-                      ) : (
-                        <div className="w-full h-16 flex items-center justify-center bg-muted/30">
-                          <ArtIcon className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div className="px-2 py-1.5">
-                        <p className="text-[10px] font-medium truncate">{art.title}</p>
-                        <p className="text-[9px] text-muted-foreground">{getArtifactTypeLabel(art.type)}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
           {visorOpen === false && artifacts.length > 0 && (
             <button
-              className="flex items-center gap-1.5 px-4 py-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors border-b border-border"
+              className="flex items-center justify-center gap-1.5 px-4 py-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors border-b border-border w-full"
               onClick={() => setVisorOpen(true)}
               data-testid="button-expand-visor"
             >
