@@ -629,13 +629,12 @@ async function seedHuminicUsers() {
   ];
 
   for (const u of huminicUsers) {
-    const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
     const emailLower = u.email.toLowerCase();
     const existing = await storage.getUserByEmail(emailLower);
     if (existing) {
-      await storage.updateUser(existing.id, { password: hashedPassword, isActive: true });
-      console.log(`Huminic user password refreshed: ${emailLower}`);
+      console.log(`Huminic user already exists, skipping: ${emailLower}`);
     } else {
+      const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
       await storage.createUser({
         email: emailLower,
         password: hashedPassword,
