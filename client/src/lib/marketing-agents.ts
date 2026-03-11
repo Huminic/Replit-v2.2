@@ -40,6 +40,7 @@ export interface AgentChatMessage {
   actionChips?: Array<{ label: string; icon: string; action: string }>;
   inlineCopyData?: any;
   inlineScoreData?: any;
+  inlineRadarData?: import('./tool-executor').CompetitorRadarData;
 }
 
 export interface ToolFunctionDef {
@@ -254,10 +255,10 @@ Rules:
     id: 'market-intel',
     name: 'Market Intel',
     icon: Map,
-    accentColor: '#16a34a',
-    accentColorClass: 'text-green-600',
+    accentColor: '#22c55e',
+    accentColorClass: 'text-green-500',
     gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5',
-    glowColor: 'rgba(22, 163, 74, 0.4)',
+    glowColor: 'rgba(34, 197, 94, 0.4)',
     description: 'Show me what the competition looks like. Competitor radar, brand presence scoring, and geographic gap analysis.',
     systemPrompt: `You are the Market Intelligence agent. Your job is to find, map, and analyze competing dealerships so the marketing team can make smarter decisions about where and how to advertise.
 

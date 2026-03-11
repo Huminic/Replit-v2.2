@@ -149,9 +149,10 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 
 ### Marketing Agents (Active Feature)
 - `client/src/lib/marketing-agents.ts` — 5 agent defs, artifact types, localStorage helpers
-- `client/src/lib/tool-executor.ts` — Tool execution: fal.ai + OpenAI, AdCopyData + ScoreCardData types
-- `client/src/components/marketing/AgentChatView.tsx` — Agent chat UI: InlineAdCopy, InlineScoreCard, animated components, visor, suggestion chips
-- `client/src/pages/marketing.tsx` — Marketing page with agent launcher grid + tab navigation
+- `client/src/lib/tool-executor.ts` — Tool execution: fal.ai + OpenAI, AdCopyData + ScoreCardData + CompetitorRadarData types
+- `client/src/components/marketing/AgentChatView.tsx` — Agent chat UI: InlineAdCopy, InlineScoreCard, InlineCompetitorRadar, StarRating, visor, suggestion chips
+- `client/src/components/marketing/StudioGallery.tsx` — Studio Gallery: artifact browser with type/agent filter pills, cards with download/resume/send-to-agent
+- `client/src/pages/marketing.tsx` — Marketing page with agent launcher grid + tab navigation + Studio Gallery in Studio tab
 - `client/src/components/AgentConfigPane.tsx` — Right pane: Artifacts tab (default on marketing) + Configuration tab
 
 ### Layout
@@ -173,7 +174,7 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | 1 | Agent Launcher Grid + Chat UI | COMPLETED |
 | 2 | Photo Studio + Video Producer | COMPLETED |
 | 3 | Copywriter + Creative Director | COMPLETED |
-| 4 | Market Intel + Studio Gallery | PENDING |
+| 4 | Market Intel + Studio Gallery | COMPLETED |
 | 5 | Cross-agent Workflow + Sharing | PENDING |
 
 Sprint details: `.local/sprints/sprint-{N}.json`
