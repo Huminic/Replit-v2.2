@@ -621,27 +621,31 @@ async function seedHuminicUsers() {
 
   const huminicUsers = [
     { email: "duane.wells@huminic.ai", firstName: "Duane K.", lastName: "Wells", role: "super_admin", password: "a1$ucc3ss" },
-    { email: "Partner_admin@huminic.ai", firstName: "Partner", lastName: "Admin", role: "partner_admin", password: "P@rtner$uccess" },
-    { email: "Org_Admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: "O3g$uccess" },
-    { email: "Sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: "S@les$uccess" },
+    { email: "partner_admin@huminic.ai", firstName: "Partner", lastName: "Admin", role: "partner_admin", password: "P@rtner$uccess" },
+    { email: "org_admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: "O3g$uccess" },
+    { email: "sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: "S@les$uccess" },
     { email: "marketing_staff@huminic.ai", firstName: "Marketing", lastName: "Staff", role: "marketing", password: "M@3keting$uccess" },
-    { email: "Executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: "Ex3c$uccess" },
+    { email: "executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: "Ex3c$uccess" },
   ];
 
   for (const u of huminicUsers) {
-    const existing = await storage.getUserByEmail(u.email);
-    if (existing) continue;
-
     const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
-    await storage.createUser({
-      email: u.email,
-      password: hashedPassword,
-      firstName: u.firstName,
-      lastName: u.lastName,
-      roleId: roleMap[u.role],
-      organizationId: serraHonda.id,
-      isActive: true,
-    });
-    console.log(`Huminic user seeded: ${u.email}`);
+    const emailLower = u.email.toLowerCase();
+    const existing = await storage.getUserByEmail(emailLower);
+    if (existing) {
+      await storage.updateUser(existing.id, { password: hashedPassword, isActive: true });
+      console.log(`Huminic user password refreshed: ${emailLower}`);
+    } else {
+      await storage.createUser({
+        email: emailLower,
+        password: hashedPassword,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        roleId: roleMap[u.role],
+        organizationId: serraHonda.id,
+        isActive: true,
+      });
+      console.log(`Huminic user created: ${emailLower}`);
+    }
   }
 }
