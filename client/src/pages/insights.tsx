@@ -84,42 +84,8 @@ import {
 } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const libraryMetrics = [
-  { id: 'lib-1', title: 'Total Active Pipeline', value: '247', change: '+12%', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-2', title: 'Daily New Lead Volume', value: '18', change: '+3', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-3', title: 'Weekly Lead Trend', value: '22.4', change: '+8%', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-4', title: 'MoM Lead Growth', value: '+14%', change: '+6%', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-5', title: 'Lead Velocity Rate', value: '16.2/day', change: '+1.8', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-6', title: 'Pipeline Stagnation Index', value: '31', change: '-4', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-7', title: 'Fresh Lead Ratio', value: '42%', change: '+5%', trend: 'up' as const, category: 'Pipeline' },
-  { id: 'lib-8', title: 'Overall Win Rate', value: '18.5%', change: '+2.3%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-9', title: 'Internet Close Rate', value: '14.2%', change: '+1.1%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-10', title: 'Walk-In Close Rate', value: '28.7%', change: '-0.9%', trend: 'down' as const, category: 'Conversion' },
-  { id: 'lib-11', title: 'Service-to-Sales', value: '6.3%', change: '+1.2%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-12', title: 'Hot Lead Conversion', value: '34.1%', change: '+4.5%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-13', title: 'Showroom Conversion', value: '31.2%', change: '+2.0%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-14', title: 'Loss Rate', value: '38.4%', change: '-2.1%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-15', title: 'Bad Lead Rate', value: '8.7%', change: '-1.3%', trend: 'up' as const, category: 'Conversion' },
-  { id: 'lib-16', title: 'Contact Rate', value: '72%', change: '+5%', trend: 'up' as const, category: 'Response' },
-  { id: 'lib-17', title: 'New Lead Aging', value: '1.8 days', change: '-0.3', trend: 'up' as const, category: 'Response' },
-  { id: 'lib-18', title: 'Response Gap (>24h)', value: '14', change: '-6', trend: 'up' as const, category: 'Response' },
-  { id: 'lib-19', title: 'Waiting Lead Volume', value: '38', change: '+4', trend: 'down' as const, category: 'Response' },
-  { id: 'lib-20', title: 'Engagement Transition', value: '68%', change: '+3%', trend: 'up' as const, category: 'Response' },
-  { id: 'lib-21', title: 'Avg Time to 1st Contact', value: '4.2 hrs', change: '-1.1', trend: 'up' as const, category: 'Response' },
-  { id: 'lib-22', title: 'Top Source: Website', value: '34%', change: '+2%', trend: 'up' as const, category: 'Lead Source' },
-  { id: 'lib-23', title: 'Source Win Rate (Web)', value: '16.8%', change: '+1.4%', trend: 'up' as const, category: 'Lead Source' },
-  { id: 'lib-24', title: 'Source Diversity Score', value: '0.74', change: '+0.05', trend: 'up' as const, category: 'Lead Source' },
-  { id: 'lib-25', title: 'Concentration Risk', value: '34%', change: '-3%', trend: 'up' as const, category: 'Lead Source' },
-  { id: 'lib-26', title: 'Source Quality Score', value: '0.82', change: '+0.04', trend: 'up' as const, category: 'Lead Source' },
-  { id: 'lib-27', title: 'Digital Lead %', value: '58%', change: '+4%', trend: 'up' as const, category: 'Channel' },
-  { id: 'lib-28', title: 'Walk-In Traffic', value: '64', change: '-3', trend: 'down' as const, category: 'Channel' },
-  { id: 'lib-29', title: 'Phone Inquiries', value: '42', change: '+7', trend: 'up' as const, category: 'Channel' },
-  { id: 'lib-30', title: 'Referral Leads', value: '19', change: '+5', trend: 'up' as const, category: 'Channel' },
-  { id: 'lib-31', title: 'Sales Velocity', value: '3.4/day', change: '+0.4', trend: 'up' as const, category: 'Composite' },
-  { id: 'lib-32', title: 'Digital Maturity Score', value: '0.68', change: '+0.06', trend: 'up' as const, category: 'Composite' },
-  { id: 'lib-33', title: 'Projected Month Close', value: '51', change: '+8', trend: 'up' as const, category: 'Forecast' },
-  { id: 'lib-34', title: 'Pipeline Coverage Ratio', value: '4.8x', change: '+0.3', trend: 'up' as const, category: 'Forecast' },
-];
+type LibraryMetric = { id: string; title: string; value: string; change: string; trend: 'up' | 'down' | 'neutral'; category: string };
+type LibraryMetricDetail = { metricId: string; rows: { label: string; value: string; detail?: string }[]; insight: string | null; note?: string };
 
 type HunchType = 'opportunity' | 'threat' | 'insight';
 
@@ -131,95 +97,6 @@ const hunchTypeConfig = {
 
 const CHART_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#DC2626', '#8B5CF6'];
 
-const libMetricSampleData: Record<string, { rows: { label: string; value: string; detail?: string }[]; insight?: string }> = {
-  'lib-1': { rows: [
-    { label: 'NEW status', value: '62', detail: 'Avg age: 1.8 days' },
-    { label: 'ACTIVE - Contacted', value: '98', detail: 'Avg age: 8.4 days' },
-    { label: 'HOT - Showroom/Trade', value: '34', detail: 'Avg age: 4.2 days' },
-    { label: 'PENDING - Finance/Closing', value: '28', detail: 'Avg age: 12.1 days' },
-    { label: 'WAITING - No Response', value: '25', detail: 'Avg age: 18.6 days' },
-  ], insight: '25 WAITING leads are aging rapidly — consider a re-engagement campaign or archive stale ones to keep pipeline healthy.' },
-  'lib-2': { rows: [
-    { label: 'AutoTrader', value: '6 leads', detail: 'Avg quality score: 7.2' },
-    { label: 'Website (Organic)', value: '4 leads', detail: 'Avg quality score: 8.1' },
-    { label: 'Cars.com', value: '3 leads', detail: 'Avg quality score: 6.8' },
-    { label: 'Walk-In', value: '3 leads', detail: 'Highest close rate: 31%' },
-    { label: 'Phone / Referral', value: '2 leads' },
-  ], insight: 'Today\'s lead volume is 18 — above your 30-day avg of 15.2/day. Website organic leads trending up.' },
-  'lib-5': { rows: [
-    { label: 'This Week', value: '16.2/day', detail: 'Mon: 14, Tue: 18, Wed: 19, Thu: 15, Fri: 12' },
-    { label: 'Last Week', value: '14.4/day' },
-    { label: '4-Week Avg', value: '15.1/day' },
-    { label: 'Best Day This Month', value: '22 (Feb 8)' },
-    { label: 'Slowest Day', value: '9 (Feb 3, Monday)' },
-  ], insight: 'Mid-week (Tue-Wed) consistently generates 20-30% more leads. Adjust staffing for peak intake.' },
-  'lib-8': { rows: [
-    { label: 'This Month SOLD', value: '74 units', detail: 'vs 67 last month (+10.4%)' },
-    { label: 'This Month LOST', value: '326 leads', detail: 'LOST_NO_RESPONSE: 89, LOST_PURCHASED_ELSEWHERE: 142' },
-    { label: 'Win Rate Trend', value: '' },
-    { label: '  Jan', value: '16.2%' },
-    { label: '  Feb (MTD)', value: '18.5%' },
-    { label: '  Projected Mar', value: '19.1%' },
-  ], insight: 'Win rate improving 2.3% MoM. If LOST_NO_RESPONSE (89 leads) were contacted, potential +12 sales.' },
-  'lib-10': { rows: [
-    { label: 'Walk-Ins This Month', value: '64', detail: '18 SOLD (28.7%)' },
-    { label: 'Avg Time on Lot', value: '42 min' },
-    { label: 'Trade-In Walk-Ins', value: '24 (38%)', detail: 'Close rate: 39% (vs 21% no trade)' },
-    { label: 'Weekend Walk-Ins', value: '28 (44%)', detail: 'Close rate: 33% (higher traffic, lower conversion)' },
-    { label: 'Top Salesperson (Walk-In)', value: 'Marcus T. — 7 SOLD' },
-  ], insight: 'Walk-in close rate dipped 0.9% — weekend traffic quality declining. Consider pre-qualifying Saturday walk-ins.' },
-  'lib-12': { rows: [
-    { label: 'HOT Leads Total', value: '41', detail: '14 SOLD (34.1%)' },
-    { label: 'HOT → SOLD avg time', value: '3.2 days' },
-    { label: 'HOT → LOST reasons', value: '' },
-    { label: '  Bought elsewhere', value: '11 leads' },
-    { label: '  Price disagreement', value: '8 leads' },
-    { label: '  Financing fell through', value: '5 leads' },
-  ], insight: 'HOT leads that go unseen for >48h drop to 12% close rate. Respond within 2 hours for best results.' },
-  'lib-16': { rows: [
-    { label: 'Contacted Within 1hr', value: '38%', detail: '94 of 247 active leads' },
-    { label: 'Contacted Within 4hr', value: '58%' },
-    { label: 'Contacted Within 24hr', value: '72%' },
-    { label: 'Never Contacted (>48h)', value: '14 leads', detail: 'Losing ~5% close probability per hour' },
-    { label: 'Best Contact Channel', value: 'Phone (67% connect rate)' },
-  ], insight: '14 leads haven\'t been contacted in 48+ hours. Immediate outreach could recover 3-4 potential sales.' },
-  'lib-21': { rows: [
-    { label: 'Internet Leads', value: '4.2 hrs', detail: 'Industry benchmark: 1.5 hrs' },
-    { label: 'Phone Leads', value: '0.8 hrs' },
-    { label: 'Walk-In', value: 'Immediate' },
-    { label: 'After-Hours Leads', value: '11.4 hrs', detail: 'Auto-response sent, but human follow-up delayed' },
-    { label: 'Weekend Response', value: '6.1 hrs' },
-  ], insight: 'Internet lead response (4.2h) is 2.8x slower than benchmark. After-hours auto-nurture could cut this in half.' },
-  'lib-22': { rows: [
-    { label: 'Website', value: '34% (84 leads)', detail: 'Win rate: 19%, BAD rate: 6%' },
-    { label: 'AutoTrader', value: '28% (69 leads)', detail: 'Win rate: 24%, BAD rate: 9%' },
-    { label: 'Cars.com', value: '18% (44 leads)', detail: 'Win rate: 16%, BAD rate: 12%' },
-    { label: 'Walk-In', value: '12% (30 leads)', detail: 'Win rate: 31%, BAD rate: 3%' },
-    { label: 'Referral', value: '8% (20 leads)', detail: 'Win rate: 32%, BAD rate: 2%' },
-  ], insight: 'Website drives most volume but referrals have 32% win rate — a referral program could be your highest ROI channel.' },
-  'lib-27': { rows: [
-    { label: 'Digital Sources', value: '58% (143 leads)' },
-    { label: '  Website', value: '84 leads' },
-    { label: '  3rd Party (AutoTrader/Cars.com)', value: '59 leads' },
-    { label: 'Physical Sources', value: '42% (104 leads)' },
-    { label: '  Walk-In', value: '64 leads' },
-    { label: '  Phone', value: '40 leads' },
-  ], insight: 'Digital lead share growing (+4% MoM) but physical leads close 1.7x higher. Balance both channels.' },
-  'lib-31': { rows: [
-    { label: 'Units Sold This Week', value: '17', detail: '3.4/day avg across 5 business days' },
-    { label: 'Last Week', value: '15 (3.0/day)' },
-    { label: 'Avg Days to Close', value: '8.4 days', detail: 'Down from 9.1 days last month' },
-    { label: 'Fastest Close', value: '1 day (walk-in trade-up)' },
-    { label: 'Avg Deal Value', value: '$34,200' },
-  ], insight: 'Sales velocity up 13% week-over-week. Speed improvement is driven by better follow-up on HOT leads.' },
-  'lib-33': { rows: [
-    { label: 'Current MTD Sales', value: '38 units', detail: '14 business days elapsed' },
-    { label: 'Projected Month-End', value: '51 units', detail: 'Based on current velocity + pipeline' },
-    { label: 'Last Month Total', value: '43 units' },
-    { label: 'Pipeline Support', value: '247 active leads', detail: '4.8x coverage ratio (healthy)' },
-    { label: 'Confidence Level', value: '78%', detail: 'Based on historical close patterns' },
-  ], insight: 'On track to beat last month by 8 units (+19%). Pipeline coverage is strong at 4.8x.' },
-};
 
 type DrillDownModal = null | 'hotLeads' | 'newLeads' | 'showroom' | 'staleLeads' | 'pendingFinance' | 'pipelineHealth' | 'scorecardDetail' | 'greenZoneDetail';
 type ReportCategory = 'loss' | 'channel' | 'trend';
@@ -231,12 +108,15 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'neutral' }) {
 }
 
 function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]; color?: string }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
+  if (!data || data.length < 2) return null;
+  const validData = data.filter(v => typeof v === 'number' && !isNaN(v));
+  if (validData.length < 2) return null;
+  const max = Math.max(...validData);
+  const min = Math.min(...validData);
   const range = max - min || 1;
   const h = 24;
   const w = 60;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+  const points = validData.map((v, i) => `${(i / (validData.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
   return (
     <svg width={w} height={h} className="inline-block">
       <polyline fill="none" stroke={color} strokeWidth="1.5" points={points} />
@@ -263,7 +143,8 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const [libraryView, setLibraryView] = useState<'grid' | 'list'>('grid');
   const [libraryFilter, setLibraryFilter] = useState('all');
   const [librarySearch, setLibrarySearch] = useState('');
-  const [selectedLibMetric, setSelectedLibMetric] = useState<typeof libraryMetrics[0] | null>(null);
+  const [selectedLibMetric, setSelectedLibMetric] = useState<LibraryMetric | null>(null);
+  const [lookbackDays, setLookbackDays] = useState(30);
   const [drillDown, setDrillDown] = useState<DrillDownModal>(null);
   const [selectedGreenMetric, setSelectedGreenMetric] = useState<{ id: string; label: string; value: any; trend: string; change: string } | null>(null);
   const [reportCategory, setReportCategory] = useState<ReportCategory>('loss');
@@ -285,6 +166,17 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const { data: reportsData, isLoading: reportsLoading } = useQuery<any>({
     queryKey: [reportsUrl],
   });
+
+  const { data: libraryMetricsData, isLoading: libraryLoading } = useQuery<LibraryMetric[]>({
+    queryKey: [`/api/insights/library?lookbackDays=${lookbackDays}${effectiveOrgId ? '&orgId=' + effectiveOrgId : ''}`],
+  });
+
+  const { data: libraryDetailData, isLoading: libraryDetailLoading } = useQuery<LibraryMetricDetail>({
+    queryKey: [`/api/insights/library/${selectedLibMetric?.id}/detail?lookbackDays=${lookbackDays}${effectiveOrgId ? '&orgId=' + effectiveOrgId : ''}`],
+    enabled: !!selectedLibMetric,
+  });
+
+  const libraryMetrics = libraryMetricsData || [];
 
   const { data: hunchesRaw } = useQuery<any[]>({
     queryKey: ['/api/hunches'],
@@ -468,8 +360,24 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     setReportSubTab('tab1');
   }, [reportCategory]);
 
-  const categories = ['all', ...Array.from(new Set(libraryMetrics.map(m => m.category)))];
-  const filteredLibrary = libraryMetrics.filter(m => {
+  const roleCategoryMap: Record<string, string[] | null> = {
+    super_admin: null,
+    partner_admin: null,
+    org_admin: null,
+    executive: null,
+    sales_manager: ['Pipeline', 'Conversion', 'Response', 'Lead Source', 'Forecast'],
+    sales: ['Pipeline', 'Conversion', 'Response', 'Lead Source', 'Forecast'],
+    service: ['Pipeline', 'Response', 'Channel'],
+    marketing: ['Lead Source', 'Channel', 'Composite', 'Forecast'],
+  };
+
+  const allowedCategories = currentRole ? roleCategoryMap[currentRole] ?? null : null;
+  const roleFilteredMetrics = allowedCategories
+    ? libraryMetrics.filter(m => allowedCategories.includes(m.category))
+    : libraryMetrics;
+
+  const categories = ['all', ...Array.from(new Set(roleFilteredMetrics.map(m => m.category)))];
+  const filteredLibrary = roleFilteredMetrics.filter(m => {
     const matchesCategory = libraryFilter === 'all' || m.category === libraryFilter;
     const matchesSearch = !librarySearch || m.title.toLowerCase().includes(librarySearch.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -1358,6 +1266,23 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             </Button>
           ))}
         </div>
+        {allowedCategories && (
+          <Badge variant="secondary" className="text-[10px]" data-testid="library-role-filter-info">
+            Filtered for {currentRole?.replace(/_/g, ' ')}
+          </Badge>
+        )}
+        <Select value={String(lookbackDays)} onValueChange={(v) => setLookbackDays(Number(v))}>
+          <SelectTrigger className="w-[130px]" data-testid="library-lookback-selector">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">Last 7 days</SelectItem>
+            <SelectItem value="14">Last 14 days</SelectItem>
+            <SelectItem value="30">Last 30 days</SelectItem>
+            <SelectItem value="60">Last 60 days</SelectItem>
+            <SelectItem value="90">Last 90 days</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="flex items-center gap-1 ml-auto">
           <Button variant={libraryView === 'grid' ? 'secondary' : 'ghost'} size="icon" onClick={() => setLibraryView('grid')} data-testid="button-library-grid">
             <LayoutGrid className="h-4 w-4" />
@@ -1368,47 +1293,84 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
         </div>
       </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className={cn('p-4', libraryView === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-2')}>
-          {filteredLibrary.map(metric => (
-            libraryView === 'grid' ? (
-              <Card key={metric.id} className="hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`lib-metric-${metric.id}`}>
-                <CardContent className="p-4">
-                  <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
-                  <p className="text-xs text-muted-foreground mt-3">{metric.title}</p>
-                  <div className="flex items-center justify-between mt-1">
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">{metric.value}</p>
-                      <p className={cn('text-xs mt-1', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                        {metric.change}
-                      </p>
+        {libraryLoading ? (
+          <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" data-testid="library-metric-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-4 space-y-3">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : roleFilteredMetrics.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground" data-testid="library-metric-grid">
+            <p className="text-sm" data-testid="library-role-filter-info">No metrics available for your role</p>
+          </div>
+        ) : filteredLibrary.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground" data-testid="library-metric-grid">
+            <p className="text-sm">No metrics found</p>
+          </div>
+        ) : (
+          <div className={cn('p-4', libraryView === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-2')} data-testid="library-metric-grid">
+            {filteredLibrary.map(metric => (
+              libraryView === 'grid' ? (
+                <Card key={metric.id} className="hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`library-metric-card-${metric.id}`}>
+                  <CardContent className="p-4">
+                    <Badge variant="secondary" className="text-[10px]">{metric.category}</Badge>
+                    <p className="text-xs text-muted-foreground mt-3">{metric.title}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <div>
+                        {metric.value === '\u2014' ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <p className="text-2xl font-bold text-muted-foreground/60">{metric.value}</p>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground/50" />
+                          </div>
+                        ) : (
+                          <p className="text-2xl font-bold text-foreground">{metric.value}</p>
+                        )}
+                        <p className={cn('text-xs mt-1', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                          {metric.value === '\u2014' ? 'Data source not connected' : metric.change}
+                        </p>
+                      </div>
+                      {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
+                      {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
+                      {(metric.trend as string) === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div key={metric.id} className="flex items-center gap-4 p-3 rounded-lg border border-border hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`library-metric-card-${metric.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{metric.title}</p>
+                    <Badge variant="secondary" className="text-[10px] mt-1">{metric.category}</Badge>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      {metric.value === '\u2014' ? (
+                        <div className="flex items-center gap-1 justify-end">
+                          <p className="text-lg font-bold text-muted-foreground/60">{metric.value}</p>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        </div>
+                      ) : (
+                        <p className="text-lg font-bold text-foreground">{metric.value}</p>
+                      )}
+                      <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                        {metric.value === '\u2014' ? 'Data source not connected' : metric.change}
+                      </span>
                     </div>
                     {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
                     {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
                     {(metric.trend as string) === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
                   </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div key={metric.id} className="flex items-center gap-4 p-3 rounded-lg border border-border hover-elevate cursor-pointer" onClick={() => setSelectedLibMetric(metric)} data-testid={`lib-metric-${metric.id}`}>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{metric.title}</p>
-                  <Badge variant="secondary" className="text-[10px] mt-1">{metric.category}</Badge>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-foreground">{metric.value}</p>
-                    <span className={cn('text-xs', metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                      {metric.change}
-                    </span>
-                  </div>
-                  {metric.trend === 'up' && <TrendingUp className="h-10 w-10 text-green-500" />}
-                  {metric.trend === 'down' && <TrendingDown className="h-10 w-10 text-red-500" />}
-                  {(metric.trend as string) === 'neutral' && <Minus className="h-10 w-10 text-muted-foreground" />}
-                </div>
-              </div>
-            )
-          ))}
-        </div>
+              )
+            ))}
+          </div>
+        )}
       </ScrollArea>
     </>
   );
@@ -2123,63 +2085,77 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
 
       {/* Library Metric Detail */}
       <Dialog open={!!selectedLibMetric} onOpenChange={(open) => !open && setSelectedLibMetric(null)}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
-          {selectedLibMetric && (() => {
-            const sampleData = libMetricSampleData[selectedLibMetric.id] || null;
-            return (
-              <>
-                <DialogHeader>
-                  <DialogTitle>{selectedLibMetric.title}</DialogTitle>
-                  <DialogDescription>Category: {selectedLibMetric.category}</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
-                    <div>
-                      <p className="text-3xl font-bold text-foreground">{selectedLibMetric.value}</p>
-                      <p className={cn('text-sm mt-1', selectedLibMetric.trend === 'up' ? 'text-green-500' : selectedLibMetric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
-                        {selectedLibMetric.change} vs last period
-                      </p>
-                    </div>
-                    <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', selectedLibMetric.trend === 'up' ? 'bg-green-500/10' : selectedLibMetric.trend === 'down' ? 'bg-red-500/10' : 'bg-muted')}>
-                      <TrendIcon trend={selectedLibMetric.trend} />
-                    </div>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto" data-testid="library-drilldown-dialog">
+          {selectedLibMetric && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedLibMetric.title}</DialogTitle>
+                <DialogDescription>Category: {selectedLibMetric.category}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">{selectedLibMetric.value}</p>
+                    <p className={cn('text-sm mt-1', selectedLibMetric.trend === 'up' ? 'text-green-500' : selectedLibMetric.trend === 'down' ? 'text-red-500' : 'text-muted-foreground')}>
+                      {selectedLibMetric.change} vs last period
+                    </p>
                   </div>
-                  {sampleData ? (
-                    <>
-                      <div className="space-y-1">
-                        {sampleData.rows.map((row, idx) => (
-                          <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">{row.label}</span>
-                              <span className="text-sm font-semibold text-foreground">{row.value}</span>
-                            </div>
-                            {row.detail && <p className="text-[11px] text-muted-foreground mt-0.5">{row.detail}</p>}
-                          </div>
-                        ))}
-                      </div>
-                      {sampleData.insight && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
-                          <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
-                          <span className="text-xs text-foreground">{sampleData.insight}</span>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">7-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">30-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
-                    </div>
-                  )}
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
-                      Pin to Dashboard
-                    </Button>
+                  <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', selectedLibMetric.trend === 'up' ? 'bg-green-500/10' : selectedLibMetric.trend === 'down' ? 'bg-red-500/10' : 'bg-muted')}>
+                    <TrendIcon trend={selectedLibMetric.trend} />
                   </div>
                 </div>
-              </>
-            );
-          })()}
+                {libraryDetailLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="py-1.5 px-2">
+                        <div className="flex items-center justify-between">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-4 w-16" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : libraryDetailData && libraryDetailData.rows ? (
+                  <>
+                    <div className="space-y-1">
+                      {libraryDetailData.rows.map((row, idx) => (
+                        <div key={idx} className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">{row.label}</span>
+                            <span className="text-sm font-semibold text-foreground">{row.value}</span>
+                          </div>
+                          {row.detail && <p className="text-[11px] text-muted-foreground mt-0.5">{row.detail}</p>}
+                        </div>
+                      ))}
+                    </div>
+                    {libraryDetailData.insight && (
+                      <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
+                        <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-foreground">{libraryDetailData.insight}</span>
+                      </div>
+                    )}
+                    {libraryDetailData.note && (
+                      <div className="flex items-start gap-2 p-2 rounded-md bg-blue-500/5 border border-blue-500/10">
+                        <Info className="h-3.5 w-3.5 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-muted-foreground">{libraryDetailData.note}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">7-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">30-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
+                  </div>
+                )}
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
+                    Pin to Dashboard
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

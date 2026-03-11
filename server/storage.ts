@@ -612,10 +612,9 @@ export class DatabaseStorage implements IStorage {
         .where(and(eq(conversations.organizationId, organizationId), gte(messages.createdAt, thirtyDaysAgo))),
 
       db.select({
+        id: campaigns.id,
         department: campaigns.department,
         status: campaigns.status,
-        sentCount: campaigns.sentCount,
-        repliedCount: campaigns.repliedCount,
       }).from(campaigns).where(eq(campaigns.organizationId, organizationId)),
 
       db.select({
@@ -644,18 +643,58 @@ export class DatabaseStorage implements IStorage {
       last30Days: Number(msgRecent[0]?.cnt || 0),
     };
 
+    const campaignIds = campaignRows.map(r => r.id);
+    const campaignDeptMap = new Map(campaignRows.map(r => [r.id, r.department]));
+
+    let realSentCounts = new Map<string, number>();
+    let realRepliedCounts = new Map<string, number>();
+
+    if (campaignIds.length > 0) {
+      const [sentRows, repliedRows] = await Promise.all([
+        db.select({
+          campaignId: campaignRecipients.campaignId,
+          cnt: count(),
+        }).from(campaignRecipients)
+          .where(and(
+            sql`${campaignRecipients.campaignId} IN (${sql.join(campaignIds.map(id => sql`${id}`), sql`, `)})`,
+            sql`${campaignRecipients.status} IN ('sent', 'delivered')`
+          ))
+          .groupBy(campaignRecipients.campaignId),
+
+        db.select({
+          campaignId: conversations.campaignId,
+          cnt: count(),
+        }).from(conversations)
+          .where(and(
+            eq(conversations.organizationId, organizationId),
+            isNotNull(conversations.campaignId),
+            sql`${conversations.campaignId} IN (${sql.join(campaignIds.map(id => sql`${id}`), sql`, `)})`
+          ))
+          .groupBy(conversations.campaignId),
+      ]);
+
+      for (const row of sentRows) {
+        if (row.campaignId) realSentCounts.set(row.campaignId, Number(row.cnt));
+      }
+      for (const row of repliedRows) {
+        if (row.campaignId) realRepliedCounts.set(row.campaignId, Number(row.cnt));
+      }
+    }
+
     const byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }> = {};
     let totalCampaigns = 0, activeCampaigns = 0, totalSent = 0, totalReplied = 0;
     for (const row of campaignRows) {
       totalCampaigns++;
       if (row.status === "active") activeCampaigns++;
-      totalSent += row.sentCount;
-      totalReplied += row.repliedCount;
+      const sent = realSentCounts.get(row.id) || 0;
+      const replied = realRepliedCounts.get(row.id) || 0;
+      totalSent += sent;
+      totalReplied += replied;
       if (!byDepartment[row.department]) byDepartment[row.department] = { total: 0, active: 0, sent: 0, replied: 0, replyRate: 0 };
       byDepartment[row.department].total++;
       if (row.status === "active") byDepartment[row.department].active++;
-      byDepartment[row.department].sent += row.sentCount;
-      byDepartment[row.department].replied += row.repliedCount;
+      byDepartment[row.department].sent += sent;
+      byDepartment[row.department].replied += replied;
     }
     for (const dept of Object.keys(byDepartment)) {
       byDepartment[dept].replyRate = byDepartment[dept].sent > 0 ? Math.round((byDepartment[dept].replied / byDepartment[dept].sent) * 100) : 0;

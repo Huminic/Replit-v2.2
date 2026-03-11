@@ -185,7 +185,7 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | 11 | Agent Validation — Cross-Agent + Gallery | COMPLETED |
 | A | Knowledge & Upload Improvements | COMPLETED |
 | B | Compliance & Communication Gaps | COMPLETED |
-| C | Metrics & Reporting | PENDING |
+| C | Metrics & Reporting | COMPLETED |
 | D | Lead Automation & Calendar | PENDING |
 | E | Testing & Validation | PENDING |
 | F | Security Hardening | PENDING |
