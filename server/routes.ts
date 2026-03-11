@@ -162,7 +162,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Email and password are required" });
       }
 
-      const user = await storage.getUserByEmail(email);
+      const user = await storage.getUserByEmail(email.toLowerCase());
       if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
