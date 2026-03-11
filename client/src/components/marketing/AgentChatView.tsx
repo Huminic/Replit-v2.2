@@ -623,7 +623,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
             )}
             data-testid="agent-visor"
           >
-            <div className="px-4 pt-3 pb-2 flex justify-center">
+            <div className="px-4 md:px-6 pt-3 pb-2 flex justify-center">
               <div className="w-full max-w-3xl">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{agent.name} Outputs</span>
