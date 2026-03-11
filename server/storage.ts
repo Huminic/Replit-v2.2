@@ -100,6 +100,7 @@ export interface IStorage {
 
   getDocuments(organizationId: string, agentId?: string): Promise<KnowledgeDocument[]>;
   getDocument(id: string): Promise<KnowledgeDocument | undefined>;
+  getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined>;
   createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument>;
   deleteDocument(id: string): Promise<void>;
 
@@ -109,6 +110,8 @@ export interface IStorage {
   getRecipientCount(campaignId: string): Promise<number>;
   updateRecipient(id: string, data: Partial<InsertCampaignRecipient>): Promise<CampaignRecipient | undefined>;
   getPendingRecipients(campaignId: string): Promise<CampaignRecipient[]>;
+  getFollowUpDueRecipients(campaignId: string, maxStep: number): Promise<CampaignRecipient[]>;
+  getActiveRecipientsByContact(phone?: string | null, email?: string | null): Promise<Array<CampaignRecipient & { campaignOrgId: string }>>;
 
   createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog>;
   getOutboundLogs(organizationId: string, filters?: { campaignId?: string }): Promise<OutboundLog[]>;
@@ -116,6 +119,7 @@ export interface IStorage {
   findLastOutboundForPhone(phone: string, channel?: string): Promise<OutboundLog | undefined>;
 
   createNotification(notif: InsertNotification): Promise<Notification>;
+  getNotification(id: string): Promise<Notification | undefined>;
   getNotifications(userId: string, limit?: number): Promise<Notification[]>;
   getUnreadNotificationCount(userId: string): Promise<number>;
   markNotificationRead(id: string): Promise<void>;
@@ -169,6 +173,7 @@ export interface IStorage {
   isBlacklisted(phoneNumber: string, organizationId: string): Promise<boolean>;
   removeFromBlacklist(phoneNumber: string, organizationId: string): Promise<void>;
 
+  getScoredLeads(organizationId: string, limit?: number): Promise<Conversation[]>;
   getUnansweredConversations(organizationId: string, unansweredMinutes: number): Promise<Conversation[]>;
 
   createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent>;
@@ -556,6 +561,11 @@ export class DatabaseStorage implements IStorage {
     return doc;
   }
 
+  async getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined> {
+    const [doc] = await db.select().from(knowledgeDocuments).where(and(eq(knowledgeDocuments.name, name), eq(knowledgeDocuments.organizationId, organizationId)));
+    return doc;
+  }
+
   async createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument> {
     const [created] = await db.insert(knowledgeDocuments).values(doc).returning();
     return created;
@@ -865,6 +875,58 @@ export class DatabaseStorage implements IStorage {
       .orderBy(campaignRecipients.createdAt);
   }
 
+  async getFollowUpDueRecipients(campaignId: string, maxStep: number): Promise<CampaignRecipient[]> {
+    return db.select().from(campaignRecipients)
+      .where(and(
+        eq(campaignRecipients.campaignId, campaignId),
+        sql`${campaignRecipients.status} IN ('sent', 'delivered')`,
+        eq(campaignRecipients.responded, false),
+        sql`${campaignRecipients.sequenceStep} < ${maxStep}`,
+      ))
+      .orderBy(campaignRecipients.createdAt);
+  }
+
+  async getActiveRecipientsByContact(phone?: string | null, email?: string | null): Promise<Array<CampaignRecipient & { campaignOrgId: string }>> {
+    if (!phone && !email) return [];
+    const conditions: any[] = [
+      sql`${campaignRecipients.status} IN ('pending', 'sent', 'delivered')`,
+    ];
+    const contactConditions: any[] = [];
+    if (phone) {
+      const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+      const digitsOnly = normalizedPhone.replace(/\+/g, "");
+      const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
+      const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
+      contactConditions.push(
+        sql`(${campaignRecipients.phone} IN (${sql`${normalizedPhone}`}, ${sql`${digitsOnly}`}, ${sql`${without1}`}, ${sql`${with1}`}, ${sql`${'+' + with1}`}))`
+      );
+    }
+    if (email) {
+      contactConditions.push(sql`${campaignRecipients.email} = ${email}`);
+    }
+    if (contactConditions.length === 1) {
+      conditions.push(contactConditions[0]);
+    } else {
+      conditions.push(sql`(${sql.join(contactConditions, sql` OR `)})`);
+    }
+    const results = await db.select({
+      id: campaignRecipients.id,
+      campaignId: campaignRecipients.campaignId,
+      firstName: campaignRecipients.firstName,
+      lastName: campaignRecipients.lastName,
+      phone: campaignRecipients.phone,
+      email: campaignRecipients.email,
+      status: campaignRecipients.status,
+      sentAt: campaignRecipients.sentAt,
+      deliveredAt: campaignRecipients.deliveredAt,
+      createdAt: campaignRecipients.createdAt,
+      campaignOrgId: campaigns.organizationId,
+    }).from(campaignRecipients)
+      .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
+      .where(and(...conditions));
+    return results as Array<CampaignRecipient & { campaignOrgId: string }>;
+  }
+
   async createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog> {
     const [created] = await db.insert(outboundLog).values(log).returning();
     return created;
@@ -911,6 +973,11 @@ export class DatabaseStorage implements IStorage {
   async createNotification(notif: InsertNotification): Promise<Notification> {
     const [created] = await db.insert(notifications).values(notif).returning();
     return created;
+  }
+
+  async getNotification(id: string): Promise<Notification | undefined> {
+    const [found] = await db.select().from(notifications).where(eq(notifications.id, id)).limit(1);
+    return found;
   }
 
   async getNotifications(userId: string, limit = 50): Promise<Notification[]> {
@@ -1243,6 +1310,13 @@ export class DatabaseStorage implements IStorage {
       }
     }
     return unanswered;
+  }
+
+  async getScoredLeads(organizationId: string, limit?: number): Promise<Conversation[]> {
+    return db.select().from(conversations)
+      .where(eq(conversations.organizationId, organizationId))
+      .orderBy(desc(conversations.leadScore), desc(conversations.lastMessageAt))
+      .limit(limit || 100);
   }
 
   async createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent> {

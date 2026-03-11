@@ -15,6 +15,13 @@
       "when": 1773231526757,
       "tag": "0001_familiar_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773246275130,
+      "tag": "0002_dizzy_sabra",
+      "breakpoints": true
     }
   ]
 }

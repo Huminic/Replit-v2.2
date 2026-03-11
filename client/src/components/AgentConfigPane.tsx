@@ -249,8 +249,15 @@ export function AgentConfigPane() {
         credentials: 'include',
       });
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
+        let errorMsg = res.statusText;
+        try {
+          const errData = await res.json();
+          errorMsg = errData.message || errorMsg;
+        } catch {
+          const text = await res.text();
+          if (text) errorMsg = text;
+        }
+        throw new Error(errorMsg);
       }
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       toast({ title: 'Document uploaded', description: `${file.name} uploaded successfully.` });

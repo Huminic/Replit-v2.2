@@ -91,6 +91,8 @@ export const conversations = pgTable("conversations", {
   sourceConversationId: uuid("source_conversation_id"),
   campaignDisconnected: boolean("campaign_disconnected").notNull().default(false),
   unreadCount: integer("unread_count").notNull().default(0),
+  leadScore: integer("lead_score").notNull().default(0),
+  leadScoreFactors: jsonb("lead_score_factors").default({}),
   lastMessageAt: timestamp("last_message_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -98,6 +100,7 @@ export const conversations = pgTable("conversations", {
   index("idx_conversations_org").on(table.organizationId),
   index("idx_conversations_channel").on(table.channel),
   index("idx_conversations_phone").on(table.customerPhone),
+  index("idx_conversations_lead_score").on(table.leadScore),
 ]);
 
 export const messages = pgTable("messages", {
@@ -131,6 +134,7 @@ export const campaigns = pgTable("campaigns", {
   executionSent: integer("execution_sent").notNull().default(0),
   executionFailed: integer("execution_failed").notNull().default(0),
   executionStartedAt: timestamp("execution_started_at"),
+  followUpSequence: jsonb("follow_up_sequence").default([]),
   scheduledAt: timestamp("scheduled_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -207,6 +211,10 @@ export const campaignRecipients = pgTable("campaign_recipients", {
   phone: text("phone"),
   email: text("email"),
   status: text("status").notNull().default("pending"),
+  sequenceStep: integer("sequence_step").notNull().default(0),
+  lastAttemptChannel: text("last_attempt_channel"),
+  lastAttemptAt: timestamp("last_attempt_at"),
+  responded: boolean("responded").notNull().default(false),
   sentAt: timestamp("sent_at"),
   deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -482,6 +490,11 @@ export const updateCampaignSchema = z.object({
   killSwitch: z.boolean().optional(),
   messageTemplate: z.string().nullable().optional(),
   sendIntervalSeconds: z.number().min(10).optional(),
+  followUpSequence: z.array(z.object({
+    channel: z.enum(["sms", "phone", "email"]),
+    delayHours: z.number().min(0),
+    messageTemplate: z.string().optional(),
+  })).optional(),
 });
 export const updateHunchSchema = z.object({
   status: z.enum(["new", "accepted", "dismissed", "resolved"]),
