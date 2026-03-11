@@ -77,7 +77,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { useApp } from '@/contexts/AppContext';
+import { useLocation } from 'wouter';
 import { availableTools, type AgentChannel, type AgentTool } from '@/lib/agent-utils';
+import {
+  MARKETING_AGENTS,
+  getSessionsForAgent,
+  getArtifactTypeLabel,
+  timeAgo,
+  type MarketingArtifact,
+} from '@/lib/marketing-agents';
+import { Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
 const channelIcons: Record<AgentChannel, React.ElementType> = {
   voice: Phone,
@@ -143,10 +152,22 @@ const configSections = [
   { id: 'activity', label: 'Activity', icon: Activity },
 ];
 
+const artifactTypeIcons: Record<string, React.ElementType> = {
+  IMAGE: ImageIcon,
+  VIDEO: VideoIcon,
+  COPY: FileText,
+  SCORE: BarChart3,
+  RADAR: Globe,
+  VOICEOVER: Headphones,
+};
+
 export function AgentConfigPane() {
   const { toast } = useToast();
   const { selectedAgent, updateAgent, setRightPaneOpen } = useApp();
+  const [location] = useLocation();
+  const isMarketingPage = location.startsWith('/marketing');
   const [activeConfigSection, setActiveConfigSection] = useState('performance');
+  const [activePaneTab, setActivePaneTab] = useState<'artifacts' | 'configuration'>(isMarketingPage ? 'artifacts' : 'configuration');
 
   const vapiAssistantId = selectedAgent?.vapiAssistantId;
 
@@ -811,58 +832,202 @@ export function AgentConfigPane() {
     }
   };
 
+  const marketingAgentParam = isMarketingPage ? new URLSearchParams(window.location.search).get('agent') : null;
+  const activeMarketingAgent = marketingAgentParam ? MARKETING_AGENTS.find(a => a.id === marketingAgentParam) : null;
+  const marketingArtifacts: MarketingArtifact[] = activeMarketingAgent
+    ? getSessionsForAgent(activeMarketingAgent.id).flatMap(s => s.artifacts)
+    : isMarketingPage
+      ? MARKETING_AGENTS.flatMap(a => getSessionsForAgent(a.id).flatMap(s => s.artifacts))
+      : [];
+
+  const renderArtifactsContent = () => {
+    if (marketingArtifacts.length === 0) {
+      return (
+        <div className="p-6 text-center">
+          <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
+            <ImageIcon className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <p className="text-xs text-muted-foreground">No artifacts yet.</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Start a conversation to generate images, videos, copy, and more.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="p-2 space-y-1">
+        {marketingArtifacts.sort((a, b) => b.createdAt - a.createdAt).map(art => {
+          const ArtIcon = artifactTypeIcons[art.type] || FileText;
+          const agentDef = MARKETING_AGENTS.find(a => a.id === art.agentId);
+          return (
+            <div
+              key={art.id}
+              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left"
+              data-testid={`artifact-item-${art.id}`}
+            >
+              {art.thumbnailUrl ? (
+                <img src={art.thumbnailUrl} alt={art.title} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-10 h-10 rounded-md bg-muted/30 flex items-center justify-center flex-shrink-0">
+                  <ArtIcon className="h-4 w-4 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{art.title}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Badge variant="outline" className="text-[9px] h-4 px-1.5">{getArtifactTypeLabel(art.type)}</Badge>
+                  {agentDef && !activeMarketingAgent && (
+                    <Badge variant="secondary" className="text-[9px] h-4 px-1.5" style={{ color: agentDef.accentColor }}>{agentDef.name.split(' ')[0]}</Badge>
+                  )}
+                  <span className="text-[9px] text-muted-foreground">{timeAgo(art.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="flex flex-col h-full">
-        <div className="p-3 border-b border-border flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
-              size="sm"
-              onClick={handleToggleStatus}
-              data-testid="button-toggle-agent-status"
-            >
-              {selectedAgent.status === 'active' ? (
-                <>
-                  <Pause className="h-3.5 w-3.5 mr-1" />
-                  Deactivate
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5 mr-1" />
-                  Activate
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-        <div className="border-b border-border">
-          <div className="flex flex-col">
-            {configSections.map(section => {
-              const Icon = section.icon;
-              return (
+        {isMarketingPage ? (
+          <>
+            <div className="border-b border-border">
+              <div className="flex">
                 <button
-                  key={section.id}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover-elevate text-left',
-                    activeConfigSection === section.id
-                      ? 'text-foreground bg-accent font-medium'
-                      : 'text-muted-foreground'
+                    'flex-1 py-2.5 text-xs font-medium text-center transition-colors border-b-2',
+                    activePaneTab === 'artifacts'
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
                   )}
-                  onClick={() => setActiveConfigSection(section.id)}
-                  data-testid={`config-section-${section.id}`}
+                  onClick={() => setActivePaneTab('artifacts')}
+                  data-testid="tab-pane-artifacts"
                 >
-                  <Icon className="h-4 w-4" />
-                  {section.label}
+                  Artifacts
                 </button>
-              );
-            })}
-          </div>
-        </div>
-        <ScrollArea className="flex-1">
-          {renderConfigContent()}
-        </ScrollArea>
+                <button
+                  className={cn(
+                    'flex-1 py-2.5 text-xs font-medium text-center transition-colors border-b-2',
+                    activePaneTab === 'configuration'
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  )}
+                  onClick={() => setActivePaneTab('configuration')}
+                  data-testid="tab-pane-configuration"
+                >
+                  Configuration
+                </button>
+              </div>
+            </div>
+            {activePaneTab === 'artifacts' ? (
+              <ScrollArea className="flex-1">
+                {renderArtifactsContent()}
+              </ScrollArea>
+            ) : (
+              <>
+                <div className="border-b border-border">
+                  <div className="flex flex-col">
+                    {configSections.map(section => {
+                      const Icon = section.icon;
+                      return (
+                        <button
+                          key={section.id}
+                          className={cn(
+                            'flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover-elevate text-left',
+                            activeConfigSection === section.id
+                              ? 'text-foreground bg-accent font-medium'
+                              : 'text-muted-foreground'
+                          )}
+                          onClick={() => setActiveConfigSection(section.id)}
+                          data-testid={`config-section-${section.id}`}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {section.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <ScrollArea className="flex-1">
+                  {renderConfigContent()}
+                </ScrollArea>
+                <div className="p-3 border-t border-border flex justify-center">
+                  <Button
+                    variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
+                    size="sm"
+                    onClick={handleToggleStatus}
+                    data-testid="button-toggle-agent-status"
+                  >
+                    {selectedAgent.status === 'active' ? (
+                      <>
+                        <Pause className="h-3.5 w-3.5 mr-1" />
+                        Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-3.5 w-3.5 mr-1" />
+                        Activate
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="p-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-foreground">Configuration</h3>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={selectedAgent.status === 'active' ? 'outline' : 'default'}
+                  size="sm"
+                  onClick={handleToggleStatus}
+                  data-testid="button-toggle-agent-status"
+                >
+                  {selectedAgent.status === 'active' ? (
+                    <>
+                      <Pause className="h-3.5 w-3.5 mr-1" />
+                      Deactivate
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5 mr-1" />
+                      Activate
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="border-b border-border">
+              <div className="flex flex-col">
+                {configSections.map(section => {
+                  const Icon = section.icon;
+                  return (
+                    <button
+                      key={section.id}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover-elevate text-left',
+                        activeConfigSection === section.id
+                          ? 'text-foreground bg-accent font-medium'
+                          : 'text-muted-foreground'
+                      )}
+                      onClick={() => setActiveConfigSection(section.id)}
+                      data-testid={`config-section-${section.id}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {section.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <ScrollArea className="flex-1">
+              {renderConfigContent()}
+            </ScrollArea>
+          </>
+        )}
       </div>
 
       <Dialog open={instructionsModalOpen} onOpenChange={setInstructionsModalOpen}>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, PanelRightOpen, PanelRightClose, Play, Copy, Check, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, Play, Copy, Check, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -222,7 +222,6 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
   const [isStreaming, setIsStreaming] = useState(false);
   const [toolProgress, setToolProgress] = useState<string | null>(null);
   const [visorOpen, setVisorOpen] = useState(false);
-  const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [selectedArtifact, setSelectedArtifact] = useState<MarketingArtifact | null>(null);
   const [attachedFile, setAttachedFile] = useState<{ file: File; preview: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -467,15 +466,6 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
           <h2 className="text-sm font-semibold truncate" data-testid="text-agent-name">{agent.name}</h2>
           <p className="text-[11px] text-muted-foreground truncate">{agent.description.split('.')[0]}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 flex-shrink-0 hidden md:flex"
-          onClick={() => setRightPanelOpen(!rightPanelOpen)}
-          data-testid="button-toggle-artifact-panel"
-        >
-          {rightPanelOpen ? <PanelRightClose className="h-4 w-4 text-muted-foreground" /> : <PanelRightOpen className="h-4 w-4 text-muted-foreground" />}
-        </Button>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -756,53 +746,6 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
           </div>
         </div>
 
-        {rightPanelOpen && (
-          <div className="hidden md:flex flex-col w-72 lg:w-80 border-l border-border flex-shrink-0 overflow-hidden" data-testid="artifact-history-panel">
-            <div className="px-4 py-3 border-b border-border">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Artifact History</h3>
-            </div>
-            <ScrollArea className="flex-1">
-              {allArtifactsForAgent.length === 0 ? (
-                <div className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                    <AgentIcon className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">No artifacts yet.</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">Start a conversation to generate images, videos, copy, and more.</p>
-                </div>
-              ) : (
-                <div className="p-2 space-y-1">
-                  {allArtifactsForAgent.map(art => {
-                    const ArtIcon = artifactTypeIcons[art.type] || FileText;
-                    return (
-                      <button
-                        key={art.id}
-                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left"
-                        onClick={() => setSelectedArtifact(art)}
-                        data-testid={`artifact-history-${art.id}`}
-                      >
-                        {art.thumbnailUrl ? (
-                          <img src={art.thumbnailUrl} alt={art.title} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-md bg-muted/30 flex items-center justify-center flex-shrink-0">
-                            <ArtIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium truncate">{art.title}</p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <Badge variant="outline" className="text-[9px] h-4 px-1.5">{getArtifactTypeLabel(art.type)}</Badge>
-                            <span className="text-[9px] text-muted-foreground">{timeAgo(art.createdAt)}</span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-        )}
       </div>
 
       <Dialog open={!!selectedArtifact} onOpenChange={(open) => !open && setSelectedArtifact(null)}>
