@@ -35,13 +35,14 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId, extractContactIdFromHref, flattenContactInfo } from "./vendorProxy";
-import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
+import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses, startFollowUpTimer, processFollowUpSequence } from "./outbound";
 import { runHistoricalBackfill, runDailyDelta, runMetricsRefresh, startSyncScheduler } from "./sync";
 import { classifyVinStatus, isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead, isExcludedFromPipeline } from "./statusClassifier";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: MAX_FILE_SIZE },
 });
 
 const anthropic = new Anthropic({
@@ -133,6 +134,54 @@ Return ONLY the JSON array, no other text.`,
   return created;
 }
 
+async function disconnectConvertedLeadFromCampaigns(
+  organizationId: string,
+  customerPhone?: string | null,
+  customerEmail?: string | null,
+  reason: string = "appointment_booked",
+  sourceEntityType?: string,
+  sourceEntityId?: string,
+) {
+  const activeRecipients = await storage.getActiveRecipientsByContact(customerPhone, customerEmail);
+  const orgRecipients = activeRecipients.filter(r => r.campaignOrgId === organizationId);
+  if (orgRecipients.length === 0) return { disconnectedCount: 0 };
+
+  let disconnectedCount = 0;
+  for (const recipient of orgRecipients) {
+    await storage.updateRecipient(recipient.id, { status: "completed" } as any);
+    disconnectedCount++;
+
+    const convos = await storage.getConversations(organizationId, { channel: "sms" });
+    for (const conv of convos) {
+      if (conv.campaignId === recipient.campaignId && !conv.campaignDisconnected) {
+        const phoneMatch = customerPhone && conv.customerPhone &&
+          conv.customerPhone.replace(/[^0-9]/g, "").includes(customerPhone.replace(/[^0-9]/g, "").slice(-10));
+        const emailMatch = customerEmail && conv.customerEmail &&
+          conv.customerEmail.toLowerCase() === customerEmail.toLowerCase();
+        if (phoneMatch || emailMatch) {
+          await storage.updateConversation(conv.id, { campaignDisconnected: true });
+        }
+      }
+    }
+  }
+
+  storage.createActivityLog({
+    organizationId,
+    action: "campaign_leads_disconnected",
+    entityType: sourceEntityType || "appointment",
+    entityId: sourceEntityId,
+    metadata: {
+      reason,
+      disconnectedCount,
+      customerPhone,
+      customerEmail,
+      recipientIds: orgRecipients.map(r => r.id),
+    },
+  }).catch(() => {});
+
+  return { disconnectedCount };
+}
+
 const updateConversationSchema = z.object({
   status: z.string().optional(),
   campaignDisconnected: z.boolean().optional(),
@@ -140,12 +189,148 @@ const updateConversationSchema = z.object({
   assignedTo: z.string().nullable().optional(),
 });
 
+export async function calculateLeadScore(conversationId: string): Promise<{ score: number; factors: Record<string, number> }> {
+  const conv = await storage.getConversation(conversationId);
+  if (!conv) return { score: 0, factors: {} };
+
+  const factors: Record<string, number> = {};
+  let score = 0;
+
+  if (conv.customerPhone) {
+    factors.hasPhone = 10;
+    score += 10;
+  }
+  if (conv.customerEmail) {
+    factors.hasEmail = 10;
+    score += 10;
+  }
+
+  const msgs = await storage.getMessages(conversationId);
+  const customerMessages = msgs.filter(m => m.role === "user");
+
+  if (conv.channel === "sms" && customerMessages.length > 0) {
+    factors.respondedSms = 15;
+    score += 15;
+  }
+
+  if (conv.channel === "email" && customerMessages.length > 0) {
+    factors.respondedEmail = 10;
+    score += 10;
+  }
+
+  const orgAppointments = await storage.getAppointments(conv.organizationId, {});
+  const hasAppointment = orgAppointments.some(
+    a => a.customerPhone === conv.customerPhone || a.customerEmail === conv.customerEmail
+  );
+  if (hasAppointment) {
+    factors.appointmentBooked = 25;
+    score += 25;
+  }
+
+  if (msgs.length > 3) {
+    factors.multipleInteractions = 10;
+    score += 10;
+  }
+
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  if (conv.lastMessageAt && new Date(conv.lastMessageAt) > twentyFourHoursAgo) {
+    factors.recentActivity = 10;
+    score += 10;
+  }
+
+  if (conv.customerPhone) {
+    const warehouseLeads = await storage.getWarehouseLeads(conv.organizationId, { limit: 1000 });
+    const matchingLead = warehouseLeads.find(wl => {
+      if (!wl.customerPhone || !conv.customerPhone) return false;
+      const wlDigits = wl.customerPhone.replace(/[^0-9]/g, "").slice(-10);
+      const convDigits = conv.customerPhone!.replace(/[^0-9]/g, "").slice(-10);
+      return wlDigits === convDigits && wlDigits.length >= 10;
+    });
+    if (matchingLead && matchingLead.vinStatus && isActiveLead(matchingLead.vinStatus)) {
+      factors.vinStatusActive = 10;
+      score += 10;
+    }
+  }
+
+  score = Math.min(100, score);
+
+  await storage.updateConversation(conversationId, {
+    leadScore: score,
+    leadScoreFactors: factors,
+  } as any);
+
+  return { score, factors };
+}
+
 function resolveOrgIdParam(req: import("express").Request): string | null {
   if (!req.user) return null;
   const requestedOrgId = req.query.orgId as string | undefined;
   if (!requestedOrgId) return req.user.organizationId;
   if (requestedOrgId === req.user.organizationId) return requestedOrgId;
   if (req.user.roleLevel <= 2) return requestedOrgId;
+  return null;
+}
+
+function parseAppointmentFromText(text: string): { date: Date; endDate: Date } | null {
+  if (!text) return null;
+  const lowerText = text.toLowerCase();
+  const appointmentKeywords = ["appointment", "schedule", "book", "booked", "set up", "come in", "visit", "meeting", "reserved"];
+  const hasAppointmentMention = appointmentKeywords.some(kw => lowerText.includes(kw));
+  if (!hasAppointmentMention) return null;
+
+  const datePatterns = [
+    /(?:appointment|scheduled|booked|set up|come in|visit|meeting)\s+(?:for|on|at)?\s*(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{0,4})\s+(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i,
+    /(\d{1,2}\/\d{1,2}\/\d{2,4})\s+(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i,
+    /(\d{4}-\d{2}-\d{2})(?:T|\s+)(\d{1,2}(?::\d{2})?(?:\s*(?:am|pm|AM|PM))?)/i,
+    /(?:on\s+)?(\w+day,?\s+\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?)\s+(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i,
+    /(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{4})\s+(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i,
+    /(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM))\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{0,4})/i,
+  ];
+
+  for (const pattern of datePatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      try {
+        let dateStr = match[1];
+        let timeStr = match[2];
+        if (/^\d{1,2}(?::\d{2})?\s*(?:am|pm)/i.test(dateStr)) {
+          const tmp = dateStr;
+          dateStr = timeStr;
+          timeStr = tmp;
+        }
+        dateStr = dateStr.replace(/(st|nd|rd|th)/gi, "").trim();
+        const currentYear = new Date().getFullYear();
+        if (!/\d{4}/.test(dateStr)) {
+          dateStr = dateStr.replace(/,?\s*$/, "") + `, ${currentYear}`;
+        }
+        const parsedDate = new Date(`${dateStr} ${timeStr}`);
+        if (!isNaN(parsedDate.getTime()) && parsedDate.getTime() > Date.now() - 86400000) {
+          const endDate = new Date(parsedDate.getTime() + 60 * 60 * 1000);
+          return { date: parsedDate, endDate };
+        }
+      } catch {
+      }
+    }
+  }
+
+  const timeOnlyPattern = /(?:appointment|scheduled|booked)\s+(?:for|at)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM))\s+(?:tomorrow|today)/i;
+  const timeOnlyMatch = text.match(timeOnlyPattern);
+  if (timeOnlyMatch) {
+    try {
+      const isTomorrow = /tomorrow/i.test(text);
+      const baseDate = new Date();
+      if (isTomorrow) baseDate.setDate(baseDate.getDate() + 1);
+      const timeStr = timeOnlyMatch[1];
+      const dateStr = `${baseDate.toDateString()} ${timeStr}`;
+      const parsedDate = new Date(dateStr);
+      if (!isNaN(parsedDate.getTime())) {
+        const endDate = new Date(parsedDate.getTime() + 60 * 60 * 1000);
+        return { date: parsedDate, endDate };
+      }
+    } catch {
+    }
+  }
+
   return null;
 }
 
@@ -853,7 +1038,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/agents/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/agents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getAgent(req.params.id);
@@ -1274,13 +1459,14 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
       }
       const conv = await storage.updateConversation(req.params.id, parsed.data);
+      calculateLeadScore(req.params.id).catch(() => {});
       return res.json(conv);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update conversation" });
     }
   });
 
-  app.delete("/api/conversations/:id", authenticateToken, async (req, res) => {
+  app.delete("/api/conversations/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getConversation(req.params.id);
@@ -1327,6 +1513,7 @@ export async function registerRoutes(
       }
       const msg = await storage.createMessage(parsed.data);
       await storage.updateConversation(req.params.id, { lastMessageAt: new Date() });
+      calculateLeadScore(req.params.id).catch(() => {});
 
       const isAgentReply = parsed.data.role === "agent" || parsed.data.role === "system";
       const content = parsed.data.content || "";
@@ -1416,7 +1603,19 @@ export async function registerRoutes(
   app.get("/api/campaigns/execution-statuses", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      return res.json(getAllExecutionStatuses());
+      const allStatuses = getAllExecutionStatuses();
+      if (req.user.roleLevel <= 2) {
+        return res.json(allStatuses);
+      }
+      const orgCampaigns = await storage.getCampaigns(req.user.organizationId);
+      const orgCampaignIds = new Set(orgCampaigns.map(c => c.id));
+      const filtered: Record<string, any> = {};
+      for (const [key, value] of Object.entries(allStatuses)) {
+        if (orgCampaignIds.has(key)) {
+          filtered[key] = value;
+        }
+      }
+      return res.json(filtered);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch execution statuses" });
     }
@@ -1503,7 +1702,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/campaigns/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/campaigns/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getCampaign(req.params.id);
@@ -1643,6 +1842,12 @@ export async function registerRoutes(
             relatedEntityId: req.params.id,
           }).catch(() => {});
         }
+
+        if (campaign?.followUpSequence && Array.isArray(campaign.followUpSequence) && campaign.followUpSequence.length > 0) {
+          startFollowUpTimer(req.params.id, req.user!.organizationId, false).catch((err) => {
+            console.error(`[FollowUp] Failed to start follow-up timer for campaign ${req.params.id}:`, err);
+          });
+        }
       }
 
       return res.json(result);
@@ -1695,6 +1900,39 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/campaigns/:id/follow-up", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const campaign = await storage.getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+      if (campaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const sequence = (campaign.followUpSequence as any[]) || [];
+      if (sequence.length === 0) {
+        return res.status(400).json({ message: "Campaign has no follow-up sequence configured" });
+      }
+
+      const dryRun = req.body.dryRun === true;
+      const result = await processFollowUpSequence(req.params.id, req.user.organizationId, dryRun);
+
+      storage.createActivityLog({
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        action: dryRun ? "follow_up_dry_run" : "follow_up_triggered",
+        entityType: "campaign",
+        entityId: req.params.id,
+        metadata: result,
+      }).catch(() => {});
+
+      return res.json({ success: true, ...result });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to process follow-up sequence" });
+    }
+  });
+
   app.get("/api/campaigns/:id/execution-status", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
@@ -1742,6 +1980,10 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid provision data", errors: parsed.error.flatten() });
       }
       const { organizationId, dealerId, dealerName, provider } = parsed.data;
+
+      if (organizationId !== req.user!.organizationId && req.user!.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied: cannot provision for that organization" });
+      }
 
       const nexxusOrgId = resolveNexxusOrgId(organizationId);
       const mcpResult = await callMCP("vin_provision_dealer", {
@@ -1843,8 +2085,12 @@ export async function registerRoutes(
       const { content, agentId, mode, pageContext } = req.body;
       const isCrmGuru = mode === "crm_guru";
 
-      if (!content || typeof content !== "string") {
+      if (!content || typeof content !== "string" || content.trim().length === 0) {
         return res.status(400).json({ message: "Message content is required" });
+      }
+
+      if (content.length > 50000) {
+        return res.status(400).json({ message: "Message content exceeds maximum length of 50000 characters" });
       }
 
       const conversation = await storage.getConversation(conversationId);
@@ -1924,8 +2170,33 @@ export async function registerRoutes(
           const remaining = maxTotalChars - totalChars;
           if (remaining <= 0) break;
           const maxPerDoc = Math.min(8000, remaining);
-          const truncated = d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!;
-          const section = `--- ${d.name} (${d.type}) ---\n${truncated}`;
+          let formattedContent: string;
+          if (d.type === "csv") {
+            try {
+              const parsed = JSON.parse(d.content!);
+              if (parsed.headers && parsed.rows) {
+                const rowCount = parsed.rows.length;
+                const columns = parsed.headers.join(", ");
+                const sampleCount = Math.min(5, rowCount);
+                const sampleRows = parsed.rows.slice(0, sampleCount).map((row: Record<string, string>, idx: number) => {
+                  const fields = parsed.headers.map((h: string) => `${h}: ${row[h] ?? ""}`).join(" | ");
+                  return `  Row ${idx + 1}: ${fields}`;
+                }).join("\n");
+                formattedContent = `[CSV Data] ${rowCount} rows, Columns: ${columns}\nSample rows:\n${sampleRows}`;
+                if (rowCount > sampleCount) {
+                  formattedContent += `\n  ... and ${rowCount - sampleCount} more rows`;
+                }
+                formattedContent += `\n\nFull data (JSON):\n${d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!}`;
+              } else {
+                formattedContent = d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!;
+              }
+            } catch {
+              formattedContent = d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!;
+            }
+          } else {
+            formattedContent = d.content!.length > maxPerDoc ? d.content!.slice(0, maxPerDoc) + "\n...(truncated)" : d.content!;
+          }
+          const section = `--- ${d.name} (${d.type}) ---\n${formattedContent}`;
           docSections.push(section);
           totalChars += section.length;
         }
@@ -2353,7 +2624,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getTask(req.params.id);
       if (!existing) return res.status(404).json({ message: "Task not found" });
-      if (existing.organizationId !== req.user.organizationId) {
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       const parsed = updateTaskSchema.safeParse(req.body);
@@ -2372,7 +2643,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getTask(req.params.id);
       if (!existing) return res.status(404).json({ message: "Task not found" });
-      if (existing.organizationId !== req.user.organizationId) {
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       await storage.deleteTask(req.params.id);
@@ -2402,7 +2673,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const result = await storage.getAppointment(req.params.id);
       if (!result) return res.status(404).json({ message: "Appointment not found" });
-      if (result.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      if (result.organizationId !== req.user.organizationId && req.user.roleLevel > 2) return res.status(403).json({ message: "Access denied" });
       return res.json(result);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch appointment" });
@@ -2431,6 +2702,22 @@ When the user asks a question that requires deep CRM data (specific lead details
         notes: notes || null,
         source: "manual",
       });
+
+      disconnectConvertedLeadFromCampaigns(
+        req.user.organizationId,
+        customerPhone || null,
+        customerEmail || null,
+        "appointment_booked",
+        "appointment",
+        result.id,
+      ).then(({ disconnectedCount }) => {
+        if (disconnectedCount > 0) {
+          console.log(`[Appointments] Auto-disconnected ${disconnectedCount} campaign recipient(s) for appointment ${result.id}`);
+        }
+      }).catch(err => {
+        console.error("[Appointments] Failed to disconnect campaign recipients:", err);
+      });
+
       return res.status(201).json(result);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create appointment" });
@@ -2442,7 +2729,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getAppointment(req.params.id);
       if (!existing) return res.status(404).json({ message: "Appointment not found" });
-      if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) return res.status(403).json({ message: "Access denied" });
       const updates: Record<string, any> = {};
       const allowed = ["title", "customerName", "customerPhone", "customerEmail", "appointmentType", "department", "startTime", "endTime", "status", "notes", "assignedUserId"];
       for (const key of allowed) {
@@ -2463,7 +2750,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getAppointment(req.params.id);
       if (!existing) return res.status(404).json({ message: "Appointment not found" });
-      if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) return res.status(403).json({ message: "Access denied" });
       await storage.deleteAppointment(req.params.id);
       return res.json({ message: "Appointment deleted" });
     } catch (err) {
@@ -2486,7 +2773,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const widget = await storage.getWidget(req.params.id);
       if (!widget) return res.status(404).json({ message: "Widget not found" });
-      if (widget.organizationId !== req.user.organizationId) {
+      if (widget.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       return res.json(widget);
@@ -2495,7 +2782,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/widgets", authenticateToken, async (req, res) => {
+  app.post("/api/widgets", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const widgetCode = `wgt_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
@@ -2514,12 +2801,12 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.patch("/api/widgets/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getWidget(req.params.id);
       if (!existing) return res.status(404).json({ message: "Widget not found" });
-      if (existing.organizationId !== req.user.organizationId) {
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       const parsed = updateWidgetSchema.safeParse(req.body);
@@ -2533,12 +2820,12 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.delete("/api/widgets/:id", authenticateToken, async (req, res) => {
+  app.delete("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getWidget(req.params.id);
       if (!existing) return res.status(404).json({ message: "Widget not found" });
-      if (existing.organizationId !== req.user.organizationId) {
+      if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       await storage.deleteWidget(req.params.id);
@@ -2559,19 +2846,99 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/documents", authenticateToken, upload.single("file"), async (req, res) => {
+  app.post("/api/documents", authenticateToken, (req, res, next) => {
+    upload.single("file")(req, res, (err: any) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(413).json({ message: `File too large. Maximum allowed size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` });
+        }
+        return res.status(400).json({ message: err.message || "File upload error" });
+      }
+      next();
+    });
+  }, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const file = req.file;
       if (!file) return res.status(400).json({ message: "No file uploaded" });
+
+      if (file.size > MAX_FILE_SIZE) {
+        return res.status(413).json({ message: `File too large. Maximum allowed size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` });
+      }
+
+      const existing = await storage.getDocumentByNameAndOrg(file.originalname, req.user.organizationId);
+      if (existing) {
+        return res.status(409).json({ message: `A document named "${file.originalname}" already exists. Please rename the file or delete the existing document first.` });
+      }
 
       const ext = file.originalname.split(".").pop()?.toLowerCase() || "unknown";
       const typeMap: Record<string, string> = { pdf: "pdf", docx: "docx", doc: "docx", csv: "csv", txt: "txt", html: "html", htm: "html" };
       const docType = typeMap[ext] || ext;
 
       let content: string | null = null;
-      if (["csv", "txt", "html", "htm"].includes(ext)) {
+      if (ext === "csv") {
+        const rawCsv = file.buffer.toString("utf-8");
+        if (!rawCsv || rawCsv.trim().length === 0) {
+          return res.status(400).json({ message: "CSV file is empty. It must contain at least a header row and one data row." });
+        }
+        const csvLines = rawCsv.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+        if (csvLines.length < 1) {
+          return res.status(400).json({ message: "CSV file is empty. It must contain at least a header row and one data row." });
+        }
+        const parseCSVLine = (line: string): string[] => {
+          const result: string[] = [];
+          let current = "";
+          let inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inQuotes) {
+              if (ch === '"' && line[i + 1] === '"') {
+                current += '"';
+                i++;
+              } else if (ch === '"') {
+                inQuotes = false;
+              } else {
+                current += ch;
+              }
+            } else {
+              if (ch === '"') {
+                inQuotes = true;
+              } else if (ch === ',') {
+                result.push(current.trim());
+                current = "";
+              } else {
+                current += ch;
+              }
+            }
+          }
+          result.push(current.trim());
+          return result;
+        };
+        const headers = parseCSVLine(csvLines[0]).filter(h => h.length > 0);
+        if (headers.length === 0) {
+          return res.status(400).json({ message: "CSV file has no valid header columns." });
+        }
+        if (csvLines.length < 2) {
+          return res.status(400).json({ message: "CSV file must contain at least one data row in addition to the header row." });
+        }
+        const rows = csvLines.slice(1).map(line => {
+          const values = parseCSVLine(line);
+          const row: Record<string, string> = {};
+          headers.forEach((h, i) => {
+            row[h] = values[i] ?? "";
+          });
+          return row;
+        });
+        content = JSON.stringify({ headers, rows });
+      } else if (["txt", "html", "htm"].includes(ext)) {
         content = file.buffer.toString("utf-8");
+        if (!content || content.trim().length === 0) {
+          return res.status(400).json({ message: "File is empty or contains no readable content." });
+        }
+      } else {
+        if (file.size === 0) {
+          return res.status(400).json({ message: "File is empty. Please upload a file with content." });
+        }
       }
 
       const doc = await storage.createDocument({
@@ -2605,7 +2972,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const doc = await storage.getDocument(req.params.id);
       if (!doc) return res.status(404).json({ message: "Document not found" });
-      if (doc.organizationId !== req.user.organizationId) {
+      if (doc.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       await storage.deleteDocument(req.params.id);
@@ -2615,7 +2982,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/campaigns/:id/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
+  app.post("/api/campaigns/:id/upload-csv", authenticateToken, requireRole(3), upload.single("file"), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const file = req.file;
@@ -2623,7 +2990,7 @@ When the user asks a question that requires deep CRM data (specific lead details
 
       const campaign = await storage.getCampaign(req.params.id);
       if (!campaign) return res.status(404).json({ message: "Campaign not found" });
-      if (campaign.organizationId !== req.user.organizationId) {
+      if (campaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -2733,7 +3100,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const campaign = await storage.getCampaign(req.params.id);
       if (!campaign) return res.status(404).json({ message: "Campaign not found" });
-      if (campaign.organizationId !== req.user.organizationId) {
+      if (campaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
       const recipients = await storage.getRecipients(campaign.id);
@@ -2767,6 +3134,11 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/notifications/:id/read", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const notification = await storage.getNotification(req.params.id);
+      if (!notification) return res.status(404).json({ message: "Notification not found" });
+      if (notification.userId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       await storage.markNotificationRead(req.params.id);
       return res.json({ message: "Notification marked as read" });
     } catch (err) {
@@ -2994,6 +3366,24 @@ When the user asks a question that requires deep CRM data (specific lead details
         });
       }
 
+      const appointmentKeywords = /appointment|scheduled|booked|come in|visit|test drive|set up a time|confirmed for/i;
+      if (appointmentKeywords.test(summary) || appointmentKeywords.test(transcript)) {
+        disconnectConvertedLeadFromCampaigns(
+          organizationId,
+          customerPhone,
+          null,
+          "appointment_booked",
+          "conversation",
+          conversation.id,
+        ).then(({ disconnectedCount }) => {
+          if (disconnectedCount > 0) {
+            console.log(`[VAPI Webhook] Auto-disconnected ${disconnectedCount} campaign recipient(s) after appointment detected in call ${call.id || "unknown"}`);
+          }
+        }).catch(err => {
+          console.error("[VAPI Webhook] Failed to disconnect campaign recipients:", err);
+        });
+      }
+
       let vinContactHref: string | null = null;
       let vinLeadCreated = false;
       const vapiPayloadSnapshot = {
@@ -3091,6 +3481,39 @@ When the user asks a question that requires deep CRM data (specific lead details
         }).catch(() => {});
       }
 
+      let appointmentCreated = false;
+      const textToSearch = `${summary}\n${transcript}`;
+      const appointmentDetails = parseAppointmentFromText(textToSearch);
+      if (appointmentDetails) {
+        try {
+          await storage.createAppointment({
+            title: `Appointment with ${customerName}`,
+            customerName,
+            customerPhone: customerPhone || null,
+            customerEmail: null,
+            appointmentType: "general",
+            department: "sales",
+            assignedUserId: null,
+            organizationId,
+            startTime: appointmentDetails.date,
+            endTime: appointmentDetails.endDate,
+            status: "scheduled",
+            notes: summary ? `Auto-created from VAPI call.\n\nSummary: ${summary}` : "Auto-created from VAPI call.",
+            source: "vapi",
+          });
+          appointmentCreated = true;
+          console.log(`[VAPI Webhook] Auto-created appointment for ${customerName} at ${appointmentDetails.date.toISOString()}`);
+          storage.createActivityLog({
+            organizationId,
+            action: "appointment_auto_created",
+            entityType: "appointment",
+            metadata: { source: "vapi", customerName, customerPhone, startTime: appointmentDetails.date.toISOString() },
+          }).catch(() => {});
+        } catch (apptErr: any) {
+          console.error(`[VAPI Webhook] Failed to auto-create appointment:`, apptErr.message);
+        }
+      }
+
       const users = await storage.getUsers(organizationId);
       const adminUsers = users.filter(u => u.role && u.role.level <= 3);
       for (const user of adminUsers) {
@@ -3099,7 +3522,7 @@ When the user asks a question that requires deep CRM data (specific lead details
           organizationId,
           type: "call",
           title: "New Inbound Call Completed",
-          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
+          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}${appointmentCreated ? " Appointment auto-created." : ""}`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
         }).catch(() => {});
@@ -3119,15 +3542,19 @@ When the user asks a question that requires deep CRM data (specific lead details
           agentId,
           vinContactHref,
           vinLeadCreated,
+          appointmentCreated,
         },
       }).catch(() => {});
 
-      console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}`);
+      console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}, appointment: ${appointmentCreated}`);
+
+      calculateLeadScore(conversation.id).catch(() => {});
 
       return res.json({
         message: "Webhook processed successfully",
         conversationId: conversation.id,
         vinLeadCreated,
+        appointmentCreated,
       });
     } catch (err) {
       console.error("[VAPI Webhook] Error processing webhook:", err);
@@ -3314,6 +3741,39 @@ When the user asks a question that requires deep CRM data (specific lead details
         });
       }
 
+      let appointmentCreated = false;
+      const tavusTextToSearch = `${summary}\n${transcript}`;
+      const tavusAppointmentDetails = parseAppointmentFromText(tavusTextToSearch);
+      if (tavusAppointmentDetails) {
+        try {
+          await storage.createAppointment({
+            title: `Appointment with ${visitorName}`,
+            customerName: visitorName,
+            customerPhone: null,
+            customerEmail: null,
+            appointmentType: "general",
+            department: "sales",
+            assignedUserId: null,
+            organizationId,
+            startTime: tavusAppointmentDetails.date,
+            endTime: tavusAppointmentDetails.endDate,
+            status: "scheduled",
+            notes: summary ? `Auto-created from Tavus video conversation.\n\nSummary: ${summary}` : "Auto-created from Tavus video conversation.",
+            source: "tavus",
+          });
+          appointmentCreated = true;
+          console.log(`[Tavus Webhook] Auto-created appointment for ${visitorName} at ${tavusAppointmentDetails.date.toISOString()}`);
+          storage.createActivityLog({
+            organizationId,
+            action: "appointment_auto_created",
+            entityType: "appointment",
+            metadata: { source: "tavus", customerName: visitorName, startTime: tavusAppointmentDetails.date.toISOString() },
+          }).catch(() => {});
+        } catch (apptErr: any) {
+          console.error(`[Tavus Webhook] Failed to auto-create appointment:`, apptErr.message);
+        }
+      }
+
       const users = await storage.getUsers(organizationId);
       const adminUsers = users.filter(u => u.role && u.role.level <= 3);
       for (const user of adminUsers) {
@@ -3322,7 +3782,7 @@ When the user asks a question that requires deep CRM data (specific lead details
           organizationId,
           type: "call",
           title: "Video Conversation Completed",
-          message: `Video conversation with ${visitorName} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
+          message: `Video conversation with ${visitorName} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}${appointmentCreated ? " Appointment auto-created." : ""}`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
         }).catch(() => {});
@@ -3333,15 +3793,18 @@ When the user asks a question that requires deep CRM data (specific lead details
         action: "tavus_video_completed",
         entityType: "conversation",
         entityId: conversation.id,
-        metadata: { visitorName, personaId, tavusConversationId, agentId, vinLeadCreated },
+        metadata: { visitorName, personaId, tavusConversationId, agentId, vinLeadCreated, appointmentCreated },
       }).catch(() => {});
 
-      console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
+      console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}, appointment: ${appointmentCreated}`);
+
+      calculateLeadScore(conversation.id).catch(() => {});
 
       return res.json({
         message: "Webhook processed successfully",
         conversationId: conversation.id,
         vinLeadCreated,
+        appointmentCreated,
       });
     } catch (err) {
       console.error("[Tavus Webhook] Error processing webhook:", err);
@@ -3458,11 +3921,13 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
 
       const now = new Date();
-      const thirtyDaysAgo = new Date(now);
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const startDateParam = req.query.startDate as string | undefined;
+      const endDateParam = req.query.endDate as string | undefined;
+      const createdAfter = startDateParam ? new Date(startDateParam) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const createdBefore = endDateParam ? new Date(endDateParam) : now;
 
       const allLeads = await storage.getWarehouseLeads(orgId, {
-        createdAfter: thirtyDaysAgo,
+        createdAfter,
       });
       const metrics = await storage.getWarehouseMetrics(orgId, {});
 
@@ -3583,11 +4048,12 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
 
       const now = new Date();
-      const thirtyDaysAgo = new Date(now);
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const startDateParam = req.query.startDate as string | undefined;
+      const endDateParam = req.query.endDate as string | undefined;
+      const createdAfter = startDateParam ? new Date(startDateParam) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
       const allLeads = await storage.getWarehouseLeads(orgId, {
-        createdAfter: thirtyDaysAgo,
+        createdAfter,
       });
       const metrics = await storage.getWarehouseMetrics(orgId, {});
 
@@ -3633,6 +4099,328 @@ When the user asks a question that requires deep CRM data (specific lead details
     } catch (err: any) {
       console.error("[Insights] Reports error:", err);
       return res.status(500).json({ message: "Failed to fetch insights reports" });
+    }
+  });
+
+  app.get("/api/insights/library", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = resolveOrgIdParam(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+
+      const now = new Date();
+      const startDateParam = req.query.startDate as string | undefined;
+      const endDateParam = req.query.endDate as string | undefined;
+      const createdAfter = startDateParam ? new Date(startDateParam) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const prevPeriodStart = new Date(createdAfter.getTime() - (now.getTime() - createdAfter.getTime()));
+
+      const roleLevel = req.user.roleLevel || 5;
+      const roleFilter = req.query.role as string | undefined;
+
+      const [allLeads, prevLeads, orgCampaigns, orgConversations, orgAppointments] = await Promise.all([
+        storage.getWarehouseLeads(orgId, { createdAfter }),
+        storage.getWarehouseLeads(orgId, { createdAfter: prevPeriodStart }),
+        storage.getCampaigns(orgId),
+        storage.getConversations(orgId),
+        storage.getAppointments(orgId, {}),
+      ]);
+
+      const prevPeriodLeads = prevLeads.filter(l => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        return created < createdAfter;
+      });
+
+      const totalLeads = allLeads.length;
+      const prevTotal = prevPeriodLeads.length;
+      const activeLeads = allLeads.filter(l => isActiveLead(l.vinStatus));
+      const prevActive = prevPeriodLeads.filter(l => isActiveLead(l.vinStatus));
+      const soldLeads = allLeads.filter(l => isSoldLead(l.vinStatus));
+      const prevSold = prevPeriodLeads.filter(l => isSoldLead(l.vinStatus));
+      const lostLeads = allLeads.filter(l => isLostLead(l.vinStatus));
+      const prevLost = prevPeriodLeads.filter(l => isLostLead(l.vinStatus));
+      const badLeads = allLeads.filter(l => isBadLead(l.vinStatus));
+      const newLeads = allLeads.filter(l => isNewLead(l.vinStatus));
+
+      const periodDays = Math.max(1, Math.ceil((now.getTime() - createdAfter.getTime()) / (1000 * 60 * 60 * 24)));
+      const dailyVolume = Math.round((totalLeads / periodDays) * 10) / 10;
+      const prevDailyVolume = prevTotal > 0 ? Math.round((prevTotal / periodDays) * 10) / 10 : 0;
+      const winRate = totalLeads > 0 ? Math.round((soldLeads.length / totalLeads) * 1000) / 10 : 0;
+      const prevWinRate = prevTotal > 0 ? Math.round((prevSold.length / prevTotal) * 1000) / 10 : 0;
+      const lossRate = totalLeads > 0 ? Math.round((lostLeads.length / totalLeads) * 1000) / 10 : 0;
+      const badRate = totalLeads > 0 ? Math.round((badLeads.length / totalLeads) * 1000) / 10 : 0;
+
+      const staleLeads = allLeads.filter(l => {
+        const updated = l.vinUpdatedAt ? new Date(l.vinUpdatedAt) : new Date(l.createdAt);
+        return (now.getTime() - updated.getTime()) > 7 * 24 * 60 * 60 * 1000 && !isSoldLead(l.vinStatus);
+      });
+      const freshRatio = totalLeads > 0 ? Math.round(((totalLeads - staleLeads.length) / totalLeads) * 100) : 0;
+
+      const sourceCounts: Record<string, { total: number; won: number }> = {};
+      allLeads.forEach(l => {
+        const src = l.leadSource || "Unknown";
+        if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0 };
+        sourceCounts[src].total++;
+        if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
+      });
+      const sortedSources = Object.entries(sourceCounts).sort(([, a], [, b]) => b.total - a.total);
+      const topSource = sortedSources[0];
+      const topSourcePct = topSource && totalLeads > 0 ? Math.round((topSource[1].total / totalLeads) * 100) : 0;
+      const topSourceWinRate = topSource && topSource[1].total > 0 ? Math.round((topSource[1].won / topSource[1].total) * 1000) / 10 : 0;
+      const sourceCount = sortedSources.length;
+      const sourceDiversity = sourceCount > 0 ? Math.round((1 - (topSourcePct / 100)) * 100) / 100 : 0;
+      const concentrationRisk = topSourcePct;
+
+      const channelCounts: Record<string, { total: number; won: number }> = {};
+      allLeads.forEach(l => {
+        const ch = l.leadSource?.toLowerCase().includes("walk") || l.leadSource?.toLowerCase().includes("showroom") ? "Walk-In"
+          : l.leadSource?.toLowerCase().includes("phone") ? "Phone"
+          : l.leadSource?.toLowerCase().includes("referr") ? "Referral"
+          : "Digital";
+        if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0 };
+        channelCounts[ch].total++;
+        if (isSoldLead(l.vinStatus)) channelCounts[ch].won++;
+      });
+      const digitalCount = (channelCounts["Digital"]?.total || 0);
+      const digitalPct = totalLeads > 0 ? Math.round((digitalCount / totalLeads) * 100) : 0;
+      const walkInCount = channelCounts["Walk-In"]?.total || 0;
+      const phoneCount = channelCounts["Phone"]?.total || 0;
+      const referralCount = channelCounts["Referral"]?.total || 0;
+
+      const showroomLeads = allLeads.filter(l => l.leadSource?.toLowerCase().includes("walk") || l.leadSource?.toLowerCase().includes("showroom"));
+      const showroomSold = showroomLeads.filter(l => isSoldLead(l.vinStatus));
+      const showroomRate = showroomLeads.length > 0 ? Math.round((showroomSold.length / showroomLeads.length) * 1000) / 10 : 0;
+
+      const internetLeads = allLeads.filter(l => !l.leadSource?.toLowerCase().includes("walk") && !l.leadSource?.toLowerCase().includes("phone") && !l.leadSource?.toLowerCase().includes("referr") && !l.leadSource?.toLowerCase().includes("showroom"));
+      const internetSold = internetLeads.filter(l => isSoldLead(l.vinStatus));
+      const internetRate = internetLeads.length > 0 ? Math.round((internetSold.length / internetLeads.length) * 1000) / 10 : 0;
+
+      const hotLeads = allLeads.filter(l => l.vinStatus === "hot" || l.vinStatus === "ACTIVE_ACTIVE_LEAD");
+      const hotSold = hotLeads.filter(l => isSoldLead(l.vinStatus));
+      const hotConvRate = hotLeads.length > 0 ? Math.round((hotSold.length / hotLeads.length) * 1000) / 10 : 0;
+
+      const serviceLane = allLeads.filter(l => l.leadSource?.toLowerCase().includes("service"));
+      const serviceSold = serviceLane.filter(l => isSoldLead(l.vinStatus));
+      const serviceRate = serviceLane.length > 0 ? Math.round((serviceSold.length / serviceLane.length) * 1000) / 10 : 0;
+
+      const salesVelocity = periodDays > 0 ? Math.round((soldLeads.length / periodDays) * 10) / 10 : 0;
+      const prevVelocity = periodDays > 0 && prevSold.length > 0 ? Math.round((prevSold.length / periodDays) * 10) / 10 : 0;
+      const digitalMaturity = totalLeads > 0 ? Math.round((digitalPct / 100 + (internetRate / 100) + (sourceDiversity)) / 3 * 100) / 100 : 0;
+      const projectedClose = periodDays > 0 ? Math.round(soldLeads.length * (30 / Math.max(1, periodDays))) : 0;
+      const coverageRatio = projectedClose > 0 ? Math.round((activeLeads.length / Math.max(1, projectedClose)) * 10) / 10 : 0;
+
+      const completedCampaigns = orgCampaigns.filter(c => c.executionStatus === "completed" || c.executionStatus === "finished");
+      const totalSent = completedCampaigns.reduce((sum, c) => sum + (c.executionSent || 0), 0);
+      const totalReplied = completedCampaigns.reduce((sum, c) => sum + (c.repliedCount || 0), 0);
+      const campaignResponseRate = totalSent > 0 ? Math.round((totalReplied / totalSent) * 1000) / 10 : 0;
+
+      const scheduledAppts = orgAppointments.filter(a => a.status === "scheduled" || a.status === "confirmed");
+      const completedAppts = orgAppointments.filter(a => a.status === "completed" || a.status === "showed");
+
+      const contactedConvos = orgConversations.filter(c => c.channel === "sms" || c.channel === "voice");
+      const contactRate = totalLeads > 0 && contactedConvos.length > 0 ? Math.min(100, Math.round((contactedConvos.length / totalLeads) * 100)) : 0;
+
+      const newLeadAges = newLeads.map(l => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        return (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+      });
+      const avgNewLeadAge = newLeadAges.length > 0 ? Math.round(newLeadAges.reduce((s, v) => s + v, 0) / newLeadAges.length * 10) / 10 : 0;
+      const responsGapCount = newLeads.filter(l => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        return (now.getTime() - created.getTime()) > 24 * 60 * 60 * 1000;
+      }).length;
+
+      const fmt = (v: number, suffix = '') => `${v}${suffix}`;
+      const pctChange = (curr: number, prev: number) => {
+        if (prev === 0 && curr === 0) return { change: '0', trend: 'neutral' as const };
+        if (prev === 0) return { change: `+${curr}`, trend: 'up' as const };
+        const diff = Math.round(((curr - prev) / prev) * 100);
+        return { change: `${diff >= 0 ? '+' : ''}${diff}%`, trend: diff > 0 ? 'up' as const : diff < 0 ? 'down' as const : 'neutral' as const };
+      };
+      const diffChange = (curr: number, prev: number) => {
+        const diff = curr - prev;
+        return { change: `${diff >= 0 ? '+' : ''}${diff}`, trend: diff > 0 ? 'up' as const : diff < 0 ? 'down' as const : 'neutral' as const };
+      };
+
+      const allMetrics = [
+        { id: 'lib-1', title: 'Total Active Pipeline', value: fmt(activeLeads.length), ...diffChange(activeLeads.length, prevActive.length), category: 'Pipeline', roles: ['sales_staff', 'marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-2', title: 'Daily New Lead Volume', value: fmt(dailyVolume), ...diffChange(Math.round(dailyVolume), Math.round(prevDailyVolume)), category: 'Pipeline', roles: ['sales_staff', 'marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-3', title: 'Period Lead Total', value: fmt(totalLeads), ...pctChange(totalLeads, prevTotal), category: 'Pipeline', roles: ['sales_staff', 'marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-4', title: 'Lead Growth', value: pctChange(totalLeads, prevTotal).change, ...pctChange(totalLeads, prevTotal), category: 'Pipeline', roles: ['executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-5', title: 'Lead Velocity Rate', value: `${dailyVolume}/day`, ...diffChange(Math.round(dailyVolume * 10) / 10, Math.round(prevDailyVolume * 10) / 10), category: 'Pipeline', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-6', title: 'Pipeline Stagnation Index', value: fmt(staleLeads.length), ...diffChange(-staleLeads.length, 0), category: 'Pipeline', roles: ['executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-7', title: 'Fresh Lead Ratio', value: `${freshRatio}%`, ...pctChange(freshRatio, 100), category: 'Pipeline', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-8', title: 'Overall Win Rate', value: `${winRate}%`, ...pctChange(winRate, prevWinRate), category: 'Conversion', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-9', title: 'Internet Close Rate', value: `${internetRate}%`, ...pctChange(internetRate, 0), category: 'Conversion', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-10', title: 'Walk-In Close Rate', value: `${showroomRate}%`, ...pctChange(showroomRate, 0), category: 'Conversion', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-11', title: 'Service-to-Sales', value: `${serviceRate}%`, ...pctChange(serviceRate, 0), category: 'Conversion', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-12', title: 'Hot Lead Conversion', value: `${hotConvRate}%`, ...pctChange(hotConvRate, 0), category: 'Conversion', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-13', title: 'Showroom Conversion', value: `${showroomRate}%`, ...pctChange(showroomRate, 0), category: 'Conversion', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-14', title: 'Loss Rate', value: `${lossRate}%`, change: lossRate > 0 ? `-${lossRate}%` : '0', trend: lossRate < 40 ? 'up' as const : 'down' as const, category: 'Conversion', roles: ['executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-15', title: 'Bad Lead Rate', value: `${badRate}%`, change: badRate > 0 ? `-${badRate}%` : '0', trend: badRate < 10 ? 'up' as const : 'down' as const, category: 'Conversion', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-16', title: 'Contact Rate', value: `${contactRate}%`, ...pctChange(contactRate, 0), category: 'Response', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-17', title: 'New Lead Aging', value: `${avgNewLeadAge} days`, ...diffChange(-Math.round(avgNewLeadAge * 10) / 10, 0), category: 'Response', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-18', title: 'Response Gap (>24h)', value: fmt(responsGapCount), ...diffChange(-responsGapCount, 0), category: 'Response', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-19', title: 'Waiting Lead Volume', value: fmt(newLeads.length), ...diffChange(newLeads.length, 0), category: 'Response', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-20', title: 'Campaign Response Rate', value: `${campaignResponseRate}%`, ...pctChange(campaignResponseRate, 0), category: 'Response', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-21', title: 'Appointments Scheduled', value: fmt(scheduledAppts.length), ...diffChange(scheduledAppts.length, 0), category: 'Response', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-22', title: `Top Source: ${topSource ? topSource[0] : 'N/A'}`, value: `${topSourcePct}%`, ...pctChange(topSourcePct, 0), category: 'Lead Source', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-23', title: `Source Win Rate (${topSource ? topSource[0] : 'Top'})`, value: `${topSourceWinRate}%`, ...pctChange(topSourceWinRate, 0), category: 'Lead Source', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-24', title: 'Source Diversity Score', value: fmt(sourceDiversity), ...diffChange(Math.round(sourceDiversity * 100), 0), category: 'Lead Source', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-25', title: 'Concentration Risk', value: `${concentrationRisk}%`, change: concentrationRisk < 40 ? 'Low' : 'High', trend: concentrationRisk < 40 ? 'up' as const : 'down' as const, category: 'Lead Source', roles: ['executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-26', title: 'Campaigns Completed', value: fmt(completedCampaigns.length), ...diffChange(completedCampaigns.length, 0), category: 'Lead Source', roles: ['marketing_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-27', title: 'Digital Lead %', value: `${digitalPct}%`, ...pctChange(digitalPct, 0), category: 'Channel', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-28', title: 'Walk-In Traffic', value: fmt(walkInCount), ...diffChange(walkInCount, 0), category: 'Channel', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-29', title: 'Phone Inquiries', value: fmt(phoneCount), ...diffChange(phoneCount, 0), category: 'Channel', roles: ['sales_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-30', title: 'Referral Leads', value: fmt(referralCount), ...diffChange(referralCount, 0), category: 'Channel', roles: ['sales_staff', 'marketing_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-31', title: 'Sales Velocity', value: `${salesVelocity}/day`, ...diffChange(Math.round(salesVelocity * 10) / 10, Math.round(prevVelocity * 10) / 10), category: 'Composite', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-32', title: 'Digital Maturity Score', value: fmt(digitalMaturity), ...diffChange(Math.round(digitalMaturity * 100), 0), category: 'Composite', roles: ['marketing_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-33', title: 'Projected Month Close', value: fmt(projectedClose), ...diffChange(projectedClose, soldLeads.length), category: 'Forecast', roles: ['sales_staff', 'executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+        { id: 'lib-34', title: 'Pipeline Coverage Ratio', value: `${coverageRatio}x`, ...diffChange(Math.round(coverageRatio * 10) / 10, 0), category: 'Forecast', roles: ['executive_staff', 'org_admin', 'partner_admin', 'super_admin'] },
+      ];
+
+      const effectiveRole = roleFilter || req.user.role || 'org_admin';
+      const filtered = allMetrics.filter(m => m.roles.includes(effectiveRole));
+
+      return res.json({
+        metrics: filtered.map(({ roles, ...m }) => m),
+        period: { start: createdAfter.toISOString(), end: (endDateParam ? new Date(endDateParam) : now).toISOString(), days: periodDays },
+        campaignSummary: { totalCampaigns: orgCampaigns.length, completed: completedCampaigns.length, totalSent, totalReplied, responseRate: campaignResponseRate },
+        appointmentSummary: { scheduled: scheduledAppts.length, completed: completedAppts.length, total: orgAppointments.length },
+      });
+    } catch (err: any) {
+      console.error("[Insights] Library error:", err);
+      return res.status(500).json({ message: "Failed to fetch insights library" });
+    }
+  });
+
+  app.get("/api/reports/export", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = resolveOrgIdParam(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+
+      const reportType = (req.query.type as string) || "pipeline";
+      const format = (req.query.format as string) || "csv";
+      const now = new Date();
+      const startDateParam = req.query.startDate as string | undefined;
+      const endDateParam = req.query.endDate as string | undefined;
+      const createdAfter = startDateParam ? new Date(startDateParam) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const createdBefore = endDateParam ? new Date(endDateParam) : now;
+
+      const org = await storage.getOrganization(orgId);
+      const orgName = org?.name || "Organization";
+      const periodLabel = `${createdAfter.toLocaleDateString()} - ${createdBefore.toLocaleDateString()}`;
+
+      let rows: Record<string, string | number>[] = [];
+      let headers: string[] = [];
+      let title = "";
+
+      if (reportType === "pipeline") {
+        title = "Pipeline Report";
+        const allLeads = await storage.getWarehouseLeads(orgId, { createdAfter });
+        headers = ["Lead ID", "Customer Name", "Source", "Status", "Vehicle", "Created Date", "Days Old"];
+        rows = allLeads.map(l => {
+          const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+          const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+          return {
+            "Lead ID": l.sourceId || l.id,
+            "Customer Name": l.customerName || "N/A",
+            "Source": l.leadSource || "Unknown",
+            "Status": l.vinStatus || "unknown",
+            "Vehicle": l.vehicleOfInterest || "",
+            "Created Date": created.toLocaleDateString(),
+            "Days Old": daysOld,
+          };
+        });
+      } else if (reportType === "campaigns") {
+        title = "Campaign Performance Report";
+        const campaigns = await storage.getCampaigns(orgId);
+        headers = ["Campaign Name", "Status", "Channel", "Department", "Recipients", "Sent", "Replied", "Response Rate %", "Created Date"];
+        rows = campaigns.map(c => ({
+          "Campaign Name": c.name,
+          "Status": c.executionStatus || c.status,
+          "Channel": c.channel,
+          "Department": c.department,
+          "Recipients": c.recipientCount,
+          "Sent": c.executionSent || c.sentCount,
+          "Replied": c.repliedCount,
+          "Response Rate %": (c.executionSent || c.sentCount) > 0 ? Math.round((c.repliedCount / (c.executionSent || c.sentCount)) * 1000) / 10 : 0,
+          "Created Date": new Date(c.createdAt).toLocaleDateString(),
+        }));
+      } else if (reportType === "leads") {
+        title = "Lead Summary Report";
+        const allLeads = await storage.getWarehouseLeads(orgId, { createdAfter });
+        const totalLeads = allLeads.length;
+        const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
+        const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
+        const badCount = allLeads.filter(l => isBadLead(l.vinStatus)).length;
+        const activeCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
+        const newCount = allLeads.filter(l => isNewLead(l.vinStatus)).length;
+
+        const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
+        allLeads.forEach(l => {
+          const src = l.leadSource || "Unknown";
+          if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
+          sourceCounts[src].total++;
+          if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
+          if (isLostLead(l.vinStatus)) sourceCounts[src].lost++;
+        });
+
+        headers = ["Source", "Total Leads", "Won", "Lost", "Win Rate %", "Loss Rate %"];
+        rows = Object.entries(sourceCounts)
+          .sort(([, a], [, b]) => b.total - a.total)
+          .map(([source, data]) => ({
+            "Source": source,
+            "Total Leads": data.total,
+            "Won": data.won,
+            "Lost": data.lost,
+            "Win Rate %": data.total > 0 ? Math.round((data.won / data.total) * 1000) / 10 : 0,
+            "Loss Rate %": data.total > 0 ? Math.round((data.lost / data.total) * 1000) / 10 : 0,
+          }));
+
+        rows.unshift({
+          "Source": "TOTAL",
+          "Total Leads": totalLeads,
+          "Won": soldCount,
+          "Lost": lostCount,
+          "Win Rate %": totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0,
+          "Loss Rate %": totalLeads > 0 ? Math.round((lostCount / totalLeads) * 1000) / 10 : 0,
+        });
+      } else {
+        return res.status(400).json({ message: "Invalid report type. Use: pipeline, campaigns, leads" });
+      }
+
+      if (format === "json") {
+        return res.json({ title, orgName, period: periodLabel, headers, rows, generatedAt: now.toISOString() });
+      }
+
+      const escapeCsv = (val: any) => {
+        const str = String(val ?? "");
+        if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      const csvLines: string[] = [];
+      csvLines.push(`${title} — ${orgName}`);
+      csvLines.push(`Period: ${periodLabel}`);
+      csvLines.push(`Generated: ${now.toLocaleString()}`);
+      csvLines.push("");
+      csvLines.push(headers.map(escapeCsv).join(","));
+      rows.forEach(row => {
+        csvLines.push(headers.map(h => escapeCsv(row[h])).join(","));
+      });
+
+      const csvContent = csvLines.join("\n");
+      const filename = `${reportType}_report_${orgName.replace(/\s+/g, '_')}_${createdAfter.toISOString().slice(0, 10)}_to_${createdBefore.toISOString().slice(0, 10)}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      return res.send(csvContent);
+    } catch (err: any) {
+      console.error("[Reports] Export error:", err);
+      return res.status(500).json({ message: "Failed to export report" });
     }
   });
 
@@ -3709,6 +4497,14 @@ When the user asks a question that requires deep CRM data (specific lead details
       const { widgetCode, slug, name, email, phone, message } = req.body;
       if (!name || !email || !message) {
         return res.status(400).json({ message: "Name, email, and message are required" });
+      }
+
+      if (typeof name !== "string" || typeof email !== "string" || typeof message !== "string") {
+        return res.status(400).json({ message: "Name, email, and message must be strings" });
+      }
+
+      if (name.length > 200 || email.length > 320 || message.length > 10000) {
+        return res.status(400).json({ message: "Input exceeds maximum allowed length" });
       }
 
       let org;
@@ -3814,8 +4610,12 @@ When the user asks a question that requires deep CRM data (specific lead details
     if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
     try {
       const { slug, message, conversationId } = req.body;
-      if (!slug || !message) {
+      if (!slug || !message || typeof message !== "string" || message.trim().length === 0) {
         return res.status(400).json({ message: "slug and message are required" });
+      }
+
+      if (typeof message === "string" && message.length > 10000) {
+        return res.status(400).json({ message: "Message exceeds maximum length" });
       }
 
       const org = await resolveOrgBySlug(slug);
@@ -4088,9 +4888,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   app.get("/api/billing/usage", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const orgId = (req.query.org_id as string) || req.user.organizationId;
-      if (orgId !== req.user.organizationId && req.user.roleLevel > 2) {
-        return res.status(403).json({ message: "Access denied" });
+      const requestedOrgId = (req.query.org_id as string) || undefined;
+      let orgId: string;
+      if (!requestedOrgId || requestedOrgId === req.user.organizationId) {
+        orgId = req.user.organizationId;
+      } else if (req.user.roleLevel <= 2) {
+        orgId = requestedOrgId;
+      } else {
+        return res.status(403).json({ message: "Access denied: cannot view that organization" });
       }
 
       const now = new Date();
@@ -4367,6 +5172,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         content,
         senderName: normalizedPhone,
       });
+
+      if (conversation.campaignId) {
+        try {
+          const activeRecipients = await storage.getActiveRecipientsByContact(normalizedPhone, undefined);
+          const orgRecipients = activeRecipients.filter((r: any) => r.organizationId === organizationId);
+          for (const recipient of orgRecipients) {
+            await storage.updateCampaignRecipient(recipient.id, { responded: true, status: "completed" });
+          }
+          if (orgRecipients.length > 0) {
+            console.log(`[TextMagic Webhook] Marked ${orgRecipients.length} campaign recipient(s) as responded for ${normalizedPhone}`);
+          }
+        } catch (respErr: any) {
+          console.warn(`[TextMagic Webhook] Failed to mark recipients responded:`, respErr.message);
+        }
+      }
 
       const orgUsers = await storage.getUsers(organizationId);
       const adminUsers = orgUsers.filter(u => {
@@ -4813,6 +5633,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     } catch (err: any) {
       console.error("[maps-proxy] Error:", err);
       return res.status(502).json({ message: "Google Maps proxy error", error: err.message });
+    }
+  });
+
+  app.get("/api/leads/scored", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const orgId = resolveOrgIdParam(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied" });
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 100;
+      const leads = await storage.getScoredLeads(orgId, limit);
+      return res.json(leads);
+    } catch (err) {
+      console.error("[leads/scored] Error:", err);
+      return res.status(500).json({ message: "Failed to fetch scored leads" });
     }
   });
 

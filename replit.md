@@ -128,6 +128,16 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 - `GOOGLE_MAPS_API_KEY` — competitor radar (Market Intel agent) — PENDING
 - `APP_BASE_URL` — dev: release-1r.huminic.app, prod: live.huminic.app
 
+### Security & Compliance Infrastructure (Phase 1 — completed 2026-03-11)
+- `sms_blacklist` table — per-org SMS opt-out blacklist (STOP/UNSUBSCRIBE keyword detection)
+- `security_events` table — login failures, rate limits, RBAC denials, webhook auth, anomaly detection
+- Rate limiting on auth endpoints (express-rate-limit): login 10/15min, forgot/reset 5/15min
+- Webhook auth: VAPI, TextMagic, Tavus all validate signatures; Tavus fail-closed
+- Widget CORS: explicit method/header restrictions on `/api/widget/*`
+- Welcome email on user creation (Resend, gated by CommGate)
+- Unanswered inbound escalation: 15-min check, 30-min threshold, 4-hr throttle per conversation
+- Anomaly detection: >20 failed logins/hr from same IP → critical alert (4-hr cooldown)
+
 ### Auth Credentials (dev/test)
 - duane.wells@huminic.ai / a1$ucc3ss (super_admin)
 - partner_admin@huminic.ai / P@rtner$uccess
@@ -169,22 +179,25 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 
 ## Sprint Progress
 
+### Marketing Agent Sprints (0–11) — ALL COMPLETED
 | Sprint | Name | Status |
 |--------|------|--------|
-| 0 | Foundation — Proxy + Definitions | COMPLETED |
-| 1 | Agent Launcher Grid + Chat UI | COMPLETED |
-| 2 | Photo Studio + Video Producer | COMPLETED |
-| 3 | Copywriter + Creative Director | COMPLETED |
-| 4 | Market Intel + Studio Gallery | COMPLETED |
-| 5 | Cross-agent Workflow + Sharing | COMPLETED |
-| 6 | Agent Validation — Photo Studio | COMPLETED |
-| 7 | Agent Validation — Video Producer | COMPLETED |
-| 8 | Agent Validation — Copywriter | COMPLETED |
-| 9 | Agent Validation — Creative Director | COMPLETED |
-| 10 | Agent Validation — Market Intel | COMPLETED |
-| 11 | Agent Validation — Cross-Agent + Gallery | COMPLETED |
+| 0–11 | Foundation through Cross-Agent + Gallery Validation | COMPLETED |
 
 Sprint details: `.local/sprints/sprint-{N}.json`
+
+### Launch Readiness Remediation (Sprint-A through Sprint-G)
+| Phase | Sprint | Name | Status |
+|-------|--------|------|--------|
+| 1 | B | Compliance & Communication Gaps | COMPLETED |
+| 1 | F | Security Hardening | COMPLETED |
+| 2 | A | Knowledge Base & Upload Hardening | COMPLETED |
+| 2 | D | Lead Automation & Calendar Integration | COMPLETED |
+| 3 | E | Testing & Validation Battery | COMPLETED |
+| 4 | G | Billing (Flexprice) | PENDING |
+| 5 | C | Metrics & Reporting | PENDING |
+
+Launch audit artifacts: `.local/launch-checklist.md`, `.local/launch-sprint-plan.json`
 
 ## Testing
 
