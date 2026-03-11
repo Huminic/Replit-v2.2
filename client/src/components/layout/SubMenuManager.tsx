@@ -55,6 +55,7 @@ import { MoreVertical, Play, Trash2 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Agent, Conversation } from '@shared/schema';
+import { MARKETING_AGENTS } from '@/lib/marketing-agents';
 
 export function SubMenuManager() {
   const [location, setLocation] = useLocation();
@@ -602,6 +603,32 @@ export function SubMenuManager() {
                   {renderNavItem({ id: 'mk-studio', label: 'Studio', icon: Palette, path: '/marketing?tab=studio' })}
                   {renderNavItem({ id: 'mk-insights', label: 'Insights', icon: BarChart3, path: '/marketing?tab=insights' })}
                 </nav>
+                <div className="border-t border-border mt-2 pt-2">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">AI Agents</p>
+                  <div className="flex flex-col gap-0.5">
+                    {MARKETING_AGENTS.map((mAgent) => {
+                      const MIcon = mAgent.icon;
+                      return (
+                        <button
+                          key={mAgent.id}
+                          onClick={() => {
+                            setLocation(`/marketing?tab=agents&agent=${mAgent.id}`);
+                            if (!subMenuExpanded) {
+                              setActivePanel(null);
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-md transition-colors hover:bg-accent/50 text-left"
+                          data-testid={`panel-marketing-agent-${mAgent.id}`}
+                        >
+                          <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: mAgent.accentColor + '20' }}>
+                            <MIcon className="h-3 w-3" style={{ color: mAgent.accentColor }} />
+                          </div>
+                          <p className="text-xs font-medium text-foreground truncate">{mAgent.name}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 {renderAgentList('marketing')}
               </div>
             </ScrollArea>

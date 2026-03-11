@@ -18,7 +18,7 @@
  * Landing page visits tracked via UTM params and /w/demo route analytics.
  * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, TrendingUp, TrendingDown, MousePointerClick, Globe, Users, Target, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
@@ -78,7 +78,7 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function MarketingPage() {
-  const [, setLocation] = useLocation();
+  const [currentLocation, setLocation] = useLocation();
   const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
@@ -92,6 +92,16 @@ export default function MarketingPage() {
   const [newCampaignTemplate, setNewCampaignTemplate] = useState('');
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    const agentParam = params.get('agent');
+    if (tab) setActiveTab(tab);
+    if (agentParam && MARKETING_AGENTS.find(a => a.id === agentParam)) {
+      setActiveAgentId(agentParam);
+    }
+  }, [currentLocation]);
 
   const createCampaignMutation = useMutation({
     mutationFn: async (data: { name: string; department: string; channel: string; messageTemplate: string }) => {
