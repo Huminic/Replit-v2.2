@@ -100,6 +100,8 @@ export interface ToolExecResult {
   artifact?: MarketingArtifact;
   actionChips?: Array<{ label: string; icon: string; action: string }>;
   inlineMedia?: { type: 'image' | 'video' | 'audio'; url: string };
+  inlineCopyData?: AdCopyData;
+  inlineScoreData?: ScoreCardData;
 }
 
 export type ProgressCallback = (msg: string) => void;
@@ -121,6 +123,10 @@ export async function executeToolCall(
       return executeCreateVehicleVideo(args, agentId, sessionId, attachedImageDataUri, onProgress);
     case 'generate_voiceover':
       return executeGenerateVoiceover(args, agentId, sessionId, onProgress);
+    case 'generate_ad_copy':
+      return executeGenerateAdCopy(args, agentId, sessionId, onProgress);
+    case 'score_ad_image':
+      return executeScoreAdImage(args, agentId, sessionId, attachedImageDataUri, onProgress);
     default:
       return {
         content: `Tool **${toolName.replace(/_/g, ' ')}** is not yet implemented. It will be available in a future update.`,
@@ -360,6 +366,31 @@ async function executeCreateVehicleVideo(
   };
 }
 
+async function openaiChatCompletion(
+  messages: Array<{ role: string; content: any }>,
+  model: string = 'gpt-4o-mini',
+  responseFormat?: { type: string },
+): Promise<any> {
+  const token = localStorage.getItem('nexxus_access_token');
+  const payload: Record<string, any> = { model, messages };
+  if (responseFormat) payload.response_format = responseFormat;
+
+  const res = await fetch('/api/openai-proxy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`OpenAI API error (${res.status}): ${errText.substring(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content;
+}
+
 async function executeGenerateVoiceover(
   args: Record<string, any>,
   agentId: string,
@@ -404,7 +435,222 @@ async function executeGenerateVoiceover(
     inlineMedia: { type: 'audio', url: audioUrl },
     actionChips: [
       { label: '🎬 Pair with video', icon: 'video', action: 'pair_with_video' },
-      { label: '⬇ Download audio', icon: 'download', action: 'download_audio' },
+      { label: '⬇ Download MP3', icon: 'download', action: 'download_audio' },
+      { label: '🔄 Try different voice', icon: 'refresh', action: 'try_different_voice' },
     ],
+  };
+}
+
+export interface AdCopyData {
+  vehicle: string;
+  variations: {
+    headline: string[];
+    body_copy: string[];
+    social_caption: string[];
+    email_subject: string[];
+    google_ad: string[];
+  };
+}
+
+async function executeGenerateAdCopy(
+  args: Record<string, any>,
+  agentId: string,
+  sessionId: string,
+  onProgress?: ProgressCallback,
+): Promise<ToolExecResult> {
+  const vehicleOrOffer = args.vehicle_or_offer;
+  if (!vehicleOrOffer) {
+    return { content: 'Please tell me what vehicle, promotion, or offer you want copy for.' };
+  }
+
+  const tone = args.tone || 'professional';
+  const targetAudience = args.target_audience || 'general car buyers';
+  const numVariations = 3;
+
+  onProgress?.('Writing your ad copy...');
+
+  const systemPrompt = `You are an expert automotive advertising copywriter. Write conversion-focused, brand-appropriate copy. Return ONLY valid JSON matching the requested structure. No markdown, no code fences, just pure JSON.`;
+
+  const userPrompt = `Write ${numVariations} variations of ad copy for: ${vehicleOrOffer}
+
+Target audience: ${targetAudience}
+Tone: ${tone}
+
+Return this exact JSON structure:
+{
+  "vehicle": "${vehicleOrOffer}",
+  "variations": {
+    "headline": ["variation1", "variation2", "variation3"],
+    "body_copy": ["variation1", "variation2", "variation3"],
+    "social_caption": ["variation1", "variation2", "variation3"],
+    "email_subject": ["variation1", "variation2", "variation3"],
+    "google_ad": ["variation1", "variation2", "variation3"]
+  }
+}
+
+Rules:
+- Headlines: punchy, under 10 words, no clichés
+- Body copy: 2-3 sentences, clear CTA, benefit-driven
+- Social captions: platform-ready, include relevant hashtags
+- Email subjects: curiosity-driven, under 60 chars, no spam words
+- Google ads: max 30 char headline + 90 char description per variation`;
+
+  const rawContent = await openaiChatCompletion(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    'gpt-4o-mini',
+    { type: 'json_object' },
+  );
+
+  let copyData: AdCopyData;
+  try {
+    copyData = JSON.parse(rawContent);
+  } catch {
+    throw new Error('Failed to parse ad copy response. Please try again.');
+  }
+
+  if (!copyData.variations) {
+    throw new Error('Invalid ad copy format returned. Please try again.');
+  }
+
+  const artifact = makeArtifact(
+    'COPY',
+    `Ad Copy: ${vehicleOrOffer.slice(0, 60)}`,
+    agentId,
+    sessionId,
+    undefined,
+    undefined,
+    { copyData, text: copyData.variations.headline?.[0] || vehicleOrOffer },
+  );
+
+  return {
+    content: `Here's your ad copy for **${copyData.vehicle}**. Each format has ${numVariations} variations — use the 📋 buttons to copy any of them.`,
+    artifact,
+    inlineMedia: undefined,
+    actionChips: [
+      { label: '🎙 Turn this into a voiceover', icon: 'voiceover', action: 'turn_into_voiceover' },
+      { label: '📊 Score this campaign', icon: 'score', action: 'score_campaign' },
+      { label: '🔄 Try different tone', icon: 'refresh', action: 'try_different_tone' },
+    ],
+    inlineCopyData: copyData,
+  };
+}
+
+export interface ScoreCardData {
+  overall_score: number;
+  visual_appeal: number;
+  subject_clarity: number;
+  lighting_quality: number;
+  text_legibility: number;
+  ad_effectiveness: number;
+  visual_appeal_feedback: string;
+  subject_clarity_feedback: string;
+  lighting_quality_feedback: string;
+  text_legibility_feedback: string;
+  ad_effectiveness_feedback: string;
+  publish_ready: boolean;
+  recommendations: string[];
+}
+
+async function executeScoreAdImage(
+  args: Record<string, any>,
+  agentId: string,
+  sessionId: string,
+  attachedImageDataUri?: string,
+  onProgress?: ProgressCallback,
+): Promise<ToolExecResult> {
+  const imageUrl = args.image_url || attachedImageDataUri;
+  if (!imageUrl) {
+    return { content: 'Please upload an image or paste an image URL to score.' };
+  }
+
+  const context = args.context || 'general automotive marketing ad';
+
+  onProgress?.('Analyzing your creative...');
+
+  const systemPrompt = `You are an expert automotive marketing creative director. Analyze vehicle ad images with professional rigor. Return ONLY valid JSON matching the requested structure. No markdown, no code fences, just pure JSON.`;
+
+  const imageContent: any[] = [
+    {
+      type: 'text',
+      text: `Analyze this automotive marketing image for ad effectiveness. Context: ${context}
+
+Return this exact JSON:
+{
+  "overall_score": <0-100>,
+  "visual_appeal": <0-100>,
+  "subject_clarity": <0-100>,
+  "lighting_quality": <0-100>,
+  "text_legibility": <0-100>,
+  "ad_effectiveness": <0-100>,
+  "visual_appeal_feedback": "<one sentence>",
+  "subject_clarity_feedback": "<one sentence>",
+  "lighting_quality_feedback": "<one sentence>",
+  "text_legibility_feedback": "<one sentence>",
+  "ad_effectiveness_feedback": "<one sentence>",
+  "publish_ready": <true if overall_score >= 75>,
+  "recommendations": ["<specific improvement 1>", "<specific improvement 2>", "<specific improvement 3>"]
+}
+
+Score honestly. Most dealership photos score 40-70. Only truly professional studio shots score above 85.`,
+    },
+    {
+      type: 'image_url',
+      image_url: {
+        url: imageUrl,
+        detail: 'high',
+      },
+    },
+  ];
+
+  const rawContent = await openaiChatCompletion(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: imageContent },
+    ],
+    'gpt-4o-mini',
+    { type: 'json_object' },
+  );
+
+  let scoreData: ScoreCardData;
+  try {
+    scoreData = JSON.parse(rawContent);
+  } catch {
+    throw new Error('Failed to parse score analysis. Please try again.');
+  }
+
+  const overallScore = scoreData.overall_score || 0;
+  const publishStatus = overallScore >= 75 ? '✅ PUBLISH READY' : overallScore >= 50 ? '⚠ NEEDS WORK' : '❌ NOT READY';
+
+  const artifact = makeArtifact(
+    'SCORE',
+    `Score: ${overallScore}/100 — ${publishStatus}`,
+    agentId,
+    sessionId,
+    imageUrl.startsWith('data:') ? undefined : imageUrl,
+    imageUrl.startsWith('data:') ? undefined : imageUrl,
+    { scoreData },
+  );
+
+  const actionChips = overallScore < 75
+    ? [
+        { label: '📸 Regenerate in Photo Studio', icon: 'photo', action: 'regenerate_photo' },
+        { label: '🔄 Upload revised version', icon: 'refresh', action: 'upload_revised' },
+        { label: '✍ Write copy anyway', icon: 'copy', action: 'write_copy_anyway' },
+      ]
+    : [
+        { label: '✍ Write copy for this', icon: 'copy', action: 'write_copy' },
+        { label: '🎬 Send to Video Producer', icon: 'video', action: 'send_to_video' },
+        { label: '⬇ Download scored report', icon: 'download', action: 'download_report' },
+      ];
+
+  return {
+    content: `**${publishStatus}** — Overall Score: **${overallScore}/100**`,
+    artifact,
+    actionChips,
+    inlineScoreData: scoreData,
+    inlineMedia: imageUrl.startsWith('data:') ? undefined : { type: 'image' as const, url: imageUrl },
   };
 }

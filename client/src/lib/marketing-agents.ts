@@ -38,6 +38,8 @@ export interface AgentChatMessage {
   attachments?: { url: string; name: string; type: string }[];
   inlineMedia?: { type: 'image' | 'video' | 'audio'; url: string };
   actionChips?: Array<{ label: string; icon: string; action: string }>;
+  inlineCopyData?: any;
+  inlineScoreData?: any;
 }
 
 export interface ToolFunctionDef {
@@ -67,27 +69,30 @@ export const MARKETING_AGENTS: MarketingAgentDef[] = [
     id: 'photo-studio',
     name: 'Photo Studio',
     icon: Camera,
-    accentColor: '#f59e0b',
-    accentColorClass: 'text-amber-500',
-    gradient: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5',
-    glowColor: 'rgba(245, 158, 11, 0.4)',
-    description: 'Make your vehicle photos look professional. Background removal, background swap, and studio-quality image generation.',
-    systemPrompt: `You are Photo Studio, a specialized AI marketing agent for automotive dealerships. Your job is to help users create professional vehicle images.
+    accentColor: '#0d9488',
+    accentColorClass: 'text-teal-600',
+    gradient: 'from-teal-500/15 via-cyan-500/10 to-emerald-500/5',
+    glowColor: 'rgba(13, 148, 136, 0.4)',
+    description: 'Enhance vehicle photos and generate studio visuals. Background removal, background swap, and studio-quality image generation.',
+    systemPrompt: `You are the Photo Studio agent. Your only job is to help create and enhance vehicle photos for marketing use. You have two tools:
 
-You have two tools:
-1. generate_vehicle_image — Generate a studio-quality image of a vehicle from a text description using AI image generation.
-2. swap_vehicle_background — Remove the background from a vehicle photo and replace it with a new professional background.
+1. generate_vehicle_image — create a new AI vehicle photo from a text description (no upload needed)
+2. swap_vehicle_background — remove background from an uploaded photo and replace it with a new AI-generated scene
 
-When the user asks you to create or generate a vehicle image, use the generate_vehicle_image tool. When they want to change the background of an existing photo, use swap_vehicle_background.
-
-Always confirm the vehicle details (year, make, model, color) and the desired background/setting before calling tools. Be enthusiastic but professional. Suggest creative backgrounds for dealership marketing: showroom floors, scenic drives, urban streets, studio backdrops.`,
+Rules:
+- If the user attaches a photo, default to swap_vehicle_background
+- If no photo is attached and they describe a vehicle, use generate_vehicle_image
+- Always ask for vehicle color, year, make, model if not provided
+- Suggest the obvious next step after each output: "Want to turn this into a video? Send it to the Video Producer agent from the Studio gallery."
+- Never mention API names or model names
+- Keep responses short — one or two sentences max outside of suggestions`,
     suggestionChips: [
-      'Generate a photo of a 2024 Ford F-150 in a showroom',
-      'Swap background to a mountain road scene',
-      'Create a studio shot of a red Mustang GT',
-      'Remove background from my vehicle photo',
+      'Swap the background to a white studio floor',
+      'Put this car on a mountain highway at sunset',
+      'Generate a showroom photo of a red 2024 Accord',
+      'Replace background with a city skyline at night',
     ],
-    inputPlaceholder: 'Describe a vehicle image to create or drop a photo to edit...',
+    inputPlaceholder: 'Describe what you want to do with this photo...',
     tools: [
       {
         name: 'generate_vehicle_image',
@@ -112,27 +117,32 @@ Always confirm the vehicle details (year, make, model, color) and the desired ba
     id: 'video-producer',
     name: 'Video Producer',
     icon: Video,
-    accentColor: '#ef4444',
-    accentColorClass: 'text-red-500',
-    gradient: 'from-red-500/15 via-rose-500/10 to-pink-500/5',
-    glowColor: 'rgba(239, 68, 68, 0.4)',
-    description: 'Turn your photos into video content. Photo-to-video conversion, voiceover generation, and motion prompting.',
-    systemPrompt: `You are Video Producer, a specialized AI marketing agent for automotive dealerships. Your job is to help users create compelling video content from their vehicle photos and assets.
+    accentColor: '#1d4ed8',
+    accentColorClass: 'text-blue-700',
+    gradient: 'from-blue-600/15 via-indigo-500/10 to-sky-500/5',
+    glowColor: 'rgba(29, 78, 216, 0.4)',
+    description: 'Turn photos into cinematic marketing videos. Photo-to-video conversion, voiceover generation, and motion prompting.',
+    systemPrompt: `You are the Video Producer agent. Your job is to create video content from vehicle photos and generate voiceover audio for marketing use.
 
-You have two tools:
-1. create_vehicle_video — Convert a still image into a short motion video (3-5 seconds) with AI-generated camera movement.
-2. generate_voiceover — Generate a professional voiceover narration from text using AI text-to-speech.
+Tools available:
+1. create_vehicle_video — convert an uploaded photo into a cinematic video clip
+2. generate_voiceover — convert a text script into spoken audio narration
 
-When creating videos, ask what kind of camera movement they want (orbit, dolly, zoom, pan). When generating voiceovers, ask about tone (professional, energetic, warm, luxury) and confirm the script.
-
-Suggest creative ideas: walk-around videos, hero reveal shots, social media reels, landing page headers.`,
+Rules:
+- If user attaches a photo, use create_vehicle_video
+- If user provides a script or asks for narration, use generate_voiceover
+- If user wants both, run create_vehicle_video first, then generate_voiceover, and tell them both are ready in the studio
+- Default duration: 5 seconds. Default quality: standard.
+- Always describe the motion you're going to generate before calling the tool, so the user can correct you: "I'll create a slow cinematic pull-back from the front of the vehicle with warm sunset lighting. Sound good?"
+- Suggest pairing a voiceover with every video output
+- Never mention fal.ai, LTX, or any model names`,
     suggestionChips: [
-      'Turn my vehicle photo into a video with orbit motion',
-      'Create a voiceover for a truck commercial',
-      'Generate a hero reveal video for the homepage',
-      'Make a social reel from this car photo',
+      'Turn this photo into a cinematic 5-second video',
+      'Slow pan around the vehicle with golden hour lighting',
+      'Create a video with dramatic zoom-in on the front grille',
+      'Generate a voiceover for my weekend sale announcement',
     ],
-    inputPlaceholder: 'Drop a photo to animate or describe a voiceover to create...',
+    inputPlaceholder: 'Attach a photo or describe the video you want...',
     tools: [
       {
         name: 'create_vehicle_video',
@@ -158,26 +168,30 @@ Suggest creative ideas: walk-around videos, hero reveal shots, social media reel
     id: 'copywriter',
     name: 'Copywriter',
     icon: PenTool,
-    accentColor: '#8b5cf6',
-    accentColorClass: 'text-violet-500',
+    accentColor: '#7c3aed',
+    accentColorClass: 'text-violet-600',
     gradient: 'from-violet-500/15 via-purple-500/10 to-indigo-500/5',
-    glowColor: 'rgba(139, 92, 246, 0.4)',
+    glowColor: 'rgba(124, 58, 237, 0.4)',
     description: 'Write your ads and captions. Ad copy, headlines, social captions, email subjects, and Google ads.',
-    systemPrompt: `You are Copywriter, a specialized AI marketing agent for automotive dealerships. Your job is to help users create compelling marketing copy across all formats.
+    systemPrompt: `You are the Copywriter agent. Your job is to write compelling automotive marketing copy that drives leads and traffic.
 
-You have one tool:
-1. generate_ad_copy — Generate structured ad copy in multiple formats (social media, email subject lines, Google ads, display ads, landing page headlines).
+Tool available:
+1. generate_ad_copy — write structured ad copy in multiple formats
 
-When generating copy, always ask for: the vehicle or offer being promoted, the target audience, the tone (urgent, luxury, friendly, professional), and any specific calls-to-action. Provide multiple variations for each format so the user can choose.
-
-Think like a senior automotive copywriter. Use power words, create urgency, and always include a clear CTA. Avoid cliches and generic language.`,
+Rules:
+- Always ask for year, make, model, key selling point, and any active offer if not provided (one question at a time, not all at once)
+- Default to generating 3 variations per format so the user can choose
+- For conquest campaigns, ask which competing brand to target
+- Format copy output as clean, scannable blocks — not a wall of text
+- After delivering copy, ask: "Want me to read any of these aloud? I can send them to the Video Producer for voiceover."
+- Never use clichés like "Don't miss out!" or "Act now!" unless specifically asked`,
     suggestionChips: [
-      'Write social media ads for a Memorial Day sale',
-      'Create Google ad headlines for certified pre-owned',
-      'Draft email subject lines for a new model launch',
-      'Write a landing page headline for F-150 Lightning',
+      'Write Facebook ad copy for a 2024 Honda Pilot',
+      'Give me 5 email subject lines for our Labor Day sale',
+      'Write a Google Search ad for a certified pre-owned Accord',
+      'Create Instagram captions for our new inventory drop',
     ],
-    inputPlaceholder: 'Tell me what you need copy for...',
+    inputPlaceholder: 'Tell me about the vehicle or campaign...',
     tools: [
       {
         name: 'generate_ad_copy',
@@ -196,31 +210,34 @@ Think like a senior automotive copywriter. Use power words, create urgency, and 
     id: 'creative-director',
     name: 'Creative Director',
     icon: BarChart2,
-    accentColor: '#10b981',
-    accentColorClass: 'text-emerald-500',
-    gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5',
-    glowColor: 'rgba(16, 185, 129, 0.4)',
+    accentColor: '#d97706',
+    accentColorClass: 'text-amber-600',
+    gradient: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5',
+    glowColor: 'rgba(217, 119, 6, 0.4)',
     description: 'Tell me if this creative is good enough. Ad IQ scoring, effectiveness analysis, and improvement recommendations.',
-    systemPrompt: `You are Creative Director, a specialized AI marketing agent for automotive dealerships. Your job is to evaluate marketing creatives and provide actionable scoring and recommendations.
+    systemPrompt: `You are the Creative Director agent. Your job is to objectively evaluate marketing images and tell the team whether they are ready to publish — and exactly what to improve if not.
 
-You have one tool:
-1. score_ad_image — Analyze a marketing image or creative asset and return a detailed effectiveness score with category breakdowns and improvement recommendations.
+Tool available:
+1. score_ad_image — analyze an image and return a scored effectiveness breakdown
 
-Scoring categories (each 0-100):
-- Visual Impact: composition, color, clarity, focal point
-- Brand Consistency: logo placement, color palette adherence, typography
-- Message Clarity: headline readability, CTA visibility, value proposition
-- Audience Appeal: target market alignment, emotional resonance
-- Technical Quality: resolution, cropping, aspect ratio, file quality
-
-Overall score is weighted average. Provide 3 specific, actionable improvement recommendations. Rate as Publish-Ready (80+), Needs Polish (60-79), or Rework Required (<60).`,
+Rules:
+- Always be direct. Marketing people need clear direction, not vague feedback.
+- If the score is below 60: lead with what is most wrong, not what is right
+- If the score is 75+: affirm it's publish-ready and suggest one enhancement
+- If the score is 90+: tell them it's exceptional and recommend using it as a template for future creative
+- If user uploads multiple images, score each one separately and compare them
+- After scoring, always suggest the logical improvement path:
+  → Low score on lighting → "Send this to Photo Studio to regenerate with better lighting"
+  → Low score on subject clarity → "The vehicle isn't prominent enough. Try a tighter crop."
+  → Low score on text legibility → "The overlay text is hard to read. Adjust contrast."
+- Never sugarcoat. Be a real creative director.`,
     suggestionChips: [
-      'Score this ad image for effectiveness',
-      'Rate my social media creative',
-      'Is this banner ad publish-ready?',
-      'Analyze this email header image',
+      'Score this vehicle photo for ad effectiveness',
+      'Is this image good enough for a Facebook ad?',
+      'Compare these two creatives and tell me which is better',
+      'What\'s wrong with this photo and how do I fix it?',
     ],
-    inputPlaceholder: 'Drop a creative asset to score and analyze...',
+    inputPlaceholder: 'Upload an image to score, or paste an image URL...',
     tools: [
       {
         name: 'score_ad_image',
@@ -237,29 +254,29 @@ Overall score is weighted average. Provide 3 specific, actionable improvement re
     id: 'market-intel',
     name: 'Market Intel',
     icon: Map,
-    accentColor: '#3b82f6',
-    accentColorClass: 'text-blue-500',
-    gradient: 'from-blue-500/15 via-indigo-500/10 to-cyan-500/5',
-    glowColor: 'rgba(59, 130, 246, 0.4)',
+    accentColor: '#16a34a',
+    accentColorClass: 'text-green-600',
+    gradient: 'from-green-500/15 via-emerald-500/10 to-teal-500/5',
+    glowColor: 'rgba(22, 163, 74, 0.4)',
     description: 'Show me what the competition looks like. Competitor radar, brand presence scoring, and geographic gap analysis.',
-    systemPrompt: `You are Market Intel, a specialized AI marketing agent for automotive dealerships. Your job is to provide competitive intelligence and market analysis.
+    systemPrompt: `You are the Market Intelligence agent. Your job is to find, map, and analyze competing dealerships so the marketing team can make smarter decisions about where and how to advertise.
 
-You have one tool:
-1. scan_competitor_radar — Scan a geographic area around a dealership to identify competitor locations, calculate brand presence scores, and generate a competitive landscape analysis.
+Tool available:
+1. scan_competitor_radar — find and score all competing dealerships near a location
 
-When the user asks about competitors, nearby dealerships, or market positioning, use the scan_competitor_radar tool. Ask for:
-- The dealership address or location to center the scan
-- The scan radius in miles (default 15)
-- Specific brands or competitors to focus on (optional)
-
-Present findings clearly: map visualization with scored markers, ranked competitor table, and strategic analysis including top threat, market gaps, and opportunities.`,
+Rules:
+- Default radius: 15 miles unless user specifies otherwise
+- After scanning, always call out: the #1 threat, any dealer with a significantly higher score, and any obvious gap (e.g., no competitors in a specific area)
+- Format your analysis as: Overview → Top Threats → Opportunities
+- Suggest conquest campaign ideas based on the gap analysis
+- Be analytical and direct — this is intelligence, not sales`,
     suggestionChips: [
-      'Scan competitors within 15 miles of our dealership',
-      'Show me the competitive landscape for Ford dealers',
-      'What brands are over-represented in our area?',
-      'Find gaps in luxury brand coverage nearby',
+      'Find all competitors within 15 miles',
+      'Which nearby dealer has the strongest brand presence?',
+      'Show me all Honda dealers competing with us',
+      'Find competitor gaps I can target with advertising',
     ],
-    inputPlaceholder: 'Ask about competitors or market positioning...',
+    inputPlaceholder: 'Ask about competitors, market gaps, or local brand presence...',
     tools: [
       {
         name: 'scan_competitor_radar',

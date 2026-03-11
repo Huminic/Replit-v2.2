@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, PanelRightOpen, PanelRightClose, Play } from 'lucide-react';
+import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, PanelRightOpen, PanelRightClose, Play, Copy, Check, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ import {
   type AgentChatMessage,
   type MarketingArtifact,
 } from '@/lib/marketing-agents';
-import { executeToolCall, type ToolExecResult } from '@/lib/tool-executor';
+import { executeToolCall, type ToolExecResult, type AdCopyData, type ScoreCardData } from '@/lib/tool-executor';
 
 interface AgentChatViewProps {
   agentId: string;
@@ -35,6 +35,185 @@ const artifactTypeIcons: Record<string, typeof Image> = {
   RADAR: MapPin,
   VOICEOVER: Volume2,
 };
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors flex-shrink-0"
+      data-testid="button-copy-text"
+    >
+      {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
+
+function InlineAdCopy({ data }: { data: AdCopyData }) {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const sections = [
+    { key: 'headline', label: 'Headlines', icon: '📰' },
+    { key: 'body_copy', label: 'Body Copy', icon: '📝' },
+    { key: 'social_caption', label: 'Social Captions', icon: '📱' },
+    { key: 'email_subject', label: 'Email Subject Lines', icon: '📧' },
+    { key: 'google_ad', label: 'Google Ads', icon: '🔍' },
+  ];
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  return (
+    <div className="mt-3 space-y-1.5" data-testid="inline-ad-copy">
+      {sections.map(({ key, label, icon }) => {
+        const variations = data.variations?.[key as keyof typeof data.variations];
+        if (!variations || variations.length === 0) return null;
+        const isExpanded = expandedSections[key] ?? false;
+        return (
+          <div key={key} className="rounded-lg border border-border overflow-hidden">
+            <button
+              className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-muted/30 transition-colors text-left"
+              onClick={() => toggleSection(key)}
+              data-testid={`toggle-section-${key}`}
+            >
+              <span className="text-sm">{icon}</span>
+              <span className="text-xs font-medium flex-1">{label}</span>
+              <Badge variant="outline" className="text-[9px] h-4 px-1.5">{variations.length}</Badge>
+              <ChevronRight className={cn('h-3 w-3 text-muted-foreground transition-transform', isExpanded && 'rotate-90')} />
+            </button>
+            {isExpanded && (
+              <div className="border-t border-border">
+                {variations.map((text: string, i: number) => (
+                  <div
+                    key={i}
+                    className={cn('flex items-start gap-2 px-3 py-2.5', i > 0 && 'border-t border-border/50')}
+                    data-testid={`copy-variation-${key}-${i}`}
+                  >
+                    <span className="text-[10px] text-muted-foreground font-mono mt-0.5 flex-shrink-0">{i + 1}.</span>
+                    <p className="text-xs flex-1 leading-relaxed">{text}</p>
+                    <CopyButton text={text} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AnimatedScoreCircle({ score, size = 80 }: { score: number; size?: number }) {
+  const [animatedScore, setAnimatedScore] = useState(0);
+  useEffect(() => {
+    let frame: number;
+    const start = performance.now();
+    const duration = 1000;
+    const animate = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedScore(Math.round(eased * score));
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [score]);
+
+  const strokeWidth = 6;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (animatedScore / 100) * circumference;
+  const color = score < 50 ? '#ef4444' : score < 75 ? '#f59e0b' : score < 90 ? '#06b6d4' : '#22c55e';
+
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }} data-testid="score-circle">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} className="text-muted/30" />
+        <circle
+          cx={size / 2} cy={size / 2} r={radius} fill="none"
+          stroke={color} strokeWidth={strokeWidth}
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+        />
+      </svg>
+      <span className="absolute text-lg font-bold" style={{ color }}>{animatedScore}</span>
+    </div>
+  );
+}
+
+function AnimatedBar({ value, label, feedback, delay = 0 }: { value: number; label: string; feedback: string; delay?: number }) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const timer = setTimeout(() => setWidth(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  const color = value < 50 ? 'bg-red-500' : value < 75 ? 'bg-amber-500' : value < 90 ? 'bg-cyan-500' : 'bg-green-500';
+  return (
+    <div className="space-y-1" data-testid={`score-bar-${label.toLowerCase().replace(/\s/g, '-')}`}>
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-medium">{label}</span>
+        <span className="text-[11px] font-bold" style={{ color: value < 50 ? '#ef4444' : value < 75 ? '#f59e0b' : value < 90 ? '#06b6d4' : '#22c55e' }}>{value}</span>
+      </div>
+      <div className="h-2 rounded-full bg-muted/30 overflow-hidden">
+        <div
+          className={cn('h-full rounded-full transition-all duration-1000 ease-out', color)}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+      <p className="text-[10px] text-muted-foreground leading-snug">{feedback}</p>
+    </div>
+  );
+}
+
+function InlineScoreCard({ data }: { data: ScoreCardData }) {
+  const publishBanner = data.overall_score >= 75
+    ? { text: '✅ PUBLISH READY', bg: 'bg-green-500/10 border-green-500/30', textColor: 'text-green-500' }
+    : data.overall_score >= 50
+      ? { text: '⚠ NEEDS WORK', bg: 'bg-amber-500/10 border-amber-500/30', textColor: 'text-amber-500' }
+      : { text: '❌ NOT READY', bg: 'bg-red-500/10 border-red-500/30', textColor: 'text-red-500' };
+
+  return (
+    <div className="mt-3 rounded-lg border border-border overflow-hidden" data-testid="inline-score-card">
+      <div className="flex items-center gap-4 p-4">
+        <AnimatedScoreCircle score={data.overall_score} />
+        <div className="flex-1">
+          <div className={cn('inline-flex items-center px-3 py-1 rounded-full border text-xs font-semibold mb-2', publishBanner.bg, publishBanner.textColor)}>
+            {publishBanner.text}
+          </div>
+          <p className="text-[11px] text-muted-foreground">Overall effectiveness score based on 5 criteria</p>
+        </div>
+      </div>
+      <div className="border-t border-border p-4 space-y-3">
+        <AnimatedBar value={data.visual_appeal} label="Visual Appeal" feedback={data.visual_appeal_feedback} delay={100} />
+        <AnimatedBar value={data.subject_clarity} label="Subject Clarity" feedback={data.subject_clarity_feedback} delay={200} />
+        <AnimatedBar value={data.lighting_quality} label="Lighting Quality" feedback={data.lighting_quality_feedback} delay={300} />
+        <AnimatedBar value={data.text_legibility} label="Text Legibility" feedback={data.text_legibility_feedback} delay={400} />
+        <AnimatedBar value={data.ad_effectiveness} label="Ad Effectiveness" feedback={data.ad_effectiveness_feedback} delay={500} />
+      </div>
+      {data.recommendations?.length > 0 && (
+        <div className="border-t border-border p-4">
+          <p className="text-[11px] font-semibold mb-2">Recommendations</p>
+          <ul className="space-y-1.5">
+            {data.recommendations.map((rec: string, i: number) => (
+              <li key={i} className="text-[11px] text-muted-foreground flex items-start gap-2" data-testid={`recommendation-${i}`}>
+                <span className="text-primary mt-0.5">•</span>
+                <span>{rec}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AgentChatView({ agentId, sessionId: initialSessionId, onBack }: AgentChatViewProps) {
   const agent = MARKETING_AGENTS.find(a => a.id === agentId);
@@ -181,6 +360,8 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
             toolCall: { name: toolCall.function.name, args: parsedArgs },
             inlineMedia: result.inlineMedia,
             actionChips: result.actionChips,
+            inlineCopyData: result.inlineCopyData,
+            inlineScoreData: result.inlineScoreData,
           };
 
           const currentSession = getSession(session.id);
@@ -323,7 +504,17 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                       onClick={() => setSelectedArtifact(art)}
                       data-testid={`artifact-visor-${art.id}`}
                     >
-                      {art.thumbnailUrl ? (
+                      {art.type === 'SCORE' && art.data?.scoreData ? (
+                        <div className="w-full h-16 flex items-center justify-center" style={{ backgroundColor: art.data.scoreData.overall_score >= 75 ? 'rgba(34,197,94,0.1)' : art.data.scoreData.overall_score >= 50 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)' }}>
+                          <span className="text-xl font-bold" style={{ color: art.data.scoreData.overall_score >= 75 ? '#22c55e' : art.data.scoreData.overall_score >= 50 ? '#f59e0b' : '#ef4444' }}>
+                            {art.data.scoreData.overall_score}
+                          </span>
+                        </div>
+                      ) : art.type === 'COPY' && art.data?.text ? (
+                        <div className="w-full h-16 flex items-center justify-center bg-violet-500/5 px-2">
+                          <p className="text-[10px] text-center text-muted-foreground line-clamp-3 leading-snug">{art.data.text}</p>
+                        </div>
+                      ) : art.thumbnailUrl ? (
                         <img src={art.thumbnailUrl} alt={art.title} className="w-full h-16 object-cover" />
                       ) : (
                         <div className="w-full h-16 flex items-center justify-center bg-muted/30">
@@ -423,6 +614,12 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                           </div>
                         )}
                       </div>
+                    )}
+                    {message.inlineCopyData && (
+                      <InlineAdCopy data={message.inlineCopyData} />
+                    )}
+                    {message.inlineScoreData && (
+                      <InlineScoreCard data={message.inlineScoreData} />
                     )}
                     {message.actionChips && message.actionChips.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
@@ -629,16 +826,32 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, on
                   <video src={selectedArtifact.dataUrl} controls className="w-full max-h-[50vh]" />
                 )}
                 {selectedArtifact.type === 'COPY' && selectedArtifact.data && (
-                  <div className="p-4 whitespace-pre-wrap text-sm">{selectedArtifact.data.text || JSON.stringify(selectedArtifact.data)}</div>
+                  <div className="p-4">
+                    {selectedArtifact.data.copyData ? (
+                      <InlineAdCopy data={selectedArtifact.data.copyData} />
+                    ) : (
+                      <div className="whitespace-pre-wrap text-sm">{selectedArtifact.data.text || JSON.stringify(selectedArtifact.data)}</div>
+                    )}
+                  </div>
                 )}
                 {selectedArtifact.type === 'VOICEOVER' && selectedArtifact.dataUrl && (
                   <div className="p-4 flex items-center justify-center">
                     <audio src={selectedArtifact.dataUrl} controls className="w-full max-w-md" />
                   </div>
                 )}
-                {(selectedArtifact.type === 'SCORE' || selectedArtifact.type === 'RADAR') && (
+                {selectedArtifact.type === 'SCORE' && selectedArtifact.data?.scoreData && (
+                  <div className="p-4">
+                    <InlineScoreCard data={selectedArtifact.data.scoreData} />
+                  </div>
+                )}
+                {selectedArtifact.type === 'SCORE' && !selectedArtifact.data?.scoreData && (
                   <div className="p-6 text-center text-sm text-muted-foreground">
-                    {selectedArtifact.data ? JSON.stringify(selectedArtifact.data, null, 2) : 'Data visualization coming in a future sprint.'}
+                    {selectedArtifact.data ? JSON.stringify(selectedArtifact.data, null, 2) : 'Score data not available.'}
+                  </div>
+                )}
+                {selectedArtifact.type === 'RADAR' && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    {selectedArtifact.data ? JSON.stringify(selectedArtifact.data, null, 2) : 'Radar data coming in a future sprint.'}
                   </div>
                 )}
                 {!selectedArtifact.dataUrl && !selectedArtifact.data && (
