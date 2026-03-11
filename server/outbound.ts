@@ -25,7 +25,7 @@ export interface SendRequest {
 }
 
 export interface SendResult {
-  status: "sent" | "blocked" | "failed" | "dry_run";
+  status: "sent" | "blocked" | "failed";
   blockedReason?: string;
 }
 
@@ -161,13 +161,6 @@ async function checkCommGate(
 
   if (campaign?.killSwitch) {
     return { allowed: false, reason: "Campaign kill switch is active" };
-  }
-
-  if (channel === "sms" && customerContact) {
-    const blacklisted = await storage.isBlacklisted(customerContact, org.id);
-    if (blacklisted) {
-      return { allowed: false, reason: "Recipient is on SMS blacklist (opted out)" };
-    }
   }
 
   if (recipient) {
@@ -473,7 +466,7 @@ export async function startCampaignExecution(
     if (result.status === "sent" || result.status === "dry_run") {
       exec.sent++;
       if (!dryRun) {
-        await storage.updateRecipient(recipient.id, { status: "sent", sentAt: new Date(), lastAttemptChannel: contactChannel, lastAttemptAt: new Date(), sequenceStep: 0 } as any);
+        await storage.updateRecipient(recipient.id, { status: "sent", sentAt: new Date() } as any);
         await storage.updateCampaign(campaignId, {
           sentCount: (latestCampaign?.sentCount || 0) + 1,
           executionProcessed: exec.processed,
@@ -543,166 +536,7 @@ async function finishExecution(campaignId: string, finalStatus: "completed" | "s
   }, 60000);
 }
 
-export interface FollowUpStep {
-  channel: "sms" | "phone" | "email";
-  delayHours: number;
-  messageTemplate?: string;
-}
-
-const followUpProcessingLocks = new Set<string>();
-
-export async function processFollowUpSequence(
-  campaignId: string,
-  organizationId: string,
-  dryRun: boolean = false
-): Promise<{ processed: number; sent: number; skipped: number }> {
-  if (followUpProcessingLocks.has(campaignId)) {
-    console.log(`[FollowUp] Skipping — already processing follow-ups for campaign ${campaignId}`);
-    return { processed: 0, sent: 0, skipped: 0 };
-  }
-  followUpProcessingLocks.add(campaignId);
-  try {
-    return await _processFollowUpSequenceInner(campaignId, organizationId, dryRun);
-  } finally {
-    followUpProcessingLocks.delete(campaignId);
-  }
-}
-
-async function _processFollowUpSequenceInner(
-  campaignId: string,
-  organizationId: string,
-  dryRun: boolean = false
-): Promise<{ processed: number; sent: number; skipped: number }> {
-  const campaign = await storage.getCampaign(campaignId);
-  if (!campaign) return { processed: 0, sent: 0, skipped: 0 };
-
-  const sequence = (campaign.followUpSequence as FollowUpStep[] | null) || [];
-  if (sequence.length === 0) return { processed: 0, sent: 0, skipped: 0 };
-
-  const org = await storage.getOrganization(organizationId);
-  if (!org) return { processed: 0, sent: 0, skipped: 0 };
-
-  const dueRecipients = await storage.getFollowUpDueRecipients(campaignId, sequence.length);
-  const dealershipName = org.name;
-  let totalProcessed = 0;
-  let totalSent = 0;
-  let totalSkipped = 0;
-
-  for (const recipient of dueRecipients) {
-    const currentStep = recipient.sequenceStep;
-    if (currentStep >= sequence.length) {
-      totalSkipped++;
-      continue;
-    }
-
-    const step = sequence[currentStep];
-    const delayMs = step.delayHours * 60 * 60 * 1000;
-    const lastAttempt = recipient.lastAttemptAt ? new Date(recipient.lastAttemptAt).getTime() : 0;
-    const now = Date.now();
-
-    if (lastAttempt > 0 && (now - lastAttempt) < delayMs) {
-      totalSkipped++;
-      continue;
-    }
-
-    const to = step.channel === "email" ? recipient.email : recipient.phone;
-    if (!to) {
-      totalSkipped++;
-      continue;
-    }
-
-    const template = step.messageTemplate || campaign.messageTemplate || "Hello {{customerName}}, this is a follow-up from {{dealershipName}}.";
-    const messageContent = substituteTemplate(template, recipient, dealershipName);
-
-    const result = await processOutboundSend({
-      organizationId,
-      campaignId,
-      recipientId: recipient.id,
-      channel: step.channel,
-      to,
-      messageContent,
-      dryRun,
-    });
-
-    totalProcessed++;
-
-    if (result.status === "sent" || result.status === "dry_run") {
-      totalSent++;
-      if (!dryRun) {
-        await storage.updateRecipient(recipient.id, {
-          sequenceStep: currentStep + 1,
-          lastAttemptChannel: step.channel,
-          lastAttemptAt: new Date(),
-        } as any);
-      }
-    } else {
-      totalSkipped++;
-    }
-  }
-
-  return { processed: totalProcessed, sent: totalSent, skipped: totalSkipped };
-}
-
-const activeFollowUpTimers = new Map<string, ReturnType<typeof setInterval>>();
-
-export async function startFollowUpTimer(
-  campaignId: string,
-  organizationId: string,
-  dryRun: boolean = false
-): Promise<void> {
-  if (activeFollowUpTimers.has(campaignId)) {
-    clearInterval(activeFollowUpTimers.get(campaignId)!);
-    activeFollowUpTimers.delete(campaignId);
-  }
-
-  const campaign = await storage.getCampaign(campaignId);
-  if (!campaign) return;
-
-  const sequence = (campaign.followUpSequence as FollowUpStep[] | null) || [];
-  if (sequence.length === 0) return;
-
-  const minDelay = Math.min(...sequence.map(s => s.delayHours));
-  const checkIntervalMs = Math.max(minDelay * 60 * 60 * 1000 / 2, 5 * 60 * 1000);
-
-  console.log(`[FollowUp] Starting follow-up timer for campaign ${campaignId}, checking every ${Math.round(checkIntervalMs / 60000)}min`);
-
-  const followUpInterval = setInterval(async () => {
-    try {
-      const latestCampaign = await storage.getCampaign(campaignId);
-      if (!latestCampaign || latestCampaign.killSwitch || latestCampaign.status === "completed" || latestCampaign.status === "paused") {
-        clearInterval(followUpInterval);
-        activeFollowUpTimers.delete(campaignId);
-        console.log(`[FollowUp] Stopped follow-up timer for campaign ${campaignId} (campaign ${latestCampaign?.status || 'not found'})`);
-        return;
-      }
-
-      const result = await processFollowUpSequence(campaignId, organizationId, dryRun);
-      if (result.processed > 0) {
-        console.log(`[FollowUp] Campaign ${campaignId}: processed=${result.processed}, sent=${result.sent}, skipped=${result.skipped}`);
-      }
-    } catch (err) {
-      console.error(`[FollowUp] Error processing follow-up for campaign ${campaignId}:`, err);
-    }
-  }, checkIntervalMs);
-
-  activeFollowUpTimers.set(campaignId, followUpInterval);
-
-  setTimeout(() => {
-    if (activeFollowUpTimers.has(campaignId)) {
-      clearInterval(activeFollowUpTimers.get(campaignId)!);
-      activeFollowUpTimers.delete(campaignId);
-      console.log(`[FollowUp] Auto-expired follow-up timer for campaign ${campaignId} after 7 days`);
-    }
-  }, 7 * 24 * 60 * 60 * 1000);
-}
-
 export async function stopCampaignExecution(campaignId: string): Promise<{ success: boolean; message: string }> {
-  if (activeFollowUpTimers.has(campaignId)) {
-    clearInterval(activeFollowUpTimers.get(campaignId)!);
-    activeFollowUpTimers.delete(campaignId);
-    console.log(`[FollowUp] Cleared follow-up timer for stopped campaign ${campaignId}`);
-  }
-
   const exec = activeExecutions.get(campaignId);
   if (!exec) {
     return { success: false, message: "No active execution found for this campaign" };

@@ -25,17 +25,14 @@ import {
   type SyncLog, type InsertSyncLog,
   type UsageEvent, type InsertUsageEvent,
   type Favorite, type InsertFavorite,
-  type SmsBlacklist, type InsertSmsBlacklist,
-  type SecurityEvent, type InsertSecurityEvent,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
-  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites, smsBlacklist, securityEvents,
+  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites,
 } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByResetToken(token: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, data: Partial<InsertUser>): Promise<User | undefined>;
 
@@ -100,7 +97,6 @@ export interface IStorage {
 
   getDocuments(organizationId: string, agentId?: string): Promise<KnowledgeDocument[]>;
   getDocument(id: string): Promise<KnowledgeDocument | undefined>;
-  getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined>;
   createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument>;
   deleteDocument(id: string): Promise<void>;
 
@@ -110,8 +106,6 @@ export interface IStorage {
   getRecipientCount(campaignId: string): Promise<number>;
   updateRecipient(id: string, data: Partial<InsertCampaignRecipient>): Promise<CampaignRecipient | undefined>;
   getPendingRecipients(campaignId: string): Promise<CampaignRecipient[]>;
-  getFollowUpDueRecipients(campaignId: string, maxStep: number): Promise<CampaignRecipient[]>;
-  getActiveRecipientsByContact(phone?: string | null, email?: string | null): Promise<Array<CampaignRecipient & { campaignOrgId: string }>>;
 
   createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog>;
   getOutboundLogs(organizationId: string, filters?: { campaignId?: string }): Promise<OutboundLog[]>;
@@ -119,7 +113,6 @@ export interface IStorage {
   findLastOutboundForPhone(phone: string, channel?: string): Promise<OutboundLog | undefined>;
 
   createNotification(notif: InsertNotification): Promise<Notification>;
-  getNotification(id: string): Promise<Notification | undefined>;
   getNotifications(userId: string, limit?: number): Promise<Notification[]>;
   getUnreadNotificationCount(userId: string): Promise<number>;
   markNotificationRead(id: string): Promise<void>;
@@ -168,17 +161,6 @@ export interface IStorage {
   getFavorites(userId: string): Promise<Favorite[]>;
   addFavorite(fav: InsertFavorite): Promise<Favorite>;
   removeFavorite(id: string, userId: string): Promise<void>;
-
-  addToBlacklist(entry: InsertSmsBlacklist): Promise<SmsBlacklist>;
-  isBlacklisted(phoneNumber: string, organizationId: string): Promise<boolean>;
-  removeFromBlacklist(phoneNumber: string, organizationId: string): Promise<void>;
-
-  getScoredLeads(organizationId: string, limit?: number): Promise<Conversation[]>;
-  getUnansweredConversations(organizationId: string, unansweredMinutes: number): Promise<Conversation[]>;
-
-  createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent>;
-  getSecurityEvents(filters?: { eventType?: string; ipAddress?: string; since?: Date; limit?: number }): Promise<SecurityEvent[]>;
-  getRecentFailedLoginsByIp(ipAddress: string, since: Date): Promise<number>;
 }
 
 export interface PipelineMetrics {
@@ -229,11 +211,6 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
-  }
-
-  async getUserByResetToken(token: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.resetToken, token));
     return user;
   }
 
@@ -561,11 +538,6 @@ export class DatabaseStorage implements IStorage {
     return doc;
   }
 
-  async getDocumentByNameAndOrg(name: string, organizationId: string): Promise<KnowledgeDocument | undefined> {
-    const [doc] = await db.select().from(knowledgeDocuments).where(and(eq(knowledgeDocuments.name, name), eq(knowledgeDocuments.organizationId, organizationId)));
-    return doc;
-  }
-
   async createDocument(doc: InsertKnowledgeDocument): Promise<KnowledgeDocument> {
     const [created] = await db.insert(knowledgeDocuments).values(doc).returning();
     return created;
@@ -875,58 +847,6 @@ export class DatabaseStorage implements IStorage {
       .orderBy(campaignRecipients.createdAt);
   }
 
-  async getFollowUpDueRecipients(campaignId: string, maxStep: number): Promise<CampaignRecipient[]> {
-    return db.select().from(campaignRecipients)
-      .where(and(
-        eq(campaignRecipients.campaignId, campaignId),
-        sql`${campaignRecipients.status} IN ('sent', 'delivered')`,
-        eq(campaignRecipients.responded, false),
-        sql`${campaignRecipients.sequenceStep} < ${maxStep}`,
-      ))
-      .orderBy(campaignRecipients.createdAt);
-  }
-
-  async getActiveRecipientsByContact(phone?: string | null, email?: string | null): Promise<Array<CampaignRecipient & { campaignOrgId: string }>> {
-    if (!phone && !email) return [];
-    const conditions: any[] = [
-      sql`${campaignRecipients.status} IN ('pending', 'sent', 'delivered')`,
-    ];
-    const contactConditions: any[] = [];
-    if (phone) {
-      const normalizedPhone = phone.replace(/[^0-9+]/g, "");
-      const digitsOnly = normalizedPhone.replace(/\+/g, "");
-      const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
-      const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
-      contactConditions.push(
-        sql`(${campaignRecipients.phone} IN (${sql`${normalizedPhone}`}, ${sql`${digitsOnly}`}, ${sql`${without1}`}, ${sql`${with1}`}, ${sql`${'+' + with1}`}))`
-      );
-    }
-    if (email) {
-      contactConditions.push(sql`${campaignRecipients.email} = ${email}`);
-    }
-    if (contactConditions.length === 1) {
-      conditions.push(contactConditions[0]);
-    } else {
-      conditions.push(sql`(${sql.join(contactConditions, sql` OR `)})`);
-    }
-    const results = await db.select({
-      id: campaignRecipients.id,
-      campaignId: campaignRecipients.campaignId,
-      firstName: campaignRecipients.firstName,
-      lastName: campaignRecipients.lastName,
-      phone: campaignRecipients.phone,
-      email: campaignRecipients.email,
-      status: campaignRecipients.status,
-      sentAt: campaignRecipients.sentAt,
-      deliveredAt: campaignRecipients.deliveredAt,
-      createdAt: campaignRecipients.createdAt,
-      campaignOrgId: campaigns.organizationId,
-    }).from(campaignRecipients)
-      .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
-      .where(and(...conditions));
-    return results as Array<CampaignRecipient & { campaignOrgId: string }>;
-  }
-
   async createOutboundLog(log: InsertOutboundLog): Promise<OutboundLog> {
     const [created] = await db.insert(outboundLog).values(log).returning();
     return created;
@@ -973,11 +893,6 @@ export class DatabaseStorage implements IStorage {
   async createNotification(notif: InsertNotification): Promise<Notification> {
     const [created] = await db.insert(notifications).values(notif).returning();
     return created;
-  }
-
-  async getNotification(id: string): Promise<Notification | undefined> {
-    const [found] = await db.select().from(notifications).where(eq(notifications.id, id)).limit(1);
-    return found;
   }
 
   async getNotifications(userId: string, limit = 50): Promise<Notification[]> {
@@ -1255,94 +1170,6 @@ export class DatabaseStorage implements IStorage {
 
   async removeFavorite(id: string, userId: string): Promise<void> {
     await db.delete(favorites).where(and(eq(favorites.id, id), eq(favorites.userId, userId)));
-  }
-
-  async addToBlacklist(entry: InsertSmsBlacklist): Promise<SmsBlacklist> {
-    const normalizedPhone = entry.phoneNumber.replace(/[^0-9+]/g, "");
-    const existing = await db.select().from(smsBlacklist).where(
-      and(eq(smsBlacklist.phoneNumber, normalizedPhone), eq(smsBlacklist.organizationId, entry.organizationId))
-    );
-    if (existing.length > 0) return existing[0];
-    const [created] = await db.insert(smsBlacklist).values({ ...entry, phoneNumber: normalizedPhone }).returning();
-    return created;
-  }
-
-  async isBlacklisted(phoneNumber: string, organizationId: string): Promise<boolean> {
-    const normalizedPhone = phoneNumber.replace(/[^0-9+]/g, "");
-    const variants = this.phoneVariants(normalizedPhone);
-    const result = await db.select({ id: smsBlacklist.id }).from(smsBlacklist).where(
-      and(
-        sql`${smsBlacklist.phoneNumber} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)})`,
-        eq(smsBlacklist.organizationId, organizationId)
-      )
-    ).limit(1);
-    return result.length > 0;
-  }
-
-  async removeFromBlacklist(phoneNumber: string, organizationId: string): Promise<void> {
-    const normalizedPhone = phoneNumber.replace(/[^0-9+]/g, "");
-    const variants = this.phoneVariants(normalizedPhone);
-    await db.delete(smsBlacklist).where(
-      and(
-        sql`${smsBlacklist.phoneNumber} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)})`,
-        eq(smsBlacklist.organizationId, organizationId)
-      )
-    );
-  }
-
-  async getUnansweredConversations(organizationId: string, unansweredMinutes: number): Promise<Conversation[]> {
-    const cutoff = new Date(Date.now() - unansweredMinutes * 60 * 1000);
-    const openConvs = await db.select().from(conversations)
-      .where(and(
-        eq(conversations.organizationId, organizationId),
-        eq(conversations.status, "open"),
-        lte(conversations.lastMessageAt, cutoff)
-      ));
-
-    const unanswered: Conversation[] = [];
-    for (const conv of openConvs) {
-      const msgs = await db.select().from(messages)
-        .where(eq(messages.conversationId, conv.id))
-        .orderBy(desc(messages.createdAt))
-        .limit(1);
-      if (msgs.length > 0 && msgs[0].role === "user") {
-        unanswered.push(conv);
-      }
-    }
-    return unanswered;
-  }
-
-  async getScoredLeads(organizationId: string, limit?: number): Promise<Conversation[]> {
-    return db.select().from(conversations)
-      .where(eq(conversations.organizationId, organizationId))
-      .orderBy(desc(conversations.leadScore), desc(conversations.lastMessageAt))
-      .limit(limit || 100);
-  }
-
-  async createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent> {
-    const [created] = await db.insert(securityEvents).values(event).returning();
-    return created;
-  }
-
-  async getSecurityEvents(filters?: { eventType?: string; ipAddress?: string; since?: Date; limit?: number }): Promise<SecurityEvent[]> {
-    const conditions: any[] = [];
-    if (filters?.eventType) conditions.push(eq(securityEvents.eventType, filters.eventType));
-    if (filters?.ipAddress) conditions.push(eq(securityEvents.ipAddress, filters.ipAddress));
-    if (filters?.since) conditions.push(gte(securityEvents.createdAt, filters.since));
-    const query = conditions.length > 0
-      ? db.select().from(securityEvents).where(and(...conditions)).orderBy(desc(securityEvents.createdAt))
-      : db.select().from(securityEvents).orderBy(desc(securityEvents.createdAt));
-    return query.limit(filters?.limit || 100);
-  }
-
-  async getRecentFailedLoginsByIp(ipAddress: string, since: Date): Promise<number> {
-    const [result] = await db.select({ cnt: count() }).from(securityEvents)
-      .where(and(
-        eq(securityEvents.eventType, "login_failed"),
-        eq(securityEvents.ipAddress, ipAddress),
-        gte(securityEvents.createdAt, since)
-      ));
-    return Number(result?.cnt || 0);
   }
 }
 
