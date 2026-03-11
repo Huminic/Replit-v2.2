@@ -395,10 +395,16 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
       }));
 
       const systemMsg = { role: 'system' as const, content: agent.systemPrompt };
-      const historyMsgs = updatedMessages.map(m => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content + (m.attachments?.length ? `\n\n[User attached: ${m.attachments.map(a => a.name).join(', ')}]` : ''),
-      }));
+      const historyMsgs = updatedMessages.map(m => {
+        let content = m.content;
+        if (m.attachments?.length) {
+          content += `\n\n[User attached: ${m.attachments.map(a => a.name).join(', ')}]`;
+        }
+        if (m.inlineMedia) {
+          content += `\n\n[Generated media URL: ${m.inlineMedia.url}]`;
+        }
+        return { role: m.role as 'user' | 'assistant', content };
+      });
 
       const token = localStorage.getItem('nexxus_access_token');
       const res = await fetch('/api/openai-proxy', {
@@ -776,16 +782,42 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
 
               {isStreaming && (
                 <div className="flex justify-start" data-testid="chat-streaming-indicator">
-                  <div className="bg-card border border-border rounded-2xl px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="bg-card border border-border rounded-2xl px-5 py-4 max-w-sm w-full shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-shrink-0">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: `${agent.accentColor}15` }}
+                        >
+                          <svg className="w-10 h-10 absolute animate-spin" viewBox="0 0 40 40" style={{ animationDuration: '1.5s' }}>
+                            <circle cx="20" cy="20" r="17" fill="none" stroke={agent.accentColor} strokeWidth="2.5" strokeDasharray="80 27" strokeLinecap="round" opacity="0.7" />
+                          </svg>
+                          {(() => {
+                            const AgentIcon = agent.id === 'photo-studio' ? Image
+                              : agent.id === 'video-producer' ? Video
+                              : agent.id === 'copywriter' ? FileText
+                              : agent.id === 'creative-director' ? BarChart2
+                              : MapPin;
+                            return <AgentIcon className="w-4 h-4" style={{ color: agent.accentColor }} />;
+                          })()}
+                        </div>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {toolProgress || `${agent.name} is thinking...`}
-                      </span>
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <span className="text-sm font-medium text-foreground">
+                          {toolProgress || `${agent.name} is working...`}
+                        </span>
+                        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full animate-pulse"
+                            style={{
+                              background: `linear-gradient(90deg, ${agent.accentColor}60, ${agent.accentColor})`,
+                              width: '60%',
+                              animation: 'progressSlide 2s ease-in-out infinite',
+                            }}
+                          />
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">This may take a moment</span>
+                      </div>
                     </div>
                   </div>
                 </div>

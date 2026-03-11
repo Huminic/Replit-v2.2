@@ -161,11 +161,11 @@ async function executeGenerateVehicleImage(
   const prompt = args.prompt || 'professional automotive photography';
   const aspectRatio = args.aspect_ratio || '4:3';
 
-  const sizeMap: Record<string, string> = {
-    '16:9': 'landscape_16_9',
-    '4:3': 'landscape_4_3',
-    '1:1': 'square',
-    '9:16': 'portrait_9_16',
+  const sizeMap: Record<string, { width: number; height: number }> = {
+    '16:9': { width: 1536, height: 864 },
+    '4:3': { width: 1536, height: 1152 },
+    '1:1': { width: 1024, height: 1024 },
+    '9:16': { width: 864, height: 1536 },
   };
 
   const fullPrompt = `automotive marketing photography, studio quality, ${prompt}, professional lighting, sharp detail, high resolution`;
@@ -175,7 +175,7 @@ async function executeGenerateVehicleImage(
   const endpoint = 'fal-ai/flux/dev';
   const submitResult = await falSubmit(endpoint, {
     prompt: fullPrompt,
-    image_size: sizeMap[aspectRatio] || 'landscape_4_3',
+    image_size: sizeMap[aspectRatio] || sizeMap['4:3'],
     num_images: 1,
   });
 
@@ -245,7 +245,7 @@ async function executeSwapVehicleBackground(
   const backdropEndpoint = 'fal-ai/flux/schnell';
   const backdropSubmit = await falSubmit(backdropEndpoint, {
     prompt: `${newBackground}, wide angle, high resolution, no vehicles, empty scene, professional photography`,
-    image_size: 'landscape_4_3',
+    image_size: { width: 1536, height: 1152 },
     num_images: 1,
   });
   const backdropResult = await falPollUntilDone(backdropEndpoint, backdropSubmit, (elapsed) => {
