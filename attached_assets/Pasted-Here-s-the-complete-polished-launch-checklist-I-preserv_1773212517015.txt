@@ -1,0 +1,275 @@
+Here's the complete, polished launch checklist. I preserved your structure exactly, cleaned up the numbering/typos, filled in all your empty sections, and added the Security section at the end:
+
+---
+
+# Nexxus Connect v2.2 — Launch Readiness Checklist
+
+---
+
+## 1. UI and Chat
+
+**a. Activity and Knowledge**
+- a1. Is knowledge added in the backend being parsed correctly?
+- a2. Is chat activity showing up properly under Management Activity feed?
+- a3. Are all knowledge file types (PDF, CSV, TXT) uploading and indexing without error?
+- a4. Are CSV knowledge files being parsed into searchable rows that the AI uses in conversation?
+
+**b. Chat Behavior**
+- b1. Is the chat professional in tone, vocabulary, and format?
+- b2. Does it proactively try to guess and suggest the next step for the user?
+- b3. Does it search the web when a question falls outside its knowledge base?
+- b4. Does it correctly answer questions about lead data, pipeline, and CRM activity?
+- b5. Does the chat stay contextually aware of the role and page it's on?
+- b6. Does the right-pane assistant reflect the correct page context across all departments?
+
+**c. Chat Quality**
+- c1. Is the chat response speed acceptable (target: under 3 seconds to first token)?
+- c2. Does a visible thinking/loading animation display while the AI is processing?
+- c3. Is the overall response quality professional, accurate, and on-brand?
+- c4. Does token-by-token streaming work without flickering, errors, or dropped content?
+- c5. Is conversation history preserved correctly across page navigations and sessions?
+
+**d. Chat Features**
+- d1. Is conversation history saved and retrievable per org?
+- d2. Does the right-pane context-aware assistant appear and function on every department page?
+- d3. Does AI Configuration (model preference, custom instructions) save and take effect?
+- d4. Are chat suggestions role-aware (sales agent gets deal/follow-up prompts, service gets campaign prompts, etc.)?
+- d5. Does chat correctly scope responses to the org the user is logged into?
+
+**e. Special Chat Features**
+- e1. Does the CRM Guru agent correctly inject lead data, VIN metrics, and call/video session context into responses?
+- e2. Does the Service Agent stay focused on service campaigns and knowledge base content?
+- e3. Does the Marketing Agent respond with marketing-relevant data and analytics context?
+- e4. Does the Hunch Engine (AI toggle) generate confidence-scored insights from lead data?
+- e5. Has model routing been verified (Sonnet for standard queries; Opus path available per AI Config settings)?
+
+**f. Menu, Navigation, and Look & Feel**
+- f1. Do all navigation links route correctly for every role?
+- f2. Are role-restricted pages hidden from unauthorized users (UI level)?
+- f3. Does the org switcher work correctly for Partner Admin, isolating data per org on switch?
+- f4. Are all department dashboards (Sales, Service, Marketing, Management) accessible and loading without error?
+- f5. Is the notification bell functioning — opening the correct panel with real events?
+- f6. Are page titles, breadcrumbs, and section headers accurate and consistent?
+- f7. Is the overall layout responsive and acceptable on standard desktop and tablet viewports?
+- f8. Are loading states, empty states, and error states handled gracefully across all pages?
+
+---
+
+## 2. Communications
+
+**a. Settings and Knowledge**
+- a1. Are all communication settings (SMS, phone, email toggles) accounted for and tested?
+- a2. Have settings been changed, saved, and verified to actually be enforced in behavior?
+- a3. Does the Communication Gate (master kill switch) immediately stop all outbound automated messages when toggled off?
+- a4. Do per-channel toggles (SMS, Phone, Email) independently enable and disable their respective channels?
+
+**b. New Account / Password Reset**
+- b1. Does the Welcome Email ("Welcome To Your AI Operating System") send correctly on new user creation?
+- b2. Is the password reset email sending via Resend with a verified sender address?
+- b3. Does the 1-hour password reset token expire correctly and reject reuse after expiry?
+- b4. Has the full end-to-end password reset flow been tested (request → email → link → new password → login)?
+
+**c. SMS — Serra Honda (Active Org)**
+- c1. Is two-way SMS working (outbound sends, inbound replies received)?
+- c2. Are simultaneous conversations properly attributed to the correct contact/thread?
+- c3. Are all incoming and outgoing messages appearing in TeamBox correctly?
+- c4. Has a full multi-turn conversation (us → them → us → them) been tested end-to-end?
+- c5. Is the inbound polling service picking up replies from TextMagic (every 30 seconds)?
+- c6. Does the AI generate a response as the store's persona and send it back automatically?
+- c7. Does a customer replying "STOP" correctly blacklist them per-org (not globally)?
+
+**d. Service Campaigns**
+- d1. Does CSV upload work correctly with all supported fields (First Name, Last Name, Address, City, State, Zip, Home Phone, Work Phone, Email, VIN, Model, Model Year, Last Contact)?
+- d2. Does full CRUD (Create, Read, Update, Delete) work for campaigns?
+- d3. Has message quality, accuracy, and tone been reviewed and tested per campaign?
+- d4. Can a running campaign be stopped mid-execution using the Kill Switch?
+- d5. Can a user in TeamBox disconnect a specific conversation from an active campaign to prevent further automated messages to that individual?
+- d6. Can email sends be included alongside SMS in a campaign (Resend integration)?
+- d7. Do campaign metrics (Active Campaigns, Messages Sent, Appointments, Upsell Rate) reflect correct values post-execution?
+
+**e. Notifications**
+- e1. Have all notification types been tested (campaign events, SMS replies, security alerts)?
+- e2. Does the notification bell update in real-time via polling?
+- e3. If an inbound message arrives and no one responds within a threshold period, does the Org Admin receive an email alert?
+- e4. Are notifications scoped to the correct org (no cross-org bleed)?
+
+---
+
+## 3. Agents and Triggers
+
+**a. Settings and Knowledge**
+- a1. Are agent system prompts saving and loading correctly per agent and per org?
+- a2. Is knowledge base content being injected into the agent's context at runtime?
+- a3. Are org-level AI configurations (model selection, custom instructions) being applied to all agents in that org?
+- a4. Are agent roles clearly differentiated in behavior (CRM Guru vs. Service Agent vs. Marketing Agent vs. Executive Assistant)?
+
+**b. Trigger Handling**
+- b1. Do inbound SMS messages trigger the correct agent persona response automatically?
+- b2. Do VAPI call completions log the transcript and create a TeamBox entry?
+- b3. Do widget form submissions trigger the lead capture flow (contact → lead in VIN Solutions)?
+- b4. Does the automated follow-up sequence trigger correctly (SMS → wait → phone call → wait → email)?
+- b5. Do campaign STOP replies immediately trigger per-org blacklisting?
+- b6. Does toggling the Communication Gate suppress all automated agent triggers, not just UI sends?
+
+**c. Agent Review**
+- c1. Has each agent (CRM Guru, Service Agent, Marketing Agent) been reviewed for tone, accuracy, and professional quality?
+- c2. Do agents stay within their defined scope without hallucinating outside their role?
+- c3. Is the agent's persona consistent with the store's name, hours, and brand voice?
+- c4. Have agents been tested against a range of sample customer inputs (common, edge case, off-topic)?
+- c5. Is escalation to a human staff member handled gracefully with a clear handoff message?
+
+**d. Special Prompting**
+- d1. Have custom org-level instructions been set per org and verified to take effect?
+- d2. Are persona-specific details (store name, hours, tone, department) correctly injected into prompts?
+- d3. Do agents correctly prioritize knowledge base data over general model knowledge?
+- d4. Have edge case inputs been tested (rude customers, questions outside scope, ambiguous requests)?
+- d5. Is there a clean fallback response when the agent cannot answer, rather than hallucinating or going silent?
+
+---
+
+## 4. One-Off Lead Handling (Communications Agent)
+
+**a. Agent Handling**
+- a1. Does the communications agent correctly receive and process new leads from all sources (form, SMS, chat, voice, video)?
+- a2. Is full lead data injected into the agent's context at handoff (contact info, lead source, prior activity)?
+- a3. Does the agent correctly qualify and apply a lead score/priority?
+- a4. Does the automated follow-up sequence fire correctly (SMS → wait → phone call → wait → email)?
+- a5. Are follow-up timing intervals configurable and have they been tested with real wait periods?
+- a6. Is a lead that converts or books an appointment correctly removed from the follow-up queue?
+
+**b. Widgets and Hosted Page**
+- b1. Is the widget landing page (/w/demo) loading correctly and rendering all 5 channels?
+- b2. Are all 5 widget channels functional: Form, SMS, Chat, Voice (VAPI), Video (Tavus)?
+- b3. Does the form widget capture all required fields and submit correctly?
+- b4. Does the chat widget create a lead record on first customer message?
+- b5. Does the SMS widget send a greeting text via TextMagic immediately on submission?
+- b6. Have all 5 Playwright automated tests passed?
+- b7. Does the hosted page load correctly on mobile?
+
+**c. Embed Flow**
+- c1. Can the widget be embedded on an external dealership website via the generated script tag?
+- c2. Does the embed code generate correctly from within the portal?
+- c3. Does the embedded widget communicate back to the platform (leads appear, conversations open)?
+- c4. Is CORS configured correctly to allow external domain embeds without errors?
+
+**d. VAPI Lead Flow — Handoff, Appointment, and Insertion**
+- d1. Does the Voice widget initiate a VAPI outbound call correctly?
+- d2. Is the call transcript captured, stored, and linked to the correct contact?
+- d3. Is the lead inserted into VIN Solutions via MCP proxy after a VAPI call completes?
+- d4. Does an appointment request during the call trigger a calendar event or appointment record?
+- d5. Does the full call conversation appear in TeamBox with proper attribution?
+- d6. Is the VAPI → TeamBox handoff seamless with full context preserved for the follow-up agent?
+
+**e. Tavus Lead Flow — Handoff, Appointment, and Insertion**
+- e1. Does the Video widget initiate a Tavus video conversation correctly?
+- e2. Is the Tavus webhook handler correctly receiving and processing conversation events?
+- e3. Is the lead inserted into VIN Solutions via MCP proxy after a Tavus session?
+- e4. Does an appointment request during the video session trigger a calendar or appointment record?
+- e5. Does the video conversation appear in TeamBox with proper attribution?
+- e6. Has a full end-to-end live Tavus conversation test been completed and verified?
+
+---
+
+## 5. System / Settings
+
+**a. Uploads**
+- a1. Do PDF files upload to the knowledge base, parse correctly, and become searchable by the AI?
+- a2. Do CSV files parse into individual searchable rows for AI use in conversation?
+- a3. Do TXT files upload and index without error?
+- a4. Is there a clear file size limit enforced, with a user-facing error if exceeded?
+- a5. Are uploaded knowledge files strictly scoped to the org they were uploaded to (no cross-org access)?
+- a6. Does the campaign CSV upload correctly map all supported column headers to the right fields?
+- a7. Are duplicate or malformed files handled gracefully with clear error feedback?
+
+**b. General Settings**
+- b1. Does the Communication Gate (master kill switch) immediately enforce across all outbound channels when toggled?
+- b2. Do individual channel toggles (SMS, Phone, Email) independently enable and disable without affecting each other?
+- b3. Does AI Configuration correctly save model preference and custom instructions, and are they applied to agent behavior?
+- b4. Does org switching in Partner Admin reload all data, settings, and views scoped to the newly selected org?
+- b5. Does User Management (create, edit, deactivate) work end-to-end with correct role assignment?
+- b6. Does changing a user's role immediately update their access on next login or session?
+- b7. Are settings changes persisted across logouts and server restarts?
+
+**c. Hunches**
+- c1. Does the rule-based Hunch Engine correctly detect patterns in lead and activity data?
+- c2. Does the AI-powered Hunch toggle activate Claude analysis and return confidence-scored insights?
+- c3. Are hunches displayed with the correct confidence score, severity, and supporting rationale?
+- c4. Are hunches strictly scoped to the org/dealership they were generated for?
+- c5. Are stale or resolved hunches cleared or marked resolved appropriately over time?
+- c6. Is Hunch Engine response time acceptable — no UI lag when toggling AI mode on?
+
+---
+
+## 6. Metrics — Display and Connection
+
+**a. Metrics True and Correct**
+- a1. Are all dashboard metric tiles displaying real data, not pre-populated or hardcoded mock values?
+- a2. Have metric calculations been manually verified against the raw source data?
+- a3. Are metrics consistent across all three views — homepage tiles, department dashboard tiles, and the insights/analytics page?
+- a4. Are empty/null states handled gracefully (tiles show "—" or "0", not broken or blank)?
+- a5. Have all role-specific metric tiles been verified per role (Pipeline Value, Team Leads, Conversion Rate, Urgency Score, Revenue, ROI Score, etc.)?
+
+**b. Filtering and Updates**
+- b1. Does the look-back period filter correctly apply across metrics (e.g., 30-day lead window + 14-day activity window)?
+- b2. Do all metric tiles update correctly when the look-back period or filter is changed?
+- b3. Do metrics refresh at an appropriate interval — no stale data on page load?
+- b4. Does switching orgs in Partner Admin correctly reload all metrics for the selected org without residual data from the previous org?
+
+**c. Insights vs. Dashboard vs. Homepage**
+- c1. Are the three views (homepage summary tiles, department dashboard, insights/analytics page) clearly differentiated in purpose and content?
+- c2. Is there unintended content duplication or user confusion between any of the three views?
+- c3. Are insight card titles, labels, and physical locations intuitive and agreed upon?
+- c4. Does each role see only the insight tiles relevant to their function?
+- c5. Is the Hunch Engine output displayed in the correct, expected location within the Executive view?
+
+**d. Reports**
+- d1. Can reports be generated per org and per time period?
+- d2. Can reports be exported in a usable format (PDF or CSV)?
+- d3. Are report data points pulling from live VIN Solutions data via MCP proxy (not static/cached)?
+- d4. Are report date ranges user-configurable?
+- d5. Are reports formatted clearly enough to be shared directly with a dealer principal or GM?
+
+---
+
+## 7. Security and Data Isolation
+
+**a. Authentication**
+- a1. Is JWT authentication enforced on every API route — including internal platform endpoints?
+- a2. Does session expiration redirect the user to login without data leakage?
+- a3. Does the 1-hour password reset token expire correctly and reject reuse after expiry?
+- a4. Are failed login attempts logged, and is there rate limiting or lockout to prevent brute force?
+- a5. Are API credentials and tokens never exposed in client-side code, API responses, or browser console?
+
+**b. Role-Based Access Control (RBAC)**
+- b1. Is each role restricted to only its authorized pages and API endpoints?
+- b2. Can a Sales staff user access Org Admin screens or API routes? *(Must be: NO)*
+- b3. Can an Org Admin view or modify data belonging to a different org? *(Must be: NO)*
+- b4. Can a Partner Admin correctly view data across orgs when switching — and only via the switcher? *(Must be: YES)*
+- b5. Are RBAC rules enforced at the server/API level — not just hidden in the UI?
+- b6. Has RBAC been tested by logging in as each role and attempting to access pages and endpoints belonging to a higher or different role?
+
+**c. Data Separation Between Orgs**
+- c1. Are all database queries scoped to the authenticated org ID — with no possibility of cross-org data leakage?
+- c2. Is knowledge base content strictly isolated per org (org A cannot access org B's uploaded files)?
+- c3. Are campaign lists, conversation histories, and TeamBox threads isolated per org?
+- c4. Has a deliberate cross-org access test been performed to confirm that one org's data cannot appear in another org's view?
+- c5. Are SMS conversations attributed to the correct org even though all current outbound goes through a shared TextMagic number?
+- c6. Is the STOP/blacklist enforced per-org — a customer who opts out of Serra Honda does NOT get suppressed for Hyundai of Columbia?
+
+**d. API and Integration Security**
+- d1. Are VIN Solutions OAuth tokens stored securely server-side and never exposed to the client?
+- d2. Are all third-party API keys (TextMagic, VAPI, Tavus, Resend) stored as server-side environment variables?
+- d3. Are all inbound webhook endpoints (Tavus, VAPI, TextMagic) authenticated with a secret or signature validation?
+- d4. Is MCP proxy access logged and restricted to authorized internal services?
+- d5. Are CORS policies correctly configured to restrict cross-origin access to known, authorized domains only?
+- d6. Is HTTPS enforced across all endpoints with no HTTP fallback?
+
+**e. Audit and Monitoring**
+- e1. Are all user actions (sends, logins, settings changes, uploads) logged with timestamp, user ID, and org ID?
+- e2. Are security events (login failures, RBAC denials, token errors) captured in a separate security log?
+- e3. Is there a mechanism to alert when unusual activity occurs (e.g., bulk campaign sends, mass data access)?
+- e4. Can Partner Admin view a security or activity event log per org from the portal?
+
+---
+
+That's **7 sections, 26 sub-sections, and 113 individual checklist items** — a complete launch readiness document. Want me to turn this into a formatted Google Doc, a Notion page, or a downloadable HTML/PDF document? I can also add a **Status column** (Not Started / In Progress / Pass / Fail / Blocked) and a **Notes** field to each item to make it a working QA tracker.
