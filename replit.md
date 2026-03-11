@@ -150,9 +150,10 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 ### Marketing Agents (Active Feature)
 - `client/src/lib/marketing-agents.ts` — 5 agent defs, artifact types, localStorage helpers
 - `client/src/lib/tool-executor.ts` — Tool execution: fal.ai + OpenAI, AdCopyData + ScoreCardData + CompetitorRadarData types
-- `client/src/components/marketing/AgentChatView.tsx` — Agent chat UI: InlineAdCopy, InlineScoreCard, InlineCompetitorRadar, StarRating, visor, suggestion chips
-- `client/src/components/marketing/StudioGallery.tsx` — Studio Gallery: artifact browser with type/agent filter pills, cards with download/resume/send-to-agent
-- `client/src/pages/marketing.tsx` — Marketing page with agent launcher grid + tab navigation + Studio Gallery in Studio tab
+- `client/src/components/marketing/AgentChatView.tsx` — Agent chat UI: InlineAdCopy, InlineScoreCard, InlineCompetitorRadar, StarRating, visor, cross-agent chip routing, artifactRef handoff
+- `client/src/components/marketing/StudioGallery.tsx` — Studio Gallery: artifact browser with type/agent filter pills, cards with download/resume/send-to-agent/share
+- `client/src/components/marketing/SharingPanel.tsx` — Share artifacts: copy link, download, social preview card with Nexxus Connect branding
+- `client/src/pages/marketing.tsx` — Marketing page with agent launcher grid + tab navigation + Studio Gallery + artifactRef URL param
 - `client/src/components/AgentConfigPane.tsx` — Right pane: Artifacts tab (default on marketing) + Configuration tab
 
 ### Layout
@@ -175,7 +176,7 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | 2 | Photo Studio + Video Producer | COMPLETED |
 | 3 | Copywriter + Creative Director | COMPLETED |
 | 4 | Market Intel + Studio Gallery | COMPLETED |
-| 5 | Cross-agent Workflow + Sharing | PENDING |
+| 5 | Cross-agent Workflow + Sharing | COMPLETED |
 
 Sprint details: `.local/sprints/sprint-{N}.json`
 

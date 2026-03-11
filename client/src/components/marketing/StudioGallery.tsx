@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
-import { Image, Video, FileText, BarChart2, MapPin, Volume2, Download, Play, Palette, Send } from 'lucide-react';
+import { Image, Video, FileText, BarChart2, MapPin, Volume2, Download, Play, Palette, Send, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import {
   type MarketingArtifact,
   type ArtifactType,
 } from '@/lib/marketing-agents';
+import SharingPanel from '@/components/marketing/SharingPanel';
 
 interface ArtifactWithContext extends MarketingArtifact {
   agentId: string;
@@ -44,6 +45,7 @@ export default function StudioGallery() {
   const [activeType, setActiveType] = useState<ArtifactType | 'ALL'>('ALL');
   const [activeAgent, setActiveAgent] = useState<string | null>(null);
   const [sendPickerIndex, setSendPickerIndex] = useState<number | null>(null);
+  const [sharingArtifact, setSharingArtifact] = useState<ArtifactWithContext | null>(null);
   const sendPickerRef = useRef<HTMLDivElement>(null);
 
   const allArtifacts = useMemo<ArtifactWithContext[]>(() => {
@@ -229,6 +231,14 @@ export default function StudioGallery() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => setSharingArtifact(artifact)}
+                    data-testid={`btn-share-${index}`}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setSendPickerIndex(sendPickerIndex === index ? null : index)}
                     data-testid={`btn-send-${index}`}
                   >
@@ -263,6 +273,12 @@ export default function StudioGallery() {
           );
         })}
       </div>
+
+      <SharingPanel
+        artifact={sharingArtifact}
+        open={!!sharingArtifact}
+        onClose={() => setSharingArtifact(null)}
+      />
     </div>
   );
 }

@@ -94,16 +94,20 @@ export default function MarketingPage() {
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
+  const [activeArtifactRef, setActiveArtifactRef] = useState<string | null>(null);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     const agentParam = params.get('agent');
     const sessionParam = params.get('session');
+    const artifactRefParam = params.get('artifactRef');
     if (tab) setActiveTab(tab);
     if (agentParam && MARKETING_AGENTS.find(a => a.id === agentParam)) {
       setActiveAgentId(agentParam);
     }
     if (sessionParam) setActiveSessionId(sessionParam);
+    if (artifactRefParam) setActiveArtifactRef(artifactRefParam);
   }, [currentLocation]);
 
   const createCampaignMutation = useMutation({
@@ -547,7 +551,8 @@ export default function MarketingPage() {
         <AgentChatView
           agentId={activeAgentId}
           sessionId={activeSessionId ?? undefined}
-          onBack={() => { setActiveAgentId(null); setActiveSessionId(null); }}
+          artifactRef={activeArtifactRef ?? undefined}
+          onBack={() => { setActiveAgentId(null); setActiveSessionId(null); setActiveArtifactRef(null); }}
         />
       ) : (
         <>
