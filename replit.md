@@ -14,11 +14,11 @@
 ### Sprint Lifecycle
 
 ```
-1. PRE-SPRINT SCAN (architect subagent)
-   → Read .local/sprints/{sprint-N}.json
-   → Scan worktree for drift, broken imports, stale files
-   → Verify memory in replit.md is current
-   → Output: GO / BLOCKED (with blockers list)
+1. PRE-SPRINT GATE (verification script + architect subagent)
+   → Run: node .local/scripts/verify-sprint.cjs pre sprint-N
+   → Must exit 0 (GO) before any work starts
+   → If BLOCKED: resolve blockers first, re-run until GO
+   → Architect scans worktree for drift, broken imports, stale files
 
 2. TASK EXECUTION (implementation subagents)
    → Orchestrator reads sprint JSON, launches subagents per task
@@ -26,20 +26,42 @@
    → Dependent tasks run sequentially via subagent
    → Orchestrator monitors, does NOT write code
 
-3. POST-SPRINT REVIEW (architect subagent)
-   → Read .local/sprints/{sprint-N}.json acceptanceCriteria
-   → Verify each AC pass/fail against actual code + running app
-   → Check for drift: accent colors, system prompts, suggestion chips
-   → Update sprint JSON: set AC pass/fail values, set status to COMPLETED or FAILED
-   → Output: AC report with pass/fail per criterion
+3. POST-SPRINT GATE (verification script + architect subagent)
+   → Architect reviews code, updates sprint JSON AC pass/fail values
+   → Run: node .local/scripts/verify-sprint.cjs post sprint-N
+   → Must exit 0 (PASSED) before sprint is considered done
+   → If FAILED: fix issues, re-run until PASSED
 ```
+
+### Verification Script
+
+```bash
+# Full dashboard of all sprints
+node .local/scripts/verify-sprint.cjs status
+
+# Pre-sprint gate — checks blockers, prerequisites, file existence, replit.md
+node .local/scripts/verify-sprint.cjs pre sprint-4
+
+# Post-sprint gate — checks all tasks DONE, all AC evaluated + passed, files exist
+node .local/scripts/verify-sprint.cjs post sprint-4
+```
+
+The script enforces:
+- Prerequisite sprints must be COMPLETED before starting
+- Blockers in sprint JSON prevent GO
+- All tasks must be DONE status
+- All acceptance criteria must have pass: true (not null, not false)
+- All referenced files must exist in the worktree
 
 ### How to Run a Sprint
 
 ```javascript
-// 1. Pre-sprint scan
+// 0. Run pre-sprint gate (must pass before anything else)
+// bash: node .local/scripts/verify-sprint.cjs pre sprint-4
+
+// 1. Architect scans for worktree issues
 const scan = await architect({
-  task: "PRE-SPRINT SCAN for sprint-4. Read .local/sprints/sprint-4.json. Check worktree for broken imports, stale state, blockers. Verify replit.md memory is current. Report GO or BLOCKED.",
+  task: "PRE-SPRINT SCAN for sprint-4. Read .local/sprints/sprint-4.json. Check worktree for broken imports, stale state. Verify replit.md memory is current.",
   relevantFiles: [".local/sprints/sprint-4.json", "replit.md"],
   responsibility: "evaluate_task"
 });
@@ -49,14 +71,17 @@ console.log(scan.result);
 await startAsyncSubagent({ task: "T009", fromPlan: true, relevantFiles: [...] });
 await startAsyncSubagent({ task: "T010", fromPlan: true, relevantFiles: [...] });
 
-// 3. Post-sprint AC review
+// 3. Architect reviews and updates sprint JSON AC values
 const review = await architect({
-  task: "POST-SPRINT REVIEW for sprint-4. Read .local/sprints/sprint-4.json. Verify each acceptance criterion against actual code. Check for drift. Update the JSON with pass/fail results.",
+  task: "POST-SPRINT REVIEW for sprint-4. Read .local/sprints/sprint-4.json. Verify each AC. Update the JSON with pass/fail.",
   relevantFiles: [".local/sprints/sprint-4.json", ...taskFiles],
   responsibility: "evaluate_task",
   includeGitDiff: true
 });
 console.log(review.result);
+
+// 4. Run post-sprint gate (must pass before sprint is complete)
+// bash: node .local/scripts/verify-sprint.cjs post sprint-4
 ```
 
 ### Sprint File Format
