@@ -3,6 +3,7 @@ import { type Server } from "http";
 import bcrypt from "bcrypt";
 import Anthropic from "@anthropic-ai/sdk";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import {
   authenticateToken,
@@ -148,13 +149,70 @@ function resolveOrgIdParam(req: import("express").Request): string | null {
   return null;
 }
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many login attempts. Please try again in 15 minutes." },
+  validate: { xForwardedForHeader: false },
+  handler: (req, res) => {
+    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+    storage.createSecurityEvent({
+      eventType: "rate_limited",
+      severity: "warning",
+      ipAddress: clientIp,
+      metadata: { endpoint: "/api/auth/login", email: req.body?.email },
+    }).catch(() => {});
+    res.status(429).json({ message: "Too many login attempts. Please try again in 15 minutes." });
+  },
+});
+
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many password reset requests. Please try again in 15 minutes." },
+  validate: { xForwardedForHeader: false },
+  handler: (req, res) => {
+    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+    storage.createSecurityEvent({
+      eventType: "rate_limited",
+      severity: "warning",
+      ipAddress: clientIp,
+      metadata: { endpoint: "/api/auth/forgot-password" },
+    }).catch(() => {});
+    res.status(429).json({ message: "Too many password reset requests. Please try again in 15 minutes." });
+  },
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many password reset attempts. Please try again in 15 minutes." },
+  validate: { xForwardedForHeader: false },
+  handler: (req, res) => {
+    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+    storage.createSecurityEvent({
+      eventType: "rate_limited",
+      severity: "warning",
+      ipAddress: clientIp,
+      metadata: { endpoint: "/api/auth/reset-password" },
+    }).catch(() => {});
+    res.status(429).json({ message: "Too many password reset attempts. Please try again in 15 minutes." });
+  },
+});
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   await seedDatabase();
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const { email, password } = req.body;
 
@@ -162,17 +220,64 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Email and password are required" });
       }
 
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+
       const user = await storage.getUserByEmail(email.toLowerCase());
       if (!user) {
+        storage.createActivityLog({
+          userId: "system",
+          organizationId: "system",
+          action: "login_failed",
+          entityType: "auth",
+          metadata: { email: email.toLowerCase(), reason: "user_not_found", ip: clientIp },
+        }).catch(() => {});
+        storage.createSecurityEvent({
+          eventType: "login_failed",
+          severity: "warning",
+          ipAddress: clientIp,
+          metadata: { email: email.toLowerCase(), reason: "unknown_email" },
+        }).catch(() => {});
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
       if (!user.isActive) {
+        storage.createActivityLog({
+          userId: user.id,
+          organizationId: user.organizationId,
+          action: "login_failed",
+          entityType: "auth",
+          entityId: user.id,
+          metadata: { email: user.email, reason: "account_deactivated", ip: clientIp },
+        }).catch(() => {});
+        storage.createSecurityEvent({
+          eventType: "login_failed",
+          severity: "warning",
+          userId: user.id,
+          organizationId: user.organizationId,
+          ipAddress: clientIp,
+          metadata: { email: user.email, reason: "account_deactivated" },
+        }).catch(() => {});
         return res.status(401).json({ message: "Account is deactivated" });
       }
 
       const passwordValid = await bcrypt.compare(password, user.password);
       if (!passwordValid) {
+        storage.createActivityLog({
+          userId: user.id,
+          organizationId: user.organizationId,
+          action: "login_failed",
+          entityType: "auth",
+          entityId: user.id,
+          metadata: { email: user.email, reason: "invalid_password", ip: clientIp },
+        }).catch(() => {});
+        storage.createSecurityEvent({
+          eventType: "login_failed",
+          severity: "warning",
+          userId: user.id,
+          organizationId: user.organizationId,
+          ipAddress: clientIp,
+          metadata: { email: user.email, reason: "invalid_password" },
+        }).catch(() => {});
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
@@ -374,7 +479,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/auth/forgot-password", async (req, res) => {
+  app.post("/api/auth/forgot-password", forgotPasswordLimiter, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
@@ -415,16 +520,13 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/auth/reset-password", async (req, res) => {
+  app.post("/api/auth/reset-password", resetPasswordLimiter, async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
     if (password.length < 8) return res.status(400).json({ message: "Password must be at least 8 characters" });
 
     try {
-      const { eq } = await import("drizzle-orm");
-      const { db } = await import("./db");
-      const { users } = await import("@shared/schema");
-      const [found] = await db.select().from(users).where(eq(users.resetToken, token));
+      const found = await storage.getUserByResetToken(token);
       if (!found) return res.status(400).json({ message: "Invalid or expired reset token" });
       if (!found.resetTokenExpiry || new Date(found.resetTokenExpiry) < new Date()) {
         return res.status(400).json({ message: "Reset token has expired" });
@@ -513,13 +615,51 @@ export async function registerRoutes(
 
       const { password: _, ...safeUser } = user;
 
+      const org = await storage.getOrganization(req.user!.organizationId);
+      const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
+
+      if (!commGateOpen) {
+        console.log(`[Users] CommGate blocked welcome email for org ${req.user!.organizationId}. User ${email} created but welcome email skipped.`);
+      } else if (process.env.RESEND_API_KEY) {
+        try {
+          const loginUrl = `${req.protocol}://${req.get("host")}/login`;
+          const emailRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Nexxus Connect <onboarding@resend.dev>",
+              to: email,
+              subject: "Welcome to Nexxus Connect",
+              html: `<h2>Welcome to Nexxus Connect!</h2>
+                <p>Hi ${firstName},</p>
+                <p>Your account has been created by ${req.user!.firstName} ${req.user!.lastName} at ${org?.name || "Nexxus Connect"}.</p>
+                <p>You can log in using your email address at the link below:</p>
+                <p><a href="${loginUrl}">${loginUrl}</a></p>
+                <p>If you have any questions, please contact your organization administrator.</p>`,
+            }),
+          });
+          if (!emailRes.ok) {
+            console.warn("[Users] Resend API error sending welcome email:", await emailRes.text());
+          } else {
+            console.log(`[Users] Welcome email sent to ${email}`);
+          }
+        } catch (emailErr) {
+          console.warn("[Users] Failed to send welcome email:", emailErr);
+        }
+      } else {
+        console.log(`[Users] No RESEND_API_KEY configured. Welcome email for ${email} skipped.`);
+      }
+
       storage.createActivityLog({
         userId: req.user!.id,
         organizationId: req.user!.organizationId,
         action: "user_created",
         entityType: "user",
         entityId: user.id,
-        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}` },
+        metadata: { targetEmail: email, targetName: `${firstName} ${lastName}`, welcomeEmailSent: commGateOpen && !!process.env.RESEND_API_KEY },
       }).catch(() => {});
 
       storage.createNotification({
@@ -3001,6 +3141,25 @@ When the user asks a question that requires deep CRM data (specific lead details
 
   app.post("/api/webhooks/tavus", async (req, res) => {
     try {
+      const tavusApiKey = process.env.TAVUS_API_KEY;
+      if (!tavusApiKey) {
+        console.warn("[Tavus Webhook] TAVUS_API_KEY not configured — rejecting request (fail-closed)");
+        return res.status(401).json({ message: "Webhook not configured" });
+      }
+      const headerSecret = req.headers["x-tavus-secret"] || req.headers["authorization"];
+      const providedSecret = typeof headerSecret === "string" ? headerSecret.replace(/^Bearer\s+/i, "") : "";
+      if (providedSecret !== tavusApiKey) {
+        console.warn("[Tavus Webhook] Invalid secret — rejecting request");
+        const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+        storage.createSecurityEvent({
+          eventType: "webhook_invalid",
+          severity: "warning",
+          ipAddress: clientIp,
+          metadata: { webhook: "tavus", reason: "invalid_secret" },
+        }).catch(() => {});
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const { event, conversation_id, status } = req.body;
 
       if (event !== "conversation.end" && status !== "ended" && event !== "conversation_ended") {
@@ -3499,6 +3658,17 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   }, 60000);
 
+  app.use("/api/widget", (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+    res.setHeader("Access-Control-Max-Age", "86400");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+    next();
+  });
+
   async function resolveOrgBySlug(slug: string) {
     let org = await storage.getOrganizationBySlug(slug);
     if (!org && slug === "demo") {
@@ -3984,6 +4154,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
       console.log(`[TextMagic Webhook] Inbound SMS from ${normalizedPhone} to ${normalizedReceiver}: "${content.substring(0, 80)}"`);
 
+      const STOP_KEYWORDS = ["STOP", "UNSUBSCRIBE", "QUIT", "CANCEL", "END", "OPTOUT", "OPT OUT"];
+      const isStopRequest = STOP_KEYWORDS.includes(content.trim().toUpperCase());
+
       const receiverOrg = normalizedReceiver ? await storage.getOrganizationByTextmagicPhone(normalizedReceiver) : undefined;
       if (receiverOrg) {
         const receiverSettings = (receiverOrg.settings || {}) as Record<string, any>;
@@ -4029,6 +4202,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       }
 
       const organizationId = resolvedOrg;
+
+      if (isStopRequest) {
+        console.log(`[TextMagic Webhook] STOP keyword detected from ${normalizedPhone} for org ${organizationId}`);
+
+        await storage.addToBlacklist({
+          phoneNumber: normalizedPhone,
+          organizationId,
+          reason: content.trim().toUpperCase(),
+        });
+
+        const existingConv = await storage.getConversationByPhone(normalizedPhone, "sms");
+        if (existingConv && existingConv.organizationId === organizationId) {
+          await storage.updateConversation(existingConv.id, {
+            campaignDisconnected: true,
+            status: "closed",
+          });
+        }
+
+        try {
+          const { sendSms } = await import("./outbound");
+          const org = await storage.getOrganization(organizationId);
+          if (org?.outboundEnabled && org?.smsEnabled && process.env.OUTBOUND_LIVE_ENABLED === "true") {
+            await sendSms(normalizedPhone, "You have been unsubscribed and will no longer receive messages from us. Reply START to re-subscribe.");
+            console.log(`[TextMagic Webhook] Unsubscribe confirmation sent to ${normalizedPhone}`);
+          }
+        } catch (confirmErr: any) {
+          console.error(`[TextMagic Webhook] Failed to send unsubscribe confirmation:`, confirmErr.message);
+        }
+
+        const orgUsers = await storage.getUsers(organizationId);
+        const adminUsers = orgUsers.filter(u => {
+          const roleLevel = (u as any).role?.level;
+          return roleLevel !== undefined && roleLevel <= 3;
+        });
+        for (const admin of adminUsers) {
+          storage.createNotification({
+            userId: admin.id,
+            organizationId,
+            type: "sms_optout",
+            title: "SMS Opt-Out Received",
+            message: `Phone ${normalizedPhone} sent "${content.trim()}" and has been added to the SMS blacklist.`,
+            relatedEntityType: "sms_blacklist",
+          }).catch(() => {});
+        }
+
+        storage.createActivityLog({
+          organizationId,
+          action: "sms_optout",
+          entityType: "sms_blacklist",
+          metadata: {
+            senderPhone: normalizedPhone,
+            keyword: content.trim().toUpperCase(),
+          },
+        }).catch(() => {});
+
+        return res.json({ success: true, action: "opted_out", phone: normalizedPhone });
+      }
 
       let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
 

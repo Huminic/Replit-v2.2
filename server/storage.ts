@@ -25,14 +25,17 @@ import {
   type SyncLog, type InsertSyncLog,
   type UsageEvent, type InsertUsageEvent,
   type Favorite, type InsertFavorite,
+  type SmsBlacklist, type InsertSmsBlacklist,
+  type SecurityEvent, type InsertSecurityEvent,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
-  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites,
+  warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites, smsBlacklist, securityEvents,
 } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, data: Partial<InsertUser>): Promise<User | undefined>;
 
@@ -161,6 +164,16 @@ export interface IStorage {
   getFavorites(userId: string): Promise<Favorite[]>;
   addFavorite(fav: InsertFavorite): Promise<Favorite>;
   removeFavorite(id: string, userId: string): Promise<void>;
+
+  addToBlacklist(entry: InsertSmsBlacklist): Promise<SmsBlacklist>;
+  isBlacklisted(phoneNumber: string, organizationId: string): Promise<boolean>;
+  removeFromBlacklist(phoneNumber: string, organizationId: string): Promise<void>;
+
+  getUnansweredConversations(organizationId: string, unansweredMinutes: number): Promise<Conversation[]>;
+
+  createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent>;
+  getSecurityEvents(filters?: { eventType?: string; ipAddress?: string; since?: Date; limit?: number }): Promise<SecurityEvent[]>;
+  getRecentFailedLoginsByIp(ipAddress: string, since: Date): Promise<number>;
 }
 
 export interface PipelineMetrics {
@@ -211,6 +224,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.resetToken, token));
     return user;
   }
 
@@ -1170,6 +1188,87 @@ export class DatabaseStorage implements IStorage {
 
   async removeFavorite(id: string, userId: string): Promise<void> {
     await db.delete(favorites).where(and(eq(favorites.id, id), eq(favorites.userId, userId)));
+  }
+
+  async addToBlacklist(entry: InsertSmsBlacklist): Promise<SmsBlacklist> {
+    const normalizedPhone = entry.phoneNumber.replace(/[^0-9+]/g, "");
+    const existing = await db.select().from(smsBlacklist).where(
+      and(eq(smsBlacklist.phoneNumber, normalizedPhone), eq(smsBlacklist.organizationId, entry.organizationId))
+    );
+    if (existing.length > 0) return existing[0];
+    const [created] = await db.insert(smsBlacklist).values({ ...entry, phoneNumber: normalizedPhone }).returning();
+    return created;
+  }
+
+  async isBlacklisted(phoneNumber: string, organizationId: string): Promise<boolean> {
+    const normalizedPhone = phoneNumber.replace(/[^0-9+]/g, "");
+    const variants = this.phoneVariants(normalizedPhone);
+    const result = await db.select({ id: smsBlacklist.id }).from(smsBlacklist).where(
+      and(
+        sql`${smsBlacklist.phoneNumber} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)})`,
+        eq(smsBlacklist.organizationId, organizationId)
+      )
+    ).limit(1);
+    return result.length > 0;
+  }
+
+  async removeFromBlacklist(phoneNumber: string, organizationId: string): Promise<void> {
+    const normalizedPhone = phoneNumber.replace(/[^0-9+]/g, "");
+    const variants = this.phoneVariants(normalizedPhone);
+    await db.delete(smsBlacklist).where(
+      and(
+        sql`${smsBlacklist.phoneNumber} IN (${sql.join(variants.map(v => sql`${v}`), sql`, `)})`,
+        eq(smsBlacklist.organizationId, organizationId)
+      )
+    );
+  }
+
+  async getUnansweredConversations(organizationId: string, unansweredMinutes: number): Promise<Conversation[]> {
+    const cutoff = new Date(Date.now() - unansweredMinutes * 60 * 1000);
+    const openConvs = await db.select().from(conversations)
+      .where(and(
+        eq(conversations.organizationId, organizationId),
+        eq(conversations.status, "open"),
+        lte(conversations.lastMessageAt, cutoff)
+      ));
+
+    const unanswered: Conversation[] = [];
+    for (const conv of openConvs) {
+      const msgs = await db.select().from(messages)
+        .where(eq(messages.conversationId, conv.id))
+        .orderBy(desc(messages.createdAt))
+        .limit(1);
+      if (msgs.length > 0 && msgs[0].role === "user") {
+        unanswered.push(conv);
+      }
+    }
+    return unanswered;
+  }
+
+  async createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent> {
+    const [created] = await db.insert(securityEvents).values(event).returning();
+    return created;
+  }
+
+  async getSecurityEvents(filters?: { eventType?: string; ipAddress?: string; since?: Date; limit?: number }): Promise<SecurityEvent[]> {
+    const conditions: any[] = [];
+    if (filters?.eventType) conditions.push(eq(securityEvents.eventType, filters.eventType));
+    if (filters?.ipAddress) conditions.push(eq(securityEvents.ipAddress, filters.ipAddress));
+    if (filters?.since) conditions.push(gte(securityEvents.createdAt, filters.since));
+    const query = conditions.length > 0
+      ? db.select().from(securityEvents).where(and(...conditions)).orderBy(desc(securityEvents.createdAt))
+      : db.select().from(securityEvents).orderBy(desc(securityEvents.createdAt));
+    return query.limit(filters?.limit || 100);
+  }
+
+  async getRecentFailedLoginsByIp(ipAddress: string, since: Date): Promise<number> {
+    const [result] = await db.select({ cnt: count() }).from(securityEvents)
+      .where(and(
+        eq(securityEvents.eventType, "login_failed"),
+        eq(securityEvents.ipAddress, ipAddress),
+        gte(securityEvents.createdAt, since)
+      ));
+    return Number(result?.cnt || 0);
   }
 }
 

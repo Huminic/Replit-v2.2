@@ -404,6 +404,39 @@ export type InsertWarehouseMetric = z.infer<typeof insertWarehouseMetricSchema>;
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
 export type InsertSlugRedirect = z.infer<typeof insertSlugRedirectSchema>;
 export type InsertSyncLog = z.infer<typeof insertSyncLogSchema>;
+export const smsBlacklist = pgTable("sms_blacklist", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  phoneNumber: text("phone_number").notNull(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  reason: text("reason").notNull().default("STOP"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_sms_blacklist_phone_org").on(table.phoneNumber, table.organizationId),
+]);
+
+export const insertSmsBlacklistSchema = createInsertSchema(smsBlacklist).omit({ id: true, createdAt: true });
+export type InsertSmsBlacklist = z.infer<typeof insertSmsBlacklistSchema>;
+export type SmsBlacklist = typeof smsBlacklist.$inferSelect;
+
+export const securityEvents = pgTable("security_events", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventType: text("event_type").notNull(),
+  severity: text("severity").notNull().default("info"),
+  userId: uuid("user_id"),
+  organizationId: uuid("organization_id"),
+  ipAddress: text("ip_address"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_security_events_type").on(table.eventType),
+  index("idx_security_events_ip").on(table.ipAddress),
+  index("idx_security_events_created").on(table.createdAt),
+]);
+
+export const insertSecurityEventSchema = createInsertSchema(securityEvents).omit({ id: true, createdAt: true });
+export type InsertSecurityEvent = z.infer<typeof insertSecurityEventSchema>;
+export type SecurityEvent = typeof securityEvents.$inferSelect;
+
 export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true, createdAt: true });
 export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
