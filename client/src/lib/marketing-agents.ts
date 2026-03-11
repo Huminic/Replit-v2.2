@@ -82,7 +82,8 @@ export const MARKETING_AGENTS: MarketingAgentDef[] = [
 
 Rules:
 - If the user attaches a photo, default to swap_vehicle_background
-- If no photo is attached and they describe a vehicle, use generate_vehicle_image
+- If a previously generated image URL exists in the conversation (shown as [Generated media URL: ...]), use that URL for swap_vehicle_background instead of asking the user to upload
+- If no photo is attached and no previous image exists and they describe a vehicle, use generate_vehicle_image
 - Always ask for vehicle color, year, make, model if not provided
 - Suggest the obvious next step after each output: "Want to turn this into a video? Send it to the Video Producer agent from the Studio gallery."
 - Never mention API names or model names
@@ -131,10 +132,12 @@ Tools available:
 
 Rules:
 - If user attaches a photo, use create_vehicle_video
+- If a previously generated image URL exists in the conversation (shown as [Generated media URL: ...]), use that URL for create_vehicle_video by passing it as image_url instead of asking the user to upload
 - If user provides a script or asks for narration, use generate_voiceover
 - If user wants both, run create_vehicle_video first, then generate_voiceover, and tell them both are ready in the studio
 - Default duration: 5 seconds. Default quality: standard.
-- Always describe the motion you're going to generate before calling the tool, so the user can correct you: "I'll create a slow cinematic pull-back from the front of the vehicle with warm sunset lighting. Sound good?"
+- For voiceover requests: immediately call generate_voiceover with a professional voice. Do NOT ask follow-up questions about voice style — just generate it.
+- For video requests with a photo: immediately call create_vehicle_video. Do NOT ask for confirmation — just generate it.
 - Suggest pairing a voiceover with every video output
 - Never mention fal.ai, LTX, or any model names`,
     suggestionChips: [
@@ -180,7 +183,8 @@ Tool available:
 1. generate_ad_copy — write structured ad copy in multiple formats
 
 Rules:
-- Always ask for year, make, model, key selling point, and any active offer if not provided (one question at a time, not all at once)
+- If the user provides year, make, model and a selling point, immediately call generate_ad_copy. Do NOT ask follow-up questions.
+- Only ask for missing details (year, make, model, selling point) if the user's prompt is too vague to write copy
 - Default to generating 3 variations per format so the user can choose
 - For conquest campaigns, ask which competing brand to target
 - Format copy output as clean, scannable blocks — not a wall of text
@@ -326,7 +330,27 @@ export function loadArtifacts(): MarketingArtifact[] {
 }
 
 export function saveArtifacts(artifacts: MarketingArtifact[]): void {
-  localStorage.setItem(getArtifactsKey(), JSON.stringify(artifacts));
+  const maxArtifacts = 50;
+  const trimmed = artifacts.slice(0, maxArtifacts);
+  try {
+    localStorage.setItem(getArtifactsKey(), JSON.stringify(trimmed));
+  } catch {
+    try {
+      const minimal = trimmed.slice(0, 20);
+      localStorage.setItem(getArtifactsKey(), JSON.stringify(minimal));
+    } catch {
+      // quota still exceeded — clear old sessions to free space
+      try {
+        const sessionsKey = getSessionsKey();
+        const sessions: AgentSession[] = JSON.parse(localStorage.getItem(sessionsKey) || '[]');
+        const recent = sessions.slice(0, 5);
+        localStorage.setItem(sessionsKey, JSON.stringify(recent));
+        localStorage.setItem(getArtifactsKey(), JSON.stringify(trimmed));
+      } catch {
+        console.warn('localStorage quota exceeded, unable to save artifacts');
+      }
+    }
+  }
 }
 
 export function addArtifact(artifact: MarketingArtifact): MarketingArtifact[] {
@@ -352,7 +376,18 @@ export function loadSessions(): AgentSession[] {
 }
 
 export function saveSessions(sessions: AgentSession[]): void {
-  localStorage.setItem(getSessionsKey(), JSON.stringify(sessions));
+  const maxSessions = 30;
+  const trimmed = sessions.slice(0, maxSessions);
+  try {
+    localStorage.setItem(getSessionsKey(), JSON.stringify(trimmed));
+  } catch {
+    try {
+      const minimal = trimmed.slice(0, 10);
+      localStorage.setItem(getSessionsKey(), JSON.stringify(minimal));
+    } catch {
+      console.warn('localStorage quota exceeded, unable to save sessions');
+    }
+  }
 }
 
 export function getSessionsForAgent(agentId: string): AgentSession[] {

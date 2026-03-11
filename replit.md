@@ -177,12 +177,12 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | 3 | Copywriter + Creative Director | COMPLETED |
 | 4 | Market Intel + Studio Gallery | COMPLETED |
 | 5 | Cross-agent Workflow + Sharing | COMPLETED |
-| 6 | Agent Validation — Photo Studio | PENDING |
-| 7 | Agent Validation — Video Producer | PENDING |
-| 8 | Agent Validation — Copywriter | PENDING |
-| 9 | Agent Validation — Creative Director | PENDING |
-| 10 | Agent Validation — Market Intel | PENDING |
-| 11 | Agent Validation — Cross-Agent + Gallery | PENDING |
+| 6 | Agent Validation — Photo Studio | COMPLETED |
+| 7 | Agent Validation — Video Producer | COMPLETED |
+| 8 | Agent Validation — Copywriter | COMPLETED |
+| 9 | Agent Validation — Creative Director | COMPLETED |
+| 10 | Agent Validation — Market Intel | COMPLETED |
+| 11 | Agent Validation — Cross-Agent + Gallery | COMPLETED |
 
 Sprint details: `.local/sprints/sprint-{N}.json`
 
