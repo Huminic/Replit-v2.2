@@ -25,7 +25,7 @@ export interface SendRequest {
 }
 
 export interface SendResult {
-  status: "sent" | "blocked" | "failed";
+  status: "sent" | "blocked" | "failed" | "dry_run";
   blockedReason?: string;
 }
 
@@ -161,6 +161,13 @@ async function checkCommGate(
 
   if (campaign?.killSwitch) {
     return { allowed: false, reason: "Campaign kill switch is active" };
+  }
+
+  if (channel === "sms" && customerContact) {
+    const blacklisted = await storage.isBlacklisted(customerContact, org.id);
+    if (blacklisted) {
+      return { allowed: false, reason: "Recipient is on SMS blacklist (opted out)" };
+    }
   }
 
   if (recipient) {
