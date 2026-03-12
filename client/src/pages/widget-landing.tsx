@@ -45,7 +45,7 @@ export default function WidgetLandingPage() {
 
   useEffect(() => {
     if (slug === 'demo') {
-      setOrgData({ id: 'demo', name: 'Cage Automotive', slug: 'demo', personaName: 'Serra' });
+      setOrgData({ id: 'demo', name: 'Demo Organization', slug: 'demo', personaName: 'Automa' });
       setLoading(false);
       return;
     }
@@ -65,8 +65,8 @@ export default function WidgetLandingPage() {
       .catch(() => { setNotFound(true); setLoading(false); });
   }, [slug]);
 
-  const ORG_NAME = orgData?.name || 'Cage Automotive';
-  const PERSONA_NAME = orgData?.personaName || 'Serra';
+  const ORG_NAME = orgData?.name || 'Our Dealership';
+  const PERSONA_NAME = orgData?.personaName || 'Automa';
 
   const [submitted, setSubmitted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);

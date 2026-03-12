@@ -23,7 +23,6 @@ import ManagementPage from "@/pages/management";
 import SettingsPage from "@/pages/settings";
 import ProfilePage from "@/pages/profile";
 import WidgetLandingPage from "@/pages/widget-landing";
-import BillingManagementPage from "@/pages/billing-management";
 import BillingDashboard from "@/pages/BillingDashboard";
 import BillingUsagePage from "@/pages/BillingUsage";
 import BillingPlanPage from "@/pages/BillingPlan";

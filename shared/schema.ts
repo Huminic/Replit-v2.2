@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   personaName: text("persona_name").notNull().default("Serra"),
-  partnerId: uuid("partner_id"),
+  partnerId: uuid("partner_id").references(() => organizations.id, { onDelete: "set null" }),
   outboundEnabled: boolean("outbound_enabled").notNull().default(false),
   smsEnabled: boolean("sms_enabled").notNull().default(false),
   phoneEnabled: boolean("phone_enabled").notNull().default(false),
@@ -38,7 +38,6 @@ export const users = pgTable("users", {
   lastName: text("last_name").notNull(),
   roleId: uuid("role_id").notNull().references(() => roles.id, { onDelete: "restrict" }),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  locationId: text("location_id"),
   profilePhotoUrl: text("profile_photo_url"),
   isActive: boolean("is_active").notNull().default(true),
   resetToken: text("reset_token"),
@@ -98,6 +97,7 @@ export const conversations = pgTable("conversations", {
   unreadCount: integer("unread_count").notNull().default(0),
   lastMessageAt: timestamp("last_message_at"),
   escalationSentAt: timestamp("escalation_sent_at"),
+  staleTriggerProcessedAt: timestamp("stale_trigger_processed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [
@@ -156,7 +156,9 @@ export const integrations = pgTable("integrations", {
   nexxusOrgId: text("nexxus_org_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_integrations_org").on(table.organizationId),
+]);
 
 export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -204,7 +206,9 @@ export const knowledgeDocuments = pgTable("knowledge_documents", {
   sourceDocumentName: text("source_document_name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_knowledge_documents_org").on(table.organizationId),
+]);
 
 export const campaignRecipients = pgTable("campaign_recipients", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -230,7 +234,9 @@ export const outboundLog = pgTable("outbound_log", {
   messageContent: text("message_content"),
   sentAt: timestamp("sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_outbound_log_org").on(table.organizationId),
+]);
 
 export const notifications = pgTable("notifications", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -254,7 +260,9 @@ export const activityLog = pgTable("activity_log", {
   entityId: text("entity_id"),
   metadata: jsonb("metadata").default({}),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_activity_log_org").on(table.organizationId),
+]);
 
 export const hunches = pgTable("hunches", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -271,7 +279,9 @@ export const hunches = pgTable("hunches", {
   acceptedAt: timestamp("accepted_at"),
   resolvedAt: timestamp("resolved_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_hunches_org").on(table.organizationId),
+]);
 
 export const warehouseLeads = pgTable("warehouse_leads", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -293,7 +303,10 @@ export const warehouseLeads = pgTable("warehouse_leads", {
   followupSentAt: timestamp("followup_sent_at"),
   syncedAt: timestamp("synced_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_warehouse_leads_org").on(table.organizationId),
+  uniqueIndex("uq_warehouse_leads_org_source").on(table.organizationId, table.sourceId),
+]);
 
 export const warehouseMetrics = pgTable("warehouse_metrics", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -305,7 +318,9 @@ export const warehouseMetrics = pgTable("warehouse_metrics", {
   metadata: jsonb("metadata").default({}),
   syncedAt: timestamp("synced_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  uniqueIndex("uq_warehouse_metrics_org_key_period").on(table.organizationId, table.metricKey, table.period),
+]);
 
 export const appointments = pgTable("appointments", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -324,7 +339,9 @@ export const appointments = pgTable("appointments", {
   source: text("source").notNull().default("manual"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_appointments_org").on(table.organizationId),
+]);
 
 export const slugRedirects = pgTable("slug_redirects", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -423,9 +440,35 @@ export const smsBlacklist = pgTable("sms_blacklist", {
   index("idx_sms_blacklist_phone_org").on(table.phoneNumber, table.organizationId),
 ]);
 
+export const scheduledActions = pgTable("scheduled_actions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  actionType: text("action_type").notNull(),
+  payload: jsonb("payload").notNull().default({}),
+  executeAt: timestamp("execute_at").notNull(),
+  executedAt: timestamp("executed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_scheduled_actions_execute").on(table.executeAt),
+]);
+
+export const schedulerLocks = pgTable("scheduler_locks", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  lockName: text("lock_name").notNull().unique(),
+  lockedAt: timestamp("locked_at"),
+  lastRunAt: timestamp("last_run_at"),
+  lockedBy: text("locked_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertScheduledActionSchema = createInsertSchema(scheduledActions).omit({ id: true, createdAt: true });
+export const insertSchedulerLockSchema = createInsertSchema(schedulerLocks).omit({ id: true, createdAt: true });
+
 export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true, createdAt: true });
 export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
 export const insertSmsBlacklistSchema = createInsertSchema(smsBlacklist).omit({ id: true, createdAt: true });
+export type InsertScheduledAction = z.infer<typeof insertScheduledActionSchema>;
+export type InsertSchedulerLock = z.infer<typeof insertSchedulerLockSchema>;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
 export type InsertSmsBlacklist = z.infer<typeof insertSmsBlacklistSchema>;
@@ -455,6 +498,8 @@ export type SyncLog = typeof syncLog.$inferSelect;
 export type Favorite = typeof favorites.$inferSelect;
 export type UsageEvent = typeof usageEvents.$inferSelect;
 export type SmsBlacklist = typeof smsBlacklist.$inferSelect;
+export type ScheduledAction = typeof scheduledActions.$inferSelect;
+export type SchedulerLock = typeof schedulerLocks.$inferSelect;
 
 export const updateAgentSchema = createInsertSchema(agents).omit({ id: true, organizationId: true, createdAt: true, updatedAt: true }).partial();
 export const updateOrganizationSchema = createInsertSchema(organizations).omit({ id: true, createdAt: true, updatedAt: true }).partial();
@@ -462,7 +507,6 @@ export const updateUserProfileSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   email: z.string().email().optional(),
-  locationId: z.string().nullable().optional(),
   profilePhotoUrl: z.string().nullable().optional(),
 });
 export const updateCampaignSchema = z.object({

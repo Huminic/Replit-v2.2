@@ -22,9 +22,6 @@
  * - updateAgent from AppContext persists changes (instructions, triggers, tools, status)
  * - Modal pattern: Open modal → copy data to edit state → save writes back via updateAgent
  *
- * PRODUCTION NOTE: All config will persist to backend. Skills and tools will be
- * dynamically loaded from the AI engine configuration.
- *
  * @see client/src/pages/agents.tsx — Center chat interface for the selected agent
  * @see client/src/mocks/agents.ts — Agent type, availableTools, AgentChannel/Trigger/Tool types
  * @see client/src/contexts/AppContext.tsx — selectedAgent, updateAgent, setRightPaneOpen

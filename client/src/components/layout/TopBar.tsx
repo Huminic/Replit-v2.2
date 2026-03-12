@@ -19,9 +19,6 @@
  *  - lib/activity-utils.ts: getActivityColor, mapActivityLogToItem
  *  - mocks/users.ts: getRoleLabel for role badge display
  *
- * PRODUCTION NOTE: Notifications and activity feed will come from backend API via WebSocket
- * or polling. Role switcher will be removed; role comes from JWT claims.
- *
  * @locked Logo format (text-only), activity feed location (header not sidebar)
  */
 import { useState, useCallback } from 'react';
@@ -42,7 +39,8 @@ import {
   Building2,
   Check,
   ArrowDownRight,
-  Globe
+  Globe,
+  Compass
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -102,6 +100,7 @@ export function TopBar() {
     markNotificationRead,
     markAllNotificationsRead,
     switchOrganization: appSwitchOrg,
+    setShowTour,
   } = useApp();
   const { switchOrganization: authSwitchOrg, logout } = useAuth();
   const [, setLocation] = useLocation();
@@ -366,6 +365,10 @@ export function TopBar() {
             <DropdownMenuItem onClick={() => setLocation('/profile/billing')} data-testid="menu-item-billing">
               <CreditCard className="h-4 w-4 mr-2" />
               Billing
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { setShowTour(true); }} data-testid="menu-item-take-tour">
+              <Compass className="h-4 w-4 mr-2" />
+              Take a Tour
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={handleLogout} data-testid="menu-item-logout">

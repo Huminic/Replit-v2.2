@@ -1,4 +1,4 @@
-import { eq, and, desc, count, sql, gte, lte, isNull, isNotNull } from "drizzle-orm";
+import { eq, and, desc, count, sql, gte, lte, isNull, isNotNull, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   type User, type InsertUser,
@@ -26,9 +26,12 @@ import {
   type UsageEvent, type InsertUsageEvent,
   type Favorite, type InsertFavorite,
   type SmsBlacklist, type InsertSmsBlacklist,
+  type ScheduledAction, type InsertScheduledAction,
+  type SchedulerLock, type InsertSchedulerLock,
   users, roles, organizations, sessions, agents, conversations, messages, campaigns, integrations, tasks, widgets,
   knowledgeDocuments, campaignRecipients, outboundLog, notifications, activityLog, hunches,
   warehouseLeads, warehouseMetrics, appointments, slugRedirects, syncLog, usageEvents, favorites, smsBlacklist,
+  scheduledActions, schedulerLocks,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -108,6 +111,7 @@ export interface IStorage {
   getRecipient(id: string): Promise<CampaignRecipient | undefined>;
   createRecipients(recipients: InsertCampaignRecipient[]): Promise<CampaignRecipient[]>;
   getRecipientCount(campaignId: string): Promise<number>;
+  getSentCountsByCampaignIds(campaignIds: string[]): Promise<Record<string, number>>;
   updateRecipient(id: string, data: Partial<InsertCampaignRecipient>): Promise<CampaignRecipient | undefined>;
   getPendingRecipients(campaignId: string): Promise<CampaignRecipient[]>;
 
@@ -180,6 +184,18 @@ export interface IStorage {
 
   getUnansweredConversations(thresholdMinutes: number): Promise<Conversation[]>;
   markEscalationSent(conversationId: string): Promise<void>;
+
+  findUserByResetToken(token: string): Promise<User | undefined>;
+  countRecentSecurityEvents(action: string, entityId: string, since: Date): Promise<number>;
+
+  createScheduledAction(action: InsertScheduledAction): Promise<ScheduledAction>;
+  getDueScheduledActions(): Promise<ScheduledAction[]>;
+  markScheduledActionExecuted(id: string): Promise<void>;
+
+  acquireSchedulerLock(lockName: string, lockedBy: string, ttlMinutes?: number): Promise<boolean>;
+  releaseSchedulerLock(lockName: string): Promise<void>;
+  getSchedulerLock(lockName: string): Promise<SchedulerLock | undefined>;
+  updateSchedulerLastRunAt(lockName: string): Promise<void>;
 }
 
 export interface PipelineMetrics {
@@ -597,6 +613,28 @@ export class DatabaseStorage implements IStorage {
   async getRecipientCount(campaignId: string): Promise<number> {
     const [result] = await db.select({ cnt: count() }).from(campaignRecipients).where(eq(campaignRecipients.campaignId, campaignId));
     return Number(result?.cnt || 0);
+  }
+
+  async getSentCountsByCampaignIds(campaignIds: string[]): Promise<Record<string, number>> {
+    if (campaignIds.length === 0) return {};
+    const rows = await db
+      .select({
+        campaignId: campaignRecipients.campaignId,
+        cnt: count(),
+      })
+      .from(campaignRecipients)
+      .where(
+        and(
+          inArray(campaignRecipients.campaignId, campaignIds),
+          inArray(campaignRecipients.status, ['sent', 'delivered'])
+        )
+      )
+      .groupBy(campaignRecipients.campaignId);
+    const result: Record<string, number> = {};
+    for (const row of rows) {
+      result[row.campaignId] = Number(row.cnt);
+    }
+    return result;
   }
 
   async getDashboardMetrics(organizationId: string): Promise<DashboardMetrics> {
@@ -1369,6 +1407,104 @@ export class DatabaseStorage implements IStorage {
     await db.update(conversations)
       .set({ escalationSentAt: new Date() } as any)
       .where(eq(conversations.id, conversationId));
+  }
+
+  async findUserByResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.resetToken, token));
+    return user;
+  }
+
+  async countRecentSecurityEvents(action: string, entityId: string, since: Date): Promise<number> {
+    const [result] = await db.select({ cnt: count() })
+      .from(activityLog)
+      .where(and(
+        eq(activityLog.action, action),
+        eq(activityLog.entityId, entityId),
+        gte(activityLog.createdAt, since)
+      ));
+    return Number(result?.cnt || 0);
+  }
+
+  async createScheduledAction(action: InsertScheduledAction): Promise<ScheduledAction> {
+    const [row] = await db.insert(scheduledActions).values(action).returning();
+    return row;
+  }
+
+  async getDueScheduledActions(): Promise<ScheduledAction[]> {
+    return db.select().from(scheduledActions)
+      .where(and(
+        lte(scheduledActions.executeAt, new Date()),
+        isNull(scheduledActions.executedAt)
+      ))
+      .orderBy(scheduledActions.executeAt);
+  }
+
+  async markScheduledActionExecuted(id: string): Promise<void> {
+    await db.update(scheduledActions)
+      .set({ executedAt: new Date() })
+      .where(eq(scheduledActions.id, id));
+  }
+
+  async acquireSchedulerLock(lockName: string, lockedBy: string, ttlMinutes = 5): Promise<boolean> {
+    const cutoff = new Date(Date.now() - ttlMinutes * 60 * 1000);
+    const existing = await db.select().from(schedulerLocks)
+      .where(eq(schedulerLocks.lockName, lockName));
+
+    if (existing.length === 0) {
+      try {
+        await db.insert(schedulerLocks).values({
+          lockName,
+          lockedAt: new Date(),
+          lockedBy,
+        });
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    const lock = existing[0];
+    if (lock.lockedAt && lock.lockedAt > cutoff) {
+      return false;
+    }
+
+    const [updated] = await db.update(schedulerLocks)
+      .set({ lockedAt: new Date(), lockedBy })
+      .where(and(
+        eq(schedulerLocks.lockName, lockName),
+        sql`(${schedulerLocks.lockedAt} IS NULL OR ${schedulerLocks.lockedAt} <= ${cutoff})`
+      ))
+      .returning();
+
+    return !!updated;
+  }
+
+  async releaseSchedulerLock(lockName: string): Promise<void> {
+    await db.update(schedulerLocks)
+      .set({ lockedAt: null, lockedBy: null })
+      .where(eq(schedulerLocks.lockName, lockName));
+  }
+
+  async getSchedulerLock(lockName: string): Promise<SchedulerLock | undefined> {
+    const [row] = await db.select().from(schedulerLocks)
+      .where(eq(schedulerLocks.lockName, lockName));
+    return row;
+  }
+
+  async updateSchedulerLastRunAt(lockName: string): Promise<void> {
+    const existing = await db.select().from(schedulerLocks)
+      .where(eq(schedulerLocks.lockName, lockName));
+
+    if (existing.length === 0) {
+      await db.insert(schedulerLocks).values({
+        lockName,
+        lastRunAt: new Date(),
+      });
+    } else {
+      await db.update(schedulerLocks)
+        .set({ lastRunAt: new Date() })
+        .where(eq(schedulerLocks.lockName, lockName));
+    }
   }
 }
 

@@ -129,10 +129,10 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext }:
         parseSSELines([buffer], accumulated, setStreamingContent, setStatusMessage);
       }
 
-      queryClient.invalidateQueries({ queryKey: [`/api/conversations/${conversationId}/messages`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
     } catch (err: any) {
       if (err.name === 'AbortError') {
-        queryClient.invalidateQueries({ queryKey: [`/api/conversations/${conversationId}/messages`] });
+        queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
         return;
       }
       console.error('Streaming chat error:', err);

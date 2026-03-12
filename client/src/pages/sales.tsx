@@ -14,8 +14,6 @@
  *   - Insights: Placeholder for Wave 2 detailed analytics (lead scoring, conversion funnels)
  *   - Calendar: Placeholder for Wave 2 test drive / follow-up scheduling
  *
- * PRODUCTION NOTE: Metrics will wire to VinSolutions CRM data via MCP server.
- * Currently uses hardcoded salesMetrics array for mock display.
  */
 import { useState } from 'react';
 import { useLocation } from 'wouter';

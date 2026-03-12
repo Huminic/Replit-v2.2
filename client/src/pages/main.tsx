@@ -24,16 +24,10 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Plus, Sparkles, TrendingUp, TrendingDown, Upload, FileText, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe, Square, RotateCcw, AlertCircle, Phone, MessageSquare, ArrowLeft, User, Mail, MapPin, Loader2 } from 'lucide-react';
+import { Send, Plus, Sparkles, TrendingUp, TrendingDown, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe, Square, RotateCcw, AlertCircle, Phone, MessageSquare, ArrowLeft, User, Mail, MapPin, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -607,7 +601,11 @@ export default function MainPage() {
   }, [findOrCreateConversation]);
 
   const { data: dbMessages } = useQuery<DbMessage[]>({
-    queryKey: [`/api/conversations/${conversationId}/messages`],
+    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/conversations/${conversationId}/messages`);
+      return res.json();
+    },
     enabled: !!conversationId,
   });
 
@@ -860,44 +858,19 @@ export default function MainPage() {
           <div className="max-w-3xl mx-auto">
             <div className="chat-input-gradient rounded-2xl p-[3px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
               <div className="bg-background rounded-[14px] flex items-end gap-2 p-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 flex-shrink-0 rounded-full"
-                      data-testid="button-main-chat-add"
-                    >
-                      <Plus className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" side="top" className="w-48">
-                    <DropdownMenuItem
-                      data-testid="menu-item-upload-file"
-                      onClick={() => {
-                        toast({
-                          title: 'Coming Soon',
-                          description: 'File upload will be available in a future update.',
-                        });
-                      }}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload File
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      data-testid="menu-item-add-document"
-                      onClick={() => {
-                        toast({
-                          title: 'Coming Soon',
-                          description: 'Knowledge base document attachment will be available in a future update.',
-                        });
-                      }}
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Add Document
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 flex-shrink-0 rounded-full"
+                  data-testid="button-main-chat-add"
+                  onClick={() => {
+                    setMessages([]);
+                    setInputValue('');
+                    setConversationId(null);
+                  }}
+                >
+                  <Plus className="h-5 w-5 text-muted-foreground" />
+                </Button>
 
                 <textarea
                   ref={inputRef}

@@ -1,20 +1,29 @@
 import type { Express, Request, Response } from "express";
 import { authenticateToken } from "./auth";
 import https from "https";
+import { z } from "zod";
 
 const VAPI_BASE = "https://api.vapi.ai";
 const TAVUS_BASE = "https://tavusapi.com/v2";
+const MCP_BASE_URL = process.env.MCP_BASE_URL || "https://mcp.huminicdev.com";
 
-const NEXXUS_ORG_MAP: Record<string, string> = {
-  "a9f40650-dc8e-4a86-b0b6-5b94ea5b63ee": "3795b8f6-aca7-45fc-b77e-fc671b85a9f3",
-  "af3d5c1f-b170-4310-b870-d6a06f5fa527": "7f868569-62e5-4d49-9378-2e25d6a69321",
-  "ffe79304-9db7-4366-8ca9-e94fd7028ef1": "8751c73d-4570-4b8d-bd40-fa4f1e48024d",
-  "c4d5e6f7-a8b9-4c0d-1e2f-3a4b5c6d7e8f": "227a5597-543b-4e0c-9e44-fc6ba93f001a",
-  "d5e6f7a8-b9c0-4d1e-2f3a-4b5c6d7e8f9a": "2ff5afa0-d8c2-474c-b67a-afa8922c52b8",
-};
+function loadNexxusOrgMap(): Record<string, string> {
+  const envMap = process.env.NEXXUS_ORG_MAP;
+  if (envMap) {
+    try {
+      return JSON.parse(envMap);
+    } catch (e) {
+      console.error("[VendorProxy] Failed to parse NEXXUS_ORG_MAP env var:", e);
+      return {};
+    }
+  }
+  return {};
+}
+
+const NEXXUS_ORG_MAP: Record<string, string> = loadNexxusOrgMap();
 
 export function callMCP(toolName: string, args: Record<string, unknown>): Promise<any> {
-  const mcpUrl = process.env.VINSOLUTIONS_MCP_URL || "https://mcp.huminicdev.com/dax/mcp";
+  const mcpUrl = process.env.VINSOLUTIONS_MCP_URL || `${MCP_BASE_URL}/dax/mcp`;
   const token = process.env.VINSOLUTIONS_API_KEY;
   if (!token) return Promise.reject(new Error("VINSOLUTIONS_API_KEY not configured"));
 
@@ -597,13 +606,34 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  const updateLeadSchema = z.object({
+    status: z.string().optional(),
+    coBuyer: z.object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+    }).optional(),
+    vehicles: z.array(z.object({
+      year: z.union([z.string(), z.number()]).optional(),
+      make: z.string().optional(),
+      model: z.string().optional(),
+      trim: z.string().optional(),
+    })).optional(),
+    notes: z.string().optional(),
+    source: z.string().optional(),
+    description: z.string().optional(),
+  }).strict();
+
   app.patch("/api/vin/leads/:leadId", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
       const leadId = Number(req.params.leadId);
       if (isNaN(leadId)) return res.status(400).json({ message: "leadId must be numeric" });
-      const { status, coBuyer, vehicles, ...rest } = req.body;
+      const parsed = updateLeadSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid request body", errors: parsed.error.flatten().fieldErrors });
+      }
+      const { status, coBuyer, vehicles, ...rest } = parsed.data;
       const args: Record<string, unknown> = { orgId: nexxusOrgId, leadId };
       if (status) args.status = status;
       if (coBuyer) args.coBuyer = coBuyer;
@@ -633,13 +663,31 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  const updateContactSchema = z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    companyName: z.string().optional(),
+    doNotCall: z.boolean().optional(),
+    doNotEmail: z.boolean().optional(),
+    doNotMail: z.boolean().optional(),
+  }).strict();
+
   app.put("/api/vin/contacts/:contactId", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
       const contactId = Number(req.params.contactId);
       if (isNaN(contactId)) return res.status(400).json({ message: "contactId must be numeric" });
-      const args: Record<string, unknown> = { orgId: nexxusOrgId, contactId, ...req.body };
+      const parsed = updateContactSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid request body", errors: parsed.error.flatten().fieldErrors });
+      }
+      const args: Record<string, unknown> = { orgId: nexxusOrgId, contactId, ...parsed.data };
       const data = await callMCP("vin_update_contact", args);
       return res.json(data);
     } catch (err: any) {
@@ -647,13 +695,27 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  const addVehicleOfInterestSchema = z.object({
+    year: z.union([z.string(), z.number()]),
+    make: z.string(),
+    model: z.string(),
+    trim: z.string().optional(),
+    vin: z.string().optional(),
+    stockNumber: z.string().optional(),
+    condition: z.enum(["new", "used", "certified"]).optional(),
+  }).strict();
+
   app.post("/api/vin/leads/:leadId/vehicles-of-interest", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const nexxusOrgId = resolveNexxusOrgId(req.user.organizationId);
       const leadId = Number(req.params.leadId);
       if (isNaN(leadId)) return res.status(400).json({ message: "leadId must be numeric" });
-      const args: Record<string, unknown> = { orgId: nexxusOrgId, leadId, ...req.body };
+      const parsed = addVehicleOfInterestSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid request body", errors: parsed.error.flatten().fieldErrors });
+      }
+      const args: Record<string, unknown> = { orgId: nexxusOrgId, leadId, ...parsed.data };
       const data = await callMCP("vin_add_vehicle_of_interest", args);
       return res.json(data);
     } catch (err: any) {

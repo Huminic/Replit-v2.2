@@ -20,8 +20,6 @@
  * Validation: Steps 0-2 have required field validation. Errors shown via toast on Next.
  * On create: Shows success toast and navigates to /settings/system?section=users.
  *
- * PRODUCTION NOTE: Will POST to backend API to create org, admin user, billing config, and default agent.
- *
  * @see client/src/pages/settings.tsx — User Management section links to this wizard
  */
 import { useState, useEffect } from 'react';

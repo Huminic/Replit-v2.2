@@ -1,14 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import {
   Wallet, Crown, BarChart3, ArrowRight, Loader2,
-  Phone, Video, MessageSquare, Brain, Image, Film, AlertCircle
+  Phone, Video, MessageSquare, Brain, Image, Film, AlertCircle, Plus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 interface UsageMeter {
   name: string;
@@ -72,8 +78,29 @@ function getBalanceTextColor(balance: number): string {
 }
 
 export default function BillingDashboard() {
+  const { toast } = useToast();
+  const [topUpOpen, setTopUpOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('');
+
   const { data: summary, isLoading } = useQuery<BillingSummary>({
     queryKey: ['/api/billing/summary'],
+  });
+
+  const topUpMutation = useMutation({
+    mutationFn: async (amount: number) => {
+      const res = await apiRequest('POST', '/api/billing/topup', { amount });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/billing/summary'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/billing/usage'] });
+      setTopUpOpen(false);
+      setTopUpAmount('');
+      toast({ title: 'Wallet topped up', description: `New balance: $${data.balance?.balance?.toFixed(2) ?? 'updated'}` });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Top up failed', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
   });
 
   const { data: entitlementData } = useQuery<{ configured: boolean; entitlements: EntitlementItem[] }>({
@@ -143,9 +170,15 @@ export default function BillingDashboard() {
                 <p className={`text-3xl font-bold ${getBalanceTextColor(balancePct)}`} data-testid="text-credit-balance">
                   ${balanceDollars.toFixed(2)}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {summary.creditBalance?.currency || 'USD'}
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-muted-foreground">
+                    {summary.creditBalance?.currency || 'USD'}
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => setTopUpOpen(true)} data-testid="button-top-up-wallet">
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    Top Up
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -241,6 +274,48 @@ export default function BillingDashboard() {
           </div>
         </div>
       </ScrollArea>
+
+      <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Top Up Wallet</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="topup-amount">Amount (USD)</Label>
+              <Input
+                id="topup-amount"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Enter amount"
+                value={topUpAmount}
+                onChange={(e) => setTopUpAmount(e.target.value)}
+                data-testid="input-topup-amount"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setTopUpOpen(false); setTopUpAmount(''); }} data-testid="button-cancel-topup">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const amount = parseFloat(topUpAmount);
+                if (!amount || amount <= 0) {
+                  toast({ title: 'Invalid amount', description: 'Please enter a positive amount.', variant: 'destructive' });
+                  return;
+                }
+                topUpMutation.mutate(amount);
+              }}
+              disabled={topUpMutation.isPending}
+              data-testid="button-confirm-topup"
+            >
+              {topUpMutation.isPending ? 'Processing...' : 'Top Up'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

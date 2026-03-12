@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from 'cors';
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -6,6 +7,24 @@ import { storage } from "./storage";
 import { startCampaignExecution, processOutboundSend } from "./outbound";
 import { generateHunchesForOrg } from "./routes";
 import type { Organization, Agent } from "@shared/schema";
+
+function validateEnvironment() {
+  const required = ['DATABASE_URL', 'JWT_SECRET'];
+  const recommended = ['TEXTMAGIC_USERNAME', 'TEXTMAGIC_API_KEY', 'RESEND_API_KEY', 'VAPI_PRIVATE_KEY', 'TAVUS_API_KEY', 'FAL_KEY', 'OPENAI_API_KEY', 'FLEXPRICE_API_KEY'];
+
+  const missing = required.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    console.error('FATAL: Missing required environment variables:', missing.join(', '));
+    process.exit(1);
+  }
+
+  const missingRecommended = recommended.filter(key => !process.env[key]);
+  if (missingRecommended.length > 0) {
+    console.warn('WARNING: Missing optional environment variables (some features will be disabled):', missingRecommended.join(', '));
+  }
+}
+
+validateEnvironment();
 
 const app = express();
 const httpServer = createServer(app);
@@ -18,6 +37,7 @@ declare module "http" {
 
 app.use(
   express.json({
+    limit: '1mb',
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
@@ -25,6 +45,25 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
+const replitDomains = (process.env.REPLIT_DOMAINS || '').split(',').filter(Boolean);
+const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://localhost:3000', ...replitDomains.map(d => `https://${d}`)]);
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+    if (replitDomains.some(d => origin.endsWith(`.${d}`) || origin === `https://${d}`)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -39,24 +78,12 @@ export function log(message: string, source = "express") {
 
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  const sanitizedPath = req.path;
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      log(logLine);
+    if (sanitizedPath.startsWith("/api")) {
+      log(`${req.method} ${sanitizedPath} ${res.statusCode} in ${duration}ms`);
     }
   });
 
@@ -103,23 +130,26 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
 
-      (async () => {
-        try {
-          const orgs = await storage.getOrganizations();
-          const serraHonda = orgs.find(o => o.name === "Serra Honda");
-          if (serraHonda) {
-            const settings = (serraHonda.settings || {}) as Record<string, any>;
-            if (!settings.textmagicPhone) {
-              await storage.updateOrganization(serraHonda.id, {
-                settings: { ...settings, textmagicPhone: "18338096836" }
-              });
-              log("Set textmagicPhone for Serra Honda: 18338096836");
+      if (process.env.NODE_ENV !== 'production') {
+        (async () => {
+          try {
+            const defaultTmPhone = process.env.DEFAULT_TEXTMAGIC_PHONE || "18338096836";
+            const orgs = await storage.getOrganizations();
+            const serraHonda = orgs.find(o => o.name === "Serra Honda");
+            if (serraHonda) {
+              const settings = (serraHonda.settings || {}) as Record<string, any>;
+              if (!settings.textmagicPhone) {
+                await storage.updateOrganization(serraHonda.id, {
+                  settings: { ...settings, textmagicPhone: defaultTmPhone }
+                });
+                log(`Set textmagicPhone for Serra Honda: ${defaultTmPhone}`);
+              }
             }
+          } catch (err) {
+            log(`Failed to set default textmagicPhone: ${err}`);
           }
-        } catch (err) {
-          log(`Failed to set default textmagicPhone: ${err}`);
-        }
-      })();
+        })();
+      }
 
       const runActivityLogPurge = async () => {
         try {
@@ -137,15 +167,26 @@ app.use((req, res, next) => {
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
       setInterval(runActivityLogPurge, ONE_DAY_MS);
 
+      const instanceId = `instance-${process.pid}-${Date.now()}`;
+
       const checkScheduledCampaigns = async () => {
         try {
-          const due = await storage.getScheduledCampaigns();
-          for (const campaign of due) {
-            log(`Executing scheduled campaign: ${campaign.name} (${campaign.id})`, "scheduler");
-            const result = await startCampaignExecution(campaign.id, campaign.organizationId, false);
-            if (!result.success) {
-              log(`Scheduled campaign ${campaign.id} failed to start: ${result.message}`, "scheduler");
+          const locked = await storage.acquireSchedulerLock('campaign_scheduler', instanceId, 5);
+          if (!locked) {
+            log(`Campaign scheduler lock held by another instance, skipping`, "scheduler");
+            return;
+          }
+          try {
+            const due = await storage.getScheduledCampaigns();
+            for (const campaign of due) {
+              log(`Executing scheduled campaign: ${campaign.name} (${campaign.id})`, "scheduler");
+              const result = await startCampaignExecution(campaign.id, campaign.organizationId, false);
+              if (!result.success) {
+                log(`Scheduled campaign ${campaign.id} failed to start: ${result.message}`, "scheduler");
+              }
             }
+          } finally {
+            await storage.releaseSchedulerLock('campaign_scheduler');
           }
         } catch (err) {
           log(`Campaign scheduler check failed: ${err}`, "scheduler");
@@ -154,11 +195,47 @@ app.use((req, res, next) => {
 
       setInterval(checkScheduledCampaigns, 60000);
 
+      const processScheduledActions = async () => {
+        try {
+          const dueActions = await storage.getDueScheduledActions();
+          for (const action of dueActions) {
+            try {
+              if (action.actionType === 'trigger_action') {
+                const p = action.payload as any;
+                const org = await storage.getOrganization(p.orgId);
+                const agent = await storage.getAgent(p.agentId);
+                if (org && agent) {
+                  await executeTriggerAction(p.type, p.phone, p.email, p.customerName, org, agent);
+                  log(`Executed scheduled trigger action: ${p.type} for ${p.customerName}`, "scheduler");
+                }
+              }
+              await storage.markScheduledActionExecuted(action.id);
+            } catch (actErr: any) {
+              log(`Scheduled action ${action.id} failed: ${actErr.message}`, "scheduler");
+              await storage.markScheduledActionExecuted(action.id);
+            }
+          }
+        } catch (err) {
+          log(`Scheduled actions check failed: ${err}`, "scheduler");
+        }
+      };
+
+      setInterval(processScheduledActions, 30000);
+
       const runWeeklyHunches = async () => {
         const now = new Date();
-        if (now.getDay() !== 1) return; // Monday only
-        if (now.getHours() !== 6 || now.getMinutes() > 5) return; // 6:00-6:05 AM window
+        if (now.getDay() !== 1) return;
+        if (now.getHours() !== 6) return;
+
         try {
+          const lockState = await storage.getSchedulerLock('hunch_scheduler');
+          const lastRunAt = lockState?.lastRunAt;
+
+          if (lastRunAt) {
+            const timeSinceLastRun = now.getTime() - lastRunAt.getTime();
+            if (timeSinceLastRun < 6 * 60 * 60 * 1000) return;
+          }
+
           const orgs = await storage.getOrganizations();
           for (const org of orgs) {
             const settings = (org.settings as Record<string, any>) || {};
@@ -171,6 +248,8 @@ app.use((req, res, next) => {
               log(`Hunch generation failed for ${org.name}: ${err}`, "hunches");
             }
           }
+
+          await storage.updateSchedulerLastRunAt('hunch_scheduler');
         } catch (err) {
           log(`Weekly hunch scheduler failed: ${err}`, "hunches");
         }
@@ -377,15 +456,22 @@ app.use((req, res, next) => {
                 if (trigger.type === 'stale_lead') {
                   const thresholdHours = trigger.config?.thresholdHours || 24;
                   const cutoff = new Date(Date.now() - thresholdHours * 60 * 60 * 1000);
+                  const triggerCooldownMs = 15 * 60 * 1000;
                   const convs = await storage.getConversations(org.id, { agentId: agent.id });
-                  const staleConvs = convs.filter(c =>
-                    c.status === 'open' && c.lastMessageAt && new Date(c.lastMessageAt) < cutoff
-                  );
+                  const staleConvs = convs.filter(c => {
+                    if (c.status !== 'open' || !c.lastMessageAt || new Date(c.lastMessageAt) >= cutoff) return false;
+                    if ((c as any).staleTriggerProcessedAt) {
+                      const processedAt = new Date((c as any).staleTriggerProcessedAt).getTime();
+                      if (Date.now() - processedAt < triggerCooldownMs) return false;
+                    }
+                    return true;
+                  });
                   if (staleConvs.length > 0) {
                     log(`Trigger "${trigger.name}": ${staleConvs.length} stale leads for agent ${agent.name}`, "triggers");
                     const actions = trigger.config?.actions || [];
 
                     for (const conv of staleConvs.slice(0, 5)) {
+                      await storage.updateConversation(conv.id, { staleTriggerProcessedAt: new Date() } as any);
                       if (adminUser) {
                         await storage.createNotification({
                           userId: adminUser.id,
@@ -405,13 +491,20 @@ app.use((req, res, next) => {
                         const waitMs = (action.waitMinutes || 0) * 60 * 1000;
                         if (waitMs > 0) {
                           log(`Trigger "${trigger.name}": scheduling ${action.type} for ${customerName} in ${action.waitMinutes}m`, "triggers");
-                          setTimeout(async () => {
-                            try {
-                              await executeTriggerAction(action.type, customerPhone, customerEmail, customerName, org, agent);
-                            } catch (actErr: any) {
-                              log(`Trigger action ${action.type} failed for ${customerName}: ${actErr.message}`, "triggers");
-                            }
-                          }, waitMs);
+                          await storage.createScheduledAction({
+                            organizationId: org.id,
+                            actionType: 'trigger_action',
+                            payload: {
+                              type: action.type,
+                              phone: customerPhone,
+                              email: customerEmail,
+                              customerName,
+                              orgId: org.id,
+                              agentId: agent.id,
+                              triggerName: trigger.name,
+                            },
+                            executeAt: new Date(Date.now() + waitMs),
+                          });
                         } else {
                           try {
                             await executeTriggerAction(action.type, customerPhone, customerEmail, customerName, org, agent);

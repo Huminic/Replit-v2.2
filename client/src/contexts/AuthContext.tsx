@@ -23,7 +23,6 @@ export interface User {
     id: string;
     name: string;
   };
-  locationId?: string;
 }
 
 // Accessible organization type

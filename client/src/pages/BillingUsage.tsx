@@ -63,7 +63,7 @@ function getUsageBadgeVariant(pct: number): 'destructive' | 'secondary' | 'defau
 }
 
 export default function BillingUsage() {
-  const { data: usageData, isLoading } = useQuery<BillingUsageData>({
+  const { data: usageData, isLoading, isError, error } = useQuery<BillingUsageData>({
     queryKey: ['/api/billing/usage'],
   });
 
@@ -82,6 +82,22 @@ export default function BillingUsage() {
             ))}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center p-8">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <AlertCircle className="h-10 w-10 text-red-500 mx-auto mb-3" />
+            <h2 className="text-lg font-semibold text-foreground mb-1" data-testid="text-billing-error">Failed to Load Usage</h2>
+            <p className="text-sm text-muted-foreground" data-testid="text-billing-error-msg">
+              {(error as Error)?.message || 'An unexpected error occurred while fetching usage data.'}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

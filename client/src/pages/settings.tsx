@@ -19,9 +19,6 @@
  * - Knowledge Base: File upload for AI training data (FAQ, pricing, inventory CSVs).
  *   Kill switch confirmation dialog for immediate data purge.
  *
- * PRODUCTION NOTE: All settings currently use local state. Will wire to backend API
- * at nexxusv2.huminicdev.com for persistent org configuration.
- *
  * Related files:
  * - AppContext.tsx: communicationGateEnabled, personaName, currentRole
  * - mocks/widgets.ts: Widget/landing page types, universal settings, embed code generation
@@ -166,7 +163,7 @@ function dbWidgetToIndividual(w: DbWidget): IndividualWidget {
       secondaryColor: cfg.accentColor || '#3b82f6',
       textColor: '#ffffff',
       backgroundColor: '#ffffff',
-      organizationName: 'Cage Automotive',
+      organizationName: cfg.organizationName || '',
       showLogo: cfg.showOrganizationName ?? true,
       position: cfg.position || 'bottom-right',
       animation: cfg.animation || 'pulse',
@@ -246,7 +243,7 @@ interface ToolCardData {
   icon: React.ElementType;
 }
 
-const toolCards: ToolCardData[] = [
+const defaultToolCards: ToolCardData[] = [
   { id: 'crm', friendlyName: 'CRM Integration', technicalName: 'VIN Solutions', description: 'Connect to your CRM for lead and customer data sync', enabled: false, locked: true, category: 'api', icon: Users },
   { id: 'voice', friendlyName: 'Voice Calling', technicalName: 'VAPI', description: 'Browser-based voice calls powered by VAPI', enabled: false, locked: true, category: 'api', icon: Phone },
   { id: 'video-calling', friendlyName: 'Video Calling', technicalName: 'Tavus', description: 'Face-to-face video chat via Tavus AI persona', enabled: false, locked: true, category: 'api', icon: Video },
@@ -541,6 +538,41 @@ export default function SettingsPage() {
   const [provisionLoading, setProvisionLoading] = useState(false);
   const [widgetSearch, setWidgetSearch] = useState('');
   const [universalSettings, setUniversalSettings] = useState<UniversalWidgetSettings>(defaultUniversalSettings);
+
+  const [toolCards, setToolCards] = useState<ToolCardData[]>(defaultToolCards);
+
+  useEffect(() => {
+    if (authUser?.organization) {
+      const org = authUser.organization as any;
+      const toolSettings = org.settings?.toolToggles || {};
+      setToolCards(prev => prev.map(tool => ({
+        ...tool,
+        enabled: toolSettings[tool.id] !== undefined ? toolSettings[tool.id] : tool.enabled,
+      })));
+    }
+  }, [authUser]);
+
+  const toolToggleMutation = useMutation({
+    mutationFn: async ({ toolId, enabled }: { toolId: string; enabled: boolean }) => {
+      if (!authUser?.organization?.id) return;
+      const org = authUser.organization as any;
+      const currentSettings = org.settings || {};
+      const toolToggles = { ...(currentSettings.toolToggles || {}), [toolId]: enabled };
+      await apiRequest('PATCH', `/api/organizations/${authUser.organization.id}`, {
+        settings: { ...currentSettings, toolToggles },
+      });
+    },
+    onSuccess: () => {
+      if (authUser?.organization?.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/organizations', authUser.organization.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      toast({ title: 'Tool updated', description: 'Tool setting saved successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to update tool', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteForm, setInviteForm] = useState({ firstName: '', lastName: '', email: '', roleId: '' });
@@ -1048,7 +1080,7 @@ export default function SettingsPage() {
       secondaryColor: '#3b82f6',
       textColor: '#ffffff',
       backgroundColor: '#ffffff',
-      organizationName: 'Cage Automotive',
+      organizationName: currentOrganization?.name || '',
       showLogo: true,
       position: 'bottom-right',
       animation: 'pulse',
@@ -2250,17 +2282,6 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                    {page.name === 'Cage Automotive Connect' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open('/w/demo', '_blank')}
-                        data-testid={`button-preview-page-${page.id}`}
-                      >
-                        <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                        Preview
-                      </Button>
-                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" data-testid={`page-menu-${page.id}`}>
@@ -2335,17 +2356,6 @@ export default function SettingsPage() {
             >
               {page.status === 'active' ? 'Deactivate' : 'Activate'}
             </Button>
-            {page.name === 'Cage Automotive Connect' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open('/w/demo', '_blank')}
-                data-testid="button-preview-landing-detail"
-              >
-                <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                Preview
-              </Button>
-            )}
           </div>
         </div>
 
@@ -2613,10 +2623,10 @@ export default function SettingsPage() {
                 <p className="font-medium text-foreground">{tool.friendlyName}</p>
                 {tool.id === 'crm' ? (
                   <EntitlementGate feature="crm_integration">
-                    <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
+                    <Switch checked={tool.enabled} disabled={tool.locked || toolToggleMutation.isPending} data-testid={`tool-switch-${tool.id}`} onCheckedChange={(checked) => { setToolCards(prev => prev.map(t => t.id === tool.id ? { ...t, enabled: checked } : t)); toolToggleMutation.mutate({ toolId: tool.id, enabled: checked }); }} />
                   </EntitlementGate>
                 ) : (
-                  <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
+                  <Switch checked={tool.enabled} disabled={tool.locked || toolToggleMutation.isPending} data-testid={`tool-switch-${tool.id}`} onCheckedChange={(checked) => { setToolCards(prev => prev.map(t => t.id === tool.id ? { ...t, enabled: checked } : t)); toolToggleMutation.mutate({ toolId: tool.id, enabled: checked }); }} />
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>

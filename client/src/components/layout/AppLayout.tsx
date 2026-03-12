@@ -22,7 +22,7 @@
  * @see RightPane.tsx — Automa AI chat panel for data-display pages
  * @see AgentConfigPane.tsx — agent configuration panel for /agents route
  */
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,8 @@ import { RightPane } from './RightPane';
 import { SubMenuManager } from './SubMenuManager';
 import { AgentConfigPane } from '@/components/AgentConfigPane';
 import { useApp } from '@/contexts/AppContext';
+import { ProductTour } from '@/components/ProductTour';
+import { getTourStepsForRole } from '@/lib/tourSteps';
 
 /**
  * ViewConfig determines right pane behavior and main content layout per route:
@@ -62,9 +64,31 @@ function getViewConfig(pathname: string): ViewConfig {
   return 'data-display';
 }
 
+const TOUR_COMPLETED_KEY = 'nexxus_tour_completed';
+
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, personaName, selectedAgent, setSelectedAgent } = useApp();
+  const { rightPaneOpen, setRightPaneOpen, personaName, selectedAgent, setSelectedAgent, currentRole, showTour, setShowTour } = useApp();
+
+  useEffect(() => {
+    const tourDone = localStorage.getItem(TOUR_COMPLETED_KEY);
+    if (!tourDone) {
+      const timer = setTimeout(() => setShowTour(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const tourSteps = getTourStepsForRole(currentRole);
+
+  const handleTourComplete = useCallback(() => {
+    localStorage.setItem(TOUR_COMPLETED_KEY, 'true');
+    setShowTour(false);
+  }, [setShowTour]);
+
+  const handleTourSkip = useCallback(() => {
+    localStorage.setItem(TOUR_COMPLETED_KEY, 'true');
+    setShowTour(false);
+  }, [setShowTour]);
   
   const viewConfig = getViewConfig(location);
   const canToggleRightPane = viewConfig === 'data-display' || viewConfig === 'heavy-chat';
@@ -86,6 +110,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex flex-col h-screen w-full bg-background">
+      {showTour && tourSteps.length > 0 && (
+        <ProductTour
+          steps={tourSteps}
+          onComplete={handleTourComplete}
+          onSkip={handleTourSkip}
+        />
+      )}
       <TopBar />
       
       <div className="flex flex-1 overflow-hidden">

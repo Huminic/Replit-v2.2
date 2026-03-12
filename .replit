@@ -49,6 +49,7 @@ waitForPort = 5000
 VINSOLUTIONS_MCP_URL = "https://mcp.huminicdev.com/dax/mcp"
 OUTBOUND_LIVE_ENABLED = "false"
 TEXTMAGIC_USERNAME = "oauthdurran"
+JWT_SECRET = "a470544ecda2ddabe0fbea699fcd55909efce4a3f1988a5488c172ae81663f14fd966c79af40c49f7a70c4870641da12e70951dafdb9fc4a2dfc5080fcfa3675"
 
 [userenv.development]
 APP_BASE_URL = "https://release-1r.huminic.app"

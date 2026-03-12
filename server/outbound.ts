@@ -7,10 +7,18 @@ import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_HOURS = 24;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resendInstance: Resend | null = null;
+function getResendClient(): Resend {
+  if (!_resendInstance) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+    _resendInstance = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resendInstance;
+}
 
-const TEXTMAGIC_API_KEY_RAW = process.env.TEXTMAGIC_API_KEY || "";
-const TEXTMAGIC_API_KEY = TEXTMAGIC_API_KEY_RAW.length === 60 ? TEXTMAGIC_API_KEY_RAW.substring(0, 30) : TEXTMAGIC_API_KEY_RAW;
+const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
 const TEXTMAGIC_USERNAME = process.env.TEXTMAGIC_USERNAME || "";
 const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
 const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
@@ -28,6 +36,48 @@ export interface SendRequest {
 export interface SendResult {
   status: "sent" | "blocked" | "failed" | "dry_run";
   blockedReason?: string;
+}
+
+const stopConfirmationCache = new Map<string, number>();
+
+export async function sendStopConfirmation(phone: string, orgName: string, organizationId: string): Promise<void> {
+  const cacheKey = `${phone}:${organizationId}`;
+  const lastSent = stopConfirmationCache.get(cacheKey);
+  const oneHourMs = 60 * 60 * 1000;
+
+  if (lastSent && Date.now() - lastSent < oneHourMs) {
+    console.log(`[STOP] Rate-limited: STOP confirmation already sent to ${phone} within the last hour`);
+    return;
+  }
+
+  if (process.env.OUTBOUND_LIVE_ENABLED !== "true") {
+    console.log(`[STOP] Global outbound disabled — skipping STOP confirmation to ${phone}`);
+    return;
+  }
+
+  try {
+    await sendSmsRaw(phone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`);
+    stopConfirmationCache.set(cacheKey, Date.now());
+    console.log(`[STOP] Confirmation sent to ${phone} for org ${organizationId}`);
+
+    try {
+      await storage.createOutboundLog({
+        organizationId,
+        campaignId: null,
+        recipientId: null,
+        channel: "sms",
+        status: "sent",
+        blockedReason: null,
+        messageContent: `STOP confirmation to ${phone}`,
+        sentAt: new Date(),
+      });
+    } catch (logErr) {
+      console.error("[STOP] Failed to log STOP confirmation:", logErr);
+    }
+  } catch (err: any) {
+    console.error(`[STOP] Failed to send STOP confirmation to ${phone}:`, err.message);
+    throw err;
+  }
 }
 
 export async function sendSmsRaw(to: string, content: string): Promise<void> {
@@ -73,6 +123,16 @@ export async function sendSms(to: string, content: string, organizationId?: stri
     }
   }
 
+  const digitsOnly = to.replace(/[^0-9]/g, "");
+  if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+    console.warn(`[TextMagic] SMS rejected — invalid phone number length (${digitsOnly.length} digits): ${to}`);
+    return;
+  }
+  if (/^0{10,}$/.test(digitsOnly) || /^1{10,}$/.test(digitsOnly)) {
+    console.warn(`[TextMagic] SMS rejected — obviously invalid phone number: ${to}`);
+    return;
+  }
+
   if (!TEXTMAGIC_API_KEY) {
     throw new Error("TEXTMAGIC_API_KEY is not configured");
   }
@@ -107,6 +167,12 @@ export async function sendSms(to: string, content: string, organizationId?: stri
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    console.warn(`[Resend] Email rejected — invalid email format: ${to}`);
+    return;
+  }
+
   if (!process.env.RESEND_API_KEY) {
     throw new Error("RESEND_API_KEY is not configured");
   }
@@ -115,6 +181,7 @@ export async function sendEmail(to: string, content: string): Promise<void> {
   const subject = subjectMatch ? subjectMatch[1].trim() : "Message from Nexxus Connect";
   const body = subjectMatch ? content.replace(/^Subject:\s*.+?[\r\n]+/i, "").trim() : content;
 
+  const resend = getResendClient();
   const { data, error } = await resend.emails.send({
     from: RESEND_FROM,
     to: [to],
@@ -379,6 +446,8 @@ export interface CampaignExecution {
   failed: number;
   dryRun: boolean;
   intervalHandle: ReturnType<typeof setInterval> | null;
+  startedAt: Date;
+  completedAt: Date | null;
 }
 
 const activeExecutions = new Map<string, CampaignExecution>();
@@ -397,12 +466,12 @@ export function getAllExecutionStatuses(): Record<string, Omit<CampaignExecution
 }
 
 function substituteTemplate(template: string, recipient: CampaignRecipient, dealershipName: string): string {
-  const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "Customer";
+  const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
   return template
     .replace(/\{\{customerName\}\}/g, customerName)
-    .replace(/\{\{firstName\}\}/g, recipient.firstName || "")
+    .replace(/\{\{firstName\}\}/g, recipient.firstName || "valued customer")
     .replace(/\{\{lastName\}\}/g, recipient.lastName || "")
-    .replace(/\{\{dealershipName\}\}/g, dealershipName);
+    .replace(/\{\{dealershipName\}\}/g, dealershipName || "our dealership");
 }
 
 export async function startCampaignExecution(
@@ -411,7 +480,10 @@ export async function startCampaignExecution(
   dryRun: boolean = false
 ): Promise<{ success: boolean; message: string; execution?: Omit<CampaignExecution, "intervalHandle"> }> {
   if (activeExecutions.has(campaignId)) {
-    return { success: false, message: "Campaign is already executing" };
+    const existing = activeExecutions.get(campaignId)!;
+    if (existing.status === "executing") {
+      return { success: false, message: "Campaign is already executing" };
+    }
   }
 
   const campaign = await storage.getCampaign(campaignId);
@@ -421,6 +493,10 @@ export async function startCampaignExecution(
 
   if (campaign.organizationId !== organizationId) {
     return { success: false, message: "Access denied" };
+  }
+
+  if ((campaign as any).executionStatus === "executing") {
+    return { success: false, message: "Campaign is already executing (DB status)" };
   }
 
   const org = await storage.getOrganization(organizationId);
@@ -444,6 +520,8 @@ export async function startCampaignExecution(
     failed: 0,
     dryRun,
     intervalHandle: null,
+    startedAt: new Date(),
+    completedAt: null,
   };
 
   activeExecutions.set(campaignId, execution);
@@ -565,6 +643,7 @@ async function finishExecution(campaignId: string, finalStatus: "completed" | "s
   }
 
   exec.status = finalStatus;
+  exec.completedAt = new Date();
 
   if (!exec.dryRun) {
     const newStatus = finalStatus === "completed" ? "completed" : "paused";
@@ -576,10 +655,6 @@ async function finishExecution(campaignId: string, finalStatus: "completed" | "s
       executionFailed: exec.failed,
     } as any);
   }
-
-  setTimeout(() => {
-    activeExecutions.delete(campaignId);
-  }, 60000);
 }
 
 export async function stopCampaignExecution(campaignId: string): Promise<{ success: boolean; message: string }> {

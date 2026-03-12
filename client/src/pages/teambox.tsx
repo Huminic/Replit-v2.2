@@ -24,7 +24,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Paperclip, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock } from 'lucide-react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -222,7 +222,11 @@ export default function TeamboxPage() {
   }, [conversations, selectedConversationId]);
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
-    queryKey: [`/api/conversations/${selectedConversationId}/messages`],
+    queryKey: ['/api/conversations', selectedConversationId, 'messages'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/conversations/${selectedConversationId}/messages`);
+      return res.json();
+    },
     enabled: !!selectedConversationId,
   });
 
@@ -260,7 +264,7 @@ export default function TeamboxPage() {
       });
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [`/api/conversations/${variables.conversationId}/messages`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations', variables.conversationId, 'messages'] });
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
       setReplyText('');
     },
@@ -309,10 +313,6 @@ export default function TeamboxPage() {
     setTimeout(() => {
       replyTextareaRef.current?.focus();
     }, 100);
-  };
-
-  const handleAttachment = () => {
-    toast({ title: 'File attachments coming soon', description: 'This feature is currently under development.' });
   };
 
   const handleSendReply = () => {
@@ -734,9 +734,6 @@ export default function TeamboxPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAttachment} data-testid="button-attach">
-                    <Paperclip className="h-4 w-4 text-muted-foreground" />
-                  </Button>
                   <Button
                     size="icon"
                     className="h-8 w-8"

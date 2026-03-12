@@ -1,8 +1,16 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { storage } from "./storage";
 import { billingService } from "./services/billingService";
 
 const SALT_ROUNDS = 10;
+
+const seedPassword = process.env.SEED_DEFAULT_PASSWORD || (process.env.NODE_ENV === 'development' ? 'password123' : crypto.randomUUID());
+if (!process.env.SEED_DEFAULT_PASSWORD && process.env.NODE_ENV === 'production') {
+  console.log("Generated seed admin password:", seedPassword);
+}
+
+const BILLING_CUSTOMER_MAP: Record<string, string> = process.env.BILLING_CUSTOMER_MAP ? JSON.parse(process.env.BILLING_CUSTOMER_MAP) : {};
 
 async function seedTasksAndWidgets() {
   const orgs = await storage.getOrganizations();
@@ -177,13 +185,7 @@ async function seedMissingAgents() {
 }
 
 async function seedBillingData() {
-  const billingMap: Record<string, string> = {
-    "serra-honda": "cust_01KKFRFC8TDNPME9DZ83APV38G",
-    "serra-nissan": "cust_01KKFRGG7VFVKP6YRNZ9G05J2Y",
-    "tony-serra-ford": "cust_01KKFRGGWAQD846Z2QS7WHTGC9",
-    "hyundai-of-columbia": "cust_01KKFRGJ4WM86CXS27M85A8F0E",
-    "ford-of-columbia": "cust_01KKFRGHGDY2JRAS2VF91G0PPF",
-  };
+  const billingMap: Record<string, string> = BILLING_CUSTOMER_MAP;
 
   try {
     const orgs = await storage.getOrganizations();
@@ -226,7 +228,71 @@ async function seedBillingData() {
   }
 }
 
+async function seedProductionDatabase() {
+  const existingRoles = await storage.getRoles();
+  if (existingRoles.length === 0) {
+    console.log("Production seed: creating roles...");
+    const roleData = [
+      { name: "super_admin", level: 1 },
+      { name: "partner_admin", level: 2 },
+      { name: "org_admin", level: 3 },
+      { name: "executive", level: 3 },
+      { name: "sales_manager", level: 3 },
+      { name: "sales", level: 4 },
+      { name: "service", level: 4 },
+      { name: "marketing", level: 4 },
+    ];
+
+    const createdRoles: Record<string, string> = {};
+    for (const r of roleData) {
+      const role = await storage.createRole(r);
+      createdRoles[r.name] = role.id;
+    }
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@nexxusconnect.ai';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      console.error("FATAL: ADMIN_PASSWORD environment variable is required in production.");
+      process.exit(1);
+    }
+
+    const defaultOrg = await storage.createOrganization({
+      name: "Nexxus Connect",
+      slug: "nexxus-connect",
+      personaName: "Admin",
+      outboundEnabled: false,
+      smsEnabled: false,
+      phoneEnabled: false,
+      emailEnabled: false,
+    });
+
+    const hashedAdminPass = await bcrypt.hash(adminPassword, SALT_ROUNDS);
+    await storage.createUser({
+      email: adminEmail,
+      password: hashedAdminPass,
+      firstName: "Super",
+      lastName: "Admin",
+      roleId: createdRoles["super_admin"],
+      organizationId: defaultOrg.id,
+      isActive: true,
+    });
+
+    console.log(`Production seed complete. Admin account: ${adminEmail}`);
+  } else {
+    console.log("Production database already seeded, skipping...");
+  }
+
+  if (Object.keys(BILLING_CUSTOMER_MAP).length > 0) {
+    await seedBillingData();
+  }
+}
+
 export async function seedDatabase() {
+  if (process.env.NODE_ENV === 'production') {
+    await seedProductionDatabase();
+    return;
+  }
+
   const existingRoles = await storage.getRoles();
   if (existingRoles.length > 0) {
     console.log("Database already seeded, skipping...");
@@ -323,7 +389,7 @@ export async function seedDatabase() {
     emailEnabled: true,
   });
 
-  const defaultPassword = await bcrypt.hash("password123", SALT_ROUNDS);
+  const defaultPassword = await bcrypt.hash(seedPassword, SALT_ROUNDS);
 
   const seedUsers = [
     { email: "admin@nexxus.com", firstName: "System", lastName: "Admin", role: "super_admin", org: serraHonda.id },
@@ -647,7 +713,7 @@ async function seedPartnerAccount() {
   const partnerRole = roles.find(r => r.name === "partner_admin");
   if (!partnerRole) return;
 
-  const hashedPassword = await bcrypt.hash("password123", SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(seedPassword, SALT_ROUNDS);
   await storage.createUser({
     email: "durran.cage@cageautomotive.com",
     password: hashedPassword,
@@ -658,7 +724,7 @@ async function seedPartnerAccount() {
     isActive: true,
   });
 
-  console.log("Durran Cage partner account seeded (durran.cage@cageautomotive.com / password123)");
+  console.log("Durran Cage partner account seeded (durran.cage@cageautomotive.com)");
 }
 
 async function seedHuminicUsers() {
@@ -673,12 +739,12 @@ async function seedHuminicUsers() {
   }
 
   const huminicUsers = [
-    { email: "duane.wells@huminic.ai", firstName: "Duane K.", lastName: "Wells", role: "super_admin", password: "a1$ucc3ss" },
-    { email: "partner_admin@huminic.ai", firstName: "Partner", lastName: "Admin", role: "partner_admin", password: "P@rtner$uccess" },
-    { email: "org_admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: "O3g$uccess" },
-    { email: "sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: "S@les$uccess" },
-    { email: "marketing_staff@huminic.ai", firstName: "Marketing", lastName: "Staff", role: "marketing", password: "M@3keting$uccess" },
-    { email: "executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: "Ex3c$uccess" },
+    { email: "duane.wells@huminic.ai", firstName: "Duane K.", lastName: "Wells", role: "super_admin", password: process.env.HUMINIC_ADMIN_PASSWORD || seedPassword },
+    { email: "partner_admin@huminic.ai", firstName: "Partner", lastName: "Admin", role: "partner_admin", password: seedPassword },
+    { email: "org_admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: seedPassword },
+    { email: "sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: seedPassword },
+    { email: "marketing_staff@huminic.ai", firstName: "Marketing", lastName: "Staff", role: "marketing", password: seedPassword },
+    { email: "executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: seedPassword },
   ];
 
   for (const u of huminicUsers) {

@@ -19,8 +19,6 @@
  * Kill Switch: Toggle to immediately stop all outbound messages for a campaign.
  * CRITICAL FEATURE — added after spam incident. Each campaign row has its own toggle.
  *
- * PRODUCTION NOTE: Campaigns will use TextMagic (SMS) and Resend (email) APIs.
- * Currently uses getCampaignsByDepartment() from mock data.
  */
 import { useState, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';

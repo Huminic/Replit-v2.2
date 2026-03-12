@@ -33,29 +33,13 @@ export interface Organization {
   personaName: string;
 }
 
-const fallbackOrganizations: Organization[] = [
-  {
-    id: 'org-1',
-    name: 'Cage Automotive',
-    primaryColor: '#8b5cf6',
-    secondaryColor: '#3b82f6',
-    personaName: 'Serra',
-  },
-  {
-    id: 'org-2',
-    name: 'Premier Motors',
-    primaryColor: '#10b981',
-    secondaryColor: '#3b82f6',
-    personaName: 'Aria',
-  },
-  {
-    id: 'org-3',
-    name: 'Elite Auto Group',
-    primaryColor: '#f59e0b',
-    secondaryColor: '#ef4444',
-    personaName: 'Nova',
-  },
-];
+const defaultOrganization: Organization = {
+  id: '',
+  name: '',
+  primaryColor: '#8b5cf6',
+  secondaryColor: '#3b82f6',
+  personaName: 'Automa',
+};
 import { useQuery } from '@tanstack/react-query';
 
 export interface FavoriteItem {
@@ -103,6 +87,8 @@ interface AppContextValue {
   isFavorite: (path: string) => boolean;
   setCommunicationGateEnabled: (enabled: boolean) => void;
   updateCurrentUser: (updates: Partial<User>) => void;
+  showTour: boolean;
+  setShowTour: (show: boolean) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -156,17 +142,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   const [userOverrides, setUserOverrides] = useState<Partial<User>>({});
-
-  const resolvedUser: User = {
-    ...(authAppUser || {
-      id: 'fallback',
-      name: 'User',
-      email: '',
-      role: 'org_admin' as UserRole,
-      organizationId: 'org-1',
-    }),
-    ...userOverrides,
-  };
+  const [showTour, setShowTour] = useState(false);
 
   const resolvedOrganization: Organization = orgDetails
     ? {
@@ -174,25 +150,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         name: orgDetails.name,
         primaryColor: orgDetails.primaryColor || '#8b5cf6',
         secondaryColor: orgDetails.secondaryColor || '#3b82f6',
-        personaName: orgDetails.personaName || 'Serra',
+        personaName: orgDetails.personaName || 'Automa',
       }
-    : fallbackOrganizations[0];
+    : defaultOrganization;
 
   const orgSource = liveOrgList && liveOrgList.length > 0 ? liveOrgList : null;
   const resolvedOrganizations: Organization[] = orgSource
-    ? orgSource
-        .filter(o => o.name !== 'Cage Automotive')
-        .map(o => {
-          const fb = fallbackOrganizations.find(m => m.name === o.name);
-          return {
-            id: o.id,
-            name: o.name,
-            primaryColor: fb?.primaryColor || '#8b5cf6',
-            secondaryColor: fb?.secondaryColor || '#3b82f6',
-            personaName: fb?.personaName || 'Serra',
-          };
-        })
-    : fallbackOrganizations;
+    ? orgSource.map(o => ({
+        id: o.id,
+        name: o.name,
+        primaryColor: '#8b5cf6',
+        secondaryColor: '#3b82f6',
+        personaName: 'Automa',
+      }))
+    : [];
 
   const { data: apiNotifications } = useQuery<DbNotification[]>({
     queryKey: ['/api/notifications'],
@@ -236,7 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('nexxus-current-role', role);
   };
 
-  const [currentOrganization, setCurrentOrganization] = useState<Organization>(fallbackOrganizations[0]);
+  const [currentOrganization, setCurrentOrganization] = useState<Organization>(defaultOrganization);
 
   useEffect(() => {
     setCurrentOrganization(resolvedOrganization);
@@ -357,6 +328,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const unreadNotificationCount = unreadCountData?.count ?? notifications.filter(n => !n.read).length;
 
+  if (!authAppUser) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-muted-foreground text-sm">Loading...</div>
+      </div>
+    );
+  }
+
+  const resolvedUser: User = {
+    ...authAppUser,
+    ...userOverrides,
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -398,6 +382,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isFavorite,
         setCommunicationGateEnabled,
         updateCurrentUser: (updates: Partial<User>) => setUserOverrides(prev => ({ ...prev, ...updates })),
+        showTour,
+        setShowTour,
       }}
     >
       {children}

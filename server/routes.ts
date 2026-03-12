@@ -3,6 +3,10 @@ import { type Server } from "http";
 import bcrypt from "bcrypt";
 import Anthropic from "@anthropic-ai/sdk";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
+import os from "os";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import {
   authenticateToken,
@@ -42,8 +46,60 @@ import { billingService } from "./services/billingService";
 import { requireEntitlement } from "./middleware/entitlementCheck";
 
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.diskStorage({ destination: os.tmpdir() }),
   limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many attempts, please try again later' } });
+const widgetLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false, message: { error: 'Rate limit exceeded' } });
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const createOrgSchema = z.object({
+  orgName: z.string().min(1, "Organization name is required").max(200),
+  industry: z.string().optional(),
+  size: z.string().optional(),
+  website: z.string().optional(),
+  publicListing: z.boolean().optional(),
+  multiLocation: z.boolean().optional(),
+  primaryPhone: z.string().min(1, "Primary phone is required"),
+  primaryEmail: z.string().email("Valid primary email is required"),
+  address1: z.string().optional(),
+  address2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zip: z.string().optional(),
+  timezone: z.string().optional(),
+  businessHoursStart: z.string().optional(),
+  businessHoursEnd: z.string().optional(),
+  adminFirstName: z.string().min(1, "Admin first name is required"),
+  adminLastName: z.string().min(1, "Admin last name is required"),
+  adminEmail: z.string().email("Valid admin email is required"),
+  adminPhone: z.string().optional(),
+  adminRole: z.string().optional(),
+  tempPassword: z.string().min(6, "Password must be at least 6 characters"),
+  sendWelcomeEmail: z.boolean().optional(),
+  billingEnabled: z.boolean().optional(),
+  anniversaryDate: z.string().optional(),
+  baseMonthlyFee: z.number().optional(),
+  voiceMinutes: z.number().optional(),
+  videoMinutes: z.number().optional(),
+  smsMessages: z.number().optional(),
+  setupFee: z.number().optional(),
+  tools: z.record(z.boolean()).optional(),
+  agentName: z.string().optional(),
+  agentPersona: z.string().optional(),
+  agentChannel: z.string().optional(),
+  autoRespond: z.boolean().optional(),
+  deployImmediately: z.boolean().optional(),
+  skills: z.any().optional(),
 });
 
 function parseCSVLine(line: string): string[] {
@@ -331,7 +387,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   await seedDatabase();
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
       const { email, password } = req.body;
 
@@ -350,6 +406,36 @@ export async function registerRoutes(
 
       const passwordValid = await bcrypt.compare(password, user.password);
       if (!passwordValid) {
+        storage.createActivityLog({
+          userId: user.id,
+          organizationId: user.organizationId,
+          action: "login_failed",
+          entityType: "user",
+          entityId: email.toLowerCase(),
+          metadata: { category: "security", reason: "invalid_password" },
+        }).catch(() => {});
+
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        storage.countRecentSecurityEvents("login_failed", email.toLowerCase(), oneHourAgo).then(async (failCount) => {
+          if (failCount >= 5) {
+            try {
+              const orgUsers = await storage.getUsers(user.organizationId);
+              for (const u of orgUsers) {
+                if (u.role && u.role.level <= 3) {
+                  await storage.createNotification({
+                    userId: u.id,
+                    organizationId: user.organizationId,
+                    type: "security_alert",
+                    title: "Multiple failed login attempts detected",
+                    message: `${failCount} failed login attempts for ${email.toLowerCase()} in the last hour.`,
+                  });
+                  break;
+                }
+              }
+            } catch {}
+          }
+        }).catch(() => {});
+
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
@@ -438,7 +524,7 @@ export async function registerRoutes(
       }
 
       try {
-        verifyToken(refreshToken);
+        verifyToken(refreshToken, 'refresh');
       } catch {
         await storage.deleteSession(session.id);
         return res.status(401).json({ message: "Invalid refresh token" });
@@ -551,7 +637,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/auth/forgot-password", async (req, res) => {
+  app.post("/api/auth/forgot-password", authLimiter, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
@@ -567,7 +653,7 @@ export async function registerRoutes(
         const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
 
         if (!commGateOpen) {
-          console.log(`[AUTH] Password reset requested for ${email} — CommGate blocked email. Token: ${token}`);
+          console.log(`[AUTH] Password reset token generated for ${email} — CommGate blocked email delivery`);
         } else {
           const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}`;
           if (process.env.RESEND_API_KEY) {
@@ -577,11 +663,11 @@ export async function registerRoutes(
               from: "Nexxus Connect <notifications@huminic.ai>",
               to: user.email,
               subject: "Password Reset — Nexxus Connect",
-              html: `<p>Hi ${user.firstName},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, ignore this email.</p>`,
+              html: `<p>Hi ${escapeHtml(user.firstName)},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${escapeHtml(resetUrl)}">${escapeHtml(resetUrl)}</a></p><p>If you did not request this, ignore this email.</p>`,
             });
             console.log(`[AUTH] Password reset email sent to ${email}`);
           } else {
-            console.log(`[AUTH] Password reset requested for ${email} — no RESEND_API_KEY, token: ${token}`);
+            console.log(`[AUTH] Password reset token generated for ${email} — no RESEND_API_KEY configured`);
           }
         }
       }
@@ -592,16 +678,13 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/auth/reset-password", async (req, res) => {
+  app.post("/api/auth/reset-password", authLimiter, async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
     if (password.length < 8) return res.status(400).json({ message: "Password must be at least 8 characters" });
 
     try {
-      const { eq } = await import("drizzle-orm");
-      const { db } = await import("./storage");
-      const { users } = await import("@shared/schema");
-      const [found] = await db.select().from(users).where(eq(users.resetToken, token));
+      const found = await storage.findUserByResetToken(token);
       if (!found) return res.status(400).json({ message: "Invalid or expired reset token" });
       if (!found.resetTokenExpiry || new Date(found.resetTokenExpiry) < new Date()) {
         return res.status(400).json({ message: "Reset token has expired" });
@@ -613,6 +696,15 @@ export async function registerRoutes(
         resetToken: null,
         resetTokenExpiry: null,
       } as any);
+
+      storage.createActivityLog({
+        userId: found.id,
+        organizationId: found.organizationId,
+        action: "password_reset_completed",
+        entityType: "user",
+        entityId: found.id,
+        metadata: { category: "security", email: found.email },
+      }).catch(() => {});
 
       console.log(`[AUTH] Password reset completed for user ${found.email}`);
       return res.json({ message: "Password has been reset successfully." });
@@ -634,7 +726,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/users", authenticateToken, async (req, res) => {
+  app.get("/api/users", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const userList = await storage.getUsers(req.user.organizationId);
@@ -725,10 +817,10 @@ export async function registerRoutes(
               from: "Nexxus Connect <no-reply@huminic.app>",
               to: email,
               subject: `Welcome to ${org?.name || "Nexxus Connect"} on Nexxus Connect`,
-              html: `<h2>Welcome to ${org?.name || "Nexxus Connect"}!</h2>
-                <p>Hi ${firstName},</p>
-                <p>Your account has been created for <strong>${org?.name || "Nexxus Connect"}</strong> by ${req.user!.firstName} ${req.user!.lastName}.</p>
-                <p>You can log in using your email address: <strong>${email}</strong></p>
+              html: `<h2>Welcome to ${escapeHtml(org?.name || "Nexxus Connect")}!</h2>
+                <p>Hi ${escapeHtml(firstName)},</p>
+                <p>Your account has been created for <strong>${escapeHtml(org?.name || "Nexxus Connect")}</strong> by ${escapeHtml(req.user!.firstName)} ${escapeHtml(req.user!.lastName)}.</p>
+                <p>You can log in using your email address: <strong>${escapeHtml(email)}</strong></p>
                 <p>Please change your password after your first login for security purposes.</p>
                 <p>Welcome aboard!</p>`,
             }),
@@ -824,6 +916,22 @@ export async function registerRoutes(
         entityId: req.params.id,
         metadata: { fields: Object.keys(allowedFields).join(", ") },
       }).catch(() => {});
+
+      if (allowedFields.roleId && allowedFields.roleId !== targetUser.roleId) {
+        storage.createActivityLog({
+          userId: req.user!.id,
+          organizationId: req.user!.organizationId,
+          action: "role_changed",
+          entityType: "user",
+          entityId: req.params.id,
+          metadata: {
+            category: "security",
+            previousRoleId: targetUser.roleId,
+            newRoleId: allowedFields.roleId,
+            targetEmail: targetUser.email,
+          },
+        }).catch(() => {});
+      }
 
       return res.json(safeUser);
     } catch (err) {
@@ -929,7 +1037,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/agents/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/agents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getAgent(req.params.id);
@@ -983,11 +1091,17 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/organizations", authenticateToken, requireRole(3), async (req, res) => {
+  app.post("/api/organizations", authenticateToken, requireRole(2), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       if (req.user.roleLevel > 1) {
         return res.status(403).json({ message: "Only super admins can create organizations" });
+      }
+
+      const parsed = createOrgSchema.safeParse(req.body);
+      if (!parsed.success) {
+        const errors = parsed.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+        return res.status(400).json({ message: "Validation failed", errors });
       }
 
       const {
@@ -1000,29 +1114,7 @@ export async function registerRoutes(
         voiceMinutes, videoMinutes, smsMessages, setupFee,
         tools, agentName, agentPersona, agentChannel,
         autoRespond, deployImmediately, skills,
-      } = req.body;
-
-      if (!orgName || !orgName.trim()) {
-        return res.status(400).json({ message: "Organization name is required" });
-      }
-      if (!primaryPhone || !primaryPhone.trim()) {
-        return res.status(400).json({ message: "Primary phone is required" });
-      }
-      if (!primaryEmail || !primaryEmail.trim()) {
-        return res.status(400).json({ message: "Primary email is required" });
-      }
-      if (!adminFirstName || !adminFirstName.trim()) {
-        return res.status(400).json({ message: "Admin first name is required" });
-      }
-      if (!adminLastName || !adminLastName.trim()) {
-        return res.status(400).json({ message: "Admin last name is required" });
-      }
-      if (!adminEmail || !adminEmail.trim()) {
-        return res.status(400).json({ message: "Admin email is required" });
-      }
-      if (!tempPassword || tempPassword.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
-      }
+      } = parsed.data;
 
       const existingUser = await storage.getUserByEmail(adminEmail);
       if (existingUser) {
@@ -1033,7 +1125,7 @@ export async function registerRoutes(
       const existingOrg = await storage.getOrganizationBySlug(slug);
       const finalSlug = existingOrg ? `${slug}-${Date.now()}` : slug;
 
-      const enabledTools = tools || {};
+      const enabledTools = tools || {} as Record<string, boolean>;
       const org = await storage.createOrganization({
         name: orgName.trim(),
         slug: finalSlug,
@@ -1049,7 +1141,7 @@ export async function registerRoutes(
           billingEnabled, anniversaryDate, baseMonthlyFee,
           voiceMinutes, videoMinutes, smsMessages, setupFee,
           tools: enabledTools,
-        },
+        } as any,
       });
 
       const role = await storage.getRoleByName(adminRole === "partner_admin" ? "partner_admin" : "org_admin");
@@ -1272,45 +1364,44 @@ export async function registerRoutes(
       if (conv.customerPhone && parsed.data.channel !== "ai-chat") {
         (async () => {
           try {
-            const org = await storage.getOrganization(req.user!.organizationId);
-            if (!org || !org.outboundEnabled || !org.smsEnabled) return;
-            if (process.env.OUTBOUND_LIVE_ENABLED !== "true") return;
-
             const orgAgents = await storage.getAgents(req.user!.organizationId);
             const greetingAgent = orgAgents.find(a => a.autoGreeting && a.status === "active");
             if (!greetingAgent || !greetingAgent.autoGreeting) return;
 
+            const org = await storage.getOrganization(req.user!.organizationId);
             const greeting = greetingAgent.autoGreeting
               .replace(/\{\{customerName\}\}/g, conv.customerName || "there")
-              .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+              .replace(/\{\{dealershipName\}\}/g, org?.name || "our dealership")
               .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
 
-            const { sendSms } = await import("./outbound");
-            await sendSms(conv.customerPhone!, greeting, req.user!.organizationId);
-            console.log(`[AutoGreeting] Sent to ${conv.customerPhone} via agent ${greetingAgent.name}`);
-
-            await storage.createMessage({
-              conversationId: conv.id,
-              role: "agent",
-              content: greeting,
-              senderName: greetingAgent.name,
+            const { processOutboundSend } = await import("./outbound");
+            const result = await processOutboundSend({
+              organizationId: req.user!.organizationId,
+              channel: "sms",
+              to: conv.customerPhone!,
+              messageContent: greeting,
             });
 
-            storage.logUsageEvent({
-              organizationId: req.user!.organizationId,
-              eventType: "outbound_sms",
-              channel: "sms",
-              quantity: 1,
-              metadata: { recipient: conv.customerPhone, source: "auto_greeting", agentId: greetingAgent.id },
-            }).catch(() => {});
+            if (result.status === "sent") {
+              console.log(`[AutoGreeting] Sent to ${conv.customerPhone} via agent ${greetingAgent.name}`);
 
-            storage.createActivityLog({
-              organizationId: req.user!.organizationId,
-              action: "auto_greeting_sent",
-              entityType: "conversation",
-              entityId: conv.id,
-              metadata: { agentName: greetingAgent.name, customerPhone: conv.customerPhone },
-            }).catch(() => {});
+              await storage.createMessage({
+                conversationId: conv.id,
+                role: "agent",
+                content: greeting,
+                senderName: greetingAgent.name,
+              });
+
+              storage.createActivityLog({
+                organizationId: req.user!.organizationId,
+                action: "auto_greeting_sent",
+                entityType: "conversation",
+                entityId: conv.id,
+                metadata: { agentName: greetingAgent.name, customerPhone: conv.customerPhone },
+              }).catch(() => {});
+            } else {
+              console.log(`[AutoGreeting] Blocked for ${conv.customerPhone}: ${result.blockedReason}`);
+            }
           } catch (greetErr: any) {
             console.error(`[AutoGreeting] Failed:`, greetErr.message);
           }
@@ -1356,7 +1447,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/conversations/:id", authenticateToken, async (req, res) => {
+  app.delete("/api/conversations/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getConversation(req.params.id);
@@ -1411,36 +1502,23 @@ export async function registerRoutes(
       const shouldSendSms = isAgentReply && (isSmsChannel || hasSmsPrefix) && conversation.customerPhone;
 
       if (shouldSendSms && conversation.customerPhone) {
-        const org = await storage.getOrganization(conversation.organizationId);
         const smsContent = hasSmsPrefix ? content.replace("[SMS] ", "") : content;
-        if (!org) {
-          console.warn(`[TeamBox SMS] Org not found for conversation ${conversation.id}`);
-        } else if (!org.outboundEnabled || !org.smsEnabled) {
-          console.warn(`[TeamBox SMS] SMS blocked — org outbound=${org.outboundEnabled}, sms=${org.smsEnabled}`);
-        } else if (process.env.OUTBOUND_LIVE_ENABLED !== "true") {
-          console.warn(`[TeamBox SMS] Blocked — OUTBOUND_LIVE_ENABLED is not true`);
-        } else {
-          try {
-            const { sendSms } = await import("./outbound");
-            await sendSms(conversation.customerPhone, smsContent, conversation.organizationId);
+        try {
+          const { processOutboundSend } = await import("./outbound");
+          const result = await processOutboundSend({
+            organizationId: conversation.organizationId,
+            channel: "sms",
+            to: conversation.customerPhone,
+            messageContent: smsContent,
+          });
+
+          if (result.status === "sent") {
             console.log(`[TeamBox SMS] Delivered reply to ${conversation.customerPhone}`);
-            storage.logUsageEvent({
-              organizationId: conversation.organizationId,
-              eventType: "outbound_sms",
-              channel: "sms",
-              quantity: 1,
-              metadata: { recipient: conversation.customerPhone, source: "teambox_reply", conversationId: conversation.id },
-            }).catch(() => {});
-          } catch (smsErr: any) {
-            console.error(`[TeamBox SMS] Delivery failed:`, smsErr.message);
-            storage.logUsageEvent({
-              organizationId: conversation.organizationId,
-              eventType: "outbound_sms_failed",
-              channel: "sms",
-              quantity: 0,
-              metadata: { recipient: conversation.customerPhone, source: "teambox_reply", error: smsErr.message },
-            }).catch(() => {});
+          } else {
+            console.warn(`[TeamBox SMS] Blocked for ${conversation.customerPhone}: ${result.blockedReason}`);
           }
+        } catch (smsErr: any) {
+          console.error(`[TeamBox SMS] Delivery failed:`, smsErr.message);
         }
       }
 
@@ -1457,13 +1535,16 @@ export async function registerRoutes(
       if (req.query.department) filters.department = req.query.department as string;
       const campaignList = await storage.getCampaigns(req.user.organizationId, filters);
 
-      const allConvos = await storage.getConversations(req.user.organizationId);
-      const enriched = await Promise.all(campaignList.map(async (c) => {
-        const recipients = await storage.getRecipients(c.id);
-        const sentCount = recipients.filter(r => r.status === "sent" || r.status === "delivered").length;
+      const campaignIds = campaignList.map(c => c.id);
+      const [allConvos, sentCountsMap] = await Promise.all([
+        storage.getConversations(req.user.organizationId),
+        storage.getSentCountsByCampaignIds(campaignIds),
+      ]);
+      const enriched = campaignList.map((c) => {
+        const sentCount = sentCountsMap[c.id] || 0;
         const repliedCount = allConvos.filter(cv => cv.campaignId === c.id).length;
         return { ...c, sentCount, repliedCount };
-      }));
+      });
 
       return res.json(enriched);
     } catch (err) {
@@ -1527,7 +1608,7 @@ export async function registerRoutes(
 
   registerVendorRoutes(app);
 
-  app.post("/api/widget/video-session", async (req, res) => {
+  app.post("/api/widget/video-session", widgetLimiter, async (req, res) => {
     try {
       const { widgetCode, visitorName, slug } = req.body;
 
@@ -1592,7 +1673,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/campaigns/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/campaigns/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getCampaign(req.params.id);
@@ -2299,7 +2380,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.get("/api/activity-log", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
       const logs = await storage.getActivityLogs(req.user.organizationId, limit);
       return res.json(logs);
     } catch (err) {
@@ -2611,7 +2692,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/widgets", authenticateToken, requireEntitlement('widget_slots'), async (req, res) => {
+  app.post("/api/widgets", authenticateToken, requireRole(3), requireEntitlement('widget_slots'), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const widgetCode = `wgt_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
@@ -2630,7 +2711,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.patch("/api/widgets/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getWidget(req.params.id);
@@ -2649,7 +2730,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.delete("/api/widgets/:id", authenticateToken, async (req, res) => {
+  app.delete("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const existing = await storage.getWidget(req.params.id);
@@ -2719,7 +2800,8 @@ When the user asks a question that requires deep CRM data (specific lead details
       const file = req.file;
       if (!file) return res.status(400).json({ message: "No file uploaded" });
 
-      if (file.size === 0 || file.buffer.length === 0) {
+      if (file.size === 0) {
+        try { fs.unlinkSync(file.path); } catch {}
         return res.status(400).json({ message: "File is empty" });
       }
 
@@ -2739,12 +2821,14 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (ext === "csv") {
         let rawContent: string;
         try {
-          rawContent = file.buffer.toString("utf-8");
+          rawContent = fs.readFileSync(file.path, "utf-8");
         } catch (encErr) {
+          try { fs.unlinkSync(file.path); } catch {}
           return res.status(400).json({ message: "File encoding error: unable to read file as UTF-8 text" });
         }
 
         if (!rawContent || rawContent.trim().length === 0) {
+          try { fs.unlinkSync(file.path); } catch {}
           return res.status(400).json({ message: "Malformed CSV: file is empty" });
         }
 
@@ -2858,11 +2942,13 @@ When the user asks a question that requires deep CRM data (specific lead details
       let content: string | null = null;
       if (["txt", "html", "htm"].includes(ext)) {
         try {
-          content = file.buffer.toString("utf-8");
+          content = fs.readFileSync(file.path, "utf-8");
         } catch (encErr) {
+          try { fs.unlinkSync(file.path); } catch {}
           return res.status(400).json({ message: "File encoding error: unable to read file as UTF-8 text" });
         }
         if (!content || content.trim().length === 0) {
+          try { fs.unlinkSync(file.path); } catch {}
           return res.status(400).json({ message: "Malformed file: file is empty or contains no readable content" });
         }
       }
@@ -2894,10 +2980,14 @@ When the user asks a question that requires deep CRM data (specific lead details
       }
       console.error("Document upload error:", err);
       return res.status(500).json({ message: "Failed to upload document" });
+    } finally {
+      if (req.file?.path) {
+        try { fs.unlinkSync(req.file.path); } catch {}
+      }
     }
   });
 
-  app.delete("/api/documents/:id", authenticateToken, async (req, res) => {
+  app.delete("/api/documents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const doc = await storage.getDocument(req.params.id);
@@ -2915,7 +3005,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/campaigns/:id/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
+  app.post("/api/campaigns/:id/upload-csv", authenticateToken, requireRole(3), upload.single("file"), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const file = req.file;
@@ -2927,7 +3017,12 @@ When the user asks a question that requires deep CRM data (specific lead details
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const csvContent = file.buffer.toString("utf-8");
+      let csvContent: string;
+      try {
+        csvContent = fs.readFileSync(file.path, "utf-8");
+      } finally {
+        try { fs.unlinkSync(file.path); } catch {}
+      }
       const lines = csvContent.split("\n").map(l => l.trim()).filter(l => l.length > 0);
       if (lines.length < 2) {
         return res.status(400).json({ message: "CSV must have a header row and at least one data row" });
@@ -3046,7 +3141,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.get("/api/notifications", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
       const notifs = await storage.getNotifications(req.user.id, limit);
       return res.json(notifs);
     } catch (err) {
@@ -3067,6 +3162,12 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/notifications/:id/read", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const { eq } = await import("drizzle-orm");
+      const { db } = await import("./storage");
+      const { notifications } = await import("@shared/schema");
+      const [notif] = await db.select().from(notifications).where(eq(notifications.id, req.params.id));
+      if (!notif) return res.status(404).json({ message: "Notification not found" });
+      if (notif.userId !== req.user.id) return res.status(403).json({ message: "Forbidden" });
       await storage.markNotificationRead(req.params.id);
       return res.json({ message: "Notification marked as read" });
     } catch (err) {
@@ -3178,8 +3279,14 @@ When the user asks a question that requires deep CRM data (specific lead details
         return res.status(400).json({ message: "Photo must be less than 500KB" });
       }
 
-      const base64 = file.buffer.toString("base64");
+      const fileBuffer = fs.readFileSync(file.path);
+      const base64 = fileBuffer.toString("base64");
       const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+      const base64Size = Buffer.byteLength(dataUrl, "utf-8");
+      if (base64Size > 200 * 1024) {
+        return res.status(400).json({ message: "Photo is too large after encoding. Please compress or resize to under 200KB." });
+      }
 
       const updated = await storage.updateUser(req.user.id, { profilePhotoUrl: dataUrl } as any);
       if (!updated) return res.status(404).json({ message: "User not found" });
@@ -3187,6 +3294,10 @@ When the user asks a question that requires deep CRM data (specific lead details
       return res.json({ profilePhotoUrl: dataUrl });
     } catch (err) {
       return res.status(500).json({ message: "Failed to upload photo" });
+    } finally {
+      if (req.file?.path) {
+        try { fs.unlinkSync(req.file.path); } catch {}
+      }
     }
   });
 
@@ -3468,15 +3579,32 @@ When the user asks a question that requires deep CRM data (specific lead details
 
   app.post("/api/webhooks/tavus", async (req, res) => {
     try {
-      const { event, conversation_id, status } = req.body;
+      const tavusWebhookSecret = process.env.TAVUS_WEBHOOK_SECRET;
+      if (tavusWebhookSecret) {
+        const headerSecret = req.headers["x-tavus-secret"] || req.headers["x-webhook-secret"];
+        if (headerSecret !== tavusWebhookSecret) {
+          return res.status(401).json({ message: "Invalid webhook secret" });
+        }
+      }
+
+      const body = req.body;
+      if (!body || typeof body !== "object") {
+        return res.status(400).json({ message: "Invalid request body" });
+      }
+
+      const { event, conversation_id, status } = body;
+
+      if (typeof event !== "string" && typeof status !== "string") {
+        return res.status(400).json({ message: "Missing required field: event or status" });
+      }
 
       if (event !== "conversation.end" && status !== "ended" && event !== "conversation_ended") {
         return res.json({ message: "Event type ignored", event });
       }
 
-      const tavusConversationId = conversation_id || req.body.conversationId;
-      if (!tavusConversationId) {
-        return res.status(400).json({ message: "Missing conversation_id" });
+      const tavusConversationId = conversation_id || body.conversationId;
+      if (!tavusConversationId || typeof tavusConversationId !== "string") {
+        return res.status(400).json({ message: "Missing or invalid conversation_id" });
       }
 
       console.log(`[Tavus Webhook] Processing ended conversation: ${tavusConversationId}`);
@@ -3499,10 +3627,10 @@ When the user asks a question that requires deep CRM data (specific lead details
         console.warn(`[Tavus Webhook] Fetch error:`, fetchErr.message);
       }
 
-      const transcript = tavusData?.transcript || tavusData?.conversation_transcript || req.body.transcript || "";
-      const summary = tavusData?.summary || req.body.summary || "";
+      const transcript = tavusData?.transcript || tavusData?.conversation_transcript || body.transcript || "";
+      const summary = tavusData?.summary || body.summary || "";
       const visitorName = tavusData?.conversation_name?.replace("Session with ", "") || "Video Visitor";
-      const personaId = tavusData?.persona_id || req.body.persona_id;
+      const personaId = tavusData?.persona_id || body.persona_id;
 
       let organizationId: string | null = null;
       let agentId: string | null = null;
@@ -3521,13 +3649,8 @@ When the user asks a question that requires deep CRM data (specific lead details
       }
 
       if (!organizationId) {
-        const allOrgs = await storage.getOrganizations();
-        if (allOrgs.length > 0) {
-          organizationId = allOrgs[0].id;
-          console.warn(`[Tavus Webhook] Could not resolve org from persona — defaulting to ${allOrgs[0].name}`);
-        } else {
-          return res.status(422).json({ message: "No organization found" });
-        }
+        console.error(`[Tavus Webhook] Could not resolve organization from persona_id: ${personaId}`);
+        return res.status(400).json({ message: "Unable to resolve organization from persona. Webhook rejected to prevent tenant data leak." });
       }
 
       const conversation = await storage.createConversation({
@@ -4929,7 +5052,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/widget/chat", async (req, res) => {
+  app.post("/api/widget/chat", widgetLimiter, async (req, res) => {
     const ip = req.ip || req.socket.remoteAddress || "unknown";
     if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
     try {
@@ -5358,10 +5481,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         }
 
         try {
-          const { sendSmsRaw } = await import("./outbound");
-          if (org?.outboundEnabled && org?.smsEnabled && process.env.OUTBOUND_LIVE_ENABLED === "true") {
-            await sendSmsRaw(normalizedPhone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`);
-          }
+          const { sendStopConfirmation } = await import("./outbound");
+          await sendStopConfirmation(normalizedPhone, orgName, organizationId);
         } catch (confirmErr: any) {
           console.error(`[TextMagic Webhook] Failed to send STOP confirmation to ${normalizedPhone}:`, confirmErr.message);
         }
@@ -5450,8 +5571,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
               .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
               .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
 
-            const { sendSms } = await import("./outbound");
-            await sendSms(normalizedPhone, greeting, organizationId);
+            const { processOutboundSend } = await import("./outbound");
+            const greetResult = await processOutboundSend({
+              organizationId,
+              channel: "sms",
+              to: normalizedPhone,
+              messageContent: greeting,
+            });
+            if (greetResult.status !== "sent") {
+              console.log(`[AutoGreeting] SMS blocked for ${normalizedPhone}: ${greetResult.blockedReason}`);
+              return;
+            }
             console.log(`[AutoGreeting] SMS sent to ${normalizedPhone} via agent ${greetingAgent.name}`);
 
             await storage.createMessage({
@@ -5627,12 +5757,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
               from: "Nexxus Connect <onboarding@resend.dev>",
               to: email,
               subject: `You've been invited to ${org?.name || "Nexxus Connect"}`,
-              html: `<h2>Welcome to ${org?.name || "Nexxus Connect"}!</h2>
-                <p>${req.user.firstName} ${req.user.lastName} has invited you to join their organization.</p>
+              html: `<h2>Welcome to ${escapeHtml(org?.name || "Nexxus Connect")}!</h2>
+                <p>${escapeHtml(req.user.firstName)} ${escapeHtml(req.user.lastName)} has invited you to join their organization.</p>
                 <p>Your temporary credentials:</p>
                 <ul>
-                  <li><strong>Email:</strong> ${email}</li>
-                  <li><strong>Password:</strong> ${tempPassword}</li>
+                  <li><strong>Email:</strong> ${escapeHtml(email)}</li>
+                  <li><strong>Password:</strong> ${escapeHtml(tempPassword)}</li>
                 </ul>
                 <p>Please change your password after your first login.</p>`,
             }),
@@ -6017,17 +6147,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
                 <h2 style="color: #1a1a1a;">Unanswered Message Alert</h2>
                 <p>A customer message has been waiting for a response.</p>
                 <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Contact Name</td><td style="padding: 8px;">${contactName}</td></tr>
-                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Phone</td><td style="padding: 8px;">${contactPhone}</td></tr>
-                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Channel</td><td style="padding: 8px;">${conv.channel}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Contact Name</td><td style="padding: 8px;">${escapeHtml(contactName)}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Phone</td><td style="padding: 8px;">${escapeHtml(contactPhone)}</td></tr>
+                  <tr><td style="padding: 8px; font-weight: bold; color: #555;">Channel</td><td style="padding: 8px;">${escapeHtml(conv.channel)}</td></tr>
                   <tr><td style="padding: 8px; font-weight: bold; color: #555;">Waiting</td><td style="padding: 8px;">${waitingMinutes} minutes</td></tr>
                 </table>
                 <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin: 16px 0;">
                   <p style="margin: 0 0 4px 0; font-weight: bold; color: #555;">Latest Message:</p>
-                  <p style="margin: 0; color: #333;">${messagePreview}${latestMessage && latestMessage.content.length > 200 ? "..." : ""}</p>
+                  <p style="margin: 0; color: #333;">${escapeHtml(messagePreview)}${latestMessage && latestMessage.content.length > 200 ? "..." : ""}</p>
                 </div>
-                <p><a href="https://nexxus-connect.replit.app/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
-                <p style="color: #888; font-size: 12px;">This is an automated escalation from Nexxus Connect for ${org.name}.</p>
+                <p><a href="${process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`}/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
+                <p style="color: #888; font-size: 12px;">This is an automated escalation from Nexxus Connect for ${escapeHtml(org.name)}.</p>
               </div>`,
             });
             console.log(`[ESCALATION] Email sent to ${orgAdmin.email} for conversation ${conv.id} (${contactName})`);

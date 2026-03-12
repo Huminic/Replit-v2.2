@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, MessageSquare, Phone, Mail, Calendar, ArrowUpDown } from 'lucide-react';
+import { BarChart3, MessageSquare, Phone, Mail, Calendar, ArrowUpDown, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,7 +29,7 @@ export default function UsagePage() {
 
   const isPartnerOrAbove = currentRole && ['super_admin', 'partner_admin'].includes(currentRole);
 
-  const { data: summaryData = [], isLoading } = useQuery<Array<{
+  const { data: summaryData = [], isLoading, isError, error } = useQuery<Array<{
     organizationId: string;
     organizationName: string;
     period: { start: string; end: string };
@@ -50,7 +50,9 @@ export default function UsagePage() {
       const res = await fetch(`/api/usage/summary?startDate=${startDate}&endDate=${endDate}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) return [];
+      if (!res.ok) {
+        throw new Error(`Failed to fetch usage data (${res.status})`);
+      }
       return res.json();
     },
   });
@@ -99,6 +101,15 @@ export default function UsagePage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {isError && (
+          <div className="flex items-center gap-3 p-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30" data-testid="usage-error-banner">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">Failed to load usage data</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{(error as Error)?.message || 'An unexpected error occurred. Please try again.'}</p>
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="pt-6">

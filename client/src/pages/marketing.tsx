@@ -14,9 +14,6 @@
  *   - Studio: Placeholder for Wave 4 media creation tools (video, image, podcast, landing page builder)
  *   - Insights: Placeholder for Wave 2 campaign ROI and lead attribution analytics
  *
- * PRODUCTION NOTE: Widget interactions tracked via analytics events.
- * Landing page visits tracked via UTM params and /w/demo route analytics.
- * Campaigns use TextMagic (SMS) and Resend (email) APIs, same as service.
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';

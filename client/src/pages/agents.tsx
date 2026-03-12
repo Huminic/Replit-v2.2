@@ -17,7 +17,7 @@
  * - agentSuggestions: Pre-built prompts that populate the input on click.
  * - Enter key sends (Shift+Enter for newline).
  *
- * PRODUCTION NOTE: Chat will connect to AI backend. Agent selection comes from SubMenuManager
+ * Chat connects to AI backend. Agent selection comes from SubMenuManager
  * sidebar navigation. The mock response is a placeholder.
  *
  * Related files:
@@ -253,7 +253,11 @@ export default function AgentsPage() {
   }, [selectedAgent?.id]);
 
   const { data: dbMessages } = useQuery<DbMessage[]>({
-    queryKey: [`/api/conversations/${conversationId}/messages`],
+    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/conversations/${conversationId}/messages`);
+      return res.json();
+    },
     enabled: !!conversationId,
   });
 

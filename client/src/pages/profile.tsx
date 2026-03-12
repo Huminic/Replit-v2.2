@@ -14,10 +14,6 @@
  * - currentUser and currentOrganization from AppContext
  * - getRoleLabel from mocks/users.ts for role display
  *
- * PRODUCTION NOTE: Profile editing, billing data, and invoice viewing will wire to backend API.
- * Usage meters will pull real consumption data from the metering/credit system (Wave 3).
- *
- * @see client/src/pages/billing-management.tsx — Partner/super admin billing management
  * @see client/src/contexts/AppContext.tsx — currentUser, currentOrganization
  */
 import { useState, useRef, useEffect } from 'react';

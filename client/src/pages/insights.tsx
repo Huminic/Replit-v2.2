@@ -27,10 +27,9 @@
  * Each hunch has confidence score, source, and recommended action.
  * Preferences sheet: notification channels, default view, min confidence, auto-dismiss.
  *
- * Data sources: mocks/insights.ts for all chart and table data.
- * PRODUCTION NOTE: Will wire to backend analytics engine. Hunches will be AI-generated.
+ * Data sources: Backend analytics API endpoints.
  *
- * @see client/src/mocks/insights.ts — All mock data for charts, tables, zones
+ * @see server/routes.ts — API endpoints for insights data
  */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
@@ -132,7 +131,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     queryKey: ['/api/organizations'],
     enabled: canSwitchStore,
   });
-  const storeList = canSwitchStore ? (orgListRaw || []).filter(o => o.name !== 'Cage Automotive') : [];
+  const storeList = canSwitchStore ? (orgListRaw || []) : [];
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
 
   const effectiveOrgId = selectedOrgId && selectedOrgId !== 'all' ? selectedOrgId : '';
@@ -191,9 +190,9 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     source: h.dataSource || 'AI Analysis',
   }));
 
-  const mockHotLeadsGoingCold = dashboardData?.redZone?.hotLeadsGoingCold || [];
-  const mockNewLeadsNoContact = dashboardData?.redZone?.newLeadsNoContact || [];
-  const mockShowroomNotClosed = dashboardData?.redZone?.showroomNotClosed || [];
+  const hotLeadsGoingCold = dashboardData?.redZone?.hotLeadsGoingCold || [];
+  const newLeadsNoContact = dashboardData?.redZone?.newLeadsNoContact || [];
+  const showroomNotClosed = dashboardData?.redZone?.showroomNotClosed || [];
 
   const yellowZoneData = {
     staleLeads: { label: 'Stale Leads (>7 days)', count: dashboardData?.yellowZone?.staleLeads || 0, avgAge: 14 },
@@ -250,8 +249,8 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   ];
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const mockLeadsChart = days.map(d => ({ date: d, value: 0, label: d }));
-  const mockConversionsChart = days.map(d => ({ date: d, value: 0, label: d }));
+  const leadsChartData = days.map(d => ({ date: d, value: 0, label: d }));
+  const conversionsChartData = days.map(d => ({ date: d, value: 0, label: d }));
 
   const apiTopLeadSources = dashboardData?.topLeadSources || [];
   const topLeadSources = apiTopLeadSources.length > 0 ? apiTopLeadSources : [];
@@ -271,7 +270,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const lossPatternsBySource = rptSourceQuality.map((s: any) => ({
     source: s.source, leads: s.leads, lossRate: `${s.lossRate}%`, topReason: 'N/A',
   }));
-  const reengagementCandidates = mockHotLeadsGoingCold.slice(0, 5).map((l: any) => ({
+  const reengagementCandidates = hotLeadsGoingCold.slice(0, 5).map((l: any) => ({
     id: l.id, leadId: l.leadId, name: l.customerName || l.leadId, vehicle: l.vehicle || 'N/A',
     daysInactive: l.daysOld || 0, lastChannel: 'Unknown', suggestedAction: 'Follow up',
     customerPhone: l.customerPhone || null, customerName: l.customerName || null,
@@ -437,7 +436,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-muted-foreground">Hot Leads Going Cold</p>
-                    <p className="text-2xl font-bold text-foreground">{mockHotLeadsGoingCold.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{hotLeadsGoingCold.length}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -453,7 +452,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-muted-foreground">New Leads Without Contact</p>
-                    <p className="text-2xl font-bold text-foreground">{mockNewLeadsNoContact.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{newLeadsNoContact.length}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -469,7 +468,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-muted-foreground">Showroom Visitors Not Closed</p>
-                    <p className="text-2xl font-bold text-foreground">{mockShowroomNotClosed.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{showroomNotClosed.length}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -627,7 +626,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <CardContent>
               <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={mockLeadsChart}>
+                  <AreaChart data={leadsChartData}>
                     <defs>
                       <linearGradient id="leadGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -653,7 +652,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <CardContent>
               <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={mockConversionsChart}>
+                  <BarChart data={conversionsChartData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                     <XAxis dataKey="label" className="text-xs" />
                     <YAxis className="text-xs" />
@@ -1586,7 +1585,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="dialog-hot-leads">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Flame className="h-5 w-5 text-red-500" /> Hot Leads Going Cold ({mockHotLeadsGoingCold.length})
+              <Flame className="h-5 w-5 text-red-500" /> Hot Leads Going Cold ({hotLeadsGoingCold.length})
             </DialogTitle>
             <DialogDescription>Leads aging 14+ days without close — immediate follow-up needed</DialogDescription>
           </DialogHeader>
@@ -1603,7 +1602,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {mockHotLeadsGoingCold.map(lead => (
+                {hotLeadsGoingCold.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-lead-name-${lead.id}`}>{lead.customerName || '—'}</div>
@@ -1640,7 +1639,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="dialog-new-leads">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-red-500" /> New Leads Without Contact ({mockNewLeadsNoContact.length})
+              <Clock className="h-5 w-5 text-red-500" /> New Leads Without Contact ({newLeadsNoContact.length})
             </DialogTitle>
             <DialogDescription>No contact made in over 48 hours</DialogDescription>
           </DialogHeader>
@@ -1656,7 +1655,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {mockNewLeadsNoContact.map(lead => (
+                {newLeadsNoContact.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-newlead-name-${lead.id}`}>{lead.customerName || '—'}</div>
@@ -1690,7 +1689,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="dialog-showroom">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-red-500" /> Showroom Visitors Not Closed ({mockShowroomNotClosed.length})
+              <Building2 className="h-5 w-5 text-red-500" /> Showroom Visitors Not Closed ({showroomNotClosed.length})
             </DialogTitle>
             <DialogDescription>Walk-in visitors open over 7 days</DialogDescription>
           </DialogHeader>
@@ -1707,7 +1706,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {mockShowroomNotClosed.map(lead => (
+                {showroomNotClosed.map(lead => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-showroom-name-${lead.id}`}>{lead.customerName || '—'}</div>

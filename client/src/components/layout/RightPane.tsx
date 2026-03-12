@@ -101,7 +101,11 @@ export function RightPane({ className }: RightPaneProps) {
   }, [findOrCreateConversation]);
 
   const { data: dbMessages } = useQuery<DbMessage[]>({
-    queryKey: [`/api/conversations/${conversationId}/messages`],
+    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/conversations/${conversationId}/messages`);
+      return res.json();
+    },
     enabled: !!conversationId,
   });
 

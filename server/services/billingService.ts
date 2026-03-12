@@ -92,7 +92,14 @@ class BillingService {
         customer_id: customerId,
         feature_key: featureKey,
       });
-      if (!data) return { allowed: true };
+      if (!data) {
+        if (cached) {
+          console.log(`[Billing] FlexPrice unreachable for ${featureKey} — using stale cached entitlement`);
+          return cached.data;
+        }
+        console.log(`[Billing] FlexPrice unreachable for ${featureKey} — failing closed (no cache)`);
+        return { allowed: false };
+      }
       const result = {
         allowed: data.allowed !== false,
         limit: data.limit != null ? Number(data.limit) : undefined,
@@ -102,7 +109,11 @@ class BillingService {
       return result;
     } catch (err: any) {
       console.log(`[Billing] checkEntitlement error: ${err.message}`);
-      return { allowed: true };
+      if (cached) {
+        console.log(`[Billing] Using stale cached entitlement for ${featureKey}`);
+        return cached.data;
+      }
+      return { allowed: false };
     }
   }
 

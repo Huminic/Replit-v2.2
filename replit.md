@@ -120,8 +120,9 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 
 ### Environment Variables
 - `DATABASE_URL`, `AI_INTEGRATIONS_ANTHROPIC_*` — DB + AI chat
+- `JWT_SECRET` — Required. JWT signing secret (auto-generated, validated at startup)
 - `TEXTMAGIC_*`, `RESEND_API_KEY` — comms
-- `VAPI_PRIVATE_KEY`, `TAVUS_API_KEY` — voice/video
+- `VAPI_PRIVATE_KEY`, `TAVUS_API_KEY`, `TAVUS_WEBHOOK_SECRET` — voice/video
 - `VINSOLUTIONS_*` — CRM
 - `FAL_KEY` — fal.ai image/video/audio generation
 - `OPENAI_API_KEY` — GPT-4o for copywriting + image scoring
@@ -129,6 +130,12 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 - `GOOGLE_MAPS_API_KEY` — competitor radar (Market Intel agent) — PENDING
 - `APP_BASE_URL` — dev: release-1r.huminic.app, prod: live.huminic.app
 - `OUTBOUND_LIVE_ENABLED` — master kill switch for all outbound comms (keep `false` during dev)
+- `MCP_BASE_URL` — VIN/CRM proxy MCP server URL (default: mcp.huminicdev.com)
+- `NEXXUS_ORG_MAP` — JSON mapping org names to vendor IDs (replaces hardcoded map)
+- `BILLING_CUSTOMER_MAP` — JSON mapping org names to FlexPrice customer IDs
+- `SEED_DEFAULT_PASSWORD` — Default seed user password (development only)
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD` — Production super_admin credentials
+- `DEFAULT_TEXTMAGIC_PHONE` — Default TextMagic phone number for triggers
 
 ### Auth Credentials (dev/test)
 - duane.wells@huminic.ai / a1$ucc3ss (super_admin)
@@ -205,27 +212,25 @@ Sprints 0–11 built and validated the 5 Marketing AI Agents (Photo Studio, Vide
 | D | Lead Automation & Calendar | COMPLETED |
 | E | Billing (FlexPrice) | COMPLETED |
 
-### Phase 3: Launch Readiness (Sprints F–R) — 13 SPRINTS PENDING
+### Phase 3: Launch Readiness (Sprints F–R) — ALL COMPLETED (Q SKIPPED)
 
-| Sprint | Name | Audit Layer | Status |
-|--------|------|-------------|--------|
-| F | Security & Authentication Hardening | Layer 1 (#1-12) | PENDING |
-| G | Data Integrity & Database Hardening | Layer 2 (#13-19) | PENDING |
-| H | Outbound Communications Safety | Layer 3 (#20-26) | PENDING |
-| I | External Service Integration Hardening | Layer 4 (#27-34) | PENDING |
-| J | Background Jobs & Scheduling Safety | Layer 5 (#35-40) | PENDING |
-| K | Server Configuration Hardening | Layer 6 (#41-45) | PENDING |
-| L | API Route Quality | Layer 7 (#46-49) | PENDING |
-| M | Frontend Data & State Management | Layer 8 (#50-55) | PENDING |
-| N | Mock Data Removal & Hardcoded Cleanup | Layer 9 (#56-65) | PENDING |
-| O | Frontend Feature Completeness | Layer 10 (#66-73) | PENDING |
-| P | Seed Data & Production Readiness | Layer 11 (#74-77) | PENDING |
-| Q | End-to-End Testing & Validation | All layers | PENDING |
-| R | Product Tour / Onboarding | Feature | PENDING |
+| Sprint | Name | Audit Layer | ACs | Status |
+|--------|------|-------------|-----|--------|
+| F | Security & Authentication Hardening | Layer 1 (#1-12) | 12/12 | COMPLETED |
+| G | Data Integrity & Database Hardening | Layer 2 (#13-19) | 7/7 | COMPLETED |
+| H | Outbound Communications Safety | Layer 3 (#20-26) | 8/8 | COMPLETED |
+| I | External Service Integration Hardening | Layer 4 (#27-34) | 8/8 | COMPLETED |
+| J | Background Jobs & Scheduling Safety | Layer 5 (#35-40) | 6/6 | COMPLETED |
+| K | Server Configuration Hardening | Layer 6 (#41-45) | 5/5 | COMPLETED |
+| L | API Route Quality | Layer 7 (#46-49) | 6/6 | COMPLETED |
+| M | Frontend Data & State Management | Layer 8 (#50-55) | 6/6 | COMPLETED |
+| N | Mock Data Removal & Hardcoded Cleanup | Layer 9 (#56-65) | 8/8 | COMPLETED |
+| O | Frontend Feature Completeness | Layer 10 (#66-73) | 6/6 | COMPLETED |
+| P | Seed Data & Production Readiness | Layer 11 (#74-77) | 5/5 | COMPLETED |
+| Q | End-to-End Testing & Validation | All layers | — | SKIPPED (user) |
+| R | Product Tour / Onboarding | Feature | 6/6 | COMPLETED |
 
-**Dependencies:** F first (security foundation). G/H/I/K/L/M can run after F. J after G. N after M. O after N. P after I. Q after all (H-P). R after Q.
-
-**Enforcement wrapper on every sprint:** W1=Memory check, W2=Worktree check, W3=AC review, W4=Delegation reminder (orchestrator only), W5=Final acceptance before enforcer.
+**Total: 82/82 ACs passed across 12 sprints. All 77 audit issues resolved.**
 
 Sprint definitions: `.local/sprints/sprint-{X}.json`
 

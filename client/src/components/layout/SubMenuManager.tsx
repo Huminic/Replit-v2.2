@@ -523,7 +523,6 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'mw-assistant', label: 'Assistant', icon: ExternalLink, comingSoon: true })}
                   {renderNavItem({ id: 'mw-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/my-work', active: location === '/my-work' })}
                   {renderNavItem({ id: 'mw-tasks', label: 'Tasks', icon: CheckSquare, path: '/my-work?tab=tasks' })}
                   {renderNavItem({ id: 'mw-chat', label: 'Chat', icon: MessageSquare, path: '/my-work?tab=chat' })}
@@ -651,7 +650,6 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mg-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/management', active: location === '/management' })}
                   {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
-                  {renderNavItem({ id: 'mg-hunches', label: 'Hunches', icon: Lightbulb, path: '/management?tab=hunches', comingSoon: true })}
                   {renderNavItem({ id: 'mg-activities', label: 'Activities', icon: Activity, path: '/management?tab=activities' })}
                   {renderNavItem({ id: 'mg-roi', label: 'ROI', icon: DollarSign, path: '/management?tab=roi' })}
                 </nav>

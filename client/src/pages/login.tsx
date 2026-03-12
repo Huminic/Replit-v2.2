@@ -125,15 +125,6 @@ export default function LoginPage() {
             `,
           }}
         >
-          {/* Beta Label */}
-          <div
-            className="absolute top-4 right-4 text-sm font-medium"
-            style={{ color: '#F87171' }}
-            data-testid="label-beta"
-          >
-            Beta
-          </div>
-
           {/* Branding */}
           <div className="text-center mb-8">
             <h1
