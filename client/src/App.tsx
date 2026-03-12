@@ -24,6 +24,10 @@ import SettingsPage from "@/pages/settings";
 import ProfilePage from "@/pages/profile";
 import WidgetLandingPage from "@/pages/widget-landing";
 import BillingManagementPage from "@/pages/billing-management";
+import BillingDashboard from "@/pages/BillingDashboard";
+import BillingUsagePage from "@/pages/BillingUsage";
+import BillingPlanPage from "@/pages/BillingPlan";
+import BillingInvoicesPage from "@/pages/BillingInvoices";
 import OrgWizardPage from "@/pages/org-wizard";
 import LoginPage from "@/pages/login";
 import ForgotPasswordPage from "@/pages/forgot-password";
@@ -54,7 +58,10 @@ function Router() {
                 <Route path="/agents" component={AgentsPage} />
                 <Route path="/insights" component={InsightsPage} />
                 <Route path="/settings/system" component={SettingsPage} />
-                <Route path="/settings/billing" component={BillingManagementPage} />
+                <Route path="/settings/billing/usage" component={BillingUsagePage} />
+                <Route path="/settings/billing/plan" component={BillingPlanPage} />
+                <Route path="/settings/billing/invoices" component={BillingInvoicesPage} />
+                <Route path="/settings/billing" component={BillingDashboard} />
                 <Route path="/settings/org-wizard" component={OrgWizardPage} />
                 <Route path="/settings" component={SettingsPage} />
                 <Route path="/profile" component={ProfilePage} />

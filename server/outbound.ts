@@ -1,6 +1,7 @@
 import { storage } from "./storage";
 import { Resend } from "resend";
 import { vapiPost } from "./vendorProxy";
+import { billingService } from "./services/billingService";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
 const DEFAULT_RATE_LIMIT_MAX = 3;
@@ -323,6 +324,9 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
       });
     } catch (usageErr) {
       console.error("[Outbound] Failed to log usage event:", usageErr);
+    }
+    if (request.channel === "sms") {
+      try { billingService.emitUsageEvent(request.organizationId, 'sms_sent', { direction: 'outbound' }); } catch(e) {}
     }
     return { status: "sent" };
   } catch (err: any) {

@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { storage } from "./storage";
+import { billingService } from "./services/billingService";
 
 const SALT_ROUNDS = 10;
 
@@ -175,6 +176,56 @@ async function seedMissingAgents() {
   }
 }
 
+async function seedBillingData() {
+  const billingMap: Record<string, string> = {
+    "serra-honda": "cust_01KKFRFC8TDNPME9DZ83APV38G",
+    "serra-nissan": "cust_01KKFRGG7VFVKP6YRNZ9G05J2Y",
+    "tony-serra-ford": "cust_01KKFRGGWAQD846Z2QS7WHTGC9",
+    "hyundai-of-columbia": "cust_01KKFRGJ4WM86CXS27M85A8F0E",
+    "ford-of-columbia": "cust_01KKFRGHGDY2JRAS2VF91G0PPF",
+  };
+
+  try {
+    const orgs = await storage.getOrganizations();
+    for (const [slug, customerId] of Object.entries(billingMap)) {
+      const org = orgs.find(o => o.slug === slug);
+      if (!org) continue;
+      if (org.billingCustomerId && org.billingWalletId) continue;
+
+      console.log(`[Billing Seed] Setting billing customer ID for ${org.name}: ${customerId}`);
+      const updateData: Record<string, any> = { billingCustomerId: customerId };
+
+      try {
+        const subscription = await billingService.getSubscription(customerId);
+        if (subscription) {
+          updateData.billingSubscriptionId = subscription.id || null;
+          updateData.billingPlanId = subscription.plan_id || subscription.planId || null;
+          if (subscription.metadata?.tier) {
+            updateData.billingTier = subscription.metadata.tier;
+          }
+        }
+      } catch (err: any) {
+        console.log(`[Billing Seed] Could not fetch subscription for ${org.name}: ${err.message}`);
+      }
+
+      try {
+        const wallets = await billingService.getWallets(customerId);
+        if (wallets && wallets.length > 0) {
+          updateData.billingWalletId = wallets[0].id;
+          console.log(`[Billing Seed] Found wallet for ${org.name}: ${wallets[0].id}`);
+        }
+      } catch (err: any) {
+        console.log(`[Billing Seed] Could not fetch wallets for ${org.name}: ${err.message}`);
+      }
+
+      await storage.updateOrganization(org.id, updateData as any);
+    }
+    console.log("[Billing Seed] Billing data seeded successfully");
+  } catch (err: any) {
+    console.log(`[Billing Seed] Error seeding billing data: ${err.message}`);
+  }
+}
+
 export async function seedDatabase() {
   const existingRoles = await storage.getRoles();
   if (existingRoles.length > 0) {
@@ -184,6 +235,7 @@ export async function seedDatabase() {
     await seedMissingOrganizations();
     await seedMissingAgents();
     await seedHuminicUsers();
+    await seedBillingData();
     return;
   }
 
@@ -484,6 +536,7 @@ export async function seedDatabase() {
   await seedTasksAndWidgets();
   await seedDocumentsAndRecipients();
   await seedHuminicUsers();
+  await seedBillingData();
 
   console.log("Database seeded successfully!");
   console.log("Default login: duane.wells@huminic.ai");

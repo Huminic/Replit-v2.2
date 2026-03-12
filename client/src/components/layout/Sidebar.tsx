@@ -31,13 +31,15 @@ import {
   LayoutDashboard,
   Settings,
   ChevronsRight,
-  LogOut
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
 import { canAccessSection } from '@/lib/rbac';
+import { CreditBalanceIndicator } from '@/components/CreditBalanceIndicator';
 
 /** Sidebar menu item shape — hasPanel indicates whether hovering shows a SubMenuManager flyout */
 interface MenuItem {
@@ -62,6 +64,7 @@ const menuItems: MenuItem[] = [
 
 /** Bottom-pinned items — System settings, RBAC gated to admin roles via canAccessSection() */
 const bottomItems: MenuItem[] = [
+  { id: 'billing', label: 'Billing', icon: CreditCard, path: '/settings/billing', hasPanel: false },
   { id: 'system', label: 'System', icon: Settings, path: '/settings/system', hasPanel: true, section: 'system' },
 ];
 
@@ -262,6 +265,10 @@ export function Sidebar() {
         <nav className="flex flex-col gap-1">
           {bottomItems.map((item) => renderMenuItem(item))}
         </nav>
+      </div>
+
+      <div className="border-t border-border py-2 px-1">
+        <CreditBalanceIndicator />
       </div>
 
       <div className="border-t border-border py-2 px-1">

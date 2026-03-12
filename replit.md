@@ -187,9 +187,9 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 | B | Compliance & Communication Gaps | COMPLETED |
 | C | Metrics & Reporting | COMPLETED |
 | D | Lead Automation & Calendar | COMPLETED |
-| E | Testing & Validation | PENDING |
-| F | Security Hardening | PENDING |
-| G | Billing (Flexprice) | PENDING |
+| E | Billing (FlexPrice) | COMPLETED |
+| F | Testing & Validation | PENDING |
+| G | Security Hardening | PENDING |
 | H | Product Tour / Onboarding | PENDING |
 
 Sprint details: `.local/sprints/sprint-{N}.json`

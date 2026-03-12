@@ -82,6 +82,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EntitlementGate } from '@/components/EntitlementGate';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1232,10 +1233,12 @@ export default function SettingsPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <Button size="sm" onClick={handleCreateWidget} data-testid="button-new-widget">
-            <Plus className="h-4 w-4 mr-1" />
-            New widget
-          </Button>
+          <EntitlementGate feature="widget_slots">
+            <Button size="sm" onClick={handleCreateWidget} data-testid="button-new-widget">
+              <Plus className="h-4 w-4 mr-1" />
+              New widget
+            </Button>
+          </EntitlementGate>
           <div className="relative max-w-xs flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -2608,7 +2611,13 @@ export default function SettingsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium text-foreground">{tool.friendlyName}</p>
-                <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
+                {tool.id === 'crm' ? (
+                  <EntitlementGate feature="crm_integration">
+                    <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
+                  </EntitlementGate>
+                ) : (
+                  <Switch checked={tool.enabled} disabled={tool.locked} data-testid={`tool-switch-${tool.id}`} onCheckedChange={() => toast({ title: 'Demo mode', description: 'Tool toggling is not available in demo mode. This feature will be enabled when connected to production backend.' })} />
+                )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
               {isSuperAdmin && (

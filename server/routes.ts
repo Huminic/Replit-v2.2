@@ -34,9 +34,12 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { registerVendorRoutes, callMCP, resolveNexxusOrgId, extractContactIdFromHref, flattenContactInfo } from "./vendorProxy";
+import { registerBillingRoutes } from "./routes/billing";
 import { startCampaignExecution, stopCampaignExecution, getExecutionStatus, getAllExecutionStatuses } from "./outbound";
 import { runHistoricalBackfill, runDailyDelta, runMetricsRefresh, startSyncScheduler } from "./sync";
 import { classifyVinStatus, isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead, isExcludedFromPipeline } from "./statusClassifier";
+import { billingService } from "./services/billingService";
+import { requireEntitlement } from "./middleware/entitlementCheck";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -899,7 +902,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/agents", authenticateToken, requireRole(3), async (req, res) => {
+  app.post("/api/agents", authenticateToken, requireRole(3), requireEntitlement('agent_slots'), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const parsed = insertAgentSchema.safeParse({
@@ -1468,7 +1471,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/campaigns", authenticateToken, requireRole(3), async (req, res) => {
+  app.post("/api/campaigns", authenticateToken, requireRole(3), requireEntitlement('campaign_slots'), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const parsed = insertCampaignSchema.safeParse({
@@ -2105,6 +2108,11 @@ When the user asks a question that requires deep CRM data (specific lead details
         tools: chatTools,
       });
 
+      try {
+        billingService.emitUsageEvent(req.user.organizationId, 'llm_input_tokens', { tokens: firstResponse.usage.input_tokens, model: 'claude' });
+        billingService.emitUsageEvent(req.user.organizationId, 'llm_output_tokens', { tokens: firstResponse.usage.output_tokens, model: 'claude' });
+      } catch(e) {}
+
       const needsToolUse = firstResponse.content.some(b => b.type === "tool_use");
 
       if (!needsToolUse) {
@@ -2242,6 +2250,11 @@ When the user asks a question that requires deep CRM data (specific lead details
             messages: currentMessages,
             tools: chatTools,
           });
+
+          try {
+            billingService.emitUsageEvent(req.user.organizationId, 'llm_input_tokens', { tokens: response.usage.input_tokens, model: 'claude' });
+            billingService.emitUsageEvent(req.user.organizationId, 'llm_output_tokens', { tokens: response.usage.output_tokens, model: 'claude' });
+          } catch(e) {}
         }
 
         const stream = anthropic.messages.stream({
@@ -2598,7 +2611,7 @@ When the user asks a question that requires deep CRM data (specific lead details
     }
   });
 
-  app.post("/api/widgets", authenticateToken, async (req, res) => {
+  app.post("/api/widgets", authenticateToken, requireEntitlement('widget_slots'), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const widgetCode = `wgt_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
@@ -3431,6 +3444,11 @@ When the user asks a question that requires deep CRM data (specific lead details
             console.error("[AI-Analysis] Fire-and-forget VAPI analysis error:", err.message);
           });
         }
+
+        const callDurationMinutes = Math.ceil(callDurationSeconds / 60);
+        if (callDurationMinutes > 0 && organizationId) {
+          try { billingService.emitUsageEvent(organizationId, 'voice_minute', { minutes: callDurationMinutes, provider: 'vapi' }); } catch(e) {}
+        }
       }
 
       return res.json({
@@ -3649,6 +3667,11 @@ When the user asks a question that requires deep CRM data (specific lead details
           }).catch(err => {
             console.error("[AI-Analysis] Fire-and-forget Tavus analysis error:", err.message);
           });
+        }
+
+        const sessionDurationMinutes = Math.ceil(sessionDurationSeconds / 60);
+        if (sessionDurationMinutes > 0 && organizationId) {
+          try { billingService.emitUsageEvent(organizationId, 'video_minute', { minutes: sessionDurationMinutes, type: 'cvi' }); } catch(e) {}
         }
       }
 
@@ -5704,6 +5727,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       }
 
       const data = await falResponse.json();
+
+      if (req.user?.organizationId) {
+        const endpointLower = (endpoint || '').toLowerCase();
+        if (endpointLower.includes('video') || endpointLower.includes('kling') || endpointLower.includes('runway') || endpointLower.includes('minimax')) {
+          try { billingService.emitUsageEvent(req.user.organizationId, 'video_generated', { seconds: 0 }); } catch(e) {}
+        } else {
+          try { billingService.emitUsageEvent(req.user.organizationId, 'image_generated', {}); } catch(e) {}
+        }
+      }
+
       return res.json(data);
     } catch (err: any) {
       console.error("[fal-proxy] Error:", err);
@@ -6030,6 +6063,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       console.error("[ESCALATION] Scheduler error:", err);
     }
   }, 5 * 60 * 1000);
+
+  registerBillingRoutes(app);
 
   return httpServer;
 }

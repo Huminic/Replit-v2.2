@@ -45,6 +45,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EntitlementGate } from '@/components/EntitlementGate';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -482,10 +483,12 @@ export default function AgentsPage() {
           <p className="text-muted-foreground text-center max-w-md mb-6">
             Choose an agent from the list to view its details, or create a new one to get started.
           </p>
-          <Button onClick={openCreateDialog} data-testid="button-create-agent-empty">
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Agent
-          </Button>
+          <EntitlementGate feature="agent_slots">
+            <Button onClick={openCreateDialog} data-testid="button-create-agent-empty">
+              <Plus className="h-4 w-4 mr-2" />
+              Create New Agent
+            </Button>
+          </EntitlementGate>
         </div>
       )}
 
