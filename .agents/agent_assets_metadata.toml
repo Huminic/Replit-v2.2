@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "TXF3x5cWz8FMT-fcVJ60Z"
+uri = "file://.local/launch-audit-results.md"
+type = "text"
+title = "Nexxus Connect — Launch Readiness Audit (77 Issues Found)"
