@@ -125,8 +125,10 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 - `VINSOLUTIONS_*` — CRM
 - `FAL_KEY` — fal.ai image/video/audio generation
 - `OPENAI_API_KEY` — GPT-4o for copywriting + image scoring
+- `FLEXPRICE_API_KEY` — billing/metering via FlexPrice
 - `GOOGLE_MAPS_API_KEY` — competitor radar (Market Intel agent) — PENDING
 - `APP_BASE_URL` — dev: release-1r.huminic.app, prod: live.huminic.app
+- `OUTBOUND_LIVE_ENABLED` — master kill switch for all outbound comms (keep `false` during dev)
 
 ### Auth Credentials (dev/test)
 - duane.wells@huminic.ai / a1$ucc3ss (super_admin)
@@ -162,37 +164,51 @@ All sprint definitions live in `.local/sprints/sprint-{N}.json`:
 - `client/src/components/layout/SubMenuManager.tsx` — Flyout submenu with AI Agents section
 - `client/src/components/layout/TopBar.tsx` — Top navigation bar
 
+### Billing (Sprint-E)
+- `server/services/billingService.ts` — FlexPrice API wrapper with caching
+- `server/routes/billing.ts` — 7 billing API endpoints
+- `server/middleware/entitlementCheck.ts` — Feature gating middleware
+- `client/src/pages/BillingDashboard.tsx` — Billing overview
+- `client/src/pages/BillingUsage.tsx` — Usage analytics
+- `client/src/pages/BillingPlan.tsx` — Plan comparison
+- `client/src/pages/BillingInvoices.tsx` — Invoice history
+- `client/src/components/EntitlementGate.tsx` — Feature gate UI component
+- `client/src/components/CreditBalanceIndicator.tsx` — Sidebar credit display
+
+### Lead Automation (Sprint-D)
+- Follow-up engine in `server/index.ts` — Multi-step SMS→Phone→Email sequences
+- `followupStep` + `leadScore` columns on `warehouseLeads`
+- Claude transcript analysis for lead scoring and appointment detection
+- Business hours awareness + conversion-based queue removal
+
 ### Other Features
 - `client/src/pages/main.tsx` — Home page AI chat
 - `client/src/pages/widget-landing.tsx` — Public widget landing + video mode
 - `public/dealer-handoff/` — Dealer.com integration
 
+### Launch Readiness Documents
+- `.local/launch-checklist.md` — Master 265-item checklist (188 feature items + 77 audit items) with statuses
+- `.local/launch-audit-results.md` — 77-issue deep code audit (11 layers, 15 CRITICAL)
+
 ## Sprint Progress
+
+### Phase 1: Marketing Agents (Sprints 0–11) — ALL COMPLETED
+Sprints 0–11 built and validated the 5 Marketing AI Agents (Photo Studio, Video Producer, Copywriter, Creative Director, Market Intel), cross-agent workflows, Studio Gallery, and sharing. Sprint JSON files archived (no longer in `.local/sprints/`).
+
+### Phase 2: Platform Hardening (Sprints A–E) — ALL COMPLETED
 
 | Sprint | Name | Status |
 |--------|------|--------|
-| 0 | Foundation — Proxy + Definitions | COMPLETED |
-| 1 | Agent Launcher Grid + Chat UI | COMPLETED |
-| 2 | Photo Studio + Video Producer | COMPLETED |
-| 3 | Copywriter + Creative Director | COMPLETED |
-| 4 | Market Intel + Studio Gallery | COMPLETED |
-| 5 | Cross-agent Workflow + Sharing | COMPLETED |
-| 6 | Agent Validation — Photo Studio | COMPLETED |
-| 7 | Agent Validation — Video Producer | COMPLETED |
-| 8 | Agent Validation — Copywriter | COMPLETED |
-| 9 | Agent Validation — Creative Director | COMPLETED |
-| 10 | Agent Validation — Market Intel | COMPLETED |
-| 11 | Agent Validation — Cross-Agent + Gallery | COMPLETED |
 | A | Knowledge & Upload Improvements | COMPLETED |
 | B | Compliance & Communication Gaps | COMPLETED |
 | C | Metrics & Reporting | COMPLETED |
 | D | Lead Automation & Calendar | COMPLETED |
 | E | Billing (FlexPrice) | COMPLETED |
-| F | Testing & Validation | PENDING |
-| G | Security Hardening | PENDING |
-| H | Product Tour / Onboarding | PENDING |
 
-Sprint details: `.local/sprints/sprint-{N}.json`
+### Phase 3: Launch Readiness — PLANNING
+Remaining sprints (F+) to be organized from the consolidated 265-item launch checklist and 77-issue code audit. Covers security hardening, outbound safety, data integrity, frontend cleanup, production readiness, testing, and onboarding.
+
+Sprint definitions: `.local/sprints/sprint-{X}.json`
 
 ## Seed Script Behavior
 - `seedHuminicUsers` only creates accounts that don't exist; does NOT overwrite passwords on restart
@@ -205,19 +221,6 @@ Sprint details: `.local/sprints/sprint-{N}.json`
 - `attached_assets/battery_01_agent_config_v2_1772919344976.md` through `battery_06_e2e_final_v2_1772919344976.md` — Core platform tests
 - `attached_assets/battery_07_marketing_agents_v1.md` — Marketing Agents battery (5 agents, tools, Studio Gallery, cross-agent, sharing)
 
-### Vitest Observability Stubs
-- `tests/observability/marketing-agents.test.ts` — 45 test stubs covering agents, tools, inline rendering, action chips, Studio Gallery, sharing panel, proxy endpoints
-- `tests/observability/departments.test.ts` — Department-level stubs (updated: Marketing now references Battery 7)
-
-### User Stories
-- `tests/validation/USER_STORIES_AND_AC.md` — US-013 (Marketing AI Agents) with 10 acceptance criteria (AC-MKTG-001 through AC-MKTG-010)
-
-## Spec Reference
-Full marketing agents spec: `attached_assets/Pasted-The-5-Marketing-Agents-Agent-Objective-Tools-It-Owns-Ph_1773177536244.txt`
-
-## Agent Accent Colors (drift-check reference)
-- Photo Studio: teal (#14b8a6)
-- Video Producer: blue (#3b82f6)
-- Copywriter: violet (#8b5cf6)
-- Creative Director: amber (#f59e0b)
-- Market Intel: green (#22c55e)
+### Observability Tests
+- `tests/observability/` — Vitest stubs for marketing agents, departments, TeamBox, widgets, top bar, main page, my-work
+- `tests/validation/USER_STORIES_AND_AC.md` — Marketing AI Agents acceptance criteria
