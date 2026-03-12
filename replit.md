@@ -205,8 +205,27 @@ Sprints 0–11 built and validated the 5 Marketing AI Agents (Photo Studio, Vide
 | D | Lead Automation & Calendar | COMPLETED |
 | E | Billing (FlexPrice) | COMPLETED |
 
-### Phase 3: Launch Readiness — PLANNING
-Remaining sprints (F+) to be organized from the consolidated 265-item launch checklist and 77-issue code audit. Covers security hardening, outbound safety, data integrity, frontend cleanup, production readiness, testing, and onboarding.
+### Phase 3: Launch Readiness (Sprints F–R) — 13 SPRINTS PENDING
+
+| Sprint | Name | Audit Layer | Status |
+|--------|------|-------------|--------|
+| F | Security & Authentication Hardening | Layer 1 (#1-12) | PENDING |
+| G | Data Integrity & Database Hardening | Layer 2 (#13-19) | PENDING |
+| H | Outbound Communications Safety | Layer 3 (#20-26) | PENDING |
+| I | External Service Integration Hardening | Layer 4 (#27-34) | PENDING |
+| J | Background Jobs & Scheduling Safety | Layer 5 (#35-40) | PENDING |
+| K | Server Configuration Hardening | Layer 6 (#41-45) | PENDING |
+| L | API Route Quality | Layer 7 (#46-49) | PENDING |
+| M | Frontend Data & State Management | Layer 8 (#50-55) | PENDING |
+| N | Mock Data Removal & Hardcoded Cleanup | Layer 9 (#56-65) | PENDING |
+| O | Frontend Feature Completeness | Layer 10 (#66-73) | PENDING |
+| P | Seed Data & Production Readiness | Layer 11 (#74-77) | PENDING |
+| Q | End-to-End Testing & Validation | All layers | PENDING |
+| R | Product Tour / Onboarding | Feature | PENDING |
+
+**Dependencies:** F first (security foundation). G/H/I/K/L/M can run after F. J after G. N after M. O after N. P after I. Q after all (H-P). R after Q.
+
+**Enforcement wrapper on every sprint:** W1=Memory check, W2=Worktree check, W3=AC review, W4=Delegation reminder (orchestrator only), W5=Final acceptance before enforcer.
 
 Sprint definitions: `.local/sprints/sprint-{X}.json`
 
