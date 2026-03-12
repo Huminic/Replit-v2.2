@@ -1,0 +1,378 @@
+# FlexPrice Billing Integration — Replit Implementation Prompt
+
+## Context
+
+Nexxus Connect is an AI engagement platform for car dealerships. We use **FlexPrice** (https://flexprice.io) as our external billing/metering engine. The FlexPrice account is already fully configured with plans, meters, features, prices, entitlements, and live customer data. Your job is to integrate FlexPrice into the Nexxus codebase so the app can:
+
+1. Check what a customer is entitled to (feature gates)
+2. Track usage in real-time (emit events to FlexPrice meters)
+3. Show billing/usage data in the UI
+4. Enforce limits (block actions when entitlements are exhausted)
+
+---
+
+## Tech Stack (existing)
+
+- **Server:** Express.js + TypeScript (single `server/routes.ts` file + `server/routes/*.ts`)
+- **Client:** React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui (Radix primitives)
+- **ORM:** Drizzle ORM with PostgreSQL (Neon serverless)
+- **Schema:** `shared/schema.ts` (Drizzle table definitions + Zod validation)
+- **Routing (client):** Wouter (`<Route path="..." component={...} />`)
+- **Data fetching:** TanStack React Query
+- **State:** React Query cache + local state
+- **Auth:** Express sessions, user has `organizationId` field
+
+---
+
+## FlexPrice API Reference
+
+**Base URL:** `https://api.cloud.flexprice.io/v1`
+**Auth Header:** `x-api-key: <key>` (store in `.env` as `FLEXPRICE_API_KEY`)
+
+### Key Endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/customers?external_id={orgId}` | Look up customer by Nexxus org ID |
+| GET | `/subscriptions?customer_id={custId}` | Get active subscription |
+| GET | `/entitlements?plan_id={planId}` | Get plan entitlements (features + limits) |
+| POST | `/entitlements/check` | Check if customer can use a feature: `{ customer_id, feature_key }` |
+| POST | `/events/usage/meter` | Get usage for a meter: `{ meter_id, customer_id, start_date, end_date }` |
+| POST | `/events` | Ingest a usage event (async, returns 202) |
+| GET | `/invoices?customer_id={custId}` | Invoice history |
+| GET | `/wallets?customer_id={custId}` | Wallet list |
+| POST | `/wallets/{id}/balance` | Get real-time wallet balance |
+| POST | `/wallets/{id}/topup` | Add credits to wallet |
+| GET | `/plans` | List all plans |
+| GET | `/plans/{id}` | Plan details |
+
+### Response Format
+- List endpoints: `{ items: [...], pagination: { total, limit, offset } }`
+- Single record: object directly
+- Event ingestion: 202 (async)
+- Amounts are in dollar strings (e.g., `"2400"` = $2,400)
+
+---
+
+## What Already Exists in FlexPrice
+
+### Plans (6 active)
+| Plan | lookup_key | Monthly Price | Purpose |
+|---|---|---|---|
+| Spark | spark | $500 | Entry-level |
+| JumpStart | jumpstart | $500 | Guided onboarding |
+| Basic | basic | $1,500 | Growing businesses |
+| Pro | pro | $3,000 | Full-featured |
+| Max | max | $5,000 | Enterprise |
+| Serra Pro | serra-pro-v2 | $2,400 | Custom dealer group |
+
+### Meters (7)
+| event_name | What It Tracks | Aggregation |
+|---|---|---|
+| `voice_minute` | AI voice call minutes | SUM on `minutes` |
+| `video_minute` | AI video session minutes | SUM on `minutes` |
+| `sms_sent` | Outbound SMS messages | COUNT |
+| `llm_input_tokens` | LLM input tokens consumed | SUM on `tokens` |
+| `llm_output_tokens` | LLM output tokens generated | SUM on `tokens` |
+| `image_generated` | AI-generated images | COUNT |
+| `video_generated` | AI-generated video (seconds) | SUM on `seconds` |
+
+### Features (23)
+**Metered (7):** Voice Minutes, Video Minutes, SMS Messages, LLM Input Tokens, LLM Output Tokens, Images Generated, Videos Generated
+**Boolean (5):** CRM Integration, Advanced Analytics, CRM Guru Agent, Generative Studio, Competitive Intelligence
+**Static (11):** Module Slots, Agent Slots, Landing Page Slots, Widget Slots, Voice Number Slots, SMS Number Slots, Location Slots, Trigger Slots, Campaign Slots, Consulting Hours, Custom Avatar Slots
+
+### Live Customers (5 dealerships on Serra Pro)
+| Name | external_id | FlexPrice customer_id |
+|---|---|---|
+| Serra Honda | serra-honda | cust_01KKFRFC8TDNPME9DZ83APV38G |
+| Serra Nissan | serra-nissan | cust_01KKFRGG7VFVKP6YRNZ9G05J2Y |
+| Serra Ford | serra-ford | cust_01KKFRGGWAQD846Z2QS7WHTGC9 |
+| Hyundai of Columbia | hyundai-columbia | cust_01KKFRGHGDY2JRAS2VF91G0PPF |
+| Ford of Columbia | ford-columbia | cust_01KKFRGJ4WM86CXS27M85A8F0E |
+
+All have active subscriptions and PRE_PAID wallets.
+
+### Entitlements (per plan)
+Every plan has 23 entitlements. Metered features have `usage_limit` set at 125% of base allocation (25% overage cap, then hard block via `is_soft_limit: false`).
+
+Example — Serra Pro per store:
+- Voice: 3,000 min (hard cap at 3,750)
+- Video: 1,500 min (hard cap at 1,875)
+- SMS: 5,000 msgs (hard cap at 6,250)
+- Agents: 6
+- Modules: 1 (Sales)
+- CRM Integration: true
+- CRM Guru: true
+- Advanced Analytics: true
+
+---
+
+## Schema Changes Required
+
+Add these fields to the `organizations` table in `shared/schema.ts`:
+
+```typescript
+// In the organizations pgTable definition, add:
+billingCustomerId: text("billing_customer_id"),     // FlexPrice customer ID
+billingSubscriptionId: text("billing_subscription_id"), // FlexPrice subscription ID
+billingWalletId: text("billing_wallet_id"),          // FlexPrice wallet ID
+billingPlanId: text("billing_plan_id"),              // FlexPrice plan ID
+billingTier: text("billing_tier"),                   // spark | jumpstart | basic | pro | max | serra-pro-v2
+```
+
+Then run `npx drizzle-kit generate` and `npx drizzle-kit migrate` to apply.
+
+**For the 5 Serra stores:** You'll need to update their org records with the FlexPrice IDs listed above once they exist in the Nexxus database. The `external_id` in FlexPrice should match the Nexxus organization `id` (UUID). Currently they use slug placeholders (serra-honda, etc.) — these will be updated to real UUIDs when the orgs are created.
+
+---
+
+## Implementation Plan
+
+### Phase 1: Billing Service (server/services/billingService.ts)
+
+Create a service that wraps all FlexPrice API calls:
+
+```typescript
+// server/services/billingService.ts
+class BillingService {
+  private apiKey: string;
+  private baseUrl = 'https://api.cloud.flexprice.io/v1';
+
+  // Core methods:
+  async getCustomerByOrgId(orgId: string): Promise<FlexPriceCustomer>
+  async getSubscription(customerId: string): Promise<FlexPriceSubscription>
+  async checkEntitlement(customerId: string, featureKey: string): Promise<{ allowed: boolean; limit?: number; used?: number }>
+  async getUsageSummary(customerId: string, startDate: string, endDate: string): Promise<UsageSummary>
+  async emitUsageEvent(orgId: string, eventName: string, properties: Record<string, any>): Promise<void>
+  async getWalletBalance(walletId: string): Promise<{ balance: number; currency: string }>
+  async topUpWallet(walletId: string, amount: number): Promise<void>
+  async getInvoices(customerId: string): Promise<FlexPriceInvoice[]>
+  async getPlanDetails(planId: string): Promise<FlexPricePlan>
+}
+```
+
+**Important implementation notes:**
+- Cache entitlements for 5 minutes (they don't change often)
+- Cache plan details for 1 hour
+- Usage events are fire-and-forget (202 async) — don't await them in the request path
+- The `external_id` in FlexPrice maps to the Nexxus `organization.id`
+
+### Phase 2: Usage Instrumentation
+
+Add usage event emission to existing services. These should be non-blocking (fire-and-forget):
+
+| File | After What Happens | Event to Emit |
+|---|---|---|
+| `server/services/vapiService.ts` | After VAPI call completes (webhook) | `voice_minute` with `{ minutes: callDuration, provider: 'vapi' }` |
+| `server/services/textMagicService.ts` | After SMS is sent | `sms_sent` with `{ direction: 'outbound' }` |
+| `server/services/superChatService.ts` or wherever Anthropic calls happen | After LLM response | `llm_input_tokens` + `llm_output_tokens` with `{ tokens: count, model: modelId }` |
+| `server/services/tavusPersonaService.ts` | After Tavus session ends | `video_minute` with `{ minutes: sessionDuration, type: 'cvi' }` |
+| Wherever fal.ai image generation happens | After image generated | `image_generated` with `{}` |
+| Wherever fal.ai video generation happens | After video generated | `video_generated` with `{ seconds: duration }` |
+
+**Event format for POST /events:**
+```json
+{
+  "event_name": "voice_minute",
+  "external_customer_id": "<nexxus-org-id>",
+  "properties": {
+    "minutes": 3.5,
+    "provider": "vapi"
+  },
+  "timestamp": "2026-03-12T10:30:00Z"
+}
+```
+
+### Phase 3: Entitlement Middleware
+
+Create middleware that checks entitlements before allowing actions:
+
+```typescript
+// server/middleware/entitlementCheck.ts
+function requireEntitlement(featureKey: string) {
+  return async (req, res, next) => {
+    const orgId = req.user.organizationId;
+    const org = await storage.getOrganization(orgId);
+    if (!org.billingCustomerId) return next(); // Skip if not on billing yet
+
+    const check = await billingService.checkEntitlement(org.billingCustomerId, featureKey);
+    if (!check.allowed) {
+      return res.status(403).json({
+        error: 'entitlement_exceeded',
+        feature: featureKey,
+        limit: check.limit,
+        used: check.used,
+        upgradeUrl: '/settings/billing/plan'
+      });
+    }
+    next();
+  };
+}
+```
+
+Apply to these routes:
+- Creating an agent → `requireEntitlement('agent_slots')`
+- Creating a widget → `requireEntitlement('widget_slots')`
+- Creating a campaign → `requireEntitlement('campaign_slots')`
+- Creating a trigger → `requireEntitlement('trigger_slots')`
+- Accessing CRM features → `requireEntitlement('crm_integration')`
+- Accessing CRM Guru → `requireEntitlement('crm_guru')`
+- Accessing Generative Studio → `requireEntitlement('generative_studio')`
+- Accessing Competitive Intel → `requireEntitlement('competitive_intel')`
+
+### Phase 4: Billing API Routes
+
+Add to `server/routes.ts` (or create `server/routes/billing.ts`):
+
+```
+GET  /api/billing/summary      → Current plan, credit balance, usage overview
+GET  /api/billing/usage         → Detailed per-meter usage for current period
+GET  /api/billing/invoices      → Invoice history
+GET  /api/billing/plan          → Current plan details + all entitlements
+GET  /api/billing/entitlements  → Feature entitlements with current usage
+POST /api/billing/topup         → Purchase credit pack (amount in body)
+```
+
+All routes require authentication and use `req.user.organizationId` to look up the FlexPrice customer.
+
+### Phase 5: Frontend — Billing Pages
+
+Create these new pages and add routes in `client/src/App.tsx`:
+
+#### 5a. Billing Dashboard (`/settings/billing`)
+- Credit balance card (real-time from wallet)
+- Current plan name and tier
+- Usage meter bars for each metered feature (used / limit with % indicator)
+- Color coding: green <70%, yellow 70-90%, red >90%
+- Quick link to upgrade plan
+- Quick link to buy credits
+
+#### 5b. Usage Details (`/settings/billing/usage`)
+- Per-meter usage breakdown
+- Date range selector (current period default)
+- Bar chart or table showing daily/weekly usage trends
+- Export to CSV
+
+#### 5c. Plan Management (`/settings/billing/plan`)
+- Current plan card with all entitlements listed
+- Plan comparison grid (all tiers side by side)
+- Upgrade/downgrade button (opens confirmation modal)
+- "Your plan includes" checklist
+
+#### 5d. Invoice History (`/settings/billing/invoices`)
+- Table: date, amount, status (paid/pending/overdue), download PDF link
+- Pull from FlexPrice `/invoices` endpoint
+
+#### 5e. Credit Top-up (`/settings/billing/topup`) — optional, can be modal
+- Credit pack cards with volume discounts
+- Payment flow (can be deferred — for now just show the options)
+
+### Phase 6: Entitlement Gates in Existing UI
+
+Wrap existing feature buttons/pages with entitlement checks:
+
+```tsx
+// client/src/components/EntitlementGate.tsx
+function EntitlementGate({ feature, children, fallback }: {
+  feature: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode
+}) {
+  const { data: entitlements } = useQuery(['entitlements'], fetchEntitlements);
+  const allowed = entitlements?.[feature]?.allowed;
+
+  if (!allowed) {
+    return fallback || <UpgradeCTA feature={feature} />;
+  }
+  return <>{children}</>;
+}
+```
+
+Use it to gate:
+- "Add Agent" button → `<EntitlementGate feature="agent_slots">`
+- "Add Widget" button → `<EntitlementGate feature="widget_slots">`
+- CRM settings tab → `<EntitlementGate feature="crm_integration">`
+- Data Studio / CRM Guru → `<EntitlementGate feature="crm_guru">`
+- Module tabs beyond allocation → `<EntitlementGate feature="module_slots">`
+
+### Phase 7: Sidebar Credit Balance
+
+Add a small credit balance indicator to the sidebar or header:
+- Show current credit balance from wallet
+- Color: green (>50%), yellow (20-50%), red (<20%)
+- Click navigates to `/settings/billing`
+- Poll every 60 seconds or use React Query with `refetchInterval: 60000`
+
+---
+
+## Environment Variables to Add
+
+```
+FLEXPRICE_API_KEY=REDACTED-FLEXPRICE-API-KEY
+FLEXPRICE_BASE_URL=https://api.cloud.flexprice.io/v1
+```
+
+---
+
+## Important Implementation Notes
+
+1. **Don't block on usage events.** Call `billingService.emitUsageEvent()` without `await` in the request path. Usage tracking should never slow down the user experience.
+
+2. **Cache entitlements aggressively.** Plan entitlements change only when a customer upgrades/downgrades. Use a 5-minute TTL cache (simple Map with timestamps, or React Query staleTime on the frontend).
+
+3. **Graceful degradation.** If FlexPrice API is down, don't block the user. Log the error and allow the action. Billing accuracy matters less than uptime.
+
+4. **The `external_id` link.** FlexPrice customers are linked to Nexxus organizations via `external_id` = Nexxus `organization.id`. When looking up a customer, use `GET /customers?external_id={orgId}`.
+
+5. **Amounts are strings in dollars.** FlexPrice returns `"amount": "2400"` meaning $2,400. Parse accordingly.
+
+6. **Meter event_names must match exactly.** When emitting events, use the exact `event_name` from the meters table: `voice_minute`, `video_minute`, `sms_sent`, `llm_input_tokens`, `llm_output_tokens`, `image_generated`, `video_generated`.
+
+7. **Organizations without billing.** Not all orgs will have FlexPrice set up immediately. Always check `if (org.billingCustomerId)` before making FlexPrice calls. If null, skip billing checks — treat as unlimited (or show "billing not configured" in the UI).
+
+8. **Existing schema fields.** The organizations table already has `subscriptionStatus` (trial/active/cancelled) and `subscriptionTier` (free/pro/enterprise). You can either migrate these to the new billing fields or keep them as a fallback. Preference: keep the old fields for backward compatibility but use the new FlexPrice-backed fields as source of truth when `billingCustomerId` is present.
+
+---
+
+## File Structure (new files to create)
+
+```
+server/
+  services/
+    billingService.ts          ← FlexPrice API wrapper
+  middleware/
+    entitlementCheck.ts        ← Route-level entitlement enforcement
+  routes/
+    billing.ts                 ← /api/billing/* routes
+
+client/src/
+  pages/
+    BillingDashboard.tsx       ← /settings/billing
+    BillingUsage.tsx           ← /settings/billing/usage
+    BillingPlan.tsx            ← /settings/billing/plan
+    BillingInvoices.tsx        ← /settings/billing/invoices
+  components/
+    EntitlementGate.tsx        ← Wraps gated features
+    CreditBalanceIndicator.tsx ← Sidebar/header widget
+    UsageMeterBar.tsx          ← Progress bar for usage meters
+    PlanComparisonGrid.tsx     ← Tier comparison table
+
+shared/
+  schema.ts                   ← Add billing fields to organizations table
+```
+
+---
+
+## Priority Order
+
+1. **billingService.ts** — everything depends on this
+2. **Schema migration** — add billing fields to organizations
+3. **Billing API routes** — expose data to frontend
+4. **Usage instrumentation** — start tracking real usage
+5. **Entitlement middleware** — enforce limits server-side
+6. **Frontend billing pages** — let users see their usage
+7. **EntitlementGate component** — visual enforcement in UI
+8. **Credit balance indicator** — sidebar polish
+
+Start with phases 1-3, get them working end-to-end, then layer on the rest. Each phase should be independently testable.
