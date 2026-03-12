@@ -57,6 +57,8 @@ import {
   Trash2,
   Info,
   Headphones,
+  Clock,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -68,6 +70,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -113,6 +116,18 @@ function formatDuration(seconds: number | null): string {
   return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
+interface SequenceStep {
+  channel: 'sms' | 'phone' | 'email';
+  waitMinutes: number;
+  messageTemplate?: string;
+}
+
+interface StoreHoursConfig {
+  openTime: string;
+  closeTime: string;
+  closedDays: number[];
+}
+
 interface AgentTriggerConfig {
   id: string;
   name: string;
@@ -124,7 +139,186 @@ interface AgentTriggerConfig {
     delayHours?: number;
     messageTemplate?: string;
     actions: { type: 'sms' | 'call' | 'email'; waitMinutes: number }[];
+    channels?: { sms: boolean; phone: boolean; email: boolean };
+    sequence?: SequenceStep[];
+    businessHoursSequence?: SequenceStep[];
+    afterHoursSequence?: SequenceStep[];
+    conversionStatuses?: string[];
+    storeHours?: StoreHoursConfig;
   };
+}
+
+const CHANNEL_ICONS: Record<string, React.ElementType> = {
+  sms: MessageSquare,
+  phone: Phone,
+  email: Mail,
+};
+
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function getDefaultChannels(): { sms: boolean; phone: boolean; email: boolean } {
+  return { sms: true, phone: false, email: false };
+}
+
+function getDefaultStoreHours(): StoreHoursConfig {
+  return { openTime: '09:00', closeTime: '19:00', closedDays: [0] };
+}
+
+function migrateActionsToSequence(actions: { type: string; waitMinutes: number }[]): SequenceStep[] {
+  return actions.map(a => ({
+    channel: (a.type === 'call' ? 'phone' : a.type) as 'sms' | 'phone' | 'email',
+    waitMinutes: a.waitMinutes,
+  }));
+}
+
+function SequenceBuilder({
+  label,
+  description,
+  sequence,
+  onChange,
+  channels,
+  testId,
+}: {
+  label: string;
+  description?: string;
+  sequence: SequenceStep[];
+  onChange: (seq: SequenceStep[]) => void;
+  channels: { sms: boolean; phone: boolean; email: boolean };
+  testId: string;
+}) {
+  const enabledChannels = (Object.entries(channels) as [string, boolean][])
+    .filter(([, v]) => v)
+    .map(([k]) => k as 'sms' | 'phone' | 'email');
+
+  const firstEnabled = enabledChannels[0] || 'sms';
+
+  return (
+    <div data-testid={testId}>
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+        <div>
+          <Label className="text-xs font-medium">{label}</Label>
+          {description && <p className="text-[10px] text-muted-foreground">{description}</p>}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onChange([...sequence, { channel: firstEnabled, waitMinutes: 30 }])}
+          data-testid={`${testId}-add-step`}
+        >
+          <Plus className="h-3 w-3 mr-1" />
+          Add Step
+        </Button>
+      </div>
+      {sequence.length === 0 ? (
+        <p className="text-xs text-muted-foreground text-center py-3">No steps configured</p>
+      ) : (
+        <div className="space-y-2">
+          {sequence.map((step, idx) => {
+            const StepIcon = CHANNEL_ICONS[step.channel] || MessageSquare;
+            return (
+              <div key={idx} className="flex items-center gap-2 p-2 rounded border border-border" data-testid={`${testId}-step-${idx}`}>
+                <span className="text-xs text-muted-foreground w-4">{idx + 1}.</span>
+                <StepIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                <select
+                  className="flex h-8 rounded-md border border-input bg-background px-2 py-1 text-xs flex-1"
+                  value={step.channel}
+                  onChange={(e) => {
+                    const updated = [...sequence];
+                    updated[idx] = { ...updated[idx], channel: e.target.value as 'sms' | 'phone' | 'email' };
+                    onChange(updated);
+                  }}
+                  data-testid={`${testId}-channel-${idx}`}
+                >
+                  {enabledChannels.map(ch => (
+                    <option key={ch} value={ch}>{ch === 'sms' ? 'SMS' : ch === 'phone' ? 'Phone Call' : 'Email'}</option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3 text-muted-foreground" />
+                  <input
+                    type="number"
+                    className="flex h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                    value={step.waitMinutes}
+                    onChange={(e) => {
+                      const updated = [...sequence];
+                      updated[idx] = { ...updated[idx], waitMinutes: parseInt(e.target.value) || 0 };
+                      onChange(updated);
+                    }}
+                    min="0"
+                    data-testid={`${testId}-wait-${idx}`}
+                  />
+                  <span className="text-xs text-muted-foreground">min</span>
+                </div>
+                {sequence.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onChange(sequence.filter((_, i) => i !== idx))}
+                    data-testid={`${testId}-remove-${idx}`}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConversionStatusesEditor({
+  statuses,
+  onChange,
+}: {
+  statuses: string[];
+  onChange: (s: string[]) => void;
+}) {
+  const [newStatus, setNewStatus] = useState('');
+
+  const addStatus = () => {
+    const trimmed = newStatus.trim();
+    if (trimmed && !statuses.includes(trimmed)) {
+      onChange([...statuses, trimmed]);
+      setNewStatus('');
+    }
+  };
+
+  return (
+    <div data-testid="trigger-conversion-statuses">
+      <Label className="text-xs font-medium">Conversion Statuses</Label>
+      <p className="text-[10px] text-muted-foreground mb-2">Follow-ups are suppressed when lead reaches these statuses</p>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {statuses.map((s) => (
+          <Badge key={s} variant="secondary" className="text-xs gap-1">
+            {s}
+            <button
+              onClick={() => onChange(statuses.filter(x => x !== s))}
+              className="ml-0.5"
+              data-testid={`conversion-status-remove-${s}`}
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </Badge>
+        ))}
+        {statuses.length === 0 && <span className="text-xs text-muted-foreground">None configured</span>}
+      </div>
+      <div className="flex gap-2">
+        <input
+          className="flex h-8 flex-1 rounded-md border border-input bg-background px-2 py-1 text-xs"
+          placeholder="Add status (e.g. SOLD)"
+          value={newStatus}
+          onChange={(e) => setNewStatus(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStatus(); } }}
+          data-testid="input-conversion-status"
+        />
+        <Button variant="outline" size="sm" onClick={addStatus} data-testid="button-add-conversion-status">
+          Add
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 
@@ -691,7 +885,15 @@ export function AgentConfigPane() {
                     name: '',
                     type: 'stale_lead',
                     enabled: true,
-                    config: { thresholdHours: 24, actions: [{ type: 'sms', waitMinutes: 0 }] },
+                    config: {
+                      thresholdHours: 24,
+                      actions: [{ type: 'sms', waitMinutes: 0 }],
+                      channels: getDefaultChannels(),
+                      businessHoursSequence: [{ channel: 'sms', waitMinutes: 0 }],
+                      afterHoursSequence: [],
+                      conversionStatuses: ['SOLD'],
+                      storeHours: getDefaultStoreHours(),
+                    },
                   });
                   setTriggerModalOpen(true);
                 }} data-testid="button-add-trigger">
@@ -721,8 +923,14 @@ export function AgentConfigPane() {
                         <p className="text-sm font-medium text-foreground">{trigger.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {trigger.type === 'stale_lead' ? `Stale after ${trigger.config.thresholdHours}h` : trigger.type === 'new_lead_followup' ? `Follow-up ${trigger.config.delayHours || 48}h after lead created` : `Below ${trigger.config.thresholdCount}/week`}
-                          {trigger.type !== 'new_lead_followup' && <>{' · '}{trigger.config.actions.map(a => a.type.toUpperCase()).join(' → ')}</>}
-                          {trigger.type === 'new_lead_followup' && ' · SMS'}
+                          {trigger.config.channels ? (
+                            <>{' · '}{Object.entries(trigger.config.channels).filter(([, v]) => v).map(([k]) => k.toUpperCase()).join(', ')}</>
+                          ) : trigger.type !== 'new_lead_followup' && trigger.config.actions ? (
+                            <>{' · '}{trigger.config.actions.map(a => a.type.toUpperCase()).join(' → ')}</>
+                          ) : trigger.type === 'new_lead_followup' ? ' · SMS' : null}
+                          {trigger.config.businessHoursSequence && trigger.config.businessHoursSequence.length > 0 && (
+                            <>{' · '}{trigger.config.businessHoursSequence.length} step{trigger.config.businessHoursSequence.length !== 1 ? 's' : ''}</>
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1168,7 +1376,7 @@ export function AgentConfigPane() {
       </Dialog>
 
       <Dialog open={triggerModalOpen} onOpenChange={(open) => { setTriggerModalOpen(open); if (!open) setEditingTrigger(null); }}>
-        <DialogContent className="sm:max-w-lg" data-testid="modal-edit-trigger">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" data-testid="modal-edit-trigger">
           <DialogHeader>
             <DialogTitle>{editingTrigger && agentTriggers.some(t => t.id === editingTrigger.id) ? 'Edit' : 'Add'} Trigger</DialogTitle>
             <DialogDescription>
@@ -1176,157 +1384,235 @@ export function AgentConfigPane() {
             </DialogDescription>
           </DialogHeader>
           {editingTrigger && (
-            <div className="space-y-4">
-              <div>
-                <Label className="text-xs">Trigger Name</Label>
-                <input
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
-                  value={editingTrigger.name}
-                  onChange={(e) => setEditingTrigger({ ...editingTrigger, name: e.target.value })}
-                  placeholder="e.g., Stale Lead Follow-up"
-                  data-testid="input-trigger-name"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Trigger Type</Label>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
-                  value={editingTrigger.type}
-                  onChange={(e) => {
-                    const newType = e.target.value as 'stale_lead' | 'source_volume' | 'new_lead_followup';
-                    let newConfig = { ...editingTrigger.config };
-                    if (newType === 'stale_lead') {
-                      newConfig = { ...newConfig, thresholdHours: newConfig.thresholdHours || 24 };
-                    } else if (newType === 'source_volume') {
-                      newConfig = { ...newConfig, thresholdCount: newConfig.thresholdCount || 10 };
-                    } else if (newType === 'new_lead_followup') {
-                      newConfig = {
-                        ...newConfig,
-                        delayHours: newConfig.delayHours || 48,
-                        messageTemplate: newConfig.messageTemplate || 'Hi {customerFirstName}, this is {agentName} from {dealerStoreName}. I just wanted to follow up with you to see if you had any questions and if your experience with our dealer so far has been a good one. Please let me know if I can be of any assistance or if you have any feedback.',
-                        actions: [{ type: 'sms', waitMinutes: 0 }],
-                      };
-                    }
-                    setEditingTrigger({ ...editingTrigger, type: newType, config: newConfig });
-                  }}
-                  data-testid="select-trigger-type"
-                >
-                  <option value="stale_lead">Stale Lead (no activity for X hours)</option>
-                  <option value="source_volume">Source Volume Drop (below X per week)</option>
-                  <option value="new_lead_followup">New Lead Follow-up (SMS after X hours)</option>
-                </select>
-              </div>
-              {editingTrigger.type === 'new_lead_followup' ? (
-                <>
+            <ScrollArea className="flex-1 pr-2">
+              <div className="space-y-5 pb-2">
+                <div>
+                  <Label className="text-xs">Trigger Name</Label>
+                  <input
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                    value={editingTrigger.name}
+                    onChange={(e) => setEditingTrigger({ ...editingTrigger, name: e.target.value })}
+                    placeholder="e.g., Stale Lead Follow-up"
+                    data-testid="input-trigger-name"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Trigger Type</Label>
+                  <select
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                    value={editingTrigger.type}
+                    onChange={(e) => {
+                      const newType = e.target.value as 'stale_lead' | 'source_volume' | 'new_lead_followup';
+                      let newConfig = { ...editingTrigger.config };
+                      if (newType === 'stale_lead') {
+                        newConfig = { ...newConfig, thresholdHours: newConfig.thresholdHours || 24 };
+                      } else if (newType === 'source_volume') {
+                        newConfig = { ...newConfig, thresholdCount: newConfig.thresholdCount || 10 };
+                      } else if (newType === 'new_lead_followup') {
+                        newConfig = {
+                          ...newConfig,
+                          delayHours: newConfig.delayHours || 48,
+                          messageTemplate: newConfig.messageTemplate || 'Hi {customerFirstName}, this is {agentName} from {dealerStoreName}. I just wanted to follow up with you to see if you had any questions and if your experience with our dealer so far has been a good one. Please let me know if I can be of any assistance or if you have any feedback.',
+                          actions: [{ type: 'sms', waitMinutes: 0 }],
+                        };
+                      }
+                      if (!newConfig.channels) newConfig.channels = getDefaultChannels();
+                      if (!newConfig.conversionStatuses) newConfig.conversionStatuses = ['SOLD'];
+                      setEditingTrigger({ ...editingTrigger, type: newType, config: newConfig });
+                    }}
+                    data-testid="select-trigger-type"
+                  >
+                    <option value="stale_lead">Stale Lead (no activity for X hours)</option>
+                    <option value="source_volume">Source Volume Drop (below X per week)</option>
+                    <option value="new_lead_followup">New Lead Follow-up (SMS after X hours)</option>
+                  </select>
+                </div>
+                {editingTrigger.type === 'new_lead_followup' ? (
+                  <>
+                    <div>
+                      <Label className="text-xs">Hours after lead created</Label>
+                      <input
+                        type="number"
+                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                        value={editingTrigger.config.delayHours || 48}
+                        onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, delayHours: parseInt(e.target.value) || 1 } })}
+                        min="1"
+                        data-testid="input-delay-hours"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Message Template</Label>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
+                        Use {'{customerFirstName}'}, {'{agentName}'}, {'{dealerStoreName}'} as placeholders
+                      </p>
+                      <textarea
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[100px] resize-y"
+                        value={editingTrigger.config.messageTemplate || ''}
+                        onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, messageTemplate: e.target.value } })}
+                        data-testid="textarea-message-template"
+                      />
+                    </div>
+                  </>
+                ) : editingTrigger.type === 'stale_lead' ? (
                   <div>
-                    <Label className="text-xs">Hours after lead created</Label>
+                    <Label className="text-xs">Hours without activity</Label>
                     <input
                       type="number"
                       className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
-                      value={editingTrigger.config.delayHours || 48}
-                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, delayHours: parseInt(e.target.value) || 1 } })}
+                      value={editingTrigger.config.thresholdHours || 24}
+                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdHours: parseInt(e.target.value) || 1 } })}
                       min="1"
-                      data-testid="input-delay-hours"
+                      data-testid="input-threshold-hours"
                     />
                   </div>
+                ) : (
                   <div>
-                    <Label className="text-xs">Message Template</Label>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
-                      Use {'{customerFirstName}'}, {'{agentName}'}, {'{dealerStoreName}'} as placeholders
-                    </p>
-                    <textarea
-                      className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[100px] resize-y"
-                      value={editingTrigger.config.messageTemplate || ''}
-                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, messageTemplate: e.target.value } })}
-                      data-testid="textarea-message-template"
+                    <Label className="text-xs">Minimum leads per week</Label>
+                    <input
+                      type="number"
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                      value={editingTrigger.config.thresholdCount || 10}
+                      onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdCount: parseInt(e.target.value) || 1 } })}
+                      min="1"
+                      data-testid="input-threshold-count"
                     />
                   </div>
-                </>
-              ) : editingTrigger.type === 'stale_lead' ? (
-                <div>
-                  <Label className="text-xs">Hours without activity</Label>
-                  <input
-                    type="number"
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
-                    value={editingTrigger.config.thresholdHours || 24}
-                    onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdHours: parseInt(e.target.value) || 1 } })}
-                    min="1"
-                    data-testid="input-threshold-hours"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <Label className="text-xs">Minimum leads per week</Label>
-                  <input
-                    type="number"
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
-                    value={editingTrigger.config.thresholdCount || 10}
-                    onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, thresholdCount: parseInt(e.target.value) || 1 } })}
-                    min="1"
-                    data-testid="input-threshold-count"
-                  />
-                </div>
-              )}
-              {editingTrigger.type !== 'new_lead_followup' && (<div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-xs">Action Chain</Label>
-                  <Button variant="outline" size="sm" onClick={() => setEditingTrigger({
-                    ...editingTrigger,
-                    config: { ...editingTrigger.config, actions: [...editingTrigger.config.actions, { type: 'email', waitMinutes: 30 }] },
-                  })} data-testid="button-add-action">
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add Action
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {editingTrigger.config.actions.map((action, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 rounded border border-border" data-testid={`action-row-${idx}`}>
-                      <span className="text-xs text-muted-foreground w-4">{idx + 1}.</span>
-                      <select
-                        className="flex h-8 rounded-md border border-input bg-background px-2 py-1 text-xs flex-1"
-                        value={action.type}
-                        onChange={(e) => {
-                          const updated = [...editingTrigger.config.actions];
-                          updated[idx] = { ...updated[idx], type: e.target.value as 'sms' | 'call' | 'email' };
-                          setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
-                        }}
-                        data-testid={`select-action-type-${idx}`}
-                      >
-                        <option value="sms">Send SMS</option>
-                        <option value="call">Make Call</option>
-                        <option value="email">Send Email</option>
-                      </select>
-                      {idx > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">Wait</span>
-                          <input
-                            type="number"
-                            className="flex h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                            value={action.waitMinutes}
-                            onChange={(e) => {
-                              const updated = [...editingTrigger.config.actions];
-                              updated[idx] = { ...updated[idx], waitMinutes: parseInt(e.target.value) || 0 };
-                              setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
+                )}
+
+                <div className="border-t border-border pt-4">
+                  <Label className="text-xs font-medium">Channel Enablement</Label>
+                  <p className="text-[10px] text-muted-foreground mb-2">Select which channels this trigger can use</p>
+                  <div className="flex gap-4 flex-wrap">
+                    {(['sms', 'phone', 'email'] as const).map(ch => {
+                      const ChIcon = CHANNEL_ICONS[ch];
+                      const channels = editingTrigger.config.channels || getDefaultChannels();
+                      return (
+                        <label key={ch} className="flex items-center gap-2 cursor-pointer" data-testid={`trigger-channel-${ch}`}>
+                          <Checkbox
+                            checked={channels[ch]}
+                            onCheckedChange={(checked) => {
+                              const updatedChannels = { ...channels, [ch]: !!checked };
+                              setEditingTrigger({
+                                ...editingTrigger,
+                                config: { ...editingTrigger.config, channels: updatedChannels },
+                              });
                             }}
-                            min="0"
-                            data-testid={`input-wait-minutes-${idx}`}
                           />
-                          <span className="text-xs text-muted-foreground">min</span>
-                        </div>
-                      )}
-                      {editingTrigger.config.actions.length > 1 && (
-                        <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={() => {
-                          const updated = editingTrigger.config.actions.filter((_, i) => i !== idx);
-                          setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, actions: updated } });
-                        }} data-testid={`button-remove-action-${idx}`}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                          <ChIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm">{ch === 'sms' ? 'SMS' : ch === 'phone' ? 'Phone' : 'Email'}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>)}
-            </div>
+
+                <div className="border-t border-border pt-4">
+                  <SequenceBuilder
+                    label="Business Hours Sequence"
+                    description="Steps executed during business hours"
+                    sequence={editingTrigger.config.businessHoursSequence || (editingTrigger.config.actions?.length ? migrateActionsToSequence(editingTrigger.config.actions) : [])}
+                    onChange={(seq) => setEditingTrigger({
+                      ...editingTrigger,
+                      config: { ...editingTrigger.config, businessHoursSequence: seq },
+                    })}
+                    channels={editingTrigger.config.channels || getDefaultChannels()}
+                    testId="trigger-sequence-builder"
+                  />
+                </div>
+
+                <div className="border-t border-border pt-4">
+                  <SequenceBuilder
+                    label="After Hours / Closed Days"
+                    description="Steps executed when the store is closed (more autonomy)"
+                    sequence={editingTrigger.config.afterHoursSequence || []}
+                    onChange={(seq) => setEditingTrigger({
+                      ...editingTrigger,
+                      config: { ...editingTrigger.config, afterHoursSequence: seq },
+                    })}
+                    channels={editingTrigger.config.channels || getDefaultChannels()}
+                    testId="trigger-after-hours-sequence"
+                  />
+                </div>
+
+                <div className="border-t border-border pt-4" data-testid="trigger-store-hours">
+                  <Label className="text-xs font-medium">Store Hours</Label>
+                  <p className="text-[10px] text-muted-foreground mb-3">Define business hours for sequence selection</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-3 items-center flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">Open</Label>
+                        <input
+                          type="time"
+                          className="flex h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                          value={(editingTrigger.config.storeHours || getDefaultStoreHours()).openTime}
+                          onChange={(e) => {
+                            const sh = editingTrigger.config.storeHours || getDefaultStoreHours();
+                            setEditingTrigger({
+                              ...editingTrigger,
+                              config: { ...editingTrigger.config, storeHours: { ...sh, openTime: e.target.value } },
+                            });
+                          }}
+                          data-testid="input-store-open-time"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">Close</Label>
+                        <input
+                          type="time"
+                          className="flex h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                          value={(editingTrigger.config.storeHours || getDefaultStoreHours()).closeTime}
+                          onChange={(e) => {
+                            const sh = editingTrigger.config.storeHours || getDefaultStoreHours();
+                            setEditingTrigger({
+                              ...editingTrigger,
+                              config: { ...editingTrigger.config, storeHours: { ...sh, closeTime: e.target.value } },
+                            });
+                          }}
+                          data-testid="input-store-close-time"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1.5 block">Closed Days</Label>
+                      <div className="flex gap-2 flex-wrap">
+                        {DAY_LABELS.map((day, idx) => {
+                          const closedDays = (editingTrigger.config.storeHours || getDefaultStoreHours()).closedDays;
+                          const isClosed = closedDays.includes(idx);
+                          return (
+                            <label key={day} className="flex items-center gap-1.5 cursor-pointer" data-testid={`store-closed-day-${idx}`}>
+                              <Checkbox
+                                checked={isClosed}
+                                onCheckedChange={(checked) => {
+                                  const sh = editingTrigger.config.storeHours || getDefaultStoreHours();
+                                  const newClosed = checked
+                                    ? [...sh.closedDays, idx]
+                                    : sh.closedDays.filter(d => d !== idx);
+                                  setEditingTrigger({
+                                    ...editingTrigger,
+                                    config: { ...editingTrigger.config, storeHours: { ...sh, closedDays: newClosed } },
+                                  });
+                                }}
+                              />
+                              <span className="text-xs">{day}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-border pt-4">
+                  <ConversionStatusesEditor
+                    statuses={editingTrigger.config.conversionStatuses || ['SOLD']}
+                    onChange={(statuses) => setEditingTrigger({
+                      ...editingTrigger,
+                      config: { ...editingTrigger.config, conversionStatuses: statuses },
+                    })}
+                  />
+                </div>
+              </div>
+            </ScrollArea>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => { setTriggerModalOpen(false); setEditingTrigger(null); }} data-testid="button-cancel-trigger">

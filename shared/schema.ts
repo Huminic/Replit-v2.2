@@ -283,6 +283,8 @@ export const warehouseLeads = pgTable("warehouse_leads", {
   dealerName: text("dealer_name"),
   vinCreatedAt: timestamp("vin_created_at"),
   vinUpdatedAt: timestamp("vin_updated_at"),
+  leadScore: integer("lead_score"),
+  followupStep: integer("followup_step"),
   followupSentAt: timestamp("followup_sent_at"),
   syncedAt: timestamp("synced_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),

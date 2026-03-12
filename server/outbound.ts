@@ -25,7 +25,7 @@ export interface SendRequest {
 }
 
 export interface SendResult {
-  status: "sent" | "blocked" | "failed";
+  status: "sent" | "blocked" | "failed" | "dry_run";
   blockedReason?: string;
 }
 

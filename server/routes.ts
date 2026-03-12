@@ -176,6 +176,136 @@ Return ONLY the JSON array, no other text.`,
   return created;
 }
 
+function getNextBusinessDay10am(): Date {
+  const next = new Date();
+  next.setDate(next.getDate() + 1);
+  while (next.getDay() === 0 || next.getDay() === 6) {
+    next.setDate(next.getDate() + 1);
+  }
+  next.setHours(10, 0, 0, 0);
+  return next;
+}
+
+function parsePreferredDateTime(preferredDate: string | null, preferredTime: string | null): Date {
+  if (!preferredDate) return getNextBusinessDay10am();
+  try {
+    const dateStr = preferredTime ? `${preferredDate} ${preferredTime}` : preferredDate;
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) return parsed;
+  } catch {}
+  return getNextBusinessDay10am();
+}
+
+async function analyzeTranscriptWithClaude(params: {
+  transcript: string;
+  organizationId: string;
+  customerName: string;
+  customerPhone: string | null;
+  customerEmail?: string | null;
+  source: "vapi" | "tavus";
+  conversationId: string;
+}): Promise<void> {
+  try {
+    const aiResponse = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      messages: [{
+        role: "user",
+        content: `Analyze this dealership call transcript and extract the following as JSON:
+{
+  "appointmentIntent": boolean,
+  "preferredDate": string | null,
+  "preferredTime": string | null,
+  "customerName": string | null,
+  "vehicleOfInterest": string | null,
+  "leadQualityScore": number,
+  "summary": string
+}
+
+appointmentIntent: did the customer express interest in scheduling a visit or appointment?
+preferredDate: any mentioned date/time preference
+preferredTime: any mentioned time preference
+customerName: if mentioned
+vehicleOfInterest: make/model/year if mentioned
+leadQualityScore: 1-10 based on purchase intent, urgency, budget signals
+summary: 2-sentence summary of the call
+
+Return ONLY the JSON object, no other text.
+
+Transcript:
+${params.transcript}`,
+      }],
+    });
+
+    let analysisData: any = null;
+    const textBlock = aiResponse.content.find(b => b.type === "text");
+    if (textBlock && textBlock.type === "text") {
+      let rawText = textBlock.text.trim();
+      const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) rawText = jsonMatch[1].trim();
+      analysisData = JSON.parse(rawText);
+    }
+
+    if (!analysisData) {
+      console.warn("[AI-Analysis] No analysis data returned from Claude");
+      return;
+    }
+
+    console.log(`[AI-Analysis] Result for ${params.source} conversation ${params.conversationId}:`, JSON.stringify(analysisData));
+
+    if (analysisData.appointmentIntent) {
+      const startTime = parsePreferredDateTime(analysisData.preferredDate, analysisData.preferredTime);
+      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+      const resolvedName = analysisData.customerName || params.customerName;
+
+      await storage.createAppointment({
+        title: `${params.source === "vapi" ? "Call" : "Video"} Appointment — ${resolvedName}`,
+        customerName: resolvedName,
+        customerPhone: params.customerPhone,
+        customerEmail: params.customerEmail || null,
+        appointmentType: "sales",
+        department: "sales",
+        organizationId: params.organizationId,
+        startTime,
+        endTime,
+        status: "pending",
+        source: params.source,
+        notes: analysisData.summary || null,
+      });
+      console.log(`[AI-Analysis] Appointment created for ${resolvedName} (source: ${params.source})`);
+
+      try {
+        const matchingLeads = await storage.findWarehouseLeadsByContact(
+          params.organizationId,
+          params.customerPhone,
+          params.customerEmail || null
+        );
+        for (const lead of matchingLeads) {
+          if ((lead.followupStep || 0) < 999) {
+            await storage.suppressLeadFollowup(lead.id, `Appointment booked via ${params.source}: ${resolvedName}`);
+            console.log(`[Conversion] AI appointment — suppressed follow-up for lead ${lead.id} (${lead.customerName})`);
+          }
+        }
+      } catch (suppressErr: any) {
+        console.error("[Conversion] Error suppressing follow-ups after AI appointment:", suppressErr.message);
+      }
+    }
+
+    if (analysisData.leadQualityScore && params.customerPhone) {
+      const leads = await storage.getWarehouseLeads(params.organizationId, { limit: 50 });
+      const normalizePhone = (p: string) => p.replace(/[^0-9]/g, "").slice(-10);
+      const targetPhone = normalizePhone(params.customerPhone);
+      const matchingLead = leads.find(l => l.customerPhone && normalizePhone(l.customerPhone) === targetPhone);
+      if (matchingLead) {
+        await storage.updateWarehouseLeadScore(matchingLead.id, analysisData.leadQualityScore);
+        console.log(`[AI-Analysis] Updated lead ${matchingLead.id} with score ${analysisData.leadQualityScore}`);
+      }
+    }
+  } catch (analysisErr: any) {
+    console.error(`[AI-Analysis] Failed for ${params.source} conversation ${params.conversationId}:`, analysisErr.message);
+  }
+}
+
 const updateConversationSchema = z.object({
   status: z.string().optional(),
   campaignDisconnected: z.boolean().optional(),
@@ -466,7 +596,7 @@ export async function registerRoutes(
 
     try {
       const { eq } = await import("drizzle-orm");
-      const { db } = await import("./db");
+      const { db } = await import("./storage");
       const { users } = await import("@shared/schema");
       const [found] = await db.select().from(users).where(eq(users.resetToken, token));
       if (!found) return res.status(400).json({ message: "Invalid or expired reset token" });
@@ -2387,6 +2517,23 @@ When the user asks a question that requires deep CRM data (specific lead details
         notes: notes || null,
         source: "manual",
       });
+
+      try {
+        const matchingLeads = await storage.findWarehouseLeadsByContact(
+          req.user.organizationId,
+          customerPhone || null,
+          customerEmail || null
+        );
+        for (const lead of matchingLeads) {
+          if ((lead.followupStep || 0) < 999) {
+            await storage.suppressLeadFollowup(lead.id, `Appointment booked: ${title}`);
+            console.log(`[Conversion] Appointment created — suppressed follow-up for lead ${lead.id} (${lead.customerName})`);
+          }
+        }
+      } catch (suppressErr: any) {
+        console.error("[Conversion] Error suppressing follow-ups after appointment:", suppressErr.message);
+      }
+
       return res.status(201).json(result);
     } catch (err) {
       return res.status(500).json({ message: "Failed to create appointment" });
@@ -3264,6 +3411,28 @@ When the user asks a question that requires deep CRM data (specific lead details
 
       console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}`);
 
+      if (transcript && transcript.length > 0) {
+        let callDurationSeconds = 0;
+        if (call.startedAt && call.endedAt) {
+          callDurationSeconds = (new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000;
+        } else {
+          callDurationSeconds = transcript.length > 100 ? 30 : 0;
+        }
+
+        if (callDurationSeconds > 15) {
+          analyzeTranscriptWithClaude({
+            transcript,
+            organizationId,
+            customerName,
+            customerPhone,
+            source: "vapi",
+            conversationId: conversation.id,
+          }).catch(err => {
+            console.error("[AI-Analysis] Fire-and-forget VAPI analysis error:", err.message);
+          });
+        }
+      }
+
       return res.json({
         message: "Webhook processed successfully",
         conversationId: conversation.id,
@@ -3458,6 +3627,30 @@ When the user asks a question that requires deep CRM data (specific lead details
       }).catch(() => {});
 
       console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
+
+      if (transcript && transcript.length > 0) {
+        let sessionDurationSeconds = 0;
+        if (tavusData?.started_at && tavusData?.ended_at) {
+          sessionDurationSeconds = (new Date(tavusData.ended_at).getTime() - new Date(tavusData.started_at).getTime()) / 1000;
+        } else if (tavusData?.duration) {
+          sessionDurationSeconds = tavusData.duration;
+        } else {
+          sessionDurationSeconds = transcript.length > 100 ? 30 : 0;
+        }
+
+        if (sessionDurationSeconds > 15) {
+          analyzeTranscriptWithClaude({
+            transcript,
+            organizationId,
+            customerName: visitorName,
+            customerPhone: null,
+            source: "tavus",
+            conversationId: conversation.id,
+          }).catch(err => {
+            console.error("[AI-Analysis] Fire-and-forget Tavus analysis error:", err.message);
+          });
+        }
+      }
 
       return res.json({
         message: "Webhook processed successfully",

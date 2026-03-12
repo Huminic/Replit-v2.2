@@ -135,7 +135,9 @@ export interface IStorage {
   upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead>;
   getWarehouseLeadBySourceId(organizationId: string, sourceId: string): Promise<WarehouseLead | null>;
   getLeadsDueForFollowup(organizationId: string, delayHours: number, limit?: number): Promise<WarehouseLead[]>;
+  getLeadsDueForMultiStepFollowup(organizationId: string, sequenceLength: number, conversionStatuses: string[], limit?: number): Promise<WarehouseLead[]>;
   markFollowupSent(leadId: string): Promise<void>;
+  updateFollowupStep(leadId: string, step: number): Promise<void>;
   getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]>;
   getWarehouseLeadCount(organizationId: string, filters?: { status?: string }): Promise<number>;
 
@@ -170,6 +172,11 @@ export interface IStorage {
   getBlacklistEntry(phoneNumber: string, organizationId: string): Promise<SmsBlacklist | undefined>;
   getBlacklistByOrg(organizationId: string): Promise<SmsBlacklist[]>;
   removeBlacklistEntry(id: string): Promise<void>;
+
+  updateWarehouseLeadScore(leadId: string, score: number): Promise<void>;
+
+  suppressLeadFollowup(leadId: string, reason: string): Promise<void>;
+  findWarehouseLeadsByContact(organizationId: string, phone?: string | null, email?: string | null): Promise<WarehouseLead[]>;
 
   getUnansweredConversations(thresholdMinutes: number): Promise<Conversation[]>;
   markEscalationSent(conversationId: string): Promise<void>;
@@ -213,7 +220,7 @@ export interface DashboardMetrics {
   pipeline: PipelineMetrics;
 }
 
-const db = drizzle(process.env.DATABASE_URL!);
+export const db = drizzle(process.env.DATABASE_URL!);
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
@@ -1034,6 +1041,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertWarehouseLead(lead: InsertWarehouseLead): Promise<WarehouseLead> {
+    const conversionStatuses = ['SOLD', 'sold', 'SOLD_DELIVERED', 'SOLD_PENDING_FINANCE'];
     if (lead.sourceId) {
       const [existing] = await db.select().from(warehouseLeads)
         .where(and(
@@ -1045,10 +1053,18 @@ export class DatabaseStorage implements IStorage {
           .set({ ...lead, syncedAt: new Date() })
           .where(eq(warehouseLeads.id, existing.id))
           .returning();
+        if (lead.vinStatus && conversionStatuses.includes(lead.vinStatus) && (existing.followupStep || 0) < 999) {
+          await this.suppressLeadFollowup(updated.id, `VIN status changed to ${lead.vinStatus}`);
+          console.log(`[Conversion] VIN status ${lead.vinStatus} — suppressed follow-up for lead ${updated.id} (${updated.customerName})`);
+        }
         return updated;
       }
     }
     const [created] = await db.insert(warehouseLeads).values(lead).returning();
+    if (lead.vinStatus && conversionStatuses.includes(lead.vinStatus)) {
+      await this.suppressLeadFollowup(created.id, `VIN status set to ${lead.vinStatus} on creation`);
+      console.log(`[Conversion] New lead with VIN status ${lead.vinStatus} — suppressed follow-up for lead ${created.id} (${created.customerName})`);
+    }
     return created;
   }
 
@@ -1064,13 +1080,34 @@ export class DatabaseStorage implements IStorage {
 
   async getLeadsDueForFollowup(organizationId: string, delayHours: number, limit: number = 20): Promise<WarehouseLead[]> {
     const cutoff = new Date(Date.now() - delayHours * 60 * 60 * 1000);
+    const defaultConversionStatuses = ['SOLD', 'sold', 'SOLD_DELIVERED', 'SOLD_PENDING_FINANCE'];
     return db.select().from(warehouseLeads)
       .where(and(
         eq(warehouseLeads.organizationId, organizationId),
         isNull(warehouseLeads.followupSentAt),
         isNotNull(warehouseLeads.customerPhone),
-        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.createdAt}) <= ${cutoff}`
+        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.createdAt}) <= ${cutoff}`,
+        sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(defaultConversionStatuses.map(s => sql`${s}`), sql`, `)}))`,
+        sql`COALESCE(${warehouseLeads.followupStep}, 0) < 999`
       ))
+      .orderBy(desc(warehouseLeads.createdAt))
+      .limit(limit);
+  }
+
+  async getLeadsDueForMultiStepFollowup(organizationId: string, sequenceLength: number, conversionStatuses: string[], limit: number = 20): Promise<WarehouseLead[]> {
+    const effectiveMax = Math.min(sequenceLength, 998);
+    const conditions = [
+      eq(warehouseLeads.organizationId, organizationId),
+      sql`(${warehouseLeads.customerPhone} IS NOT NULL OR ${warehouseLeads.customerEmail} IS NOT NULL)`,
+      sql`COALESCE(${warehouseLeads.followupStep}, 0) < ${effectiveMax}`,
+    ];
+    if (conversionStatuses.length > 0) {
+      conditions.push(
+        sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(conversionStatuses.map(s => sql`${s}`), sql`, `)}))`
+      );
+    }
+    return db.select().from(warehouseLeads)
+      .where(and(...conditions))
       .orderBy(desc(warehouseLeads.createdAt))
       .limit(limit);
   }
@@ -1078,6 +1115,12 @@ export class DatabaseStorage implements IStorage {
   async markFollowupSent(leadId: string): Promise<void> {
     await db.update(warehouseLeads)
       .set({ followupSentAt: new Date() })
+      .where(eq(warehouseLeads.id, leadId));
+  }
+
+  async updateFollowupStep(leadId: string, step: number): Promise<void> {
+    await db.update(warehouseLeads)
+      .set({ followupStep: step, followupSentAt: new Date() })
       .where(eq(warehouseLeads.id, leadId));
   }
 
@@ -1270,6 +1313,41 @@ export class DatabaseStorage implements IStorage {
 
   async removeBlacklistEntry(id: string): Promise<void> {
     await db.delete(smsBlacklist).where(eq(smsBlacklist.id, id));
+  }
+
+  async updateWarehouseLeadScore(leadId: string, score: number): Promise<void> {
+    await db.update(warehouseLeads)
+      .set({ leadScore: score })
+      .where(eq(warehouseLeads.id, leadId));
+  }
+
+  async suppressLeadFollowup(leadId: string, reason: string): Promise<void> {
+    await db.update(warehouseLeads)
+      .set({ followupSentAt: new Date(), followupStep: 999 })
+      .where(eq(warehouseLeads.id, leadId));
+    console.log(`[Conversion] Lead ${leadId} suppressed from follow-up queue: ${reason}`);
+  }
+
+  async findWarehouseLeadsByContact(organizationId: string, phone?: string | null, email?: string | null): Promise<WarehouseLead[]> {
+    if (!phone && !email) return [];
+    const conditions = [eq(warehouseLeads.organizationId, organizationId)];
+    const contactConditions: any[] = [];
+    if (phone) {
+      const normalizedPhone = phone.replace(/[^0-9]/g, "");
+      const last10 = normalizedPhone.slice(-10);
+      contactConditions.push(
+        sql`REPLACE(REPLACE(REPLACE(REPLACE(${warehouseLeads.customerPhone}, '-', ''), ' ', ''), '(', ''), ')', '') LIKE ${'%' + last10}`
+      );
+    }
+    if (email) {
+      contactConditions.push(sql`LOWER(${warehouseLeads.customerEmail}) = ${email.toLowerCase()}`);
+    }
+    if (contactConditions.length === 1) {
+      conditions.push(contactConditions[0]);
+    } else {
+      conditions.push(sql`(${sql.join(contactConditions, sql` OR `)})`);
+    }
+    return db.select().from(warehouseLeads).where(and(...conditions));
   }
 
   async getUnansweredConversations(thresholdMinutes: number): Promise<Conversation[]> {

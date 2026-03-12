@@ -47,7 +47,7 @@ waitForPort = 5000
 
 [userenv.shared]
 VINSOLUTIONS_MCP_URL = "https://mcp.huminicdev.com/dax/mcp"
-OUTBOUND_LIVE_ENABLED = "true"
+OUTBOUND_LIVE_ENABLED = "false"
 TEXTMAGIC_USERNAME = "oauthdurran"
 
 [userenv.development]

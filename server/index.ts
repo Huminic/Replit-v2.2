@@ -230,39 +230,145 @@ app.use((req, res, next) => {
                 if (trigger.type === 'new_lead_followup') {
                   const delayHours = trigger.config?.delayHours || 48;
                   const messageTemplate = trigger.config?.messageTemplate || 'Hi {customerFirstName}, this is {agentName} from {dealerStoreName}. I just wanted to follow up with you to see if you had any questions and if your experience with our dealer so far has been a good one. Please let me know if I can be of any assistance or if you have any feedback.';
-                  const dueLeads = await storage.getLeadsDueForFollowup(org.id, delayHours, 10);
-                  if (dueLeads.length > 0) {
-                    log(`Trigger "${trigger.name}": ${dueLeads.length} leads due for ${delayHours}h follow-up for agent ${agent.name}`, "triggers");
+                  const conversionStatuses: string[] = trigger.config?.conversionStatuses || ['SOLD'];
+
+                  const businessHoursSeq: Array<{ channel: string; waitMinutes: number; messageTemplate?: string }> = trigger.config?.businessHoursSequence || [];
+                  const afterHoursSeq: Array<{ channel: string; waitMinutes: number; messageTemplate?: string }> = trigger.config?.afterHoursSequence || [];
+                  const storeHours = trigger.config?.storeHours as { openTime?: string; closeTime?: string; closedDays?: number[] } | undefined;
+
+                  const hasMultiStep = businessHoursSeq.length > 0 || afterHoursSeq.length > 0;
+
+                  const isWithinBusinessHours = (): boolean => {
+                    if (!storeHours?.openTime || !storeHours?.closeTime) return true;
+                    const now = new Date();
+                    const dayOfWeek = now.getDay();
+                    if (storeHours.closedDays && storeHours.closedDays.includes(dayOfWeek)) return false;
+                    const [openH, openM] = storeHours.openTime.split(':').map(Number);
+                    const [closeH, closeM] = storeHours.closeTime.split(':').map(Number);
+                    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                    const openMinutes = (openH || 0) * 60 + (openM || 0);
+                    const closeMinutes = (closeH || 0) * 60 + (closeM || 0);
+                    return currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+                  };
+
+                  if (!hasMultiStep) {
+                    const dueLeads = await storage.getLeadsDueForFollowup(org.id, delayHours, 10);
+                    if (dueLeads.length > 0) {
+                      log(`Trigger "${trigger.name}": ${dueLeads.length} leads due for ${delayHours}h follow-up for agent ${agent.name}`, "triggers");
+                      for (const lead of dueLeads) {
+                        if (conversionStatuses.includes(lead.vinStatus || '')) continue;
+                        const customerFirstName = (lead.customerName || 'there').split(' ')[0];
+                        const msg = messageTemplate
+                          .replace(/\{customerFirstName\}/g, customerFirstName)
+                          .replace(/\{agentName\}/g, agent.name)
+                          .replace(/\{dealerStoreName\}/g, org.name);
+
+                        log(`Trigger "${trigger.name}": sending follow-up SMS to ${lead.customerPhone} for ${lead.customerName || 'Unknown'}`, "triggers");
+                        try {
+                          await processOutboundSend({
+                            organizationId: org.id,
+                            channel: 'sms',
+                            to: lead.customerPhone!,
+                            messageContent: msg,
+                          });
+                          await storage.markFollowupSent(lead.id);
+                          log(`Trigger "${trigger.name}": follow-up sent and marked for lead ${lead.sourceId || lead.id}`, "triggers");
+
+                          if (adminUser) {
+                            await storage.createNotification({
+                              userId: adminUser.id,
+                              organizationId: org.id,
+                              type: 'trigger_alert',
+                              title: `Follow-up Sent: ${lead.customerName || 'Customer'}`,
+                              message: `${trigger.name} — Follow-up SMS sent to ${lead.customerPhone} for ${lead.customerName || 'Unknown'} (${delayHours}h after lead created)`,
+                              relatedEntityId: lead.id,
+                            });
+                          }
+                        } catch (sendErr: any) {
+                          log(`Trigger "${trigger.name}": failed to send follow-up for ${lead.customerName}: ${sendErr.message}`, "triggers");
+                        }
+                      }
+                    }
+                  } else {
+                    const duringBusiness = isWithinBusinessHours();
+                    const activeSequence = duringBusiness
+                      ? (businessHoursSeq.length > 0 ? businessHoursSeq : afterHoursSeq)
+                      : (afterHoursSeq.length > 0 ? afterHoursSeq : businessHoursSeq);
+
+                    if (activeSequence.length === 0) continue;
+
+                    const dueLeads = await storage.getLeadsDueForMultiStepFollowup(org.id, activeSequence.length, conversionStatuses, 20);
+                    if (dueLeads.length > 0) {
+                      log(`Trigger "${trigger.name}": ${dueLeads.length} leads in multi-step pipeline (${duringBusiness ? 'business' : 'after'} hours, ${activeSequence.length} steps) for agent ${agent.name}`, "triggers");
+                    }
+
                     for (const lead of dueLeads) {
+                      const currentStep = lead.followupStep ?? 0;
+                      if (currentStep >= activeSequence.length) continue;
+
+                      const step = activeSequence[currentStep];
+                      const now = Date.now();
+
+                      let referenceTime: number;
+                      if (currentStep === 0) {
+                        referenceTime = (lead.vinCreatedAt || lead.createdAt).getTime();
+                        const firstWait = step.waitMinutes > 0 ? step.waitMinutes : delayHours * 60;
+                        if (now - referenceTime < firstWait * 60 * 1000) continue;
+                      } else {
+                        if (!lead.followupSentAt) continue;
+                        referenceTime = lead.followupSentAt.getTime();
+                        if (now - referenceTime < step.waitMinutes * 60 * 1000) continue;
+                      }
+
                       const customerFirstName = (lead.customerName || 'there').split(' ')[0];
-                      const msg = messageTemplate
+                      const stepTemplate = step.messageTemplate || messageTemplate;
+                      const msg = stepTemplate
                         .replace(/\{customerFirstName\}/g, customerFirstName)
                         .replace(/\{agentName\}/g, agent.name)
                         .replace(/\{dealerStoreName\}/g, org.name);
 
-                      log(`Trigger "${trigger.name}": sending follow-up SMS to ${lead.customerPhone} for ${lead.customerName || 'Unknown'}`, "triggers");
+                      const channel = step.channel as 'sms' | 'phone' | 'email';
+                      let to: string | null = null;
+                      let effectiveMsg = msg;
+
+                      if (channel === 'sms') {
+                        to = lead.customerPhone;
+                      } else if (channel === 'phone') {
+                        to = lead.customerPhone;
+                        if (!step.messageTemplate) effectiveMsg = 'Automated follow-up call';
+                      } else if (channel === 'email') {
+                        to = lead.customerEmail;
+                      }
+
+                      if (!to) {
+                        log(`Trigger "${trigger.name}": advancing past step ${currentStep} (${channel}) for ${lead.customerName || 'Unknown'} — no ${channel === 'email' ? 'email' : 'phone'} available`, "triggers");
+                        await storage.updateFollowupStep(lead.id, currentStep + 1);
+                        continue;
+                      }
+
+                      log(`Trigger "${trigger.name}": executing step ${currentStep + 1}/${activeSequence.length} (${channel}) for ${lead.customerName || 'Unknown'}`, "triggers");
                       try {
                         await processOutboundSend({
                           organizationId: org.id,
-                          channel: 'sms',
-                          to: lead.customerPhone!,
-                          messageContent: msg,
+                          channel,
+                          to,
+                          messageContent: effectiveMsg,
                         });
-                        await storage.markFollowupSent(lead.id);
-                        log(`Trigger "${trigger.name}": follow-up sent and marked for lead ${lead.sourceId || lead.id}`, "triggers");
+                        await storage.updateFollowupStep(lead.id, currentStep + 1);
+                        log(`Trigger "${trigger.name}": step ${currentStep + 1} complete for lead ${lead.sourceId || lead.id}`, "triggers");
 
                         if (adminUser) {
                           await storage.createNotification({
                             userId: adminUser.id,
                             organizationId: org.id,
                             type: 'trigger_alert',
-                            title: `Follow-up Sent: ${lead.customerName || 'Customer'}`,
-                            message: `${trigger.name} — Follow-up SMS sent to ${lead.customerPhone} for ${lead.customerName || 'Unknown'} (${delayHours}h after lead created)`,
+                            title: `Follow-up Step ${currentStep + 1}: ${lead.customerName || 'Customer'}`,
+                            message: `${trigger.name} — Step ${currentStep + 1}/${activeSequence.length} (${channel.toUpperCase()}) sent to ${to} for ${lead.customerName || 'Unknown'}`,
                             relatedEntityId: lead.id,
                           });
                         }
                       } catch (sendErr: any) {
-                        log(`Trigger "${trigger.name}": failed to send follow-up for ${lead.customerName}: ${sendErr.message}`, "triggers");
+                        log(`Trigger "${trigger.name}": step ${currentStep + 1} failed for ${lead.customerName}: ${sendErr.message}`, "triggers");
                       }
                     }
                   }
