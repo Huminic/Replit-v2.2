@@ -260,7 +260,7 @@
       "id": "P4-S4",
       "name": "Extract remaining routes and retire monolith",
       "phase": "P4",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/tasks.ts",
         "server/routes/appointments.ts",
@@ -283,6 +283,24 @@
       ],
       "dependencies": [
         "P4-S3"
+      ],
+      "commit": "2660160"
+    },
+    {
+      "id": "P5-S0",
+      "name": "Test infrastructure setup",
+      "phase": "P5",
+      "status": "in_progress",
+      "scope": [
+        "tests/setup.ts",
+        "tests/helpers/auth.ts",
+        "tests/helpers/api.ts",
+        "tests/helpers/factory.ts",
+        "sprints.json",
+        "evidence/P5-S0/"
+      ],
+      "dependencies": [
+        "P4-S4"
       ]
     }
   ]
