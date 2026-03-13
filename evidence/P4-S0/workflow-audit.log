@@ -1,0 +1,3 @@
+[2026-03-13T19:42:00Z] agent-launch | role=orchestrator | task="P4-S0 Final snapshot and baseline tag" | scope=sprints.json,evidence/P4-S0/
+[2026-03-13T19:42:10Z] tag-created | git tag pre-decomposition-baseline
+[2026-03-13T19:42:20Z] verify | /api/health 200, / 200, /api/auth/login 401 (correct rejection)
