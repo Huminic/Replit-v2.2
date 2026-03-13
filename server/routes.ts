@@ -879,7 +879,7 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const targetUser = await storage.getUser(req.params.id);
+      const targetUser = await storage.getUser(req.params.id as string);
       if (!targetUser) return res.status(404).json({ message: "User not found" });
       if (targetUser.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -903,7 +903,7 @@ export async function registerRoutes(
       }
       if (req.body.isActive !== undefined) allowedFields.isActive = req.body.isActive;
 
-      const updated = await storage.updateUser(req.params.id, allowedFields);
+      const updated = await storage.updateUser(req.params.id as string, allowedFields);
       if (!updated) return res.status(404).json({ message: "User not found" });
 
       const { password: _, ...safeUser } = updated;
@@ -913,7 +913,7 @@ export async function registerRoutes(
         organizationId: req.user!.organizationId,
         action: "user_updated",
         entityType: "user",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { fields: Object.keys(allowedFields).join(", ") },
       }).catch(() => {});
 
@@ -923,7 +923,7 @@ export async function registerRoutes(
           organizationId: req.user!.organizationId,
           action: "role_changed",
           entityType: "user",
-          entityId: req.params.id,
+          entityId: req.params.id as string,
           metadata: {
             category: "security",
             previousRoleId: targetUser.roleId,
@@ -947,7 +947,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "New password must be at least 6 characters" });
       }
 
-      const targetUser = await storage.getUser(req.params.id);
+      const targetUser = await storage.getUser(req.params.id as string);
       if (!targetUser) return res.status(404).json({ message: "User not found" });
       if (targetUser.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -959,8 +959,8 @@ export async function registerRoutes(
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await storage.updateUser(req.params.id, { password: hashedPassword });
-      await storage.deleteUserSessions(req.params.id);
+      await storage.updateUser(req.params.id as string, { password: hashedPassword });
+      await storage.deleteUserSessions(req.params.id as string);
 
       return res.json({ message: "Password has been reset" });
     } catch (err) {
@@ -999,7 +999,7 @@ export async function registerRoutes(
   app.get("/api/agents/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const agent = await storage.getAgent(req.params.id);
+      const agent = await storage.getAgent(req.params.id as string);
       if (!agent) return res.status(404).json({ message: "Agent not found" });
       if (agent.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1040,7 +1040,7 @@ export async function registerRoutes(
   app.patch("/api/agents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getAgent(req.params.id);
+      const existing = await storage.getAgent(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Agent not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1049,14 +1049,14 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid update data", errors: parsed.error.flatten() });
       }
-      const agent = await storage.updateAgent(req.params.id, parsed.data);
+      const agent = await storage.updateAgent(req.params.id as string, parsed.data);
 
       storage.createActivityLog({
         userId: req.user!.id,
         organizationId: req.user!.organizationId,
         action: "agent_updated",
         entityType: "agent",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { agentName: existing.name, fields: Object.keys(parsed.data).join(", ") },
       }).catch(() => {});
 
@@ -1069,19 +1069,19 @@ export async function registerRoutes(
   app.delete("/api/agents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getAgent(req.params.id);
+      const existing = await storage.getAgent(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Agent not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
-      await storage.deleteAgent(req.params.id);
+      await storage.deleteAgent(req.params.id as string);
 
       storage.createActivityLog({
         userId: req.user!.id,
         organizationId: req.user!.organizationId,
         action: "agent_deleted",
         entityType: "agent",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { agentName: existing.name },
       }).catch(() => {});
 
@@ -1221,7 +1221,7 @@ export async function registerRoutes(
       if (req.params.id !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const org = await storage.getOrganization(req.params.id);
+      const org = await storage.getOrganization(req.params.id as string);
       if (!org) return res.status(404).json({ message: "Organization not found" });
       return res.json(org);
     } catch (err) {
@@ -1239,7 +1239,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid organization data", errors: parsed.error.flatten() });
       }
-      const org = await storage.updateOrganization(req.params.id, parsed.data);
+      const org = await storage.updateOrganization(req.params.id as string, parsed.data);
       if (!org) return res.status(404).json({ message: "Organization not found" });
 
       storage.createActivityLog({
@@ -1247,7 +1247,7 @@ export async function registerRoutes(
         organizationId: req.user!.organizationId,
         action: "organization_updated",
         entityType: "organization",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { fields: Object.keys(parsed.data).join(", ") },
       }).catch(() => {});
 
@@ -1262,7 +1262,7 @@ export async function registerRoutes(
             title: `Communication gate ${state}`,
             message: `Outbound communications have been ${state} by ${req.user!.firstName} ${req.user!.lastName}.`,
             relatedEntityType: "organization",
-            relatedEntityId: req.params.id,
+            relatedEntityId: req.params.id as string,
           }).catch(() => {});
         }
       }
@@ -1289,7 +1289,7 @@ export async function registerRoutes(
         return res.status(409).json({ message: "Slug already taken" });
       }
 
-      const org = await storage.getOrganization(req.params.id);
+      const org = await storage.getOrganization(req.params.id as string);
       if (!org) return res.status(404).json({ message: "Organization not found" });
       const oldSlug = org.slug;
 
@@ -1297,24 +1297,24 @@ export async function registerRoutes(
         const thirtyDaysLater = new Date();
         thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
         await storage.createSlugRedirect({
-          organizationId: req.params.id,
+          organizationId: req.params.id as string,
           oldSlug,
           newSlug: slugFormatted,
           expiresAt: thirtyDaysLater,
         });
-        await storage.updateOrganizationSlug(req.params.id, slugFormatted);
+        await storage.updateOrganizationSlug(req.params.id as string, slugFormatted);
 
         storage.createActivityLog({
           userId: req.user!.id,
           organizationId: req.user!.organizationId,
           action: "slug_changed",
           entityType: "organization",
-          entityId: req.params.id,
+          entityId: req.params.id as string,
           metadata: { oldSlug, newSlug: slugFormatted },
         }).catch(() => {});
       }
 
-      const updated = await storage.getOrganization(req.params.id);
+      const updated = await storage.getOrganization(req.params.id as string);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update slug" });
@@ -1417,7 +1417,7 @@ export async function registerRoutes(
   app.get("/api/conversations/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const conversation = await storage.getConversation(req.params.id);
+      const conversation = await storage.getConversation(req.params.id as string);
       if (!conversation) return res.status(404).json({ message: "Conversation not found" });
       if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1431,7 +1431,7 @@ export async function registerRoutes(
   app.patch("/api/conversations/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getConversation(req.params.id);
+      const existing = await storage.getConversation(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Conversation not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1440,7 +1440,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
       }
-      const conv = await storage.updateConversation(req.params.id, parsed.data);
+      const conv = await storage.updateConversation(req.params.id as string, parsed.data);
       return res.json(conv);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update conversation" });
@@ -1450,12 +1450,12 @@ export async function registerRoutes(
   app.delete("/api/conversations/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getConversation(req.params.id);
+      const existing = await storage.getConversation(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Conversation not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
-      await storage.deleteConversation(req.params.id);
+      await storage.deleteConversation(req.params.id as string);
       return res.json({ message: "Conversation deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete conversation" });
@@ -1465,12 +1465,12 @@ export async function registerRoutes(
   app.get("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const conversation = await storage.getConversation(req.params.id);
+      const conversation = await storage.getConversation(req.params.id as string);
       if (!conversation) return res.status(404).json({ message: "Conversation not found" });
       if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const msgs = await storage.getMessages(req.params.id);
+      const msgs = await storage.getMessages(req.params.id as string);
       return res.json(msgs);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch messages" });
@@ -1480,7 +1480,7 @@ export async function registerRoutes(
   app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const conversation = await storage.getConversation(req.params.id);
+      const conversation = await storage.getConversation(req.params.id as string);
       if (!conversation) return res.status(404).json({ message: "Conversation not found" });
       if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1493,7 +1493,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid message data", errors: parsed.error.flatten() });
       }
       const msg = await storage.createMessage(parsed.data);
-      await storage.updateConversation(req.params.id, { lastMessageAt: new Date() });
+      await storage.updateConversation(req.params.id as string, { lastMessageAt: new Date() });
 
       const isAgentReply = parsed.data.role === "agent" || parsed.data.role === "system";
       const content = parsed.data.content || "";
@@ -1591,7 +1591,7 @@ export async function registerRoutes(
   app.get("/api/campaigns/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const campaign = await storage.getCampaign(req.params.id);
+      const campaign = await storage.getCampaign(req.params.id as string);
       if (!campaign) return res.status(404).json({ message: "Campaign not found" });
       if (campaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1676,7 +1676,7 @@ export async function registerRoutes(
   app.patch("/api/campaigns/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getCampaign(req.params.id);
+      const existing = await storage.getCampaign(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Campaign not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1685,7 +1685,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid campaign data", errors: parsed.error.flatten() });
       }
-      const campaign = await storage.updateCampaign(req.params.id, parsed.data);
+      const campaign = await storage.updateCampaign(req.params.id as string, parsed.data);
 
       const actionName = parsed.data.killSwitch !== undefined
         ? (parsed.data.killSwitch ? "campaign_stopped" : "campaign_resumed")
@@ -1697,7 +1697,7 @@ export async function registerRoutes(
         organizationId: req.user!.organizationId,
         action: actionName,
         entityType: "campaign",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { campaignName: existing.name, fields: Object.keys(parsed.data).join(", ") },
       }).catch(() => {});
 
@@ -1743,7 +1743,7 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const existingCampaign = await storage.getCampaign(req.params.id);
+      const existingCampaign = await storage.getCampaign(req.params.id as string);
       if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
       if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -1753,7 +1753,7 @@ export async function registerRoutes(
       const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : null;
 
       if (scheduledAt && scheduledAt > new Date()) {
-        const campaign = await storage.updateCampaign(req.params.id, {
+        const campaign = await storage.updateCampaign(req.params.id as string, {
           scheduledAt,
           status: "scheduled",
           executionStatus: "scheduled",
@@ -1765,7 +1765,7 @@ export async function registerRoutes(
           organizationId: req.user!.organizationId,
           action: "campaign_scheduled",
           entityType: "campaign",
-          entityId: req.params.id,
+          entityId: req.params.id as string,
           metadata: { scheduledAt: scheduledAt.toISOString() },
         }).catch(() => {});
 
@@ -1778,14 +1778,14 @@ export async function registerRoutes(
             title: "Campaign scheduled",
             message: `Campaign "${campaign.name}" scheduled for ${scheduledAt.toLocaleString()} by ${req.user!.firstName} ${req.user!.lastName}.`,
             relatedEntityType: "campaign",
-            relatedEntityId: req.params.id,
+            relatedEntityId: req.params.id as string,
           }).catch(() => {});
         }
 
         return res.json({ success: true, message: `Campaign scheduled for ${scheduledAt.toISOString()}`, scheduled: true });
       }
 
-      const result = await startCampaignExecution(req.params.id, req.user.organizationId, dryRun);
+      const result = await startCampaignExecution(req.params.id as string, req.user.organizationId, dryRun);
       if (!result.success) {
         return res.status(400).json({ message: result.message });
       }
@@ -1795,12 +1795,12 @@ export async function registerRoutes(
         organizationId: req.user!.organizationId,
         action: dryRun ? "campaign_dry_run" : "campaign_executed",
         entityType: "campaign",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: { dryRun },
       }).catch(() => {});
 
       if (!dryRun) {
-        const campaign = await storage.getCampaign(req.params.id);
+        const campaign = await storage.getCampaign(req.params.id as string);
         const orgUsers = await storage.getUsers(req.user!.organizationId);
         for (const u of orgUsers) {
           storage.createNotification({
@@ -1810,7 +1810,7 @@ export async function registerRoutes(
             title: "Campaign started",
             message: `Campaign "${campaign?.name}" execution started by ${req.user!.firstName} ${req.user!.lastName}.`,
             relatedEntityType: "campaign",
-            relatedEntityId: req.params.id,
+            relatedEntityId: req.params.id as string,
           }).catch(() => {});
         }
       }
@@ -1825,13 +1825,13 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const existingCampaign = await storage.getCampaign(req.params.id);
+      const existingCampaign = await storage.getCampaign(req.params.id as string);
       if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
       if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const result = await stopCampaignExecution(req.params.id);
+      const result = await stopCampaignExecution(req.params.id as string);
       if (!result.success) {
         return res.status(400).json({ message: result.message });
       }
@@ -1841,11 +1841,11 @@ export async function registerRoutes(
         organizationId: req.user!.organizationId,
         action: "campaign_execution_stopped",
         entityType: "campaign",
-        entityId: req.params.id,
+        entityId: req.params.id as string,
         metadata: {},
       }).catch(() => {});
 
-      const campaign = await storage.getCampaign(req.params.id);
+      const campaign = await storage.getCampaign(req.params.id as string);
       const orgUsers = await storage.getUsers(req.user!.organizationId);
       for (const u of orgUsers) {
         storage.createNotification({
@@ -1855,7 +1855,7 @@ export async function registerRoutes(
           title: "Campaign stopped",
           message: `Campaign "${campaign?.name}" execution stopped by ${req.user!.firstName} ${req.user!.lastName}.`,
           relatedEntityType: "campaign",
-          relatedEntityId: req.params.id,
+          relatedEntityId: req.params.id as string,
         }).catch(() => {});
       }
 
@@ -1869,13 +1869,13 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const existingCampaign = await storage.getCampaign(req.params.id);
+      const existingCampaign = await storage.getCampaign(req.params.id as string);
       if (!existingCampaign) return res.status(404).json({ message: "Campaign not found" });
       if (existingCampaign.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const status = getExecutionStatus(req.params.id);
+      const status = getExecutionStatus(req.params.id as string);
       if (!status) {
         return res.json({ active: false });
       }
@@ -2009,7 +2009,7 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const { conversationId } = req.params;
+      const conversationId = req.params.conversationId as string;
       const { content, agentId, mode, pageContext } = req.body;
       const isCrmGuru = mode === "crm_guru";
 
@@ -2042,7 +2042,7 @@ export async function registerRoutes(
         storage.getAcceptedHunches(req.user.organizationId),
         storage.getLatestSync(req.user.organizationId, "metrics_refresh"),
         storage.getLatestSync(req.user.organizationId, "backfill").then(b =>
-          b || storage.getLatestSync(req.user.organizationId, "daily_delta")
+          b || storage.getLatestSync(req.user!.organizationId, "daily_delta")
         ),
       ]);
       const orgName = org?.name || "Nexxus Connect";
@@ -2531,7 +2531,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getTask(req.params.id);
+      const existing = await storage.getTask(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Task not found" });
       if (existing.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -2540,7 +2540,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid task data", errors: parsed.error.flatten() });
       }
-      const task = await storage.updateTask(req.params.id, parsed.data);
+      const task = await storage.updateTask(req.params.id as string, parsed.data);
       return res.json(task);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update task" });
@@ -2550,12 +2550,12 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getTask(req.params.id);
+      const existing = await storage.getTask(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Task not found" });
       if (existing.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
       }
-      await storage.deleteTask(req.params.id);
+      await storage.deleteTask(req.params.id as string);
       return res.json({ message: "Task deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete task" });
@@ -2580,7 +2580,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.get("/api/appointments/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const result = await storage.getAppointment(req.params.id);
+      const result = await storage.getAppointment(req.params.id as string);
       if (!result) return res.status(404).json({ message: "Appointment not found" });
       if (result.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
       return res.json(result);
@@ -2637,7 +2637,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/appointments/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getAppointment(req.params.id);
+      const existing = await storage.getAppointment(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Appointment not found" });
       if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
       const updates: Record<string, any> = {};
@@ -2647,7 +2647,7 @@ When the user asks a question that requires deep CRM data (specific lead details
           updates[key] = (key === "startTime" || key === "endTime") ? new Date(req.body[key]) : req.body[key];
         }
       }
-      const result = await storage.updateAppointment(req.params.id, updates);
+      const result = await storage.updateAppointment(req.params.id as string, updates);
       if (!result) return res.status(404).json({ message: "Appointment not found" });
       return res.json(result);
     } catch (err) {
@@ -2658,10 +2658,10 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.delete("/api/appointments/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getAppointment(req.params.id);
+      const existing = await storage.getAppointment(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Appointment not found" });
       if (existing.organizationId !== req.user.organizationId) return res.status(403).json({ message: "Access denied" });
-      await storage.deleteAppointment(req.params.id);
+      await storage.deleteAppointment(req.params.id as string);
       return res.json({ message: "Appointment deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete appointment" });
@@ -2681,7 +2681,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.get("/api/widgets/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const widget = await storage.getWidget(req.params.id);
+      const widget = await storage.getWidget(req.params.id as string);
       if (!widget) return res.status(404).json({ message: "Widget not found" });
       if (widget.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -2714,7 +2714,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getWidget(req.params.id);
+      const existing = await storage.getWidget(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Widget not found" });
       if (existing.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -2723,7 +2723,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid widget data", errors: parsed.error.flatten() });
       }
-      const widget = await storage.updateWidget(req.params.id, parsed.data);
+      const widget = await storage.updateWidget(req.params.id as string, parsed.data);
       return res.json(widget);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update widget" });
@@ -2733,12 +2733,12 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.delete("/api/widgets/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getWidget(req.params.id);
+      const existing = await storage.getWidget(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Widget not found" });
       if (existing.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
       }
-      await storage.deleteWidget(req.params.id);
+      await storage.deleteWidget(req.params.id as string);
       return res.json({ message: "Widget deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete widget" });
@@ -2990,7 +2990,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.delete("/api/documents/:id", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const doc = await storage.getDocument(req.params.id);
+      const doc = await storage.getDocument(req.params.id as string);
       if (!doc) return res.status(404).json({ message: "Document not found" });
       if (doc.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -2998,7 +2998,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       if (doc.type !== "csv-row") {
         await storage.deleteDocumentsBySourceName(doc.name, doc.organizationId);
       }
-      await storage.deleteDocument(req.params.id);
+      await storage.deleteDocument(req.params.id as string);
       return res.json({ message: "Document deleted" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete document" });
@@ -3011,7 +3011,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       const file = req.file;
       if (!file) return res.status(400).json({ message: "No file uploaded" });
 
-      const campaign = await storage.getCampaign(req.params.id);
+      const campaign = await storage.getCampaign(req.params.id as string);
       if (!campaign) return res.status(404).json({ message: "Campaign not found" });
       if (campaign.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -3126,7 +3126,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.get("/api/campaigns/:id/recipients", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const campaign = await storage.getCampaign(req.params.id);
+      const campaign = await storage.getCampaign(req.params.id as string);
       if (!campaign) return res.status(404).json({ message: "Campaign not found" });
       if (campaign.organizationId !== req.user.organizationId) {
         return res.status(403).json({ message: "Access denied" });
@@ -3165,10 +3165,10 @@ When the user asks a question that requires deep CRM data (specific lead details
       const { eq } = await import("drizzle-orm");
       const { db } = await import("./storage");
       const { notifications } = await import("@shared/schema");
-      const [notif] = await db.select().from(notifications).where(eq(notifications.id, req.params.id));
+      const [notif] = await db.select().from(notifications).where(eq(notifications.id, req.params.id as string));
       if (!notif) return res.status(404).json({ message: "Notification not found" });
       if (notif.userId !== req.user.id) return res.status(403).json({ message: "Forbidden" });
-      await storage.markNotificationRead(req.params.id);
+      await storage.markNotificationRead(req.params.id as string);
       return res.json({ message: "Notification marked as read" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to mark notification read" });
@@ -3212,7 +3212,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.delete("/api/favorites/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      await storage.removeFavorite(req.params.id, req.user.id);
+      await storage.removeFavorite(req.params.id as string, req.user.id);
       return res.json({ message: "Favorite removed" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to remove favorite" });
@@ -3235,7 +3235,7 @@ When the user asks a question that requires deep CRM data (specific lead details
   app.patch("/api/hunches/:id", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const existing = await storage.getHunch(req.params.id);
+      const existing = await storage.getHunch(req.params.id as string);
       if (!existing) return res.status(404).json({ message: "Hunch not found" });
       if (existing.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
@@ -3247,7 +3247,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       const updateData: Record<string, any> = { status: parsed.data.status };
       if (parsed.data.status === "accepted") updateData.acceptedAt = new Date();
       if (parsed.data.status === "resolved") updateData.resolvedAt = new Date();
-      const updated = await storage.updateHunch(req.params.id, updateData);
+      const updated = await storage.updateHunch(req.params.id as string, updateData);
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update hunch" });
@@ -5506,7 +5506,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
       if (conversation && conversation.organizationId !== organizationId) {
         console.log(`[TextMagic Webhook] Existing conversation belongs to different org (${conversation.organizationId}), creating new one for ${organizationId}`);
-        conversation = null;
+        conversation = undefined;
       }
 
       if (conversation) {
@@ -6091,11 +6091,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const entries = await storage.getBlacklistByOrg(req.user.organizationId);
-      const entry = entries.find(e => e.id === req.params.id);
+      const entry = entries.find(e => e.id === req.params.id as string);
       if (!entry) {
         return res.status(404).json({ message: "Blacklist entry not found" });
       }
-      await storage.removeBlacklistEntry(req.params.id);
+      await storage.removeBlacklistEntry(req.params.id as string);
       return res.json({ message: "Blacklist entry removed" });
     } catch (err) {
       return res.status(500).json({ message: "Failed to remove blacklist entry" });
@@ -6156,7 +6156,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
                   <p style="margin: 0 0 4px 0; font-weight: bold; color: #555;">Latest Message:</p>
                   <p style="margin: 0; color: #333;">${escapeHtml(messagePreview)}${latestMessage && latestMessage.content.length > 200 ? "..." : ""}</p>
                 </div>
-                <p><a href="${process.env.APP_BASE_URL || `${req.protocol}://${req.get("host")}`}/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
+                <p><a href="${process.env.APP_BASE_URL || "https://app.nexxusconnect.com"}/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
                 <p style="color: #888; font-size: 12px;">This is an automated escalation from Nexxus Connect for ${escapeHtml(org.name)}.</p>
               </div>`,
             });
