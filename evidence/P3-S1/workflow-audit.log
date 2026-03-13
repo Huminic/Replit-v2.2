@@ -1,0 +1,7 @@
+[2026-03-13T19:38:00Z] agent-launch | role=orchestrator | task="P3-S1 Route registration pattern" | scope=server/routes/index.ts,server/routes/health.ts,server/routes/auth.ts,server/routes.ts,server/index.ts,sprints.json,evidence/P3-S1/
+[2026-03-13T19:39:00Z] create-health-routes | Extracted health endpoint from index.ts to routes/health.ts
+[2026-03-13T19:39:30Z] create-auth-routes | Extracted 8 auth endpoints from routes.ts to routes/auth.ts (~391 lines)
+[2026-03-13T19:40:00Z] create-route-index | Created routes/index.ts with registerDomainRoutes (health, auth, billing)
+[2026-03-13T19:40:30Z] wire-up | Updated index.ts to use registerDomainRoutes, removed inline health endpoint
+[2026-03-13T19:41:00Z] build-verify | tsc --noEmit OK, npm run build OK
+[2026-03-13T19:41:30Z] deploy-verify | pm2 restart OK, /api/health returns ok, /api/auth/login responds correctly

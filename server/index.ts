@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
+import { registerDomainRoutes } from "./routes/index";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
@@ -134,19 +135,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint — before auth middleware, accessible without credentials
-const startTime = Date.now();
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    version: process.env.npm_package_version || '2.2.0',
-    uptime: Math.floor((Date.now() - startTime) / 1000),
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-  });
-});
-
 (async () => {
+  // Register extracted domain routes (health, auth, billing)
+  registerDomainRoutes(app);
+
+  // Register remaining monolith routes (will shrink as extraction continues)
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

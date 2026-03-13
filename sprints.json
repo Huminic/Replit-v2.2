@@ -124,7 +124,7 @@
       "id": "P2-S3",
       "name": "Password security and credential handling",
       "phase": "P2",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes.ts",
         "sprints.json",
@@ -133,7 +133,8 @@
       "dependencies": [
         "P2-S1",
         "P2-S2"
-      ]
+      ],
+      "commit": "44f776d"
     },
     {
       "id": "P3-S0",
@@ -152,6 +153,24 @@
       "startedAt": "2026-03-13T19:21:50Z",
       "commitHash": "cb78830",
       "committedAt": "2026-03-13T19:23:40Z"
+    },
+    {
+      "id": "P3-S1",
+      "name": "Route registration pattern \u2014 extract health + auth routes",
+      "phase": "P3",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/index.ts",
+        "server/routes/health.ts",
+        "server/routes/auth.ts",
+        "server/routes.ts",
+        "server/index.ts",
+        "sprints.json",
+        "evidence/P3-S1/"
+      ],
+      "dependencies": [
+        "P3-S0"
+      ]
     },
     {
       "id": "P3-S2",
