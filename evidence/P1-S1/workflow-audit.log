@@ -1,0 +1,2 @@
+sprint=P1-S1
+[2026-03-13T06:22:00Z] agent-launch | role=orchestrator | task="Add health endpoint, verify Caddy proxy" | scope=server/index.ts,sprints.json,evidence/P1-S1

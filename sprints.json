@@ -70,9 +70,17 @@
       "id": "P1-S0",
       "name": "Remove Replit dependencies and config",
       "phase": "P1",
-      "status": "in_progress",
+      "status": "committed",
       "startedAt": "2026-03-13T06:25:00Z",
-      "commitHash": null
+      "commitHash": "3b542e9",
+      "committedAt": "2026-03-13T06:21:00Z"
+    },
+    {
+      "id": "P1-S1",
+      "name": "Caddy reverse proxy configuration",
+      "phase": "P1",
+      "status": "in_progress",
+      "startedAt": "2026-03-13T06:22:00Z"
     }
   ]
 }

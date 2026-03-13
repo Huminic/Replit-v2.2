@@ -88,6 +88,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint — before auth middleware, accessible without credentials
+const startTime = Date.now();
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    version: process.env.npm_package_version || '2.2.0',
+    uptime: Math.floor((Date.now() - startTime) / 1000),
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+  });
+});
+
 (async () => {
   await registerRoutes(httpServer, app);
 
