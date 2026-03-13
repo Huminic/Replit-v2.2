@@ -117,6 +117,43 @@ echo "  PASS (role=$ROLE, sprint=$SPRINT)"
 EVIDENCE_DIR="evidence/${SPRINT}"
 
 # ═══════════════════════════════════════════════════════════════════
+# GATE 1.5: Chain-of-custody — previous sprint must be committed
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.5/7] Chain-of-custody..."
+
+if [ -f "sprints.json" ]; then
+  CHAIN_RESULT=$(python3 -c "
+import json, sys
+d = json.load(open('sprints.json'))
+sprints = d.get('sprints', [])
+current_idx = None
+for i, s in enumerate(sprints):
+    if s['id'] == '$SPRINT':
+        current_idx = i
+        break
+if current_idx is None:
+    print('SKIP:Sprint not in registry')
+    sys.exit(0)
+if current_idx == 0:
+    print('OK:First sprint, no predecessor')
+    sys.exit(0)
+prev = sprints[current_idx - 1]
+if prev['status'] == 'committed':
+    print(f'OK:Previous {prev[\"id\"]} committed ({prev.get(\"commitHash\",\"?\")})')
+else:
+    print(f'BLOCK:Previous sprint {prev[\"id\"]} status is \"{prev[\"status\"]}\", not \"committed\"')
+    sys.exit(1)
+" 2>/dev/null)
+  CHAIN_EXIT=$?
+  if [ "$CHAIN_EXIT" -ne 0 ]; then
+    block "Chain-of-custody violation: ${CHAIN_RESULT#BLOCK:}"
+  fi
+  echo "  PASS (${CHAIN_RESULT#OK:})"
+else
+  echo "  SKIP (no sprints.json)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
 # GATE 2: Evidence directory
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 2/7] Evidence directory..."

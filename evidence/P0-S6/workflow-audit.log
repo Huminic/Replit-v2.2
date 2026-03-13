@@ -1,0 +1,1 @@
+[2026-03-13T06:14:05Z] agent-launch | role=orchestrator | task="Add chain-of-custody gate to pre-commit hook" | scope=scripts/pre-commit.sh,sprints.json,evidence/P0-S6/*
