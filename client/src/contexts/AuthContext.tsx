@@ -2,10 +2,12 @@
  * Authentication Context
  *
  * Manages user authentication state, JWT tokens, and auth operations.
- * Provides login, logout, token refresh, and user state to entire app.
+ * Access tokens are stored in memory only (via tokenStore).
+ * Refresh tokens are httpOnly cookies (never visible to JS).
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { getAccessToken, setAccessToken, clearAccessToken, isTokenExpiringSoon } from '@/lib/tokenStore';
 
 // User type matching backend response
 export interface User {
@@ -51,62 +53,45 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Token storage keys
-const ACCESS_TOKEN_KEY = 'nexxus_access_token';
-const REFRESH_TOKEN_KEY = 'nexxus_refresh_token';
-const TOKEN_EXPIRY_KEY = 'nexxus_token_expiry';
+// Non-sensitive UI state keys (these stay in localStorage)
 const ACCESSIBLE_ORGS_KEY = 'nexxus_accessible_orgs';
+
+// BroadcastChannel for cross-tab logout sync
+let logoutChannel: BroadcastChannel | null = null;
+try {
+  logoutChannel = new BroadcastChannel('nexxus_auth');
+} catch {
+  // BroadcastChannel not supported — cross-tab sync disabled
+}
 
 /**
  * Auth Provider Component
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessTokenState, setAccessTokenState] = useState<string | null>(null);
   const [accessibleOrganizations, setAccessibleOrganizations] = useState<AccessibleOrganization[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Store tokens in localStorage
+   * Store access token in memory (via tokenStore module)
    */
-  const storeTokens = (access: string, refresh: string, expiresIn: number) => {
-    localStorage.setItem(ACCESS_TOKEN_KEY, access);
-    localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
-
-    // Store expiry time (current time + expiresIn seconds)
-    const expiryTime = Date.now() + (expiresIn * 1000);
-    localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
-
-    setAccessToken(access);
-  };
+  const storeToken = useCallback((access: string, expiresIn: number) => {
+    setAccessToken(access, expiresIn);
+    setAccessTokenState(access);
+  }, []);
 
   /**
-   * Clear tokens from localStorage
+   * Clear all auth state
    */
-  const clearTokens = () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRY_KEY);
-    localStorage.removeItem(ACCESSIBLE_ORGS_KEY);
-    setAccessToken(null);
+  const clearAuth = useCallback(() => {
+    clearAccessToken();
+    setAccessTokenState(null);
     setAccessibleOrganizations(null);
     setUser(null);
-  };
-
-  /**
-   * Check if token is expired or expiring soon (within 5 minutes)
-   */
-  const isTokenExpiringSoon = (): boolean => {
-    const expiryStr = localStorage.getItem(TOKEN_EXPIRY_KEY);
-    if (!expiryStr) return true;
-
-    const expiryTime = parseInt(expiryStr, 10);
-    const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000;
-
-    return (expiryTime - now) < fiveMinutes;
-  };
+    localStorage.removeItem(ACCESSIBLE_ORGS_KEY);
+  }, []);
 
   /**
    * Login with email and password
@@ -118,9 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Receive httpOnly cookie
         body: JSON.stringify({ email, password }),
       });
 
@@ -131,13 +115,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      // Store tokens
-      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
+      // Store access token in memory only
+      storeToken(data.accessToken, data.expiresIn);
 
       // Set user
       setUser(data.user);
 
-      // Store accessible organizations (for Partner Admins)
+      // Store accessible organizations (non-sensitive UI data, safe for localStorage)
       if (data.accessibleOrganizations) {
         setAccessibleOrganizations(data.accessibleOrganizations);
         localStorage.setItem(ACCESSIBLE_ORGS_KEY, JSON.stringify(data.accessibleOrganizations));
@@ -150,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
-      clearTokens();
+      clearAuth();
       throw err;
     } finally {
       setLoading(false);
@@ -165,42 +149,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+      const token = getAccessToken();
 
-      // Call logout endpoint
+      // Call logout endpoint (also clears cookie server-side)
       await fetch('/api/auth/logout', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        credentials: 'include',
       });
     } catch (err) {
       console.error('Logout error:', err);
-      // Continue with local logout even if API call fails
     } finally {
-      clearTokens();
+      clearAuth();
+      // Notify other tabs
+      logoutChannel?.postMessage('logout');
       setLoading(false);
     }
   };
 
   /**
-   * Refresh access token
+   * Refresh access token via httpOnly cookie
    */
   const refreshToken = async () => {
-    const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-    if (!refresh) {
-      clearTokens();
-      return;
-    }
-
     try {
+      // Refresh token is in httpOnly cookie — sent automatically
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken: refresh }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -209,8 +185,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      // Store new tokens
-      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
+      // Store new access token in memory
+      storeToken(data.accessToken, data.expiresIn);
 
       // Update user if provided
       if (data.user) {
@@ -218,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('Token refresh error:', err);
-      clearTokens();
+      clearAuth();
       setError('Session expired. Please login again.');
     }
   };
@@ -229,9 +205,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async (token: string) => {
     try {
       const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -242,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
     } catch (err) {
       console.error('Fetch user error:', err);
-      clearTokens();
+      clearAuth();
     }
   };
 
@@ -257,7 +232,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Switch to a different organization (Partner Admin only)
    */
   const switchOrganization = async (organizationId: string) => {
-    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    const { getAccessToken } = await import('@/lib/tokenStore');
+    const token = getAccessToken();
 
     if (!token) {
       throw new Error('Not authenticated');
@@ -270,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ organizationId }),
       });
 
@@ -280,8 +257,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      // Store new tokens
-      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
+      // Store new access token in memory
+      storeToken(data.accessToken, data.expiresIn);
 
       // Update user with new organization
       if (user) {
@@ -298,18 +275,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   /**
-   * Initialize auth state on mount
+   * Initialize auth state on mount — try refreshing via cookie
    */
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      // Restore accessible organizations from localStorage
+      // Restore accessible organizations from localStorage (non-sensitive UI data)
       const storedOrgs = localStorage.getItem(ACCESSIBLE_ORGS_KEY);
       if (storedOrgs) {
         try {
@@ -319,12 +289,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Check if token is expiring soon
-      if (isTokenExpiringSoon()) {
-        await refreshToken();
-      } else {
-        setAccessToken(token);
-        await fetchUser(token);
+      // Try to get a new access token via the refresh cookie
+      try {
+        const response = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          storeToken(data.accessToken, data.expiresIn);
+          if (data.user) {
+            setUser(data.user);
+          } else {
+            await fetchUser(data.accessToken);
+          }
+        }
+        // If refresh fails, user simply isn't authenticated — no error shown
+      } catch {
+        // No valid session — user needs to login
       }
 
       setLoading(false);
@@ -337,43 +321,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Auto-refresh token before expiry
    */
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessTokenState) return;
 
-    // Check token expiry every minute
     const interval = setInterval(() => {
       if (isTokenExpiringSoon()) {
         refreshToken();
       }
-    }, 60 * 1000); // Check every 60 seconds
+    }, 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [accessToken]);
+  }, [accessTokenState]);
 
   /**
-   * Cross-tab logout synchronization via StorageEvent
-   * When another tab clears the access token, this tab detects it and logs out.
+   * Cross-tab logout synchronization via BroadcastChannel
    */
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === ACCESS_TOKEN_KEY && e.newValue === null && accessToken) {
-        // Token was removed in another tab — sync logout here
-        setAccessToken(null);
-        setUser(null);
-        setAccessibleOrganizations([]);
-        sessionStorage.setItem('nexxus_session_expired', 'true');
+    if (!logoutChannel) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data === 'logout') {
+        clearAuth();
         window.location.href = '/login?expired=true';
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [accessToken]);
+    logoutChannel.addEventListener('message', handleMessage);
+    return () => logoutChannel?.removeEventListener('message', handleMessage);
+  }, [clearAuth]);
 
   const value: AuthContextType = {
     user,
-    accessToken,
+    accessToken: accessTokenState,
     accessibleOrganizations,
-    isAuthenticated: !!user && !!accessToken,
+    isAuthenticated: !!user && !!accessTokenState,
     isPartnerAdmin: user?.role.level === 2,
     loading,
     error,

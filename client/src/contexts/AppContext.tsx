@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole, SectionPermission } from '@/lib/rbac';
 import type { Agent, Notification as DbNotification, Favorite } from '@shared/schema';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { getAccessToken } from '@/lib/tokenStore';
 
 export interface User {
   id: string;
@@ -135,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/organizations', orgIdForDetails],
     queryFn: async () => {
       const res = await fetch(`/api/organizations/${orgIdForDetails}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('nexxus_access_token')}` },
+        headers: { 'Authorization': `Bearer ${getAccessToken()}` },
       });
       if (!res.ok) throw new Error('Failed to fetch org details');
       return res.json();

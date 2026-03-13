@@ -1,0 +1,7 @@
+[2026-03-13T19:00:00Z] agent-launch | role=orchestrator | task="P2-S1 token security — httpOnly cookies" | scope=server/auth.ts,server/index.ts,server/routes.ts,client/src/lib/tokenStore.ts,client/src/lib/queryClient.ts,client/src/contexts/AuthContext.tsx,client/src/hooks/useSessionTimeout.ts,client/src/contexts/AppContext.tsx,client/src/lib/marketing-agents.ts,client/src/lib/tool-executor.ts,client/src/hooks/useStreamingChat.ts,client/src/components/marketing/AgentChatView.tsx,client/src/components/AgentConfigPane.tsx,client/src/components/AppointmentCalendar.tsx,client/src/pages/settings.tsx,client/src/pages/service.tsx,client/src/pages/profile.tsx,client/src/pages/marketing.tsx,client/src/pages/usage.tsx,client/src/pages/agents.tsx,package.json,package-lock.json,sprints.json,evidence/P2-S1/
+[2026-03-13T19:05:00Z] npm-install | cookie-parser + @types/cookie-parser
+[2026-03-13T19:10:00Z] server-changes | cookie-parser middleware, auth cookie helpers, auth endpoint updates
+[2026-03-13T19:15:00Z] client-changes | tokenStore module, queryClient rewrite, AuthContext rewrite, 14 files updated
+[2026-03-13T19:20:00Z] build-verify | tsc --noEmit OK, npm run build OK
+[2026-03-13T19:21:00Z] deploy-verify | pm2 restart, health check OK
+[2026-03-13T19:22:00Z] auth-verify | login sets httpOnly cookie, refresh via cookie works, logout clears cookie, no refreshToken in response body

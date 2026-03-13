@@ -57,6 +57,7 @@ import { getRoleLabel } from '@/lib/agent-utils';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { getAccessToken } from '@/lib/tokenStore';
 
 export default function ProfilePage() {
   const { toast } = useToast();
@@ -124,7 +125,7 @@ export default function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const res = await fetch('/api/users/me/photo', {
         method: 'POST',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },

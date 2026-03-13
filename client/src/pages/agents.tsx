@@ -95,6 +95,7 @@ import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { formatDistanceToNow } from 'date-fns';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
+import { getAccessToken } from '@/lib/tokenStore';
 
 interface AgentChatMessage {
   id: string;
@@ -198,7 +199,7 @@ export default function AgentsPage() {
     queryKey: ['/api/conversations', { channel: agentChannel }],
     queryFn: async () => {
       const res = await fetch(`/api/conversations?channel=${agentChannel}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('nexxus_access_token')}` },
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
       });
       if (!res.ok) throw new Error('Failed to fetch conversations');
       return res.json();

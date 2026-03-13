@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, Play, Copy, Check, ChevronRight, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getAccessToken } from '@/lib/tokenStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -400,7 +401,7 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
         return { role: m.role as 'user' | 'assistant', content };
       });
 
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const res = await fetch('/api/openai-proxy', {
         method: 'POST',
         headers: {

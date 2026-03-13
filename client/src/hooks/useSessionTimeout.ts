@@ -14,13 +14,13 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getAccessToken } from '@/lib/tokenStore';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY = 'nexxus_session_timeout_minutes';
-const ACCESS_TOKEN_KEY = 'nexxus_access_token';
 const WARNING_LEAD_SECONDS = 120; // show warning 2 minutes before logout
 const DEFAULT_TIMEOUT_MINUTES = 30;
 
@@ -54,9 +54,9 @@ export function setStoredTimeoutMinutes(minutes: number): void {
   localStorage.setItem(STORAGE_KEY, String(minutes));
 }
 
-/** Check if a token is stored (user is authenticated). */
+/** Check if a token exists (user is authenticated). */
 function hasAccessToken(): boolean {
-  return !!localStorage.getItem(ACCESS_TOKEN_KEY);
+  return !!getAccessToken();
 }
 
 // ---------------------------------------------------------------------------

@@ -78,6 +78,7 @@ import {
 } from '@/components/ui/dialog';
 import { useApp } from '@/contexts/AppContext';
 import { useLocation } from 'wouter';
+import { getAccessToken } from '@/lib/tokenStore';
 import { availableTools, type AgentChannel, type AgentTool } from '@/lib/agent-utils';
 import {
   MARKETING_AGENTS,
@@ -391,7 +392,7 @@ export function AgentConfigPane() {
   const { data: agentConversations, isLoading: conversationsLoading } = useQuery<any[]>({
     queryKey: ['/api/conversations', { agentId: selectedAgent?.id }],
     queryFn: async () => {
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(`/api/conversations?agentId=${selectedAgent?.id}`, {
@@ -421,7 +422,7 @@ export function AgentConfigPane() {
   const { data: knowledgeDocuments, isLoading: knowledgeLoading } = useQuery<KBDocument[]>({
     queryKey: ['/api/documents', selectedAgent?.id],
     queryFn: async () => {
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(`/api/documents?agentId=${selectedAgent?.id}`, {
@@ -442,7 +443,7 @@ export function AgentConfigPane() {
     formData.append('agentId', String(selectedAgent.id));
     if (replaceExisting) formData.append('replaceExisting', 'true');
     try {
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch('/api/documents', {
@@ -483,7 +484,7 @@ export function AgentConfigPane() {
     }
 
     try {
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const checkRes = await fetch('/api/documents/check-duplicate', {

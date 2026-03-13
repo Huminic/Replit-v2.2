@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { getAccessToken } from '@/lib/tokenStore';
 import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/contexts/AppContext';
 import type { Appointment } from '@shared/schema';
@@ -63,7 +64,7 @@ export function AppointmentCalendar({ department }: AppointmentCalendarProps) {
     queryKey: ['/api/appointments', { department, start: startOfMonth.toISOString(), end: endOfMonth.toISOString() }],
     queryFn: async () => {
       const res = await fetch(queryUrl, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('nexxus_access_token')}` },
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
       });
       if (!res.ok) return [];
       return res.json();

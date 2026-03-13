@@ -1,14 +1,11 @@
 import { QueryClient, QueryCache, QueryFunction } from "@tanstack/react-query";
-
-const ACCESS_TOKEN_KEY = 'nexxus_access_token';
-const REFRESH_TOKEN_KEY = 'nexxus_refresh_token';
-const TOKEN_EXPIRY_KEY = 'nexxus_token_expiry';
+import { getAccessToken, setAccessToken, clearAccessToken } from "./tokenStore";
 
 let refreshPromise: Promise<boolean> | null = null;
 
 function getAuthHeaders(extra?: Record<string, string>): Record<string, string> {
   const headers: Record<string, string> = { ...extra };
-  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const token = getAccessToken();
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -16,9 +13,8 @@ function getAuthHeaders(extra?: Record<string, string>): Record<string, string> 
 }
 
 function handleUnauthorized() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  clearAccessToken();
+  // Clear org data from localStorage (non-sensitive, just UI state)
   localStorage.removeItem('nexxus_accessible_orgs');
   if (window.location.pathname !== '/login') {
     sessionStorage.setItem('nexxus_session_expired', 'true');
@@ -30,23 +26,18 @@ async function tryRefreshToken(): Promise<boolean> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
-    if (!refresh) return false;
-
     try {
+      // Refresh token is in httpOnly cookie — sent automatically with credentials: 'include'
       const res = await fetch('/api/auth/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: refresh }),
+        credentials: 'include',
       });
 
       if (!res.ok) return false;
 
       const data = await res.json();
-      localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
-      const expiryTime = Date.now() + (data.expiresIn * 1000);
-      localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+      setAccessToken(data.accessToken, data.expiresIn);
       return true;
     } catch {
       return false;
@@ -140,3 +131,6 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Re-export token functions for components that need direct access token
+export { getAccessToken } from "./tokenStore";

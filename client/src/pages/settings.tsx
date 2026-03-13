@@ -148,6 +148,7 @@ import {
   type WidgetTargeting,
 } from '@/lib/widget-types';
 import type { Widget as DbWidget } from '@shared/schema';
+import { getAccessToken } from '@/lib/tokenStore';
 
 function dbWidgetToIndividual(w: DbWidget): IndividualWidget {
   const cfg = (w.config || {}) as Record<string, any>;
@@ -714,7 +715,7 @@ export default function SettingsPage() {
       const formData = new FormData();
       formData.append('file', file);
       if (replaceExisting) formData.append('replaceExisting', 'true');
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -771,7 +772,7 @@ export default function SettingsPage() {
     }
 
     try {
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const checkRes = await fetch('/api/documents/check-duplicate', {

@@ -1,7 +1,8 @@
 import { addArtifact, type MarketingArtifact } from './marketing-agents';
+import { getAccessToken } from '@/lib/tokenStore';
 
 const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem('nexxus_access_token');
+  const token = getAccessToken();
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -389,7 +390,7 @@ async function openaiChatCompletion(
   model: string = 'gpt-4o-mini',
   responseFormat?: { type: string },
 ): Promise<any> {
-  const token = localStorage.getItem('nexxus_access_token');
+  const token = getAccessToken();
   const payload: Record<string, any> = { model, messages };
   if (responseFormat) payload.response_format = responseFormat;
 
@@ -702,7 +703,7 @@ async function executeScanCompetitorRadar(
   let radarData: CompetitorRadarData;
 
   try {
-    const token = localStorage.getItem('nexxus_access_token');
+    const token = getAccessToken();
     const res = await fetch('/api/maps-proxy', {
       method: 'POST',
       headers: {

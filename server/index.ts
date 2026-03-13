@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import cors from 'cors';
 import helmet from 'helmet';
 import crypto from 'crypto';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -47,6 +48,7 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
 const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);

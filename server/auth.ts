@@ -1,6 +1,35 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, CookieOptions } from "express";
 import jwt from "jsonwebtoken";
 import { storage } from "./storage";
+
+const REFRESH_COOKIE_NAME = 'nexxus_refresh';
+
+export function getRefreshCookieOptions(): CookieOptions {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/api/auth',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  };
+}
+
+export function setRefreshCookie(res: Response, token: string): void {
+  res.cookie(REFRESH_COOKIE_NAME, token, getRefreshCookieOptions());
+}
+
+export function clearRefreshCookie(res: Response): void {
+  res.clearCookie(REFRESH_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/api/auth',
+  });
+}
+
+export function getRefreshTokenFromCookie(req: Request): string | undefined {
+  return req.cookies?.[REFRESH_COOKIE_NAME];
+}
 
 if (!process.env.JWT_SECRET) {
   throw new Error("FATAL: JWT_SECRET environment variable is required");

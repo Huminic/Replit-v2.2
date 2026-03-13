@@ -41,6 +41,7 @@ import type { Campaign as APICampaign, Agent } from '@shared/schema';
 import AgentChatView from '@/components/marketing/AgentChatView';
 import StudioGallery from '@/components/marketing/StudioGallery';
 import { MARKETING_AGENTS, getSessionsForAgent, timeAgo } from '@/lib/marketing-agents';
+import { getAccessToken } from '@/lib/tokenStore';
 
 interface MarketingMetricTile {
   id: string;
@@ -157,7 +158,7 @@ export default function MarketingPage() {
 
   const csvUploadMutation = useMutation({
     mutationFn: async ({ campaignId, file }: { campaignId: string; file: File }) => {
-      const token = localStorage.getItem("nexxus_access_token");
+      const token = getAccessToken();
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch(`/api/campaigns/${campaignId}/upload-csv`, {

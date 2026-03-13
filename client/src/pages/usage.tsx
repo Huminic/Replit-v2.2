@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
+import { getAccessToken } from '@/lib/tokenStore';
 import { MobileNavDropdown } from '@/components/layout/MobileNavDropdown';
 
 const EVENT_TYPE_CONFIG: Record<string, { label: string; icon: typeof MessageSquare; color: string }> = {
@@ -46,7 +47,7 @@ export default function UsagePage() {
         startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
         endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999).toISOString();
       }
-      const token = localStorage.getItem('nexxus_access_token');
+      const token = getAccessToken();
       const res = await fetch(`/api/usage/summary?startDate=${startDate}&endDate=${endDate}`, {
         headers: { Authorization: `Bearer ${token}` },
       });

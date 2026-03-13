@@ -44,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Campaign as APICampaign, Agent } from '@shared/schema';
+import { getAccessToken } from '@/lib/tokenStore';
 
 interface ServiceMetricTile {
   id: string;
@@ -146,7 +147,7 @@ export default function ServicePage() {
 
   const csvUploadMutation = useMutation({
     mutationFn: async ({ campaignId, file }: { campaignId: string; file: File }) => {
-      const token = localStorage.getItem("nexxus_access_token");
+      const token = getAccessToken();
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch(`/api/campaigns/${campaignId}/upload-csv`, {

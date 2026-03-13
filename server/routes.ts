@@ -16,6 +16,9 @@ import {
   verifyToken,
   getAccessTokenExpirySeconds,
   getRefreshTokenExpiryDate,
+  setRefreshCookie,
+  clearRefreshCookie,
+  getRefreshTokenFromCookie,
 } from "./auth";
 import { seedDatabase } from "./seed";
 import { braveWebSearch } from "./braveSearch";
@@ -461,6 +464,9 @@ export async function registerRoutes(
         expiresAt: getRefreshTokenExpiryDate(),
       });
 
+      // Set refresh token as httpOnly cookie (never exposed to JS)
+      setRefreshCookie(res, refreshToken);
+
       let accessibleOrganizations = null;
       if (role.level <= 2) {
         const allOrgs = await storage.getOrganizations();
@@ -473,7 +479,6 @@ export async function registerRoutes(
 
       return res.json({
         accessToken,
-        refreshToken,
         expiresIn: getAccessTokenExpirySeconds(),
         user: {
           id: user.id,
@@ -504,6 +509,7 @@ export async function registerRoutes(
       if (req.user) {
         await storage.deleteUserSessions(req.user.id);
       }
+      clearRefreshCookie(res);
       return res.json({ message: "Logged out successfully" });
     } catch (err) {
       return res.status(500).json({ message: "Logout failed" });
@@ -512,7 +518,8 @@ export async function registerRoutes(
 
   app.post("/api/auth/refresh", async (req, res) => {
     try {
-      const { refreshToken } = req.body;
+      // Read refresh token from httpOnly cookie (primary) or body (legacy fallback)
+      const refreshToken = getRefreshTokenFromCookie(req) || req.body?.refreshToken;
 
       if (!refreshToken) {
         return res.status(400).json({ message: "Refresh token required" });
@@ -520,6 +527,7 @@ export async function registerRoutes(
 
       const session = await storage.getSessionByRefreshToken(refreshToken);
       if (!session || session.expiresAt < new Date()) {
+        clearRefreshCookie(res);
         return res.status(401).json({ message: "Invalid or expired refresh token" });
       }
 
@@ -527,6 +535,7 @@ export async function registerRoutes(
         verifyToken(refreshToken, 'refresh');
       } catch {
         await storage.deleteSession(session.id);
+        clearRefreshCookie(res);
         return res.status(401).json({ message: "Invalid refresh token" });
       }
 
@@ -538,6 +547,7 @@ export async function registerRoutes(
       const role = await storage.getRole(user.roleId);
       const org = await storage.getOrganization(user.organizationId);
 
+      // Token rotation: delete old session, create new one
       await storage.deleteSession(session.id);
 
       const tokenPayload = {
@@ -555,9 +565,11 @@ export async function registerRoutes(
         expiresAt: getRefreshTokenExpiryDate(),
       });
 
+      // Set new refresh token as httpOnly cookie
+      setRefreshCookie(res, newRefreshToken);
+
       return res.json({
         accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
         expiresIn: getAccessTokenExpirySeconds(),
         user: role && org ? {
           id: user.id,
@@ -626,9 +638,11 @@ export async function registerRoutes(
         expiresAt: getRefreshTokenExpiryDate(),
       });
 
+      // Set refresh token as httpOnly cookie
+      setRefreshCookie(res, refreshToken);
+
       return res.json({
         accessToken,
-        refreshToken,
         expiresIn: getAccessTokenExpirySeconds(),
         organization: { id: org.id, name: org.name },
       });

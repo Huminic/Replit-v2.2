@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { queryClient } from '@/lib/queryClient';
+import { getAccessToken } from '@/lib/tokenStore';
 
 interface UseStreamingChatOptions {
   conversationId: string | null;
@@ -90,7 +91,7 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext }:
     abortRef.current = controller;
 
     try {
-      const accessToken = localStorage.getItem('nexxus_access_token');
+      const accessToken = getAccessToken();
       const response = await fetch(`/api/chat/${conversationId}/stream`, {
         method: 'POST',
         headers: {

@@ -1,4 +1,5 @@
 import { Camera, Video, PenTool, BarChart2, Map } from 'lucide-react';
+import { getAccessToken } from '@/lib/tokenStore';
 import type { LucideIcon } from 'lucide-react';
 
 export type ArtifactType = 'IMAGE' | 'VIDEO' | 'COPY' | 'SCORE' | 'RADAR' | 'VOICEOVER';
@@ -303,7 +304,7 @@ export function getAgentById(id: string): MarketingAgentDef | undefined {
 
 function getUserScope(): string {
   try {
-    const token = localStorage.getItem('nexxus_access_token');
+    const token = getAccessToken();
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.userId) return `_${payload.userId}`;
