@@ -241,7 +241,7 @@
       "id": "P4-S3",
       "name": "Extract agent, chat, and knowledge/document routes",
       "phase": "P4",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/agents.ts",
         "server/routes/chat.ts",
@@ -253,6 +253,36 @@
       ],
       "dependencies": [
         "P4-S2"
+      ],
+      "commit": "7f04732"
+    },
+    {
+      "id": "P4-S4",
+      "name": "Extract remaining routes and retire monolith",
+      "phase": "P4",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/tasks.ts",
+        "server/routes/appointments.ts",
+        "server/routes/favorites.ts",
+        "server/routes/widgets.ts",
+        "server/routes/hunches.ts",
+        "server/routes/settings.ts",
+        "server/routes/metrics.ts",
+        "server/routes/integrations.ts",
+        "server/routes/sync.ts",
+        "server/routes/insights.ts",
+        "server/routes/webhooks.ts",
+        "server/routes/public.ts",
+        "server/routes/proxy.ts",
+        "server/routes/usage.ts",
+        "server/routes/index.ts",
+        "server/routes.ts",
+        "sprints.json",
+        "evidence/P4-S4/"
+      ],
+      "dependencies": [
+        "P4-S3"
       ]
     }
   ]

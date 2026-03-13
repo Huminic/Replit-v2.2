@@ -1,0 +1,18 @@
+[2026-03-13T20:20:00Z] agent-launch | role=orchestrator | task="P4-S4 Extract remaining routes, retire monolith" | scope=server/routes/*.ts,server/routes/index.ts,server/routes.ts,sprints.json,evidence/P4-S4/
+[2026-03-13T20:21:00Z] create-tasks-routes | 4 endpoints: CRUD tasks
+[2026-03-13T20:21:30Z] create-appointments-routes | 5 endpoints: CRUD appointments
+[2026-03-13T20:21:30Z] create-favorites-routes | 3 endpoints: CRUD favorites
+[2026-03-13T20:22:00Z] create-widgets-routes | 6 endpoints: CRUD widgets + video-session
+[2026-03-13T20:22:00Z] create-hunches-routes | 3 endpoints: CRUD hunches + AI generation
+[2026-03-13T20:22:00Z] create-settings-routes | 2 endpoints: GET/PATCH org settings
+[2026-03-13T20:22:30Z] create-metrics-routes | 4 endpoints: activity-log + dashboard + pipeline metrics
+[2026-03-13T20:22:30Z] create-integrations-routes | 2 endpoints: GET integrations + POST provision
+[2026-03-13T20:23:00Z] create-sync-routes | 7 endpoints: sync backfill/delta/metrics/status/logs + warehouse leads/metrics
+[2026-03-13T20:25:00Z] create-insights-routes | 4 endpoints: dashboard + reports + library + library/:id/detail (~994 lines)
+[2026-03-13T20:24:00Z] create-webhooks-routes | 3 endpoints: VAPI POST/GET + Tavus POST (~650 lines)
+[2026-03-13T20:25:00Z] create-public-routes | 8 endpoints: landing + contact + voice-config + widget-public + chat + test + dealer + nexxus-widget.js
+[2026-03-13T20:25:30Z] create-proxy-routes | 5 endpoints: fal-proxy (3) + openai-proxy + maps-proxy
+[2026-03-13T20:25:30Z] create-usage-routes | 4 endpoints: outbound-status + usage + usage/summary + billing/usage
+[2026-03-13T20:26:00Z] wire-up | Updated routes/index.ts with all 27 domain route registrations
+[2026-03-13T20:28:00Z] retire-monolith | Removed all endpoint handlers from routes.ts — 3403 → 228 lines
+[2026-03-13T20:29:00Z] build-verify | tsc --noEmit OK, npm run build OK, pm2 restart OK, health 200, all endpoints verified
