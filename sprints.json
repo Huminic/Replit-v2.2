@@ -16,16 +16,17 @@
       "id": "P0-S1",
       "name": "Set up enforcer webhook agent",
       "phase": "P0",
-      "status": "in_progress",
+      "status": "committed",
       "startedAt": "2026-03-13T02:05:00Z",
-      "commitHash": null
+      "completedAt": "2026-03-13T02:19:00Z",
+      "commitHash": "b7d89c3"
     },
     {
       "id": "P0-S2",
       "name": "Create .project/ governance structure",
       "phase": "P0",
-      "status": "planned",
-      "startedAt": null,
+      "status": "in_progress",
+      "startedAt": "2026-03-13T02:45:00Z",
       "commitHash": null
     }
   ]
