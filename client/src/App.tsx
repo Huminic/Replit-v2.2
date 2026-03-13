@@ -55,7 +55,7 @@ function Router() {
                 <Route path="/marketing" component={MarketingPage} />
                 <Route path="/management" component={ManagementPage} />
                 <Route path="/agents" component={AgentsPage} />
-                <Route path="/insights" component={InsightsPage} />
+                <Route path="/insights" component={() => <InsightsPage />} />
                 <Route path="/settings/system" component={SettingsPage} />
                 <Route path="/settings/billing/usage" component={BillingUsagePage} />
                 <Route path="/settings/billing/plan" component={BillingPlanPage} />

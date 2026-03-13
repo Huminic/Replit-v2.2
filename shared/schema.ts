@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, uuid, jsonb, index, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   personaName: text("persona_name").notNull().default("Serra"),
-  partnerId: uuid("partner_id").references(() => organizations.id, { onDelete: "set null" }),
+  partnerId: uuid("partner_id").references((): AnyPgColumn => organizations.id, { onDelete: "set null" }),
   outboundEnabled: boolean("outbound_enabled").notNull().default(false),
   smsEnabled: boolean("sms_enabled").notNull().default(false),
   phoneEnabled: boolean("phone_enabled").notNull().default(false),

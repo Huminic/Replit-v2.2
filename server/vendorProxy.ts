@@ -542,7 +542,7 @@ export function registerVendorRoutes(app: Express) {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const orgId = req.user.organizationId;
       const nexxusOrgId = resolveNexxusOrgId(orgId);
-      const leadId = req.params.leadId;
+      const leadId = req.params.leadId as string;
 
       const { storage: storageModule } = await import("./storage");
       const cachedLead = await storageModule.getWarehouseLeadBySourceId(orgId, leadId);
