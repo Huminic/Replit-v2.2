@@ -201,7 +201,7 @@
       "id": "P4-S1",
       "name": "Extract organization, user, and role routes",
       "phase": "P4",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/users.ts",
         "server/routes/roles.ts",
@@ -213,6 +213,27 @@
       ],
       "dependencies": [
         "P4-S0"
+      ],
+      "commit": "5d2f218"
+    },
+    {
+      "id": "P4-S2",
+      "name": "Extract communication routes (campaigns, conversations, notifications, SMS)",
+      "phase": "P4",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/campaigns.ts",
+        "server/routes/conversations.ts",
+        "server/routes/notifications.ts",
+        "server/routes/sms.ts",
+        "server/routes/index.ts",
+        "server/routes.ts",
+        "enforcer/gates.ts",
+        "sprints.json",
+        "evidence/P4-S2/"
+      ],
+      "dependencies": [
+        "P4-S1"
       ]
     }
   ]

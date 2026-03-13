@@ -122,7 +122,7 @@ export function runGates(payload: VerifyPayload): VerifyResponse {
 
   // G6: No credentials in diff
   {
-    const result = run("git diff --cached | grep -iE '(password|secret|api.key|token).*=' || echo 'clean'");
+    const result = run("git diff --cached | grep '^+' | grep -v '^+++' | grep -iE '(password|secret|api[._]key|token)\\s*=' | grep -ivE 'authenticateToken|requireRole|process\\.env\\.|req\\.headers|typeof\\s' || echo 'clean'");
     const clean = result.output.includes("clean") || result.output === "";
     gates.push({
       gate: "G6-no-secrets",

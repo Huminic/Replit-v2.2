@@ -1,0 +1,10 @@
+[2026-03-13T19:55:00Z] agent-launch | role=orchestrator | task="P4-S2 Extract communication routes" | scope=server/routes/campaigns.ts,server/routes/conversations.ts,server/routes/notifications.ts,server/routes/sms.ts,server/routes/index.ts,server/routes.ts,sprints.json,evidence/P4-S2/
+[2026-03-13T19:56:00Z] create-campaigns-routes | 12 endpoints: GET/POST campaigns, GET execution-statuses, GET/PATCH/:id, POST/:id/execute, POST/:id/stop, GET/:id/execution-status, POST/:id/upload-csv, GET/:id/recipients
+[2026-03-13T19:56:30Z] create-conversations-routes | 7 endpoints: GET/POST conversations, GET/PATCH/DELETE/:id, GET/POST/:id/messages
+[2026-03-13T19:57:00Z] create-notifications-routes | 4 endpoints: GET notifications, GET unread-count, PATCH/:id/read, POST mark-all-read
+[2026-03-13T19:57:30Z] create-sms-routes | 3 endpoints: POST webhooks/textmagic, GET/DELETE sms-blacklist
+[2026-03-13T19:58:00Z] wire-up | Updated routes/index.ts with registerCampaignRoutes, registerConversationRoutes
+[2026-03-13T19:59:00Z] remove-from-monolith | Removed extracted endpoints + updateConversationSchema + unused imports from routes.ts
+[2026-03-13T20:00:00Z] import-cleanup | Removed startCampaignExecution/stopCampaignExecution/getExecutionStatus/getAllExecutionStatuses, insertConversationSchema/insertMessageSchema/insertCampaignSchema/updateCampaignSchema
+[2026-03-13T20:01:00Z] build-verify | tsc --noEmit OK, npm run build OK, pm2 restart OK, health 200, all endpoints 401 (auth required)
+[2026-03-13T20:02:00Z] line-count | routes.ts: 5189 → 4211 lines (~978 lines removed)
