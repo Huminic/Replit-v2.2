@@ -145,7 +145,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const [selectedLibMetric, setSelectedLibMetric] = useState<LibraryMetric | null>(null);
   const [lookbackDays, setLookbackDays] = useState(30);
   const [drillDown, setDrillDown] = useState<DrillDownModal>(null);
-  const [selectedGreenMetric, setSelectedGreenMetric] = useState<{ id: string; label: string; value: any; trend: string; change: string } | null>(null);
+  const [selectedGreenMetric, setSelectedGreenMetric] = useState<{ id: string; label: string; value: any; trend: 'up' | 'down' | 'neutral'; change: string } | null>(null);
   const [reportCategory, setReportCategory] = useState<ReportCategory>('loss');
   const [reportSubTab, setReportSubTab] = useState('tab1');
   const [hunchPrefsOpen, setHunchPrefsOpen] = useState(false);
@@ -241,11 +241,11 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     },
   };
 
-  const scorecardConversionMetrics = [
-    { id: 'sc-1', label: 'Win Rate', value: `${convRate}%`, sparkline: [convRate], trend: 'neutral' as const, change: '' },
-    { id: 'sc-2', label: 'Total Sold', value: `${soldCount}`, sparkline: [soldCount], trend: soldCount > 0 ? 'up' as const : 'neutral' as const, change: '' },
-    { id: 'sc-3', label: 'Hot Leads', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' as const : 'neutral' as const, change: '' },
-    { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' as const : 'neutral' as const, change: '' },
+  const scorecardConversionMetrics: { id: string; label: string; value: string; sparkline: number[]; trend: 'up' | 'down' | 'neutral'; change: string }[] = [
+    { id: 'sc-1', label: 'Win Rate', value: `${convRate}%`, sparkline: [convRate], trend: 'neutral', change: '' },
+    { id: 'sc-2', label: 'Total Sold', value: `${soldCount}`, sparkline: [soldCount], trend: soldCount > 0 ? 'up' : 'neutral', change: '' },
+    { id: 'sc-3', label: 'Hot Leads', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' : 'neutral', change: '' },
+    { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' : 'neutral', change: '' },
   ];
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -287,8 +287,8 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   }));
 
   const digitalVsPhysical = {
-    digital: { label: 'Digital', leads: 0, winRate: 0, avgAge: 0 },
-    physical: { label: 'Physical', leads: 0, winRate: 0, avgAge: 0 },
+    digital: { label: 'Digital', leads: 0, winRate: 0, avgAge: 0, volume: 0, pct: 0, lossRate: '0%', badRate: '0%', hotPct: '0%', tradePct: '0%', volumeTrend: '—', winTrend: '—' },
+    physical: { label: 'Physical', leads: 0, winRate: 0, avgAge: 0, volume: 0, pct: 0, lossRate: '0%', badRate: '0%', hotPct: '0%', tradePct: '0%', volumeTrend: '—', winTrend: '—' },
     maturityScore: 'N/A', benchmark: '0.70', insight: 'Connect CRM data to see digital vs physical lead analysis.',
   };
 
@@ -324,7 +324,10 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
       daysRemaining: Math.max(0, 30 - new Date().getDate()),
       activePipeline: totalLeads,
       requiredWinRate: totalLeads > 0 ? `${Math.round(((50 - soldCount) / totalLeads) * 100)}%` : 'N/A',
+      baselineWinRate: `${convRate}%`,
+      assessment: totalLeads > 0 ? 'Pipeline needs acceleration to meet target' : 'Insufficient data for assessment',
     },
+    gapRecommendations: ['Focus on hot leads first', 'Re-engage stale pipeline', 'Increase follow-up cadence'] as string[],
   };
 
   const yearOverYear = {
@@ -528,7 +531,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <h2 className="text-sm font-semibold text-foreground">Today's Performance</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {greenZoneMetrics.map(m => (
+            {greenZoneMetrics.map((m: any) => (
               <Card key={m.id} className="hover-elevate cursor-pointer" onClick={() => { setSelectedGreenMetric(m); setDrillDown('greenZoneDetail'); }} data-testid={`green-metric-${m.id}`}>
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground">{m.label}</p>
@@ -768,7 +771,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     </tr>
                   </thead>
                   <tbody>
-                    {lossPatternsBySource.map((row, i) => (
+                    {lossPatternsBySource.map((row: any, i: number) => (
                       <tr key={i} className="border-b border-border/50">
                         <td className="py-2 px-2 font-medium text-foreground">{row.source}</td>
                         <td className="py-2 px-2 text-right text-foreground">{row.totalLost}</td>
@@ -805,7 +808,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     </tr>
                   </thead>
                   <tbody>
-                    {reengagementCandidates.map(row => (
+                    {reengagementCandidates.map((row: any) => (
                       <tr key={row.id} className="border-b border-border/50">
                         <td className="py-2 px-2">
                           <div className="font-medium text-foreground">{row.customerName || row.leadId}</div>
@@ -897,7 +900,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     </tr>
                   </thead>
                   <tbody>
-                    {fullChannelComparison.map((row, i) => (
+                    {fullChannelComparison.map((row: any, i: number) => (
                       <tr key={i} className="border-b border-border/50">
                         <td className="py-2 px-2 font-medium text-foreground">{row.channel}</td>
                         <td className="py-2 px-2 text-right text-foreground">{row.volume}</td>
@@ -1602,7 +1605,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {hotLeadsGoingCold.map(lead => (
+                {hotLeadsGoingCold.map((lead: any) => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-lead-name-${lead.id}`}>{lead.customerName || '—'}</div>
@@ -1655,7 +1658,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {newLeadsNoContact.map(lead => (
+                {newLeadsNoContact.map((lead: any) => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-newlead-name-${lead.id}`}>{lead.customerName || '—'}</div>
@@ -1706,7 +1709,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 </tr>
               </thead>
               <tbody>
-                {showroomNotClosed.map(lead => (
+                {showroomNotClosed.map((lead: any) => (
                   <tr key={lead.id} className="border-b border-border/50">
                     <td className="py-2 px-2">
                       <div className="font-medium text-foreground" data-testid={`text-showroom-name-${lead.id}`}>{lead.customerName || '—'}</div>
@@ -1944,7 +1947,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     </tr>
                   </thead>
                   <tbody>
-                    {topLeadSources.map(s => (
+                    {topLeadSources.map((s: any) => (
                       <tr key={s.rank} className="border-b border-border/50">
                         <td className="py-2 px-2 text-muted-foreground">{s.rank}</td>
                         <td className="py-2 px-2 font-medium text-foreground">{s.source}</td>
@@ -1985,7 +1988,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     </tr>
                   </thead>
                   <tbody>
-                    {channelPerformance.map((ch, i) => (
+                    {channelPerformance.map((ch: any, i: number) => (
                       <tr key={i} className="border-b border-border/50">
                         <td className="py-2 px-2 font-medium text-foreground">{ch.channel}</td>
                         <td className="py-2 px-2 text-right text-foreground">{ch.volume}</td>
