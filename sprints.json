@@ -61,8 +61,17 @@
       "id": "P0-S6",
       "name": "Add chain-of-custody gate to pre-commit hook",
       "phase": "P0",
-      "status": "in_progress",
+      "status": "committed",
       "startedAt": "2026-03-13T06:15:00Z",
+      "completedAt": "2026-03-13T06:20:00Z",
+      "commitHash": "ded220f"
+    },
+    {
+      "id": "P1-S0",
+      "name": "Remove Replit dependencies and config",
+      "phase": "P1",
+      "status": "in_progress",
+      "startedAt": "2026-03-13T06:25:00Z",
       "commitHash": null
     }
   ]

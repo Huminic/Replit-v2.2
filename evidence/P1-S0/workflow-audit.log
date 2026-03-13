@@ -1,0 +1,1 @@
+[2026-03-13T06:18:01Z] agent-launch | role=orchestrator | task="Remove Replit dependencies and config" | scope=vite.config.ts,server/index.ts,package.json,.env.example,Dockerfile,.dockerignore,sprints.json,evidence/P1-S0/*

@@ -48,15 +48,12 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
-const replitDomains = (process.env.REPLIT_DOMAINS || '').split(',').filter(Boolean);
-const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://localhost:3000', ...replitDomains.map(d => `https://${d}`)]);
+const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
+const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://localhost:3000', ...corsOrigins]);
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
     if (allowedOrigins.has(origin)) {
-      return callback(null, true);
-    }
-    if (replitDomains.some(d => origin.endsWith(`.${d}`) || origin === `https://${d}`)) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));
