@@ -43,8 +43,17 @@
       "id": "P0-S4",
       "name": "Add runtime smoke test to enforcer checklist (EF-19)",
       "phase": "P0",
-      "status": "in_progress",
+      "status": "committed",
       "startedAt": "2026-03-13T05:35:00Z",
+      "completedAt": "2026-03-13T05:35:00Z",
+      "commitHash": "cf15d88"
+    },
+    {
+      "id": "P0-S5",
+      "name": "Fix trust proxy for rate limiter behind Caddy",
+      "phase": "P0",
+      "status": "in_progress",
+      "startedAt": "2026-03-13T06:10:00Z",
       "commitHash": null
     }
   ]
