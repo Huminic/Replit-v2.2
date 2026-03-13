@@ -29,6 +29,8 @@ export function MarkdownMessage({ content, isStreaming, showActions = true, isLa
       <div className="markdown-message text-sm leading-relaxed">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          disallowedElements={['script', 'iframe', 'object', 'embed', 'form', 'input', 'style']}
+          unwrapDisallowed={true}
           components={{
             p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
             strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
@@ -69,11 +71,14 @@ export function MarkdownMessage({ content, isStreaming, showActions = true, isLa
             thead: ({ children }) => <thead className="bg-muted/50">{children}</thead>,
             th: ({ children }) => <th className="border border-border px-2 py-1 text-left font-semibold">{children}</th>,
             td: ({ children }) => <td className="border border-border px-2 py-1">{children}</td>,
-            a: ({ children, href }) => (
-              <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:no-underline">
-                {children}
-              </a>
-            ),
+            a: ({ children, href }) => {
+              const safeHref = href && /^(https?:|mailto:|tel:)/i.test(href) ? href : undefined;
+              return (
+                <a href={safeHref} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:no-underline">
+                  {children}
+                </a>
+              );
+            },
             blockquote: ({ children }) => (
               <blockquote className="border-l-2 border-primary/30 pl-3 italic text-muted-foreground mb-2">
                 {children}

@@ -1,0 +1,2 @@
+sprint=P2-S2
+[2026-03-13T06:37:00Z] agent-launch | role=orchestrator | task="XSS and input sanitization" | scope=client/src/components/MarkdownMessage.tsx,server/middleware/validate.ts,sprints.json,evidence/P2-S2

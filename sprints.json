@@ -106,8 +106,17 @@
       "id": "P2-S0",
       "name": "Security middleware stack",
       "phase": "P2",
+      "status": "committed",
+      "startedAt": "2026-03-13T06:34:00Z",
+      "commitHash": "4103905",
+      "committedAt": "2026-03-13T06:35:10Z"
+    },
+    {
+      "id": "P2-S2",
+      "name": "XSS and input sanitization",
+      "phase": "P2",
       "status": "in_progress",
-      "startedAt": "2026-03-13T06:34:00Z"
+      "startedAt": "2026-03-13T06:37:00Z"
     }
   ]
 }
