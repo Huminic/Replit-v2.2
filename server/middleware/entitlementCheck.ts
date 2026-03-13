@@ -23,8 +23,15 @@ export function requireEntitlement(featureKey: string) {
       }
       next();
     } catch (err) {
-      console.log('[Entitlement] Check failed, allowing action:', err);
-      next();
+      console.error('[Entitlement] Check failed:', err);
+      if (process.env.ENTITLEMENT_FAIL_OPEN === 'true') {
+        console.warn('[Entitlement] ENTITLEMENT_FAIL_OPEN=true, allowing action despite error');
+        return next();
+      }
+      return res.status(503).json({
+        error: 'entitlement_check_unavailable',
+        message: 'Unable to verify entitlement. Please try again later.',
+      });
     }
   };
 }

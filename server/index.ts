@@ -1,5 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from 'cors';
+import helmet from 'helmet';
+import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -62,6 +65,49 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Security headers via Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.anthropic.com", "wss:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Request ID middleware
+app.use((req, _res, next) => {
+  const requestId = crypto.randomUUID();
+  (req as any).requestId = requestId;
+  _res.setHeader('X-Request-ID', requestId);
+  next();
+});
+
+// Global rate limiter: 100 requests per minute
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use('/api/', globalLimiter);
+
+// Auth endpoint rate limiter: 10 requests per minute
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' },
+});
+app.use('/api/auth/', authLimiter);
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
