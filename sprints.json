@@ -115,8 +115,17 @@
       "id": "P2-S2",
       "name": "XSS and input sanitization",
       "phase": "P2",
+      "status": "committed",
+      "startedAt": "2026-03-13T06:37:00Z",
+      "commitHash": "3e6a8a3",
+      "committedAt": "2026-03-13T06:37:42Z"
+    },
+    {
+      "id": "P3-S0",
+      "name": "Extract scheduler logic from index.ts",
+      "phase": "P3",
       "status": "in_progress",
-      "startedAt": "2026-03-13T06:37:00Z"
+      "startedAt": "2026-03-13T06:40:00Z"
     }
   ]
 }

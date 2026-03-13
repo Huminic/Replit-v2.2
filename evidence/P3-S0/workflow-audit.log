@@ -1,0 +1,2 @@
+sprint=P3-S0
+[2026-03-13T06:40:00Z] agent-launch | role=orchestrator | task="Extract scheduler logic from index.ts" | scope=server/index.ts,server/services/scheduler.ts,sprints.json,evidence/P3-S0
