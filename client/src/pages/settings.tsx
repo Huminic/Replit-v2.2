@@ -616,7 +616,7 @@ export default function SettingsPage() {
     taskDue: true,
   });
 
-  const [appearancePrefs, setAppearancePrefs] = useState(() => {
+  const [appearancePrefs, setAppearancePrefs] = useState<{ compactMode: boolean; animations: boolean; defaultView: string; showMetricTiles: boolean }>(() => {
     try {
       const saved = localStorage.getItem('nexxus:appearance');
       if (saved) return JSON.parse(saved);
@@ -1075,7 +1075,7 @@ export default function SettingsPage() {
   });
 
   const handleCreateWidget = () => {
-    const defaultAppearance = {
+    const defaultAppearance: WidgetAppearance = {
       primaryColor: '#8b5cf6',
       secondaryColor: '#3b82f6',
       textColor: '#ffffff',
@@ -1088,7 +1088,7 @@ export default function SettingsPage() {
       welcomeHeading: 'Hi there!',
       welcomeMessage: 'How can we help you today?',
     };
-    const defaultTargeting = {
+    const defaultTargeting: WidgetTargeting = {
       audience: 'all',
       includePages: '/*',
       excludePages: '/admin/*',
