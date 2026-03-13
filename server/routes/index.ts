@@ -9,6 +9,9 @@ import { registerNotificationRoutes } from "./notifications";
 import { registerSmsRoutes } from "./sms";
 import { registerCampaignRoutes } from "./campaigns";
 import { registerConversationRoutes } from "./conversations";
+import { registerAgentRoutes } from "./agents";
+import { registerChatRoutes } from "./chat";
+import { registerDocumentRoutes } from "./documents";
 
 /**
  * Register all domain route files.
@@ -26,4 +29,7 @@ export function registerDomainRoutes(app: Express) {
   registerSmsRoutes(app);
   registerCampaignRoutes(app);
   registerConversationRoutes(app);
+  registerAgentRoutes(app);
+  registerChatRoutes(app);
+  registerDocumentRoutes(app);
 }

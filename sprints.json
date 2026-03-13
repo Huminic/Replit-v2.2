@@ -220,7 +220,7 @@
       "id": "P4-S2",
       "name": "Extract communication routes (campaigns, conversations, notifications, SMS)",
       "phase": "P4",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/campaigns.ts",
         "server/routes/conversations.ts",
@@ -234,6 +234,25 @@
       ],
       "dependencies": [
         "P4-S1"
+      ],
+      "commit": "f63599e"
+    },
+    {
+      "id": "P4-S3",
+      "name": "Extract agent, chat, and knowledge/document routes",
+      "phase": "P4",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/agents.ts",
+        "server/routes/chat.ts",
+        "server/routes/documents.ts",
+        "server/routes/index.ts",
+        "server/routes.ts",
+        "sprints.json",
+        "evidence/P4-S3/"
+      ],
+      "dependencies": [
+        "P4-S2"
       ]
     }
   ]

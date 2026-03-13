@@ -1,0 +1,9 @@
+[2026-03-13T20:10:00Z] agent-launch | role=orchestrator | task="P4-S3 Extract agent, chat, knowledge routes" | scope=server/routes/agents.ts,server/routes/chat.ts,server/routes/documents.ts,server/routes/index.ts,server/routes.ts,sprints.json,evidence/P4-S3/
+[2026-03-13T20:11:00Z] create-agents-routes | 5 endpoints: GET/GET/:id/POST/PATCH/:id/DELETE/:id agents
+[2026-03-13T20:13:00Z] create-chat-routes | 1 endpoint: POST /api/chat/:conversationId/stream (SSE) + chatTools + tool definitions
+[2026-03-13T20:14:00Z] create-documents-routes | 4 endpoints: GET/POST-check-duplicate/POST-upload/DELETE/:id documents
+[2026-03-13T20:15:00Z] wire-up | Updated routes/index.ts with registerDocumentRoutes
+[2026-03-13T20:16:00Z] remove-from-monolith | Removed extracted endpoints + unused imports from routes.ts
+[2026-03-13T20:17:00Z] import-cleanup | Removed multer, os, path, fs, braveWebSearch, insertAgentSchema, updateAgentSchema, classifyVinStatus, isExcludedFromPipeline
+[2026-03-13T20:18:00Z] build-verify | tsc --noEmit OK, npm run build OK, pm2 restart OK, health 200, endpoints 401
+[2026-03-13T20:18:30Z] line-count | routes.ts: 4211 → 3403 lines (~808 lines removed)
