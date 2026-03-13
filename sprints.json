@@ -79,8 +79,17 @@
       "id": "P1-S1",
       "name": "Caddy reverse proxy configuration",
       "phase": "P1",
+      "status": "committed",
+      "startedAt": "2026-03-13T06:22:00Z",
+      "commitHash": "2c47307",
+      "committedAt": "2026-03-13T06:26:00Z"
+    },
+    {
+      "id": "P1-S2",
+      "name": "Database connection abstraction",
+      "phase": "P1",
       "status": "in_progress",
-      "startedAt": "2026-03-13T06:22:00Z"
+      "startedAt": "2026-03-13T06:27:00Z"
     }
   ]
 }
