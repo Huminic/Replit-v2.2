@@ -88,8 +88,17 @@
       "id": "P1-S2",
       "name": "Database connection abstraction",
       "phase": "P1",
+      "status": "committed",
+      "startedAt": "2026-03-13T06:27:00Z",
+      "commitHash": "1bd8d31",
+      "committedAt": "2026-03-13T06:28:49Z"
+    },
+    {
+      "id": "P1-S3",
+      "name": "Coolify deployment configuration",
+      "phase": "P1",
       "status": "in_progress",
-      "startedAt": "2026-03-13T06:27:00Z"
+      "startedAt": "2026-03-13T06:30:00Z"
     }
   ]
 }
