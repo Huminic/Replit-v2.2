@@ -10,14 +10,14 @@
       "status": "committed",
       "startedAt": "2026-03-13T01:00:00Z",
       "completedAt": "2026-03-13T01:57:00Z",
-      "commitHash": "pending"
+      "commitHash": "6efea9e"
     },
     {
       "id": "P0-S1",
       "name": "Set up enforcer webhook agent",
       "phase": "P0",
-      "status": "planned",
-      "startedAt": null,
+      "status": "in_progress",
+      "startedAt": "2026-03-13T02:05:00Z",
       "commitHash": null
     },
     {

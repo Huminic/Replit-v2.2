@@ -3,8 +3,8 @@
 Timestamp: 2026-03-13T01:58:00Z
 
 **Sprint:** P0-S0 — Migrate enforcer scripts from nexxus2.2
-**Implementing Role:** orchestrator
-**Reviewing Role:** enforcer
+Implementing Role: orchestrator
+Reviewing Role: enforcer
 
 ## Review Checklist
 
