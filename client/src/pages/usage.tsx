@@ -81,7 +81,7 @@ export default function UsagePage() {
     <div className="flex-1 flex flex-col overflow-hidden" data-testid="usage-page">
       <div className="flex items-center justify-between h-14 px-6 border-b border-border bg-background flex-shrink-0">
         <div className="flex items-center gap-3">
-          <MobileNavDropdown />
+          <MobileNavDropdown currentPath="/usage" currentLabel="Usage" />
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-semibold text-foreground" data-testid="text-usage-title">Usage</h1>

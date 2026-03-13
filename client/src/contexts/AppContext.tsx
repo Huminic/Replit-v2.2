@@ -27,6 +27,7 @@ export interface User {
 export interface Organization {
   id: string;
   name: string;
+  slug: string;
   logo?: string;
   primaryColor: string;
   secondaryColor: string;
@@ -36,6 +37,7 @@ export interface Organization {
 const defaultOrganization: Organization = {
   id: '',
   name: '',
+  slug: '',
   primaryColor: '#8b5cf6',
   secondaryColor: '#3b82f6',
   personaName: 'Automa',
@@ -148,6 +150,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ? {
         id: orgDetails.id,
         name: orgDetails.name,
+        slug: orgDetails.slug || '',
         primaryColor: orgDetails.primaryColor || '#8b5cf6',
         secondaryColor: orgDetails.secondaryColor || '#3b82f6',
         personaName: orgDetails.personaName || 'Automa',
@@ -159,6 +162,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ? orgSource.map(o => ({
         id: o.id,
         name: o.name,
+        slug: o.slug || '',
         primaryColor: '#8b5cf6',
         secondaryColor: '#3b82f6',
         personaName: 'Automa',
