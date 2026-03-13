@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { registerHealthRoutes } from "./health";
 import { registerAuthRoutes } from "./auth";
 import { registerBillingRoutes } from "./billing";
+import { registerUserRoutes } from "./users";
+import { registerRoleRoutes } from "./roles";
+import { registerOrganizationRoutes } from "./organizations";
 
 /**
  * Register all domain route files.
@@ -11,5 +14,8 @@ import { registerBillingRoutes } from "./billing";
 export function registerDomainRoutes(app: Express) {
   registerHealthRoutes(app);
   registerAuthRoutes(app);
+  registerUserRoutes(app);
+  registerRoleRoutes(app);
+  registerOrganizationRoutes(app);
   registerBillingRoutes(app);
 }

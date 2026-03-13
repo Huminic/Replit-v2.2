@@ -186,7 +186,7 @@
       "id": "P4-S0",
       "name": "Final snapshot and baseline tag",
       "phase": "P4",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "sprints.json",
         "evidence/P4-S0/"
@@ -194,6 +194,25 @@
       "dependencies": [
         "P3-S1",
         "P3-S2"
+      ],
+      "commit": "91be118"
+    },
+    {
+      "id": "P4-S1",
+      "name": "Extract organization, user, and role routes",
+      "phase": "P4",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/users.ts",
+        "server/routes/roles.ts",
+        "server/routes/organizations.ts",
+        "server/routes/index.ts",
+        "server/routes.ts",
+        "sprints.json",
+        "evidence/P4-S1/"
+      ],
+      "dependencies": [
+        "P4-S0"
       ]
     }
   ]

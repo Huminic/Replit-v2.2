@@ -1,0 +1,7 @@
+[2026-03-13T19:47:00Z] agent-launch | role=orchestrator | task="P4-S1 Extract org/user/role routes" | scope=server/routes/users.ts,server/routes/roles.ts,server/routes/organizations.ts,server/routes/index.ts,server/routes.ts,sprints.json,evidence/P4-S1/
+[2026-03-13T19:48:00Z] create-users-routes | 8 endpoints: GET/POST users, GET/PATCH users/me, PATCH users/:id, POST users/:id/reset-password, POST users/me/photo, POST users/invite
+[2026-03-13T19:48:30Z] create-roles-routes | 1 endpoint: GET /api/roles
+[2026-03-13T19:49:00Z] create-org-routes | 5 endpoints: POST/GET/GET/:id/PATCH/:id/PATCH/:id/slug organizations
+[2026-03-13T19:49:30Z] wire-up | Updated routes/index.ts with registerUserRoutes, registerRoleRoutes, registerOrganizationRoutes
+[2026-03-13T19:50:00Z] remove-from-monolith | Removed extracted endpoints + createOrgSchema + unused imports from routes.ts
+[2026-03-13T19:50:30Z] build-verify | tsc --noEmit OK, npm run build OK, deploy OK, health 200
