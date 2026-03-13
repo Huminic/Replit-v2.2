@@ -1,0 +1,1 @@
+[2026-03-13T05:34:42Z] PRE-COMMIT role=orchestrator sprint=P0-S4 result=BLOCKED detail="Cross-sign has a future timestamp. Clock manipulation detected."

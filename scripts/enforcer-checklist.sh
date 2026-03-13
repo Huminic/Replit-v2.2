@@ -309,6 +309,32 @@ else
   fi
 fi
 
+# EF-19: Runtime Smoke Test — verify production server serves through public URL
+log "[EF-19] Runtime smoke test..."
+APP_URL="${APP_BASE_URL:-$(grep '^APP_BASE_URL=' .env 2>/dev/null | cut -d= -f2-)}"
+if [ -n "$APP_URL" ]; then
+  # Test 1: HTML page returns 200
+  HTML_STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$APP_URL/" 2>/dev/null || echo "000")
+  if [ "$HTML_STATUS" != "200" ]; then
+    check_fail "Public URL $APP_URL/ returned HTTP $HTML_STATUS (expected 200)"
+  else
+    # Test 2: Extract first JS asset from HTML and verify it loads (catches CORS, static serving)
+    ASSET_PATH=$(curl -s --max-time 10 "$APP_URL/" 2>/dev/null | grep -oE 'src="/assets/[^"]+' | head -1 | sed 's/src="//')
+    if [ -n "$ASSET_PATH" ]; then
+      ASSET_STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H "Origin: $APP_URL" "$APP_URL$ASSET_PATH" 2>/dev/null || echo "000")
+      if [ "$ASSET_STATUS" = "200" ]; then
+        check_pass "Public URL serves HTML (200) and JS asset (200) — CORS OK"
+      else
+        check_fail "JS asset $ASSET_PATH returned HTTP $ASSET_STATUS through $APP_URL (CORS or static serving issue)"
+      fi
+    else
+      check_warn "Could not extract JS asset path from HTML — partial smoke test (HTML: 200)"
+    fi
+  fi
+else
+  check_warn "APP_BASE_URL not set — runtime smoke test skipped"
+fi
+
 # EF-18: Drift Check (warning only) — vs baseline 96d3f6c (initial clean state)
 log "[EF-18] Drift Check (vs baseline 96d3f6c)..."
 DRIFT_WARNINGS=""
