@@ -1,0 +1,6 @@
+[2026-03-13T19:45:00Z] agent-launch | role=orchestrator | task="P2-S3 Password security and credential handling" | scope=server/routes.ts,sprints.json,evidence/P2-S3/
+[2026-03-13T19:46:00Z] forgot-password | SHA-256 token hashing before DB storage, plaintext token in email URL
+[2026-03-13T19:47:00Z] reset-password | Server-side password strength validation (8+ chars, uppercase, number, special), SHA-256 token lookup, session invalidation after reset
+[2026-03-13T19:48:00Z] change-password | Upgraded validation from length>=6 to matching strength rules (8+ chars, uppercase, number, special)
+[2026-03-13T19:49:00Z] build-verify | tsc --noEmit OK, npm run build OK
+[2026-03-13T19:50:00Z] deploy-verify | pm2 restart nexxus-app OK, status online

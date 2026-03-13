@@ -658,10 +658,11 @@ export async function registerRoutes(
     try {
       const user = await storage.getUserByEmail(email);
       if (user) {
-        const { randomBytes } = await import("crypto");
+        const { randomBytes, createHash } = await import("crypto");
         const token = randomBytes(32).toString("hex");
+        const tokenHash = createHash("sha256").update(token).digest("hex");
         const expiry = new Date(Date.now() + 60 * 60 * 1000);
-        await storage.updateUser(user.id, { resetToken: token, resetTokenExpiry: expiry } as any);
+        await storage.updateUser(user.id, { resetToken: tokenHash, resetTokenExpiry: expiry } as any);
 
         const org = await storage.getOrganization(user.organizationId);
         const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
@@ -695,10 +696,18 @@ export async function registerRoutes(
   app.post("/api/auth/reset-password", authLimiter, async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
+
+    // Server-side password strength validation (matches client requirements)
     if (password.length < 8) return res.status(400).json({ message: "Password must be at least 8 characters" });
+    if (!/[A-Z]/.test(password)) return res.status(400).json({ message: "Password must contain at least 1 uppercase letter" });
+    if (!/[0-9]/.test(password)) return res.status(400).json({ message: "Password must contain at least 1 number" });
+    if (!/[^A-Za-z0-9]/.test(password)) return res.status(400).json({ message: "Password must contain at least 1 special character" });
 
     try {
-      const found = await storage.findUserByResetToken(token);
+      // Hash the incoming token to compare against stored hash
+      const { createHash } = await import("crypto");
+      const tokenHash = createHash("sha256").update(token).digest("hex");
+      const found = await storage.findUserByResetToken(tokenHash);
       if (!found) return res.status(400).json({ message: "Invalid or expired reset token" });
       if (!found.resetTokenExpiry || new Date(found.resetTokenExpiry) < new Date()) {
         return res.status(400).json({ message: "Reset token has expired" });
@@ -710,6 +719,9 @@ export async function registerRoutes(
         resetToken: null,
         resetTokenExpiry: null,
       } as any);
+
+      // Invalidate all sessions (force re-login with new password)
+      await storage.deleteUserSessions(found.id);
 
       storage.createActivityLog({
         userId: found.id,
@@ -989,8 +1001,17 @@ export async function registerRoutes(
       if (!currentPassword || !newPassword) {
         return res.status(400).json({ message: "Current password and new password are required" });
       }
-      if (newPassword.length < 6) {
-        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters" });
+      }
+      if (!/[A-Z]/.test(newPassword)) {
+        return res.status(400).json({ message: "Password must contain at least 1 uppercase letter" });
+      }
+      if (!/[0-9]/.test(newPassword)) {
+        return res.status(400).json({ message: "Password must contain at least 1 number" });
+      }
+      if (!/[^A-Za-z0-9]/.test(newPassword)) {
+        return res.status(400).json({ message: "Password must contain at least 1 special character" });
       }
 
       const user = await storage.getUser(req.user.id);
