@@ -33,6 +33,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -78,7 +79,8 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function MarketingPage() {
   const [currentLocation, setLocation] = useLocation();
-  const { communicationGateEnabled, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
+  const { communicationGateEnabled, setSelectedAgent, currentOrganization } = useApp();
+  const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');

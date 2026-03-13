@@ -77,6 +77,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { useLocation } from 'wouter';
 import { getAccessToken } from '@/lib/tokenStore';
 import { availableTools, type AgentChannel, type AgentTool } from '@/lib/agent-utils';
@@ -355,7 +356,8 @@ const artifactTypeIcons: Record<string, React.ElementType> = {
 
 export function AgentConfigPane() {
   const { toast } = useToast();
-  const { selectedAgent, updateAgent, setRightPaneOpen } = useApp();
+  const { selectedAgent, updateAgent } = useApp();
+  const { setRightPaneOpen } = useUILayout();
   const [location] = useLocation();
   const isMarketingPage = location.startsWith('/marketing');
   const [activeConfigSection, setActiveConfigSection] = useState('performance');

@@ -29,6 +29,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import type { Agent } from '@shared/schema';
@@ -115,7 +116,8 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
 
 export default function SalesPage() {
   const [, setLocation] = useLocation();
-  const { selectedAgent, setSelectedAgent, setRightPaneOpen, currentOrganization } = useApp();
+  const { selectedAgent, setSelectedAgent, currentOrganization } = useApp();
+  const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);

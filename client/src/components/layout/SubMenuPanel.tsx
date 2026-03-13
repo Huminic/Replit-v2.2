@@ -3,7 +3,7 @@ import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 
 interface SubMenuPanelProps {
   panelId: string;
@@ -14,13 +14,13 @@ interface SubMenuPanelProps {
 }
 
 export function SubMenuPanel({ panelId, title, headerActions, children, className }: SubMenuPanelProps) {
-  const { 
-    activePanel, 
-    subMenuExpanded, 
-    setActivePanel, 
+  const {
+    activePanel,
+    subMenuExpanded,
+    setActivePanel,
     setSubMenuExpanded,
-    setPanelHovered 
-  } = useApp();
+    setPanelHovered
+  } = useUILayout();
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   

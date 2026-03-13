@@ -9,6 +9,7 @@
  */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { UILayoutProvider } from '@/contexts/UILayoutContext';
 import type { UserRole, SectionPermission } from '@/lib/rbac';
 import type { Agent, Notification as DbNotification, Favorite } from '@shared/schema';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -61,24 +62,11 @@ interface AppContextValue {
   notifications: DbNotification[];
   favorites: Favorite[];
   selectedAgent: Agent | null;
-  sidebarVisible: boolean;
-  rightPaneOpen: boolean;
-  mobileMenuOpen: boolean;
-  activePanel: string | null;
-  subMenuExpanded: boolean;
-  panelHovered: boolean;
   personaName: string;
   communicationGateEnabled: boolean;
   userPermissions: SectionPermission[];
   setUserPermissions: (perms: SectionPermission[]) => void;
   setSelectedAgent: (agent: Agent | null) => void;
-  setSidebarVisible: (visible: boolean) => void;
-  setRightPaneOpen: (open: boolean) => void;
-  setMobileMenuOpen: (open: boolean) => void;
-  setActivePanel: (panel: string | null) => void;
-  setSubMenuExpanded: (expanded: boolean) => void;
-  setPanelHovered: (hovered: boolean) => void;
-  toggleSubMenuExpanded: () => void;
   switchOrganization: (orgId: string) => void;
   addAgent: (agent: Agent) => void;
   updateAgent: (agentId: string, updates: Partial<Agent>) => void;
@@ -227,12 +215,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [apiAgents]);
 
   const notifications: DbNotification[] = apiNotifications || [];
-  const [sidebarVisible, setSidebarVisible] = useState(true);
-  const [rightPaneOpen, setRightPaneOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activePanel, setActivePanel] = useState<string | null>(null);
-  const [subMenuExpanded, setSubMenuExpanded] = useState(false);
-  const [panelHovered, setPanelHovered] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [communicationGateEnabled, setCommunicationGateEnabled] = useState(true);
   const { data: apiFavorites } = useQuery<Favorite[]>({
@@ -283,10 +265,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const isFavorite = (path: string) => {
     return favorites.some(f => f.path === path);
-  };
-
-  const toggleSubMenuExpanded = () => {
-    setSubMenuExpanded(prev => !prev);
   };
 
   const switchOrganization = (orgId: string) => {
@@ -358,24 +336,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         notifications,
         favorites,
         selectedAgent,
-        sidebarVisible,
-        rightPaneOpen,
-        mobileMenuOpen,
-        activePanel,
-        subMenuExpanded,
-        panelHovered,
         personaName,
         communicationGateEnabled,
         userPermissions,
         setUserPermissions,
         setSelectedAgent,
-        setSidebarVisible,
-        setRightPaneOpen,
-        setMobileMenuOpen,
-        setActivePanel,
-        setSubMenuExpanded,
-        setPanelHovered,
-        toggleSubMenuExpanded,
         switchOrganization,
         addAgent,
         updateAgent: updateAgentHandler,
@@ -391,7 +356,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setShowTour,
       }}
     >
-      {children}
+      <UILayoutProvider>
+        {children}
+      </UILayoutProvider>
     </AppContext.Provider>
   );
 }

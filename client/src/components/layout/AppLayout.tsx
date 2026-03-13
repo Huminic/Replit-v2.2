@@ -33,6 +33,7 @@ import { RightPane } from './RightPane';
 import { SubMenuManager } from './SubMenuManager';
 import { AgentConfigPane } from '@/components/AgentConfigPane';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { ProductTour } from '@/components/ProductTour';
 import { getTourStepsForRole } from '@/lib/tourSteps';
 
@@ -68,7 +69,8 @@ const TOUR_COMPLETED_KEY = 'nexxus_tour_completed';
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
-  const { rightPaneOpen, setRightPaneOpen, personaName, selectedAgent, setSelectedAgent, currentRole, showTour, setShowTour } = useApp();
+  const { personaName, selectedAgent, setSelectedAgent, currentRole, showTour, setShowTour } = useApp();
+  const { rightPaneOpen, setRightPaneOpen } = useUILayout();
 
   useEffect(() => {
     const tourDone = localStorage.getItem(TOUR_COMPLETED_KEY);

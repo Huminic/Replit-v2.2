@@ -1,0 +1,4 @@
+[2026-03-13T19:35:00Z] agent-launch | role=orchestrator | task="P3-S2 AppContext split into UILayoutContext" | scope=client/src/contexts/UILayoutContext.tsx,client/src/contexts/AppContext.tsx,client/src/components/layout/AppLayout.tsx,client/src/components/layout/Sidebar.tsx,client/src/components/layout/SubMenuManager.tsx,client/src/components/layout/SubMenuPanel.tsx,client/src/components/layout/MobileSidebar.tsx,client/src/components/AgentConfigPane.tsx,client/src/pages/agents.tsx,client/src/pages/marketing.tsx,client/src/pages/service.tsx,client/src/pages/sales.tsx,sprints.json,evidence/P3-S2/
+[2026-03-13T19:38:00Z] context-split | Created UILayoutContext.tsx, extracted 7 layout state props + setters
+[2026-03-13T19:39:00Z] component-updates | 11 files updated to use useUILayout() for layout props
+[2026-03-13T19:40:00Z] build-verify | tsc --noEmit OK, npm run build OK

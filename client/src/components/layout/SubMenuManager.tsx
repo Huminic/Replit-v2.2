@@ -49,6 +49,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreVertical, Play, Trash2 } from 'lucide-react';
@@ -59,12 +60,7 @@ import { MARKETING_AGENTS } from '@/lib/marketing-agents';
 
 export function SubMenuManager() {
   const [location, setLocation] = useLocation();
-  const { 
-    activePanel, 
-    subMenuExpanded, 
-    setActivePanel, 
-    setSubMenuExpanded,
-    setPanelHovered,
+  const {
     currentUser,
     currentRole,
     selectedAgent,
@@ -73,6 +69,13 @@ export function SubMenuManager() {
     removeFavorite,
     currentOrganization
   } = useApp();
+  const {
+    activePanel,
+    subMenuExpanded,
+    setActivePanel,
+    setSubMenuExpanded,
+    setPanelHovered
+  } = useUILayout();
   const orgId = currentOrganization?.id;
   
   const panelLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);

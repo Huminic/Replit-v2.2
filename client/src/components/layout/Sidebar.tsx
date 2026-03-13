@@ -38,6 +38,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { canAccessSection } from '@/lib/rbac';
 import { CreditBalanceIndicator } from '@/components/CreditBalanceIndicator';
 
@@ -75,17 +76,19 @@ export function Sidebar() {
     await logout();
     setLocation('/login');
   }, [logout, setLocation]);
-  const { 
-    currentRole, 
+  const {
+    currentRole,
     userPermissions,
-    sidebarVisible, 
+  } = useApp();
+  const {
+    sidebarVisible,
     setSidebarVisible,
     activePanel,
     subMenuExpanded,
     panelHovered,
     setActivePanel,
     toggleSubMenuExpanded
-  } = useApp();
+  } = useUILayout();
   
   // 2000ms delay timer ref for mouseLeave — gives user time to move back to sidebar/flyout without losing the panel
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);

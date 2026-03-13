@@ -86,6 +86,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { type Agent, type Conversation as DbConversation, type Message as DbMessage } from '@shared/schema';
@@ -112,7 +113,8 @@ const agentSuggestions = [
 
 export default function AgentsPage() {
   const [, setLocation] = useLocation();
-  const { selectedAgent, setSelectedAgent, setRightPaneOpen, addAgent } = useApp();
+  const { selectedAgent, setSelectedAgent, addAgent } = useApp();
+  const { setRightPaneOpen } = useUILayout();
   const { user: authUser } = useAuth();
   const { toast } = useToast();
   const [agentMessages, setAgentMessages] = useState<AgentChatMessage[]>([]);

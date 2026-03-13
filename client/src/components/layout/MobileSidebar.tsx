@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useApp } from '@/contexts/AppContext';
+import { useUILayout } from '@/contexts/UILayoutContext';
 import { canAccessSystem } from '@/lib/rbac';
 
 const menuItems = [
@@ -32,7 +33,8 @@ const bottomItems = [
 
 export function MobileSidebar() {
   const [location, setLocation] = useLocation();
-  const { currentUser, mobileMenuOpen, setMobileMenuOpen } = useApp();
+  const { currentUser } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen } = useUILayout();
 
   const isActive = (path: string) => {
     if (path === '/') return location === '/';
