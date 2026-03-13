@@ -1,0 +1,32 @@
+{
+  "version": "3.0",
+  "project": "nexxus2.2_replit",
+  "lastUpdated": "2026-03-13",
+  "sprints": [
+    {
+      "id": "P0-S0",
+      "name": "Migrate enforcer scripts from nexxus2.2",
+      "phase": "P0",
+      "status": "committed",
+      "startedAt": "2026-03-13T01:00:00Z",
+      "completedAt": "2026-03-13T01:57:00Z",
+      "commitHash": "pending"
+    },
+    {
+      "id": "P0-S1",
+      "name": "Set up enforcer webhook agent",
+      "phase": "P0",
+      "status": "planned",
+      "startedAt": null,
+      "commitHash": null
+    },
+    {
+      "id": "P0-S2",
+      "name": "Create .project/ governance structure",
+      "phase": "P0",
+      "status": "planned",
+      "startedAt": null,
+      "commitHash": null
+    }
+  ]
+}
