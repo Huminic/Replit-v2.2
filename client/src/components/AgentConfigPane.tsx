@@ -573,18 +573,18 @@ export function AgentConfigPane() {
   const handleToggleStatus = () => {
     if (!selectedAgent) return;
     const newStatus = selectedAgent.status === 'active' ? 'inactive' : 'active';
-    updateAgent(selectedAgent.id, { status: newStatus, updatedAt: new Date().toISOString() });
+    updateAgent(selectedAgent.id, { status: newStatus, updatedAt: new Date() });
   };
 
   const openInstructionsModal = () => {
     if (!selectedAgent) return;
-    setEditInstructions(selectedAgent.instructions);
+    setEditInstructions(selectedAgent.instructions ?? '');
     setInstructionsModalOpen(true);
   };
 
   const saveInstructions = () => {
     if (!selectedAgent) return;
-    updateAgent(selectedAgent.id, { instructions: editInstructions, updatedAt: new Date().toISOString() });
+    updateAgent(selectedAgent.id, { instructions: editInstructions, updatedAt: new Date() });
     setInstructionsModalOpen(false);
   };
 
@@ -628,7 +628,7 @@ export function AgentConfigPane() {
   const saveTools = () => {
     if (!selectedAgent) return;
     const enabledTools = editTools.filter(t => t.enabled);
-    updateAgent(selectedAgent.id, { tools: enabledTools, updatedAt: new Date().toISOString() });
+    updateAgent(selectedAgent.id, { settings: { ...(selectedAgent.settings as Record<string, unknown>), tools: enabledTools }, updatedAt: new Date() });
     setToolsModalOpen(false);
   };
 
@@ -652,7 +652,7 @@ export function AgentConfigPane() {
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Channel</p>
               <div className="flex gap-3 flex-wrap">
-                {(selectedAgent.channels || [selectedAgent.channel]).filter(Boolean).map((ch: string) => {
+                {(selectedAgent.channels || []).filter(Boolean).map((ch: string) => {
                   const Icon = channelIcons[ch as AgentChannel] || Phone;
                   return (
                     <div key={ch} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border" data-testid={`channel-${ch}`}>
@@ -679,7 +679,7 @@ export function AgentConfigPane() {
                       <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(selectedAgent.customerLink!); toast({ title: 'Link copied', description: 'Customer link copied to clipboard.' }); }} data-testid="button-copy-customer-link">
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.customerLink, '_blank')} data-testid="button-open-customer-link">
+                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.customerLink ?? undefined, '_blank')} data-testid="button-open-customer-link">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -699,20 +699,20 @@ export function AgentConfigPane() {
                     </Button>
                   </div>
                 )}
-                {selectedAgent.chatLink && (
+                {selectedAgent.customerLink && (
                   <div className="flex items-center justify-between p-3 rounded-lg border border-border" data-testid="agent-chat-link">
                     <div className="flex items-center gap-2 min-w-0">
                       <Link2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground">Text Chat Link</p>
-                        <p className="text-sm text-foreground truncate">{selectedAgent.chatLink}</p>
+                        <p className="text-sm text-foreground truncate">{selectedAgent.customerLink}</p>
                       </div>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(selectedAgent.chatLink!); toast({ title: 'Link copied', description: 'Chat link copied to clipboard.' }); }} data-testid="button-copy-chat-link">
+                      <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(selectedAgent.customerLink!); toast({ title: 'Link copied', description: 'Chat link copied to clipboard.' }); }} data-testid="button-copy-chat-link">
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.chatLink, '_blank')} data-testid="button-open-chat-link">
+                      <Button variant="ghost" size="icon" onClick={() => window.open(selectedAgent.customerLink ?? undefined, '_blank')} data-testid="button-open-chat-link">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -1157,7 +1157,7 @@ export function AgentConfigPane() {
     }
     return (
       <div className="p-2 space-y-1">
-        {marketingArtifacts.sort((a, b) => b.createdAt - a.createdAt).map(art => {
+        {marketingArtifacts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(art => {
           const ArtIcon = artifactTypeIcons[art.type] || FileText;
           const agentDef = MARKETING_AGENTS.find(a => a.id === art.agentId);
           return (
