@@ -46,7 +46,13 @@ log_audit() {
   if [ -n "$SPRINT" ] && [ -d "$audit_dir" ]; then
     local ts
     ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    echo "[$ts] PRE-COMMIT role=$ROLE sprint=$SPRINT result=$result detail=\"$detail\"" >> "$audit_file" 2>/dev/null || true
+    if ! echo "[$ts] PRE-COMMIT role=$ROLE sprint=$SPRINT result=$result detail=\"$detail\"" >> "$audit_file"; then
+      if [ "$result" = "PASS" ]; then
+        echo "BLOCKED: Failed to write PASS stamp to $audit_file"
+        exit 1
+      fi
+      # BLOCKED stamps failing to write should not prevent the block itself
+    fi
   fi
 }
 
@@ -365,5 +371,12 @@ echo "  PASS"
 # SUCCESS
 # ═══════════════════════════════════════════════════════════════════
 log_audit "PASS" "All 7 gates passed"
+
+# Re-stage the audit log so the PASS stamp is included in this commit
+AUDIT_LOG="evidence/${SPRINT}/workflow-audit.log"
+if [ -f "$AUDIT_LOG" ]; then
+  git add "$AUDIT_LOG"
+fi
+
 echo ""
 echo "=== All pre-commit gates passed (role=$ROLE, sprint=$SPRINT) ==="

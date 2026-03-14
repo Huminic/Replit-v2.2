@@ -155,6 +155,11 @@ app.use((req, res, next) => {
     return res.status(status).json({ message });
   });
 
+  // API 404 handler — catch unregistered /api/* paths before SPA fallback
+  app.all("/api/{*path}", (_req, res) => {
+    res.status(404).json({ error: "Not found" });
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

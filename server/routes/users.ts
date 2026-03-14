@@ -368,7 +368,7 @@ export function registerUserRoutes(app: Express) {
           console.warn("[Invite] Failed to send invite email:", emailErr);
         }
       } else {
-        console.log(`[Invite] No RESEND_API_KEY configured. Invite for ${email} with temp password: ${tempPassword}`);
+        console.log(`[Invite] No RESEND_API_KEY configured. Invite created for ${email} (password not logged)`);
       }
 
       const { password: _, ...safeUser } = user;

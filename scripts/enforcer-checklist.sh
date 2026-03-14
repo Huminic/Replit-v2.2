@@ -140,14 +140,8 @@ NEW_FILES=$(git diff --cached --name-only --diff-filter=A -- '*.ts' '*.tsx' 2>/d
 if [ -z "$NEW_FILES" ]; then
   check_pass "No new files to index"
 else
-  MISSING_INDEX=0
-  # Index check skipped — this project uses .project/ instead of .agent_docs/
-  MISSING_INDEX=0
-  if [ "$MISSING_INDEX" -eq 0 ]; then
-    check_pass "All new files indexed"
-  else
-    check_warn "$MISSING_INDEX new file(s) not in codebase-index.md"
-  fi
+  # This project does not use codebase-index.md — skip verification
+  check_pass "Index check not applicable (no codebase-index.md in this project)"
 fi
 
 # EF-10: No COMPLETED items without evidence
