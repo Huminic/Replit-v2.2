@@ -1,7 +1,7 @@
 {
   "version": "3.0",
   "project": "nexxus2.2_replit",
-  "lastUpdated": "2026-03-13",
+  "lastUpdated": "2026-03-15",
   "sprints": [
     {
       "id": "P0-S0",
@@ -72,8 +72,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:25:00Z",
-      "commitHash": "3b542e9",
-      "committedAt": "2026-03-13T06:21:00Z"
+      "commitHash": "3b542e9"
     },
     {
       "id": "P1-S1",
@@ -81,8 +80,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:22:00Z",
-      "commitHash": "2c47307",
-      "committedAt": "2026-03-13T06:26:00Z"
+      "commitHash": "2c47307"
     },
     {
       "id": "P1-S2",
@@ -90,8 +88,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:27:00Z",
-      "commitHash": "1bd8d31",
-      "committedAt": "2026-03-13T06:28:49Z"
+      "commitHash": "1bd8d31"
     },
     {
       "id": "P1-S3",
@@ -99,8 +96,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:30:00Z",
-      "commitHash": "5a6d890",
-      "committedAt": "2026-03-13T06:32:08Z"
+      "commitHash": "5a6d890"
     },
     {
       "id": "P2-S0",
@@ -108,8 +104,15 @@
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T06:34:00Z",
-      "commitHash": "4103905",
-      "committedAt": "2026-03-13T06:35:10Z"
+      "commitHash": "4103905"
+    },
+    {
+      "id": "P2-S1",
+      "name": "Token security — httpOnly cookies for refresh tokens",
+      "phase": "P2",
+      "status": "committed",
+      "startedAt": "2026-03-13T19:21:50Z",
+      "commitHash": "cb78830"
     },
     {
       "id": "P2-S2",
@@ -117,24 +120,14 @@
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T06:37:00Z",
-      "commitHash": "3e6a8a3",
-      "committedAt": "2026-03-13T06:37:42Z"
+      "commitHash": "3e6a8a3"
     },
     {
       "id": "P2-S3",
       "name": "Password security and credential handling",
       "phase": "P2",
       "status": "committed",
-      "scope": [
-        "server/routes.ts",
-        "sprints.json",
-        "evidence/P2-S3/"
-      ],
-      "dependencies": [
-        "P2-S1",
-        "P2-S2"
-      ],
-      "commit": "44f776d"
+      "commitHash": "44f776d"
     },
     {
       "id": "P3-S0",
@@ -142,258 +135,195 @@
       "phase": "P3",
       "status": "committed",
       "startedAt": "2026-03-13T06:40:00Z",
-      "commitHash": "7363146",
-      "committedAt": "2026-03-13T06:44:02Z"
-    },
-    {
-      "id": "P2-S1",
-      "name": "Token security \u2014 httpOnly cookies for refresh tokens",
-      "phase": "P2",
-      "status": "committed",
-      "startedAt": "2026-03-13T19:21:50Z",
-      "commitHash": "cb78830",
-      "committedAt": "2026-03-13T19:23:40Z"
+      "commitHash": "7363146"
     },
     {
       "id": "P3-S1",
-      "name": "Route registration pattern \u2014 extract health + auth routes",
+      "name": "Route registration pattern — extract health + auth routes",
       "phase": "P3",
       "status": "committed",
-      "scope": [
-        "server/routes/index.ts",
-        "server/routes/health.ts",
-        "server/routes/auth.ts",
-        "server/routes.ts",
-        "server/index.ts",
-        "sprints.json",
-        "evidence/P3-S1/"
-      ],
-      "dependencies": [
-        "P3-S0"
-      ],
-      "commit": "71108ab"
+      "commitHash": "71108ab"
     },
     {
       "id": "P3-S2",
-      "name": "Frontend architecture \u2014 AppContext split",
+      "name": "Frontend architecture — AppContext split",
       "phase": "P3",
       "status": "committed",
       "startedAt": "2026-03-13T19:28:36Z",
-      "commitHash": "2174d9d",
-      "committedAt": "2026-03-13T19:30:08Z"
+      "commitHash": "2174d9d"
     },
     {
       "id": "P4-S0",
       "name": "Final snapshot and baseline tag",
       "phase": "P4",
       "status": "committed",
-      "scope": [
-        "sprints.json",
-        "evidence/P4-S0/"
-      ],
-      "dependencies": [
-        "P3-S1",
-        "P3-S2"
-      ],
-      "commit": "91be118"
+      "commitHash": "91be118"
     },
     {
       "id": "P4-S1",
       "name": "Extract organization, user, and role routes",
       "phase": "P4",
       "status": "committed",
-      "scope": [
-        "server/routes/users.ts",
-        "server/routes/roles.ts",
-        "server/routes/organizations.ts",
-        "server/routes/index.ts",
-        "server/routes.ts",
-        "sprints.json",
-        "evidence/P4-S1/"
-      ],
-      "dependencies": [
-        "P4-S0"
-      ],
-      "commit": "5d2f218"
+      "commitHash": "5d2f218"
     },
     {
       "id": "P4-S2",
       "name": "Extract communication routes (campaigns, conversations, notifications, SMS)",
       "phase": "P4",
       "status": "committed",
-      "scope": [
-        "server/routes/campaigns.ts",
-        "server/routes/conversations.ts",
-        "server/routes/notifications.ts",
-        "server/routes/sms.ts",
-        "server/routes/index.ts",
-        "server/routes.ts",
-        "enforcer/gates.ts",
-        "sprints.json",
-        "evidence/P4-S2/"
-      ],
-      "dependencies": [
-        "P4-S1"
-      ],
-      "commit": "f63599e"
+      "commitHash": "f63599e"
     },
     {
       "id": "P4-S3",
       "name": "Extract agent, chat, and knowledge/document routes",
       "phase": "P4",
       "status": "committed",
-      "scope": [
-        "server/routes/agents.ts",
-        "server/routes/chat.ts",
-        "server/routes/documents.ts",
-        "server/routes/index.ts",
-        "server/routes.ts",
-        "sprints.json",
-        "evidence/P4-S3/"
-      ],
-      "dependencies": [
-        "P4-S2"
-      ],
-      "commit": "7f04732"
+      "commitHash": "7f04732"
     },
     {
       "id": "P4-S4",
       "name": "Extract remaining routes and retire monolith",
       "phase": "P4",
       "status": "committed",
-      "scope": [
-        "server/routes/tasks.ts",
-        "server/routes/appointments.ts",
-        "server/routes/favorites.ts",
-        "server/routes/widgets.ts",
-        "server/routes/hunches.ts",
-        "server/routes/settings.ts",
-        "server/routes/metrics.ts",
-        "server/routes/integrations.ts",
-        "server/routes/sync.ts",
-        "server/routes/insights.ts",
-        "server/routes/webhooks.ts",
-        "server/routes/public.ts",
-        "server/routes/proxy.ts",
-        "server/routes/usage.ts",
-        "server/routes/index.ts",
-        "server/routes.ts",
-        "sprints.json",
-        "evidence/P4-S4/"
-      ],
-      "dependencies": [
-        "P4-S3"
-      ],
-      "commit": "2660160"
+      "commitHash": "2660160"
     },
     {
       "id": "P5-S0",
       "name": "Test infrastructure setup",
       "phase": "P5",
-      "status": "in_progress",
-      "scope": [
-        "tests/setup.ts",
-        "tests/helpers/auth.ts",
-        "tests/helpers/api.ts",
-        "tests/helpers/factory.ts",
-        "sprints.json",
-        "evidence/P5-S0/"
-      ],
-      "dependencies": [
-        "P4-S4"
-      ],
-      "commitHash": "6cf3735",
-      "status": "committed"
+      "status": "committed",
+      "commitHash": "6cf3735"
     },
     {
       "id": "QA-S0",
       "name": "Feature inventory — map application domains, pages, endpoints, and user flows",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "startedAt": "2026-03-14T00:00:00Z",
       "scope": [
-        "evidence/QA-S0/feature-map.md",
-        "evidence/QA-S0/pre-execution-report.md",
-        "evidence/QA-S0/post-sprint-report.md",
-        "evidence/QA-S0/cross-sign.md",
-        "evidence/QA-S0/enforcer-checklist.txt",
+        "evidence/QA-S0/",
         "sprints.json"
       ],
-      "dependencies": [
-        "P5-S0"
-      ],
-      "status": "committed"
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S1",
       "name": "Feature testing — Authentication + Infrastructure/Security",
       "phase": "QA",
       "status": "committed",
-      "startedAt": "2026-03-14T01:00:00Z",
-      "scope": ["evidence/QA-S1/", "sprints.json"],
-      "dependencies": ["QA-S0"]
+      "scope": [
+        "evidence/QA-S1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S0"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S2",
       "name": "Feature testing — AI Agent, Chat streaming (SSE)",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S2/", "sprints.json"],
-      "dependencies": ["QA-S1"]
+      "scope": [
+        "evidence/QA-S2/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S1"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S3",
       "name": "Feature testing — Campaigns, Conversations, Messaging",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S3/", "sprints.json"],
-      "dependencies": ["QA-S2"]
+      "scope": [
+        "evidence/QA-S3/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S2"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S4",
       "name": "Feature testing — Dashboard, Dept views, Analytics",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S4/", "sprints.json"],
-      "dependencies": ["QA-S3"]
+      "scope": [
+        "evidence/QA-S4/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S3"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S5",
       "name": "Feature testing — Settings, Profile, Billing",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S5/", "sprints.json"],
-      "dependencies": ["QA-S4"]
+      "scope": [
+        "evidence/QA-S5/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S4"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S6",
       "name": "Feature testing — Tasks, Appointments, Integrations, Public widgets",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S6/", "sprints.json"],
-      "dependencies": ["QA-S5"]
+      "scope": [
+        "evidence/QA-S6/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S5"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S7",
       "name": "Gap analysis — merge findings, prioritize remediation",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S7/", "sprints.json"],
-      "dependencies": ["QA-S6"]
+      "scope": [
+        "evidence/QA-S7/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S6"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "QA-S8",
       "name": "Remediation plan — define FIX sprints",
       "phase": "QA",
       "status": "committed",
-      "scope": ["evidence/QA-S8/", "sprints.json"],
-      "dependencies": ["QA-S7"]
+      "scope": [
+        "evidence/QA-S8/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S7"
+      ],
+      "commitHash": "634e695"
     },
     {
       "id": "FIX-S0",
       "name": "Fix MAJOR defects + commit governance fixes + QA evidence",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "634e695",
       "scope": [
         "server/index.ts",
         "server/routes/users.ts",
@@ -414,8 +344,54 @@
         "evidence/audit-recertification/",
         "evidence/quality-matrix.md",
         ".claude/"
+      ]
+    },
+    {
+      "id": "FIX-S1",
+      "name": "Governance remediation — missing artifacts, enforcer checklists, harness tooling",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S0/ through QA-S10/",
+        "evidence/QA-S9/",
+        "evidence/QA-S10/",
+        "evidence/audit-recertification/",
+        ".claude/",
+        "enforcement_harness.json",
+        "CLAUDE.md",
+        "sprints.json"
       ],
-      "dependencies": ["QA-S8"]
+      "dependencies": [
+        "FIX-S0"
+      ]
+    },
+    {
+      "id": "QA-S9",
+      "name": "Authenticated testing — Auth flows (L2/L3)",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S9/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "FIX-S0"
+      ]
+    },
+    {
+      "id": "QA-S10",
+      "name": "Authenticated testing — AI Agent, Chat (L2/L3)",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S10/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S9"
+      ]
     }
   ]
 }

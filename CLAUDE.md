@@ -10,6 +10,7 @@ Stack: Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL
 - **Scripts**: scripts/enforcer-checklist.sh, pre-commit.sh, check-file-scope.sh
 - **Evidence**: evidence/{sprint-id}/ with pre-execution, post-sprint, cross-sign, checklist
 - **Amendment**: No exceptions. Stop-discuss-revise for governance gaps.
+- **User story gate (PRE-08)**: Before any L2+ testing (authenticated, visual, usability), user-defined expected behavior MUST be documented for every component under test. Agents cannot invent acceptance criteria for user-facing behavior. BLOCKED until user confirms.
 
 ## Commit Protocol
 ```bash

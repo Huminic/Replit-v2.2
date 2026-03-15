@@ -1,0 +1,120 @@
+{
+  "version": "1.0",
+  "project": "nexxus2.2_replit",
+  "description": "Governance enforcement harness — defines all rules, artifacts, and checks for sprint execution",
+
+  "sprint_lifecycle": {
+    "sequence": [
+      "register_in_sprints_json",
+      "create_evidence_directory",
+      "write_pre_execution_report",
+      "execute_work",
+      "write_post_sprint_report",
+      "write_cross_sign",
+      "run_enforcer_checklist",
+      "commit_through_hook",
+      "update_sprints_json_status",
+      "update_session_state"
+    ],
+    "constraints": {
+      "max_in_progress": 1,
+      "previous_must_be_committed": true,
+      "max_uncommitted_evidence_dirs": 1
+    }
+  },
+
+  "required_artifacts": {
+    "per_sprint": [
+      {
+        "file": "pre-execution-report.md",
+        "required_content": ["Timestamp:", "Sprint:", "Status: READY"]
+      },
+      {
+        "file": "post-sprint-report.md",
+        "required_content": ["Timestamp:", "Sprint:", "Status: COMPLETE"]
+      },
+      {
+        "file": "cross-sign.md",
+        "required_content": ["Verdict: APPROVED"],
+        "rules": [
+          "Implementing Role must differ from Reviewing Role",
+          "Timestamp must be within 30 minutes of commit"
+        ]
+      },
+      {
+        "file": "enforcer-checklist.txt",
+        "required_content": ["RESULT: APPROVED"]
+      },
+      {
+        "file": "workflow-audit.log",
+        "required_content": ["agent-launch"]
+      }
+    ]
+  },
+
+  "session_state": {
+    "path": "~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md",
+    "max_stale_hours": 4,
+    "required_fields": ["Working On:", "Status:", "Branch:"],
+    "must_reflect": "current sprint activity in evidence/"
+  },
+
+  "plan_file": {
+    "path": "~/.claude/plans/reactive-wobbling-tome.md",
+    "status_line_prefix": "**Status:**",
+    "must_reflect": "actual sprint progress"
+  },
+
+  "sprints_json": {
+    "path": "sprints.json",
+    "valid_statuses": ["planned", "in_progress", "committed"],
+    "rules": [
+      "committed status requires commitHash field",
+      "in_progress status requires evidence directory to exist",
+      "planned status must not have evidence artifacts",
+      "only one sprint may be in_progress at a time"
+    ]
+  },
+
+  "pre_commit_hook": {
+    "path": "scripts/pre-commit.sh",
+    "installed_at": ".git/hooks/pre-commit",
+    "gates": [
+      "Gate 1: COMMIT_ROLE and COMMIT_SPRINT env vars required",
+      "Gate 1.5: Previous sprint must be committed (chain of custody)",
+      "Gate 2: Evidence directory must exist and be non-empty",
+      "Gate 3: Enforcer checklist must exist and be APPROVED + fresh",
+      "Gate 4: Cross-sign must exist, APPROVED, different roles, fresh",
+      "Gate 5: Staged files within role scope",
+      "Gate 6: EF checks (TypeScript, UI guards, data guards, locked values)",
+      "Gate 7: Hook integrity, script protection"
+    ]
+  },
+
+  "pre_tool_hook": {
+    "path": ".claude/hooks/context-check.sh",
+    "checks": [
+      "Session state mtime < 4 hours (blocks all tools if stale)",
+      "Bypass: allows writes to session-state.md when stale"
+    ]
+  },
+
+  "testing_rules": {
+    "l2_and_above": {
+      "pre08_gate": "User stories must be defined before any L2+ testing sprint",
+      "dual_agent": "Two independent agents execute the same tests, orchestrator compares"
+    },
+    "verdicts": {
+      "certified": "Zero defects of any severity",
+      "flagged": "One or more defects found",
+      "no_middle_ground": true
+    },
+    "defect_severities": ["CRITICAL", "MAJOR", "MINOR"]
+  },
+
+  "rbac": {
+    "commit_roles": ["frontend", "backend", "test", "integration", "scribe", "enforcer", "architect", "orchestrator"],
+    "governance_file_editors": ["orchestrator"],
+    "script_editors": ["orchestrator"]
+  }
+}
