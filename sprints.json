@@ -350,7 +350,7 @@
       "id": "FIX-S1",
       "name": "Governance remediation — missing artifacts, enforcer checklists, harness tooling",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S0/ through QA-S10/",
         "evidence/QA-S9/",
@@ -363,13 +363,14 @@
       ],
       "dependencies": [
         "FIX-S0"
-      ]
+      ],
+      "commitHash": "551a3a9"
     },
     {
       "id": "QA-S9",
       "name": "Authenticated testing — Auth flows (L2/L3)",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S9/",
         "evidence/audit-recertification/",
@@ -377,13 +378,14 @@
       ],
       "dependencies": [
         "FIX-S0"
-      ]
+      ],
+      "commitHash": "551a3a9"
     },
     {
       "id": "QA-S10",
       "name": "Authenticated testing — AI Agent, Chat (L2/L3)",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S10/",
         "evidence/audit-recertification/",
@@ -391,6 +393,25 @@
       ],
       "dependencies": [
         "QA-S9"
+      ],
+      "commitHash": "551a3a9"
+    },
+    {
+      "id": "FIX-S2",
+      "name": "Governance housekeeping — sprint status sync + watchdog integration",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "sprints.json",
+        "enforcement_harness.json",
+        ".claude/commands/harness_check.md",
+        "scripts/watchdog.sh",
+        "scripts/pre-commit.sh",
+        "evidence/FIX-S2/",
+        "evidence/watchdog-ack.txt"
+      ],
+      "dependencies": [
+        "FIX-S1"
       ]
     }
   ]

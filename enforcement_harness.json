@@ -1,7 +1,7 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "project": "nexxus2.2_replit",
-  "description": "Governance enforcement harness — defines all rules, artifacts, and checks for sprint execution",
+  "description": "Governance enforcement harness — defines all rules, artifacts, checks, and watchdog handshake for sprint execution",
 
   "sprint_lifecycle": {
     "sequence": [
@@ -12,6 +12,8 @@
       "write_post_sprint_report",
       "write_cross_sign",
       "run_enforcer_checklist",
+      "read_watchdog_report",
+      "write_watchdog_ack_if_violations",
       "commit_through_hook",
       "update_sprints_json_status",
       "update_session_state"
@@ -38,7 +40,8 @@
         "required_content": ["Verdict: APPROVED"],
         "rules": [
           "Implementing Role must differ from Reviewing Role",
-          "Timestamp must be within 30 minutes of commit"
+          "Timestamp must be within 30 minutes of commit",
+          "File must be more than 5 lines (catch boilerplate)"
         ]
       },
       {
@@ -52,28 +55,46 @@
     ]
   },
 
-  "session_state": {
-    "path": "~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md",
-    "max_stale_hours": 4,
-    "required_fields": ["Working On:", "Status:", "Branch:"],
-    "must_reflect": "current sprint activity in evidence/"
-  },
-
-  "plan_file": {
-    "path": "~/.claude/plans/reactive-wobbling-tome.md",
-    "status_line_prefix": "**Status:**",
-    "must_reflect": "actual sprint progress"
-  },
-
-  "sprints_json": {
-    "path": "sprints.json",
-    "valid_statuses": ["planned", "in_progress", "committed"],
-    "rules": [
-      "committed status requires commitHash field",
-      "in_progress status requires evidence directory to exist",
-      "planned status must not have evidence artifacts",
-      "only one sprint may be in_progress at a time"
-    ]
+  "watchdog": {
+    "script": "scripts/watchdog.sh",
+    "modes": {
+      "scan": "Full audit, writes evidence/watchdog-report.txt",
+      "watch": "Real-time monitoring via inotifywait, writes evidence/watchdog-alerts.log",
+      "verify-ack": "Checks watchdog-ack.txt matches latest report (called by pre-commit hook)"
+    },
+    "report_file": "evidence/watchdog-report.txt",
+    "ack_file": "evidence/watchdog-ack.txt",
+    "alerts_log": "evidence/watchdog-alerts.log",
+    "checks": [
+      "C1: sprints.json integrity (max 1 in_progress, all committed have hash, no duplicates, batch commit detection)",
+      "C2: Evidence artifact completeness (all required files present, orphan detection)",
+      "C3: Cross-sign validity (approved verdict, different roles, min 5 lines)",
+      "C4: Enforcer checklist validity (APPROVED, not BLOCKED)",
+      "C5: Uncommitted evidence accumulation (max 1 untracked evidence dir)",
+      "C6: Destructive change detection (deletions > insertions in pages, data array removal, endpoint removal)",
+      "C7: Session state freshness (mtime < 4 hours)",
+      "C8: Hook integrity (md5 match between source and installed)",
+      "C9: Chain of custody (all commit hashes exist, chronological order, batch detection)",
+      "C10: Timestamp anomaly detection (identical mtimes, future timestamps)",
+      "C11: Plan file alignment (status matches sprint progress)",
+      "C12: Protected path monitoring (governance files, scripts, hook — watch mode only)"
+    ],
+    "handshake": {
+      "flow": [
+        "Watchdog runs scan → writes watchdog-report.txt with Report-ID",
+        "Dev agent reads report",
+        "If violations exist → dev agent writes watchdog-ack.txt",
+        "Ack must contain: Report-ID (exact match), Acknowledged-By, Sprint, Timestamp",
+        "Ack must address every violation check ID (C1, C2, etc.)",
+        "Ack must be < 60 minutes old",
+        "Pre-commit hook Gate 1.6 calls verify-ack → blocks if ack invalid"
+      ],
+      "ack_format": {
+        "required_fields": ["Report-ID", "Acknowledged-By", "Sprint", "Timestamp"],
+        "violation_responses": "One line per violation check ID with ACKNOWLEDGED and explanation",
+        "max_age_minutes": 60
+      }
+    }
   },
 
   "pre_commit_hook": {
@@ -82,6 +103,7 @@
     "gates": [
       "Gate 1: COMMIT_ROLE and COMMIT_SPRINT env vars required",
       "Gate 1.5: Previous sprint must be committed (chain of custody)",
+      "Gate 1.6: Watchdog acknowledgment (verify-ack must pass if report has violations)",
       "Gate 2: Evidence directory must exist and be non-empty",
       "Gate 3: Enforcer checklist must exist and be APPROVED + fresh",
       "Gate 4: Cross-sign must exist, APPROVED, different roles, fresh",
@@ -93,9 +115,36 @@
 
   "pre_tool_hook": {
     "path": ".claude/hooks/context-check.sh",
+    "config": ".claude/settings.json",
+    "matcher": "Bash|Edit|Write|Agent",
     "checks": [
       "Session state mtime < 4 hours (blocks all tools if stale)",
-      "Bypass: allows writes to session-state.md when stale"
+      "Bypass: allows writes to session-state.md when stale (prevents deadlock)"
+    ]
+  },
+
+  "session_state": {
+    "path": "~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md",
+    "max_stale_hours": 4,
+    "required_fields": ["Working On:", "Status:", "Branch:"],
+    "must_reflect": "current sprint activity in evidence/"
+  },
+
+  "plan_file": {
+    "discovery": "ls ~/.claude/plans/*.md (do not hardcode filename)",
+    "status_line_prefix": "**Status:**",
+    "must_reflect": "actual sprint progress"
+  },
+
+  "sprints_json": {
+    "path": "sprints.json",
+    "valid_statuses": ["planned", "in_progress", "committed"],
+    "rules": [
+      "committed status requires commitHash field",
+      "in_progress status requires evidence directory to exist",
+      "planned status must not have evidence artifacts",
+      "only one sprint may be in_progress at a time",
+      "commitHash field name must be consistent (not 'commit')"
     ]
   },
 
@@ -116,5 +165,11 @@
     "commit_roles": ["frontend", "backend", "test", "integration", "scribe", "enforcer", "architect", "orchestrator"],
     "governance_file_editors": ["orchestrator"],
     "script_editors": ["orchestrator"]
+  },
+
+  "harness_check_skill": {
+    "path": ".claude/commands/harness_check.md",
+    "invoke": "/harness_check",
+    "checks": "10 deterministic checks matching watchdog C1-C11 + hook integrity"
   }
 }

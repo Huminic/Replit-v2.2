@@ -83,4 +83,45 @@ Check 10 (active sprint): CLEAN / VIOLATION — [detail]
 SUMMARY: X/10 CLEAN, Y VIOLATIONS
 ```
 
+## Check 11: Watchdog System Health
+- Verify `scripts/watchdog.sh` exists and is executable
+- Run `./scripts/watchdog.sh scan` and capture the output — report its results inline
+- If `evidence/watchdog-report.txt` exists with violations:
+  - Check if `evidence/watchdog-ack.txt` exists
+  - If ack exists: run `./scripts/watchdog.sh verify-ack` and report result
+  - If ack missing: VIOLATION — unacknowledged watchdog violations
+- If watchdog.sh doesn't exist: VIOLATION — watchdog not installed
+
+## Check 12: Full Enforcement Chain Test
+- Verify the complete enforcement chain is connected:
+  - `.claude/hooks/context-check.sh` exists and is executable (pre-tool hook)
+  - `.claude/settings.json` references context-check.sh (hook config)
+  - `scripts/pre-commit.sh` contains "Gate 1.6" (watchdog gate)
+  - `.git/hooks/pre-commit` matches `scripts/pre-commit.sh` (md5sum)
+  - `scripts/watchdog.sh` exists and has scan/watch/verify-ack modes
+  - `enforcement_harness.json` exists and is valid JSON (version 2.0)
+- Any break in this chain = VIOLATION
+
+## Output Format
+
+```
+=== GOVERNANCE HARNESS SPOT-CHECK ===
+Timestamp: [now]
+
+Check 1 (sprints.json): CLEAN / VIOLATION — [detail]
+Check 2 (artifacts): CLEAN / VIOLATION — [detail]
+Check 3 (cross-signs): CLEAN / VIOLATION — [detail]
+Check 4 (checklists): CLEAN / VIOLATION — [detail]
+Check 5 (uncommitted): CLEAN / VIOLATION — [detail]
+Check 6 (session state): CLEAN / VIOLATION — [detail]
+Check 7 (plan alignment): CLEAN / VIOLATION — [detail]
+Check 8 (hook integrity): CLEAN / VIOLATION — [detail]
+Check 9 (chain of custody): CLEAN / VIOLATION — [detail]
+Check 10 (active sprint): CLEAN / VIOLATION — [detail]
+Check 11 (watchdog health): CLEAN / VIOLATION — [detail]
+Check 12 (enforcement chain): CLEAN / VIOLATION — [detail]
+
+SUMMARY: X/12 CLEAN, Y VIOLATIONS
+```
+
 If ANY violations are found, list them at the bottom with specific file paths and what needs to be corrected. Do NOT correct them — just report.

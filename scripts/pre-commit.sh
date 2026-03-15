@@ -160,6 +160,22 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════
+# GATE 1.6: Watchdog acknowledgment
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.6/7] Watchdog acknowledgment..."
+
+if [ -f "scripts/watchdog.sh" ]; then
+  WATCHDOG_RESULT=$(bash scripts/watchdog.sh verify-ack 2>&1)
+  WATCHDOG_EXIT=$?
+  if [ "$WATCHDOG_EXIT" -ne 0 ]; then
+    block "Watchdog gate: $WATCHDOG_RESULT"
+  fi
+  echo "  $WATCHDOG_RESULT"
+else
+  echo "  SKIP (watchdog.sh not found)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
 # GATE 2: Evidence directory
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 2/7] Evidence directory..."
