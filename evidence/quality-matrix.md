@@ -229,31 +229,37 @@ Purpose: Maps every application component across 4 verification layers
 
 | Domain | L1 | L2 | L3 | L4 |
 |--------|:--:|:--:|:--:|:--:|
-| 1. Authentication | PASS | — | PASS (login) | — |
-| 2. Dashboard | PASS | — | — | — |
-| 3. AI Agent & Chat | PASS | — | — | — |
-| 4. Campaigns | PASS | — | — | — |
-| 5. Conversations | PASS | — | — | — |
-| 6. Dept Dashboards | PASS | — | — | — |
-| 7. Analytics | PASS | — | — | — |
-| 8. Billing | PASS | — | — | — |
-| 9. Settings/Profile | PASS | — | — | — |
-| 10. Tasks/Appts | PASS | — | — | — |
-| 11. Integrations | PASS | — | PASS (widget) | — |
-| 12. Infrastructure | **DEFECT** | — | N/A | N/A |
+| 1. Authentication | PASS | DEFECT | PASS | — | Logout bug + error message |
+| 2. Dashboard | PASS | PASS | PASS | — | OK |
+| 3. AI Agent & Chat | PASS | PASS | PASS | GAPS | 7 usability gaps |
+| 4. Campaigns | PASS | PASS | PASS | — | OK |
+| 5. Conversations | PASS | PASS | PASS | — | OK |
+| 6. Dept Dashboards | PASS | PASS | PASS | — | OK |
+| 7. Analytics | PASS | PASS | PASS | — | OK |
+| 8. Billing | PASS | DEFECT | DEFECT | — | NOT CONFIGURED |
+| 9. Settings/Profile | PASS | PASS | PASS | — | OK (missing restart tour) |
+| 10. Tasks/Appts | PASS | PASS | PASS | — | OK |
+| 11. Integrations | PASS | PASS | PASS | — | OK |
+| 12. Infrastructure | FIXED | PASS | N/A | N/A | OK (API 404 fixed) |
 
-**L1 complete. L2, L3, L4 require test credentials to proceed.**
+**L1 + L2 + L3 complete. L4 (usability) evaluated for chat domain only.**
 
 ---
 
-## Known Defects
+## Known Defects (Updated 2026-03-16)
 
-| Defect | Layer | Domain | Severity |
-|--------|-------|--------|----------|
-| No API 404 handler (/api/* falls through to SPA) | L1 | 12 | MAJOR |
-| Temp password logged to console (users.ts:371) | L2 | 9 | MAJOR |
-| Duplicate security headers (Helmet + Caddy) | L1 | 12 | MINOR |
-| Conflicting x-xss-protection values | L1 | 12 | MINOR |
-| P4-S2 endpoint count overclaimed by 2 | N/A | 4 | MINOR |
-| P4-S4 billing endpoint count underclaimed by 1 | N/A | 8 | MINOR |
-| Various `as any` type casts (~15 instances) | L1 | Multiple | MINOR |
+| Defect | Layer | Domain | Severity | Status |
+|--------|-------|--------|----------|--------|
+| Logout React DOM error (race condition) | L2 | 1 | MAJOR | OPEN |
+| Billing not configured (FlexPrice) | L2 | 8 | MAJOR | OPEN |
+| Org hierarchy not implemented | L2 | 1 | MAJOR | PARKED |
+| No API 404 handler | L1 | 12 | MAJOR | FIXED (634e695) |
+| Temp password in console | L1 | 9 | MAJOR | FIXED (634e695) |
+| log_audit silent failure | L1 | 12 | MAJOR | FIXED (634e695) |
+| Frontend "Login failed" generic message | L2 | 1 | MINOR | OPEN |
+| Restart tour not on profile page | L2 | 9 | MINOR | OPEN |
+| Org wizard route broken | L2 | 9 | MINOR | OPEN |
+| Duplicate security headers | L1 | 12 | MINOR | OPEN |
+| Various `as any` type casts (~15) | L1 | Multiple | MINOR | OPEN |
+
+See evidence/QA-S15/gap-analysis-final.md for complete prioritized list.
