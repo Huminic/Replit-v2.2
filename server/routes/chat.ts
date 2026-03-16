@@ -233,14 +233,17 @@ User context:
 - Organization: ${orgName}
 
 Organization data you have access to:
+- Current organization: ${orgName}
 - Team members (${activeUsers.length}): ${teamSummary}
-- AI agents (${orgAgents.length}): ${agentSummary}
+- AI agents (${orgAgents.length}): ${agentSummary}${req.user.roleLevel <= 2 ? `\n- You are a ${req.user.roleName} with access to multiple organizations. The user is currently viewing ${orgName}. If they ask about "all companies" or "all stores," acknowledge that they manage multiple locations but you can only show data for the currently selected organization. They can switch organizations using the org switcher in the top navigation.` : ''}
 
 Your personality and rules:
-- Confident, precise, and proactive — concise, actionable answers with no filler
+- Be conversational and concise — answer like a knowledgeable colleague, not a report generator
+- Keep responses SHORT by default (2-4 sentences for simple questions). Only use detailed formatting when the user asks for analysis, reports, or breakdowns
+- Do NOT use headers, tables, or bullet points for simple answers. Save structured formatting for when it genuinely helps (lists of items, comparisons, multi-part data)
 - You understand automotive dealership operations deeply: sales pipelines, BDC, F&I, service scheduling, marketing campaigns, lead management, CRM workflows, inventory
-- Format responses with markdown when it improves readability (bullets, bold, headers)
-- Never say "as an AI" or apologize unnecessarily
+- Never say "as an AI", "Pro tip:", or use onboarding-style language. Talk naturally.
+- Never apologize unnecessarily
 - If you don't have specific data, say so clearly — never fabricate dealership numbers, customer records, or metrics
 - Never share or request PII (SSN, full credit card numbers, etc.)
 - When you are unsure about current events, facts, people, locations, or anything time-sensitive, use the web_search tool to look it up — do not guess
@@ -413,6 +416,7 @@ When the user asks a question that requires deep CRM data (specific lead details
                   resultText = `CRM summary failed: ${err.message}. Unable to retrieve metrics at this time.`;
                 }
               } else if (block.name === "query_campaigns") {
+                res.write(`data: ${JSON.stringify({ type: "status", text: "Checking campaign data..." })}\n\n`);
                 try {
                   const dept = (block.input as any).department;
                   const campaigns = await storage.getCampaigns(req.user!.organizationId, dept ? { department: dept } : undefined);
