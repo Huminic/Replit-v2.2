@@ -419,7 +419,7 @@
       "id": "QA-S11",
       "name": "Authenticated testing — Campaigns + Conversations (L2/L3)",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S11/",
         "evidence/audit-recertification/",
@@ -427,6 +427,22 @@
       ],
       "dependencies": [
         "QA-S10"
+      ],
+      "commitHash": "1e976c5"
+    },
+    {
+      "id": "QA-S12",
+      "name": "Authenticated testing — Dashboard, Dept views, Analytics (L2/L3)",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S12/",
+        "evidence/audit-recertification/",
+        "sprints.json",
+        "scripts/pre-commit.sh"
+      ],
+      "dependencies": [
+        "QA-S11"
       ]
     }
   ]

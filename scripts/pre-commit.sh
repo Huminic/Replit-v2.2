@@ -176,6 +176,56 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════
+# GATE 1.7: Session state content freshness
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.7/7] Session state content..."
+
+SESSION_STATE_FILE="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md"
+if [ -f "$SESSION_STATE_FILE" ]; then
+  # Check that session state references the current sprint
+  SESSION_SPRINT=$(grep -oE 'QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+' "$SESSION_STATE_FILE" | sort -u | tail -1)
+  if [ -n "$SESSION_SPRINT" ]; then
+    # Session state should reference the current sprint or the one just before it
+    if echo "$SESSION_SPRINT $SPRINT" | python3 -c "
+import sys
+tokens = sys.stdin.read().strip().split()
+session_ref = tokens[0]
+committing = tokens[1]
+# Extract numeric parts for comparison
+import re
+def sprint_num(s):
+    m = re.search(r'S(\d+)', s)
+    return int(m.group(1)) if m else -1
+def sprint_phase(s):
+    m = re.match(r'(QA|FIX|P\d+)', s)
+    return m.group(1) if m else ''
+# If same phase, session ref should be within 1 sprint of committing sprint
+sp = sprint_phase(session_ref)
+cp = sprint_phase(committing)
+sn = sprint_num(session_ref)
+cn = sprint_num(committing)
+if sp == cp and cn - sn > 1:
+    print(f'STALE: session references {session_ref} but committing {committing}')
+    sys.exit(1)
+sys.exit(0)
+" 2>/dev/null; then
+      echo "  PASS (session references $SESSION_SPRINT, committing $SPRINT)"
+    else
+      STALE_MSG=$(echo "$SESSION_SPRINT $SPRINT" | python3 -c "
+import sys
+tokens = sys.stdin.read().strip().split()
+print(f'Session state references {tokens[0]} but committing {tokens[1]} — update session-state.md')
+" 2>/dev/null)
+      block "Session state content is stale: $STALE_MSG"
+    fi
+  else
+    echo "  SKIP (no sprint reference found in session state)"
+  fi
+else
+  echo "  SKIP (session-state.md not found)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
 # GATE 2: Evidence directory
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 2/7] Evidence directory..."
