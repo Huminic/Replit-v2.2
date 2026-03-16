@@ -450,7 +450,7 @@
       "id": "QA-S13",
       "name": "Authenticated testing — Settings, Billing, Profile (L2/L3)",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S13/",
         "evidence/audit-recertification/",
@@ -458,6 +458,21 @@
       ],
       "dependencies": [
         "QA-S12"
+      ],
+      "commitHash": "7d2d520"
+    },
+    {
+      "id": "QA-S14",
+      "name": "Authenticated testing — Tasks, Integrations, Public widgets (L2/L3)",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S14/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S13"
       ]
     }
   ]

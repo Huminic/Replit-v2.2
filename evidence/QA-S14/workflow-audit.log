@@ -1,0 +1,2 @@
+[2026-03-16T01:44:42Z] agent-launch | role=orchestrator | task="QA-S14 Authenticated testing — Tasks, Integrations, Public widgets" | scope=evidence/QA-S14/*,evidence/audit-recertification/qa-s14-*,sprints.json
+[2026-03-16T01:45:39Z] PRE-COMMIT role=orchestrator sprint=QA-S14 result=PASS detail="All 7 gates passed"
