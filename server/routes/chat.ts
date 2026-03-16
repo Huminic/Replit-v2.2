@@ -75,7 +75,22 @@ const vinLeadSummaryTool: Anthropic.Tool = {
   },
 };
 
-const chatTools: Anthropic.Tool[] = [webSearchTool, vinQueryLeadsTool, vinLeadSummaryTool];
+const campaignQueryTool: Anthropic.Tool = {
+  name: "query_campaigns",
+  description: "Query campaign data for the organization including status, send counts, reply rates, and execution status. Use this when the user asks about campaigns, outreach, messaging performance, or service campaigns.",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      department: {
+        type: "string",
+        description: "Optional department filter: 'sales', 'service', or 'marketing'",
+      },
+    },
+    required: [],
+  },
+};
+
+const chatTools: Anthropic.Tool[] = [webSearchTool, vinQueryLeadsTool, vinLeadSummaryTool, campaignQueryTool];
 
 export function registerChatRoutes(app: Express) {
   app.post("/api/chat/:conversationId/stream", authenticateToken, async (req, res) => {
@@ -107,7 +122,7 @@ export function registerChatRoutes(app: Express) {
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches, latestMetricsSync, latestLeadSync] = await Promise.all([
+      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches, latestMetricsSync, latestLeadSync, activityLogs, orgCampaigns] = await Promise.all([
         storage.getOrganization(req.user.organizationId),
         storage.getUsers(req.user.organizationId),
         storage.getAgents(req.user.organizationId, {}),
@@ -117,6 +132,8 @@ export function registerChatRoutes(app: Express) {
         storage.getLatestSync(req.user.organizationId, "backfill").then(b =>
           b || storage.getLatestSync(req.user!.organizationId, "daily_delta")
         ),
+        storage.getActivityLogs(req.user.organizationId, 15),
+        storage.getCampaigns(req.user.organizationId),
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
@@ -189,6 +206,23 @@ export function registerChatRoutes(app: Express) {
         }
       }
 
+      let activityContext = "";
+      if (activityLogs.length > 0) {
+        const activityLines = activityLogs.slice(0, 10).map((log: any) => {
+          const time = log.createdAt ? new Date(log.createdAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "unknown";
+          return `- [${time}] ${log.action}${log.entityType ? ` on ${log.entityType}` : ""}${log.metadata?.details ? `: ${log.metadata.details}` : ""}`;
+        }).join("\n");
+        activityContext = `\n\nRecent organization activity (last ${activityLogs.length} events):\n${activityLines}`;
+      }
+
+      let campaignContext = "";
+      if (orgCampaigns.length > 0) {
+        const campaignLines = orgCampaigns.slice(0, 10).map((c: any) => {
+          return `- ${c.name} [${c.department}/${c.status}] sent:${c.sentCount || 0} replied:${c.repliedCount || 0}${c.executionStatus ? ` exec:${c.executionStatus}` : ""}`;
+        }).join("\n");
+        campaignContext = `\n\nCampaigns (${orgCampaigns.length} total):\n${campaignLines}`;
+      }
+
       const systemPrompt = `You are ${personaName}, an AI assistant powering Nexxus Connect for ${orgName} — an automotive dealership management platform.
 
 Current date and time: ${dateStr}, ${timeStr} (Eastern Time)
@@ -218,8 +252,10 @@ Data provenance rules (CRITICAL):
 - When referencing knowledge base documents uploaded by the organization, say "from our knowledge base" and mention the document name
 - When referencing AI insights/hunches, mention they are AI-generated with their confidence level
 - If data is stale (last synced > 6 hours ago), proactively note this: "Note: this data was last synced X hours ago and may not reflect the latest changes"
-- If no CRM data is available, say so clearly — do not guess at numbers
+- If no CRM data is available or CRM tools return all zeros, do NOT display raw zeros. Instead, explain that no data was found for the period and suggest checking CRM integration status in Settings > Integrations
 - Use the vin_query_leads tool to look up specific lead data and the vin_lead_summary tool to get overall metrics
+- Use the query_campaigns tool when asked about campaigns, outreach, messaging performance, or service campaigns
+- You have access to recent organization activity and campaign data provided in your context — reference it when users ask about recent activity or what's happening
 - When web search results are used, cite them naturally
 - Always make it clear whether information comes "from our records" (CRM/vendor data) or "from our knowledge base" (uploaded org documents)${orgSystemPrompt ? `\n\nOrganization-specific prompt:\n${orgSystemPrompt}` : ''}${chatInstructions ? `\n\nChat quality instructions (follow these carefully):\n${chatInstructions}` : ''}${isCrmGuru ? `
 
@@ -233,7 +269,7 @@ You are operating as the CRM Guru — the dedicated CRM intelligence agent. Foll
 
 When the user asks a question that requires deep CRM data (specific lead details, deal histories, contact records, pipeline specifics):
 - First try to answer from available internal data warehouse
-- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${hunchContext}${knowledgeContext}`;
+- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${activityContext}${campaignContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -359,16 +395,35 @@ When the user asks a question that requires deep CRM data (specific lead details
                   const pct = (c: number, p: number) => p === 0 ? (c > 0 ? "+100%" : "0%") : `${((c - p) / p * 100).toFixed(0)}%`;
                   const convRate = curTotal > 0 ? `${Math.round((curSold / curTotal) * 100)}%` : "N/A";
 
-                  resultText = `[Source: VinSolutions CRM, queried just now]\nPeriod: ${curStart} to ${curEnd}\n` +
-                    `Total Leads: ${curTotal} (${pct(curTotal, prevTotal)} vs prior 30d)\n` +
-                    `New Leads: ${curNew} (${pct(curNew, prevNew)} vs prior 30d)\n` +
-                    `Active Pipeline: ${curActive}\n` +
-                    `Appointments Set: ${curAppt}\n` +
-                    `Waiting for Response: ${curWaiting}\n` +
-                    `Sold/Delivered: ${curSold} (${pct(curSold, prevSold)} vs prior 30d)\n` +
-                    `Conversion Rate: ${convRate}`;
+                  if (curTotal === 0 && prevTotal === 0) {
+                    resultText = `[Source: CRM, queried just now]\nNo lead data found for ${curStart} to ${curEnd}. ` +
+                      `This could mean the CRM integration is still syncing initial data, no leads were created in this period, ` +
+                      `or the CRM connection needs to be verified in Settings > Integrations.`;
+                  } else {
+                    resultText = `[Source: CRM, queried just now]\nPeriod: ${curStart} to ${curEnd}\n` +
+                      `Total Leads: ${curTotal} (${pct(curTotal, prevTotal)} vs prior 30d)\n` +
+                      `New Leads: ${curNew} (${pct(curNew, prevNew)} vs prior 30d)\n` +
+                      `Active Pipeline: ${curActive}\n` +
+                      `Appointments Set: ${curAppt}\n` +
+                      `Waiting for Response: ${curWaiting}\n` +
+                      `Sold/Delivered: ${curSold} (${pct(curSold, prevSold)} vs prior 30d)\n` +
+                      `Conversion Rate: ${convRate}`;
+                  }
                 } catch (err: any) {
-                  resultText = `VinSolutions summary failed: ${err.message}. Unable to retrieve metrics at this time.`;
+                  resultText = `CRM summary failed: ${err.message}. Unable to retrieve metrics at this time.`;
+                }
+              } else if (block.name === "query_campaigns") {
+                try {
+                  const dept = (block.input as any).department;
+                  const campaigns = await storage.getCampaigns(req.user!.organizationId, dept ? { department: dept } : undefined);
+                  if (campaigns.length === 0) {
+                    resultText = `No campaigns found${dept ? ` for ${dept} department` : ""}. Campaigns can be created in the Service section.`;
+                  } else {
+                    resultText = `[Campaign data, ${campaigns.length} total${dept ? ` (filtered: ${dept})` : ""}]\n` +
+                      campaigns.map(c => `- ${c.name} [${c.department}/${c.status}] channel:${c.channel || "sms"} sent:${(c as any).sentCount || 0} replied:${(c as any).repliedCount || 0}${(c as any).executionStatus ? ` execution:${(c as any).executionStatus}` : ""}`).join("\n");
+                  }
+                } catch (err: any) {
+                  resultText = `Campaign query failed: ${err.message}`;
                 }
               } else {
                 resultText = "Unknown tool.";

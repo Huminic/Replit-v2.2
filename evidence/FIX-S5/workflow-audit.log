@@ -1,0 +1,2 @@
+[2026-03-16T06:58:46Z] agent-launch | role=orchestrator | task="FIX-S5 Chat usability — activity history, campaign data, empty state" | scope=server/routes/chat.ts,sprints.json,evidence/FIX-S5/*
+[2026-03-16T06:59:25Z] PRE-COMMIT role=orchestrator sprint=FIX-S5 result=PASS detail="All 7 gates passed"

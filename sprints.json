@@ -516,7 +516,7 @@
       "id": "FIX-S4",
       "name": "FlexPrice billing connection — link customers, subscriptions, plans",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "sprints.json",
         "evidence/FIX-S4/",
@@ -525,6 +525,21 @@
       ],
       "dependencies": [
         "FIX-S3"
+      ],
+      "commitHash": "b1d75f5"
+    },
+    {
+      "id": "FIX-S5",
+      "name": "Chat usability — activity history, campaign data, empty state handling",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/chat.ts",
+        "sprints.json",
+        "evidence/FIX-S5/"
+      ],
+      "dependencies": [
+        "FIX-S4"
       ]
     }
   ]
