@@ -591,13 +591,13 @@
       "dependencies": [
         "FIX-S7"
       ],
-      "commitHash": "643b323"
+      "commitHash": "b6fa3a7"
     },
     {
       "id": "QA-S16",
       "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
       "phase": "QA",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "evidence/QA-S16/",
         "evidence/audit-recertification/",
