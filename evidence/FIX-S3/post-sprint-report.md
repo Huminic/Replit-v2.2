@@ -1,22 +1,17 @@
-# Post-Sprint Report: FIX-S3
+# Post-Sprint Report: FIX-S3 (Retested)
 
-Timestamp: 2026-03-16T05:57:05Z
-Sprint: FIX-S3 — Auth fixes
+Timestamp: 2026-03-16T18:52:28Z
+Sprint: FIX-S3 — Auth fixes (verified with dual-agent testing)
 
-## Fixes Applied
-| # | Defect | Fix |
-|---|--------|-----|
-| 1 | Logout React DOM error | Removed duplicate setLocation('/login') from TopBar + Sidebar. ProtectedRoute handles redirect. |
-| 2 | "Login failed" generic message | Added errorData.error fallback in AuthContext.tsx:113 |
-| 3 | Restart tour not on profile | Added Restart Tour button to profile Preferences tab |
-| 4 | Org wizard access denied for Super Admin | Use authUser.role directly instead of AppContext default |
-| 5 | Org data correction | partner_id set on Serra dealerships, Partner Admin moved to Cage Automotive |
+## Retest Results
+| Test | Result |
+|------|--------|
+| T1: Logout (no React DOM error) | PASS — clean redirect, no error boundary |
+| T2: Wrong credentials (specific message) | PASS — shows "Invalid email or password" |
+| T3: Restart tour (profile button) | PASS — button present in Preferences tab |
+| T4: Org wizard (Super Admin access) | PASS — 7-step form renders |
+| T5: Partner Admin (Cage Automotive) | PASS — correct org assignment |
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| POST-01 | TypeScript compiles | PASS |
-| POST-02 | Production build succeeds | PASS |
-| POST-03 | Org data verified | PASS (Cage = parent, 5 children) |
+Dual agent concordance: 5/5 agree
 
-## Status: COMPLETE
+## Status: COMPLETE (verified)

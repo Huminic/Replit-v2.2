@@ -516,7 +516,7 @@
       "id": "FIX-S4",
       "name": "FlexPrice billing connection — link customers, subscriptions, plans",
       "phase": "FIX",
-      "status": "committed",
+      "status": "in_progress",
       "scope": [
         "sprints.json",
         "evidence/FIX-S4/",
@@ -525,14 +525,13 @@
       ],
       "dependencies": [
         "FIX-S3"
-      ],
-      "commitHash": "b1d75f5"
+      ]
     },
     {
       "id": "FIX-S5",
       "name": "Chat usability — activity history, campaign data, empty state handling",
       "phase": "FIX",
-      "status": "committed",
+      "status": "in_progress",
       "scope": [
         "server/routes/chat.ts",
         "sprints.json",
@@ -540,14 +539,13 @@
       ],
       "dependencies": [
         "FIX-S4"
-      ],
-      "commitHash": "3d99987"
+      ]
     },
     {
       "id": "FIX-S6",
       "name": "Chat tuning — conversational formatting, multi-org context, status events",
       "phase": "FIX",
-      "status": "committed",
+      "status": "in_progress",
       "scope": [
         "server/routes/chat.ts",
         "sprints.json",
@@ -555,14 +553,13 @@
       ],
       "dependencies": [
         "FIX-S5"
-      ],
-      "commitHash": "0f27dc4"
+      ]
     },
     {
       "id": "FIX-S7",
       "name": "Type safety cleanup — remove unnecessary as-any casts",
       "phase": "FIX",
-      "status": "committed",
+      "status": "in_progress",
       "scope": [
         "server/routes/campaigns.ts",
         "server/routes/sms.ts",
@@ -575,8 +572,7 @@
       ],
       "dependencies": [
         "FIX-S6"
-      ],
-      "commitHash": "69a96dc"
+      ]
     },
     {
       "id": "FIX-S8",
@@ -590,6 +586,20 @@
       ],
       "dependencies": [
         "FIX-S7"
+      ]
+    },
+    {
+      "id": "QA-S16",
+      "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
+      "phase": "QA",
+      "status": "planned",
+      "scope": [
+        "evidence/QA-S16/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "FIX-S8"
       ]
     }
   ]
