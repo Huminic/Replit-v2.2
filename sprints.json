@@ -434,7 +434,7 @@
       "id": "QA-S12",
       "name": "Authenticated testing — Dashboard, Dept views, Analytics (L2/L3)",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S12/",
         "evidence/audit-recertification/",
@@ -443,6 +443,21 @@
       ],
       "dependencies": [
         "QA-S11"
+      ],
+      "commitHash": "dfd87e0"
+    },
+    {
+      "id": "QA-S13",
+      "name": "Authenticated testing — Settings, Billing, Profile (L2/L3)",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S13/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S12"
       ]
     }
   ]
