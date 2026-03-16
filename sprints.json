@@ -516,7 +516,7 @@
       "id": "FIX-S4",
       "name": "FlexPrice billing connection — link customers, subscriptions, plans",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "sprints.json",
         "evidence/FIX-S4/",
@@ -525,7 +525,8 @@
       ],
       "dependencies": [
         "FIX-S3"
-      ]
+      ],
+      "commitHash": "b1d75f5"
     },
     {
       "id": "FIX-S5",
