@@ -547,7 +547,7 @@
       "id": "FIX-S6",
       "name": "Chat tuning — conversational formatting, multi-org context, status events",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/chat.ts",
         "sprints.json",
@@ -555,7 +555,8 @@
       ],
       "dependencies": [
         "FIX-S5"
-      ]
+      ],
+      "commitHash": "0f27dc4"
     },
     {
       "id": "FIX-S7",
