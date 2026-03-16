@@ -36,7 +36,8 @@ import {
   MessageCircle,
   FileText,
   Loader2,
-  Camera
+  Camera,
+  RotateCcw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -61,7 +62,7 @@ import { getAccessToken } from '@/lib/tokenStore';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { currentUser, currentOrganization, updateCurrentUser } = useApp();
+  const { currentUser, currentOrganization, updateCurrentUser, setShowTour } = useApp();
   const [billingEnabled] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editFirstName, setEditFirstName] = useState('');
@@ -393,6 +394,26 @@ export default function ProfilePage() {
                       </Select>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Product Tour</CardTitle>
+                  <CardDescription>Restart the guided walkthrough of Nexxus Connect</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowTour(true);
+                      toast({ title: 'Tour restarted', description: 'The product tour will begin on the next page you visit.' });
+                    }}
+                    data-testid="button-restart-tour"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Restart Tour
+                  </Button>
                 </CardContent>
               </Card>
             </div>

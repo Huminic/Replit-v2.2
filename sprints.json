@@ -480,7 +480,7 @@
       "id": "QA-S15",
       "name": "Final gap analysis — merge L1 + L2 findings",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S15/",
         "evidence/quality-matrix.md",
@@ -488,6 +488,27 @@
       ],
       "dependencies": [
         "QA-S14"
+      ],
+      "commitHash": "f0d966c"
+    },
+    {
+      "id": "FIX-S3",
+      "name": "Auth fixes — logout bug, error message, restart tour, org wizard, org data correction",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "client/src/",
+        "server/routes/auth.ts",
+        "server/routes/users.ts",
+        "server/routes/organizations.ts",
+        "sprints.json",
+        "evidence/FIX-S3/",
+        "evidence/watchdog-ack.txt",
+        "evidence/live-testing-spec.md",
+        ".claude/settings.json"
+      ],
+      "dependencies": [
+        "QA-S15"
       ]
     }
   ]

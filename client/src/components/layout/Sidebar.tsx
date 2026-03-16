@@ -74,8 +74,8 @@ export function Sidebar() {
   const { logout } = useAuth();
   const handleLogout = useCallback(async () => {
     await logout();
-    setLocation('/login');
-  }, [logout, setLocation]);
+    // Navigation handled by ProtectedRoute when auth state clears
+  }, [logout]);
   const {
     currentRole,
     userPermissions,

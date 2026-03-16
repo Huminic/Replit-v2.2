@@ -27,6 +27,7 @@ import { useLocation } from 'wouter';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
@@ -181,21 +182,26 @@ const skillsList = [
 
 export default function OrgWizardPage() {
   const { currentRole } = useApp();
+  const { user: authUser } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [copiedPassword, setCopiedPassword] = useState(false);
 
-  const isSuperAdmin = currentRole === 'super_admin';
-  const isPartnerAdmin = currentRole === 'partner_admin';
+  // Use auth user's role directly to avoid race condition with AppContext default
+  const effectiveRole = authUser?.role?.name || currentRole;
+  const isSuperAdmin = effectiveRole === 'super_admin';
+  const isPartnerAdmin = effectiveRole === 'partner_admin';
 
   useEffect(() => {
+    // Don't redirect until auth user has resolved
+    if (!authUser) return;
     if (!isSuperAdmin && !isPartnerAdmin) {
       toast({ title: 'Access Denied', description: 'You do not have permission to create organizations.' });
       navigate('/settings');
     }
-  }, [currentRole]);
+  }, [effectiveRole, authUser]);
 
   if (!isSuperAdmin && !isPartnerAdmin) return null;
 

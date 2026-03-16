@@ -126,8 +126,8 @@ export function TopBar() {
 
   const handleLogout = useCallback(async () => {
     await logout();
-    setLocation('/login');
-  }, [logout, setLocation]);
+    // Navigation handled by ProtectedRoute when auth state clears
+  }, [logout]);
 
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
