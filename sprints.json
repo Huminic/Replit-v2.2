@@ -547,7 +547,7 @@
       "id": "FIX-S6",
       "name": "Chat tuning — conversational formatting, multi-org context, status events",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/chat.ts",
         "sprints.json",
@@ -555,6 +555,26 @@
       ],
       "dependencies": [
         "FIX-S5"
+      ],
+      "commitHash": "0f27dc4"
+    },
+    {
+      "id": "FIX-S7",
+      "name": "Type safety cleanup — remove unnecessary as-any casts",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/campaigns.ts",
+        "server/routes/sms.ts",
+        "server/routes/settings.ts",
+        "server/routes/organizations.ts",
+        "server/routes/users.ts",
+        "server/routes/public.ts",
+        "sprints.json",
+        "evidence/FIX-S7/"
+      ],
+      "dependencies": [
+        "FIX-S6"
       ]
     }
   ]

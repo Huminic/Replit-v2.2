@@ -96,7 +96,7 @@ export function registerOrganizationRoutes(app: Express) {
           billingEnabled, anniversaryDate, baseMonthlyFee,
           voiceMinutes, videoMinutes, smsMessages, setupFee,
           tools: enabledTools,
-        } as any,
+        } as any, // TODO: type properly when schema updated — jsonb column types from Drizzle don't accept plain objects directly
       });
 
       const role = await storage.getRoleByName(adminRole === "partner_admin" ? "partner_admin" : "org_admin");

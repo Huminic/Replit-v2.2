@@ -278,7 +278,7 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: "Photo is too large after encoding. Please compress or resize to under 200KB." });
       }
 
-      const updated = await storage.updateUser(req.user.id, { profilePhotoUrl: dataUrl } as any);
+      const updated = await storage.updateUser(req.user.id, { profilePhotoUrl: dataUrl });
       if (!updated) return res.status(404).json({ message: "User not found" });
 
       return res.json({ profilePhotoUrl: dataUrl });

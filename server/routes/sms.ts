@@ -266,7 +266,7 @@ export function registerSmsRoutes(app: Express) {
 
       const orgUsers = await storage.getUsers(organizationId);
       const adminUsers = orgUsers.filter(u => {
-        const roleLevel = (u as any).role?.level;
+        const roleLevel = u.role?.level;
         return roleLevel !== undefined && roleLevel <= 3;
       });
 

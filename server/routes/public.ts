@@ -125,11 +125,11 @@ export function registerPublicRoutes(app: Express) {
 
       const agents = await storage.getAgents(org.id);
       const voiceAgent = agents.find(a => a.vapiAssistantId && a.status === "active");
-      const videoAgent = agents.find(a => (a as any).tavusPersonaId && a.status === "active");
+      const videoAgent = agents.find(a => a.tavusPersonaId && a.status === "active");
 
       return res.json({
         vapiAssistantId: voiceAgent?.vapiAssistantId || null,
-        tavusPersonaId: (videoAgent as any)?.tavusPersonaId || null,
+        tavusPersonaId: videoAgent?.tavusPersonaId || null,
         orgName: org.name,
         personaName: org.personaName,
       });

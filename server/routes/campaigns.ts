@@ -456,7 +456,7 @@ export function registerCampaignRoutes(app: Express) {
 
       await storage.createRecipients(recipients);
       const recipientCount = await storage.getRecipientCount(campaign.id);
-      await storage.updateCampaign(campaign.id, { recipientCount, csvFilename: file.originalname } as any);
+      await storage.updateCampaign(campaign.id, { recipientCount, csvFilename: file.originalname });
 
       const warnings: string[] = [];
       if (missingRequired.length > 0) {

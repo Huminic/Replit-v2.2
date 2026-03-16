@@ -21,6 +21,7 @@ export function registerSettingsRoutes(app: Express) {
       if (!org) return res.status(404).json({ message: "Organization not found" });
       const existingSettings = (org.settings || {}) as Record<string, any>;
       const mergedSettings = { ...existingSettings, ...req.body };
+      // TODO: type properly when schema updated — jsonb column types from Drizzle don't accept Record<string, any> directly
       const updated = await storage.updateOrganization(req.user.organizationId, { settings: mergedSettings } as any);
       if (!updated) return res.status(500).json({ message: "Failed to update settings" });
 
