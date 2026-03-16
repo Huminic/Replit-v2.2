@@ -562,7 +562,7 @@
       "id": "FIX-S7",
       "name": "Type safety cleanup — remove unnecessary as-any casts",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/campaigns.ts",
         "server/routes/sms.ts",
@@ -575,6 +575,21 @@
       ],
       "dependencies": [
         "FIX-S6"
+      ],
+      "commitHash": "69a96dc"
+    },
+    {
+      "id": "FIX-S8",
+      "name": "Cleanup — documentation corrections, header notes",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "sprints.json",
+        "evidence/FIX-S8/",
+        "evidence/quality-matrix.md"
+      ],
+      "dependencies": [
+        "FIX-S7"
       ]
     }
   ]
