@@ -582,7 +582,7 @@
       "id": "FIX-S8",
       "name": "Cleanup — documentation corrections, header notes",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "sprints.json",
         "evidence/FIX-S8/",
@@ -590,7 +590,8 @@
       ],
       "dependencies": [
         "FIX-S7"
-      ]
+      ],
+      "commitHash": "643b323"
     },
     {
       "id": "QA-S16",
