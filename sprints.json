@@ -532,7 +532,7 @@
       "id": "FIX-S5",
       "name": "Chat usability — activity history, campaign data, empty state handling",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/chat.ts",
         "sprints.json",
@@ -540,7 +540,8 @@
       ],
       "dependencies": [
         "FIX-S4"
-      ]
+      ],
+      "commitHash": "3d99987"
     },
     {
       "id": "FIX-S6",
