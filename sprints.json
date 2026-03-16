@@ -495,7 +495,7 @@
       "id": "FIX-S3",
       "name": "Auth fixes — logout bug, error message, restart tour, org wizard, org data correction",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "client/src/",
         "server/routes/auth.ts",
@@ -509,6 +509,22 @@
       ],
       "dependencies": [
         "QA-S15"
+      ],
+      "commitHash": "4ac05ca"
+    },
+    {
+      "id": "FIX-S4",
+      "name": "FlexPrice billing connection — link customers, subscriptions, plans",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "sprints.json",
+        "evidence/FIX-S4/",
+        ".claude/settings.json",
+        "evidence/watchdog-ack.txt"
+      ],
+      "dependencies": [
+        "FIX-S3"
       ]
     }
   ]
