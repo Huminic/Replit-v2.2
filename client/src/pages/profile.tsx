@@ -37,7 +37,8 @@ import {
   FileText,
   Loader2,
   Camera,
-  RotateCcw
+  RotateCcw,
+  Lock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -70,7 +71,22 @@ export default function ProfilePage() {
   const [editEmail, setEditEmail] = useState('');
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [changePwForm, setChangePwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const userInitials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const res = await apiRequest('POST', '/api/auth/change-password', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      setChangePwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast({ title: 'Password changed', description: 'Your password has been changed successfully.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to change password', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
 
   const profileMutation = useMutation({
     mutationFn: async (data: { firstName?: string; lastName?: string; email?: string }) => {
@@ -301,6 +317,39 @@ export default function ProfilePage() {
                   >
                     {profileMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
                     Save Changes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Lock className="h-4 w-4" />
+                    Change Password
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input id="current-password" type="password" value={changePwForm.currentPassword} onChange={e => setChangePwForm(f => ({ ...f, currentPassword: e.target.value }))} data-testid="input-current-password" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input id="new-password" type="password" value={changePwForm.newPassword} onChange={e => setChangePwForm(f => ({ ...f, newPassword: e.target.value }))} placeholder="Minimum 6 characters" data-testid="input-new-password" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input id="confirm-password" type="password" value={changePwForm.confirmPassword} onChange={e => setChangePwForm(f => ({ ...f, confirmPassword: e.target.value }))} data-testid="input-confirm-password" />
+                  </div>
+                  {changePwForm.newPassword && changePwForm.confirmPassword && changePwForm.newPassword !== changePwForm.confirmPassword && (
+                    <p className="text-sm text-destructive">Passwords do not match</p>
+                  )}
+                  <Button
+                    onClick={() => changePasswordMutation.mutate({ currentPassword: changePwForm.currentPassword, newPassword: changePwForm.newPassword })}
+                    disabled={changePasswordMutation.isPending || !changePwForm.currentPassword || changePwForm.newPassword.length < 6 || changePwForm.newPassword !== changePwForm.confirmPassword}
+                    data-testid="button-submit-change-pw"
+                  >
+                    {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
                   </Button>
                 </CardContent>
               </Card>

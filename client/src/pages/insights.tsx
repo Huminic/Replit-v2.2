@@ -2074,11 +2074,6 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     {selectedGreenMetric.id === 'gz-4' && 'On track to meet monthly target. Focus on converting hot leads to maintain pace.'}
                   </span>
                 </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedGreenMetric.label} pinned to your dashboard.` }); setDrillDown(null); setSelectedGreenMetric(null); }} data-testid="button-pin-green-metric">
-                    Pin to Dashboard
-                  </Button>
-                </div>
               </div>
             </>
           )}
@@ -2150,11 +2145,6 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                     <div className="flex justify-between text-sm"><span className="text-muted-foreground">90-Day Avg</span><span className="text-foreground font-medium">{selectedLibMetric.value}</span></div>
                   </div>
                 )}
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={() => { toast({ title: 'Added to dashboard', description: `${selectedLibMetric.title} pinned to your dashboard.` }); setSelectedLibMetric(null); }} data-testid="button-pin-metric">
-                    Pin to Dashboard
-                  </Button>
-                </div>
               </div>
             </>
           )}

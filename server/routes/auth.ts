@@ -117,6 +117,13 @@ export function registerAuthRoutes(app: Express) {
           name: o.name,
           slug: o.slug,
         }));
+      } else if (role.level === 3 && user.additionalOrgIds && user.additionalOrgIds.length > 0) {
+        // Org Admin with additional org access
+        const accessibleIds = new Set([user.organizationId, ...user.additionalOrgIds]);
+        const allOrgs = await storage.getOrganizations();
+        accessibleOrganizations = allOrgs
+          .filter(o => accessibleIds.has(o.id))
+          .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
       }
 
       return res.json({
@@ -256,11 +263,33 @@ export function registerAuthRoutes(app: Express) {
   app.post("/api/auth/switch-org", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      if (req.user.roleLevel > 2) return res.status(403).json({ message: "Only partner admins can switch organizations" });
 
       const { organizationId } = req.body;
       const org = await storage.getOrganization(organizationId);
       if (!org) return res.status(404).json({ message: "Organization not found" });
+
+      // Get the user's home org and full record (before any switches)
+      const user = await storage.getUser(req.user.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      if (req.user.roleLevel === 1) {
+        // Super Admin: allow any org
+      } else if (req.user.roleLevel === 2) {
+        // Partner Admin: validate target org belongs to their partner group
+        const allOrgs = await storage.getOrganizations();
+        const partnerOrgs = allOrgs.filter(o => o.partnerId === user.organizationId || o.id === user.organizationId);
+        if (!partnerOrgs.find(o => o.id === organizationId)) {
+          return res.status(403).json({ message: "You can only access organizations in your partner group" });
+        }
+      } else if (req.user.roleLevel === 3) {
+        // Org Admin: check additionalOrgIds
+        const additionalOrgs = user.additionalOrgIds || [];
+        if (organizationId !== user.organizationId && !additionalOrgs.includes(organizationId)) {
+          return res.status(403).json({ message: "You do not have access to this organization" });
+        }
+      } else {
+        return res.status(403).json({ message: "Only partner admins and above can switch organizations" });
+      }
 
       await storage.updateUser(req.user.id, { organizationId });
 

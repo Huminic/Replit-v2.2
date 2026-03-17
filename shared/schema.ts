@@ -42,6 +42,7 @@ export const users = pgTable("users", {
   isActive: boolean("is_active").notNull().default(true),
   resetToken: text("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
+  additionalOrgIds: jsonb("additional_org_ids").$type<string[]>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [

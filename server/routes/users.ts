@@ -189,6 +189,14 @@ export function registerUserRoutes(app: Express) {
         allowedFields.roleId = req.body.roleId;
       }
       if (req.body.isActive !== undefined) allowedFields.isActive = req.body.isActive;
+      if (req.body.additionalOrgIds !== undefined && req.user.roleLevel <= 2) {
+        // Only Super Admin and Partner Admin can set additional org access
+        if (Array.isArray(req.body.additionalOrgIds)) {
+          allowedFields.additionalOrgIds = req.body.additionalOrgIds;
+        } else if (req.body.additionalOrgIds === null) {
+          allowedFields.additionalOrgIds = null;
+        }
+      }
 
       const updated = await storage.updateUser(req.params.id as string, allowedFields);
       if (!updated) return res.status(404).json({ message: "User not found" });

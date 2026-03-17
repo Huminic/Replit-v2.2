@@ -662,20 +662,21 @@
       "id": "QA-S19",
       "name": "Full audit — feature map + user stories + acceptance criteria walkthrough",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S19/",
         "sprints.json"
       ],
       "dependencies": [
         "FIX-S9"
-      ]
+      ],
+      "commitHash": "e7c43bc"
     },
     {
       "id": "FIX-S10",
       "name": "Org Admin multi-org access (Option A) + data isolation audit + Pin to Dashboard removal + password change move",
       "phase": "FIX",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "shared/schema.ts",
         "server/routes/auth.ts",
