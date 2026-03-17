@@ -1,0 +1,2 @@
+[2026-03-17T01:49:51Z] agent-launch | role=orchestrator | task="QA-S18 Marketing agents" | scope=evidence/QA-S18/*,sprints.json
+[2026-03-17T01:50:45Z] PRE-COMMIT role=orchestrator sprint=QA-S18 result=PASS detail="All 7 gates passed"

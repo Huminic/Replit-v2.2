@@ -612,13 +612,40 @@
       "id": "QA-S17",
       "name": "Data integrity — metrics, calculations, insights match actual data",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S17/",
         "sprints.json"
       ],
       "dependencies": [
         "QA-S16"
+      ],
+      "commitHash": "f0c6dae"
+    },
+    {
+      "id": "QA-S18",
+      "name": "Marketing agents — verify each agent produces correct asset type",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S18/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S17"
+      ]
+    },
+    {
+      "id": "QA-S18",
+      "name": "Marketing agents — verify asset production",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S18/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S17"
       ]
     }
   ]
