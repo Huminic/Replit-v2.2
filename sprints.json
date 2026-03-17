@@ -597,7 +597,7 @@
       "id": "QA-S16",
       "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S16/",
         "evidence/audit-recertification/",
@@ -605,6 +605,20 @@
       ],
       "dependencies": [
         "FIX-S8"
+      ],
+      "commitHash": "af0d2e6"
+    },
+    {
+      "id": "QA-S17",
+      "name": "Data integrity — metrics, calculations, insights match actual data",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S17/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S16"
       ]
     }
   ]
