@@ -1,7 +1,7 @@
 {
   "version": "3.0",
   "project": "nexxus2.2_replit",
-  "lastUpdated": "2026-03-15",
+  "lastUpdated": "2026-03-17",
   "sprints": [
     {
       "id": "P0-S0",
@@ -108,7 +108,7 @@
     },
     {
       "id": "P2-S1",
-      "name": "Token security — httpOnly cookies for refresh tokens",
+      "name": "Token security \u2014 httpOnly cookies for refresh tokens",
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T19:21:50Z",
@@ -139,14 +139,14 @@
     },
     {
       "id": "P3-S1",
-      "name": "Route registration pattern — extract health + auth routes",
+      "name": "Route registration pattern \u2014 extract health + auth routes",
       "phase": "P3",
       "status": "committed",
       "commitHash": "71108ab"
     },
     {
       "id": "P3-S2",
-      "name": "Frontend architecture — AppContext split",
+      "name": "Frontend architecture \u2014 AppContext split",
       "phase": "P3",
       "status": "committed",
       "startedAt": "2026-03-13T19:28:36Z",
@@ -196,7 +196,7 @@
     },
     {
       "id": "QA-S0",
-      "name": "Feature inventory — map application domains, pages, endpoints, and user flows",
+      "name": "Feature inventory \u2014 map application domains, pages, endpoints, and user flows",
       "phase": "QA",
       "status": "committed",
       "startedAt": "2026-03-14T00:00:00Z",
@@ -208,7 +208,7 @@
     },
     {
       "id": "QA-S1",
-      "name": "Feature testing — Authentication + Infrastructure/Security",
+      "name": "Feature testing \u2014 Authentication + Infrastructure/Security",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -222,7 +222,7 @@
     },
     {
       "id": "QA-S2",
-      "name": "Feature testing — AI Agent, Chat streaming (SSE)",
+      "name": "Feature testing \u2014 AI Agent, Chat streaming (SSE)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -236,7 +236,7 @@
     },
     {
       "id": "QA-S3",
-      "name": "Feature testing — Campaigns, Conversations, Messaging",
+      "name": "Feature testing \u2014 Campaigns, Conversations, Messaging",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -250,7 +250,7 @@
     },
     {
       "id": "QA-S4",
-      "name": "Feature testing — Dashboard, Dept views, Analytics",
+      "name": "Feature testing \u2014 Dashboard, Dept views, Analytics",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -264,7 +264,7 @@
     },
     {
       "id": "QA-S5",
-      "name": "Feature testing — Settings, Profile, Billing",
+      "name": "Feature testing \u2014 Settings, Profile, Billing",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -278,7 +278,7 @@
     },
     {
       "id": "QA-S6",
-      "name": "Feature testing — Tasks, Appointments, Integrations, Public widgets",
+      "name": "Feature testing \u2014 Tasks, Appointments, Integrations, Public widgets",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -292,7 +292,7 @@
     },
     {
       "id": "QA-S7",
-      "name": "Gap analysis — merge findings, prioritize remediation",
+      "name": "Gap analysis \u2014 merge findings, prioritize remediation",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -306,7 +306,7 @@
     },
     {
       "id": "QA-S8",
-      "name": "Remediation plan — define FIX sprints",
+      "name": "Remediation plan \u2014 define FIX sprints",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -348,7 +348,7 @@
     },
     {
       "id": "FIX-S1",
-      "name": "Governance remediation — missing artifacts, enforcer checklists, harness tooling",
+      "name": "Governance remediation \u2014 missing artifacts, enforcer checklists, harness tooling",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -368,7 +368,7 @@
     },
     {
       "id": "QA-S9",
-      "name": "Authenticated testing — Auth flows (L2/L3)",
+      "name": "Authenticated testing \u2014 Auth flows (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -383,7 +383,7 @@
     },
     {
       "id": "QA-S10",
-      "name": "Authenticated testing — AI Agent, Chat (L2/L3)",
+      "name": "Authenticated testing \u2014 AI Agent, Chat (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -398,7 +398,7 @@
     },
     {
       "id": "FIX-S2",
-      "name": "Governance housekeeping — sprint status sync + watchdog integration",
+      "name": "Governance housekeeping \u2014 sprint status sync + watchdog integration",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -417,7 +417,7 @@
     },
     {
       "id": "QA-S11",
-      "name": "Authenticated testing — Campaigns + Conversations (L2/L3)",
+      "name": "Authenticated testing \u2014 Campaigns + Conversations (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -432,7 +432,7 @@
     },
     {
       "id": "QA-S12",
-      "name": "Authenticated testing — Dashboard, Dept views, Analytics (L2/L3)",
+      "name": "Authenticated testing \u2014 Dashboard, Dept views, Analytics (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -448,7 +448,7 @@
     },
     {
       "id": "QA-S13",
-      "name": "Authenticated testing — Settings, Billing, Profile (L2/L3)",
+      "name": "Authenticated testing \u2014 Settings, Billing, Profile (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -463,7 +463,7 @@
     },
     {
       "id": "QA-S14",
-      "name": "Authenticated testing — Tasks, Integrations, Public widgets (L2/L3)",
+      "name": "Authenticated testing \u2014 Tasks, Integrations, Public widgets (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -478,7 +478,7 @@
     },
     {
       "id": "QA-S15",
-      "name": "Final gap analysis — merge L1 + L2 findings",
+      "name": "Final gap analysis \u2014 merge L1 + L2 findings",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -493,7 +493,7 @@
     },
     {
       "id": "FIX-S3",
-      "name": "Auth fixes — logout bug, error message, restart tour, org wizard, org data correction",
+      "name": "Auth fixes \u2014 logout bug, error message, restart tour, org wizard, org data correction",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -514,7 +514,7 @@
     },
     {
       "id": "FIX-S4",
-      "name": "FlexPrice billing connection — link customers, subscriptions, plans",
+      "name": "FlexPrice billing connection \u2014 link customers, subscriptions, plans",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -530,7 +530,7 @@
     },
     {
       "id": "FIX-S5",
-      "name": "Chat usability — activity history, campaign data, empty state handling",
+      "name": "Chat usability \u2014 activity history, campaign data, empty state handling",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -545,7 +545,7 @@
     },
     {
       "id": "FIX-S6",
-      "name": "Chat tuning — conversational formatting, multi-org context, status events",
+      "name": "Chat tuning \u2014 conversational formatting, multi-org context, status events",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -560,7 +560,7 @@
     },
     {
       "id": "FIX-S7",
-      "name": "Type safety cleanup — remove unnecessary as-any casts",
+      "name": "Type safety cleanup \u2014 remove unnecessary as-any casts",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -580,7 +580,7 @@
     },
     {
       "id": "FIX-S8",
-      "name": "Cleanup — documentation corrections, header notes",
+      "name": "Cleanup \u2014 documentation corrections, header notes",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -595,7 +595,7 @@
     },
     {
       "id": "QA-S16",
-      "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
+      "name": "Live communication testing \u2014 VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -610,7 +610,7 @@
     },
     {
       "id": "QA-S17",
-      "name": "Data integrity — metrics, calculations, insights match actual data",
+      "name": "Data integrity \u2014 metrics, calculations, insights match actual data",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -624,7 +624,7 @@
     },
     {
       "id": "QA-S18",
-      "name": "Marketing agents — verify each agent produces correct asset type",
+      "name": "Marketing agents \u2014 verify each agent produces correct asset type",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -638,7 +638,7 @@
     },
     {
       "id": "FIX-S9",
-      "name": "Fix open defects — campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
+      "name": "Fix open defects \u2014 campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -660,7 +660,7 @@
     },
     {
       "id": "QA-S19",
-      "name": "Full audit — feature map + user stories + acceptance criteria walkthrough",
+      "name": "Full audit \u2014 feature map + user stories + acceptance criteria walkthrough",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -694,7 +694,7 @@
     },
     {
       "id": "QA-S19L5",
-      "name": "L5 Admin walkthrough — user-reported findings collection",
+      "name": "L5 Admin walkthrough \u2014 user-reported findings collection",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -708,7 +708,7 @@
     },
     {
       "id": "QA-S20",
-      "name": "Full communications test — VAPI, TextMagic, Tavus, campaigns E2E",
+      "name": "Full communications test \u2014 VAPI, TextMagic, Tavus, campaigns E2E",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -722,7 +722,7 @@
     },
     {
       "id": "QA-S21",
-      "name": "Full E2E usability test — every page, every role, Playwright screenshots",
+      "name": "Full E2E usability test \u2014 every page, every role, Playwright screenshots",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -737,7 +737,7 @@
     },
     {
       "id": "FIX-S11",
-      "name": "Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects",
+      "name": "Wave 2 bug fix \u2014 all QA-S19L5 + QA-S20 + QA-S21 defects",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -779,7 +779,7 @@
       "id": "I-1",
       "name": "Fix 15 must-fix items from issues.md (with AC)",
       "phase": "I",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/",
         "client/src/",
@@ -790,6 +790,34 @@
       ],
       "dependencies": [
         "R-1"
+      ],
+      "commitHash": "2b29dd2"
+    },
+    {
+      "id": "T-1",
+      "name": "Verification testing \u2014 all 15 I-1 fixes against AC",
+      "phase": "T",
+      "status": "committed",
+      "scope": [
+        "evidence/T-1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "I-1"
+      ],
+      "completedAt": "2026-03-17T12:00:00Z"
+    },
+    {
+      "id": "T-2",
+      "name": "Full communications test \u2014 VAPI, TextMagic, Tavus, campaigns E2E",
+      "phase": "T",
+      "status": "planned",
+      "scope": [
+        "evidence/T-2/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-1"
       ]
     }
   ]

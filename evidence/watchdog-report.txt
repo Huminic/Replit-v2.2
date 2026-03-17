@@ -1,12 +1,12 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260317-040528
-Timestamp: 2026-03-17T04:05:28Z
+Report-ID: WD-20260317-222029
+Timestamp: 2026-03-17T22:20:29Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 7393dec
+HEAD: 2b29dd2
 
-C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
-C2  evidence artifacts:  VIOLATION — FIX-S9 missing post-sprint-report.md; FIX-S9 missing cross-sign.md; FIX-S9 missing enforcer-checklist.txt
+C1  sprints.json:        VIOLATION — committed without hash: T-1; batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
+C2  evidence artifacts:  PASS
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
@@ -17,10 +17,10 @@ C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
-C13 session content:     PASS
-C14 governance files:    VIOLATION — scripts/pre-commit.sh has unstaged changes; scripts/watchdog.sh has unstaged changes
+C13 session content:     PASS (no sprint IDs in active sections)
+C14 governance files:    PASS
 C15 memory staleness:    PASS
-C16 drift detection:     WARNING — 6 file(s) modified outside current sprint scope
+C16 drift detection:     VIOLATION — T-1 claims commit null but hash not in git
 
-SUMMARY: 10 PASS, 2 VIOLATION, 6 WARNING
+SUMMARY: 12 PASS, 2 VIOLATION, 5 WARNING
 === END SCAN ===
