@@ -286,6 +286,7 @@ When the user asks a question that requires deep CRM data (specific lead details
       res.setHeader("Connection", "keep-alive");
       res.setHeader("X-Accel-Buffering", "no");
       res.flushHeaders();
+      res.write(`data: ${JSON.stringify({ type: "status", text: "Thinking..." })}\n\n`);
 
       let fullResponse = "";
       let currentMessages: Anthropic.MessageParam[] = chatMessages;

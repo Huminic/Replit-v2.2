@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
+import { canAccessSystem } from '@/lib/rbac';
 import { cn } from '@/lib/utils';
 
 interface SubMenuItem {
@@ -103,7 +104,7 @@ interface MobileNavDropdownProps {
 
 export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdownProps) {
   const [location, setLocation] = useLocation();
-  const { favorites, addFavorite, removeFavorite, isFavorite, agents, selectedAgent, setSelectedAgent } = useApp();
+  const { favorites, addFavorite, removeFavorite, isFavorite, agents, selectedAgent, setSelectedAgent, currentRole } = useApp();
 
   const isAgentsPage = location.startsWith('/agents');
   const subMenu = getSubMenuForPath(location);
@@ -209,7 +210,9 @@ export function MobileNavDropdown({ currentPath, currentLabel }: MobileNavDropdo
           {subMenu && (
             <>
               <DropdownMenuLabel className="text-xs text-muted-foreground">{subMenu.label}</DropdownMenuLabel>
-              {subMenu.items.map(item => {
+              {subMenu.items
+                .filter(item => item.id !== 'billing' || canAccessSystem(currentRole))
+                .map(item => {
                 const Icon = item.icon;
                 return (
                   <DropdownMenuItem

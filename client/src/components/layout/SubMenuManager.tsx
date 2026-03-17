@@ -51,6 +51,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/AppContext';
 import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
+import { canAccessSystem } from '@/lib/rbac';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreVertical, Play, Trash2 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -496,7 +497,6 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'tb-conversations', label: 'Conversations', icon: MessageSquare, path: '/teambox', badge: String(openCount), active: location === '/teambox' })}
                   {renderNavItem({ id: 'tb-tasks', label: 'Tasks', icon: CheckSquare, path: '/teambox?tab=tasks' })}
-                  {renderNavItem({ id: 'tb-workflows', label: 'Workflows', icon: Activity, path: '/teambox?tab=workflows' })}
                 </nav>
               </div>
               <div className="p-2 border-t border-border">
@@ -738,7 +738,7 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'pf-profile', label: 'My Profile', icon: UserIcon, path: '/profile' })}
                   {renderNavItem({ id: 'pf-prefs', label: 'Preferences', icon: Settings, path: '/profile/preferences' })}
-                  {renderNavItem({ id: 'pf-billing', label: 'Billing', icon: CreditCard, path: '/profile/billing' })}
+                  {canAccessSystem(currentRole) && renderNavItem({ id: 'pf-billing', label: 'Billing', icon: CreditCard, path: '/profile/billing' })}
                 </nav>
               </div>
             </ScrollArea>

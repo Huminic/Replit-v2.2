@@ -65,7 +65,15 @@ function getViewConfig(pathname: string): ViewConfig {
   return 'data-display';
 }
 
-const TOUR_COMPLETED_KEY = 'nexxus_tour_completed';
+const TOUR_DISMISSED_PREFIX = 'nexxus_tour_dismissed_';
+
+/** Derive a stable page key from the current pathname for per-page tour tracking */
+function getTourPageKey(pathname: string): string {
+  if (pathname === '/') return 'main';
+  // Use the first path segment as the page key (e.g. /sales/foo -> sales)
+  const segment = pathname.split('/').filter(Boolean)[0];
+  return segment || 'main';
+}
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
@@ -73,24 +81,30 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { rightPaneOpen, setRightPaneOpen } = useUILayout();
 
   useEffect(() => {
-    const tourDone = localStorage.getItem(TOUR_COMPLETED_KEY);
-    if (!tourDone) {
+    const pageKey = getTourPageKey(location);
+    const tourDismissedForPage = localStorage.getItem(TOUR_DISMISSED_PREFIX + pageKey);
+    if (!tourDismissedForPage) {
       const timer = setTimeout(() => setShowTour(true), 800);
       return () => clearTimeout(timer);
+    } else {
+      // If tour was already dismissed for this page, make sure it's hidden
+      setShowTour(false);
     }
-  }, []);
+  }, [location]);
 
   const tourSteps = getTourStepsForRole(currentRole);
 
   const handleTourComplete = useCallback(() => {
-    localStorage.setItem(TOUR_COMPLETED_KEY, 'true');
+    const pageKey = getTourPageKey(location);
+    localStorage.setItem(TOUR_DISMISSED_PREFIX + pageKey, 'true');
     setShowTour(false);
-  }, [setShowTour]);
+  }, [setShowTour, location]);
 
   const handleTourSkip = useCallback(() => {
-    localStorage.setItem(TOUR_COMPLETED_KEY, 'true');
+    const pageKey = getTourPageKey(location);
+    localStorage.setItem(TOUR_DISMISSED_PREFIX + pageKey, 'true');
     setShowTour(false);
-  }, [setShowTour]);
+  }, [setShowTour, location]);
   
   const viewConfig = getViewConfig(location);
   const canToggleRightPane = viewConfig === 'data-display' || viewConfig === 'heavy-chat';

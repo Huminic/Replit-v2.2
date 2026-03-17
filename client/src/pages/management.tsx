@@ -17,7 +17,7 @@
  */
 import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare, Gauge } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -118,6 +118,15 @@ export default function ManagementPage() {
   });
 
   const pipeline = metrics?.pipeline;
+
+  // Demand Score (US-025): weighted formula normalized to 0-100
+  // activePipeline * 0.4 + outboundSent24h (proxy for new leads) * 0.3 + appointmentsToday * 0.3
+  const demandScore = useMemo(() => {
+    if (!pipeline) return 0;
+    const raw = (pipeline.activePipeline * 0.4) + (pipeline.outboundSent24h * 0.3) + (pipeline.appointmentsToday * 0.3);
+    return Math.min(100, Math.max(0, Math.round(raw)));
+  }, [pipeline]);
+
   const managementMetrics: ManagementMetricTile[] = [
     { id: 'mgmt-1', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Target },
     { id: 'mgmt-2', label: 'Active Agents', value: String(metrics?.agentCounts?.active ?? 0), change: 0, trend: 'up' as const, icon: Users },
@@ -125,6 +134,7 @@ export default function ManagementPage() {
     { id: 'mgmt-4', label: 'Open Escalations', value: String(pipeline?.openEscalations ?? 0), change: 0, trend: 'up' as const, icon: TrendingUp },
     { id: 'mgmt-5', label: 'Outbound Sent (24h)', value: String(pipeline?.outboundSent24h ?? 0), change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'mgmt-6', label: 'Active Campaigns', value: String(metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Briefcase },
+    { id: 'mgmt-7', label: 'Demand Score', value: String(demandScore), change: 0, trend: demandScore >= 50 ? 'up' as const : 'down' as const, icon: Gauge },
   ];
 
   const renderDashboard = () => (

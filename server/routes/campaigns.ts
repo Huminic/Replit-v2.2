@@ -115,11 +115,18 @@ export function registerCampaignRoutes(app: Express) {
     }
   });
 
-  // GET /api/campaigns/execution-statuses — all execution statuses
+  // GET /api/campaigns/execution-statuses — all execution statuses (org-filtered)
   app.get("/api/campaigns/execution-statuses", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      return res.json(getAllExecutionStatuses());
+      const allStatuses = getAllExecutionStatuses();
+      const orgStatuses: typeof allStatuses = {};
+      for (const [campaignId, status] of Object.entries(allStatuses)) {
+        if (status.organizationId === req.user.organizationId) {
+          orgStatuses[campaignId] = status;
+        }
+      }
+      return res.json(orgStatuses);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch execution statuses" });
     }

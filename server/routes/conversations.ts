@@ -168,6 +168,63 @@ export function registerConversationRoutes(app: Express) {
     }
   });
 
+  // POST /api/conversations/:id/email — send outbound email via Resend
+  app.post("/api/conversations/:id/email", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const conversation = await storage.getConversation(req.params.id as string);
+      if (!conversation) return res.status(404).json({ message: "Conversation not found" });
+      if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { to, subject, body } = req.body;
+      if (!to || !subject || !body) {
+        return res.status(400).json({ message: "Missing required fields: to, subject, body" });
+      }
+
+      if (!process.env.RESEND_API_KEY) {
+        return res.status(503).json({ message: "Email service not configured — RESEND_API_KEY missing" });
+      }
+
+      const org = await storage.getOrganization(req.user.organizationId);
+      const orgName = org?.name || "Nexxus Connect";
+      const fromAddress = `${orgName} <notifications@huminic.ai>`;
+
+      const { Resend } = await import("resend");
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: fromAddress,
+        to,
+        subject,
+        html: body,
+      });
+
+      const messageContent = `**Email sent to ${to}**\n**Subject:** ${subject}\n\n${body}`;
+      await storage.createMessage({
+        conversationId: req.params.id as string,
+        role: "agent",
+        content: messageContent,
+        senderName: `${req.user.firstName} ${req.user.lastName}`,
+      });
+      await storage.updateConversation(req.params.id as string, { lastMessageAt: new Date() });
+
+      storage.createActivityLog({
+        userId: req.user.id,
+        organizationId: req.user.organizationId,
+        action: "email_sent",
+        entityType: "conversation",
+        entityId: req.params.id as string,
+        metadata: { to, subject },
+      }).catch(() => {});
+
+      return res.json({ success: true, message: "Email sent successfully" });
+    } catch (err: any) {
+      console.error("[Email Send] Error:", err.message);
+      return res.status(500).json({ message: "Failed to send email" });
+    }
+  });
+
   app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });

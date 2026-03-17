@@ -147,12 +147,7 @@ export function registerSmsRoutes(app: Express) {
         return res.json({ success: true, action: "blacklisted", keyword: normalizedContent });
       }
 
-      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms");
-
-      if (conversation && conversation.organizationId !== organizationId) {
-        console.log(`[TextMagic Webhook] Existing conversation belongs to different org (${conversation.organizationId}), creating new one for ${organizationId}`);
-        conversation = undefined;
-      }
+      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms", organizationId);
 
       if (conversation) {
         await storage.updateConversation(conversation.id, {

@@ -66,7 +66,7 @@ export interface IStorage {
 
   getConversations(organizationId: string, filters?: { status?: string; channel?: string; agentId?: string }): Promise<Conversation[]>;
   getConversation(id: string): Promise<Conversation | undefined>;
-  getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined>;
+  getConversationByPhone(phone: string, channel?: string, organizationId?: string): Promise<Conversation | undefined>;
   createConversation(conv: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, data: Partial<InsertConversation>): Promise<Conversation | undefined>;
 
@@ -418,7 +418,7 @@ export class DatabaseStorage implements IStorage {
     return conv;
   }
 
-  async getConversationByPhone(phone: string, channel?: string): Promise<Conversation | undefined> {
+  async getConversationByPhone(phone: string, channel?: string, organizationId?: string): Promise<Conversation | undefined> {
     const normalizedPhone = phone.replace(/[^0-9+]/g, "");
     const digitsOnly = normalizedPhone.replace(/\+/g, "");
     const without1 = digitsOnly.startsWith("1") && digitsOnly.length === 11 ? digitsOnly.substring(1) : digitsOnly;
@@ -428,6 +428,7 @@ export class DatabaseStorage implements IStorage {
       eq(conversations.status, "open"),
     ];
     if (channel) conditions.push(eq(conversations.channel, channel));
+    if (organizationId) conditions.push(eq(conversations.organizationId, organizationId));
     const [conv] = await db.select().from(conversations)
       .where(and(...conditions))
       .orderBy(desc(conversations.lastMessageAt))

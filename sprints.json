@@ -761,7 +761,7 @@
       "id": "R-1",
       "name": "Issues Gathering and Plan Realignment",
       "phase": "R",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "issues.md",
         "enforcement_harness.json",
@@ -772,7 +772,25 @@
       "dependencies": [
         "FIX-S11"
       ],
-      "description": "Consolidate ALL open issues from QA-S19L5, QA-S20, QA-S21, FIX-S11 gaps, and backlog into a single issues.md file. Update governance files and enforcement harness to use issues.md as the single source of truth for open issues going forward. Realign the plan for a clear line of sight to launch."
+      "description": "Consolidate ALL open issues from QA-S19L5, QA-S20, QA-S21, FIX-S11 gaps, and backlog into a single issues.md file. Update governance files and enforcement harness to use issues.md as the single source of truth for open issues going forward. Realign the plan for a clear line of sight to launch.",
+      "commitHash": "72c5672"
+    },
+    {
+      "id": "I-1",
+      "name": "Fix 15 must-fix items from issues.md (with AC)",
+      "phase": "I",
+      "status": "in_progress",
+      "scope": [
+        "server/",
+        "client/src/",
+        "shared/schema.ts",
+        "sprints.json",
+        "evidence/I-1/",
+        "issues.md"
+      ],
+      "dependencies": [
+        "R-1"
+      ]
     }
   ]
 }

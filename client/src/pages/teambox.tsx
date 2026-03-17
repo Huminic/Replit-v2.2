@@ -171,7 +171,7 @@ export default function TeamboxPage() {
   const { agents, currentOrganization } = useApp();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
-  const [viewMode, setViewMode] = useState<'conversations' | 'tasks'>('conversations');
+  const [viewMode, setViewMode] = useState<'conversations' | 'tasks' | 'workflows'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
   const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
@@ -362,13 +362,23 @@ export default function TeamboxPage() {
                 <Badge variant="secondary" className="ml-1 h-4 min-w-4 text-[10px] px-1">{allTasks.length}</Badge>
               )}
             </button>
+            <button
+              onClick={() => setViewMode('workflows')}
+              className={cn(
+                'flex-1 text-xs py-1.5 rounded-sm transition-colors font-medium',
+                viewMode === 'workflows' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+              data-testid="tab-workflows"
+            >
+              Workflows
+            </button>
           </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={viewMode === 'conversations' ? 'Search conversations...' : 'Search tasks...'}
+              placeholder={viewMode === 'conversations' ? 'Search conversations...' : viewMode === 'tasks' ? 'Search tasks...' : 'Search workflows...'}
               className="h-8 pl-8 text-xs"
               data-testid="input-teambox-search"
             />
@@ -416,7 +426,7 @@ export default function TeamboxPage() {
                 ))}
               </div>
             </>
-          ) : (
+          ) : viewMode === 'tasks' ? (
             <div className="p-2">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Type</p>
               {taskTypeFilters.map(filter => {
@@ -457,6 +467,13 @@ export default function TeamboxPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          ) : (
+            <div className="p-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Workflows</p>
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                Workflow automation coming soon
               </div>
             </div>
           )}

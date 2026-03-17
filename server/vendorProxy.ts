@@ -89,7 +89,26 @@ export function callMCP(toolName: string, args: Record<string, unknown>): Promis
 }
 
 export function resolveNexxusOrgId(localOrgId: string): string {
-  return NEXXUS_ORG_MAP[localOrgId] || localOrgId;
+  if (NEXXUS_ORG_MAP[localOrgId]) return NEXXUS_ORG_MAP[localOrgId];
+  // Fallback: check integrations table cache (populated on first miss)
+  if (_integrationCache[localOrgId]) return _integrationCache[localOrgId];
+  return localOrgId;
+}
+
+const _integrationCache: Record<string, string> = {};
+
+/** Populate the integration cache for an org from the DB integrations table. */
+export async function warmIntegrationCache(localOrgId: string): Promise<void> {
+  if (NEXXUS_ORG_MAP[localOrgId] || _integrationCache[localOrgId]) return;
+  try {
+    const { storage: storageModule } = await import("./storage");
+    const ints = await storageModule.getIntegrations(localOrgId, { provider: "vinsolutions" });
+    if (ints.length > 0 && ints[0].nexxusOrgId) {
+      _integrationCache[localOrgId] = ints[0].nexxusOrgId;
+    }
+  } catch (e) {
+    console.error("[VendorProxy] Failed to warm integration cache:", e);
+  }
 }
 
 export function extractContactIdFromHref(href: string): number | null {

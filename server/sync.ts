@@ -1,5 +1,5 @@
 import { storage } from "./storage";
-import { callMCP, resolveNexxusOrgId } from "./vendorProxy";
+import { callMCP, resolveNexxusOrgId, warmIntegrationCache } from "./vendorProxy";
 import type { InsertWarehouseLead, InsertWarehouseMetric } from "@shared/schema";
 
 interface SyncResult {
@@ -29,6 +29,7 @@ function transformVinLead(raw: any, organizationId: string): InsertWarehouseLead
 }
 
 export async function runHistoricalBackfill(organizationId: string): Promise<SyncResult> {
+  await warmIntegrationCache(organizationId);
   const nexxusOrgId = resolveNexxusOrgId(organizationId);
   const logEntry = await storage.createSyncLog({
     organizationId,
@@ -116,6 +117,7 @@ export async function runHistoricalBackfill(organizationId: string): Promise<Syn
 }
 
 export async function runDailyDelta(organizationId: string): Promise<SyncResult> {
+  await warmIntegrationCache(organizationId);
   const nexxusOrgId = resolveNexxusOrgId(organizationId);
   const logEntry = await storage.createSyncLog({
     organizationId,
@@ -184,6 +186,7 @@ export async function runDailyDelta(organizationId: string): Promise<SyncResult>
 }
 
 export async function runMetricsRefresh(organizationId: string): Promise<SyncResult> {
+  await warmIntegrationCache(organizationId);
   const nexxusOrgId = resolveNexxusOrgId(organizationId);
   const logEntry = await storage.createSyncLog({
     organizationId,
