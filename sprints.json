@@ -640,7 +640,7 @@
       "id": "FIX-S9",
       "name": "Fix open defects — campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/chat.ts",
         "server/routes/insights.ts",
@@ -655,6 +655,39 @@
       ],
       "dependencies": [
         "QA-S18"
+      ],
+      "commitHash": "055a87a"
+    },
+    {
+      "id": "QA-S19",
+      "name": "Full audit — feature map + user stories + acceptance criteria walkthrough",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S19/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "FIX-S9"
+      ]
+    },
+    {
+      "id": "FIX-S10",
+      "name": "Org Admin multi-org access (Option A) + data isolation audit + Pin to Dashboard removal + password change move",
+      "phase": "FIX",
+      "status": "planned",
+      "scope": [
+        "shared/schema.ts",
+        "server/routes/auth.ts",
+        "server/storage.ts",
+        "client/src/pages/profile.tsx",
+        "client/src/pages/settings.tsx",
+        "client/src/pages/insights.tsx",
+        "sprints.json",
+        "evidence/FIX-S10/"
+      ],
+      "dependencies": [
+        "QA-S19"
       ]
     }
   ]
