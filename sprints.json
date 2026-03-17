@@ -696,13 +696,41 @@
       "id": "QA-S19L5",
       "name": "L5 Admin walkthrough — user-reported findings collection",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S19L5/",
         "sprints.json"
       ],
       "dependencies": [
         "FIX-S10"
+      ],
+      "commitHash": "106e1f1"
+    },
+    {
+      "id": "QA-S20",
+      "name": "Full communications test — VAPI, TextMagic, Tavus, campaigns E2E",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S20/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S19L5"
+      ]
+    },
+    {
+      "id": "QA-S21",
+      "name": "Full E2E usability test — every page, every role, Playwright screenshots",
+      "phase": "QA",
+      "status": "planned",
+      "scope": [
+        "evidence/QA-S21/",
+        "evidence/audit-recertification/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "QA-S20"
       ]
     }
   ]
