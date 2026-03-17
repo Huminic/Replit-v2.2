@@ -676,7 +676,7 @@
       "id": "FIX-S10",
       "name": "Org Admin multi-org access (Option A) + data isolation audit + Pin to Dashboard removal + password change move",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "shared/schema.ts",
         "server/routes/auth.ts",
@@ -689,6 +689,20 @@
       ],
       "dependencies": [
         "QA-S19"
+      ],
+      "commitHash": "6f54566"
+    },
+    {
+      "id": "QA-S19L5",
+      "name": "L5 Admin walkthrough — user-reported findings collection",
+      "phase": "QA",
+      "status": "in_progress",
+      "scope": [
+        "evidence/QA-S19L5/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "FIX-S10"
       ]
     }
   ]
