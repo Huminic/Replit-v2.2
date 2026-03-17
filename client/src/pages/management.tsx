@@ -15,7 +15,8 @@
  *   - ROI: Placeholder for Wave 3 ROI analysis (requires credit/metering system first)
  *
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/contexts/AppContext';
+import { canAccessManagement } from '@/lib/rbac';
 import type { ActivityLog, Hunch } from '@shared/schema';
 
 /** Sub-navigation tabs for the management page — includes Hunches (AI insights) and ROI (Wave 3) */
@@ -36,7 +38,8 @@ const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'insights', label: 'Insights', icon: BarChart3 },
   { id: 'hunches', label: 'Hunches', icon: Lightbulb },
-  { id: 'activities', label: 'Activities', icon: Activity },
+  { id: 'activities', label: 'System Log', icon: Activity },
+  { id: 'user-chats', label: 'User Chats', icon: MessageSquare },
   { id: 'roi', label: 'ROI', icon: DollarSign },
 ];
 
@@ -62,8 +65,23 @@ interface DashboardMetrics {
 export default function ManagementPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
-  const { currentOrganization } = useApp();
+  const { currentOrganization, currentRole } = useApp();
+  const [currentLocation, setLocation] = useLocation();
   const orgId = currentOrganization?.id;
+
+  // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
+  }, [currentLocation]);
+
+  // RBAC guard: redirect roles without management access (sales, service, marketing)
+  useEffect(() => {
+    if (!canAccessManagement(currentRole)) {
+      setLocation('/');
+    }
+  }, [currentRole, setLocation]);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
     queryKey: ['/api/metrics/dashboard', orgId],
@@ -262,7 +280,7 @@ export default function ManagementPage() {
 
   const renderActivities = () => (
     <div className="p-6 space-y-4">
-      <h2 className="text-lg font-semibold">Recent Activities</h2>
+      <h2 className="text-lg font-semibold">System Log</h2>
       {activityLoading ? (
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
@@ -308,6 +326,18 @@ export default function ManagementPage() {
     </div>
   );
 
+  /** User Chats tab — placeholder for viewing user chat activity across all agents */
+  const renderUserChats = () => (
+    <div className="p-6 flex items-center justify-center h-full">
+      <div className="text-center space-y-3">
+        <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h3 className="text-lg font-medium">User Chats</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">User chat activity — coming soon</p>
+        <p className="text-xs text-muted-foreground">View and filter chat conversations by user across all departments and agents.</p>
+      </div>
+    </div>
+  );
+
   /** ROI tab — placeholder for Wave 3 ROI analysis (requires credit/metering system to be built first) */
   const renderROI = () => (
     <div className="p-6 flex items-center justify-center h-full">
@@ -348,6 +378,7 @@ export default function ManagementPage() {
         {activeTab === 'insights' && renderInsights()}
         {activeTab === 'hunches' && renderHunches()}
         {activeTab === 'activities' && renderActivities()}
+        {activeTab === 'user-chats' && renderUserChats()}
         {activeTab === 'roi' && renderROI()}
       </ScrollArea>
     </div>

@@ -724,7 +724,7 @@
       "id": "QA-S21",
       "name": "Full E2E usability test — every page, every role, Playwright screenshots",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S21/",
         "evidence/audit-recertification/",
@@ -732,7 +732,46 @@
       ],
       "dependencies": [
         "QA-S20"
+      ],
+      "commitHash": "f017498"
+    },
+    {
+      "id": "FIX-S11",
+      "name": "Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/webhooks.ts",
+        "server/routes/auth.ts",
+        "client/src/components/layout/Sidebar.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "client/src/pages/teambox.tsx",
+        "client/src/pages/insights.tsx",
+        "client/src/pages/management.tsx",
+        "client/src/pages/main.tsx",
+        "sprints.json",
+        "evidence/FIX-S11/"
+      ],
+      "dependencies": [
+        "QA-S21"
       ]
+    },
+    {
+      "id": "R-1",
+      "name": "Issues Gathering and Plan Realignment",
+      "phase": "R",
+      "status": "planned",
+      "scope": [
+        "issues.md",
+        "enforcement_harness.json",
+        "sprints.json",
+        "evidence/R-1/",
+        "backlog.md"
+      ],
+      "dependencies": [
+        "FIX-S11"
+      ],
+      "description": "Consolidate ALL open issues from QA-S19L5, QA-S20, QA-S21, FIX-S11 gaps, and backlog into a single issues.md file. Update governance files and enforcement harness to use issues.md as the single source of truth for open issues going forward. Realign the plan for a clear line of sight to launch."
     }
   ]
 }

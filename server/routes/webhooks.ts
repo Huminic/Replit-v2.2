@@ -166,7 +166,7 @@ const vapiWebhookPayloadSchema = z.object({
 export function registerWebhookRoutes(app: Express) {
   app.post("/api/webhooks/vapi", async (req, res) => {
     try {
-      const vapiSecret = process.env.VAPI_PRIVATE_KEY;
+      const vapiSecret = process.env.VAPI_WEBHOOK_SECRET;
       if (vapiSecret) {
         const headerSecret = req.headers["x-vapi-secret"] || req.headers["authorization"];
         const providedSecret = typeof headerSecret === "string" ? headerSecret.replace(/^Bearer\s+/i, "") : "";

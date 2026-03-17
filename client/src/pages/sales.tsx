@@ -15,7 +15,7 @@
  *   - Calendar: Placeholder for Wave 2 test drive / follow-up scheduling
  *
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
@@ -115,11 +115,18 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
 }
 
 export default function SalesPage() {
-  const [, setLocation] = useLocation();
+  const [currentLocation, setLocation] = useLocation();
   const { selectedAgent, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
+  }, [currentLocation]);
   const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({

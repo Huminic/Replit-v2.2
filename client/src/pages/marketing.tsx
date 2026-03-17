@@ -25,8 +25,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,11 +32,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { useUILayout } from '@/contexts/UILayoutContext';
-import { getAgentStatusColor } from '@/lib/agent-utils';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import type { Campaign as APICampaign, Agent } from '@shared/schema';
+import type { Campaign as APICampaign } from '@shared/schema';
 import AgentChatView from '@/components/marketing/AgentChatView';
 import StudioGallery from '@/components/marketing/StudioGallery';
 import { MARKETING_AGENTS, getSessionsForAgent, timeAgo } from '@/lib/marketing-agents';
@@ -140,10 +137,6 @@ export default function MarketingPage() {
     { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MousePointerClick },
     { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: Globe },
   ];
-
-  const { data: marketingAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
-    queryKey: ['/api/agents?department=marketing', orgId],
-  });
 
   const { data: marketingCampaigns = [], isLoading: campaignsLoading } = useQuery<APICampaign[]>({
     queryKey: ['/api/campaigns?department=marketing', orgId],

@@ -118,7 +118,8 @@ export function TopBar() {
     try {
       await authSwitchOrg(orgId);
       appSwitchOrg(orgId);
-      queryClient.invalidateQueries();
+      // Full page reload to ensure all contexts, queries, and cached data refresh for new org
+      window.location.href = '/';
     } catch {
       toast({ title: 'Switch failed', description: 'Could not switch organization. Please try again.', variant: 'destructive' });
     }

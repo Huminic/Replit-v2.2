@@ -20,7 +20,7 @@
  * CRITICAL FEATURE — added after spam incident. Each campaign row has its own toggle.
  *
  */
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
@@ -82,12 +82,19 @@ const campaignStatusColors: Record<string, string> = {
 };
 
 export default function ServicePage() {
-  const [, setLocation] = useLocation();
+  const [currentLocation, setLocation] = useLocation();
   const { communicationGateEnabled, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
+  }, [currentLocation]);
   const [selectedMetric, setSelectedMetric] = useState<ServiceMetricTile | null>(null);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({

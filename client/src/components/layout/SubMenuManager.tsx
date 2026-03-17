@@ -653,7 +653,8 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mg-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/management', active: location === '/management' })}
                   {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
-                  {renderNavItem({ id: 'mg-activities', label: 'Activities', icon: Activity, path: '/management?tab=activities' })}
+                  {renderNavItem({ id: 'mg-activities', label: 'System Log', icon: Activity, path: '/management?tab=activities' })}
+                  {renderNavItem({ id: 'mg-user-chats', label: 'User Chats', icon: MessageSquare, path: '/management?tab=user-chats' })}
                   {renderNavItem({ id: 'mg-roi', label: 'ROI', icon: DollarSign, path: '/management?tab=roi' })}
                 </nav>
               </div>

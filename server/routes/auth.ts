@@ -312,10 +312,22 @@ export function registerAuthRoutes(app: Express) {
       // Set refresh token as httpOnly cookie
       setRefreshCookie(res, refreshToken);
 
+      const role = await storage.getRole(req.user.roleId);
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: role ? { id: role.id, name: role.name, level: role.level } : null,
+        organization: { id: org.id, name: org.name },
+      };
+
       return res.json({
         accessToken,
         expiresIn: getAccessTokenExpirySeconds(),
+        user: safeUser,
         organization: { id: org.id, name: org.name },
+        fullRefresh: true,
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to switch organization" });
