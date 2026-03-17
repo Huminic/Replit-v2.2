@@ -226,6 +226,22 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════
+# GATE 1.8: Ghost message acknowledgment
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.8/7] Ghost message check..."
+
+if [ -f "scripts/watchdog.sh" ]; then
+  GHOST_RESULT=$(COMMIT_SPRINT="$SPRINT" bash scripts/watchdog.sh verify-ghost 2>&1)
+  GHOST_EXIT=$?
+  if [ "$GHOST_EXIT" -ne 0 ]; then
+    block "Ghost message gate: $GHOST_RESULT"
+  fi
+  echo "  $GHOST_RESULT"
+else
+  echo "  SKIP (watchdog.sh not found)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
 # GATE 2: Evidence directory
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 2/7] Evidence directory..."

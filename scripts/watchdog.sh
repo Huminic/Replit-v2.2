@@ -19,6 +19,7 @@ EVIDENCE_DIR="$PROJECT_ROOT/evidence"
 REPORT_FILE="$EVIDENCE_DIR/watchdog-report.txt"
 ACK_FILE="$EVIDENCE_DIR/watchdog-ack.txt"
 ALERTS_LOG="$EVIDENCE_DIR/watchdog-alerts.log"
+GHOST_LOG="$EVIDENCE_DIR/ghost_messages.log"
 SESSION_STATE="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md"
 PLANS_DIR="$HOME/.claude/plans"
 HOOK_SOURCE="$PROJECT_ROOT/scripts/pre-commit.sh"
@@ -605,6 +606,361 @@ check_c11() {
 }
 
 # ─────────────────────────────────────────────
+# C13: Session state content accuracy
+# ─────────────────────────────────────────────
+check_c13() {
+  local result="PASS"
+  local details=""
+
+  if [ ! -f "$SESSION_STATE" ]; then
+    out "C13 session content:     PASS (no session-state.md)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Extract "Working On:" line
+  local working_on
+  working_on=$(grep -i "Working On:" "$SESSION_STATE" 2>/dev/null | head -1)
+
+  if [ -z "$working_on" ]; then
+    out "C13 session content:     PASS (no Working On field)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Extract sprint IDs from active sections only: "Working On:", "Status:", "Next Steps:"
+  # Ignore historical references in "Decisions Made", "Completed", etc.
+  local active_text
+  active_text=$(python3 -c "
+import re, sys
+
+with open('$SESSION_STATE') as f:
+    content = f.read()
+
+# Extract only the active sections
+sections_to_check = []
+current_section = ''
+for line in content.split('\n'):
+    # Detect section headers
+    if re.match(r'^##\s', line):
+        current_section = line.lower()
+    # Include lines from active sections
+    if any(kw in current_section for kw in ['current task', 'next step', 'blocker', 'status']):
+        sections_to_check.append(line)
+    # Also include standalone Working On / Status lines not under a header
+    if re.match(r'^\s*[-*]?\s*\*?\*?(Working On|Status|Next)\*?\*?\s*:', line, re.IGNORECASE):
+        sections_to_check.append(line)
+
+print('\n'.join(sections_to_check))
+" 2>/dev/null)
+
+  local session_sprints
+  session_sprints=$(echo "$active_text" | grep -oE 'QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+' | sort -u)
+
+  if [ -z "$session_sprints" ]; then
+    out "C13 session content:     PASS (no sprint IDs in active sections)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Get sprint list from sprints.json with positions and statuses
+  local check_result
+  check_result=$(python3 -c "
+import json, re, sys
+
+with open('$SPRINTS_JSON') as f:
+    data = json.load(f)
+
+sprints = data.get('sprints', [])
+if not sprints:
+    print('PASS')
+    sys.exit(0)
+
+# Build position map: id -> (index, status)
+pos_map = {}
+for i, s in enumerate(sprints):
+    pos_map[s['id']] = (i, s.get('status', 'unknown'))
+
+latest_idx = len(sprints) - 1
+latest_id = sprints[latest_idx]['id']
+
+# Session sprint IDs (from active sections only)
+session_ids = '''$session_sprints'''.strip().split('\n')
+session_ids = [s.strip() for s in session_ids if s.strip()]
+
+# Active section text for context checks
+active_text = '''$active_text'''
+
+violations = []
+
+for sid in session_ids:
+    if sid not in pos_map:
+        continue
+    s_idx, s_status = pos_map[sid]
+
+    # Check if active section references a sprint 2+ positions behind latest
+    if latest_idx - s_idx >= 2:
+        violations.append(f'{sid} is {latest_idx - s_idx} sprints behind latest ({latest_id})')
+
+    # Check 'next' for already committed sprint
+    pattern_next = re.compile(rf'{re.escape(sid)}.*\bnext\b', re.IGNORECASE)
+    if pattern_next.search(active_text) and s_status == 'committed':
+        violations.append(f'{sid} marked next but already committed')
+
+    # Check 'COMPLETE' for still in_progress sprint
+    pattern_complete = re.compile(rf'{re.escape(sid)}.*\bCOMPLETE\b', re.IGNORECASE)
+    if pattern_complete.search(active_text) and s_status == 'in_progress':
+        violations.append(f'{sid} marked COMPLETE but still in_progress')
+
+if violations:
+    print('VIOLATION|' + '; '.join(violations))
+else:
+    print('PASS')
+" 2>/dev/null)
+
+  if echo "$check_result" | grep -q "^VIOLATION"; then
+    details=$(echo "$check_result" | sed 's/^VIOLATION|//')
+    out "C13 session content:     VIOLATION — $details"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  else
+    out "C13 session content:     PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C14: Governance file integrity (uncommitted modifications)
+# ─────────────────────────────────────────────
+check_c14() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  # Governance files that should not be modified without orchestrator role commit
+  local gov_files="CLAUDE.md enforcement_harness.json scripts/pre-commit.sh scripts/check-file-scope.sh scripts/enforcer-checklist.sh scripts/commit.sh scripts/workflow-audit.sh scripts/watchdog.sh"
+
+  for gf in $gov_files; do
+    [ -f "$gf" ] || continue
+
+    # Check if file has uncommitted changes (staged or unstaged)
+    if git diff --name-only -- "$gf" 2>/dev/null | grep -q .; then
+      result="VIOLATION"
+      details+="$gf has unstaged changes; "
+    fi
+    if git diff --cached --name-only -- "$gf" 2>/dev/null | grep -q .; then
+      result="VIOLATION"
+      details+="$gf has staged changes; "
+    fi
+
+    # Check who last committed this file — should be orchestrator role
+    local last_commit_msg
+    last_commit_msg=$(git log -1 --format="%s" -- "$gf" 2>/dev/null)
+    if [ -n "$last_commit_msg" ]; then
+      # Extract role from commit message pattern [SPRINT-ID] or COMMIT_ROLE
+      local commit_log
+      commit_log=$(git log -1 --format="%H" -- "$gf" 2>/dev/null)
+      if [ -n "$commit_log" ]; then
+        local audit_role
+        audit_role=$(git log -1 --format="%b" "$commit_log" 2>/dev/null | grep -oP 'role=\K\w+' || true)
+        if [ -n "$audit_role" ] && [ "$audit_role" != "orchestrator" ]; then
+          if [ "$result" = "PASS" ]; then result="WARNING"; fi
+          details+="$gf last committed by role=$audit_role (expected orchestrator); "
+          WARNING_COUNT=$((WARNING_COUNT + 1))
+        fi
+      fi
+    fi
+  done
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C14 governance files:    VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C14 governance files:    WARNING — ${details%%; }"
+  else
+    out "C14 governance files:    PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C15: Memory staleness (dev agent's memory files)
+# ─────────────────────────────────────────────
+check_c15() {
+  local result="PASS"
+  local details=""
+  local now
+  now=$(date +%s)
+
+  local memory_dir="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory"
+
+  if [ ! -d "$memory_dir" ]; then
+    out "C15 memory staleness:    PASS (no memory directory)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Check MEMORY.md freshness (index file — should be updated when memories change)
+  local memory_index="$memory_dir/MEMORY.md"
+  if [ -f "$memory_index" ]; then
+    local mem_mtime mem_age_hours
+    mem_mtime=$(stat -c %Y "$memory_index")
+    mem_age_hours=$(( (now - mem_mtime) / 3600 ))
+    if [ "$mem_age_hours" -ge 24 ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="MEMORY.md is ${mem_age_hours}h old; "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    fi
+  fi
+
+  # Check project_sprint_status.md — should track current sprint state
+  local sprint_status="$memory_dir/project_sprint_status.md"
+  if [ -f "$sprint_status" ]; then
+    local ss_mtime ss_age_hours
+    ss_mtime=$(stat -c %Y "$sprint_status")
+    ss_age_hours=$(( (now - ss_mtime) / 3600 ))
+    if [ "$ss_age_hours" -ge 8 ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="project_sprint_status.md is ${ss_age_hours}h old; "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    fi
+
+    # Check if sprint status memory references current sprints
+    local latest_sprint
+    latest_sprint=$(jq -r '.sprints | last | .id' "$SPRINTS_JSON" 2>/dev/null)
+    if [ -n "$latest_sprint" ] && ! grep -q "$latest_sprint" "$sprint_status" 2>/dev/null; then
+      # Check the sprint before latest too (might be mid-transition)
+      local prev_sprint
+      prev_sprint=$(jq -r '.sprints[-2].id // ""' "$SPRINTS_JSON" 2>/dev/null)
+      if [ -n "$prev_sprint" ] && ! grep -q "$prev_sprint" "$sprint_status" 2>/dev/null; then
+        result="VIOLATION"
+        details+="project_sprint_status.md doesn't reference $latest_sprint or $prev_sprint; "
+      fi
+    fi
+  fi
+
+  # Check session-state.md content vs last commit timestamp
+  if [ -f "$SESSION_STATE" ]; then
+    local last_commit_ts
+    last_commit_ts=$(cd "$PROJECT_ROOT" && git log -1 --format="%ct" 2>/dev/null || echo "0")
+    local session_mtime
+    session_mtime=$(stat -c %Y "$SESSION_STATE")
+    # Session state updated more than 2 hours before last commit = stale
+    if [ $((last_commit_ts - session_mtime)) -gt 7200 ] && [ "$last_commit_ts" -gt 0 ]; then
+      result="VIOLATION"
+      details+="session-state.md last updated $(( (last_commit_ts - session_mtime) / 3600 ))h before latest commit; "
+    fi
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C15 memory staleness:    VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C15 memory staleness:    WARNING — ${details%%; }"
+  else
+    out "C15 memory staleness:    PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C16: Drift detection (claims vs reality)
+# ─────────────────────────────────────────────
+check_c16() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  # Drift 1: sprints.json claims "committed" — verify hash actually exists in git
+  # (partially overlaps C9 but checks ALL, not just order)
+  local phantom_commits
+  phantom_commits=$(jq -r '.sprints[] | select(.status == "committed") | "\(.id)|\(.commitHash)"' "$SPRINTS_JSON" 2>/dev/null)
+  while IFS='|' read -r sid hash; do
+    [ -z "$sid" ] && continue
+    [ -z "$hash" ] && continue
+    if ! git cat-file -e "$hash" 2>/dev/null; then
+      result="VIOLATION"
+      details+="$sid claims commit $hash but hash not in git; "
+    fi
+  done <<< "$phantom_commits"
+
+  # Drift 2: evidence directories exist for "committed" sprints but are not tracked by git
+  local committed_ids
+  committed_ids=$(jq -r '.sprints[] | select(.status == "committed") | .id' "$SPRINTS_JSON" 2>/dev/null)
+  for sid in $committed_ids; do
+    [ -z "$sid" ] && continue
+    local edir="evidence/$sid"
+    [ -d "$edir" ] || continue
+    # Check if evidence dir is tracked in git
+    if ! git ls-files --error-unmatch "$edir" >/dev/null 2>&1; then
+      # Check if ANY file in the dir is tracked
+      local tracked_count
+      tracked_count=$(git ls-files "$edir" 2>/dev/null | wc -l)
+      if [ "$tracked_count" -eq 0 ]; then
+        result="VIOLATION"
+        details+="$sid status=committed but evidence/ not in git; "
+      fi
+    fi
+  done
+
+  # Drift 3: Latest committed sprint's evidence should match what's in git at that hash
+  local latest_committed_id latest_committed_hash
+  latest_committed_id=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+  latest_committed_hash=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .commitHash // ""' "$SPRINTS_JSON" 2>/dev/null)
+
+  if [ -n "$latest_committed_id" ] && [ -n "$latest_committed_hash" ] && git cat-file -e "$latest_committed_hash" 2>/dev/null; then
+    # Check if the evidence dir existed at that commit
+    local evidence_at_commit
+    evidence_at_commit=$(git ls-tree --name-only "$latest_committed_hash" "evidence/$latest_committed_id/" 2>/dev/null | wc -l)
+    if [ "$evidence_at_commit" -eq 0 ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="$latest_committed_id evidence not found at commit $latest_committed_hash; "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    fi
+  fi
+
+  # Drift 4: in_progress sprint count in sprints.json vs evidence dirs with incomplete artifacts
+  local in_progress_ids
+  in_progress_ids=$(jq -r '.sprints[] | select(.status == "in_progress") | .id' "$SPRINTS_JSON" 2>/dev/null)
+  for sid in $in_progress_ids; do
+    [ -z "$sid" ] && continue
+    if [ ! -d "evidence/$sid" ]; then
+      result="VIOLATION"
+      details+="$sid status=in_progress but no evidence directory; "
+    fi
+  done
+
+  # Drift 5: Check if working tree has changes in files that don't belong to the current sprint
+  local current_sprint
+  current_sprint=$(jq -r '[.sprints[] | select(.status == "in_progress")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+  if [ -n "$current_sprint" ]; then
+    # Count uncommitted changes outside evidence/{current_sprint}/
+    local stray_changes
+    stray_changes=$(git diff --name-only 2>/dev/null | grep -v "^evidence/${current_sprint}/" | grep -v "^evidence/watchdog" | grep -v "^evidence/ghost" || true)
+    if [ -n "$stray_changes" ]; then
+      local stray_count
+      stray_count=$(echo "$stray_changes" | wc -l)
+      if [ "$stray_count" -gt 0 ]; then
+        if [ "$result" = "PASS" ]; then result="WARNING"; fi
+        details+="$stray_count file(s) modified outside current sprint scope; "
+        WARNING_COUNT=$((WARNING_COUNT + 1))
+      fi
+    fi
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C16 drift detection:     VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C16 drift detection:     WARNING — ${details%%; }"
+  else
+    out "C16 drift detection:     PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
 # SCAN MODE
 # ─────────────────────────────────────────────
 do_scan() {
@@ -636,6 +992,10 @@ do_scan() {
   check_c10
   check_c11
   out "C12 protected paths:     N/A (scan mode)"
+  check_c13
+  check_c14
+  check_c15
+  check_c16
 
   out ""
   out "SUMMARY: $PASS_COUNT PASS, $VIOLATION_COUNT VIOLATION, $WARNING_COUNT WARNING"
@@ -761,8 +1121,176 @@ do_watch() {
 }
 
 # ─────────────────────────────────────────────
-# MAIN
+# GHOST MESSAGE MODE (send a directive to dev agent)
 # ─────────────────────────────────────────────
+do_ghost_msg() {
+  local severity="${1:-INFO}"
+  shift
+  local message="$*"
+
+  if [ -z "$message" ]; then
+    echo "Usage: $0 ghost-msg {INFO|DIRECTIVE|BLOCK} <message>"
+    echo "  INFO      — Informational, dev agent should read but no action required"
+    echo "  DIRECTIVE — Dev agent must acknowledge in pre-execution report"
+    echo "  BLOCK     — Dev agent cannot commit until acknowledged"
+    exit 1
+  fi
+
+  # Validate severity
+  case "$severity" in
+    INFO|DIRECTIVE|BLOCK) ;;
+    *)
+      echo "Invalid severity: $severity. Must be INFO, DIRECTIVE, or BLOCK."
+      exit 1
+      ;;
+  esac
+
+  local msg_id="GM-$(date -u +%Y%m%d-%H%M%S)"
+  local ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  # Append to ghost log
+  {
+    echo "---"
+    echo "Message-ID: $msg_id"
+    echo "Timestamp: $ts"
+    echo "Severity: $severity"
+    echo "From: watchdog"
+    echo "Message: $message"
+    echo "Status: PENDING"
+  } >> "$GHOST_LOG"
+
+  echo "Ghost message sent:"
+  echo "  ID: $msg_id"
+  echo "  Severity: $severity"
+  echo "  Message: $message"
+}
+
+# ─────────────────────────────────────────────
+# VERIFY-GHOST MODE (called by pre-commit hook)
+# ─────────────────────────────────────────────
+do_verify_ghost() {
+  # Exit codes:
+  #   0 = no pending DIRECTIVE/BLOCK messages, or all acknowledged
+  #   1 = unacknowledged DIRECTIVE/BLOCK messages exist
+
+  if [ ! -f "$GHOST_LOG" ]; then
+    echo "GHOST-CHECK: No ghost messages. PASS."
+    exit 0
+  fi
+
+  # Find all PENDING messages with severity DIRECTIVE or BLOCK
+  local pending_ids
+  pending_ids=$(python3 -c "
+import re, sys
+
+with open('$GHOST_LOG') as f:
+    content = f.read()
+
+# Parse message blocks
+blocks = content.split('---')
+pending = []
+for block in blocks:
+    block = block.strip()
+    if not block:
+        continue
+    msg_id = ''
+    severity = ''
+    status = ''
+    message = ''
+    for line in block.split('\n'):
+        if line.startswith('Message-ID:'):
+            msg_id = line.split(':', 1)[1].strip()
+        elif line.startswith('Severity:'):
+            severity = line.split(':', 1)[1].strip()
+        elif line.startswith('Status:'):
+            status = line.split(':', 1)[1].strip()
+        elif line.startswith('Message:'):
+            message = line.split(':', 1)[1].strip()
+    if status == 'PENDING' and severity in ('DIRECTIVE', 'BLOCK'):
+        pending.append(f'{msg_id}|{severity}|{message}')
+
+if not pending:
+    print('PASS')
+else:
+    for p in pending:
+        print(p)
+" 2>/dev/null)
+
+  if [ "$pending_ids" = "PASS" ]; then
+    echo "GHOST-CHECK: No pending directives. PASS."
+    exit 0
+  fi
+
+  # Check if the current sprint's pre-execution report acknowledges these messages
+  local sprint_id="${COMMIT_SPRINT:-}"
+  local pre_exec="$EVIDENCE_DIR/${sprint_id}/pre-execution-report.md"
+
+  local unacked=0
+  while IFS='|' read -r msg_id severity message; do
+    [ -z "$msg_id" ] && continue
+
+    # Check pre-execution report for this message ID
+    if [ -f "$pre_exec" ] && grep -q "$msg_id" "$pre_exec"; then
+      continue  # Acknowledged
+    fi
+
+    echo "GHOST-CHECK: BLOCKED — Unacknowledged $severity message: $msg_id"
+    echo "  Message: $message"
+    echo "  Must reference $msg_id in $pre_exec"
+    unacked=$((unacked + 1))
+  done <<< "$pending_ids"
+
+  if [ "$unacked" -gt 0 ]; then
+    echo "GHOST-CHECK: BLOCKED — $unacked unacknowledged directive(s)."
+    exit 1
+  fi
+
+  echo "GHOST-CHECK: All directives acknowledged. PASS."
+  exit 0
+}
+
+# ─────────────────────────────────────────────
+# GHOST-ACK MODE (mark a message as acknowledged — called after verification)
+# ─────────────────────────────────────────────
+do_ghost_ack() {
+  local msg_id="${1:-}"
+
+  if [ -z "$msg_id" ]; then
+    echo "Usage: $0 ghost-ack <Message-ID>"
+    exit 1
+  fi
+
+  if [ ! -f "$GHOST_LOG" ]; then
+    echo "No ghost_messages.log found."
+    exit 1
+  fi
+
+  # Update status from PENDING to ACKNOWLEDGED
+  if grep -q "Message-ID: $msg_id" "$GHOST_LOG"; then
+    python3 -c "
+import re
+
+with open('$GHOST_LOG') as f:
+    content = f.read()
+
+# Find the block with this message ID and change its status
+blocks = content.split('---')
+new_blocks = []
+for block in blocks:
+    if 'Message-ID: $msg_id' in block and 'Status: PENDING' in block:
+        block = block.replace('Status: PENDING', 'Status: ACKNOWLEDGED')
+    new_blocks.append(block)
+
+with open('$GHOST_LOG', 'w') as f:
+    f.write('---'.join(new_blocks))
+" 2>/dev/null
+    echo "Message $msg_id marked ACKNOWLEDGED."
+  else
+    echo "Message $msg_id not found in ghost log."
+    exit 1
+  fi
+}
+
 # ─────────────────────────────────────────────
 # VERIFY-ACK MODE (called by pre-commit hook)
 # ─────────────────────────────────────────────
@@ -863,11 +1391,25 @@ case "${1:-}" in
   verify-ack)
     do_verify_ack
     ;;
+  verify-ghost)
+    do_verify_ghost
+    ;;
+  ghost-msg)
+    shift
+    do_ghost_msg "$@"
+    ;;
+  ghost-ack)
+    shift
+    do_ghost_ack "$@"
+    ;;
   *)
-    echo "Usage: $0 {scan|watch|verify-ack}"
-    echo "  scan       — Full audit, writes to stdout + evidence/watchdog-report.txt"
-    echo "  watch      — Real-time monitoring via inotifywait, alerts to evidence/watchdog-alerts.log"
-    echo "  verify-ack — Check if watchdog-ack.txt matches latest report (used by pre-commit hook)"
+    echo "Usage: $0 {scan|watch|verify-ack|verify-ghost|ghost-msg|ghost-ack}"
+    echo "  scan         — Full audit (C1-C16), writes to stdout + evidence/watchdog-report.txt"
+    echo "  watch        — Real-time monitoring via inotifywait, alerts to evidence/watchdog-alerts.log"
+    echo "  verify-ack   — Check if watchdog-ack.txt matches latest report (used by pre-commit hook)"
+    echo "  verify-ghost — Check if pending ghost directives are acknowledged (used by pre-commit hook)"
+    echo "  ghost-msg    — Send a message to the dev agent: ghost-msg {INFO|DIRECTIVE|BLOCK} <message>"
+    echo "  ghost-ack    — Mark a ghost message as acknowledged: ghost-ack <Message-ID>"
     exit 1
     ;;
 esac

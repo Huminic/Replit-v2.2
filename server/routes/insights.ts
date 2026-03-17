@@ -3,6 +3,53 @@ import { authenticateToken } from "../auth";
 import { storage } from "../storage";
 import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
 
+/**
+ * Transform a raw lead source value into a human-readable label.
+ * VIN Solutions stores lead sources as API URLs like:
+ *   "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043"
+ * This extracts the numeric ID and returns "VIN Source #7098".
+ * Non-URL values are returned as-is.
+ */
+function formatLeadSource(raw: string | null | undefined): string {
+  if (!raw) return "Unknown";
+  // Match VIN Solutions leadsources URL pattern
+  const vinMatch = raw.match(/\/leadsources\/id\/(\d+)/i);
+  if (vinMatch) return `VIN Source #${vinMatch[1]}`;
+  // If it looks like a generic URL but not a VIN leadsources URL, show domain
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    try {
+      const hostname = new URL(raw).hostname;
+      return hostname;
+    } catch {
+      return raw;
+    }
+  }
+  return raw;
+}
+
+/**
+ * Derive a channel category from the lead source string.
+ * Since leadType (INTERNET, WALK_IN, PHONE, etc.) is not stored in the
+ * warehouse_leads table, we infer the channel from leadSource text/URL
+ * patterns. Storing leadType during VIN sync would improve accuracy.
+ */
+function deriveChannel(leadSource: string | null | undefined, vinStatus: string | null | undefined): string {
+  const src = (leadSource || "").toLowerCase();
+  const status = (vinStatus || "").toLowerCase();
+
+  // Check for phone-related patterns
+  if (src.includes("phone") || src.includes("call") || status.includes("phone")) return "Phone";
+  // Check for walk-in / showroom patterns
+  if (src.includes("walk") || src.includes("showroom") || status.includes("walk")) return "Walk-In";
+  // Check for web/internet/chat patterns
+  if (src.includes("web") || src.includes("internet") || src.includes("chat") || src.includes("online")
+    || src.includes("email") || src.includes("form")) return "Website";
+  // VIN API leadsources URLs are typically internet leads
+  if (src.includes("api.vinsolutions.com/leadsources")) return "Website";
+
+  return "Other";
+}
+
 function resolveOrgIdParam(req: import("express").Request): string | null {
   if (!req.user) return null;
   const requestedOrgId = req.query.orgId as string | undefined;
@@ -35,7 +82,7 @@ export function registerInsightRoutes(app: Express) {
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
           return {
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Internet",
-            source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
+            source: formatLeadSource(l.leadSource), vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "active", isHot: l.vinStatus === "hot" || l.vinStatus === "ACTIVE_ACTIVE_LEAD",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
@@ -51,7 +98,7 @@ export function registerInsightRoutes(app: Express) {
           const hoursOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60));
           return {
             id: l.id, leadId: l.sourceId || l.id, hoursOld, type: "Internet",
-            source: l.leadSource || "Unknown", vehicle: l.vehicleOfInterest || "",
+            source: formatLeadSource(l.leadSource), vehicle: l.vehicleOfInterest || "",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
         })
@@ -66,7 +113,7 @@ export function registerInsightRoutes(app: Express) {
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
           return {
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Walk-In",
-            source: l.leadSource || "Showroom", vehicle: l.vehicleOfInterest || "",
+            source: formatLeadSource(l.leadSource) || "Showroom", vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "open",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
@@ -81,7 +128,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, number> = {};
       allLeads.forEach(l => {
-        const src = l.leadSource || "Unknown";
+        const src = formatLeadSource(l.leadSource);
         sourceCounts[src] = (sourceCounts[src] || 0) + 1;
       });
       const topLeadSources = Object.entries(sourceCounts)
@@ -94,7 +141,7 @@ export function registerInsightRoutes(app: Express) {
 
       const channelCounts: Record<string, { total: number; won: number }> = {};
       allLeads.forEach(l => {
-        const ch = l.leadSource?.includes("Phone") ? "Phone" : l.leadSource?.includes("Walk") ? "Walk-In" : l.leadSource?.includes("Web") ? "Website" : "Other";
+        const ch = deriveChannel(l.leadSource, l.vinStatus);
         if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0 };
         channelCounts[ch].total++;
         if (isSoldLead(l.vinStatus)) channelCounts[ch].won++;
@@ -103,8 +150,30 @@ export function registerInsightRoutes(app: Express) {
         channel, volume: data.total, conversion: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
       }));
 
-      const metricsMap: Record<string, string> = {};
+      let metricsMap: Record<string, string> = {};
       metrics.forEach(m => { metricsMap[m.metricKey] = m.metricValue; });
+
+      // If warehouse_metrics table is empty or all values are zero, compute from warehouse_leads
+      const metricsAllZero = Object.keys(metricsMap).length === 0 ||
+        Object.entries(metricsMap)
+          .filter(([k]) => k !== "computed_from")
+          .every(([, v]) => v === "0" || v === "" || v == null);
+      if (metricsAllZero && allLeads.length > 0) {
+        const activeCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
+        const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
+        const badCount = allLeads.filter(l => isBadLead(l.vinStatus)).length;
+        metricsMap = {
+          total_leads: String(totalLeads),
+          new_leads: String(newCount),
+          active_leads: String(activeCount),
+          hot_leads: String(hotCount),
+          sold_leads: String(soldCount),
+          lost_leads: String(lostCount),
+          bad_leads: String(badCount),
+          conversion_rate: String(conversionRate),
+          computed_from: "warehouse_leads",
+        };
+      }
 
       return res.json({
         overview: {
@@ -160,7 +229,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
       allLeads.forEach(l => {
-        const src = l.leadSource || "Unknown";
+        const src = formatLeadSource(l.leadSource);
         if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
         sourceCounts[src].total++;
         if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
@@ -176,8 +245,26 @@ export function registerInsightRoutes(app: Express) {
           lossRate: data.total > 0 ? Math.round((data.lost / data.total) * 100) : 0,
         }));
 
-      const metricsMap: Record<string, string> = {};
+      let metricsMap: Record<string, string> = {};
       metrics.forEach(m => { metricsMap[m.metricKey] = m.metricValue; });
+
+      // If warehouse_metrics table is empty or all values are zero, compute from warehouse_leads
+      const metricsAllZero = Object.keys(metricsMap).length === 0 ||
+        Object.entries(metricsMap)
+          .filter(([k]) => k !== "computed_from")
+          .every(([, v]) => v === "0" || v === "" || v == null);
+      if (metricsAllZero && allLeads.length > 0) {
+        const activeCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
+        metricsMap = {
+          total_leads: String(totalLeads),
+          sold_leads: String(soldCount),
+          lost_leads: String(lostCount),
+          bad_leads: String(badCount),
+          active_leads: String(activeCount),
+          win_rate: String(totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0),
+          computed_from: "warehouse_leads",
+        };
+      }
 
       return res.json({
         lossAnalysis: {
@@ -731,7 +818,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, number> = {};
       allLeads.forEach(l => {
-        const src = l.leadSource || "Unknown";
+        const src = formatLeadSource(l.leadSource);
         sourceCounts[src] = (sourceCounts[src] || 0) + 1;
       });
       const sourceEntries = Object.entries(sourceCounts).sort(([, a], [, b]) => b - a);
@@ -741,7 +828,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceWinRates: Record<string, { total: number; won: number }> = {};
       allLeads.forEach(l => {
-        const src = l.leadSource || "Unknown";
+        const src = formatLeadSource(l.leadSource);
         if (!sourceWinRates[src]) sourceWinRates[src] = { total: 0, won: 0 };
         sourceWinRates[src].total++;
         if (isSoldLead(l.vinStatus)) sourceWinRates[src].won++;

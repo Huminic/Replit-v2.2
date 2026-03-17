@@ -1,12 +1,12 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260315-233308
-Timestamp: 2026-03-15T23:33:08Z
+Report-ID: WD-20260317-040528
+Timestamp: 2026-03-17T04:05:28Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 1e976c5
+HEAD: 7393dec
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
-C2  evidence artifacts:  VIOLATION — QA-S12 missing post-sprint-report.md; QA-S12 missing cross-sign.md; QA-S12 missing enforcer-checklist.txt
+C2  evidence artifacts:  VIOLATION — FIX-S9 missing post-sprint-report.md; FIX-S9 missing cross-sign.md; FIX-S9 missing enforcer-checklist.txt
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
@@ -17,7 +17,10 @@ C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
-C13 session content:     VIOLATION — FIX-S0 is 6 sprints behind latest (QA-S12); FIX-S1 is 5 sprints behind latest (QA-S12); FIX-S2 is 2 sprints behind latest (QA-S12); QA-S0 is 15 sprints behind latest (QA-S12); QA-S10 is 3 sprints behind latest (QA-S12); QA-S9 is 4 sprints behind latest (QA-S12); QA-S11 marked next but already committed
+C13 session content:     PASS
+C14 governance files:    VIOLATION — scripts/pre-commit.sh has unstaged changes; scripts/watchdog.sh has unstaged changes
+C15 memory staleness:    PASS
+C16 drift detection:     WARNING — 6 file(s) modified outside current sprint scope
 
-SUMMARY: 8 PASS, 2 VIOLATION, 5 WARNING
+SUMMARY: 10 PASS, 2 VIOLATION, 6 WARNING
 === END SCAN ===

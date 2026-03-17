@@ -447,10 +447,10 @@ export async function seedDatabase() {
   }
 
   const campaignData = [
-    { name: "Service Reminder - February", department: "service", status: "active", channel: "sms", orgId: serraHonda.id, recipientCount: 145, sentCount: 132, repliedCount: 47, csvFilename: "feb_service_due.csv", killSwitch: false },
-    { name: "Presidents Day Sale", department: "marketing", status: "completed", channel: "both", orgId: serraHonda.id, recipientCount: 892, sentCount: 892, repliedCount: 123, csvFilename: "marketing_list_feb.csv", killSwitch: false },
-    { name: "New Lead Follow-Up Sequence", department: "sales", status: "active", channel: "both", orgId: serraHonda.id, recipientCount: 67, sentCount: 45, repliedCount: 18, csvFilename: null, killSwitch: false },
-    { name: "Oil Change Reminder", department: "service", status: "paused", channel: "sms", orgId: serraHonda.id, recipientCount: 234, sentCount: 89, repliedCount: 31, csvFilename: "oil_change_due_march.csv", killSwitch: true },
+    { name: "Service Reminder - February", department: "service", status: "active", channel: "sms", orgId: serraHonda.id, recipientCount: 145, sentCount: 0, repliedCount: 0, csvFilename: "feb_service_due.csv", killSwitch: false },
+    { name: "Presidents Day Sale", department: "marketing", status: "completed", channel: "both", orgId: serraHonda.id, recipientCount: 892, sentCount: 0, repliedCount: 0, csvFilename: "marketing_list_feb.csv", killSwitch: false },
+    { name: "New Lead Follow-Up Sequence", department: "sales", status: "active", channel: "both", orgId: serraHonda.id, recipientCount: 67, sentCount: 0, repliedCount: 0, csvFilename: null, killSwitch: false },
+    { name: "Oil Change Reminder", department: "service", status: "paused", channel: "sms", orgId: serraHonda.id, recipientCount: 234, sentCount: 0, repliedCount: 0, csvFilename: "oil_change_due_march.csv", killSwitch: true },
   ];
 
   const createdCampaigns: Record<string, string> = {};

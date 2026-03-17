@@ -626,26 +626,35 @@
       "id": "QA-S18",
       "name": "Marketing agents — verify each agent produces correct asset type",
       "phase": "QA",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/QA-S18/",
         "sprints.json"
       ],
       "dependencies": [
         "QA-S17"
-      ]
+      ],
+      "commitHash": "7393dec"
     },
     {
-      "id": "QA-S18",
-      "name": "Marketing agents — verify asset production",
-      "phase": "QA",
+      "id": "FIX-S9",
+      "name": "Fix open defects — campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
+      "phase": "FIX",
       "status": "in_progress",
       "scope": [
-        "evidence/QA-S18/",
-        "sprints.json"
+        "server/routes/chat.ts",
+        "server/routes/insights.ts",
+        "server/routes/metrics.ts",
+        "server/seed.ts",
+        "scripts/pre-commit.sh",
+        "scripts/watchdog.sh",
+        "sprints.json",
+        "evidence/FIX-S9/",
+        "evidence/ghost-protocol-harness.md",
+        "evidence/watchdog-ack.txt"
       ],
       "dependencies": [
-        "QA-S17"
+        "QA-S18"
       ]
     }
   ]

@@ -384,7 +384,7 @@ When the user asks a question that requires deep CRM data (specific lead details
 
                   const qc = (s: string, e: string, st?: string) =>
                     callMCP("vin_query_leads", { orgId: nexxusOrgId, startDate: s, endDate: e, limit: 1, ...(st ? { status: st } : {}) })
-                      .then((r: any) => r.count ?? r.items?.length ?? 0).catch(() => 0);
+                      .then((r: any) => r.count ?? r.totalItems ?? r.total ?? 0).catch(() => 0);
 
                   const [curTotal, prevTotal, curSold, prevSold, curNew, prevNew, curActive, curAppt, curWaiting] = await Promise.all([
                     qc(curStart, curEnd), qc(prevStart, prevEnd),
