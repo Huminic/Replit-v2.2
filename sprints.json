@@ -739,7 +739,7 @@
       "id": "FIX-S11",
       "name": "Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/webhooks.ts",
         "server/routes/auth.ts",
@@ -754,13 +754,14 @@
       ],
       "dependencies": [
         "QA-S21"
-      ]
+      ],
+      "commitHash": "448e81a"
     },
     {
       "id": "R-1",
       "name": "Issues Gathering and Plan Realignment",
       "phase": "R",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "issues.md",
         "enforcement_harness.json",

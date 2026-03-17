@@ -21,7 +21,22 @@
     "constraints": {
       "max_in_progress": 1,
       "previous_must_be_committed": true,
-      "max_uncommitted_evidence_dirs": 1
+      "max_uncommitted_evidence_dirs": 1,
+      "fix_sprint_requires_ac": true,
+      "all_findings_go_to_issues_md": true,
+      "orchestrator_does_not_write_code": true,
+      "qa_after_fix_required": true
+    },
+    "issues_file": {
+      "path": "issues.md",
+      "description": "Single source of truth for all open issues",
+      "rules": [
+        "Every must-fix item has Background, Outcome, and Acceptance Criteria",
+        "All QA/L5/comms/usability findings go here — no filtering without user approval",
+        "Builder agents receive AC in their prompt",
+        "QA agents test against AC",
+        "Issues without AC cannot be worked on"
+      ]
     }
   },
 

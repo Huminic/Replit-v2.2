@@ -11,6 +11,9 @@ Stack: Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL
 - **Evidence**: evidence/{sprint-id}/ with pre-execution, post-sprint, cross-sign, checklist
 - **Amendment**: No exceptions. Stop-discuss-revise for governance gaps.
 - **User story gate (PRE-08)**: Before any L2+ testing (authenticated, visual, usability), user-defined expected behavior MUST be documented for every component under test. Agents cannot invent acceptance criteria for user-facing behavior. BLOCKED until user confirms.
+- **Acceptance criteria gate (PRE-09)**: Every issue in a FIX/Issue sprint MUST have Background (what's wrong), Outcome (what it looks like when fixed), and Acceptance Criteria (how to verify mechanically) defined BEFORE work begins. Builder agents receive the AC in their prompt. QA agents test against the AC. Issues without AC cannot be worked on.
+- **Issues file**: issues.md is the single source of truth for all open issues. All findings from QA, L5 walkthrough, comms tests, and usability tests go here. No filtering or categorizing without user approval.
+- **Role separation**: The orchestrator plans, delegates, compares results, and commits. The orchestrator does NOT write application code. Code changes are delegated to builder agents.
 
 ## Commit Protocol
 ```bash
