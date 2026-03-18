@@ -1005,7 +1005,7 @@
       "id": "REM-2",
       "name": "Remediation round 2 \u2014 loginViaUI fix + remaining BE/FE issues",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "server/",
@@ -1016,7 +1016,22 @@
       "dependencies": [
         "T-3"
       ],
-      "description": "Fix loginViaUI test infrastructure (28 tests blocked), remaining campaign/tasks/billing bugs."
+      "description": "Fix loginViaUI test infrastructure (28 tests blocked), remaining campaign/tasks/billing bugs.",
+      "commitHash": "243bd53"
+    },
+    {
+      "id": "T-4",
+      "name": "Full application test \u2014 post-REM-2 (loginViaUI fix)",
+      "phase": "T",
+      "status": "in_progress",
+      "scope": [
+        "evidence/T-4/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-2"
+      ]
     },
     {
       "id": "L5-1",

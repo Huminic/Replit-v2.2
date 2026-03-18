@@ -1,0 +1,3 @@
+[2026-03-18T22:30:00Z] agent-launch | role=test | task="T-4 Agent A: API + Comms" | scope=evidence/T-4/
+[2026-03-18T22:30:00Z] agent-launch | role=test | task="T-4 Agent B: Browser + Catalog" | scope=evidence/T-4/
+[2026-03-18T20:48:50Z] PRE-COMMIT role=orchestrator sprint=T-4 result=PASS detail="All 7 gates passed"

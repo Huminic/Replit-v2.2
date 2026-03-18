@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260318-203649
-Timestamp: 2026-03-18T20:36:49Z
+Report-ID: WD-20260318-204828
+Timestamp: 2026-03-18T20:48:28Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: b62dfd2
+HEAD: 243bd53
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -20,9 +20,9 @@ C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
 C15 memory staleness:    WARNING — project_sprint_status.md is 15h old
-C16 drift detection:     VIOLATION — 3 application file(s) modified outside sprint scope: server/middleware/entitlementCheck.ts,server/routes/billing.ts,server/services/billingService.ts
-C17 plan vs execution:   VIOLATION — undeclared changes: server/middleware/entitlementCheck.ts, server/services/billingService.ts
+C16 drift detection:     WARNING — 55 file(s) modified outside current sprint scope
+C17 plan vs execution:   PASS
 C18 retroactive artifacts:PASS
 
-SUMMARY: 12 PASS, 2 VIOLATION, 6 WARNING
+SUMMARY: 13 PASS, 0 VIOLATION, 7 WARNING
 === END SCAN ===
