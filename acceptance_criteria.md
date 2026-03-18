@@ -3,7 +3,7 @@
 Master definition of what the product must do. Sprint-level AC maps back to this document.
 User stories are in `user-stories.md` (the specification). This document is the checklist.
 
-> **Reconciliation needed:** The feature map is from QA-S0 (2026-03-14). Recent sprints have changed the product. AC-1 sprint will reconcile this document against current code.
+> **Reconciled:** AC-1 audit completed 2026-03-18. 71 of 85 criteria confirmed accurate. 4 criteria corrected (2.3, 4.6, 5.11, 6.7). 3 known failures confirmed (4.10, 11.2, 11.6). Remaining findings documented in evidence/AC-1/.
 
 ---
 
@@ -44,7 +44,7 @@ Each item describes what the feature should do. Status populated during testing.
 |---|-----------|------------|--------|-------------|
 | 2.1 | Main page loads without errors | — | | |
 | 2.2 | Metrics are role-specific | US-023 | | |
-| 2.3 | Left popout shows chat history + favorites (NOT agents) | — | | |
+| 2.3 | AI Chat left panel shows chat history + favorites (NOT agents). Dept sections show agents below nav tabs. | — | | |
 | 2.4 | No right popout on main page | — | | |
 | 2.5 | Metrics centered with main chat window below | — | | |
 
@@ -71,7 +71,7 @@ Each item describes what the feature should do. Status populated during testing.
 | 4.3 | Campaign execution sends SMS to recipients via MCP | US-009 | | |
 | 4.4 | Campaign execution sends email to recipients via MCP | — | | |
 | 4.5 | Kill switch blocks all outbound when enabled | US-027 | | |
-| 4.6 | Channel-specific pause works (SMS off, voice on) | US-028 | | |
+| 4.6 | Channel-specific flags work (smsEnabled, phoneEnabled, emailEnabled per org) | US-028 | | |
 | 4.7 | Execution statuses are org-scoped (no cross-org leak) | — | | |
 | 4.8 | Campaign stop halts mid-execution | — | | |
 | 4.9 | Customer replies create conversation thread in TeamBox | US-009, US-017 | | |
@@ -90,7 +90,7 @@ Each item describes what the feature should do. Status populated during testing.
 | 5.8 | Outbound email via TeamBox works (Resend through MCP) | — | | |
 | 5.9 | SMS webhook routes inbound to correct org | — | | |
 | 5.10 | Thread history preserved across time gaps | US-020 | | |
-| 5.11 | Workflows tab in persistent left column | — | | |
+| 5.11 | Workflows tab in persistent left column (currently disabled — "Coming Soon") | — | | |
 
 ## Domain 6: Department Dashboards
 | # | Criterion | User Story | Status | Verified By |
@@ -101,7 +101,7 @@ Each item describes what the feature should do. Status populated during testing.
 | 6.4 | Management page loads with executive overview | US-025, US-026 | | |
 | 6.5 | Demand Score tile visible on Management | US-025 | | |
 | 6.6 | Sales sidebar does NOT show Billing | — | | |
-| 6.7 | Sales submenu shows 3 agents below separator | — | | |
+| 6.7 | Sales submenu shows agents below separator (dynamic count per org) | — | | |
 | 6.8 | Service submenu shows at least 1 agent | — | | |
 
 ## Domain 7: Analytics & Insights

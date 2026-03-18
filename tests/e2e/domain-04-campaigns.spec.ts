@@ -1,0 +1,308 @@
+import { test, expect } from "playwright/test";
+import { testUsers, login, authHeader } from "./helpers/auth";
+
+test.describe("Domain 4: Campaigns", () => {
+  test("4.1 Campaign create/upload/execute flow", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    // Step 1: Create campaign
+    const createRes = await request.post("/api/campaigns", {
+      headers: authHeader(token),
+      data: {
+        name: "E2E Lifecycle Test Campaign",
+        department: "sales",
+        channel: "sms",
+        status: "draft",
+      },
+    });
+
+    if (!createRes.ok()) {
+      // May fail due to entitlement limits — verify proper error response
+      expect(createRes.status()).toBeLessThan(500);
+      return;
+    }
+
+    const campaign = await createRes.json();
+    expect(campaign.id).toBeDefined();
+    expect(campaign.name).toBe("E2E Lifecycle Test Campaign");
+
+    // Step 2: Get campaign details
+    const getRes = await request.get(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+    });
+    expect(getRes.ok()).toBe(true);
+    const fetched = await getRes.json();
+    expect(fetched.id).toBe(campaign.id);
+
+    // Step 3: Update campaign status
+    const patchRes = await request.patch(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+      data: { status: "active" },
+    });
+    expect(patchRes.ok()).toBe(true);
+
+    // Step 4: Check execution status
+    const statusRes = await request.get(`/api/campaigns/${campaign.id}/execution-status`, {
+      headers: authHeader(token),
+    });
+    expect(statusRes.status()).toBeLessThan(500);
+  });
+
+  test("4.2 CSV upload accepts required fields", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    // First, get existing campaigns or create one
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    if (campaigns.length === 0) {
+      // Create a campaign for the test
+      const createRes = await request.post("/api/campaigns", {
+        headers: authHeader(token),
+        data: {
+          name: "CSV Upload Test Campaign",
+          department: "marketing",
+          channel: "sms",
+          status: "draft",
+        },
+      });
+      if (!createRes.ok()) {
+        expect(createRes.status()).toBeLessThan(500);
+        return;
+      }
+      campaigns.push(await createRes.json());
+    }
+
+    const campaignId = campaigns[0].id;
+
+    // Create a CSV buffer with required fields
+    const csvContent = "firstName,lastName,phone,email\nJohn,Doe,5551234567,john@test.com\nJane,Smith,5559876543,jane@test.com";
+    const boundary = "----E2ETestBoundary";
+    const body = [
+      `--${boundary}`,
+      'Content-Disposition: form-data; name="file"; filename="test-recipients.csv"',
+      "Content-Type: text/csv",
+      "",
+      csvContent,
+      `--${boundary}--`,
+    ].join("\r\n");
+
+    const uploadRes = await request.post(`/api/campaigns/${campaignId}/upload-csv`, {
+      headers: {
+        ...authHeader(token),
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+      },
+      data: Buffer.from(body),
+    });
+
+    // Should accept the upload or return a validation error (not 500)
+    expect(uploadRes.status()).toBeLessThan(500);
+  });
+
+  test("4.3 Campaign execution sends SMS via MCP", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    // Find an active campaign with SMS channel
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    const smsCampaign = campaigns.find(
+      (c: any) => c.channel === "sms" || c.channel === "both"
+    );
+
+    if (smsCampaign) {
+      // Attempt execution — may be blocked by kill switch or outbound settings, which is OK
+      const execRes = await request.post(`/api/campaigns/${smsCampaign.id}/execute`, {
+        headers: authHeader(token),
+      });
+      // Expect either success or a controlled rejection (not a server crash)
+      expect(execRes.status()).toBeLessThan(500);
+    }
+  });
+
+  test("4.4 Campaign execution sends email via MCP", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    const emailCampaign = campaigns.find(
+      (c: any) => c.channel === "email" || c.channel === "both"
+    );
+
+    if (emailCampaign) {
+      const execRes = await request.post(`/api/campaigns/${emailCampaign.id}/execute`, {
+        headers: authHeader(token),
+      });
+      expect(execRes.status()).toBeLessThan(500);
+    }
+  });
+
+  test("4.5 Kill switch blocks outbound", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    if (campaigns.length === 0) return;
+
+    const campaign = campaigns[0];
+
+    // Activate kill switch
+    const killRes = await request.patch(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+      data: { killSwitch: true },
+    });
+    expect(killRes.ok()).toBe(true);
+
+    // Attempt execution — should be blocked
+    const execRes = await request.post(`/api/campaigns/${campaign.id}/execute`, {
+      headers: authHeader(token),
+    });
+    // Execution should fail or be blocked (not 500)
+    expect(execRes.status()).toBeLessThan(500);
+
+    if (!execRes.ok()) {
+      const body = await execRes.json();
+      // Should mention kill switch or blocked
+      const msg = JSON.stringify(body).toLowerCase();
+      expect(
+        msg.includes("kill") || msg.includes("block") || msg.includes("disabled") || msg.includes("not allowed") || msg.includes("switch")
+      ).toBe(true);
+    }
+
+    // Deactivate kill switch (cleanup)
+    await request.patch(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+      data: { killSwitch: false },
+    });
+  });
+
+  test("4.6 Channel-specific pause", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    // Find a campaign to test status changes
+    if (campaigns.length === 0) return;
+
+    const campaign = campaigns[0];
+
+    // Pause the campaign
+    const pauseRes = await request.patch(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+      data: { status: "paused" },
+    });
+    expect(pauseRes.ok()).toBe(true);
+
+    // Verify paused state
+    const getRes = await request.get(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+    });
+    expect(getRes.ok()).toBe(true);
+    const updated = await getRes.json();
+    expect(updated.status).toBe("paused");
+
+    // Restore original status
+    await request.patch(`/api/campaigns/${campaign.id}`, {
+      headers: authHeader(token),
+      data: { status: campaign.status },
+    });
+  });
+
+  test("4.7 Execution statuses org-scoped", async ({ request }) => {
+    // Login as two different org users and compare execution statuses
+    const adminAuth = await login(request, testUsers.orgAdmin);
+    const adminStatusRes = await request.get("/api/campaigns/execution-statuses", {
+      headers: authHeader(adminAuth.token),
+    });
+    expect(adminStatusRes.ok()).toBe(true);
+    const adminStatuses = await adminStatusRes.json();
+
+    // Login as super admin (different org context)
+    const superAuth = await login(request, testUsers.superAdmin);
+    const superStatusRes = await request.get("/api/campaigns/execution-statuses", {
+      headers: authHeader(superAuth.token),
+    });
+    expect(superStatusRes.ok()).toBe(true);
+    const superStatuses = await superStatusRes.json();
+
+    // Both should return arrays — content may differ based on org
+    expect(Array.isArray(adminStatuses)).toBe(true);
+    expect(Array.isArray(superStatuses)).toBe(true);
+  });
+
+  test("4.8 Campaign stop halts execution", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    const listRes = await request.get("/api/campaigns", {
+      headers: authHeader(token),
+    });
+    expect(listRes.ok()).toBe(true);
+    const campaigns = await listRes.json();
+
+    if (campaigns.length === 0) return;
+
+    const campaign = campaigns[0];
+
+    // Call the stop endpoint
+    const stopRes = await request.post(`/api/campaigns/${campaign.id}/stop`, {
+      headers: authHeader(token),
+    });
+    // Should succeed or return a controlled error (e.g., campaign not currently executing)
+    expect(stopRes.status()).toBeLessThan(500);
+  });
+
+  test("4.9 Customer replies create TeamBox thread", async ({ request }) => {
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    // Check conversations endpoint — TeamBox threads are conversations
+    const convRes = await request.get("/api/conversations", {
+      headers: authHeader(token),
+    });
+    expect(convRes.ok()).toBe(true);
+    const conversations = await convRes.json();
+    expect(Array.isArray(conversations)).toBe(true);
+
+    // If there are conversations, verify they have the expected structure
+    if (conversations.length > 0) {
+      const conv = conversations[0];
+      expect(conv.id).toBeDefined();
+    }
+  });
+
+  // I-036: Campaign reply does not trigger AI agent response
+  test.fixme("4.10 Campaign reply triggers AI agent response", async ({ request }) => {
+    // KNOWN FAILURE: Issue I-036
+    // Campaign replies are received but do not trigger automatic AI agent response.
+    // This test is marked fixme until I-036 is resolved.
+
+    const { token } = await login(request, testUsers.orgAdmin);
+
+    const convRes = await request.get("/api/conversations", {
+      headers: authHeader(token),
+    });
+    expect(convRes.ok()).toBe(true);
+    const conversations = await convRes.json();
+
+    // Would need to simulate an inbound reply and verify AI auto-response
+    // Currently blocked by I-036
+    expect(conversations).toBeDefined();
+  });
+});

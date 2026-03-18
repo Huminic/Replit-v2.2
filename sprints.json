@@ -847,7 +847,7 @@
       "id": "ORG-1",
       "name": "File reorganization \u2014 governance docs, acceptance criteria, user stories",
       "phase": "ORG",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "CLAUDE.md",
         "harness.md",
@@ -863,13 +863,14 @@
       "dependencies": [
         "I-039"
       ],
-      "description": "Reorganize all project documents. Consolidate issues, create acceptance criteria with 85 checkable items, save user stories, create harness.md, update CLAUDE.md, archive old files."
+      "description": "Reorganize all project documents. Consolidate issues, create acceptance criteria with 85 checkable items, save user stories, create harness.md, update CLAUDE.md, archive old files.",
+      "commitHash": "2d505be"
     },
     {
       "id": "AC-1",
       "name": "Audit acceptance criteria + create Playwright test files by domain",
       "phase": "AC",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "acceptance_criteria.md",
         "tests/",
