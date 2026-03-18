@@ -62,6 +62,24 @@ Fixed items are removed. Only truly open issues remain here.
 **Acceptance Criteria:** PATCH conversation with takeover flag -> response includes updated conversation -> AI stops responding on that thread.
 **Next Sprint:** Yes
 
+### [IN] I-045: FLEXPRICE_API_KEY missing from environment
+**Background:** Agent A server logs show "WARNING: Missing optional environment variables: FLEXPRICE_API_KEY". Billing pages load but show no data because the FlexPrice API key is not in the app's .env. This is the root cause of I-043.
+**Outcome:** FLEXPRICE_API_KEY set in .env. Billing pages display real FlexPrice data.
+**Acceptance Criteria:** Billing dashboard shows plan name, usage meters, invoice data for Org Admin.
+**Next Sprint:** Yes
+
+### [BE] I-046: Entitlements endpoint returns 404
+**Background:** T-2 test 12.5 sends a request with an invalid token to /api/entitlements/check expecting 401/403 (fail-closed). Gets 404 instead — endpoint may not exist or route not registered.
+**Outcome:** Entitlement check endpoint exists and returns 401/403 for invalid tokens (fail-closed behavior).
+**Acceptance Criteria:** Request with invalid token to entitlement endpoint -> 401 or 403, never 200.
+**Next Sprint:** Yes
+
+### [FE] I-047: Demand Score tile not found on Management page
+**Background:** Agent A test 6.5 finds no Demand Score tile on the Management page. This was added in I-008 (I-1 sprint) but either the selector doesn't match or the tile isn't rendering.
+**Outcome:** Demand Score tile visible on Management dashboard.
+**Acceptance Criteria:** Navigate to /management as Org Admin -> Demand Score tile visible with numeric value.
+**Next Sprint:** No (investigate — may be test selector issue)
+
 ---
 
 ## Test Infrastructure Issues (not application bugs — fix in test files)
@@ -73,6 +91,8 @@ Fixed items are removed. Only truly open issues remain here.
 | TI-003 | Settings/profile pages timeout at 60s — page load or selector issue | 9.1-9.3, 9.5 |
 | TI-004 | Chat tests use wrong request context for browser project | 3.4-3.11 |
 | TI-005 | Auth rate limiter (5 req/15min per IP) blocks parallel test execution | Multiple |
+| TI-006 | Agent selector uses invalid CSS syntax `text=/agent/i` | 6.7, 6.8 |
+| TI-007 | Test 1.6 checks body.message but API returns body.error | 1.6 |
 
 ---
 
@@ -85,7 +105,7 @@ Fixed items are removed. Only truly open issues remain here.
 
 ---
 
-**Last updated:** 2026-03-18 (T-2 results)
-**Open:** 8 items (5 BE, 1 FE, 1 IN, 1 from prior)
-**Test infrastructure:** 5 items (test file fixes, not app bugs)
+**Last updated:** 2026-03-18 (T-2 results + Agent A concordance)
+**Open:** 11 items (6 BE, 2 FE, 2 IN, 1 from prior)
+**Test infrastructure:** 7 items (test file fixes, not app bugs)
 **External fixed:** 2 items
