@@ -1,6 +1,5 @@
-Report-ID: WD-20260318-040849
 Acknowledged-By: orchestrator
-Sprint: I-039
-Timestamp: 2026-03-18T04:09:00Z
+Sprint: ORG-1
+Timestamp: 2026-03-18T06:05:00Z
 
-C14: ACKNOWLEDGED — scripts/pre-commit.sh and scripts/watchdog.sh were modified by the project owner to add governance gates (Gate 2.5 Declared Files, C17, C18). Included in this commit as governance infrastructure upgrades.
+C14: ACKNOWLEDGED — CLAUDE.md restructured as part of ORG-1 file reorganization. scripts/pre-commit.sh modified by project owner to add Gate 2.5, C17, C18 governance upgrades. Both within ORG-1 declared scope.

@@ -169,18 +169,60 @@ if [ -f "scripts/watchdog.sh" ]; then
   echo "  Running fresh watchdog scan..."
   bash scripts/watchdog.sh scan > /dev/null 2>&1
 
-  # Now verify ack against the fresh report
-  WATCHDOG_RESULT=$(bash scripts/watchdog.sh verify-ack 2>&1)
-  WATCHDOG_EXIT=$?
-  if [ "$WATCHDOG_EXIT" -ne 0 ]; then
-    # Show the violations from the fresh report
-    echo "  Fresh scan results:"
-    grep -E "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===" | while read -r line; do
-      echo "    $line"
-    done
-    block "Watchdog gate: $WATCHDOG_RESULT"
+  # Check fresh scan for violations
+  FRESH_VIOLATIONS=$(grep -c "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | head -1 || echo "0")
+  # Subtract the SUMMARY line and header lines that contain the word VIOLATION
+  REAL_VIOLATIONS=$(grep "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===" | grep -c "VIOLATION" || echo "0")
+
+  if [ "$REAL_VIOLATIONS" -gt 0 ]; then
+    # There are violations — check if ack addresses them by CONTENT, not Report-ID
+    # The ack can't match the fresh Report-ID (it was written before the scan)
+    # So we check: does the ack address every violation check ID in the fresh report?
+    FRESH_REPORT_ID=$(grep "^Report-ID:" evidence/watchdog-report.txt | sed 's/^Report-ID: *//')
+
+    if [ ! -f "evidence/watchdog-ack.txt" ]; then
+      echo "  Fresh scan results:"
+      grep "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===" | while read -r line; do
+        echo "    $line"
+      done
+      block "Watchdog gate: Fresh scan has $REAL_VIOLATIONS violation(s) but no watchdog-ack.txt exists."
+    fi
+
+    # Check ack is not older than 1 hour
+    ACK_MTIME=$(stat -c %Y "evidence/watchdog-ack.txt")
+    ACK_AGE=$(( ($(date +%s) - ACK_MTIME) / 60 ))
+    if [ "$ACK_AGE" -gt 60 ]; then
+      block "Watchdog gate: Ack is ${ACK_AGE} minutes old (max 60). Re-acknowledge."
+    fi
+
+    # Check ack has required fields
+    if ! grep -q "^Acknowledged-By:" "evidence/watchdog-ack.txt"; then
+      block "Watchdog gate: Ack missing 'Acknowledged-By:' field."
+    fi
+
+    # Check each violation check ID is addressed in the ack
+    UNADDRESSED=0
+    while IFS= read -r vline; do
+      [ -z "$vline" ] && continue
+      CHECK_ID=$(echo "$vline" | grep -oP '^C\d+' || true)
+      if [ -n "$CHECK_ID" ] && ! grep -q "$CHECK_ID" "evidence/watchdog-ack.txt"; then
+        echo "  Violation $CHECK_ID not addressed in ack."
+        UNADDRESSED=$((UNADDRESSED + 1))
+      fi
+    done <<< "$(grep "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===")"
+
+    if [ "$UNADDRESSED" -gt 0 ]; then
+      echo "  Fresh scan results:"
+      grep "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===" | while read -r line; do
+        echo "    $line"
+      done
+      block "Watchdog gate: $UNADDRESSED violation(s) not addressed in ack."
+    fi
+
+    echo "  PASS — $REAL_VIOLATIONS violation(s) acknowledged (fresh scan $FRESH_REPORT_ID)"
+  else
+    echo "  PASS — fresh scan clean, 0 violations"
   fi
-  echo "  $WATCHDOG_RESULT"
 else
   echo "  SKIP (watchdog.sh not found)"
 fi

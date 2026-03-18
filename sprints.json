@@ -1,7 +1,21 @@
 {
-  "version": "3.0",
+  "version": "4.0",
   "project": "nexxus2.2_replit",
-  "lastUpdated": "2026-03-17",
+  "lastUpdated": "2026-03-18",
+  "statuses": [
+    "planned",
+    "in_progress",
+    "remediating",
+    "committed",
+    "tested"
+  ],
+  "domains": {
+    "FE": "Frontend \u2014 UI, pages, forms, client logic",
+    "BE": "Backend \u2014 APIs, business rules, services, integrations",
+    "DT": "Data \u2014 schema, database, migrations, reporting data",
+    "AU": "Auth/Security \u2014 login, permissions, security controls",
+    "IN": "Infrastructure \u2014 deploys, environments, monitoring, scaling"
+  },
   "sprints": [
     {
       "id": "P0-S0",
@@ -812,7 +826,8 @@
       "id": "I-039",
       "name": "Route all third-party communications through MCP",
       "phase": "I",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "7d31c11",
       "scope": [
         "server/outbound.ts",
         "server/vendorProxy.ts",
@@ -829,18 +844,59 @@
       "description": "Refactor all direct TextMagic, VAPI, Tavus, and Resend API calls in the app to route through central-mcp via callMCP(). Single source of truth for third-party credentials."
     },
     {
+      "id": "ORG-1",
+      "name": "File reorganization \u2014 governance docs, acceptance criteria, user stories",
+      "phase": "ORG",
+      "status": "in_progress",
+      "scope": [
+        "CLAUDE.md",
+        "harness.md",
+        "plan.md",
+        "issues.md",
+        "backlog.md",
+        "acceptance_criteria.md",
+        "user-stories.md",
+        ".gitignore",
+        "sprints.json",
+        "evidence/ORG-1/"
+      ],
+      "dependencies": [
+        "I-039"
+      ],
+      "description": "Reorganize all project documents. Consolidate issues, create acceptance criteria with 85 checkable items, save user stories, create harness.md, update CLAUDE.md, archive old files."
+    },
+    {
+      "id": "AC-1",
+      "name": "Audit acceptance criteria + create Playwright test files by domain",
+      "phase": "AC",
+      "status": "planned",
+      "scope": [
+        "acceptance_criteria.md",
+        "tests/",
+        "playwright.config.ts",
+        "package.json",
+        "evidence/AC-1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "ORG-1"
+      ],
+      "description": "Reconcile feature map and user stories against current code. Set up Playwright config. Create test files organized by feature domain (domains 1-12) with each test mapped to a criterion ID. Clean up or replace existing Vitest stubs in tests/observability/. 3 criteria expected to fail (4.10, 11.2, 11.6) due to open issues."
+    },
+    {
       "id": "T-2",
-      "name": "Full communications test \u2014 VAPI, TextMagic, Tavus, campaigns E2E",
+      "name": "Full application test (autonomous) \u2014 comms + usability end-to-end",
       "phase": "T",
       "status": "planned",
       "scope": [
         "evidence/T-2/",
+        "issues.md",
         "sprints.json"
       ],
       "dependencies": [
-        "T-1"
+        "AC-1"
       ],
-      "status_note": "ON HOLD \u2014 found I-036/I-037/I-038/I-039, needs remediation first"
+      "description": "Run complete Playwright test suite against all domains. Findings go to issues.md with domain tags."
     },
     {
       "id": "R-2",
@@ -854,9 +910,141 @@
         "sprints.json"
       ],
       "dependencies": [
-        "I-039"
+        "T-2"
       ],
-      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix, categorize everything else into backlog. Areas: dead code, duplicate patterns, credential sprawl, type safety, performance, unused dependencies, code organization."
+      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix in issues.md with domain tags, categorize everything else into backlog.md."
+    },
+    {
+      "id": "REM-1",
+      "name": "Remediation sprint",
+      "phase": "REM",
+      "status": "planned",
+      "scope": [
+        "server/",
+        "client/src/",
+        "shared/",
+        "evidence/REM-1/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "R-2"
+      ],
+      "description": "Fix all open issues from T-2 and R-2. Work organized by domain sub-sprints.",
+      "sub_sprints": [
+        {
+          "id": "REM-1-FE",
+          "domain": "FE",
+          "name": "Frontend \u2014 UI, pages, forms, client logic",
+          "scope": [
+            "client/src/"
+          ]
+        },
+        {
+          "id": "REM-1-BE",
+          "domain": "BE",
+          "name": "Backend \u2014 APIs, business rules, services, integrations",
+          "scope": [
+            "server/"
+          ]
+        },
+        {
+          "id": "REM-1-DT",
+          "domain": "DT",
+          "name": "Data \u2014 schema, database, migrations, reporting data",
+          "scope": [
+            "shared/schema.ts",
+            "server/storage.ts"
+          ]
+        },
+        {
+          "id": "REM-1-AU",
+          "domain": "AU",
+          "name": "Auth/Security \u2014 login, permissions, security controls",
+          "scope": [
+            "server/auth.ts",
+            "server/routes/auth.ts"
+          ]
+        },
+        {
+          "id": "REM-1-IN",
+          "domain": "IN",
+          "name": "Infrastructure \u2014 deploys, environments, monitoring, scaling",
+          "scope": [
+            "scripts/",
+            ".env"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T-3",
+      "name": "Full application test (autonomous) \u2014 post-remediation verification",
+      "phase": "T",
+      "status": "planned",
+      "scope": [
+        "evidence/T-3/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-1"
+      ],
+      "description": "Rerun complete test suite after remediation. Loop back to REM if issues remain."
+    },
+    {
+      "id": "L5-1",
+      "name": "User walkthrough \u2014 human evaluation and sign-off",
+      "phase": "L5",
+      "status": "planned",
+      "scope": [
+        "evidence/L5-1/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-3"
+      ],
+      "description": "User walks through entire application. Findings go to issues.md. UI must not be modified after tests pass without user supervision."
+    },
+    {
+      "id": "LAUNCH-S0",
+      "name": "Infrastructure \u2014 Coolify container, env vars, Caddy, widget JS URLs",
+      "phase": "LAUNCH",
+      "status": "planned",
+      "scope": [
+        "evidence/LAUNCH-S0/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "L5-1"
+      ]
+    },
+    {
+      "id": "LAUNCH-S1",
+      "name": "Smoke test at production URL",
+      "phase": "LAUNCH",
+      "status": "planned",
+      "scope": [
+        "evidence/LAUNCH-S1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "LAUNCH-S0"
+      ]
+    },
+    {
+      "id": "LAUNCH-S2",
+      "name": "User sign-off \u2014 ship it",
+      "phase": "LAUNCH",
+      "status": "planned",
+      "scope": [
+        "evidence/LAUNCH-S2/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "LAUNCH-S1"
+      ]
     }
   ]
 }

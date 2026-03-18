@@ -1,35 +1,49 @@
-# Nexxus Connect v2.2 (Replit Migration)
+# Nexxus Connect v2.2
 
-## Project Context
-CRM/AI platform migrating from Replit to Oracle Cloud (Coolify container).
-Stack: Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Neon)
+## What This Is
+CRM/AI platform for automotive dealerships. Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Neon).
 
-## Governance
-- **Pre-commit hook**: 7-gate enforcement (COMMIT_ROLE + COMMIT_SPRINT required)
-- **Enforcer agent**: Port 8004, POST /api/verify
-- **Scripts**: scripts/enforcer-checklist.sh, pre-commit.sh, check-file-scope.sh
-- **Evidence**: evidence/{sprint-id}/ with pre-execution, post-sprint, cross-sign, checklist
-- **Amendment**: No exceptions. Stop-discuss-revise for governance gaps.
-- **User story gate (PRE-08)**: Before any L2+ testing (authenticated, visual, usability), user-defined expected behavior MUST be documented for every component under test. Agents cannot invent acceptance criteria for user-facing behavior. BLOCKED until user confirms.
-- **Acceptance criteria gate (PRE-09)**: Every issue in a FIX/Issue sprint MUST have Background (what's wrong), Outcome (what it looks like when fixed), and Acceptance Criteria (how to verify mechanically) defined BEFORE work begins. Builder agents receive the AC in their prompt. QA agents test against the AC. Issues without AC cannot be worked on.
-- **Issues file**: issues.md is the single source of truth for all open issues. All findings from QA, L5 walkthrough, comms tests, and usability tests go here. No filtering or categorizing without user approval.
-- **Role separation**: The orchestrator plans, delegates, compares results, and commits. The orchestrator does NOT write application code. Code changes are delegated to builder agents.
-
-## Commit Protocol
+## How to Commit
 ```bash
 COMMIT_ROLE=<role> COMMIT_SPRINT=<sprint-id> git commit -m "message"
 ```
-Valid roles: frontend, backend, test, integration, scribe, enforcer, architect, orchestrator
+Roles: frontend, backend, test, integration, scribe, enforcer, architect, orchestrator
 
-## Key Files
-- server/routes.ts — 6200 lines, decomposition target (P4)
-- server/index.ts — Bootstrap + inline schedulers (extraction target P3)
-- shared/schema.ts — Drizzle schema, self-referencing FK uses AnyPgColumn
-- sprints.json — Sprint registry (status vocabulary: planned/in_progress/committed)
+## Governance
+The Ghost Protocol harness enforces all work through a gated process. Register the sprint, declare files, do the work, prove it, commit through the hook. Details:
 
-## TypeScript Fixes Log
-All fixes tracked in evidence/typescript-fixes.md for Replit merge reconciliation.
+- **harness.md** — Full harness specification: pre-commit gates, watchdog checks, ghost handshake, sprint lifecycle, sprint statuses, issue domains, role enforcement, UI protection rule
+- **sprints.json** — Sprint registry. Statuses: planned, in_progress, remediating, committed, tested. One sprint in_progress at a time. Remediation sprints have domain sub-sprints (REM-n-FE, REM-n-BE, REM-n-DT, REM-n-AU, REM-n-IN).
+- **scripts/pre-commit.sh** — Pre-commit hook (7+ gates). Source of truth for what blocks a commit.
+- **scripts/watchdog.sh** — Watchdog scanner (C1-C18). Detects governance violations.
+- **scripts/enforcer-checklist.sh** — Enforcer checklist runner.
+- **scripts/check-file-scope.sh** — File scope validator per role.
+- **evidence/{sprint-id}/** — Per-sprint artifacts (pre-execution, post-sprint, cross-sign, checklist, workflow-audit).
 
-## Infrastructure
-- Enforcer: PM2 nexxus-enforcer, port 8004
-- Sysadmin authority: /home/ubuntu/Claude-store/sysadmin/
+## UI Protection
+Frontend UI (client/src/pages/, client/src/components/) must not be modified without explicit user approval. Once tests pass, no frontend changes unless the user is actively supervising. Backend-only fixes preferred.
+
+## Project Documents
+
+- **plan.md** — Roadmap. What's left to do before launch, in order.
+- **issues.md** — Open issues. Every bug, gap, and defect with Background, Outcome, and Acceptance Criteria. Only truly open items.
+- **backlog.md** — Items not blocking launch. Consolidated list with categories (security, features, tech debt, UX).
+- **acceptance_criteria.md** — Master acceptance criteria. Feature map checklist (83 criteria across 12 domains), user story coverage matrix, launch readiness tracker.
+- **user-stories.md** — User story library (US-001 through US-030). Specification authored by project owner. Not to be edited by the build process. acceptance_criteria.md references this.
+
+## Where Things Are
+- **Third-party comms**: All route through central-mcp at localhost:4002 via callMCP() in server/vendorProxy.ts
+- **Infrastructure authority**: /home/ubuntu/Claude-store/sysadmin/
+- **User stories**: user-stories.md (US-001 through US-030, authored by project owner)
+- **Feature map**: evidence/QA-S0/feature-map.md (12 domains, 22 pages, 124 endpoints)
+
+## Issue Domains
+Issues tagged by domain in issues.md. Remediation clustered by domain.
+- **FE**: Frontend — UI, pages, forms, client logic
+- **BE**: Backend — APIs, business rules, services, integrations
+- **DT**: Data — schema, database, migrations, reporting data
+- **AU**: Auth/Security — login, permissions, security controls
+- **IN**: Infrastructure — deploys, environments, monitoring, scaling
+
+## Current State
+File reorganization complete. All documents populated. Next sprint: AC-1 (audit acceptance criteria + create Playwright test files by domain). 3 open issues (2 BE, 1 IN). User story library (US-001 through US-030) needs to be saved as a standalone file.

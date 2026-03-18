@@ -1,36 +1,62 @@
 # Nexxus Connect v2.2 — Backlog
 
-Items discovered during development and testing that are deferred to post-launch.
+Not blocking launch. Consolidated from prior issues and QA findings.
+
+---
 
 ## Security
 
-| ID | Item | Severity | Source | Notes |
-|----|------|----------|--------|-------|
-| BL-001 | Partner Admin switch-org allows access to ANY org (no partnerId check) | HIGH | QA-S19 data isolation audit | Acceptable for now — Durran Cage is the only partner and manages all dealers. MUST be fixed before onboarding a second partner. auth.ts:256-294 |
-| BL-002 | Campaign execution statuses endpoint returns cross-org data | MEDIUM | QA-S19 data isolation audit | GET /api/campaigns/execution-statuses has no org filter. campaigns.ts:119-126 |
-| BL-003 | getConversationByPhone storage method has no org filter | LOW | QA-S19 data isolation audit | Mitigated at route level. storage.ts:421-436 |
-| BL-004 | getUnansweredConversations returns cross-org conversations | LOW | QA-S19 data isolation audit | Internal scheduler use only. storage.ts:1400-1413 |
+| ID | Item | Source |
+|----|------|--------|
+| BL-001 | Partner Admin switch-org allows any org (no partnerId check) — fix before second partner | QA-S19 |
+| BL-002 | getUnansweredConversations returns cross-org conversations (internal scheduler, by design) | QA-S19 |
 
 ## Features
 
-| ID | Item | Priority | Source | Notes |
-|----|------|----------|--------|-------|
-| BL-005 | Org Admin multi-org access (Option B — join table) | MEDIUM | User requirement | Option A (additional_org_ids column) is the launch solution. Option B is the proper architecture for scale. |
-| BL-006 | Multi-org reporting for Org Admins | LOW | User feedback | GMs want to run reports across multiple stores. Deferred per user decision ("too much for this phase"). |
-| BL-007 | Billing usage alerts (80%, 90%, 99% thresholds) | LOW | User requirement | Parked until FlexPrice native capabilities are evaluated. May not need custom code. |
-| BL-008 | VIN Solutions lead source name resolution | LOW | QA-S17 | Currently shows "VIN Source #7098" — needs API call to resolve to "AutoTrader" etc. |
-| BL-009 | Store leadType from VIN sync for exact channel mapping | LOW | FIX-S9 insights agent | sync.ts doesn't persist leadType. Would enable exact channel mapping instead of heuristic. |
-| BL-010 | Thinking cards in chat (frontend rendering) | LOW | QA-S10 usability | SSE status events exist but frontend shows pulsing icon, not expandable thinking cards. |
-| BL-011 | Inbound email handling | LOW | User requirement | Currently outbound only (no-reply@huminic.ai). Inbound email TBD. |
-| BL-012 | Second VAPI service agent per dealership | LOW | User requirement | User needs to set up phone numbers for service agents. |
-| BL-013 | Campaign channel configurability (email/text/phone combo) | MEDIUM | User requirement | Campaigns should let user choose which channels to use per campaign. |
+| ID | Item | Source |
+|----|------|--------|
+| BL-003 | Org Admin multi-org Option B (join table) — proper architecture for scale | User requirement |
+| BL-004 | Multi-org reporting for Org Admins across stores | User feedback |
+| BL-005 | Billing usage alerts (80/90/99% thresholds) | User requirement |
+| BL-006 | Second VAPI service agent per dealership | User requirement |
+| BL-007 | Campaign channel configurability (email/text/phone combo per campaign) | User requirement |
+| BL-008 | Inbound email handling (currently outbound only) | User requirement |
+| BL-009 | After-hours auto-response with follow-up tag (US-021) | User stories |
+| BL-010 | Competitive intelligence alerts (US-008) | User stories |
+| BL-011 | Escalation management with sentiment detection (US-019) | User stories |
+| BL-012 | Tavus duplicate personas cleanup (3 dealers have duplicates) | QA-S20 |
+| BL-013 | Tavus demo widget "not configured" for demo org | QA-S16 |
 
-## Technical Debt
+## Tech Debt
 
-| ID | Item | Priority | Source |
-|----|------|----------|--------|
-| BL-014 | VAPI webhook secret validation uses wrong key | HIGH | QA-S16 | Uses VAPI_PRIVATE_KEY instead of webhook-specific secret. DO NOT FIX without disabling live webhook first (email flood risk). |
-| BL-015 | Tavus widget "not configured" for demo org | LOW | QA-S16 | Demo org lacks Tavus backend config. |
-| BL-016 | Remaining `as any` casts (settings.ts, organizations.ts — JSONB typing) | LOW | FIX-S7 | Drizzle ORM limitation. TODO comments in place. |
-| BL-017 | Duplicate security headers (Helmet + Caddy) | LOW | QA-S1 | Cosmetic. Standardize to one layer. |
-| BL-018 | Console 400 from /api/auth/refresh on unauthenticated load | LOW | QA-S1 | Expected behavior but cosmetic console error. |
+| ID | Item | Source |
+|----|------|--------|
+| BL-014 | Remaining as-any casts: campaigns.ts, sms.ts, settings.ts, organizations.ts, users.ts, public.ts, metrics.ts, insights.ts, documents.ts, chat.ts | QA-S1 through QA-S6 |
+| BL-015 | Duplicate security headers (Helmet + Caddy both emit) | QA-S1 |
+| BL-016 | Conflicting x-xss-protection values (0 vs 1;mode=block) | QA-S1 |
+| BL-017 | Console 400 from /api/auth/refresh on unauthenticated load | QA-S1 |
+| BL-018 | Secure cookie conditional on NODE_ENV | QA-S1 |
+| BL-019 | No req.on('close') handler in SSE stream | QA-S2 |
+| BL-020 | No GET /api/documents/:id endpoint (no UI uses it) | QA-S2 |
+| BL-021 | No res.flush() after individual SSE writes | QA-S2 |
+| BL-022 | VIN Solutions lead source name resolution ("VIN Source #7098" instead of "AutoTrader") | QA-S17 |
+| BL-023 | Store leadType from VIN sync for exact channel mapping | FIX-S9 |
+| BL-024 | Thinking cards vs pulsing icon in chat (SSE status events exist, frontend shows icon not cards) | QA-S10 |
+| BL-025 | Dead code: vapiGet, vapiPost, tavusGet, tavusPost functions in vendorProxy.ts (replaced by callMCP) | I-039 |
+| BL-026 | Dead code: Resend import and getResendClient() in outbound.ts (only auth.ts uses Resend directly) | I-039 |
+
+## UX / Usability
+
+| ID | Item | Source |
+|----|------|--------|
+| BL-027 | Logout intermittent React DOM error ("removeChild") — race condition | QA-S9 |
+| BL-028 | Frontend shows "Login failed" instead of specific API error message | QA-S9 |
+| BL-029 | Login failure should show reset password link in UI | AUTH audit |
+| BL-030 | Product tour overlay blocks interaction on first login | QA-S9 |
+| BL-031 | Partner Admin transient 500 on login — not reproducible | QA-S9 |
+| BL-032 | Post-sprint report overcounts (P4-S2: 26 claimed, 24 actual; P4-S4: 6 claimed, 7 actual) | QA-S3/S5 |
+
+---
+
+**Last updated:** 2026-03-18 (file reorganization)
+**Total:** 32 items
