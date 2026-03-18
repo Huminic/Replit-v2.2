@@ -1,5 +1,5 @@
 import { test, expect } from "playwright/test";
-import { testUsers, login, authHeader } from "./helpers/auth";
+import { testUsers, login, authHeader, loginForBrowser } from "./helpers/auth";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -25,13 +25,8 @@ test.describe("Domain 3: Chat & AI Agents", () => {
   });
 
   test("3.2 Center chat layout on home page", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
+    await page.waitForTimeout(1000);
 
     // Find the chat input area — should be roughly centered horizontally
     const chatInput = page.locator(
@@ -55,13 +50,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
   test("3.3 Thinking indicators visible", async ({ page }) => {
     // This test verifies the chat UI has thinking indicator support.
     // Full verification requires sending a message and watching for the indicator.
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
 
     // Look for any chat input to verify chat is rendered
     const chatInput = page.locator(

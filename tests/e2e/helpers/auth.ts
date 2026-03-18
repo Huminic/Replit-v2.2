@@ -139,6 +139,55 @@ export function authHeader(token: string) {
 }
 
 /**
+ * Browser-based login that bypasses the SPA login form.
+ * Uses API login to get the token, then navigates directly to the target page.
+ * This avoids React Router SPA navigation timing issues in headless Chromium.
+ */
+export async function loginForBrowser(
+  page: import("playwright/test").Page,
+  user: AuthUser,
+  targetPath: string = "/"
+): Promise<{ token: string; userId: string; organizationId: string }> {
+  // Check file-based cache first
+  const cache = readCache();
+  const cached = cache[user.email];
+  if (cached) {
+    // Navigate to target page — the server will recognise the refresh cookie from a prior login
+    await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.waitForTimeout(2000);
+    return { token: cached.token, userId: cached.userId, organizationId: cached.organizationId };
+  }
+
+  // Use API login to avoid SPA navigation timing issues
+  const response = await page.request.post("/api/auth/login", {
+    data: { email: user.email, password: user.password },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Login failed for ${user.email}: ${response.status()} ${await response.text()}`);
+  }
+
+  const body = await response.json();
+  const result = {
+    token: body.accessToken,
+    userId: body.user.id,
+    organizationId: body.user.organization.id,
+  };
+
+  // Save to file-based cache
+  cache[user.email] = { ...result, timestamp: Date.now() };
+  writeCache(cache);
+
+  // Navigate to target page — the server set the httpOnly refresh cookie on the login response
+  await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 30000 });
+
+  // Wait for React to hydrate
+  await page.waitForTimeout(2000);
+
+  return result;
+}
+
+/**
  * Clear the auth cache. Call before a fresh test run.
  */
 export function clearAuthCache() {

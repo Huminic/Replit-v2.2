@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "playwright/test";
-import { testUsers, login, authHeader } from "./helpers/auth";
+import { testUsers, login, authHeader, loginForBrowser } from "./helpers/auth";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -84,16 +84,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
   // ─── RBAC Tests ────────────────────────────────────────────────────
 
   test("1.7 RBAC: Sales doesn't see Manage or System", async ({ page }) => {
-    // Login via UI to check sidebar
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.sales.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.sales.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    // Wait for sidebar to render
-    await page.waitForTimeout(2000);
+    // Login via API and navigate to dashboard
+    await loginForBrowser(page, testUsers.sales, "/");
     const sidebarText = await page.locator("nav, [class*='sidebar'], [class*='Sidebar'], aside").allTextContents();
     const combined = sidebarText.join(" ").toLowerCase();
 
@@ -102,14 +94,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
   });
 
   test("1.8 Executive sees Manage but NOT System", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.executive.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.executive.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.executive, "/");
     const sidebarText = await page.locator("nav, [class*='sidebar'], [class*='Sidebar'], aside").allTextContents();
     const combined = sidebarText.join(" ").toLowerCase();
 
@@ -158,13 +143,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
 
   test("1.12 Org switch triggers full page refresh", async ({ page }) => {
     // Login as super admin who has org switching ability
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.superAdmin, "/");
 
     // Look for org switcher element
     const orgSwitcher = page.locator('[class*="org-switch"], [data-testid="org-switcher"], [class*="OrgSwitch"]');
@@ -200,13 +179,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
 
   test("1.13 Product tour shows on first login", async ({ page }) => {
     // Login and check for tour overlay/dialog
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.superAdmin, "/");
+    await page.waitForTimeout(1000);
 
     // Look for tour-related elements
     const tourElement = page.locator(
@@ -218,13 +192,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
   });
 
   test("1.14 Tour dismisses per-page", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.superAdmin, "/");
 
     // Look for dismiss button on tour
     const dismissBtn = page.locator(

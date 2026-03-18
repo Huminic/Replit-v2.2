@@ -1,24 +1,7 @@
 import { test, expect } from "playwright/test";
-import { testUsers } from "./helpers/auth";
+import { testUsers, loginForBrowser } from "./helpers/auth";
 
 const BASE = "http://localhost:5000";
-
-async function loginViaUI(page: any, user: { email: string; password: string }) {
-  await page.goto("/");
-  await page.waitForTimeout(1000);
-
-  const emailInput = page.locator('input[type="email"], input[name="email"], input[placeholder*="email" i]');
-  const passwordInput = page.locator('input[type="password"]');
-
-  if (await emailInput.count() > 0) {
-    await emailInput.fill(user.email);
-    await passwordInput.fill(user.password);
-    const submitBtn = page.locator('button[type="submit"]').or(page.locator('button:has-text("Sign")').or(page.locator('button:has-text("Log")')));
-    await submitBtn.first().click();
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-  }
-}
 
 test.describe("Domain 7: Insights", () => {
   test("7.1 Insights page loads without errors", async ({ browser }) => {
@@ -28,9 +11,8 @@ test.describe("Domain 7: Insights", () => {
     const errors: string[] = [];
     page.on("pageerror", (err) => errors.push(err.message));
 
-    await loginViaUI(page, testUsers.orgAdmin);
-    await page.goto("/insights");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/insights");
+    await page.waitForTimeout(1000);
 
     expect(page.url()).toContain("insights");
     // No uncaught JS errors
@@ -42,10 +24,8 @@ test.describe("Domain 7: Insights", () => {
   test("7.2 Dashboard zones render", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginViaUI(page, testUsers.orgAdmin);
-
-    await page.goto("/insights");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/insights");
+    await page.waitForTimeout(1000);
 
     // Look for dashboard zone containers
     const zones = page.locator(
@@ -60,10 +40,8 @@ test.describe("Domain 7: Insights", () => {
   test("7.3 Metric library populates", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginViaUI(page, testUsers.orgAdmin);
-
-    await page.goto("/insights");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/insights");
+    await page.waitForTimeout(1000);
 
     // Look for metric items in the library
     const metrics = page.locator(
@@ -79,18 +57,16 @@ test.describe("Domain 7: Insights", () => {
     // Login as org admin and capture metrics
     const ctx1 = await browser.newContext({ baseURL: BASE });
     const page1 = await ctx1.newPage();
-    await loginViaUI(page1, testUsers.orgAdmin);
-    await page1.goto("/insights");
-    await page1.waitForTimeout(3000);
+    await loginForBrowser(page1, testUsers.orgAdmin, "/insights");
+    await page1.waitForTimeout(1000);
     const adminContent = await page1.content();
     await ctx1.close();
 
     // Login as sales and capture metrics
     const ctx2 = await browser.newContext({ baseURL: BASE });
     const page2 = await ctx2.newPage();
-    await loginViaUI(page2, testUsers.sales);
-    await page2.goto("/insights");
-    await page2.waitForTimeout(3000);
+    await loginForBrowser(page2, testUsers.sales, "/insights");
+    await page2.waitForTimeout(1000);
     const salesContent = await page2.content();
     await ctx2.close();
 
@@ -104,10 +80,8 @@ test.describe("Domain 7: Insights", () => {
   test("7.5 Pin to Dashboard removed", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginViaUI(page, testUsers.orgAdmin);
-
-    await page.goto("/insights");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/insights");
+    await page.waitForTimeout(1000);
 
     // There should be no "Pin" button or pin icon
     const pinButton = page.locator('button:has-text("Pin")').or(
@@ -126,10 +100,8 @@ test.describe("Domain 7: Insights", () => {
   test("7.6 Lead source labels show meaningful names", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginViaUI(page, testUsers.orgAdmin);
-
-    await page.goto("/insights");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/insights");
+    await page.waitForTimeout(1000);
 
     // Check that no raw "VIN Source #" labels appear — should be meaningful names
     const pageText = await page.textContent("body");

@@ -136,12 +136,21 @@ export function registerBillingRoutes(app: Express) {
 
       const entitlements = await Promise.all(
         allFeatureKeys.map(async (f) => {
-          const result = await billingService.checkEntitlement(org.billingCustomerId!, f.key);
-          return {
-            feature: f.key,
-            name: f.name,
-            ...result,
-          };
+          try {
+            const result = await billingService.checkEntitlement(org.billingCustomerId!, f.key);
+            return {
+              feature: f.key,
+              name: f.name,
+              ...result,
+            };
+          } catch {
+            return {
+              feature: f.key,
+              name: f.name,
+              allowed: true,
+              degraded: true,
+            };
+          }
         })
       );
 
@@ -166,7 +175,14 @@ export function registerBillingRoutes(app: Express) {
         return res.status(400).json({ message: "feature_key is required" });
       }
 
-      const result = await billingService.checkEntitlement(org.billingCustomerId, feature_key);
+      let result: { allowed: boolean; limit?: number; used?: number };
+      try {
+        result = await billingService.checkEntitlement(org.billingCustomerId, feature_key);
+      } catch (entitlementErr: any) {
+        // Billing service unreachable — return degraded response instead of 500
+        console.log(`[Billing] entitlement check unavailable: ${entitlementErr.message}`);
+        return res.json({ configured: true, feature: feature_key, allowed: true, degraded: true, message: "Billing service unavailable — defaulting to allowed" });
+      }
       return res.json({ configured: true, feature: feature_key, ...result });
     } catch (err: any) {
       console.log(`[Billing] entitlement check error: ${err.message}`);

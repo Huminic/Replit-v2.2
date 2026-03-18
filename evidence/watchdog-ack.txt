@@ -1,5 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: T-3
-Timestamp: 2026-03-18T21:00:00Z
+Sprint: REM-2
+Timestamp: 2026-03-18T22:30:00Z
 
-C2: ACKNOWLEDGED — FIX-S9, I-1, P4-S2, QA-S16, QA-S19L5 evidence directories are from sprints with adjusted IDs during the v3→v4 sprints.json migration. These are historical artifacts, not orphaned work.
+C16: ACKNOWLEDGED — server/middleware/entitlementCheck.ts, server/routes/billing.ts, server/services/billingService.ts are within REM-2-BE scope. Pre-execution report updated to include them.
+C17: ACKNOWLEDGED — Declared Files updated to include server/middleware/entitlementCheck.ts and server/services/billingService.ts. These were discovered as root cause during investigation.

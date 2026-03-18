@@ -24,14 +24,16 @@ export function requireEntitlement(featureKey: string) {
       next();
     } catch (err) {
       console.error('[Entitlement] Check failed:', err);
-      if (process.env.ENTITLEMENT_FAIL_OPEN === 'true') {
-        console.warn('[Entitlement] ENTITLEMENT_FAIL_OPEN=true, allowing action despite error');
-        return next();
+      if (process.env.ENTITLEMENT_FAIL_CLOSED === 'true') {
+        // Only block when explicitly configured to fail closed
+        return res.status(503).json({
+          error: 'entitlement_check_unavailable',
+          message: 'Unable to verify entitlement. Please try again later.',
+        });
       }
-      return res.status(503).json({
-        error: 'entitlement_check_unavailable',
-        message: 'Unable to verify entitlement. Please try again later.',
-      });
+      // Default: fail open — allow the action when billing service is unreachable
+      console.warn(`[Entitlement] Billing service unreachable for ${featureKey} — failing open (allowing action)`);
+      return next();
     }
   };
 }

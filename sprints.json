@@ -989,7 +989,7 @@
       "id": "T-3",
       "name": "Full application test (autonomous) \u2014 post-remediation verification",
       "phase": "T",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/T-3/",
         "issues.md",
@@ -998,7 +998,25 @@
       "dependencies": [
         "REM-1"
       ],
-      "description": "Rerun complete test suite after remediation. Loop back to REM if issues remain."
+      "description": "Rerun complete test suite after remediation. Loop back to REM if issues remain.",
+      "commitHash": "b62dfd2"
+    },
+    {
+      "id": "REM-2",
+      "name": "Remediation round 2 \u2014 loginViaUI fix + remaining BE/FE issues",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "server/",
+        "evidence/REM-2/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-3"
+      ],
+      "description": "Fix loginViaUI test infrastructure (28 tests blocked), remaining campaign/tasks/billing bugs."
     },
     {
       "id": "L5-1",

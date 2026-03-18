@@ -1,22 +1,12 @@
 import { test, expect } from "playwright/test";
-import { testUsers } from "./helpers/auth";
+import { testUsers, loginForBrowser } from "./helpers/auth";
 
 const BASE = "http://localhost:5000";
 
 test.describe("Domain 9: Settings", () => {
   test("9.1 Settings page loads with all tiles", async ({ page }) => {
-    // Login as super admin via UI
-    await page.goto(`${BASE}/login`);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    // Navigate to settings
-    await page.goto(`${BASE}/settings`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.superAdmin, "/settings");
+    await page.waitForTimeout(1000);
 
     // Verify settings tiles render — expect at least one tile/card element
     const tiles = page.locator('[class*="tile"], [class*="card"], [class*="Card"], [class*="Tile"], [data-testid*="settings"]');
@@ -25,16 +15,8 @@ test.describe("Domain 9: Settings", () => {
   });
 
   test("9.2 Profile shows name, email, photo, password change", async ({ page }) => {
-    await page.goto(`${BASE}/login`);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    await page.goto(`${BASE}/profile`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.superAdmin, "/profile");
+    await page.waitForTimeout(1000);
 
     // Check for profile fields
     const pageContent = await page.textContent("body");
@@ -65,16 +47,8 @@ test.describe("Domain 9: Settings", () => {
   });
 
   test("9.3 Restart Tour button on profile", async ({ page }) => {
-    await page.goto(`${BASE}/login`);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    await page.goto(`${BASE}/profile`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.superAdmin, "/profile");
+    await page.waitForTimeout(1000);
 
     // Look for a tour restart button
     const tourButton = page.locator('button:has-text("tour"), button:has-text("Tour"), [data-testid*="tour"], a:has-text("tour")');
@@ -120,16 +94,8 @@ test.describe("Domain 9: Settings", () => {
   });
 
   test("9.5 Communication gate toggle in settings", async ({ page }) => {
-    await page.goto(`${BASE}/login`);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-
-    await page.goto(`${BASE}/settings`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.superAdmin, "/settings");
+    await page.waitForTimeout(1000);
 
     // Look for communication gate / kill switch toggle
     const toggle = page.locator(

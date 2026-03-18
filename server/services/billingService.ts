@@ -97,8 +97,8 @@ class BillingService {
           console.log(`[Billing] FlexPrice unreachable for ${featureKey} — using stale cached entitlement`);
           return cached.data;
         }
-        console.log(`[Billing] FlexPrice unreachable for ${featureKey} — failing closed (no cache)`);
-        return { allowed: false };
+        // Throw so the middleware catch block can apply ENTITLEMENT_FAIL_OPEN logic
+        throw new Error(`FlexPrice unreachable for ${featureKey} — no cached entitlement available`);
       }
       const result = {
         allowed: data.allowed !== false,
@@ -113,7 +113,8 @@ class BillingService {
         console.log(`[Billing] Using stale cached entitlement for ${featureKey}`);
         return cached.data;
       }
-      return { allowed: false };
+      // Re-throw so the middleware catch block can apply ENTITLEMENT_FAIL_OPEN logic
+      throw err;
     }
   }
 

@@ -1,5 +1,5 @@
 import { test, expect } from "playwright/test";
-import { testUsers, login, authHeader } from "./helpers/auth";
+import { testUsers, login, authHeader, loginForBrowser } from "./helpers/auth";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -12,14 +12,9 @@ test.describe("Domain 2: Dashboard", () => {
       }
     });
 
-    // Login first
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(3000);
+    // Login via API and navigate to dashboard
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
+    await page.waitForTimeout(1000);
 
     // Filter out known non-critical console noise (e.g., favicon, websocket reconnects)
     const criticalErrors = consoleErrors.filter(
@@ -35,31 +30,19 @@ test.describe("Domain 2: Dashboard", () => {
 
   test("2.2 Metrics are role-specific", async ({ page, request }) => {
     // Login as org admin and capture dashboard metrics
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
+    await page.waitForTimeout(1000);
 
     const adminMetrics = await page
       .locator('[class*="metric"], [class*="Metric"], [class*="stat"], [class*="Stat"], [class*="card"], [class*="Card"], [class*="kpi"], [class*="KPI"]')
       .allTextContents();
 
-    // Now login as sales user
-    const page2Context = page;
-    await page2Context.goto(BASE_URL);
-    // Clear cookies to force re-login
-    await page2Context.context().clearCookies();
-    await page2Context.goto(BASE_URL);
-    await page2Context.fill('input[name="email"], input[type="email"]', testUsers.sales.email);
-    await page2Context.fill('input[name="password"], input[type="password"]', testUsers.sales.password);
-    await page2Context.click('button[type="submit"]');
-    await page2Context.waitForURL("**/", { timeout: 10000 });
-    await page2Context.waitForTimeout(3000);
+    // Now login as sales user — clear cookies first to force re-login
+    await page.context().clearCookies();
+    await loginForBrowser(page, testUsers.sales, "/");
+    await page.waitForTimeout(1000);
 
-    const salesMetrics = await page2Context
+    const salesMetrics = await page
       .locator('[class*="metric"], [class*="Metric"], [class*="stat"], [class*="Stat"], [class*="card"], [class*="Card"], [class*="kpi"], [class*="KPI"]')
       .allTextContents();
 
@@ -73,13 +56,7 @@ test.describe("Domain 2: Dashboard", () => {
   });
 
   test("2.3 Left popout shows chat history + favorites (NOT agents)", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
 
     // Look for left sidebar / popout content
     const sidebar = page.locator(
@@ -100,13 +77,7 @@ test.describe("Domain 2: Dashboard", () => {
   });
 
   test("2.4 No right popout on main page", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(2000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
 
     // Check that no right panel / popout is visible on the main dashboard
     const rightPanel = page.locator(
@@ -122,13 +93,8 @@ test.describe("Domain 2: Dashboard", () => {
   });
 
   test("2.5 Metrics centered with chat below", async ({ page }) => {
-    await page.goto(BASE_URL);
-    await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
-    await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await page.waitForTimeout(3000);
+    await loginForBrowser(page, testUsers.orgAdmin, "/");
+    await page.waitForTimeout(1000);
 
     // Find metrics container and chat container
     const metricsContainer = page.locator(
