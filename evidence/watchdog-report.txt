@@ -1,26 +1,28 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260317-222029
-Timestamp: 2026-03-17T22:20:29Z
+Report-ID: WD-20260318-040541
+Timestamp: 2026-03-18T04:05:41Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 2b29dd2
+HEAD: dfc3463
 
-C1  sprints.json:        VIOLATION — committed without hash: T-1; batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
+C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (0h old)
+C7  session state:       PASS (2h old)
 C8  hook integrity:      PASS
 C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    PASS
-C15 memory staleness:    PASS
-C16 drift detection:     VIOLATION — T-1 claims commit null but hash not in git
+C14 governance files:    VIOLATION — scripts/pre-commit.sh has unstaged changes; scripts/watchdog.sh has unstaged changes
+C15 memory staleness:    VIOLATION — project_sprint_status.md doesn't reference I-039 or R-2
+C16 drift detection:     VIOLATION — 5 application file(s) modified outside sprint scope: server/outbound.ts,server/routes/conversations.ts,server/routes/webhooks.ts
+C17 plan vs execution:   PASS
+C18 retroactive artifacts:PASS
 
-SUMMARY: 12 PASS, 2 VIOLATION, 5 WARNING
+SUMMARY: 12 PASS, 3 VIOLATION, 5 WARNING
 === END SCAN ===

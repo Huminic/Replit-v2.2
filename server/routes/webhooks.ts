@@ -450,20 +450,10 @@ export function registerWebhookRoutes(app: Express) {
 
       let tavusData: any = null;
       try {
-        const { default: fetch } = await import("node-fetch" as any).catch(() => ({ default: globalThis.fetch }));
-        const tavusApiKey = process.env.TAVUS_API_KEY;
-        if (tavusApiKey) {
-          const tavusRes = await fetch(`https://tavusapi.com/v2/conversations/${tavusConversationId}`, {
-            headers: { "x-api-key": tavusApiKey, "Content-Type": "application/json" },
-          });
-          if (tavusRes.ok) {
-            tavusData = await tavusRes.json();
-          } else {
-            console.warn(`[Tavus Webhook] Could not fetch conversation details: ${tavusRes.status}`);
-          }
-        }
+        const { callMCP: callMCPTavus } = await import("../vendorProxy");
+        tavusData = await callMCPTavus("tavus_get_conversation", { conversationId: tavusConversationId });
       } catch (fetchErr: any) {
-        console.warn(`[Tavus Webhook] Fetch error:`, fetchErr.message);
+        console.warn(`[Tavus Webhook] MCP fetch error:`, fetchErr.message);
       }
 
       const transcript = tavusData?.transcript || tavusData?.conversation_transcript || body.transcript || "";

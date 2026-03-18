@@ -1,6 +1,6 @@
 import { storage } from "./storage";
 import { Resend } from "resend";
-import { vapiPost } from "./vendorProxy";
+import { callMCP } from "./vendorProxy";
 import { billingService } from "./services/billingService";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
@@ -18,9 +18,6 @@ function getResendClient(): Resend {
   return _resendInstance;
 }
 
-const TEXTMAGIC_API_KEY = process.env.TEXTMAGIC_API_KEY || "";
-const TEXTMAGIC_USERNAME = process.env.TEXTMAGIC_USERNAME || "";
-const TEXTMAGIC_BASE_URL = "https://rest.textmagic.com/api/v2";
 const RESEND_FROM = "Nexxus Connect <notifications@huminic.ai>";
 
 export interface SendRequest {
@@ -81,37 +78,14 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
 }
 
 export async function sendSmsRaw(to: string, content: string): Promise<void> {
-  if (!TEXTMAGIC_API_KEY) {
-    throw new Error("TEXTMAGIC_API_KEY is not configured");
-  }
-  if (!TEXTMAGIC_USERNAME) {
-    throw new Error("TEXTMAGIC_USERNAME is not configured");
-  }
-
   const phone = to.replace(/[^0-9+]/g, "");
   const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
 
-  const response = await fetch(`${TEXTMAGIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-TM-Username": TEXTMAGIC_USERNAME,
-      "X-TM-Key": TEXTMAGIC_API_KEY,
-    },
-    body: JSON.stringify({
-      text: content,
-      phones: formattedPhone,
-    }),
+  const result = await callMCP("tm_send_message", {
+    text: content,
+    phones: formattedPhone,
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error(`[TextMagic] SMS send failed (${response.status}):`, errorBody);
-    throw new Error(`TextMagic SMS failed: ${response.status} — ${errorBody}`);
-  }
-
-  const result = await response.json();
-  console.log(`[TextMagic] SMS sent to ${formattedPhone}, messageId: ${result.id}`);
+  console.log(`[TextMagic/MCP] SMS sent to ${formattedPhone}, messageId: ${result.id}`);
 }
 
 export async function sendSms(to: string, content: string, organizationId?: string): Promise<void> {
@@ -133,37 +107,14 @@ export async function sendSms(to: string, content: string, organizationId?: stri
     return;
   }
 
-  if (!TEXTMAGIC_API_KEY) {
-    throw new Error("TEXTMAGIC_API_KEY is not configured");
-  }
-  if (!TEXTMAGIC_USERNAME) {
-    throw new Error("TEXTMAGIC_USERNAME is not configured");
-  }
-
   const phone = to.replace(/[^0-9+]/g, "");
   const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
 
-  const response = await fetch(`${TEXTMAGIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-TM-Username": TEXTMAGIC_USERNAME,
-      "X-TM-Key": TEXTMAGIC_API_KEY,
-    },
-    body: JSON.stringify({
-      text: content,
-      phones: formattedPhone,
-    }),
+  const result = await callMCP("tm_send_message", {
+    text: content,
+    phones: formattedPhone,
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error(`[TextMagic] SMS send failed (${response.status}):`, errorBody);
-    throw new Error(`TextMagic SMS failed: ${response.status} — ${errorBody}`);
-  }
-
-  const result = await response.json();
-  console.log(`[TextMagic] SMS sent to ${to}, messageId: ${result.id}`);
+  console.log(`[TextMagic/MCP] SMS sent to ${to}, messageId: ${result.id}`);
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
@@ -173,35 +124,16 @@ export async function sendEmail(to: string, content: string): Promise<void> {
     return;
   }
 
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error("RESEND_API_KEY is not configured");
-  }
-
-  const subjectMatch = content.match(/^Subject:\s*(.+?)[\r\n]/i);
-  const subject = subjectMatch ? subjectMatch[1].trim() : "Message from Nexxus Connect";
-  const body = subjectMatch ? content.replace(/^Subject:\s*.+?[\r\n]+/i, "").trim() : content;
-
-  const resend = getResendClient();
-  const { data, error } = await resend.emails.send({
+  const result = await callMCP("resend_send_email", {
     from: RESEND_FROM,
-    to: [to],
-    subject,
-    html: body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>"),
+    to,
+    subject: "Message from Nexxus Connect",
+    html: content,
   });
-
-  if (error) {
-    console.error(`[Resend] Email send failed:`, error);
-    throw new Error(`Resend email failed: ${error.message}`);
-  }
-
-  console.log(`[Resend] Email sent to ${to}, id: ${data?.id}`);
+  console.log(`[Resend/MCP] Email sent to ${to}`);
 }
 
 export async function sendPhone(to: string, content: string, organizationId?: string): Promise<void> {
-  if (!process.env.VAPI_PRIVATE_KEY) {
-    throw new Error("VAPI_PRIVATE_KEY is not configured — cannot initiate outbound call");
-  }
-
   let assistantId: string | undefined;
 
   if (organizationId) {
@@ -218,15 +150,20 @@ export async function sendPhone(to: string, content: string, organizationId?: st
     throw new Error("No VAPI assistant configured for this organization — cannot initiate outbound call");
   }
 
-  const callPayload = {
+  const customerNumber = to.replace(/[^0-9+]/g, "");
+  const formattedNumber = customerNumber.startsWith("+") ? customerNumber : `+${customerNumber}`;
+
+  const callArgs: Record<string, unknown> = {
     assistantId,
-    customer: {
-      number: to.replace(/[^0-9+]/g, ""),
-    },
+    customerNumber: formattedNumber,
   };
 
-  const result = await vapiPost("/call", callPayload);
-  console.log(`[VAPI] Outbound call initiated to ${to}, callId: ${result.id}`);
+  if (content) {
+    callArgs.firstMessageOverride = content;
+  }
+
+  const result = await callMCP("vapi_create_call", callArgs);
+  console.log(`[VAPI/MCP] Outbound call initiated to ${to}, callId: ${result.id}`);
 }
 
 function isGlobalOutboundEnabled(): boolean {

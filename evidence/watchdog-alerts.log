@@ -216,3 +216,24 @@
 [2026-03-17T22:20:33Z] Previous ack (WD-20260317-221927) invalidated by new report (WD-20260317-222029)
 [2026-03-17T22:20:36Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.3449012.1773786036851 has evidence but is not in sprints.json
 [2026-03-17T22:20:36Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-17T22:21:50Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-03-17T23:56:58Z] Previous ack (WD-20260317-222029) invalidated by new report (WD-20260317-235654)
+[2026-03-18T02:57:04Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-03-18T03:09:49Z] Previous ack (WD-20260317-222029) invalidated by new report (WD-20260318-030945)
+[2026-03-18T03:51:12Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/watchdog.sh (MOVED_TO)
+[2026-03-18T03:51:43Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/watchdog.sh (MOVED_TO)
+[2026-03-18T03:51:50Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/watchdog.sh (MOVED_TO)
+[2026-03-18T03:52:11Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/pre-commit.sh (MOVED_TO)
+[2026-03-18T03:52:22Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/pre-commit.sh (MOVED_TO)
+[2026-03-18T03:52:34Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/watchdog.sh (MOVED_TO)
+[2026-03-18T03:52:38Z] ALERT: C12 GOVERNANCE_FILE_CHANGED pre-commit hook (MODIFY)
+[2026-03-18T03:52:45Z] Previous ack (WD-20260317-222029) invalidated by new report (WD-20260318-035241)
+[2026-03-18T03:52:57Z] ALERT: C8 ORPHAN_EVIDENCE ghost_messages.log has evidence but is not in sprints.json
+[2026-03-18T03:59:01Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-03-18T03:59:30Z] Previous ack (WD-20260317-222029) invalidated by new report (WD-20260318-035926)
+[2026-03-18T04:05:37Z] ALERT: C8 ORPHAN_EVIDENCE ghost_messages.log has evidence but is not in sprints.json
+[2026-03-18T04:05:45Z] Previous ack (WD-20260317-222029) invalidated by new report (WD-20260318-040541)
+[2026-03-18T04:06:04Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.3449012.1773806764598 has evidence but is not in sprints.json
+[2026-03-18T04:06:04Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-18T04:07:05Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-03-18T04:07:32Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)

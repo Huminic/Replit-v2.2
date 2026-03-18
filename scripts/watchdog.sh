@@ -934,18 +934,41 @@ check_c16() {
   # Drift 5: Check if working tree has changes in files that don't belong to the current sprint
   local current_sprint
   current_sprint=$(jq -r '[.sprints[] | select(.status == "in_progress")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
-  if [ -n "$current_sprint" ]; then
+  local all_changes
+  all_changes=$(git diff --name-only 2>/dev/null || true)
+
+  if [ -n "$current_sprint" ] && [ -n "$all_changes" ]; then
     # Count uncommitted changes outside evidence/{current_sprint}/
     local stray_changes
-    stray_changes=$(git diff --name-only 2>/dev/null | grep -v "^evidence/${current_sprint}/" | grep -v "^evidence/watchdog" | grep -v "^evidence/ghost" || true)
+    stray_changes=$(echo "$all_changes" | grep -v "^evidence/${current_sprint}/" | grep -v "^evidence/watchdog" | grep -v "^evidence/ghost" || true)
     if [ -n "$stray_changes" ]; then
       local stray_count
       stray_count=$(echo "$stray_changes" | wc -l)
       if [ "$stray_count" -gt 0 ]; then
-        if [ "$result" = "PASS" ]; then result="WARNING"; fi
-        details+="$stray_count file(s) modified outside current sprint scope; "
-        WARNING_COUNT=$((WARNING_COUNT + 1))
+        # VIOLATION if server/ or client/src/ files are modified outside sprint scope
+        local critical_stray
+        critical_stray=$(echo "$stray_changes" | grep -E "^(server/|client/src/)" || true)
+        if [ -n "$critical_stray" ]; then
+          local crit_count
+          crit_count=$(echo "$critical_stray" | wc -l)
+          result="VIOLATION"
+          details+="$crit_count application file(s) modified outside sprint scope: $(echo "$critical_stray" | head -3 | tr '\n' ', ' | sed 's/,$//'); "
+        else
+          if [ "$result" = "PASS" ]; then result="WARNING"; fi
+          details+="$stray_count file(s) modified outside current sprint scope; "
+          WARNING_COUNT=$((WARNING_COUNT + 1))
+        fi
       fi
+    fi
+  elif [ -z "$current_sprint" ] && [ -n "$all_changes" ]; then
+    # No sprint in_progress but working tree has changes
+    local unsanctioned
+    unsanctioned=$(echo "$all_changes" | grep -E "^(server/|client/src/)" || true)
+    if [ -n "$unsanctioned" ]; then
+      local unsanc_count
+      unsanc_count=$(echo "$unsanctioned" | wc -l)
+      result="VIOLATION"
+      details+="$unsanc_count application file(s) modified with NO sprint in_progress: $(echo "$unsanctioned" | head -3 | tr '\n' ', ' | sed 's/,$//'); "
     fi
   fi
 
@@ -956,6 +979,183 @@ check_c16() {
     out "C16 drift detection:     WARNING — ${details%%; }"
   else
     out "C16 drift detection:     PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C17: Plan vs execution (declared files vs actual changes)
+# ─────────────────────────────────────────────
+check_c17() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  # Find the latest in_progress sprint
+  local current_sprint
+  current_sprint=$(jq -r '[.sprints[] | select(.status == "in_progress")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+
+  if [ -z "$current_sprint" ]; then
+    out "C17 plan vs execution:   PASS (no in_progress sprint)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  local pre_exec="evidence/$current_sprint/pre-execution-report.md"
+
+  if [ ! -f "$pre_exec" ]; then
+    out "C17 plan vs execution:   PASS (no pre-execution report yet)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Check pre-execution report has a Declared Files section
+  if ! grep -qi "## Declared Files\|## Files\|## Scope\|## File Scope" "$pre_exec"; then
+    result="VIOLATION"
+    details+="pre-execution-report.md missing '## Declared Files' section; "
+  else
+    # Extract declared file paths from the section
+    local declared_files
+    declared_files=$(python3 -c "
+import re, sys
+
+with open('$pre_exec') as f:
+    content = f.read()
+
+# Find the Declared Files section
+in_section = False
+files = []
+for line in content.split('\n'):
+    if re.match(r'^##\s+(Declared\s+)?Files|^##\s+(File\s+)?Scope', line, re.IGNORECASE):
+        in_section = True
+        continue
+    if in_section and re.match(r'^##\s', line):
+        break  # next section
+    if in_section:
+        # Extract file paths: lines starting with - or * followed by a path
+        m = re.match(r'^\s*[-*]\s*\x60?([a-zA-Z0-9_./-]+\.[a-zA-Z]+)\x60?', line)
+        if m:
+            files.append(m.group(1))
+        # Also match bare paths
+        m2 = re.match(r'^\s*([a-zA-Z0-9_]+/[a-zA-Z0-9_./-]+)', line)
+        if m2 and m2.group(1) not in files:
+            files.append(m2.group(1))
+
+for f in files:
+    print(f)
+" 2>/dev/null)
+
+    if [ -z "$declared_files" ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="Declared Files section exists but no file paths found; "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    else
+      # Compare against actual working tree changes
+      local actual_changes
+      actual_changes=$(git diff --name-only 2>/dev/null | grep -E "^(server/|client/src/|shared/)" || true)
+
+      if [ -n "$actual_changes" ]; then
+        # Find undeclared changes
+        local undeclared=""
+        while IFS= read -r changed_file; do
+          [ -z "$changed_file" ] && continue
+          if ! echo "$declared_files" | grep -qF "$changed_file"; then
+            undeclared+="$changed_file, "
+          fi
+        done <<< "$actual_changes"
+
+        if [ -n "$undeclared" ]; then
+          result="VIOLATION"
+          details+="undeclared changes: ${undeclared%, }; "
+        fi
+      fi
+    fi
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C17 plan vs execution:   VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C17 plan vs execution:   WARNING — ${details%%; }"
+  else
+    out "C17 plan vs execution:   PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C18: Retroactive artifact detection
+# ─────────────────────────────────────────────
+check_c18() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  # Check each in_progress sprint
+  local in_progress_ids
+  in_progress_ids=$(jq -r '.sprints[] | select(.status == "in_progress") | .id' "$SPRINTS_JSON" 2>/dev/null)
+
+  for sid in $in_progress_ids; do
+    [ -z "$sid" ] && continue
+
+    local pre_exec="evidence/$sid/pre-execution-report.md"
+    [ -f "$pre_exec" ] || continue
+
+    local pre_exec_mtime
+    pre_exec_mtime=$(stat -c %Y "$pre_exec")
+
+    # Get the earliest mtime of any changed application file in the working tree
+    local changed_app_files
+    changed_app_files=$(git diff --name-only 2>/dev/null | grep -E "^(server/|client/src/|shared/)" || true)
+
+    if [ -n "$changed_app_files" ]; then
+      local earliest_change=999999999999
+      while IFS= read -r cf; do
+        [ -z "$cf" ] && continue
+        [ -f "$cf" ] || continue
+        local cf_mtime
+        cf_mtime=$(stat -c %Y "$cf")
+        if [ "$cf_mtime" -lt "$earliest_change" ]; then
+          earliest_change=$cf_mtime
+        fi
+      done <<< "$changed_app_files"
+
+      # If pre-execution report is more than 10 minutes newer than the earliest code change
+      if [ "$earliest_change" -lt 999999999999 ] && [ $((pre_exec_mtime - earliest_change)) -gt 600 ]; then
+        local delta_min=$(( (pre_exec_mtime - earliest_change) / 60 ))
+        if [ "$result" = "PASS" ]; then result="WARNING"; fi
+        details+="$sid pre-execution-report.md written ${delta_min}m AFTER earliest code change (appears retroactive); "
+        WARNING_COUNT=$((WARNING_COUNT + 1))
+      fi
+    fi
+  done
+
+  # Also check recently committed sprints
+  local last_committed
+  last_committed=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+  if [ -n "$last_committed" ]; then
+    local lc_pre_exec="evidence/$last_committed/pre-execution-report.md"
+    local lc_post="evidence/$last_committed/post-sprint-report.md"
+    if [ -f "$lc_pre_exec" ] && [ -f "$lc_post" ]; then
+      local pre_mt post_mt
+      pre_mt=$(stat -c %Y "$lc_pre_exec")
+      post_mt=$(stat -c %Y "$lc_post")
+      # If pre-exec and post-sprint are within 2 minutes of each other, suspicious
+      local gap=$(( post_mt - pre_mt ))
+      if [ "$gap" -ge 0 ] && [ "$gap" -le 120 ]; then
+        if [ "$result" = "PASS" ]; then result="WARNING"; fi
+        details+="$last_committed pre-exec and post-sprint written ${gap}s apart (bulk-generated?); "
+        WARNING_COUNT=$((WARNING_COUNT + 1))
+      fi
+    fi
+  fi
+
+  if [ "$result" = "WARNING" ]; then
+    out "C18 retroactive artifacts:WARNING — ${details%%; }"
+  else
+    out "C18 retroactive artifacts:PASS"
     PASS_COUNT=$((PASS_COUNT + 1))
   fi
 }
@@ -996,6 +1196,8 @@ do_scan() {
   check_c14
   check_c15
   check_c16
+  check_c17
+  check_c18
 
   out ""
   out "SUMMARY: $PASS_COUNT PASS, $VIOLATION_COUNT VIOLATION, $WARNING_COUNT WARNING"
@@ -1404,7 +1606,7 @@ case "${1:-}" in
     ;;
   *)
     echo "Usage: $0 {scan|watch|verify-ack|verify-ghost|ghost-msg|ghost-ack}"
-    echo "  scan         — Full audit (C1-C16), writes to stdout + evidence/watchdog-report.txt"
+    echo "  scan         — Full audit (C1-C18), writes to stdout + evidence/watchdog-report.txt"
     echo "  watch        — Real-time monitoring via inotifywait, alerts to evidence/watchdog-alerts.log"
     echo "  verify-ack   — Check if watchdog-ack.txt matches latest report (used by pre-commit hook)"
     echo "  verify-ghost — Check if pending ghost directives are acknowledged (used by pre-commit hook)"

@@ -82,6 +82,26 @@ Every must-fix item has Background, Outcome, and Acceptance Criteria.
 **Outcome:** Method accepts and filters by organizationId.
 **Acceptance Criteria:** Code review confirms organizationId parameter added. SMS webhook passes org context.
 
+### I-036: Inbound SMS agent processing (campaign response handling)
+**Background:** The live testing spec and user stories define: "Service campaign sends SMS → Customer replies → Service Agent handles response → Agent continues (sets up appointment) or Staff takes over." Currently, when an inbound SMS arrives on an existing conversation, the system stores the message and increments unread count but does NOT route it to the dealer's communication agent for AI processing. For new conversations, only a static auto-greeting template fires — not a contextual AI response. The agent-based conversational channel that campaigns depend on does not exist.
+**Outcome:** Inbound SMS on any conversation (campaign-originated or organic) is routed to the dealer's communication agent (same persona as VAPI — e.g. Caroline for Serra Honda). The agent processes the message through the AI chat pipeline with full tool access (VIN lookup, appointment scheduling, web search), responds via SMS, and the response is stored in the conversation thread. Staff can take over at any point via TeamBox.
+**Acceptance Criteria:** Send SMS to dealer number → AI agent responds within 60 seconds with contextual reply → reply appears in TeamBox thread as agent message → agent can book appointments and answer inventory questions → staff takeover stops AI responses on that thread.
+
+### I-037: VAPI outbound calls have no context — wrong greeting, no campaign goal, no customer data
+**Background:** VAPI assistants have a single `firstMessage` configured for inbound calls (e.g. "Thanks for calling Serra Automotive..."). When the system initiates an outbound call via `sendPhone()` in outbound.ts, it passes only `assistantId` and `customer.number`. Missing: (1) `firstMessage` override — customer hears inbound greeting on outbound call, (2) no `assistantOverrides` for system prompt — AI has no idea why it's calling, (3) no campaign context — the campaign message template and goal are not passed, (4) no `phoneNumberId` — VAPI can't associate the call with the right number, (5) `customer.name` not passed — AI can't greet by name.
+**Outcome:** Outbound VAPI calls pass full context via `assistantOverrides`: outbound-appropriate `firstMessage` using `{{customerName}}`, `{{agentName}}`, `{{dealershipName}}`; system prompt augmented with campaign reason/goal (e.g. "You are calling about an oil change reminder. Goal: schedule service appointment."); `phoneNumberId` and `customer.name` included in payload. Campaign `messageTemplate` drives the call's purpose.
+**Acceptance Criteria:** Trigger outbound campaign call → AI greets customer by name → states reason for calling (from campaign template) → has clear goal (book appointment, confirm service, etc.) → does NOT say "thanks for calling" → `phoneNumberId` and `customer.name` present in VAPI call payload.
+
+### I-038: VAPI webhook secret still rejecting — D1 not resolved
+**Background:** I-1 changed webhooks.ts to use `VAPI_WEBHOOK_SECRET` instead of `VAPI_PRIVATE_KEY` for validation. However, live testing (T-2b) shows the webhook still rejects with "Invalid secret — rejecting request" (401). The call transcript from VAPI never reaches TeamBox. Server logs confirm: `POST /api/webhooks/vapi 401 in 2ms`. Either the `VAPI_WEBHOOK_SECRET` env var value doesn't match what VAPI sends in the `x-vapi-secret` header, or VAPI is sending the secret in a different header/format.
+**Outcome:** VAPI end-of-call-report webhook is accepted by the server. Transcript is stored in TeamBox as a voice conversation.
+**Acceptance Criteria:** Make VAPI call → call ends → server logs show `POST /api/webhooks/vapi 200` → conversation with transcript appears in TeamBox for the correct org.
+
+### I-039: Route all third-party communications through MCP
+**Background:** The app maintains its own TextMagic API key in `.env` and calls the TextMagic REST API directly from `outbound.ts`. This key is revoked, breaking campaign SMS. Meanwhile, central-mcp has working credentials and a `tm_send_message` tool. The same pattern applies to VAPI (app calls VAPI API directly via `vendorProxy.ts`) and potentially Resend. Maintaining duplicate credentials across app and MCP is fragile and has already caused a production failure.
+**Outcome:** All third-party communication (TextMagic SMS, VAPI calls, Resend email) routes through central-mcp via its JSON-RPC API at `http://localhost:4002/mcp`. The app's `outbound.ts` calls MCP tools (`tm_send_message`, VAPI tools, etc.) instead of calling vendor APIs directly. Single source of truth for all third-party credentials in central-mcp's config. App `.env` only needs the MCP auth bearer token.
+**Acceptance Criteria:** (1) `sendSmsRaw()` calls MCP `tm_send_message` instead of TextMagic API directly → SMS sends succeed. (2) `sendPhone()` calls MCP VAPI tool instead of VAPI API directly → calls succeed. (3) No TextMagic/VAPI API keys needed in app `.env`. (4) Campaign execution sends SMS via MCP → recipient receives message. (5) MCP tools needed that don't exist yet should be flagged for user to add to central-mcp.
+
 ---
 
 ## Backlog (not blocking launch — 19 items)
@@ -117,7 +137,7 @@ Every must-fix item has Background, Outcome, and Acceptance Criteria.
 
 ---
 
-**Last updated:** Sprint R-1
-**Must fix:** 15 items (Sprint I-1)
+**Last updated:** Sprint T-2b
+**Must fix:** 19 items (I-001–I-034 from I-1, + I-036 T-2a, I-037/I-038 T-2b, I-039 T-2d)
 **Backlog:** 19 items
 **External fixed:** 2 items

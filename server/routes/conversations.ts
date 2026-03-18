@@ -191,9 +191,8 @@ export function registerConversationRoutes(app: Express) {
       const orgName = org?.name || "Nexxus Connect";
       const fromAddress = `${orgName} <notifications@huminic.ai>`;
 
-      const { Resend } = await import("resend");
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
+      const { callMCP } = await import("../vendorProxy");
+      await callMCP("resend_send_email", {
         from: fromAddress,
         to,
         subject,

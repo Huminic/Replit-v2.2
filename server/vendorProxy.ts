@@ -204,8 +204,9 @@ async function tavusPost(path: string, body: unknown) {
 export function registerVendorRoutes(app: Express) {
   app.get("/api/vapi/assistants", authenticateToken, async (_req: Request, res: Response) => {
     try {
-      const data = await vapiGet("/assistant");
-      const assistants = data.map((a: any) => ({
+      const data = await callMCP("vapi_list_assistants", { limit: 100 });
+      const arr = Array.isArray(data) ? data : [];
+      const assistants = arr.map((a: any) => ({
         id: a.id,
         name: a.name,
         voice: a.voice?.voiceId || a.voice?.provider,
@@ -222,8 +223,9 @@ export function registerVendorRoutes(app: Express) {
 
   app.get("/api/vapi/phone-numbers", authenticateToken, async (_req: Request, res: Response) => {
     try {
-      const data = await vapiGet("/phone-number");
-      const phones = data.map((p: any) => ({
+      const data = await callMCP("vapi_list_phone_numbers", { limit: 100 });
+      const arr = Array.isArray(data) ? data : [];
+      const phones = arr.map((p: any) => ({
         id: p.id,
         number: p.number,
         name: p.name,
@@ -241,10 +243,11 @@ export function registerVendorRoutes(app: Express) {
   app.get("/api/vapi/calls", authenticateToken, async (req: Request, res: Response) => {
     try {
       const { assistantId, limit = "20" } = req.query;
-      let path = `/call?limit=${limit}`;
-      if (assistantId) path += `&assistantId=${assistantId}`;
-      const data = await vapiGet(path);
-      const calls = data.map((c: any) => ({
+      const mcpArgs: Record<string, unknown> = { limit: Number(limit) };
+      if (assistantId) mcpArgs.assistantId = assistantId as string;
+      const data = await callMCP("vapi_list_calls", mcpArgs);
+      const arr = Array.isArray(data) ? data : [];
+      const calls = arr.map((c: any) => ({
         id: c.id,
         type: c.type,
         status: c.status,
@@ -273,7 +276,7 @@ export function registerVendorRoutes(app: Express) {
 
   app.get("/api/vapi/calls/:callId", authenticateToken, async (req: Request, res: Response) => {
     try {
-      const data = await vapiGet(`/call/${req.params.callId}`);
+      const data = await callMCP("vapi_get_call", { callId: req.params.callId });
       return res.json({
         id: data.id,
         type: data.type,
@@ -313,7 +316,7 @@ export function registerVendorRoutes(app: Express) {
           ...(assistantId ? { groupBy: ["assistantId"] } : { groupBy: ["assistantId"] }),
         },
       ];
-      const data = await vapiPost("/analytics", { queries });
+      const data = await callMCP("vapi_get_analytics", { queries });
       return res.json(data);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch VAPI analytics", error: err.message });
@@ -322,8 +325,9 @@ export function registerVendorRoutes(app: Express) {
 
   app.get("/api/tavus/personas", authenticateToken, async (_req: Request, res: Response) => {
     try {
-      const data = await tavusGet("/personas");
-      const personas = (data.data || []).map((p: any) => ({
+      const data = await callMCP("tavus_list_personas", { limit: 100 });
+      const items = Array.isArray(data) ? data : (data?.data || []);
+      const personas = items.map((p: any) => ({
         id: p.persona_id,
         name: p.persona_name,
         status: p.status,
@@ -339,8 +343,9 @@ export function registerVendorRoutes(app: Express) {
 
   app.get("/api/tavus/replicas", authenticateToken, async (_req: Request, res: Response) => {
     try {
-      const data = await tavusGet("/replicas");
-      const replicas = (data.data || []).map((r: any) => ({
+      const data = await callMCP("tavus_list_replicas", {});
+      const items = Array.isArray(data) ? data : (data?.data || []);
+      const replicas = items.map((r: any) => ({
         id: r.replica_id,
         name: r.replica_name,
         status: r.status,
@@ -360,12 +365,12 @@ export function registerVendorRoutes(app: Express) {
       if (!personaId) {
         return res.status(400).json({ message: "personaId is required" });
       }
-      const payload: Record<string, unknown> = { persona_id: personaId };
+      const mcpPayload: Record<string, unknown> = { persona_id: personaId };
       if (visitorName) {
-        payload.conversation_name = `Session with ${visitorName}`;
-        payload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
+        mcpPayload.conversation_name = `Session with ${visitorName}`;
+        mcpPayload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
       }
-      const data = await tavusPost("/conversations", payload);
+      const data = await callMCP("tavus_create_conversation", mcpPayload);
       return res.json({
         conversationId: data.conversation_id,
         conversationUrl: data.conversation_url,
@@ -379,10 +384,11 @@ export function registerVendorRoutes(app: Express) {
   app.get("/api/tavus/conversations", authenticateToken, async (req: Request, res: Response) => {
     try {
       const { personaId, limit = "20" } = req.query;
-      let path = `/conversations?limit=${limit}`;
-      if (personaId) path += `&persona_id=${personaId}`;
-      const data = await tavusGet(path);
-      const conversations = (data.data || []).map((c: any) => ({
+      const convArgs: Record<string, unknown> = { limit: Number(limit) };
+      if (personaId) convArgs.persona_id = personaId as string;
+      const data = await callMCP("tavus_list_conversations", convArgs);
+      const items = Array.isArray(data) ? data : (data?.data || []);
+      const conversations = items.map((c: any) => ({
         id: c.conversation_id,
         name: c.conversation_name,
         status: c.status,

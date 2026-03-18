@@ -160,14 +160,24 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════
-# GATE 1.6: Watchdog acknowledgment
+# GATE 1.6: Watchdog — fresh scan + acknowledgment
 # ═══════════════════════════════════════════════════════════════════
-echo "[Gate 1.6/7] Watchdog acknowledgment..."
+echo "[Gate 1.6/7] Watchdog scan + acknowledgment..."
 
 if [ -f "scripts/watchdog.sh" ]; then
+  # Run a fresh scan so the report is never stale
+  echo "  Running fresh watchdog scan..."
+  bash scripts/watchdog.sh scan > /dev/null 2>&1
+
+  # Now verify ack against the fresh report
   WATCHDOG_RESULT=$(bash scripts/watchdog.sh verify-ack 2>&1)
   WATCHDOG_EXIT=$?
   if [ "$WATCHDOG_EXIT" -ne 0 ]; then
+    # Show the violations from the fresh report
+    echo "  Fresh scan results:"
+    grep -E "VIOLATION" evidence/watchdog-report.txt 2>/dev/null | grep -v "SUMMARY" | grep -v "===" | while read -r line; do
+      echo "    $line"
+    done
     block "Watchdog gate: $WATCHDOG_RESULT"
   fi
   echo "  $WATCHDOG_RESULT"
@@ -256,6 +266,68 @@ if [ "$EVIDENCE_COUNT" -eq 0 ]; then
 fi
 
 echo "  PASS ($EVIDENCE_COUNT file(s) in $EVIDENCE_DIR)"
+
+# ═══════════════════════════════════════════════════════════════════
+# GATE 2.5: Pre-execution report must declare files
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 2.5/7] Declared files check..."
+
+PRE_EXEC_FILE="${EVIDENCE_DIR}/pre-execution-report.md"
+
+if [ ! -f "$PRE_EXEC_FILE" ]; then
+  block "Pre-execution report not found: $PRE_EXEC_FILE"
+fi
+
+if ! grep -qi "## Declared Files\|## Files\|## Scope\|## File Scope" "$PRE_EXEC_FILE"; then
+  block "Pre-execution report missing '## Declared Files' section. List every file you plan to modify."
+fi
+
+# Extract declared files and compare against staged application files
+DECLARED_FILES=$(python3 -c "
+import re
+with open('$PRE_EXEC_FILE') as f:
+    content = f.read()
+in_section = False
+files = []
+for line in content.split('\n'):
+    if re.match(r'^##\s+(Declared\s+)?Files|^##\s+(File\s+)?Scope', line, re.IGNORECASE):
+        in_section = True
+        continue
+    if in_section and re.match(r'^##\s', line):
+        break
+    if in_section:
+        m = re.match(r'^\s*[-*]\s*\x60?([a-zA-Z0-9_./-]+\.[a-zA-Z]+)\x60?', line)
+        if m:
+            files.append(m.group(1))
+        m2 = re.match(r'^\s*([a-zA-Z0-9_]+/[a-zA-Z0-9_./-]+)', line)
+        if m2 and m2.group(1) not in files:
+            files.append(m2.group(1))
+for f in files:
+    print(f)
+" 2>/dev/null)
+
+if [ -z "$DECLARED_FILES" ]; then
+  block "Pre-execution report has a Declared Files section but no file paths listed."
+fi
+
+# Check staged application files against declarations
+UNDECLARED=""
+for staged in $STAGED_FILES; do
+  # Only check application files, not evidence/governance
+  case "$staged" in
+    server/*|client/src/*|shared/*)
+      if ! echo "$DECLARED_FILES" | grep -qF "$staged"; then
+        UNDECLARED="$UNDECLARED $staged"
+      fi
+      ;;
+  esac
+done
+
+if [ -n "$UNDECLARED" ]; then
+  block "Staged files not declared in pre-execution report:$UNDECLARED. Update ## Declared Files section."
+fi
+
+echo "  PASS (all staged application files declared)"
 
 # ═══════════════════════════════════════════════════════════════════
 # GATE 3: Enforcer checklist (fresh + approved)

@@ -36,32 +36,14 @@ export function registerWidgetRoutes(app: Express) {
         return res.status(400).json({ message: "No Tavus persona configured for this organization" });
       }
 
-      const tavusApiKey = process.env.TAVUS_API_KEY;
-      if (!tavusApiKey) {
-        return res.status(500).json({ message: "TAVUS_API_KEY is not configured" });
-      }
-
-      const payload: Record<string, unknown> = { persona_id: agentWithTavus.tavusPersonaId };
+      const { callMCP } = await import("../vendorProxy");
+      const mcpPayload: Record<string, unknown> = { persona_id: agentWithTavus.tavusPersonaId };
       if (visitorName) {
-        payload.conversation_name = `Widget session with ${visitorName}`;
-        payload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
+        mcpPayload.conversation_name = `Widget session with ${visitorName}`;
+        mcpPayload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
       }
 
-      const tavusRes = await fetch("https://tavusapi.com/v2/conversations", {
-        method: "POST",
-        headers: {
-          "x-api-key": tavusApiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!tavusRes.ok) {
-        const errText = await tavusRes.text();
-        return res.status(502).json({ message: "Failed to create Tavus conversation", error: errText });
-      }
-
-      const data = await tavusRes.json();
+      const data = await callMCP("tavus_create_conversation", mcpPayload);
       return res.json({
         conversationId: data.conversation_id,
         conversationUrl: data.conversation_url,

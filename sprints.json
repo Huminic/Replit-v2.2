@@ -805,7 +805,28 @@
       "dependencies": [
         "I-1"
       ],
-      "completedAt": "2026-03-17T12:00:00Z"
+      "completedAt": "2026-03-17T12:00:00Z",
+      "commitHash": "dfc3463"
+    },
+    {
+      "id": "I-039",
+      "name": "Route all third-party communications through MCP",
+      "phase": "I",
+      "status": "in_progress",
+      "scope": [
+        "server/outbound.ts",
+        "server/vendorProxy.ts",
+        "server/routes/conversations.ts",
+        "server/routes/webhooks.ts",
+        "server/routes/widgets.ts",
+        "evidence/I-039/",
+        "sprints.json",
+        "issues.md"
+      ],
+      "dependencies": [
+        "T-1"
+      ],
+      "description": "Refactor all direct TextMagic, VAPI, Tavus, and Resend API calls in the app to route through central-mcp via callMCP(). Single source of truth for third-party credentials."
     },
     {
       "id": "T-2",
@@ -818,7 +839,24 @@
       ],
       "dependencies": [
         "T-1"
-      ]
+      ],
+      "status_note": "ON HOLD \u2014 found I-036/I-037/I-038/I-039, needs remediation first"
+    },
+    {
+      "id": "R-2",
+      "name": "Codebase refactoring scan \u2014 major issues + backlog categorization",
+      "phase": "R",
+      "status": "planned",
+      "scope": [
+        "evidence/R-2/",
+        "issues.md",
+        "backlog.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "I-039"
+      ],
+      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix, categorize everything else into backlog. Areas: dead code, duplicate patterns, credential sprawl, type safety, performance, unused dependencies, code organization."
     }
   ]
 }
