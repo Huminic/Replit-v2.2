@@ -1,0 +1,1391 @@
+
+Running 56 tests using 1 worker
+
+  ✘   1 [browser] › tests/e2e/domain-01-auth.spec.ts:9:3 › Domain 1: Authentication & Authorization › 1.1 Login sets httpOnly cookie (not localStorage) (846ms)
+  ✓   2 [browser] › tests/e2e/domain-01-auth.spec.ts:21:3 › Domain 1: Authentication & Authorization › 1.2 Refresh token rotation works (1.1s)
+  ✘   3 [browser] › tests/e2e/domain-01-auth.spec.ts:41:3 › Domain 1: Authentication & Authorization › 1.3 Logout clears cookie and returns to login (571ms)
+  ✓   4 [browser] › tests/e2e/domain-01-auth.spec.ts:54:3 › Domain 1: Authentication & Authorization › 1.4 Password strength validation rejects weak passwords (61ms)
+  -   5 [browser] › tests/e2e/domain-01-auth.spec.ts:68:8 › Domain 1: Authentication & Authorization › 1.5 Reset token is hashed before DB storage
+  ✘   6 [browser] › tests/e2e/domain-01-auth.spec.ts:73:3 › Domain 1: Authentication & Authorization › 1.6 Wrong credentials shows error message (56ms)
+  ✘   7 [browser] › tests/e2e/domain-01-auth.spec.ts:86:3 › Domain 1: Authentication & Authorization › 1.7 RBAC: Sales doesn't see Manage or System (11.5s)
+  ✘   8 [browser] › tests/e2e/domain-01-auth.spec.ts:103:3 › Domain 1: Authentication & Authorization › 1.8 Executive sees Manage but NOT System (11.3s)
+  ✘   9 [browser] › tests/e2e/domain-01-auth.spec.ts:118:3 › Domain 1: Authentication & Authorization › 1.9 Super Admin can switch all orgs (96ms)
+  ✘  10 [browser] › tests/e2e/domain-01-auth.spec.ts:131:3 › Domain 1: Authentication & Authorization › 1.10 Partner Admin sees own companies + subs only (77ms)
+  ✘  11 [browser] › tests/e2e/domain-01-auth.spec.ts:146:3 › Domain 1: Authentication & Authorization › 1.11 Sales cannot switch orgs (72ms)
+  ✘  12 [browser] › tests/e2e/domain-01-auth.spec.ts:157:3 › Domain 1: Authentication & Authorization › 1.12 Org switch triggers full page refresh (11.3s)
+  ✘  13 [browser] › tests/e2e/domain-01-auth.spec.ts:198:3 › Domain 1: Authentication & Authorization › 1.13 Product tour shows on first login (11.2s)
+  ✘  14 [browser] › tests/e2e/domain-01-auth.spec.ts:216:3 › Domain 1: Authentication & Authorization › 1.14 Tour dismisses per-page (11.8s)
+  ✓  15 [browser] › tests/e2e/domain-01-auth.spec.ts:237:3 › Domain 1: Authentication & Authorization › 1.15 Huminic master org exists (432ms)
+  ✘  16 [browser] › tests/e2e/domain-01-auth.spec.ts:249:3 › Domain 1: Authentication & Authorization › 1.16 Org hierarchy correct (49ms)
+  ✘  17 [browser] › tests/e2e/domain-02-dashboard.spec.ts:7:3 › Domain 2: Dashboard › 2.1 Main page loads without errors (11.2s)
+  ✘  18 [browser] › tests/e2e/domain-02-dashboard.spec.ts:35:3 › Domain 2: Dashboard › 2.2 Metrics are role-specific (11.5s)
+  ✘  19 [browser] › tests/e2e/domain-02-dashboard.spec.ts:73:3 › Domain 2: Dashboard › 2.3 Left popout shows chat history + favorites (NOT agents) (11.4s)
+  ✘  20 [browser] › tests/e2e/domain-02-dashboard.spec.ts:99:3 › Domain 2: Dashboard › 2.4 No right popout on main page (11.3s)
+  ✘  21 [browser] › tests/e2e/domain-02-dashboard.spec.ts:120:3 › Domain 2: Dashboard › 2.5 Metrics centered with chat below (11.3s)
+  ✘  22 [browser] › tests/e2e/domain-03-chat.spec.ts:7:3 › Domain 3: Chat & AI Agents › 3.1 Agent listings per role in left menu (80ms)
+  ✘  23 [browser] › tests/e2e/domain-03-chat.spec.ts:27:3 › Domain 3: Chat & AI Agents › 3.2 Center chat layout on home page (11.2s)
+  ✘  24 [browser] › tests/e2e/domain-03-chat.spec.ts:54:3 › Domain 3: Chat & AI Agents › 3.3 Thinking indicators visible (11.0s)
+  ✘  25 [browser] › tests/e2e/domain-03-chat.spec.ts:89:3 › Domain 3: Chat & AI Agents › 3.4 Web search tool works (87ms)
+  ✘  26 [browser] › tests/e2e/domain-03-chat.spec.ts:114:3 › Domain 3: Chat & AI Agents › 3.5 General knowledge works (79ms)
+  ✘  27 [browser] › tests/e2e/domain-03-chat.spec.ts:134:3 › Domain 3: Chat & AI Agents › 3.6 VIN data queries return real data (88ms)
+  ✘  28 [browser] › tests/e2e/domain-03-chat.spec.ts:154:3 › Domain 3: Chat & AI Agents › 3.7 Conversational tone (113ms)
+  ✘  29 [browser] › tests/e2e/domain-03-chat.spec.ts:175:3 › Domain 3: Chat & AI Agents › 3.8 Multi-org awareness for Super Admin (355ms)
+  ✘  30 [browser] › tests/e2e/domain-03-chat.spec.ts:195:3 › Domain 3: Chat & AI Agents › 3.9 Empty CRM shows graceful message (82ms)
+  ✘  31 [browser] › tests/e2e/domain-03-chat.spec.ts:216:3 › Domain 3: Chat & AI Agents › 3.10 Document upload works (79ms)
+  ✘  32 [browser] › tests/e2e/domain-03-chat.spec.ts:235:3 › Domain 3: Chat & AI Agents › 3.11 Agent CRUD works (admin only) (82ms)
+  ✘  33 [browser] › tests/e2e/domain-06-departments.spec.ts:24:3 › Domain 6: Department Pages › 6.1 Sales page loads with KPIs (8.4s)
+  ✘  34 [browser] › tests/e2e/domain-06-departments.spec.ts:44:3 › Domain 6: Department Pages › 6.2 Service page loads with KPIs and campaigns (8.3s)
+  ✘  35 [browser] › tests/e2e/domain-06-departments.spec.ts:61:3 › Domain 6: Department Pages › 6.3 Marketing page loads with KPIs (8.3s)
+  ✘  36 [browser] › tests/e2e/domain-06-departments.spec.ts:78:3 › Domain 6: Department Pages › 6.4 Management page loads with executive overview (8.4s)
+  ✘  37 [browser] › tests/e2e/domain-06-departments.spec.ts:96:3 › Domain 6: Department Pages › 6.5 Demand Score tile visible on Management (8.3s)
+  ✓  38 [browser] › tests/e2e/domain-06-departments.spec.ts:118:3 › Domain 6: Department Pages › 6.6 Sales sidebar does NOT show Billing (7.3s)
+  ✘  39 [browser] › tests/e2e/domain-06-departments.spec.ts:136:3 › Domain 6: Department Pages › 6.7 Sales submenu shows 3 agents below separator (8.2s)
+  ✘  40 [browser] › tests/e2e/domain-06-departments.spec.ts:154:3 › Domain 6: Department Pages › 6.8 Service submenu shows at least 1 agent (8.2s)
+  ✘  41 [browser] › tests/e2e/domain-07-insights.spec.ts:23:3 › Domain 7: Insights › 7.1 Insights page loads without errors (8.3s)
+  ✘  42 [browser] › tests/e2e/domain-07-insights.spec.ts:41:3 › Domain 7: Insights › 7.2 Dashboard zones render (8.3s)
+  ✘  43 [browser] › tests/e2e/domain-07-insights.spec.ts:59:3 › Domain 7: Insights › 7.3 Metric library populates (8.4s)
+  ✓  44 [browser] › tests/e2e/domain-07-insights.spec.ts:77:3 › Domain 7: Insights › 7.4 Role-filtered — compare metrics for different roles (17.2s)
+  ✓  45 [browser] › tests/e2e/domain-07-insights.spec.ts:103:3 › Domain 7: Insights › 7.5 Pin to Dashboard removed (8.3s)
+  ✓  46 [browser] › tests/e2e/domain-07-insights.spec.ts:125:3 › Domain 7: Insights › 7.6 Lead source labels show meaningful names (8.3s)
+  ✓  47 [browser] › tests/e2e/domain-08-billing.spec.ts:23:3 › Domain 8: Billing › 8.1 Billing pages load (7.4s)
+  ✘  48 [browser] › tests/e2e/domain-08-billing.spec.ts:44:3 › Domain 8: Billing › 8.2 Connected to FlexPrice (8.1s)
+  ✘  49 [browser] › tests/e2e/domain-08-billing.spec.ts:67:3 › Domain 8: Billing › 8.3 Super Admin sees all billing (8.4s)
+  ✘  50 [browser] › tests/e2e/domain-08-billing.spec.ts:88:3 › Domain 8: Billing › 8.4 Partner Admin + Org Admin see usage + wallet (8.4s)
+  ✓  51 [browser] › tests/e2e/domain-08-billing.spec.ts:116:3 › Domain 8: Billing › 8.5 Sales/Marketing/Service do NOT see Billing (28.6s)
+  ✘  52 [browser] › tests/e2e/domain-09-settings.spec.ts:7:3 › Domain 9: Settings › 9.1 Settings page loads with all tiles (1.0m)
+  ✘  53 [browser] › tests/e2e/domain-09-settings.spec.ts:25:3 › Domain 9: Settings › 9.2 Profile shows name, email, photo, password change (1.0m)
+  ✘  54 [browser] › tests/e2e/domain-09-settings.spec.ts:63:3 › Domain 9: Settings › 9.3 Restart Tour button on profile (1.0m)
+  ✘  55 [browser] › tests/e2e/domain-09-settings.spec.ts:84:3 › Domain 9: Settings › 9.4 Org Wizard accessible to Super Admin only (323ms)
+  ✘  56 [browser] › tests/e2e/domain-09-settings.spec.ts:116:3 › Domain 9: Settings › 9.5 Communication gate toggle in settings (1.0m)
+
+
+  1) [browser] › tests/e2e/domain-01-auth.spec.ts:9:3 › Domain 1: Authentication & Authorization › 1.1 Login sets httpOnly cookie (not localStorage) 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"httponly"[39m
+    Received string:    [31m"nexxus_refresh=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNWY5YTc2NC1kNGIwLTQxYjYtYTQwMS04OGVlNjY1MWQ5NTgiLCJvcmdhbml6YXRpb25JZCI6IjcwODQ1YWU4LWUyYmQtNGU5MC05MGRhLTM4NWE2ZGM1MjRmNiIsInJvbGVJZCI6IjU4YmIzNWEyLWZhZTMtNDRmMC05YTUxLTc1NjRhZGExZjQxZCIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzczODE5MDU0LCJleHAiOjE3NzQ0MjM4NTR9.cv1eyVd-1v3znv7R17YRGAtj8BF6X3-eIcoQcDDulKg; Max-Age=604800; Path=/api/auth; Expires=Wed, 25 Mar 2026 07:30:54 GMT; HttpOnly; Secure; SameSite=Strict"[39m
+
+      16 |     const setCookieHeaders = response.headers()["set-cookie"];
+      17 |     expect(setCookieHeaders).toBeDefined();
+    > 18 |     expect(setCookieHeaders).toContain("httponly");
+         |                              ^
+      19 |   });
+      20 |
+      21 |   test("1.2 Refresh token rotation works", async ({ request }) => {
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:18:30
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-394c2-ly-cookie-not-localStorage--browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-394c2-ly-cookie-not-localStorage--browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [browser] › tests/e2e/domain-01-auth.spec.ts:41:3 › Domain 1: Authentication & Authorization › 1.3 Logout clears cookie and returns to login 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      45 |       headers: authHeader(token),
+      46 |     });
+    > 47 |     expect(logoutRes.ok()).toBe(true);
+         |                            ^
+      48 |
+      49 |     // After logout, refresh should fail
+      50 |     const refreshRes = await request.post("/api/auth/refresh");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:47:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-a7f41-cookie-and-returns-to-login-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-a7f41-cookie-and-returns-to-login-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [browser] › tests/e2e/domain-01-auth.spec.ts:73:3 › Domain 1: Authentication & Authorization › 1.6 Wrong credentials shows error message 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeDefined[2m()[22m
+
+    Received: [31mundefined[39m
+
+      79 |
+      80 |     const body = await response.json();
+    > 81 |     expect(body.message).toBeDefined();
+         |                          ^
+      82 |   });
+      83 |
+      84 |   // ─── RBAC Tests ────────────────────────────────────────────────────
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:81:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-a0b03-entials-shows-error-message-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-a0b03-entials-shows-error-message-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [browser] › tests/e2e/domain-01-auth.spec.ts:86:3 › Domain 1: Authentication & Authorization › 1.7 RBAC: Sales doesn't see Manage or System 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      90 |     await page.fill('input[name="password"], input[type="password"]', testUsers.sales.password);
+      91 |     await page.click('button[type="submit"]');
+    > 92 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      93 |
+      94 |     // Wait for sidebar to render
+      95 |     await page.waitForTimeout(2000);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:92:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-7e984-oesn-t-see-Manage-or-System-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-01-auth-Domain-1-Au-7e984-oesn-t-see-Manage-or-System-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-7e984-oesn-t-see-Manage-or-System-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-7e984-oesn-t-see-Manage-or-System-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [browser] › tests/e2e/domain-01-auth.spec.ts:103:3 › Domain 1: Authentication & Authorization › 1.8 Executive sees Manage but NOT System 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      106 |     await page.fill('input[name="password"], input[type="password"]', testUsers.executive.password);
+      107 |     await page.click('button[type="submit"]');
+    > 108 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      109 |
+      110 |     await page.waitForTimeout(2000);
+      111 |     const sidebarText = await page.locator("nav, [class*='sidebar'], [class*='Sidebar'], aside").allTextContents();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:108:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-ce4ad--sees-Manage-but-NOT-System-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-01-auth-Domain-1-Au-ce4ad--sees-Manage-but-NOT-System-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-ce4ad--sees-Manage-but-NOT-System-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-ce4ad--sees-Manage-but-NOT-System-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [browser] › tests/e2e/domain-01-auth.spec.ts:118:3 › Domain 1: Authentication & Authorization › 1.9 Super Admin can switch all orgs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      120 |       data: { email: testUsers.superAdmin.email, password: testUsers.superAdmin.password },
+      121 |     });
+    > 122 |     expect(loginRes.ok()).toBe(true);
+          |                           ^
+      123 |     const body = await loginRes.json();
+      124 |
+      125 |     // Super admin (role level 1) should get accessibleOrganizations with all orgs
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:122:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-5fcdd-r-Admin-can-switch-all-orgs-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-5fcdd-r-Admin-can-switch-all-orgs-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [browser] › tests/e2e/domain-01-auth.spec.ts:131:3 › Domain 1: Authentication & Authorization › 1.10 Partner Admin sees own companies + subs only 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      133 |       data: { email: testUsers.partnerAdmin.email, password: testUsers.partnerAdmin.password },
+      134 |     });
+    > 135 |     expect(loginRes.ok()).toBe(true);
+          |                           ^
+      136 |     const body = await loginRes.json();
+      137 |
+      138 |     // Partner admin (role level 2) should get accessibleOrganizations
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:135:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-0f5c8-ees-own-companies-subs-only-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-0f5c8-ees-own-companies-subs-only-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [browser] › tests/e2e/domain-01-auth.spec.ts:146:3 › Domain 1: Authentication & Authorization › 1.11 Sales cannot switch orgs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      148 |       data: { email: testUsers.sales.email, password: testUsers.sales.password },
+      149 |     });
+    > 150 |     expect(loginRes.ok()).toBe(true);
+          |                           ^
+      151 |     const body = await loginRes.json();
+      152 |
+      153 |     // Sales (role level > 3) should NOT get accessibleOrganizations
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:150:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-28803-11-Sales-cannot-switch-orgs-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-28803-11-Sales-cannot-switch-orgs-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [browser] › tests/e2e/domain-01-auth.spec.ts:157:3 › Domain 1: Authentication & Authorization › 1.12 Org switch triggers full page refresh 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      161 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      162 |     await page.click('button[type="submit"]');
+    > 163 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      164 |     await page.waitForTimeout(2000);
+      165 |
+      166 |     // Look for org switcher element
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:163:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-15443--triggers-full-page-refresh-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-01-auth-Domain-1-Au-15443--triggers-full-page-refresh-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-15443--triggers-full-page-refresh-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-15443--triggers-full-page-refresh-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [browser] › tests/e2e/domain-01-auth.spec.ts:198:3 › Domain 1: Authentication & Authorization › 1.13 Product tour shows on first login 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      202 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      203 |     await page.click('button[type="submit"]');
+    > 204 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      205 |     await page.waitForTimeout(3000);
+      206 |
+      207 |     // Look for tour-related elements
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:204:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-1f78f-t-tour-shows-on-first-login-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-01-auth-Domain-1-Au-1f78f-t-tour-shows-on-first-login-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-1f78f-t-tour-shows-on-first-login-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-1f78f-t-tour-shows-on-first-login-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [browser] › tests/e2e/domain-01-auth.spec.ts:216:3 › Domain 1: Authentication & Authorization › 1.14 Tour dismisses per-page 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      219 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      220 |     await page.click('button[type="submit"]');
+    > 221 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      222 |     await page.waitForTimeout(2000);
+      223 |
+      224 |     // Look for dismiss button on tour
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:221:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-bd9b7--14-Tour-dismisses-per-page-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-01-auth-Domain-1-Au-bd9b7--14-Tour-dismisses-per-page-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-bd9b7--14-Tour-dismisses-per-page-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-bd9b7--14-Tour-dismisses-per-page-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [browser] › tests/e2e/domain-01-auth.spec.ts:249:3 › Domain 1: Authentication & Authorization › 1.16 Org hierarchy correct 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      252 |       data: { email: testUsers.superAdmin.email, password: testUsers.superAdmin.password },
+      253 |     });
+    > 254 |     expect(loginRes.ok()).toBe(true);
+          |                           ^
+      255 |     const body = await loginRes.json();
+      256 |
+      257 |     expect(body.accessibleOrganizations).toBeDefined();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts:254:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-01-auth-Domain-1-Au-42d44--1-16-Org-hierarchy-correct-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-01-auth-Domain-1-Au-42d44--1-16-Org-hierarchy-correct-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [browser] › tests/e2e/domain-02-dashboard.spec.ts:7:3 › Domain 2: Dashboard › 2.1 Main page loads without errors 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      18 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      19 |     await page.click('button[type="submit"]');
+    > 20 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      21 |     await page.waitForTimeout(3000);
+      22 |
+      23 |     // Filter out known non-critical console noise (e.g., favicon, websocket reconnects)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-02-dashboard.spec.ts:20:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-d9cb1-n-page-loads-without-errors-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-02-dashboard-Domain-d9cb1-n-page-loads-without-errors-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-d9cb1-n-page-loads-without-errors-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-02-dashboard-Domain-d9cb1-n-page-loads-without-errors-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [browser] › tests/e2e/domain-02-dashboard.spec.ts:35:3 › Domain 2: Dashboard › 2.2 Metrics are role-specific 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      39 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      40 |     await page.click('button[type="submit"]');
+    > 41 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      42 |     await page.waitForTimeout(3000);
+      43 |
+      44 |     const adminMetrics = await page
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-02-dashboard.spec.ts:41:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-2c690-2-Metrics-are-role-specific-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-02-dashboard-Domain-2c690-2-Metrics-are-role-specific-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-2c690-2-Metrics-are-role-specific-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-02-dashboard-Domain-2c690-2-Metrics-are-role-specific-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [browser] › tests/e2e/domain-02-dashboard.spec.ts:73:3 › Domain 2: Dashboard › 2.3 Left popout shows chat history + favorites (NOT agents) 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      76 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      77 |     await page.click('button[type="submit"]');
+    > 78 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      79 |     await page.waitForTimeout(2000);
+      80 |
+      81 |     // Look for left sidebar / popout content
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-02-dashboard.spec.ts:78:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-e28b5-story-favorites-NOT-agents--browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-02-dashboard-Domain-e28b5-story-favorites-NOT-agents--browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-e28b5-story-favorites-NOT-agents--browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-02-dashboard-Domain-e28b5-story-favorites-NOT-agents--browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [browser] › tests/e2e/domain-02-dashboard.spec.ts:99:3 › Domain 2: Dashboard › 2.4 No right popout on main page 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      102 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      103 |     await page.click('button[type="submit"]');
+    > 104 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      105 |     await page.waitForTimeout(2000);
+      106 |
+      107 |     // Check that no right panel / popout is visible on the main dashboard
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-02-dashboard.spec.ts:104:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-1e338-o-right-popout-on-main-page-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-02-dashboard-Domain-1e338-o-right-popout-on-main-page-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-1e338-o-right-popout-on-main-page-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-02-dashboard-Domain-1e338-o-right-popout-on-main-page-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [browser] › tests/e2e/domain-02-dashboard.spec.ts:120:3 › Domain 2: Dashboard › 2.5 Metrics centered with chat below 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      123 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      124 |     await page.click('button[type="submit"]');
+    > 125 |     await page.waitForURL("**/", { timeout: 10000 });
+          |                ^
+      126 |     await page.waitForTimeout(3000);
+      127 |
+      128 |     // Find metrics container and chat container
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-02-dashboard.spec.ts:125:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-039df-cs-centered-with-chat-below-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-02-dashboard-Domain-039df-cs-centered-with-chat-below-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-02-dashboard-Domain-039df-cs-centered-with-chat-below-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-02-dashboard-Domain-039df-cs-centered-with-chat-below-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [browser] › tests/e2e/domain-03-chat.spec.ts:7:3 › Domain 3: Chat & AI Agents › 3.1 Agent listings per role in left menu 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many attempts, please try again later"}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:9:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-1b2de-tings-per-role-in-left-menu-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-1b2de-tings-per-role-in-left-menu-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [browser] › tests/e2e/domain-03-chat.spec.ts:27:3 › Domain 3: Chat & AI Agents › 3.2 Center chat layout on home page 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      30 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      31 |     await page.click('button[type="submit"]');
+    > 32 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      33 |     await page.waitForTimeout(3000);
+      34 |
+      35 |     // Find the chat input area — should be roughly centered horizontally
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:32:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-cea87-er-chat-layout-on-home-page-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-03-chat-Domain-3-Ch-cea87-er-chat-layout-on-home-page-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-cea87-er-chat-layout-on-home-page-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-cea87-er-chat-layout-on-home-page-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [browser] › tests/e2e/domain-03-chat.spec.ts:54:3 › Domain 3: Chat & AI Agents › 3.3 Thinking indicators visible 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/" until "load"
+    ============================================================
+
+      59 |     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
+      60 |     await page.click('button[type="submit"]');
+    > 61 |     await page.waitForURL("**/", { timeout: 10000 });
+         |                ^
+      62 |     await page.waitForTimeout(2000);
+      63 |
+      64 |     // Look for any chat input to verify chat is rendered
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:61:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-bfe87-Thinking-indicators-visible-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-03-chat-Domain-3-Ch-bfe87-Thinking-indicators-visible-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-bfe87-Thinking-indicators-visible-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-bfe87-Thinking-indicators-visible-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [browser] › tests/e2e/domain-03-chat.spec.ts:89:3 › Domain 3: Chat & AI Agents › 3.4 Web search tool works 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:90:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-926ff-s-3-4-Web-search-tool-works-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-926ff-s-3-4-Web-search-tool-works-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [browser] › tests/e2e/domain-03-chat.spec.ts:114:3 › Domain 3: Chat & AI Agents › 3.5 General knowledge works 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:115:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-602be-3-5-General-knowledge-works-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-602be-3-5-General-knowledge-works-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [browser] › tests/e2e/domain-03-chat.spec.ts:134:3 › Domain 3: Chat & AI Agents › 3.6 VIN data queries return real data 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:135:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-016fd-ta-queries-return-real-data-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-016fd-ta-queries-return-real-data-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [browser] › tests/e2e/domain-03-chat.spec.ts:154:3 › Domain 3: Chat & AI Agents › 3.7 Conversational tone 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:155:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-28e27-nts-3-7-Conversational-tone-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-28e27-nts-3-7-Conversational-tone-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [browser] › tests/e2e/domain-03-chat.spec.ts:175:3 › Domain 3: Chat & AI Agents › 3.8 Multi-org awareness for Super Admin 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      180 |       data: { title: "Multi-Org Test" },
+      181 |     });
+    > 182 |     expect(convRes.ok()).toBe(true);
+          |                          ^
+      183 |     const conv = await convRes.json();
+      184 |
+      185 |     const chatRes = await request.post(`/api/chat/${conv.id}/stream`, {
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:182:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-de49f-g-awareness-for-Super-Admin-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-de49f-g-awareness-for-Super-Admin-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [browser] › tests/e2e/domain-03-chat.spec.ts:195:3 › Domain 3: Chat & AI Agents › 3.9 Empty CRM shows graceful message 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:197:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-00a36--CRM-shows-graceful-message-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-00a36--CRM-shows-graceful-message-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [browser] › tests/e2e/domain-03-chat.spec.ts:216:3 › Domain 3: Chat & AI Agents › 3.10 Document upload works 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:217:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-fda17--3-10-Document-upload-works-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-fda17--3-10-Document-upload-works-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [browser] › tests/e2e/domain-03-chat.spec.ts:235:3 › Domain 3: Chat & AI Agents › 3.11 Agent CRUD works (admin only) 
+
+    Error: Login failed for orgadmin@serrahonda.com: 429 {"error":"Too many authentication attempts, please try again later."}
+
+       at helpers/auth.ts:114
+
+      112 |
+      113 |   if (!response.ok()) {
+    > 114 |     throw new Error(
+          |           ^
+      115 |       `Login failed for ${user.email}: ${response.status()} ${await response.text()}`
+      116 |     );
+      117 |   }
+        at login (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/helpers/auth.ts:114:11)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-03-chat.spec.ts:236:23
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-03-chat-Domain-3-Ch-0d75a-gent-CRUD-works-admin-only--browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-03-chat-Domain-3-Ch-0d75a-gent-CRUD-works-admin-only--browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [browser] › tests/e2e/domain-06-departments.spec.ts:24:3 › Domain 6: Department Pages › 6.1 Sales page loads with KPIs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"sales"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      31 |
+      32 |     // Page should load without error
+    > 33 |     expect(page.url()).toContain("sales");
+         |                        ^
+      34 |
+      35 |     // Look for KPI tiles or dashboard content
+      36 |     const tiles = page.locator('[class*="tile"], [class*="kpi"], [class*="card"], [class*="metric"], [class*="stat"]');
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:33:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-ed722--Sales-page-loads-with-KPIs-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-ed722--Sales-page-loads-with-KPIs-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-ed722--Sales-page-loads-with-KPIs-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-ed722--Sales-page-loads-with-KPIs-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [browser] › tests/e2e/domain-06-departments.spec.ts:44:3 › Domain 6: Department Pages › 6.2 Service page loads with KPIs and campaigns 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"service"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      50 |     await page.waitForTimeout(3000);
+      51 |
+    > 52 |     expect(page.url()).toContain("service");
+         |                        ^
+      53 |
+      54 |     const tiles = page.locator('[class*="tile"], [class*="kpi"], [class*="card"], [class*="metric"], [class*="stat"]');
+      55 |     const tileCount = await tiles.count();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:52:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-9cf48-ads-with-KPIs-and-campaigns-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-9cf48-ads-with-KPIs-and-campaigns-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-9cf48-ads-with-KPIs-and-campaigns-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-9cf48-ads-with-KPIs-and-campaigns-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) [browser] › tests/e2e/domain-06-departments.spec.ts:61:3 › Domain 6: Department Pages › 6.3 Marketing page loads with KPIs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"marketing"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      67 |     await page.waitForTimeout(3000);
+      68 |
+    > 69 |     expect(page.url()).toContain("marketing");
+         |                        ^
+      70 |
+      71 |     const tiles = page.locator('[class*="tile"], [class*="kpi"], [class*="card"], [class*="metric"], [class*="stat"]');
+      72 |     const tileCount = await tiles.count();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:69:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-61d0c-keting-page-loads-with-KPIs-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-61d0c-keting-page-loads-with-KPIs-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-61d0c-keting-page-loads-with-KPIs-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-61d0c-keting-page-loads-with-KPIs-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) [browser] › tests/e2e/domain-06-departments.spec.ts:78:3 › Domain 6: Department Pages › 6.4 Management page loads with executive overview 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"management"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      84 |     await page.waitForTimeout(3000);
+      85 |
+    > 86 |     expect(page.url()).toContain("management");
+         |                        ^
+      87 |
+      88 |     // Executive overview should have tiles/cards
+      89 |     const tiles = page.locator('[class*="tile"], [class*="kpi"], [class*="card"], [class*="metric"], [class*="stat"], [class*="overview"]');
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:86:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-d53e4-ads-with-executive-overview-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-d53e4-ads-with-executive-overview-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-d53e4-ads-with-executive-overview-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-d53e4-ads-with-executive-overview-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) [browser] › tests/e2e/domain-06-departments.spec.ts:96:3 › Domain 6: Department Pages › 6.5 Demand Score tile visible on Management 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      111 |     );
+      112 |     const found = await demandScore.first().count();
+    > 113 |     expect(found).toBeGreaterThan(0);
+          |                   ^
+      114 |
+      115 |     await context.close();
+      116 |   });
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:113:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-ad364--tile-visible-on-Management-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-ad364--tile-visible-on-Management-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-ad364--tile-visible-on-Management-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-ad364--tile-visible-on-Management-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) [browser] › tests/e2e/domain-06-departments.spec.ts:136:3 › Domain 6: Department Pages › 6.7 Sales submenu shows 3 agents below separator 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="agent"], a[href*="agent"], text=/agent/i". Did you mean to CSS.escape it?
+
+      145 |     const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
+      146 |     const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"], text=/agent/i');
+    > 147 |     const agentCount = await agentItems.count();
+          |                                         ^
+      148 |     // Should find at least 3 agent menu items
+      149 |     expect(agentCount).toBeGreaterThanOrEqual(3);
+      150 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:147:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-f1d52-ws-3-agents-below-separator-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-f1d52-ws-3-agents-below-separator-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-f1d52-ws-3-agents-below-separator-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-f1d52-ws-3-agents-below-separator-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) [browser] › tests/e2e/domain-06-departments.spec.ts:154:3 › Domain 6: Department Pages › 6.8 Service submenu shows at least 1 agent 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="agent"], a[href*="agent"], text=/agent/i". Did you mean to CSS.escape it?
+
+      162 |     const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
+      163 |     const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"], text=/agent/i');
+    > 164 |     const agentCount = await agentItems.count();
+          |                                         ^
+      165 |     expect(agentCount).toBeGreaterThanOrEqual(1);
+      166 |
+      167 |     await context.close();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-06-departments.spec.ts:164:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-2fb34-menu-shows-at-least-1-agent-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-06-departments-Doma-2fb34-menu-shows-at-least-1-agent-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-06-departments-Doma-2fb34-menu-shows-at-least-1-agent-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-06-departments-Doma-2fb34-menu-shows-at-least-1-agent-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) [browser] › tests/e2e/domain-07-insights.spec.ts:23:3 › Domain 7: Insights › 7.1 Insights page loads without errors 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"insights"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      32 |     await page.waitForTimeout(3000);
+      33 |
+    > 34 |     expect(page.url()).toContain("insights");
+         |                        ^
+      35 |     // No uncaught JS errors
+      36 |     expect(errors).toHaveLength(0);
+      37 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-07-insights.spec.ts:34:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--d08ee-s-page-loads-without-errors-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-07-insights-Domain--d08ee-s-page-loads-without-errors-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--d08ee-s-page-loads-without-errors-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-07-insights-Domain--d08ee-s-page-loads-without-errors-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) [browser] › tests/e2e/domain-07-insights.spec.ts:41:3 › Domain 7: Insights › 7.2 Dashboard zones render 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      52 |     );
+      53 |     const zoneCount = await zones.count();
+    > 54 |     expect(zoneCount).toBeGreaterThan(0);
+         |                       ^
+      55 |
+      56 |     await context.close();
+      57 |   });
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-07-insights.spec.ts:54:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--fb6f0--7-2-Dashboard-zones-render-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-07-insights-Domain--fb6f0--7-2-Dashboard-zones-render-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--fb6f0--7-2-Dashboard-zones-render-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-07-insights-Domain--fb6f0--7-2-Dashboard-zones-render-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) [browser] › tests/e2e/domain-07-insights.spec.ts:59:3 › Domain 7: Insights › 7.3 Metric library populates 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      70 |     );
+      71 |     const metricCount = await metrics.count();
+    > 72 |     expect(metricCount).toBeGreaterThan(0);
+         |                         ^
+      73 |
+      74 |     await context.close();
+      75 |   });
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-07-insights.spec.ts:72:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--0bec5--3-Metric-library-populates-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-07-insights-Domain--0bec5--3-Metric-library-populates-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-07-insights-Domain--0bec5--3-Metric-library-populates-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-07-insights-Domain--0bec5--3-Metric-library-populates-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) [browser] › tests/e2e/domain-08-billing.spec.ts:44:3 › Domain 8: Billing › 8.2 Connected to FlexPrice 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      60 |     const hasBillingContent =
+      61 |       /billing|usage|plan|invoice|wallet|subscription|entitlement/i.test(pageText || "");
+    > 62 |     expect(hasBillingContent).toBe(true);
+         |                               ^
+      63 |
+      64 |     await context.close();
+      65 |   });
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-08-billing.spec.ts:62:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-2decd--8-2-Connected-to-FlexPrice-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-08-billing-Domain-8-2decd--8-2-Connected-to-FlexPrice-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-2decd--8-2-Connected-to-FlexPrice-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-08-billing-Domain-8-2decd--8-2-Connected-to-FlexPrice-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) [browser] › tests/e2e/domain-08-billing.spec.ts:67:3 › Domain 8: Billing › 8.3 Super Admin sees all billing 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      77 |     const hasBillingContent =
+      78 |       /billing|usage|plan|invoice|wallet|subscription/i.test(pageText || "");
+    > 79 |     expect(hasBillingContent).toBe(true);
+         |                               ^
+      80 |
+      81 |     // Should not show access denied
+      82 |     const accessDenied = /access denied|forbidden|not authorized|no permission/i.test(pageText || "");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-08-billing.spec.ts:79:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-b86c8-uper-Admin-sees-all-billing-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-08-billing-Domain-8-b86c8-uper-Admin-sees-all-billing-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-b86c8-uper-Admin-sees-all-billing-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-08-billing-Domain-8-b86c8-uper-Admin-sees-all-billing-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) [browser] › tests/e2e/domain-08-billing.spec.ts:88:3 › Domain 8: Billing › 8.4 Partner Admin + Org Admin see usage + wallet 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+       97 |     const partnerSeesBilling =
+       98 |       /usage|wallet|billing|plan/i.test(partnerText || "");
+    >  99 |     expect(partnerSeesBilling).toBe(true);
+          |                                ^
+      100 |     await ctx1.close();
+      101 |
+      102 |     // Test Org Admin
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-08-billing.spec.ts:99:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-229ef--Org-Admin-see-usage-wallet-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-08-billing-Domain-8-229ef--Org-Admin-see-usage-wallet-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-08-billing-Domain-8-229ef--Org-Admin-see-usage-wallet-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-08-billing-Domain-8-229ef--Org-Admin-see-usage-wallet-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) [browser] › tests/e2e/domain-09-settings.spec.ts:7:3 › Domain 9: Settings › 9.1 Settings page loads with all tiles 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, open '/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/.playwright-artifacts-41/traces/b552357a8081b5f8b34c-a821776fbfdd0528fe24-recording3.trace'
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/(dashboard|settings|$)/);
+         |                ^
+      14 |
+      15 |     // Navigate to settings
+      16 |     await page.goto(`${BASE}/settings`);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-09-settings.spec.ts:13:16
+
+    Error: ENOENT: no such file or directory, open '/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/.playwright-artifacts-41/99fb5c0a4efc0a112b13c4f131e7b353.zip'
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--aa7c4-s-page-loads-with-all-tiles-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-09-settings-Domain--aa7c4-s-page-loads-with-all-tiles-browser/error-context.md
+
+  43) [browser] › tests/e2e/domain-09-settings.spec.ts:25:3 › Domain 9: Settings › 9.2 Profile shows name, email, photo, password change 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      28 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      29 |     await page.click('button[type="submit"]');
+    > 30 |     await page.waitForURL(/\/(dashboard|profile|$)/);
+         |                ^
+      31 |
+      32 |     await page.goto(`${BASE}/profile`);
+      33 |     await page.waitForLoadState("networkidle");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-09-settings.spec.ts:30:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--92c47-email-photo-password-change-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-09-settings-Domain--92c47-email-photo-password-change-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--92c47-email-photo-password-change-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-09-settings-Domain--92c47-email-photo-password-change-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  44) [browser] › tests/e2e/domain-09-settings.spec.ts:63:3 › Domain 9: Settings › 9.3 Restart Tour button on profile 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      66 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      67 |     await page.click('button[type="submit"]');
+    > 68 |     await page.waitForURL(/\/(dashboard|profile|$)/);
+         |                ^
+      69 |
+      70 |     await page.goto(`${BASE}/profile`);
+      71 |     await page.waitForLoadState("networkidle");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-09-settings.spec.ts:68:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--4770c-tart-Tour-button-on-profile-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-09-settings-Domain--4770c-tart-Tour-button-on-profile-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--4770c-tart-Tour-button-on-profile-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-09-settings-Domain--4770c-tart-Tour-button-on-profile-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  45) [browser] › tests/e2e/domain-09-settings.spec.ts:84:3 › Domain 9: Settings › 9.4 Org Wizard accessible to Super Admin only 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      87 |       data: { email: testUsers.superAdmin.email, password: testUsers.superAdmin.password },
+      88 |     });
+    > 89 |     expect(superLoginRes.ok()).toBe(true);
+         |                                ^
+      90 |     const superBody = await superLoginRes.json();
+      91 |     const superToken = superBody.accessToken;
+      92 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-09-settings.spec.ts:89:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--e19f7-essible-to-Super-Admin-only-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--e19f7-essible-to-Super-Admin-only-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-09-settings-Domain--e19f7-essible-to-Super-Admin-only-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46) [browser] › tests/e2e/domain-09-settings.spec.ts:116:3 › Domain 9: Settings › 9.5 Communication gate toggle in settings 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      119 |     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
+      120 |     await page.click('button[type="submit"]');
+    > 121 |     await page.waitForURL(/\/(dashboard|settings|$)/);
+          |                ^
+      122 |
+      123 |     await page.goto(`${BASE}/settings`);
+      124 |     await page.waitForLoadState("networkidle");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-09-settings.spec.ts:121:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--26299-ion-gate-toggle-in-settings-browser/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-09-settings-Domain--26299-ion-gate-toggle-in-settings-browser/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-09-settings-Domain--26299-ion-gate-toggle-in-settings-browser/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-09-settings-Domain--26299-ion-gate-toggle-in-settings-browser/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46 failed
+    [browser] › tests/e2e/domain-01-auth.spec.ts:9:3 › Domain 1: Authentication & Authorization › 1.1 Login sets httpOnly cookie (not localStorage) 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:41:3 › Domain 1: Authentication & Authorization › 1.3 Logout clears cookie and returns to login 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:73:3 › Domain 1: Authentication & Authorization › 1.6 Wrong credentials shows error message 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:86:3 › Domain 1: Authentication & Authorization › 1.7 RBAC: Sales doesn't see Manage or System 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:103:3 › Domain 1: Authentication & Authorization › 1.8 Executive sees Manage but NOT System 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:118:3 › Domain 1: Authentication & Authorization › 1.9 Super Admin can switch all orgs 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:131:3 › Domain 1: Authentication & Authorization › 1.10 Partner Admin sees own companies + subs only 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:146:3 › Domain 1: Authentication & Authorization › 1.11 Sales cannot switch orgs 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:157:3 › Domain 1: Authentication & Authorization › 1.12 Org switch triggers full page refresh 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:198:3 › Domain 1: Authentication & Authorization › 1.13 Product tour shows on first login 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:216:3 › Domain 1: Authentication & Authorization › 1.14 Tour dismisses per-page 
+    [browser] › tests/e2e/domain-01-auth.spec.ts:249:3 › Domain 1: Authentication & Authorization › 1.16 Org hierarchy correct 
+    [browser] › tests/e2e/domain-02-dashboard.spec.ts:7:3 › Domain 2: Dashboard › 2.1 Main page loads without errors 
+    [browser] › tests/e2e/domain-02-dashboard.spec.ts:35:3 › Domain 2: Dashboard › 2.2 Metrics are role-specific 
+    [browser] › tests/e2e/domain-02-dashboard.spec.ts:73:3 › Domain 2: Dashboard › 2.3 Left popout shows chat history + favorites (NOT agents) 
+    [browser] › tests/e2e/domain-02-dashboard.spec.ts:99:3 › Domain 2: Dashboard › 2.4 No right popout on main page 
+    [browser] › tests/e2e/domain-02-dashboard.spec.ts:120:3 › Domain 2: Dashboard › 2.5 Metrics centered with chat below 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:7:3 › Domain 3: Chat & AI Agents › 3.1 Agent listings per role in left menu 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:27:3 › Domain 3: Chat & AI Agents › 3.2 Center chat layout on home page 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:54:3 › Domain 3: Chat & AI Agents › 3.3 Thinking indicators visible 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:89:3 › Domain 3: Chat & AI Agents › 3.4 Web search tool works 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:114:3 › Domain 3: Chat & AI Agents › 3.5 General knowledge works 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:134:3 › Domain 3: Chat & AI Agents › 3.6 VIN data queries return real data 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:154:3 › Domain 3: Chat & AI Agents › 3.7 Conversational tone 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:175:3 › Domain 3: Chat & AI Agents › 3.8 Multi-org awareness for Super Admin 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:195:3 › Domain 3: Chat & AI Agents › 3.9 Empty CRM shows graceful message 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:216:3 › Domain 3: Chat & AI Agents › 3.10 Document upload works 
+    [browser] › tests/e2e/domain-03-chat.spec.ts:235:3 › Domain 3: Chat & AI Agents › 3.11 Agent CRUD works (admin only) 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:24:3 › Domain 6: Department Pages › 6.1 Sales page loads with KPIs 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:44:3 › Domain 6: Department Pages › 6.2 Service page loads with KPIs and campaigns 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:61:3 › Domain 6: Department Pages › 6.3 Marketing page loads with KPIs 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:78:3 › Domain 6: Department Pages › 6.4 Management page loads with executive overview 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:96:3 › Domain 6: Department Pages › 6.5 Demand Score tile visible on Management 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:136:3 › Domain 6: Department Pages › 6.7 Sales submenu shows 3 agents below separator 
+    [browser] › tests/e2e/domain-06-departments.spec.ts:154:3 › Domain 6: Department Pages › 6.8 Service submenu shows at least 1 agent 
+    [browser] › tests/e2e/domain-07-insights.spec.ts:23:3 › Domain 7: Insights › 7.1 Insights page loads without errors 
+    [browser] › tests/e2e/domain-07-insights.spec.ts:41:3 › Domain 7: Insights › 7.2 Dashboard zones render 
+    [browser] › tests/e2e/domain-07-insights.spec.ts:59:3 › Domain 7: Insights › 7.3 Metric library populates 
+    [browser] › tests/e2e/domain-08-billing.spec.ts:44:3 › Domain 8: Billing › 8.2 Connected to FlexPrice 
+    [browser] › tests/e2e/domain-08-billing.spec.ts:67:3 › Domain 8: Billing › 8.3 Super Admin sees all billing 
+    [browser] › tests/e2e/domain-08-billing.spec.ts:88:3 › Domain 8: Billing › 8.4 Partner Admin + Org Admin see usage + wallet 
+    [browser] › tests/e2e/domain-09-settings.spec.ts:7:3 › Domain 9: Settings › 9.1 Settings page loads with all tiles 
+    [browser] › tests/e2e/domain-09-settings.spec.ts:25:3 › Domain 9: Settings › 9.2 Profile shows name, email, photo, password change 
+    [browser] › tests/e2e/domain-09-settings.spec.ts:63:3 › Domain 9: Settings › 9.3 Restart Tour button on profile 
+    [browser] › tests/e2e/domain-09-settings.spec.ts:84:3 › Domain 9: Settings › 9.4 Org Wizard accessible to Super Admin only 
+    [browser] › tests/e2e/domain-09-settings.spec.ts:116:3 › Domain 9: Settings › 9.5 Communication gate toggle in settings 
+  1 skipped
+  9 passed (11.8m)

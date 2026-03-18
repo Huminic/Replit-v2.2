@@ -870,7 +870,7 @@
       "id": "AC-1",
       "name": "Audit acceptance criteria + create Playwright test files by domain",
       "phase": "AC",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "acceptance_criteria.md",
         "tests/",
@@ -882,16 +882,20 @@
       "dependencies": [
         "ORG-1"
       ],
-      "description": "Reconcile feature map and user stories against current code. Set up Playwright config. Create test files organized by feature domain (domains 1-12) with each test mapped to a criterion ID. Clean up or replace existing Vitest stubs in tests/observability/. 3 criteria expected to fail (4.10, 11.2, 11.6) due to open issues."
+      "description": "Reconcile feature map and user stories against current code. Set up Playwright config. Create test files organized by feature domain (domains 1-12) with each test mapped to a criterion ID. Clean up or replace existing Vitest stubs in tests/observability/. 3 criteria expected to fail (4.10, 11.2, 11.6) due to open issues.",
+      "commitHash": "e249b69"
     },
     {
       "id": "T-2",
       "name": "Full application test (autonomous) \u2014 comms + usability end-to-end",
       "phase": "T",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
+        "tests/e2e/",
+        "playwright.config.ts",
         "evidence/T-2/",
         "issues.md",
+        "acceptance_criteria.md",
         "sprints.json"
       ],
       "dependencies": [

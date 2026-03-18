@@ -1,0 +1,2753 @@
+{
+  "config": {
+    "configFile": "/home/ubuntu/Claude-store/nexxus2.2_replit/playwright.config.ts",
+    "rootDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "api",
+        "name": "api",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/domain-(04|05|10|11|12).*\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "browser",
+        "name": "browser",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/domain-(01|02|03|06|07|08|09).*\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/usability-audit\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "comms",
+        "name": "comms",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/live-comms\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/T-2/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "domain-04-campaigns.spec.ts",
+      "file": "domain-04-campaigns.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 4: Campaigns",
+          "file": "domain-04-campaigns.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "4.1 Campaign create/upload/execute flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-d4c8fbeb20db88be39e5",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "4.2 CSV upload accepts required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-225083dca7fd10bbbee4",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "4.3 Campaign execution sends SMS via MCP",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-1ffef69eb5b197000e2a",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "4.4 Campaign execution sends email via MCP",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-f975fd58a22089c6a404",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "4.5 Kill switch blocks outbound",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-2d702e69d3abd4fad2e9",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 150,
+              "column": 3
+            },
+            {
+              "title": "4.6 Channel-specific pause",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-51c1db0a52ef318a7700",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 193,
+              "column": 3
+            },
+            {
+              "title": "4.7 Execution statuses org-scoped",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-9aa94214e7adef552afc",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 229,
+              "column": 3
+            },
+            {
+              "title": "4.8 Campaign stop halts execution",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-63e9a57c0b233b03e41e",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 251,
+              "column": 3
+            },
+            {
+              "title": "4.9 Customer replies create TeamBox thread",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-148724e345fc7b685122",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 272,
+              "column": 3
+            },
+            {
+              "title": "4.10 Campaign reply triggers AI agent response",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "fixme",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts",
+                        "line": 291,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9381e174b3d37b2066d1-4e15330941f97b3908e5",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 291,
+              "column": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-05-teambox.spec.ts",
+      "file": "domain-05-teambox.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 5: TeamBox / Conversations",
+          "file": "domain-05-teambox.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "5.1 Universal inbox shows email, SMS, voice",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-321657d801a96dcbe5cb",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "5.2 Conversation list loads with correct data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-32b768641c08ac322e59",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "5.3 Messages display in threaded view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-d4223575e8523779b04e",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "5.4 Takeover stops AI",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-1194a09db1a0bc25491b",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "5.5 Users see their role's conversations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-dc17184e011ee67ef67a",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "5.6 Org Admin+ sees all conversations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-332d9038603adecd8572",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "5.7 My Work shows own messages only",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-9f61151df4d70f009716",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 121,
+              "column": 3
+            },
+            {
+              "title": "5.8 Outbound email via TeamBox works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-2a8d121f5417eb1f5df1",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "5.9 SMS webhook routes to correct org",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "fixme",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-05-teambox.spec.ts",
+                        "line": 153,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-e2753a09b7ba356612be",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 153,
+              "column": 8
+            },
+            {
+              "title": "5.10 Thread history preserved across time gaps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-9d0216026389937aa44b",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 167,
+              "column": 3
+            },
+            {
+              "title": "5.11 Workflows tab in persistent column",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "97a50b70ef41d163fac4-6bd4979a336a1b237bf4",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 187,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-10-tasks.spec.ts",
+      "file": "domain-10-tasks.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 10: Tasks & Appointments",
+          "file": "domain-10-tasks.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "10.1 Tasks visible in My Work",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ed096f1ad297f512689-ef45b5ebc18d6000720b",
+              "file": "domain-10-tasks.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "10.2 Task creation self-assign only",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ed096f1ad297f512689-232407d7b2723bef0ff2",
+              "file": "domain-10-tasks.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "10.3 Appointments connected to calendar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ed096f1ad297f512689-a1f788a6e03aa6070100",
+              "file": "domain-10-tasks.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "10.4 Task and appointment CRUD",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ed096f1ad297f512689-2e991761c176baa29314",
+              "file": "domain-10-tasks.spec.ts",
+              "line": 91,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-11-integrations.spec.ts",
+      "file": "domain-11-integrations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 11: Integrations",
+          "file": "domain-11-integrations.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "11.1 Public widget endpoints work without auth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-b363acc8a930c7f9402c",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 14,
+              "column": 3
+            },
+            {
+              "title": "11.2 VAPI webhook accepts transcripts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "fixme",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-11-integrations.spec.ts",
+                        "line": 38,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-d30dbbb20f80d4e46475",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 38,
+              "column": 8
+            },
+            {
+              "title": "11.3 VAPI transcript appears in TeamBox",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "fixme",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-11-integrations.spec.ts",
+                        "line": 55,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-16cf3ccd932493dd2670",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 55,
+              "column": 8
+            },
+            {
+              "title": "11.4 TextMagic webhook routes SMS to correct org",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-9028ad0772cf3433808f",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "11.5 All third-party calls route through MCP",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-20a885d02d351ddbeeef",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "11.6 VAPI outbound calls include context",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "fixme",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-11-integrations.spec.ts",
+                        "line": 110,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-a5c4934f465fd5a5bb76",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 110,
+              "column": 8
+            },
+            {
+              "title": "11.7 Tavus personas active per dealer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-440d49da1988950d7d5e",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "11.8 Widget video session creates Tavus conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-8fc9a34797882790e0a5",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 159,
+              "column": 3
+            },
+            {
+              "title": "11.9 VIN Solutions data syncs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-26dd1310c684319e65bd",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 188,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-12-infrastructure.spec.ts",
+      "file": "domain-12-infrastructure.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 12: Infrastructure",
+          "file": "domain-12-infrastructure.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "12.1 Health endpoint returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-5583bdd9a991d8e49a85",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "12.2 Security headers present",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-450ccd3989e9b681d9a9",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "12.3 Rate limiting works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-cb0d566386b27a66808f",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "12.4 httpOnly cookie set on login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-a569ca2c3bbda2cf5ee6",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "12.5 Entitlement checks fail-closed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-7f4db12af6b98448a282",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "12.6 getConversationByPhone filters by orgId",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a7ac3290825a4c85fd81-ec605edd466ce5a9dd6a",
+              "file": "domain-12-infrastructure.spec.ts",
+              "line": 154,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-01-auth.spec.ts",
+      "file": "domain-01-auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 1: Authentication & Authorization",
+          "file": "domain-01-auth.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "1.1 Login sets httpOnly cookie (not localStorage)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-f11a68e8d1a346880775",
+              "file": "domain-01-auth.spec.ts",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "1.2 Refresh token rotation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-b5c1c69d08810ecf6f4a",
+              "file": "domain-01-auth.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "1.3 Logout clears cookie and returns to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-89945c8e47d85f7b2b23",
+              "file": "domain-01-auth.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "1.4 Password strength validation rejects weak passwords",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-5e94d1bd878b5d28bc01",
+              "file": "domain-01-auth.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "1.5 Reset token is hashed before DB storage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-01-auth.spec.ts",
+                        "line": 68,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-9e1083610c70f79762c9",
+              "file": "domain-01-auth.spec.ts",
+              "line": 68,
+              "column": 8
+            },
+            {
+              "title": "1.6 Wrong credentials shows error message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-65f5192647268835541a",
+              "file": "domain-01-auth.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "1.7 RBAC: Sales doesn't see Manage or System",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-5f8cd451d2d1ad822366",
+              "file": "domain-01-auth.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "1.8 Executive sees Manage but NOT System",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-5630a58fea579957687c",
+              "file": "domain-01-auth.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "1.9 Super Admin can switch all orgs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-8376fa40dff8492a3a2a",
+              "file": "domain-01-auth.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "1.10 Partner Admin sees own companies + subs only",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-1ec4f38b5b62f5c65f1d",
+              "file": "domain-01-auth.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "1.11 Sales cannot switch orgs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-1204ca29ade6924a4b25",
+              "file": "domain-01-auth.spec.ts",
+              "line": 146,
+              "column": 3
+            },
+            {
+              "title": "1.12 Org switch triggers full page refresh",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-eaa58b656f3eb33c73e7",
+              "file": "domain-01-auth.spec.ts",
+              "line": 157,
+              "column": 3
+            },
+            {
+              "title": "1.13 Product tour shows on first login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-56ed045c6a9d9e8a53cc",
+              "file": "domain-01-auth.spec.ts",
+              "line": 198,
+              "column": 3
+            },
+            {
+              "title": "1.14 Tour dismisses per-page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-641b83a52138cc74dccb",
+              "file": "domain-01-auth.spec.ts",
+              "line": 216,
+              "column": 3
+            },
+            {
+              "title": "1.15 Huminic master org exists",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-547e901c3a1bc29b91e7",
+              "file": "domain-01-auth.spec.ts",
+              "line": 237,
+              "column": 3
+            },
+            {
+              "title": "1.16 Org hierarchy correct",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d0282ad83ea4169b7e10-2892f1459872aa02f707",
+              "file": "domain-01-auth.spec.ts",
+              "line": 249,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-02-dashboard.spec.ts",
+      "file": "domain-02-dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 2: Dashboard",
+          "file": "domain-02-dashboard.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "2.1 Main page loads without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7c365a6c9791a32086c1-52469dc447c1efa29618",
+              "file": "domain-02-dashboard.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "2.2 Metrics are role-specific",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7c365a6c9791a32086c1-63d7ef9afde4aaec78fc",
+              "file": "domain-02-dashboard.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "2.3 Left popout shows chat history + favorites (NOT agents)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7c365a6c9791a32086c1-77d6c6c53d4e422d7623",
+              "file": "domain-02-dashboard.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "2.4 No right popout on main page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7c365a6c9791a32086c1-29823eb3f54d046c09d8",
+              "file": "domain-02-dashboard.spec.ts",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "2.5 Metrics centered with chat below",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7c365a6c9791a32086c1-daeafa0e055b82247ef6",
+              "file": "domain-02-dashboard.spec.ts",
+              "line": 120,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-03-chat.spec.ts",
+      "file": "domain-03-chat.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 3: Chat & AI Agents",
+          "file": "domain-03-chat.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "3.1 Agent listings per role in left menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-d4ad32bc334428f5098d",
+              "file": "domain-03-chat.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "3.2 Center chat layout on home page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-9680a706b00b8c69081c",
+              "file": "domain-03-chat.spec.ts",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "3.3 Thinking indicators visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-9290bb4f1a4ca6250bde",
+              "file": "domain-03-chat.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "3.4 Web search tool works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-8748c23d04d14b5f4ab1",
+              "file": "domain-03-chat.spec.ts",
+              "line": 89,
+              "column": 3
+            },
+            {
+              "title": "3.5 General knowledge works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-10d88d7456ee768fbe90",
+              "file": "domain-03-chat.spec.ts",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "3.6 VIN data queries return real data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-e95bc875647bba65cdb5",
+              "file": "domain-03-chat.spec.ts",
+              "line": 134,
+              "column": 3
+            },
+            {
+              "title": "3.7 Conversational tone",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-7d0b58252ff4e12c13ad",
+              "file": "domain-03-chat.spec.ts",
+              "line": 154,
+              "column": 3
+            },
+            {
+              "title": "3.8 Multi-org awareness for Super Admin",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-c21aa2d3cd16eb8a9b28",
+              "file": "domain-03-chat.spec.ts",
+              "line": 175,
+              "column": 3
+            },
+            {
+              "title": "3.9 Empty CRM shows graceful message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-95ecca76749d7740c90c",
+              "file": "domain-03-chat.spec.ts",
+              "line": 195,
+              "column": 3
+            },
+            {
+              "title": "3.10 Document upload works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-b250e31de8de1097fa59",
+              "file": "domain-03-chat.spec.ts",
+              "line": 216,
+              "column": 3
+            },
+            {
+              "title": "3.11 Agent CRUD works (admin only)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a2e8f8febd1a92a7c68b-8064f6106098bde00363",
+              "file": "domain-03-chat.spec.ts",
+              "line": 235,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-06-departments.spec.ts",
+      "file": "domain-06-departments.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 6: Department Pages",
+          "file": "domain-06-departments.spec.ts",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "6.1 Sales page loads with KPIs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-2c06549a67011cf42929",
+              "file": "domain-06-departments.spec.ts",
+              "line": 24,
+              "column": 3
+            },
+            {
+              "title": "6.2 Service page loads with KPIs and campaigns",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-d43ab1a69b83e1fbd9f0",
+              "file": "domain-06-departments.spec.ts",
+              "line": 44,
+              "column": 3
+            },
+            {
+              "title": "6.3 Marketing page loads with KPIs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-4ff6edee89b3c729a218",
+              "file": "domain-06-departments.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "6.4 Management page loads with executive overview",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-421cfe05ef13c064b36b",
+              "file": "domain-06-departments.spec.ts",
+              "line": 78,
+              "column": 3
+            },
+            {
+              "title": "6.5 Demand Score tile visible on Management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-bf15e22e667d8b2b5fab",
+              "file": "domain-06-departments.spec.ts",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "6.6 Sales sidebar does NOT show Billing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-b6df27b180944417aa02",
+              "file": "domain-06-departments.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "6.7 Sales submenu shows 3 agents below separator",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-56e9de5b9f21507dee0c",
+              "file": "domain-06-departments.spec.ts",
+              "line": 136,
+              "column": 3
+            },
+            {
+              "title": "6.8 Service submenu shows at least 1 agent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ec269f7bf79edaf8a0a9-f383095037bed63ab249",
+              "file": "domain-06-departments.spec.ts",
+              "line": 154,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-07-insights.spec.ts",
+      "file": "domain-07-insights.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 7: Insights",
+          "file": "domain-07-insights.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "7.1 Insights page loads without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-f4e2db67673dd553a7dc",
+              "file": "domain-07-insights.spec.ts",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "7.2 Dashboard zones render",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-6f42b186a31e0d243412",
+              "file": "domain-07-insights.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "7.3 Metric library populates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-4179e4704c697ad8637a",
+              "file": "domain-07-insights.spec.ts",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "7.4 Role-filtered — compare metrics for different roles",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-db3141f8b0568f67d32f",
+              "file": "domain-07-insights.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "7.5 Pin to Dashboard removed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-09ecea7fecff735a08f7",
+              "file": "domain-07-insights.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "7.6 Lead source labels show meaningful names",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3e116f991c7fac961201-8a01b3ba327eef45ab72",
+              "file": "domain-07-insights.spec.ts",
+              "line": 125,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-08-billing.spec.ts",
+      "file": "domain-08-billing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 8: Billing",
+          "file": "domain-08-billing.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "8.1 Billing pages load",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5324fd0fd44ff00453eb-0c347cea73172a655fa5",
+              "file": "domain-08-billing.spec.ts",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "8.2 Connected to FlexPrice",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5324fd0fd44ff00453eb-ab5ea3b5f0ec27196d7c",
+              "file": "domain-08-billing.spec.ts",
+              "line": 44,
+              "column": 3
+            },
+            {
+              "title": "8.3 Super Admin sees all billing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5324fd0fd44ff00453eb-291573d5d9f76d00c742",
+              "file": "domain-08-billing.spec.ts",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "8.4 Partner Admin + Org Admin see usage + wallet",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5324fd0fd44ff00453eb-5c658bc94b2bba287e87",
+              "file": "domain-08-billing.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "8.5 Sales/Marketing/Service do NOT see Billing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5324fd0fd44ff00453eb-755d34ede7893ea160c0",
+              "file": "domain-08-billing.spec.ts",
+              "line": 116,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domain-09-settings.spec.ts",
+      "file": "domain-09-settings.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Domain 9: Settings",
+          "file": "domain-09-settings.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "9.1 Settings page loads with all tiles",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b552357a8081b5f8b34c-a821776fbfdd0528fe24",
+              "file": "domain-09-settings.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "9.2 Profile shows name, email, photo, password change",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b552357a8081b5f8b34c-f86165fda88bb9ac0656",
+              "file": "domain-09-settings.spec.ts",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "9.3 Restart Tour button on profile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b552357a8081b5f8b34c-dee4d2ab72d51fa01c1e",
+              "file": "domain-09-settings.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "9.4 Org Wizard accessible to Super Admin only",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b552357a8081b5f8b34c-1a7a04c06067e71719ab",
+              "file": "domain-09-settings.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "9.5 Communication gate toggle in settings",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "browser",
+                  "projectName": "browser",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b552357a8081b5f8b34c-fca8762a4068ec99cdec",
+              "file": "domain-09-settings.spec.ts",
+              "line": 116,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "usability-audit.spec.ts",
+      "file": "usability-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Screenshot Catalog — All Pages, All Roles",
+          "file": "usability-audit.spec.ts",
+          "line": 37,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Role: orgAdmin",
+              "file": "usability-audit.spec.ts",
+              "line": 39,
+              "column": 10,
+              "specs": [
+                {
+                  "title": "Capture all pages as orgAdmin",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "catalog",
+                      "projectName": "catalog",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "0f46e7d4342e10dbcf17-e4d7cbc147dd134285c6",
+                  "file": "usability-audit.spec.ts",
+                  "line": 40,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "Role: sales",
+              "file": "usability-audit.spec.ts",
+              "line": 39,
+              "column": 10,
+              "specs": [
+                {
+                  "title": "Capture all pages as sales",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "catalog",
+                      "projectName": "catalog",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "0f46e7d4342e10dbcf17-0a18ff79c7f24a6d5244",
+                  "file": "usability-audit.spec.ts",
+                  "line": 40,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "Role: service",
+              "file": "usability-audit.spec.ts",
+              "line": 39,
+              "column": 10,
+              "specs": [
+                {
+                  "title": "Capture all pages as service",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "catalog",
+                      "projectName": "catalog",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "0f46e7d4342e10dbcf17-8c3fd028ec12c8130c74",
+                  "file": "usability-audit.spec.ts",
+                  "line": 40,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "Role: marketing",
+              "file": "usability-audit.spec.ts",
+              "line": 39,
+              "column": 10,
+              "specs": [
+                {
+                  "title": "Capture all pages as marketing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "catalog",
+                      "projectName": "catalog",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "0f46e7d4342e10dbcf17-bf4d24d1f438aeda32db",
+                  "file": "usability-audit.spec.ts",
+                  "line": 40,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "Role: executive",
+              "file": "usability-audit.spec.ts",
+              "line": 39,
+              "column": 10,
+              "specs": [
+                {
+                  "title": "Capture all pages as executive",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "catalog",
+                      "projectName": "catalog",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "0f46e7d4342e10dbcf17-d029d8e89e3e32780d9c",
+                  "file": "usability-audit.spec.ts",
+                  "line": 40,
+                  "column": 7
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "live-comms.spec.ts",
+      "file": "live-comms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Live Communications — Autonomous",
+          "file": "live-comms.spec.ts",
+          "line": 47,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "TextMagic SMS via MCP",
+              "file": "live-comms.spec.ts",
+              "line": 49,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "LC-1 MCP tm_send_message tool is accessible",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-a35c0359b0d0ad3f278f",
+                  "file": "live-comms.spec.ts",
+                  "line": 51,
+                  "column": 5
+                },
+                {
+                  "title": "LC-2 Campaign SMS executes via MCP routing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-787875b953947f50d4fb",
+                  "file": "live-comms.spec.ts",
+                  "line": 61,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "VAPI Voice via MCP",
+              "file": "live-comms.spec.ts",
+              "line": 93,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "LC-3 MCP vapi_list_assistants returns dealer assistants",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-948a7c0a8a17bf47965b",
+                  "file": "live-comms.spec.ts",
+                  "line": 95,
+                  "column": 5
+                },
+                {
+                  "title": "LC-4 MCP vapi_list_phone_numbers returns configured numbers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-267dbafc7457d56ead33",
+                  "file": "live-comms.spec.ts",
+                  "line": 108,
+                  "column": 5
+                },
+                {
+                  "title": "LC-5 MCP vapi_get_call retrieves call details",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-4021e6eada3882456256",
+                  "file": "live-comms.spec.ts",
+                  "line": 120,
+                  "column": 5
+                },
+                {
+                  "title": "LC-6 VAPI outbound call with context overrides",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [
+                        {
+                          "type": "fixme",
+                          "location": {
+                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
+                            "line": 136,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-8ca14997605ae24917e7",
+                  "file": "live-comms.spec.ts",
+                  "line": 136,
+                  "column": 10
+                }
+              ]
+            },
+            {
+              "title": "Resend Email via MCP",
+              "file": "live-comms.spec.ts",
+              "line": 145,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "LC-7 MCP resend_send_email delivers to test address",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-7a3469aca93fee5c3b5a",
+                  "file": "live-comms.spec.ts",
+                  "line": 147,
+                  "column": 5
+                },
+                {
+                  "title": "LC-8 TeamBox outbound email endpoint works",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-027c29b4f63c97ff46bd",
+                  "file": "live-comms.spec.ts",
+                  "line": 160,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Tavus Video via MCP",
+              "file": "live-comms.spec.ts",
+              "line": 189,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "LC-9 MCP tavus_list_personas returns dealer personas",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-376f223628ecb96f87a3",
+                  "file": "live-comms.spec.ts",
+                  "line": 191,
+                  "column": 5
+                },
+                {
+                  "title": "LC-10 Tavus personas match VAPI assistants per dealer",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-3b69b75e201cebe8f1b5",
+                  "file": "live-comms.spec.ts",
+                  "line": 198,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "VIN Solutions via MCP",
+              "file": "live-comms.spec.ts",
+              "line": 213,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "LC-11 VIN Solutions lead query returns data for Serra Honda",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-dbe322ba0aeb1cf029bd",
+                  "file": "live-comms.spec.ts",
+                  "line": 215,
+                  "column": 5
+                },
+                {
+                  "title": "LC-12 Warehouse leads exist for Serra Honda",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "comms",
+                      "projectName": "comms",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "f1489abbfe9882f947de-ccc712398c99d52857de",
+                  "file": "live-comms.spec.ts",
+                  "line": 237,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-18T07:20:14.554Z",
+    "duration": 185.192,
+    "expected": 0,
+    "skipped": 113,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

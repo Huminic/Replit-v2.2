@@ -1,0 +1,44 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [comms] › tests/e2e/live-comms.spec.ts:51:5 › Live Communications — Autonomous › TextMagic SMS via MCP › LC-1 MCP tm_send_message tool is accessible (457ms)
+  ✘   2 [comms] › tests/e2e/live-comms.spec.ts:61:5 › Live Communications — Autonomous › TextMagic SMS via MCP › LC-2 Campaign SMS executes via MCP routing (1.6s)
+  ✓   3 [comms] › tests/e2e/live-comms.spec.ts:95:5 › Live Communications — Autonomous › VAPI Voice via MCP › LC-3 MCP vapi_list_assistants returns dealer assistants (526ms)
+  ✓   4 [comms] › tests/e2e/live-comms.spec.ts:108:5 › Live Communications — Autonomous › VAPI Voice via MCP › LC-4 MCP vapi_list_phone_numbers returns configured numbers (180ms)
+  ✓   5 [comms] › tests/e2e/live-comms.spec.ts:120:5 › Live Communications — Autonomous › VAPI Voice via MCP › LC-5 MCP vapi_get_call retrieves call details (263ms)
+  -   6 [comms] › tests/e2e/live-comms.spec.ts:136:10 › Live Communications — Autonomous › VAPI Voice via MCP › LC-6 VAPI outbound call with context overrides
+  ✓   7 [comms] › tests/e2e/live-comms.spec.ts:147:5 › Live Communications — Autonomous › Resend Email via MCP › LC-7 MCP resend_send_email delivers to test address (241ms)
+  ✓   8 [comms] › tests/e2e/live-comms.spec.ts:160:5 › Live Communications — Autonomous › Resend Email via MCP › LC-8 TeamBox outbound email endpoint works (1.2s)
+  ✓   9 [comms] › tests/e2e/live-comms.spec.ts:191:5 › Live Communications — Autonomous › Tavus Video via MCP › LC-9 MCP tavus_list_personas returns dealer personas (1.2s)
+  ✓  10 [comms] › tests/e2e/live-comms.spec.ts:198:5 › Live Communications — Autonomous › Tavus Video via MCP › LC-10 Tavus personas match VAPI assistants per dealer (877ms)
+  ✓  11 [comms] › tests/e2e/live-comms.spec.ts:215:5 › Live Communications — Autonomous › VIN Solutions via MCP › LC-11 VIN Solutions lead query returns data for Serra Honda (1.6s)
+  ✓  12 [comms] › tests/e2e/live-comms.spec.ts:237:5 › Live Communications — Autonomous › VIN Solutions via MCP › LC-12 Warehouse leads exist for Serra Honda (1.1s)
+
+
+  1) [comms] › tests/e2e/live-comms.spec.ts:61:5 › Live Communications — Autonomous › TextMagic SMS via MCP › LC-2 Campaign SMS executes via MCP routing 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      84 |         data: { dryRun: true },
+      85 |       });
+    > 86 |       expect(execute.ok()).toBeTruthy();
+         |                            ^
+      87 |       const execResult = await execute.json();
+      88 |       expect(execResult.execution.dryRun).toBe(true);
+      89 |       expect(execResult.execution.status).toBe("completed");
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:86:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/live-comms-Live-Communicat-e7a08-MS-executes-via-MCP-routing-comms/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/live-comms-Live-Communicat-e7a08-MS-executes-via-MCP-routing-comms/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [comms] › tests/e2e/live-comms.spec.ts:61:5 › Live Communications — Autonomous › TextMagic SMS via MCP › LC-2 Campaign SMS executes via MCP routing 
+  1 skipped
+  10 passed (11.9s)

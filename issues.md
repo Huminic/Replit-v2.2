@@ -32,6 +32,48 @@ Fixed items are removed. Only truly open issues remain here.
 **Acceptance Criteria:** Make VAPI call -> call ends -> server logs show POST /api/webhooks/vapi 200 -> conversation with transcript appears in TeamBox for correct org.
 **Next Sprint:** Yes
 
+### [BE] I-040: Campaign execution returns 500 on SMS and email sends
+**Background:** T-2 tests 4.3 and 4.4 show campaign execution returning 500 errors when trying to send SMS or email. The campaign create/upload/execute flow works (4.1 passes), but the actual send step fails with a server error.
+**Outcome:** Campaign execution sends SMS and email successfully via MCP without 500 errors.
+**Acceptance Criteria:** Execute SMS campaign -> execution.sent > 0, execution.failed = 0. Execute email campaign -> same.
+**Next Sprint:** Yes
+
+### [BE] I-041: Kill switch toggle returns 500
+**Background:** T-2 test 4.5 shows toggling the kill switch (outboundEnabled) returns a 500 error.
+**Outcome:** PATCH /api/organizations/:id with { outboundEnabled: false } returns 200.
+**Acceptance Criteria:** Toggle kill switch -> response 200 -> subsequent campaign execution blocked with clear message.
+**Next Sprint:** Yes
+
+### [BE] I-042: Tasks endpoints return 500 or 404
+**Background:** T-2 tests 10.1-10.4 all fail. Tasks and appointments endpoints return 500 or 404. Either the routes aren't registered or there's a runtime error.
+**Outcome:** GET /api/tasks, POST /api/tasks, GET /api/appointments all return valid responses.
+**Acceptance Criteria:** CRUD operations on tasks and appointments succeed without 500 errors.
+**Next Sprint:** Yes
+
+### [FE] I-043: Billing FlexPrice data not rendering
+**Background:** T-2 tests 8.2-8.4 fail. Billing pages load (8.1 passes) but FlexPrice data doesn't display for Super Admin, Partner Admin, or Org Admin. The pages exist but the data integration isn't showing.
+**Outcome:** Billing pages display FlexPrice plan, usage, and invoice data for authorized roles.
+**Acceptance Criteria:** Login as Org Admin -> billing page shows plan name, usage meters, invoice history.
+**Next Sprint:** No (investigate first — may be FE or BE)
+
+### [BE] I-044: Conversation takeover returns unexpected response
+**Background:** T-2 test 5.4 fails. PATCH /api/conversations/:id for takeover doesn't return the expected response structure.
+**Outcome:** Takeover endpoint returns updated conversation with takeover status.
+**Acceptance Criteria:** PATCH conversation with takeover flag -> response includes updated conversation -> AI stops responding on that thread.
+**Next Sprint:** Yes
+
+---
+
+## Test Infrastructure Issues (not application bugs — fix in test files)
+
+| ID | Issue | Tests Affected |
+|----|-------|---------------|
+| TI-001 | Browser login flow times out (10s) — selectors or flow mismatch | 1.7-1.14, 2.1-2.5, 3.2-3.3, 6.1-6.5 |
+| TI-002 | Cookie assertion case-sensitive — checks "httponly" vs actual "HttpOnly" | 1.1, 12.4 |
+| TI-003 | Settings/profile pages timeout at 60s — page load or selector issue | 9.1-9.3, 9.5 |
+| TI-004 | Chat tests use wrong request context for browser project | 3.4-3.11 |
+| TI-005 | Auth rate limiter (5 req/15min per IP) blocks parallel test execution | Multiple |
+
 ---
 
 ## External (fixed by user)
@@ -43,6 +85,7 @@ Fixed items are removed. Only truly open issues remain here.
 
 ---
 
-**Last updated:** 2026-03-18
-**Open:** 3 items (2 BE, 1 IN)
+**Last updated:** 2026-03-18 (T-2 results)
+**Open:** 8 items (5 BE, 1 FE, 1 IN, 1 from prior)
+**Test infrastructure:** 5 items (test file fixes, not app bugs)
 **External fixed:** 2 items

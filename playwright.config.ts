@@ -24,9 +24,22 @@ export default defineConfig({
         viewport: { width: 1280, height: 720 },
       },
     },
+    {
+      name: "catalog",
+      testMatch: /usability-audit\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+    },
+    {
+      name: "comms",
+      testMatch: /live-comms\.spec\.ts/,
+      use: { baseURL: "http://localhost:5000" },
+    },
   ],
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/test-results.json" }],
+    ["json", { outputFile: "evidence/T-2/test-results.json" }],
   ],
 });

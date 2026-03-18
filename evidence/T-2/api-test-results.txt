@@ -1,0 +1,379 @@
+
+Running 40 tests using 1 worker
+
+  ✓   1 [api] › tests/e2e/domain-04-campaigns.spec.ts:5:3 › Domain 4: Campaigns › 4.1 Campaign create/upload/execute flow (2.8s)
+  ✓   2 [api] › tests/e2e/domain-04-campaigns.spec.ts:51:3 › Domain 4: Campaigns › 4.2 CSV upload accepts required fields (1.1s)
+  ✘   3 [api] › tests/e2e/domain-04-campaigns.spec.ts:105:3 › Domain 4: Campaigns › 4.3 Campaign execution sends SMS via MCP (846ms)
+  ✘   4 [api] › tests/e2e/domain-04-campaigns.spec.ts:129:3 › Domain 4: Campaigns › 4.4 Campaign execution sends email via MCP (887ms)
+  ✘   5 [api] › tests/e2e/domain-04-campaigns.spec.ts:150:3 › Domain 4: Campaigns › 4.5 Kill switch blocks outbound (1.8s)
+  ✓   6 [api] › tests/e2e/domain-04-campaigns.spec.ts:193:3 › Domain 4: Campaigns › 4.6 Channel-specific pause (2.5s)
+  ✘   7 [api] › tests/e2e/domain-04-campaigns.spec.ts:229:3 › Domain 4: Campaigns › 4.7 Execution statuses org-scoped (1.1s)
+  ✓   8 [api] › tests/e2e/domain-04-campaigns.spec.ts:251:3 › Domain 4: Campaigns › 4.8 Campaign stop halts execution (1.0s)
+  ✓   9 [api] › tests/e2e/domain-04-campaigns.spec.ts:272:3 › Domain 4: Campaigns › 4.9 Customer replies create TeamBox thread (390ms)
+  -  10 [api] › tests/e2e/domain-04-campaigns.spec.ts:291:8 › Domain 4: Campaigns › 4.10 Campaign reply triggers AI agent response
+  ✓  11 [api] › tests/e2e/domain-05-teambox.spec.ts:22:3 › Domain 5: TeamBox / Conversations › 5.1 Universal inbox shows email, SMS, voice (372ms)
+  ✓  12 [api] › tests/e2e/domain-05-teambox.spec.ts:36:3 › Domain 5: TeamBox / Conversations › 5.2 Conversation list loads with correct data (373ms)
+  ✓  13 [api] › tests/e2e/domain-05-teambox.spec.ts:52:3 › Domain 5: TeamBox / Conversations › 5.3 Messages display in threaded view (818ms)
+  ✘  14 [api] › tests/e2e/domain-05-teambox.spec.ts:72:3 › Domain 5: TeamBox / Conversations › 5.4 Takeover stops AI (846ms)
+  ✓  15 [api] › tests/e2e/domain-05-teambox.spec.ts:91:3 › Domain 5: TeamBox / Conversations › 5.5 Users see their role's conversations (1.0s)
+  ✓  16 [api] › tests/e2e/domain-05-teambox.spec.ts:110:3 › Domain 5: TeamBox / Conversations › 5.6 Org Admin+ sees all conversations (376ms)
+  ✓  17 [api] › tests/e2e/domain-05-teambox.spec.ts:121:3 › Domain 5: TeamBox / Conversations › 5.7 My Work shows own messages only (370ms)
+  ✓  18 [api] › tests/e2e/domain-05-teambox.spec.ts:131:3 › Domain 5: TeamBox / Conversations › 5.8 Outbound email via TeamBox works (1.2s)
+  -  19 [api] › tests/e2e/domain-05-teambox.spec.ts:153:8 › Domain 5: TeamBox / Conversations › 5.9 SMS webhook routes to correct org
+  ✓  20 [api] › tests/e2e/domain-05-teambox.spec.ts:167:3 › Domain 5: TeamBox / Conversations › 5.10 Thread history preserved across time gaps (937ms)
+  ✘  21 [api] › tests/e2e/domain-05-teambox.spec.ts:187:3 › Domain 5: TeamBox / Conversations › 5.11 Workflows tab in persistent column (6.0s)
+  ✘  22 [api] › tests/e2e/domain-10-tasks.spec.ts:16:3 › Domain 10: Tasks & Appointments › 10.1 Tasks visible in My Work (111ms)
+  ✘  23 [api] › tests/e2e/domain-10-tasks.spec.ts:35:3 › Domain 10: Tasks & Appointments › 10.2 Task creation self-assign only (78ms)
+  ✘  24 [api] › tests/e2e/domain-10-tasks.spec.ts:70:3 › Domain 10: Tasks & Appointments › 10.3 Appointments connected to calendar (81ms)
+  ✘  25 [api] › tests/e2e/domain-10-tasks.spec.ts:91:3 › Domain 10: Tasks & Appointments › 10.4 Task and appointment CRUD (97ms)
+  ✓  26 [api] › tests/e2e/domain-11-integrations.spec.ts:14:3 › Domain 11: Integrations › 11.1 Public widget endpoints work without auth (62ms)
+  -  27 [api] › tests/e2e/domain-11-integrations.spec.ts:38:8 › Domain 11: Integrations › 11.2 VAPI webhook accepts transcripts
+  -  28 [api] › tests/e2e/domain-11-integrations.spec.ts:55:8 › Domain 11: Integrations › 11.3 VAPI transcript appears in TeamBox
+  ✓  29 [api] › tests/e2e/domain-11-integrations.spec.ts:69:3 › Domain 11: Integrations › 11.4 TextMagic webhook routes SMS to correct org (24ms)
+  ✓  30 [api] › tests/e2e/domain-11-integrations.spec.ts:86:3 › Domain 11: Integrations › 11.5 All third-party calls route through MCP (24ms)
+  -  31 [api] › tests/e2e/domain-11-integrations.spec.ts:110:8 › Domain 11: Integrations › 11.6 VAPI outbound calls include context
+  ✓  32 [api] › tests/e2e/domain-11-integrations.spec.ts:129:3 › Domain 11: Integrations › 11.7 Tavus personas active per dealer (12ms)
+  ✓  33 [api] › tests/e2e/domain-11-integrations.spec.ts:159:3 › Domain 11: Integrations › 11.8 Widget video session creates Tavus conversation (15ms)
+  ✓  34 [api] › tests/e2e/domain-11-integrations.spec.ts:188:3 › Domain 11: Integrations › 11.9 VIN Solutions data syncs (13ms)
+  ✘  35 [api] › tests/e2e/domain-12-infrastructure.spec.ts:5:3 › Domain 12: Infrastructure › 12.1 Health endpoint returns 200 (23ms)
+  ✓  36 [api] › tests/e2e/domain-12-infrastructure.spec.ts:16:3 › Domain 12: Infrastructure › 12.2 Security headers present (61ms)
+  ✓  37 [api] › tests/e2e/domain-12-infrastructure.spec.ts:57:3 › Domain 12: Infrastructure › 12.3 Rate limiting works (180ms)
+  ✘  38 [api] › tests/e2e/domain-12-infrastructure.spec.ts:91:3 › Domain 12: Infrastructure › 12.4 httpOnly cookie set on login (45ms)
+  ✘  39 [api] › tests/e2e/domain-12-infrastructure.spec.ts:127:3 › Domain 12: Infrastructure › 12.5 Entitlement checks fail-closed (90ms)
+  ✓  40 [api] › tests/e2e/domain-12-infrastructure.spec.ts:154:3 › Domain 12: Infrastructure › 12.6 getConversationByPhone filters by orgId (72ms)
+
+
+  1) [api] › tests/e2e/domain-04-campaigns.spec.ts:105:3 › Domain 4: Campaigns › 4.3 Campaign execution sends SMS via MCP 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m500[39m
+    Received:   [31m500[39m
+
+      123 |       });
+      124 |       // Expect either success or a controlled rejection (not a server crash)
+    > 125 |       expect(execRes.status()).toBeLessThan(500);
+          |                                ^
+      126 |     }
+      127 |   });
+      128 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts:125:32
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-04-campaigns-Domain-65233-execution-sends-SMS-via-MCP-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-04-campaigns-Domain-65233-execution-sends-SMS-via-MCP-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [api] › tests/e2e/domain-04-campaigns.spec.ts:129:3 › Domain 4: Campaigns › 4.4 Campaign execution sends email via MCP 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m500[39m
+    Received:   [31m500[39m
+
+      144 |         headers: authHeader(token),
+      145 |       });
+    > 146 |       expect(execRes.status()).toBeLessThan(500);
+          |                                ^
+      147 |     }
+      148 |   });
+      149 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts:146:32
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-04-campaigns-Domain-b5cbc-ecution-sends-email-via-MCP-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-04-campaigns-Domain-b5cbc-ecution-sends-email-via-MCP-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [api] › tests/e2e/domain-04-campaigns.spec.ts:150:3 › Domain 4: Campaigns › 4.5 Kill switch blocks outbound 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m500[39m
+    Received:   [31m500[39m
+
+      173 |     });
+      174 |     // Execution should fail or be blocked (not 500)
+    > 175 |     expect(execRes.status()).toBeLessThan(500);
+          |                              ^
+      176 |
+      177 |     if (!execRes.ok()) {
+      178 |       const body = await execRes.json();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts:175:30
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-04-campaigns-Domain-3b64f-Kill-switch-blocks-outbound-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-04-campaigns-Domain-3b64f-Kill-switch-blocks-outbound-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [api] › tests/e2e/domain-04-campaigns.spec.ts:229:3 › Domain 4: Campaigns › 4.7 Execution statuses org-scoped 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      245 |
+      246 |     // Both should return arrays — content may differ based on org
+    > 247 |     expect(Array.isArray(adminStatuses)).toBe(true);
+          |                                          ^
+      248 |     expect(Array.isArray(superStatuses)).toBe(true);
+      249 |   });
+      250 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts:247:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-04-campaigns-Domain-46f71-ecution-statuses-org-scoped-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-04-campaigns-Domain-46f71-ecution-statuses-org-scoped-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [api] › tests/e2e/domain-05-teambox.spec.ts:72:3 › Domain 5: TeamBox / Conversations › 5.4 Takeover stops AI 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mundefined[39m
+
+      86 |     expect(res.ok()).toBeTruthy();
+      87 |     const updated = await res.json();
+    > 88 |     expect(updated.humanTakeover).toBe(true);
+         |                                   ^
+      89 |   });
+      90 |
+      91 |   test("5.5 Users see their role's conversations", async ({ request }) => {
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-05-teambox.spec.ts:88:35
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-05-teambox-Domain-5-99502-tions-5-4-Takeover-stops-AI-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-05-teambox-Domain-5-99502-tions-5-4-Takeover-stops-AI-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [api] › tests/e2e/domain-05-teambox.spec.ts:187:3 › Domain 5: TeamBox / Conversations › 5.11 Workflows tab in persistent column 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"teambox"[39m
+    Received string:    [31m"http://localhost:5000/login"[39m
+
+      205 |
+      206 |     // At minimum, the page should load without crashing
+    > 207 |     expect(page.url()).toContain("teambox");
+          |                        ^
+      208 |
+      209 |     await context.close();
+      210 |   });
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-05-teambox.spec.ts:207:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/domain-05-teambox-Domain-5-36b71-ws-tab-in-persistent-column-api/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/domain-05-teambox-Domain-5-36b71-ws-tab-in-persistent-column-api/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-05-teambox-Domain-5-36b71-ws-tab-in-persistent-column-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-05-teambox-Domain-5-36b71-ws-tab-in-persistent-column-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [api] › tests/e2e/domain-10-tasks.spec.ts:16:3 › Domain 10: Tasks & Appointments › 10.1 Tasks visible in My Work 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      19 |     });
+      20 |
+    > 21 |     expect(response.ok()).toBe(true);
+         |                           ^
+      22 |     const body = await response.json();
+      23 |
+      24 |     // Response should be an array or object with tasks
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-10-tasks.spec.ts:21:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-10-tasks-Domain-10--bb901--1-Tasks-visible-in-My-Work-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-10-tasks-Domain-10--bb901--1-Tasks-visible-in-My-Work-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [api] › tests/e2e/domain-10-tasks.spec.ts:35:3 › Domain 10: Tasks & Appointments › 10.2 Task creation self-assign only 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      47 |     });
+      48 |
+    > 49 |     expect(createRes.ok()).toBe(true);
+         |                            ^
+      50 |     const created = await createRes.json();
+      51 |     const task = created.task ?? created;
+      52 |     expect(task).toBeTruthy();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-10-tasks.spec.ts:49:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-10-tasks-Domain-10--ca98e-k-creation-self-assign-only-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-10-tasks-Domain-10--ca98e-k-creation-self-assign-only-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [api] › tests/e2e/domain-10-tasks.spec.ts:70:3 › Domain 10: Tasks & Appointments › 10.3 Appointments connected to calendar 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      73 |     });
+      74 |
+    > 75 |     expect(response.ok()).toBe(true);
+         |                           ^
+      76 |     const body = await response.json();
+      77 |
+      78 |     // Should return appointment data (array or object)
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-10-tasks.spec.ts:75:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-10-tasks-Domain-10--df2ee-ments-connected-to-calendar-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-10-tasks-Domain-10--df2ee-ments-connected-to-calendar-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [api] › tests/e2e/domain-10-tasks.spec.ts:91:3 › Domain 10: Tasks & Appointments › 10.4 Task and appointment CRUD 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      103 |       },
+      104 |     });
+    > 105 |     expect(createTaskRes.ok()).toBe(true);
+          |                                ^
+      106 |     const createdTask = await createTaskRes.json();
+      107 |     const task = createdTask.task ?? createdTask;
+      108 |     const taskId = task.id;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-10-tasks.spec.ts:105:32
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-10-tasks-Domain-10--6e9bb-4-Task-and-appointment-CRUD-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-10-tasks-Domain-10--6e9bb-4-Task-and-appointment-CRUD-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [api] › tests/e2e/domain-12-infrastructure.spec.ts:5:3 › Domain 12: Infrastructure › 12.1 Health endpoint returns 200 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m200[39m
+    Received: [31m429[39m
+
+       5 |   test("12.1 Health endpoint returns 200", async ({ request }) => {
+       6 |     const response = await request.get("/api/health");
+    >  7 |     expect(response.status()).toBe(200);
+         |                               ^
+       8 |
+       9 |     const body = await response.json();
+      10 |     // Health check should indicate system status
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-12-infrastructure.spec.ts:7:31
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-12-infrastructure-D-087b9-Health-endpoint-returns-200-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-12-infrastructure-D-087b9-Health-endpoint-returns-200-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [api] › tests/e2e/domain-12-infrastructure.spec.ts:91:3 › Domain 12: Infrastructure › 12.4 httpOnly cookie set on login 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+       97 |     });
+       98 |
+    >  99 |     expect(response.ok()).toBe(true);
+          |                           ^
+      100 |
+      101 |     // Check Set-Cookie header for httpOnly flag
+      102 |     const setCookieHeaders = response.headers()["set-cookie"] ?? "";
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-12-infrastructure.spec.ts:99:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-12-infrastructure-D-fd733-ttpOnly-cookie-set-on-login-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-12-infrastructure-D-fd733-ttpOnly-cookie-set-on-login-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [api] › tests/e2e/domain-12-infrastructure.spec.ts:127:3 › Domain 12: Infrastructure › 12.5 Entitlement checks fail-closed 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected value: [32m429[39m
+    Received array: [31m[401, 403][39m
+
+      142 |
+      143 |       // Fail-closed: invalid token must NOT return 200
+    > 144 |       expect([401, 403]).toContain(response.status());
+          |                          ^
+      145 |     }
+      146 |
+      147 |     // Also test with no token at all
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-12-infrastructure.spec.ts:144:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/domain-12-infrastructure-D-943d3-itlement-checks-fail-closed-api/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/domain-12-infrastructure-D-943d3-itlement-checks-fail-closed-api/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13 failed
+    [api] › tests/e2e/domain-04-campaigns.spec.ts:105:3 › Domain 4: Campaigns › 4.3 Campaign execution sends SMS via MCP 
+    [api] › tests/e2e/domain-04-campaigns.spec.ts:129:3 › Domain 4: Campaigns › 4.4 Campaign execution sends email via MCP 
+    [api] › tests/e2e/domain-04-campaigns.spec.ts:150:3 › Domain 4: Campaigns › 4.5 Kill switch blocks outbound 
+    [api] › tests/e2e/domain-04-campaigns.spec.ts:229:3 › Domain 4: Campaigns › 4.7 Execution statuses org-scoped 
+    [api] › tests/e2e/domain-05-teambox.spec.ts:72:3 › Domain 5: TeamBox / Conversations › 5.4 Takeover stops AI 
+    [api] › tests/e2e/domain-05-teambox.spec.ts:187:3 › Domain 5: TeamBox / Conversations › 5.11 Workflows tab in persistent column 
+    [api] › tests/e2e/domain-10-tasks.spec.ts:16:3 › Domain 10: Tasks & Appointments › 10.1 Tasks visible in My Work 
+    [api] › tests/e2e/domain-10-tasks.spec.ts:35:3 › Domain 10: Tasks & Appointments › 10.2 Task creation self-assign only 
+    [api] › tests/e2e/domain-10-tasks.spec.ts:70:3 › Domain 10: Tasks & Appointments › 10.3 Appointments connected to calendar 
+    [api] › tests/e2e/domain-10-tasks.spec.ts:91:3 › Domain 10: Tasks & Appointments › 10.4 Task and appointment CRUD 
+    [api] › tests/e2e/domain-12-infrastructure.spec.ts:5:3 › Domain 12: Infrastructure › 12.1 Health endpoint returns 200 
+    [api] › tests/e2e/domain-12-infrastructure.spec.ts:91:3 › Domain 12: Infrastructure › 12.4 httpOnly cookie set on login 
+    [api] › tests/e2e/domain-12-infrastructure.spec.ts:127:3 › Domain 12: Infrastructure › 12.5 Entitlement checks fail-closed 
+  5 skipped
+  22 passed (47.4s)

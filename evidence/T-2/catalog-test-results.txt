@@ -1,0 +1,10 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 [catalog] › tests/e2e/usability-audit.spec.ts:40:7 › Screenshot Catalog — All Pages, All Roles › Role: orgAdmin › Capture all pages as orgAdmin (42.0s)
+  ✓  2 [catalog] › tests/e2e/usability-audit.spec.ts:40:7 › Screenshot Catalog — All Pages, All Roles › Role: sales › Capture all pages as sales (44.0s)
+  ✓  3 [catalog] › tests/e2e/usability-audit.spec.ts:40:7 › Screenshot Catalog — All Pages, All Roles › Role: service › Capture all pages as service (44.1s)
+  ✓  4 [catalog] › tests/e2e/usability-audit.spec.ts:40:7 › Screenshot Catalog — All Pages, All Roles › Role: marketing › Capture all pages as marketing (41.8s)
+  ✓  5 [catalog] › tests/e2e/usability-audit.spec.ts:40:7 › Screenshot Catalog — All Pages, All Roles › Role: executive › Capture all pages as executive (43.9s)
+
+  5 passed (3.6m)

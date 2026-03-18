@@ -1,0 +1,14 @@
+# Screenshot Catalog: marketing
+
+- main: OK
+- sales: OK
+- service: OK
+- marketing: OK
+- management: OK
+- teambox: OK
+- my-work: OK
+- insights: OK
+- billing: OK
+- settings: OK
+- profile: OK
+- agents: OK

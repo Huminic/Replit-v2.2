@@ -1,4 +1,6 @@
 import { type APIRequestContext } from "playwright/test";
+import fs from "fs";
+import path from "path";
 
 export interface AuthUser {
   email: string;
@@ -8,7 +10,7 @@ export interface AuthUser {
 }
 
 // Test credentials — password set during T-2 testing session
-const TEST_PASSWORD = "TestPass2026!";
+const TEST_PASSWORD = "NexxusTest2026";
 
 export const testUsers: Record<string, AuthUser> = {
   superAdmin: {
@@ -55,10 +57,55 @@ export const testUsers: Record<string, AuthUser> = {
   },
 };
 
+// File-based token cache to survive across Playwright worker processes.
+// The auth rate limiter allows 5 requests per 15 minutes per IP.
+// Without caching, 12+ test files x 7 users = 84+ login calls = instant 429.
+const CACHE_FILE = path.resolve(".playwright-auth-cache.json");
+const CACHE_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes (tokens expire in 60)
+
+interface CachedAuth {
+  token: string;
+  userId: string;
+  organizationId: string;
+  timestamp: number;
+}
+
+function readCache(): Record<string, CachedAuth> {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(CACHE_FILE, "utf-8"));
+      // Invalidate if too old
+      const now = Date.now();
+      const valid: Record<string, CachedAuth> = {};
+      for (const [key, val] of Object.entries(data)) {
+        const cached = val as CachedAuth;
+        if (now - cached.timestamp < CACHE_MAX_AGE_MS) {
+          valid[key] = cached;
+        }
+      }
+      return valid;
+    }
+  } catch {}
+  return {};
+}
+
+function writeCache(cache: Record<string, CachedAuth>) {
+  try {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+  } catch {}
+}
+
 export async function login(
   request: APIRequestContext,
   user: AuthUser
 ): Promise<{ token: string; userId: string; organizationId: string }> {
+  // Check file-based cache first
+  const cache = readCache();
+  const cached = cache[user.email];
+  if (cached) {
+    return { token: cached.token, userId: cached.userId, organizationId: cached.organizationId };
+  }
+
   const response = await request.post("/api/auth/login", {
     data: { email: user.email, password: user.password },
   });
@@ -70,13 +117,28 @@ export async function login(
   }
 
   const body = await response.json();
-  return {
+  const result = {
     token: body.accessToken,
     userId: body.user.id,
     organizationId: body.user.organization.id,
   };
+
+  // Save to file-based cache
+  cache[user.email] = { ...result, timestamp: Date.now() };
+  writeCache(cache);
+
+  return result;
 }
 
 export function authHeader(token: string) {
   return { Authorization: `Bearer ${token}` };
+}
+
+/**
+ * Clear the auth cache. Call before a fresh test run.
+ */
+export function clearAuthCache() {
+  try {
+    if (fs.existsSync(CACHE_FILE)) fs.unlinkSync(CACHE_FILE);
+  } catch {}
 }
