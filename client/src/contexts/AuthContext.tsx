@@ -109,8 +109,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Login failed');
+        // Parse server error response safely — if JSON parsing fails, fall
+        // back to status text so the user never sees a generic "Login failed"
+        // when the server sent a specific message (I-055 fix).
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -143,11 +152,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Logout user
+   *
+   * Redirect-first strategy: navigate to /login before clearing React state
+   * to avoid race conditions where component re-renders hit unmounted DOM nodes
+   * (I-056 fix).
    */
   const logout = async () => {
-    setLoading(true);
-    setError(null);
-
     try {
       const token = getAccessToken();
 
@@ -159,12 +169,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     } catch (err) {
       console.error('Logout error:', err);
-    } finally {
-      clearAuth();
-      // Notify other tabs
-      logoutChannel?.postMessage('logout');
-      setLoading(false);
     }
+
+    // Notify other tabs before redirecting
+    logoutChannel?.postMessage('logout');
+
+    // Clear auth state and redirect — use location.href so the full page
+    // reloads, which avoids React trying to re-render components that
+    // depend on the now-cleared auth state.
+    clearAuth();
+    window.location.href = '/login';
   };
 
   /**
@@ -289,7 +303,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Try to get a new access token via the refresh cookie
+      // Try to get a new access token via the refresh cookie.
+      // Skip if no refresh cookie exists — avoids a 400 console error on
+      // unauthenticated page loads (I-058 fix).
+      const hasRefreshCookie = document.cookie.includes('nexxus_refresh');
+      if (!hasRefreshCookie) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('/api/auth/refresh', {
           method: 'POST',

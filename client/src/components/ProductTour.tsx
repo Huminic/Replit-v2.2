@@ -167,10 +167,26 @@ export function ProductTour({ steps, onComplete, onSkip }: ProductTourProps) {
         />
       </svg>
 
+      {/* Backdrop: click to dismiss. Uses clip-path to cut a hole over the
+          spotlight target so clicks on the highlighted element pass through
+          to the actual DOM element underneath (I-057 fix). */}
       <div
         className="absolute inset-0"
         onClick={onSkip}
-        style={{ pointerEvents: 'auto' }}
+        style={{
+          pointerEvents: 'auto',
+          ...(holeStyle ? {
+            clipPath: `polygon(
+              0% 0%, 100% 0%, 100% 100%, 0% 100%,
+              0% ${holeStyle.top}px,
+              ${holeStyle.left}px ${holeStyle.top}px,
+              ${holeStyle.left}px ${holeStyle.top + holeStyle.height}px,
+              ${holeStyle.left + holeStyle.width}px ${holeStyle.top + holeStyle.height}px,
+              ${holeStyle.left + holeStyle.width}px ${holeStyle.top}px,
+              0% ${holeStyle.top}px
+            )`,
+          } : {}),
+        }}
       />
 
       {holeStyle && (

@@ -16,7 +16,8 @@ async function loginViaUI(page: any, user: { email: string; password: string }) 
     await passwordInput.fill(user.password);
     const submitBtn = page.locator('button[type="submit"]').or(page.locator('button:has-text("Sign")').or(page.locator('button:has-text("Log")')));
     await submitBtn.first().click();
-    await page.waitForTimeout(3000);
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
   }
 }
 
@@ -143,7 +144,7 @@ test.describe("Domain 6: Department Pages", () => {
 
     // Look for sidebar/submenu items related to agents
     const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
-    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"], text=/agent/i');
+    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"]').or(sidebar.getByText(/agent/i));
     const agentCount = await agentItems.count();
     // Should find at least 3 agent menu items
     expect(agentCount).toBeGreaterThanOrEqual(3);
@@ -160,7 +161,7 @@ test.describe("Domain 6: Department Pages", () => {
     await page.waitForTimeout(3000);
 
     const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
-    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"], text=/agent/i');
+    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"]').or(sidebar.getByText(/agent/i));
     const agentCount = await agentItems.count();
     expect(agentCount).toBeGreaterThanOrEqual(1);
 

@@ -222,7 +222,9 @@ export const campaignRecipients = pgTable("campaign_recipients", {
   sentAt: timestamp("sent_at"),
   deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_campaign_recipients_campaign").on(table.campaignId),
+]);
 
 export const outboundLog = pgTable("outbound_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -250,7 +252,9 @@ export const notifications = pgTable("notifications", {
   relatedEntityType: text("related_entity_type"),
   relatedEntityId: text("related_entity_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_notifications_user").on(table.userId),
+]);
 
 export const activityLog = pgTable("activity_log", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),

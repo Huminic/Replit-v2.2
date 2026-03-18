@@ -15,7 +15,8 @@ async function loginViaUI(page: any, user: { email: string; password: string }) 
     await passwordInput.fill(user.password);
     const submitBtn = page.locator('button[type="submit"]').or(page.locator('button:has-text("Sign")').or(page.locator('button:has-text("Log")')));
     await submitBtn.first().click();
-    await page.waitForTimeout(3000);
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
   }
 }
 

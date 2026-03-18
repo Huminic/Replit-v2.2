@@ -155,6 +155,93 @@ Script editors: orchestrator only
 ## UI Protection
 Frontend UI (client/src/pages/, client/src/components/) must not be modified without explicit user approval. This applies at all times, not just post-test-freeze. Once the application test suite passes, no frontend changes are permitted unless the user is actively supervising. Backend-only fixes are always preferred over UI changes.
 
+## Loop Preparation Framework
+
+Before every remediation sprint (REM-n), the orchestrator must produce a **Loop Prep Document** in `evidence/REM-n/loop-prep.md`. This document is the single input that drives all sub-sprints. No code work begins until this document is complete and reviewed.
+
+### Loop Prep Document Template
+
+```markdown
+# Loop Prep: REM-n
+
+## 1. Issue-to-Domain Assignment
+| Issue | Domain | Sub-Sprint | Summary |
+|-------|--------|------------|---------|
+| I-xxx | BE | REM-n-BE | one-line description |
+
+## 2. Issue-to-Test Mapping
+| Issue | Playwright Test(s) | Criterion ID |
+|-------|-------------------|--------------|
+| I-xxx | domain-NN-xxx.spec.ts "N.N test name" | N.N |
+
+## 3. Issue-to-Criterion Mapping
+| Issue | Acceptance Criteria (from acceptance_criteria.md) |
+|-------|--------------------------------------------------|
+| I-xxx | N.N: criterion text |
+
+## 4. Declared Files Per Sub-Sprint
+### REM-n-BE
+- server/file1.ts
+- server/file2.ts
+
+### REM-n-FE (requires user approval)
+- client/src/pages/file1.tsx
+
+### REM-n-DT
+- shared/schema.ts
+
+### REM-n-AU
+- server/auth.ts
+
+### REM-n-IN
+- .env
+- scripts/file.sh
+
+## 5. Dependency Order
+| Order | Sub-Sprint | Why First |
+|-------|------------|-----------|
+| 1 | REM-n-IN | Env vars needed by other domains |
+| 2 | REM-n-DT | Schema/indexes needed by BE |
+| 3 | REM-n-AU | Auth fixes needed by FE tests |
+| 4 | REM-n-BE | Backend fixes |
+| 5 | REM-n-FE | Frontend fixes (user approval required) |
+
+## 6. Prerequisites
+| Prerequisite | Status |
+|-------------|--------|
+| User approval for FE changes | PENDING / APPROVED |
+| MCP tools needed | list or NONE |
+| Env vars to set | list or NONE |
+| External dependencies | list or NONE |
+
+## 7. Test Infrastructure Fixes
+| TI-ID | Fix | Affects |
+|-------|-----|---------|
+| TI-xxx | description | test files affected |
+```
+
+### Loop Prep Rules
+1. Every issue in issues.md tagged "Next Sprint: Yes" must appear in the Issue-to-Domain Assignment
+2. Every issue must map to at least one Playwright test — if no test exists, one must be created
+3. Every issue must map to at least one criterion in acceptance_criteria.md — if none exists, add one
+4. FE sub-sprint requires explicit user approval before work begins
+5. Dependency order must be justified — IN and DT typically run first (infrastructure and data), AU next, BE next, FE last
+6. Test infrastructure fixes (TI-xxx) are included in the prep and executed as part of the appropriate sub-sprint
+7. Prerequisites must all be resolved before the first sub-sprint begins
+
+### After Remediation Completes
+1. Run T-n (full application test) using the Playwright suite
+2. Compare results against prior T run — count improvements and regressions
+3. Any new failures go to issues.md with domain tags
+4. If issues remain → prepare next Loop Prep (REM-n+1) → repeat
+5. If all tests pass → exit loop → proceed to L5 (user walkthrough)
+
+### Loop Exit Criteria
+- All Playwright tests pass (excluding intentionally deferred user stories US-008, US-019)
+- All acceptance criteria in Section 3 show PASS
+- No MAJOR issues in issues.md
+- User approves loop exit
+
 ## Harness Check Skill
 - Path: `.claude/commands/harness_check.md`
 - Invoke: `/harness_check`

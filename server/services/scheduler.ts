@@ -1,6 +1,6 @@
 import { storage } from "../storage";
 import { startCampaignExecution, processOutboundSend } from "../outbound";
-import { generateHunchesForOrg } from "../routes";
+import { generateHunchesForOrg } from "./hunchService";
 import { log } from "../index";
 import type { Organization, Agent } from "@shared/schema";
 
@@ -411,5 +411,96 @@ export function startSchedulers() {
   // Trigger conditions (every 15min)
   setInterval(checkTriggerConditions, 15 * 60 * 1000);
 
+  // Escalation scheduler: check for unanswered conversations every 5 minutes
+  setInterval(checkUnansweredEscalations, 5 * 60 * 1000);
+
   log("All schedulers started", "scheduler");
+}
+
+async function checkUnansweredEscalations() {
+  try {
+    const unanswered = await storage.getUnansweredConversations(30);
+    if (unanswered.length === 0) return;
+
+    for (const conv of unanswered) {
+      try {
+        const org = await storage.getOrganization(conv.organizationId);
+        if (!org || !org.emailEnabled) continue;
+
+        const orgAdminRole = await storage.getRoleByName("org_admin");
+        if (!orgAdminRole) continue;
+
+        const orgUsers = await storage.getUsers(conv.organizationId);
+        const orgAdmin = orgUsers.find(u => u.roleId === orgAdminRole.id && u.isActive);
+        if (!orgAdmin) continue;
+
+        const msgs = await storage.getMessages(conv.id);
+        const latestMessage = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+        const messagePreview = latestMessage ? latestMessage.content.substring(0, 200) : "No message content";
+
+        const contactName = conv.customerName || "Unknown";
+        const contactPhone = conv.customerPhone || "Unknown";
+        const waitingMinutes = conv.lastMessageAt
+          ? Math.round((Date.now() - new Date(conv.lastMessageAt).getTime()) / 60000)
+          : 0;
+
+        const escapeHtml = (str: string): string =>
+          str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+        if (process.env.RESEND_API_KEY) {
+          const { Resend } = await import("resend");
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: "Nexxus Connect <no-reply@huminic.app>",
+            to: orgAdmin.email,
+            subject: `Unanswered message from ${contactName !== "Unknown" ? contactName : contactPhone} — ${org.name}`,
+            html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #1a1a1a;">Unanswered Message Alert</h2>
+              <p>A customer message has been waiting for a response.</p>
+              <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                <tr><td style="padding: 8px; font-weight: bold; color: #555;">Contact Name</td><td style="padding: 8px;">${escapeHtml(contactName)}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold; color: #555;">Phone</td><td style="padding: 8px;">${escapeHtml(contactPhone)}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold; color: #555;">Channel</td><td style="padding: 8px;">${escapeHtml(conv.channel)}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold; color: #555;">Waiting</td><td style="padding: 8px;">${waitingMinutes} minutes</td></tr>
+              </table>
+              <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin: 16px 0;">
+                <p style="margin: 0 0 4px 0; font-weight: bold; color: #555;">Latest Message:</p>
+                <p style="margin: 0; color: #333;">${escapeHtml(messagePreview)}${latestMessage && latestMessage.content.length > 200 ? "..." : ""}</p>
+              </div>
+              <p><a href="${process.env.APP_BASE_URL || "https://app.nexxusconnect.com"}/teambox" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">Open TeamBox</a></p>
+              <p style="color: #888; font-size: 12px;">This is an automated escalation from Nexxus Connect for ${escapeHtml(org.name)}.</p>
+            </div>`,
+          });
+          log(`Escalation email sent to ${orgAdmin.email} for conversation ${conv.id} (${contactName})`, "escalation");
+        } else {
+          log(`No RESEND_API_KEY — would email ${orgAdmin.email} for conversation ${conv.id}`, "escalation");
+        }
+
+        await storage.markEscalationSent(conv.id);
+
+        await storage.createNotification({
+          userId: orgAdmin.id,
+          organizationId: conv.organizationId,
+          type: "escalation",
+          title: `Unanswered message from ${contactName}`,
+          message: `${contactName} (${contactPhone}) has been waiting ${waitingMinutes} minutes for a response on ${conv.channel}.`,
+          relatedEntityType: "conversation",
+          relatedEntityId: conv.id,
+        });
+
+        await storage.createActivityLog({
+          userId: orgAdmin.id,
+          organizationId: conv.organizationId,
+          action: "escalation_email_sent",
+          entityType: "conversation",
+          entityId: conv.id,
+          metadata: { contactName, contactPhone, waitingMinutes, channel: conv.channel },
+        });
+      } catch (convErr) {
+        log(`Error processing escalation for conversation ${conv.id}: ${convErr}`, "escalation");
+      }
+    }
+  } catch (err) {
+    log(`Escalation scheduler error: ${err}`, "escalation");
+  }
 }

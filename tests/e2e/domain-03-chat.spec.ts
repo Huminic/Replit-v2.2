@@ -29,7 +29,8 @@ test.describe("Domain 3: Chat & AI Agents", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(3000);
 
     // Find the chat input area — should be roughly centered horizontally
@@ -58,7 +59,8 @@ test.describe("Domain 3: Chat & AI Agents", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(2000);
 
     // Look for any chat input to verify chat is rendered

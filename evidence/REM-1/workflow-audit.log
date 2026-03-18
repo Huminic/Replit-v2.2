@@ -1,0 +1,11 @@
+[2026-03-18T18:00:00Z] agent-launch | role=orchestrator | task="Resolve env vars + governance updates" | scope=evidence/REM-1/,CLAUDE.md,harness.md,plan.md,issues.md,sprints.json,package-lock.json,evidence/*
+[2026-03-18T18:10:00Z] agent-launch | role=backend | task="REM-1-IN: env vars + dead packages" | scope=.env,package.json,script/build.ts,server/routes/webhooks.ts
+[2026-03-18T18:10:00Z] agent-launch | role=backend | task="REM-1-DT: database indexes" | scope=shared/schema.ts
+[2026-03-18T18:10:00Z] agent-launch | role=backend | task="REM-1-AU: Partner Admin auth fix" | scope=server/routes/auth.ts
+[2026-03-18T18:30:00Z] agent-launch | role=backend | task="REM-1-BE: 10 backend issues" | scope=server/routes.ts,server/services/hunchService.ts,server/index.ts,server/services/scheduler.ts,server/routes/hunches.ts,server/outbound.ts,server/routes/sms.ts,server/routes/organizations.ts,server/routes/tasks.ts,server/routes/appointments.ts,server/routes/conversations.ts,server/routes/insights.ts,server/routes/billing.ts,server/storage.ts,server/vendorProxy.ts
+[2026-03-18T19:00:00Z] agent-launch | role=frontend | task="REM-1-FE: 7 frontend issues" | scope=client/src/contexts/AuthContext.tsx,client/src/pages/login.tsx,client/src/components/layout/Sidebar.tsx,client/src/components/layout/AppLayout.tsx,client/src/components/ProductTour.tsx,client/src/pages/BillingDashboard.tsx,client/src/pages/management.tsx
+[2026-03-18T19:00:00Z] agent-launch | role=test | task="TI fixes: 7 test infrastructure bugs" | scope=tests/e2e/domain-01-auth.spec.ts,tests/e2e/domain-02-dashboard.spec.ts,tests/e2e/domain-03-chat.spec.ts,tests/e2e/domain-06-departments.spec.ts,tests/e2e/domain-07-insights.spec.ts,tests/e2e/domain-09-settings.spec.ts,tests/e2e/helpers/auth.ts
+[2026-03-18T19:30:34Z] PRE-COMMIT role=orchestrator sprint=REM-1 result=BLOCKED detail="Watchdog gate: Ack is 805 minutes old (max 60). Re-acknowledge."
+[2026-03-18T19:31:18Z] PRE-COMMIT role=orchestrator sprint=REM-1 result=BLOCKED detail="Staged files not declared in pre-execution report: server/routes/billing.ts. Update ## Declared Files section."
+[2026-03-18T19:31:42Z] PRE-COMMIT role=orchestrator sprint=REM-1 result=BLOCKED detail="Staged files outside orchestrator scope."
+[2026-03-18T19:33:28Z] PRE-COMMIT role=orchestrator sprint=REM-1 result=PASS detail="All 7 gates passed"

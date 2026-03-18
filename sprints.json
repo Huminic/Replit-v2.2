@@ -908,7 +908,7 @@
       "id": "R-2",
       "name": "Codebase refactoring scan \u2014 major issues + backlog categorization",
       "phase": "R",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/R-2/",
         "issues.md",
@@ -918,13 +918,14 @@
       "dependencies": [
         "T-2"
       ],
-      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix in issues.md with domain tags, categorize everything else into backlog.md."
+      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix in issues.md with domain tags, categorize everything else into backlog.md.",
+      "commitHash": "6667c2e"
     },
     {
       "id": "REM-1",
       "name": "Remediation sprint",
       "phase": "REM",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "server/",
         "client/src/",

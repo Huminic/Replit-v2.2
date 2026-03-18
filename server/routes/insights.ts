@@ -1,20 +1,62 @@
 import type { Express } from "express";
 import { authenticateToken } from "../auth";
 import { storage } from "../storage";
+import { callMCP, resolveNexxusOrgId } from "../vendorProxy";
 import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
+
+/**
+ * Cache for VIN Solutions lead source ID -> name mappings.
+ * Keyed by orgId, populated on first request per org.
+ */
+const leadSourceCache = new Map<string, { map: Map<string, string>; fetchedAt: number }>();
+const LEAD_SOURCE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function getLeadSourceMap(orgId: string): Promise<Map<string, string>> {
+  const cached = leadSourceCache.get(orgId);
+  if (cached && Date.now() - cached.fetchedAt < LEAD_SOURCE_CACHE_TTL_MS) {
+    return cached.map;
+  }
+
+  const map = new Map<string, string>();
+  try {
+    const nexxusOrgId = resolveNexxusOrgId(orgId);
+    const data = await callMCP("vin_get_lead_sources", { orgId: nexxusOrgId });
+    const sources = Array.isArray(data) ? data : (data?.items || data?.leadSources || []);
+    for (const src of sources) {
+      const id = String(src.id || src.sourceId || "");
+      const name = src.name || src.description || "";
+      if (id && name) {
+        map.set(id, name);
+      }
+    }
+    leadSourceCache.set(orgId, { map, fetchedAt: Date.now() });
+  } catch (err) {
+    console.log(`[Insights] Failed to fetch lead source mapping for org ${orgId}: ${err}`);
+    // Return empty map on failure — formatLeadSource will fall back to ID-based label
+  }
+  return map;
+}
 
 /**
  * Transform a raw lead source value into a human-readable label.
  * VIN Solutions stores lead sources as API URLs like:
  *   "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043"
- * This extracts the numeric ID and returns "VIN Source #7098".
+ * This resolves the numeric ID to a human-readable name via the cached
+ * lead source mapping from VIN Solutions. Falls back to "VIN Source #ID"
+ * if the mapping is not available.
  * Non-URL values are returned as-is.
  */
-function formatLeadSource(raw: string | null | undefined): string {
+function formatLeadSource(raw: string | null | undefined, sourceMap?: Map<string, string>): string {
   if (!raw) return "Unknown";
   // Match VIN Solutions leadsources URL pattern
   const vinMatch = raw.match(/\/leadsources\/id\/(\d+)/i);
-  if (vinMatch) return `VIN Source #${vinMatch[1]}`;
+  if (vinMatch) {
+    const sourceId = vinMatch[1];
+    if (sourceMap && sourceMap.has(sourceId)) {
+      return sourceMap.get(sourceId)!;
+    }
+    return `VIN Source #${sourceId}`;
+  }
   // If it looks like a generic URL but not a VIN leadsources URL, show domain
   if (raw.startsWith("http://") || raw.startsWith("https://")) {
     try {
@@ -70,10 +112,13 @@ export function registerInsightRoutes(app: Express) {
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const allLeads = await storage.getWarehouseLeads(orgId, {
-        createdAfter: thirtyDaysAgo,
-      });
-      const metrics = await storage.getWarehouseMetrics(orgId, {});
+      const [allLeads, metrics, sourceMap] = await Promise.all([
+        storage.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo }),
+        storage.getWarehouseMetrics(orgId, {}),
+        getLeadSourceMap(orgId),
+      ]);
+
+      const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
       const hotLeadsGoingCold = allLeads
         .filter(l => isActiveLead(l.vinStatus))
@@ -82,7 +127,7 @@ export function registerInsightRoutes(app: Express) {
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
           return {
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Internet",
-            source: formatLeadSource(l.leadSource), vehicle: l.vehicleOfInterest || "",
+            source: fmtSrc(l.leadSource), vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "active", isHot: l.vinStatus === "hot" || l.vinStatus === "ACTIVE_ACTIVE_LEAD",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
@@ -98,7 +143,7 @@ export function registerInsightRoutes(app: Express) {
           const hoursOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60));
           return {
             id: l.id, leadId: l.sourceId || l.id, hoursOld, type: "Internet",
-            source: formatLeadSource(l.leadSource), vehicle: l.vehicleOfInterest || "",
+            source: fmtSrc(l.leadSource), vehicle: l.vehicleOfInterest || "",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
         })
@@ -113,7 +158,7 @@ export function registerInsightRoutes(app: Express) {
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
           return {
             id: l.id, leadId: l.sourceId || l.id, daysOld, type: "Walk-In",
-            source: formatLeadSource(l.leadSource) || "Showroom", vehicle: l.vehicleOfInterest || "",
+            source: fmtSrc(l.leadSource) || "Showroom", vehicle: l.vehicleOfInterest || "",
             status: l.vinStatus || "open",
             customerName: l.customerName || null, customerPhone: l.customerPhone || null, customerEmail: l.customerEmail || null,
           };
@@ -128,7 +173,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, number> = {};
       allLeads.forEach(l => {
-        const src = formatLeadSource(l.leadSource);
+        const src = fmtSrc(l.leadSource);
         sourceCounts[src] = (sourceCounts[src] || 0) + 1;
       });
       const topLeadSources = Object.entries(sourceCounts)
@@ -217,10 +262,13 @@ export function registerInsightRoutes(app: Express) {
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const allLeads = await storage.getWarehouseLeads(orgId, {
-        createdAfter: thirtyDaysAgo,
-      });
-      const metrics = await storage.getWarehouseMetrics(orgId, {});
+      const [allLeads, metrics, sourceMap] = await Promise.all([
+        storage.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo }),
+        storage.getWarehouseMetrics(orgId, {}),
+        getLeadSourceMap(orgId),
+      ]);
+
+      const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
       const totalLeads = allLeads.length;
       const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
@@ -229,7 +277,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
       allLeads.forEach(l => {
-        const src = formatLeadSource(l.leadSource);
+        const src = fmtSrc(l.leadSource);
         if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
         sourceCounts[src].total++;
         if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
@@ -656,11 +704,14 @@ export function registerInsightRoutes(app: Express) {
       const priorStart = new Date(periodStart);
       priorStart.setDate(priorStart.getDate() - lookbackDays);
 
-      const [allLeads, priorLeads, allOrgConversations] = await Promise.all([
+      const [allLeads, priorLeads, allOrgConversations, sourceMap] = await Promise.all([
         storage.getWarehouseLeads(orgId, { createdAfter: periodStart }),
         storage.getWarehouseLeads(orgId, { createdAfter: priorStart }),
         storage.getConversations(orgId),
+        getLeadSourceMap(orgId),
       ]);
+
+      const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
       const priorOnlyLeads = priorLeads.filter(l => {
         const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
@@ -818,7 +869,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceCounts: Record<string, number> = {};
       allLeads.forEach(l => {
-        const src = formatLeadSource(l.leadSource);
+        const src = fmtSrc(l.leadSource);
         sourceCounts[src] = (sourceCounts[src] || 0) + 1;
       });
       const sourceEntries = Object.entries(sourceCounts).sort(([, a], [, b]) => b - a);
@@ -828,7 +879,7 @@ export function registerInsightRoutes(app: Express) {
 
       const sourceWinRates: Record<string, { total: number; won: number }> = {};
       allLeads.forEach(l => {
-        const src = formatLeadSource(l.leadSource);
+        const src = fmtSrc(l.leadSource);
         if (!sourceWinRates[src]) sourceWinRates[src] = { total: 0, won: 0 };
         sourceWinRates[src].total++;
         if (isSoldLead(l.vinStatus)) sourceWinRates[src].won++;

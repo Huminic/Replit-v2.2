@@ -110,13 +110,24 @@ export function registerAuthRoutes(app: Express) {
       setRefreshCookie(res, refreshToken);
 
       let accessibleOrganizations = null;
-      if (role.level <= 2) {
+      if (role.level === 1) {
+        // Super Admin: all orgs
         const allOrgs = await storage.getOrganizations();
         accessibleOrganizations = allOrgs.map(o => ({
           id: o.id,
           name: o.name,
           slug: o.slug,
         }));
+      } else if (role.level === 2) {
+        // Partner Admin: only orgs in their partner group
+        const allOrgs = await storage.getOrganizations();
+        const userOrg = allOrgs.find(o => o.id === user.organizationId);
+        // Resolve the partner group root: if user's org has a partnerId, that's the group parent;
+        // otherwise the user's org itself is the group parent
+        const groupParentId = userOrg?.partnerId || user.organizationId;
+        accessibleOrganizations = allOrgs
+          .filter(o => o.id === groupParentId || o.partnerId === groupParentId)
+          .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
       } else if (role.level === 3 && user.additionalOrgIds && user.additionalOrgIds.length > 0) {
         // Org Admin with additional org access
         const accessibleIds = new Set([user.organizationId, ...user.additionalOrgIds]);
@@ -277,7 +288,11 @@ export function registerAuthRoutes(app: Express) {
       } else if (req.user.roleLevel === 2) {
         // Partner Admin: validate target org belongs to their partner group
         const allOrgs = await storage.getOrganizations();
-        const partnerOrgs = allOrgs.filter(o => o.partnerId === user.organizationId || o.id === user.organizationId);
+        const userOrg = allOrgs.find(o => o.id === user.organizationId);
+        // Resolve the partner group root: if user's org has a partnerId, that's the group parent;
+        // otherwise the user's org itself is the group parent
+        const groupParentId = userOrg?.partnerId || user.organizationId;
+        const partnerOrgs = allOrgs.filter(o => o.id === groupParentId || o.partnerId === groupParentId);
         if (!partnerOrgs.find(o => o.id === organizationId)) {
           return res.status(403).json({ message: "You can only access organizations in your partner group" });
         }

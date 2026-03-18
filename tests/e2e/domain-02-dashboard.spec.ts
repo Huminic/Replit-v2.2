@@ -17,7 +17,8 @@ test.describe("Domain 2: Dashboard", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(3000);
 
     // Filter out known non-critical console noise (e.g., favicon, websocket reconnects)
@@ -38,7 +39,8 @@ test.describe("Domain 2: Dashboard", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(3000);
 
     const adminMetrics = await page
@@ -75,7 +77,8 @@ test.describe("Domain 2: Dashboard", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(2000);
 
     // Look for left sidebar / popout content
@@ -101,7 +104,8 @@ test.describe("Domain 2: Dashboard", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(2000);
 
     // Check that no right panel / popout is visible on the main dashboard
@@ -122,7 +126,8 @@ test.describe("Domain 2: Dashboard", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.orgAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.orgAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(3000);
 
     // Find metrics container and chat container

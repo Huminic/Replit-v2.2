@@ -287,3 +287,23 @@
 [2026-03-18T07:51:35Z] Previous ack () invalidated by new report (WD-20260318-075131)
 [2026-03-18T07:52:02Z] Previous ack () invalidated by new report (WD-20260318-075157)
 [2026-03-18T07:52:21Z] Previous ack () invalidated by new report (WD-20260318-075217)
+[2026-03-18T07:52:47Z] Previous ack () invalidated by new report (WD-20260318-075243)
+[2026-03-18T07:53:04Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-18T07:54:36Z] Previous ack () invalidated by new report (WD-20260318-075432)
+[2026-03-18T07:54:46Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-18T13:22:43Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-18T13:29:13Z] Previous ack () invalidated by new report (WD-20260318-132909)
+[2026-03-18T13:29:35Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-18T13:31:24Z] Previous ack () invalidated by new report (WD-20260318-133120)
+[2026-03-18T13:35:04Z] ALERT: C8 ORPHAN_EVIDENCE overnight-report.md.tmp.3449012.1773840904101 has evidence but is not in sprints.json
+[2026-03-18T13:35:04Z] ALERT: C8 ORPHAN_EVIDENCE overnight-report.md has evidence but is not in sprints.json
+[2026-03-18T18:45:52Z] ALERT: C12 GOVERNANCE_FILE_CHANGED CLAUDE.md (MOVED_TO)
+[2026-03-18T18:46:01Z] ALERT: C12 GOVERNANCE_FILE_CHANGED CLAUDE.md (MOVED_TO)
+[2026-03-18T18:53:08Z] Previous ack () invalidated by new report (WD-20260318-185304)
+[2026-03-18T19:07:37Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-18T19:30:34Z] Previous ack () invalidated by new report (WD-20260318-193030)
+[2026-03-18T19:30:46Z] Previous ack () invalidated by new report (WD-20260318-193042)
+[2026-03-18T19:31:06Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.3449012.1773862266142 has evidence but is not in sprints.json
+[2026-03-18T19:31:06Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-18T19:31:17Z] Previous ack () invalidated by new report (WD-20260318-193113)
+[2026-03-18T19:31:41Z] Previous ack () invalidated by new report (WD-20260318-193137)

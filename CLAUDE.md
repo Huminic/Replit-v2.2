@@ -12,7 +12,7 @@ Roles: frontend, backend, test, integration, scribe, enforcer, architect, orches
 ## Governance
 The Ghost Protocol harness enforces all work through a gated process. Register the sprint, declare files, do the work, prove it, commit through the hook. Details:
 
-- **harness.md** — Full harness specification: pre-commit gates, watchdog checks, ghost handshake, sprint lifecycle, sprint statuses, issue domains, role enforcement, UI protection rule
+- **harness.md** — Full harness specification: pre-commit gates, watchdog checks, ghost handshake, sprint lifecycle, sprint statuses, issue domains, role enforcement, UI protection rule, Loop Preparation Framework
 - **sprints.json** — Sprint registry. Statuses: planned, in_progress, remediating, committed, tested. One sprint in_progress at a time. Remediation sprints have domain sub-sprints (REM-n-FE, REM-n-BE, REM-n-DT, REM-n-AU, REM-n-IN).
 - **scripts/pre-commit.sh** — Pre-commit hook (7+ gates). Source of truth for what blocks a commit.
 - **scripts/watchdog.sh** — Watchdog scanner (C1-C18). Detects governance violations.
@@ -45,5 +45,8 @@ Issues tagged by domain in issues.md. Remediation clustered by domain.
 - **AU**: Auth/Security — login, permissions, security controls
 - **IN**: Infrastructure — deploys, environments, monitoring, scaling
 
+## Remediation Loop
+Before every REM sprint, produce a **Loop Prep Document** (`evidence/REM-n/loop-prep.md`) containing: issue-to-domain assignment, issue-to-test mapping, issue-to-criterion mapping, declared files per sub-sprint, dependency order, and prerequisites. No code work begins until loop prep is complete. See harness.md for full template.
+
 ## Current State
-File reorganization complete. All documents populated. Next sprint: AC-1 (audit acceptance criteria + create Playwright test files by domain). 3 open issues (2 BE, 1 IN). User story library (US-001 through US-030) needs to be saved as a standalone file.
+24 open issues across 5 domains. 51 backlog items. 96 Playwright tests (46 passing). Next: REM-1 loop prep, then remediation sub-sprints, then T-3 retest.

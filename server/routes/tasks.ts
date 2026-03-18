@@ -13,7 +13,8 @@ export function registerTaskRoutes(app: Express) {
       if (typeof req.query.type === "string") filters.type = req.query.type;
       const result = await storage.getTasks(req.user.organizationId, filters);
       return res.json(result);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Failed to fetch tasks:", err.message || err);
       return res.status(500).json({ message: "Failed to fetch tasks" });
     }
   });
@@ -31,7 +32,8 @@ export function registerTaskRoutes(app: Express) {
       }
       const task = await storage.createTask(parsed.data);
       return res.status(201).json(task);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Failed to create task:", err.message || err);
       return res.status(500).json({ message: "Failed to create task" });
     }
   });
@@ -50,7 +52,8 @@ export function registerTaskRoutes(app: Express) {
       }
       const task = await storage.updateTask(req.params.id as string, parsed.data);
       return res.json(task);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Failed to update task:", err.message || err);
       return res.status(500).json({ message: "Failed to update task" });
     }
   });
@@ -65,7 +68,8 @@ export function registerTaskRoutes(app: Express) {
       }
       await storage.deleteTask(req.params.id as string);
       return res.json({ message: "Task deleted" });
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Failed to delete task:", err.message || err);
       return res.status(500).json({ message: "Failed to delete task" });
     }
   });

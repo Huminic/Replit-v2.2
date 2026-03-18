@@ -28,6 +28,7 @@ export interface SendRequest {
   to: string;
   messageContent: string;
   dryRun?: boolean;
+  callContext?: OutboundCallContext;
 }
 
 export interface SendResult {
@@ -133,8 +134,16 @@ export async function sendEmail(to: string, content: string): Promise<void> {
   console.log(`[Resend/MCP] Email sent to ${to}`);
 }
 
-export async function sendPhone(to: string, content: string, organizationId?: string): Promise<void> {
+export interface OutboundCallContext {
+  customerName?: string;
+  campaignName?: string;
+  dealershipName?: string;
+  goal?: string;
+}
+
+export async function sendPhone(to: string, content: string, organizationId?: string, callContext?: OutboundCallContext): Promise<void> {
   let assistantId: string | undefined;
+  let phoneNumberId: string | undefined;
 
   if (organizationId) {
     const agents = await storage.getAgents(organizationId, {});
@@ -143,6 +152,13 @@ export async function sendPhone(to: string, content: string, organizationId?: st
     );
     if (voiceAgent?.vapiAssistantId) {
       assistantId = voiceAgent.vapiAssistantId;
+    }
+
+    // Look up org's VAPI phone number ID from settings
+    const org = await storage.getOrganization(organizationId);
+    const settings = (org?.settings || {}) as Record<string, any>;
+    if (settings.vapiPhoneNumberId) {
+      phoneNumberId = settings.vapiPhoneNumberId;
     }
   }
 
@@ -158,7 +174,31 @@ export async function sendPhone(to: string, content: string, organizationId?: st
     customerNumber: formattedNumber,
   };
 
-  if (content) {
+  if (phoneNumberId) {
+    callArgs.phoneNumberId = phoneNumberId;
+  }
+
+  // Apply context overrides for outbound campaign calls
+  if (callContext) {
+    const customerName = callContext.customerName || "customer";
+    if (content) {
+      callArgs.firstMessageOverride = content.replace(/\{\{customerName\}\}/g, customerName);
+    }
+    if (callContext.dealershipName || callContext.campaignName) {
+      const dealershipName = callContext.dealershipName || "our dealership";
+      const campaignName = callContext.campaignName || "follow-up";
+      const goal = callContext.goal || "connect with the customer";
+      callArgs.assistantOverrides = {
+        firstMessage: callArgs.firstMessageOverride || content || undefined,
+        model: {
+          messages: [{
+            role: "system",
+            content: `You are making an OUTBOUND call on behalf of ${dealershipName}. Campaign: ${campaignName}. Goal: ${goal}. The customer's name is ${customerName}.`,
+          }],
+        },
+      };
+    }
+  } else if (content) {
     callArgs.firstMessageOverride = content;
   }
 
@@ -313,7 +353,7 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
         await sendEmail(request.to, request.messageContent);
         break;
       case "phone":
-        await sendPhone(request.to, request.messageContent, request.organizationId);
+        await sendPhone(request.to, request.messageContent, request.organizationId, request.callContext);
         break;
     }
 
@@ -482,6 +522,7 @@ export async function startCampaignExecution(
   const dealershipName = org.name;
 
   const processNext = async () => {
+    try {
     const latestCampaign = await storage.getCampaign(campaignId);
     if (latestCampaign?.killSwitch) {
       await finishExecution(campaignId, "stopped");
@@ -513,6 +554,7 @@ export async function startCampaignExecution(
 
     const messageContent = substituteTemplate(template, recipient, dealershipName);
 
+    const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
     const result = await processOutboundSend({
       organizationId,
       campaignId,
@@ -521,6 +563,12 @@ export async function startCampaignExecution(
       to,
       messageContent,
       dryRun,
+      callContext: contactChannel === "phone" ? {
+        customerName,
+        campaignName: campaign.name,
+        dealershipName,
+        goal: (campaign as any).goal || "connect with the customer",
+      } : undefined,
     });
 
     exec.processed++;
@@ -557,6 +605,14 @@ export async function startCampaignExecution(
 
     if (currentIndex >= recipientQueue.length) {
       await finishExecution(campaignId, "completed");
+    }
+    } catch (processErr: any) {
+      console.error(`[Campaign ${campaignId}] processNext error:`, processErr.message);
+      const exec = activeExecutions.get(campaignId);
+      if (exec) {
+        exec.processed++;
+        exec.failed++;
+      }
     }
   };
 

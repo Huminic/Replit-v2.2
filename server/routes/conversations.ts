@@ -132,7 +132,9 @@ export function registerConversationRoutes(app: Express) {
         return res.status(400).json({ message: "Invalid conversation data", errors: parsed.error.flatten() });
       }
       const conv = await storage.updateConversation(req.params.id as string, parsed.data);
-      return res.json(conv);
+      // Compute aiPaused: AI is paused when a human has taken over the conversation
+      const aiPaused = !!(conv as any)?.assignedTo;
+      return res.json({ ...conv, aiPaused });
     } catch (err) {
       return res.status(500).json({ message: "Failed to update conversation" });
     }

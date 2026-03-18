@@ -4,12 +4,14 @@ import helmet from 'helmet';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { registerRoutes } from "./routes";
 import { registerDomainRoutes } from "./routes/index";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
 import { startSchedulers } from "./services/scheduler";
+import { seedDatabase } from "./seed";
+import { registerVendorRoutes } from "./vendorProxy";
+import { startSyncScheduler } from "./sync";
 
 function validateEnvironment() {
   const required = ['DATABASE_URL', 'JWT_SECRET'];
@@ -136,11 +138,27 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register extracted domain routes (health, auth, billing)
+  // Seed database
+  await seedDatabase();
+
+  // Register vendor proxy routes (VIN Solutions, VAPI, etc.)
+  registerVendorRoutes(app);
+
+  // Start the VIN Solutions sync scheduler
+  startSyncScheduler().catch(err => {
+    console.error("[Sync] Failed to start scheduler:", err);
+  });
+
+  // Register all domain routes
   registerDomainRoutes(app);
 
-  // Register remaining monolith routes (will shrink as extraction continues)
-  await registerRoutes(httpServer, app);
+  // File upload size error handler
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ message: "File too large. Maximum upload size is 5MB." });
+    }
+    next(err);
+  });
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

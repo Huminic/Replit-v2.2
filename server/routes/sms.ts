@@ -147,6 +147,43 @@ export function registerSmsRoutes(app: Express) {
         return res.json({ success: true, action: "blacklisted", keyword: normalizedContent });
       }
 
+      // After-hours auto-response check
+      let isAfterHours = false;
+      try {
+        const org = await storage.getOrganization(organizationId);
+        if (org) {
+          const settings = (org.settings || {}) as Record<string, any>;
+          const tz = settings.timezone || "America/New_York";
+          const startHour = parseInt(settings.businessHoursStart || "08", 10);
+          const endHour = parseInt(settings.businessHoursEnd || "18", 10);
+
+          // Get current hour in the org's timezone
+          const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
+          const currentHour = new Date(nowStr).getHours();
+
+          if (currentHour < startHour || currentHour >= endHour) {
+            isAfterHours = true;
+            console.log(`[TextMagic Webhook] After-hours detected (${currentHour}:00 ${tz}, hours: ${startHour}-${endHour})`);
+
+            // Send auto-response
+            try {
+              const { processOutboundSend } = await import("../outbound");
+              await processOutboundSend({
+                organizationId,
+                channel: "sms",
+                to: normalizedPhone,
+                messageContent: "We are currently closed. Your message has been saved for priority follow-up.",
+              });
+              console.log(`[TextMagic Webhook] After-hours auto-response sent to ${normalizedPhone}`);
+            } catch (autoErr: any) {
+              console.error(`[TextMagic Webhook] After-hours auto-response failed:`, autoErr.message);
+            }
+          }
+        }
+      } catch (hoursErr: any) {
+        console.error(`[TextMagic Webhook] After-hours check failed:`, hoursErr.message);
+      }
+
       let conversation = await storage.getConversationByPhone(normalizedPhone, "sms", organizationId);
 
       if (conversation) {
@@ -258,6 +295,107 @@ export function registerSmsRoutes(app: Express) {
         content,
         senderName: normalizedPhone,
       });
+
+      // Tag conversation for follow-up if after hours
+      if (isAfterHours && conversation) {
+        try {
+          const convTags = ((conversation as any).tags || []) as string[];
+          if (!convTags.includes("Followup")) {
+            await storage.updateConversation(conversation.id, {
+              tags: [...convTags, "Followup"],
+            } as any);
+          }
+        } catch (tagErr: any) {
+          console.error(`[TextMagic Webhook] Failed to tag conversation for follow-up:`, tagErr.message);
+        }
+      }
+
+      // AI agent processing for inbound SMS (fire-and-forget)
+      // Skip if after-hours — the auto-response already handled it
+      if (!isAfterHours) (async () => {
+        try {
+          // Skip if conversation has been taken over by a human
+          if ((conversation as any).assignedTo) {
+            console.log(`[SMS AI] Skipping AI response — conversation ${conversation.id} taken over by human`);
+            return;
+          }
+
+          const org = await storage.getOrganization(organizationId);
+          if (!org || !org.outboundEnabled || !org.smsEnabled) return;
+          if (process.env.OUTBOUND_LIVE_ENABLED !== "true") return;
+
+          // Find an active AI agent with SMS channel
+          const orgAgents = await storage.getAgents(organizationId);
+          const smsAgent = orgAgents.find(
+            a => a.status === "active" && a.type === "ai" &&
+              (a.channels?.includes("sms") || a.channels?.includes("voice"))
+          );
+          if (!smsAgent) return;
+
+          // Build message context from conversation history
+          const history = await storage.getMessages(conversation.id);
+          const recentMessages = history.slice(-10);
+
+          const orgName = org.name || "our dealership";
+          const agentName = smsAgent.name || "Assistant";
+          const agentInstructions = smsAgent.instructions || "";
+
+          const systemPrompt = `You are ${agentName}, an AI assistant for ${orgName} (automotive dealership). You are responding to an inbound SMS from a customer.
+
+Keep your responses SHORT (1-3 sentences max) since this is an SMS conversation. Be conversational, helpful, and professional.
+${agentInstructions ? `\nSpecific instructions:\n${agentInstructions}` : ""}
+
+Do NOT mention that you are an AI unless directly asked. Do not use markdown formatting.`;
+
+          const chatMessages = recentMessages.map(m => ({
+            role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
+            content: m.content,
+          }));
+
+          const Anthropic = (await import("@anthropic-ai/sdk")).default;
+          const anthropic = new Anthropic({
+            apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+            baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+          });
+
+          const aiResponse = await anthropic.messages.create({
+            model: "claude-sonnet-4-6",
+            max_tokens: 256,
+            system: systemPrompt,
+            messages: chatMessages,
+          });
+
+          const textBlock = aiResponse.content.find(b => b.type === "text");
+          if (!textBlock || textBlock.type !== "text" || !textBlock.text.trim()) return;
+
+          const responseText = textBlock.text.trim();
+
+          // Send the AI response via SMS
+          const { processOutboundSend } = await import("../outbound");
+          const sendResult = await processOutboundSend({
+            organizationId,
+            channel: "sms",
+            to: normalizedPhone,
+            messageContent: responseText,
+          });
+
+          if (sendResult.status === "sent") {
+            // Store the AI response as a message in the conversation
+            await storage.createMessage({
+              conversationId: conversation.id,
+              role: "agent",
+              content: responseText,
+              senderName: agentName,
+            });
+            await storage.updateConversation(conversation.id, { lastMessageAt: new Date() });
+            console.log(`[SMS AI] Response sent to ${normalizedPhone} via agent ${agentName}`);
+          } else {
+            console.log(`[SMS AI] Response blocked for ${normalizedPhone}: ${sendResult.blockedReason}`);
+          }
+        } catch (aiErr: any) {
+          console.error(`[SMS AI] Failed to process AI response for ${normalizedPhone}:`, aiErr.message);
+        }
+      })();
 
       const orgUsers = await storage.getUsers(organizationId);
       const adminUsers = orgUsers.filter(u => {

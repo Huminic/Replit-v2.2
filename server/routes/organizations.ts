@@ -223,7 +223,8 @@ export function registerOrganizationRoutes(app: Express) {
       }
 
       return res.json(org);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Failed to update organization:", err.message || err);
       return res.status(500).json({ message: "Failed to update organization" });
     }
   });

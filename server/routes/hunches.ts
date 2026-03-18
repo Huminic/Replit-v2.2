@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
 import { updateHunchSchema } from "@shared/schema";
-import { generateHunchesForOrg } from "../routes";
+import { generateHunchesForOrg } from "../services/hunchService";
 
 export function registerHunchRoutes(app: Express) {
   app.get("/api/hunches", authenticateToken, async (req, res) => {

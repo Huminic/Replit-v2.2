@@ -1,6 +1,10 @@
 import { type APIRequestContext } from "playwright/test";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface AuthUser {
   email: string;
@@ -60,7 +64,7 @@ export const testUsers: Record<string, AuthUser> = {
 // File-based token cache to survive across Playwright worker processes.
 // The auth rate limiter allows 5 requests per 15 minutes per IP.
 // Without caching, 12+ test files x 7 users = 84+ login calls = instant 429.
-const CACHE_FILE = path.resolve(".playwright-auth-cache.json");
+const CACHE_FILE = path.resolve(__dirname, "../../../.playwright-auth-cache.json");
 const CACHE_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes (tokens expire in 60)
 
 interface CachedAuth {

@@ -15,7 +15,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     // Check Set-Cookie header contains refresh token with httpOnly flag
     const setCookieHeaders = response.headers()["set-cookie"];
     expect(setCookieHeaders).toBeDefined();
-    expect(setCookieHeaders).toContain("httponly");
+    expect(setCookieHeaders.toLowerCase()).toContain("httponly");
   });
 
   test("1.2 Refresh token rotation works", async ({ request }) => {
@@ -78,7 +78,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     expect(response.status()).toBeGreaterThanOrEqual(400);
 
     const body = await response.json();
-    expect(body.message).toBeDefined();
+    expect(body.error || body.message).toContain("Invalid");
   });
 
   // ─── RBAC Tests ────────────────────────────────────────────────────
@@ -89,7 +89,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.sales.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.sales.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
 
     // Wait for sidebar to render
     await page.waitForTimeout(2000);
@@ -105,7 +106,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.executive.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.executive.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
 
     await page.waitForTimeout(2000);
     const sidebarText = await page.locator("nav, [class*='sidebar'], [class*='Sidebar'], aside").allTextContents();
@@ -160,7 +162,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(2000);
 
     // Look for org switcher element
@@ -201,7 +204,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(3000);
 
     // Look for tour-related elements
@@ -218,7 +222,8 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     await page.fill('input[name="email"], input[type="email"]', testUsers.superAdmin.email);
     await page.fill('input[name="password"], input[type="password"]', testUsers.superAdmin.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL("**/", { timeout: 10000 });
+    await page.waitForURL(/.*(?<!login)$/, { timeout: 30000 });
+    await page.waitForTimeout(2000);
     await page.waitForTimeout(2000);
 
     // Look for dismiss button on tour

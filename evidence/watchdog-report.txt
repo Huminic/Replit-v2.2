@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260318-075432
-Timestamp: 2026-03-18T07:54:32Z
+Report-ID: WD-20260318-193137
+Timestamp: 2026-03-18T19:31:37Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 1f35348
+HEAD: 6667c2e
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -18,11 +18,11 @@ C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    PASS
-C15 memory staleness:    PASS
+C14 governance files:    VIOLATION — CLAUDE.md has staged changes
+C15 memory staleness:    WARNING — project_sprint_status.md is 13h old
 C16 drift detection:     PASS
-C17 plan vs execution:   PASS (no in_progress sprint)
-C18 retroactive artifacts:WARNING — T-2 pre-exec and post-sprint written 14s apart (bulk-generated?)
+C17 plan vs execution:   PASS
+C18 retroactive artifacts:PASS
 
-SUMMARY: 14 PASS, 0 VIOLATION, 6 WARNING
+SUMMARY: 13 PASS, 1 VIOLATION, 6 WARNING
 === END SCAN ===

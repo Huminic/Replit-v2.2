@@ -152,6 +152,28 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
+  // Entitlement check endpoint — used by tests and external callers
+  app.post("/api/entitlements/check", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const org = await storage.getOrganization(req.user.organizationId);
+      if (!org || !org.billingCustomerId) {
+        return res.json({ configured: false, entitled: false, message: "Billing not configured" });
+      }
+
+      const { feature_key } = req.body;
+      if (!feature_key || typeof feature_key !== "string") {
+        return res.status(400).json({ message: "feature_key is required" });
+      }
+
+      const result = await billingService.checkEntitlement(org.billingCustomerId, feature_key);
+      return res.json({ configured: true, feature: feature_key, ...result });
+    } catch (err: any) {
+      console.log(`[Billing] entitlement check error: ${err.message}`);
+      return res.status(500).json({ message: "Failed to check entitlement" });
+    }
+  });
+
   app.post("/api/billing/topup", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });

@@ -124,6 +124,54 @@ Fixed items are removed. Only truly open issues remain here.
 **Acceptance Criteria:** No "missing env var" warnings in server logs. Billing pages show FlexPrice data. Webhooks authenticate correctly.
 **Next Sprint:** Yes
 
+### [AU] I-053: Partner Admin can switch to any org (no partnerId check)
+**Background:** Partner Admin switch-org has no partnerId validation. A Partner Admin can access orgs outside their partner group. AC 1.10 says "Partner Admin sees own companies + subs only." US-022 describes managing 3 specific dealerships, not all.
+**Outcome:** Switch-org validates partnerId — Partner Admin can only access orgs within their partner group.
+**Acceptance Criteria:** Login as Partner Admin -> org switcher shows only partner's dealerships -> attempt to switch to unrelated org returns 403.
+**Next Sprint:** Yes
+
+### [BE] I-054: Lead source labels show "VIN Source #7098" instead of meaningful names
+**Background:** VIN Solutions lead sources display as raw IDs ("VIN Source #7098") instead of resolved names ("AutoTrader"). AC 7.6 says "Lead source labels show meaningful names." US-024 describes an Org Admin reviewing lead source breakdown for a marketing agency — unusable with raw IDs.
+**Outcome:** Lead source IDs resolved to human-readable names via VIN Solutions API.
+**Acceptance Criteria:** Navigate to insights -> lead source breakdown shows "AutoTrader", "Website", "Phone" etc., not "VIN Source #NNNN".
+**Next Sprint:** Yes
+
+### [FE] I-055: Login shows "Login failed" instead of specific error message
+**Background:** Frontend displays generic "Login failed" instead of the API's specific error message ("Invalid email or password"). AC 1.6 specifies the user should see "invalid email or password".
+**Outcome:** Frontend reads the API error response and displays the specific message.
+**Acceptance Criteria:** Enter wrong credentials -> UI shows "Invalid email or password" (not "Login failed").
+**Next Sprint:** Yes
+
+### [FE] I-056: Logout intermittent React DOM error
+**Background:** Logout intermittently throws a React DOM "removeChild" error — race condition in component teardown. AC 1.3 says "Logout clears cookie and returns to login screen." An error modal during logout breaks this flow.
+**Outcome:** Logout completes cleanly without DOM errors.
+**Acceptance Criteria:** Logout 10 times -> no error modal or console error on any attempt -> lands on login screen every time.
+**Next Sprint:** Yes
+
+### [FE] I-057: Product tour overlay blocks interaction
+**Background:** Tour modal blocks interaction on first login and doesn't dismiss cleanly. AC 1.13 says "Product tour shows on first login" and AC 1.14 says "Tour dismisses per-page, doesn't restart on visited pages." A tour that traps the user violates both.
+**Outcome:** Tour is dismissable on each page. Dismissing does not block interaction. Does not reappear on visited pages.
+**Acceptance Criteria:** Login -> tour appears -> dismiss -> can interact with page -> navigate away -> navigate back -> tour does NOT reappear.
+**Next Sprint:** Yes
+
+### [FE] I-058: Console 400 error on main page load
+**Background:** Main page load triggers a 400 Bad Request from /api/auth/refresh on unauthenticated load. AC 2.1 says "Main page loads without errors." A console error on every page load is an error.
+**Outcome:** No 400 console errors on page load. Auth refresh handles unauthenticated state gracefully.
+**Acceptance Criteria:** Open main page in fresh browser -> no 400 errors in console -> page renders cleanly.
+**Next Sprint:** No (investigate — may be expected behavior for unauthenticated state)
+
+### [FE] I-059: Tavus widget not configured for demo org
+**Background:** Demo org cannot initialize Tavus video sessions — "not configured" error. AC 11.7 says "Tavus personas active per dealer" and US-002 describes a video lead capture flow. If the demo org is used to demonstrate the product, this flow fails.
+**Outcome:** Demo org has Tavus configuration. Video widget initializes successfully.
+**Acceptance Criteria:** Open widget for demo org -> select Video -> Tavus session starts without "not configured" error.
+**Next Sprint:** No (depends on whether demo org is in scope for launch)
+
+### [BE] I-060: After-hours auto-response not implemented
+**Background:** US-021 describes: "Customer texts at 9:30 PM -> System detects after hours -> Auto-response sent: 'We are currently closed. Your message has been saved for priority follow-up at 9 AM.' -> Conversation tagged 'Followup' -> Salesperson sees tag in morning filter." This feature does not exist in the codebase. No business hours logic, no auto-response, no follow-up tagging.
+**Outcome:** System detects after-hours status per org business hours configuration. Inbound messages outside hours trigger auto-response and tag conversation for follow-up.
+**Acceptance Criteria:** Send SMS outside business hours -> auto-response sent within 60 seconds -> conversation tagged "Followup" in TeamBox -> tag appears in morning filter.
+**Next Sprint:** Yes
+
 ---
 
 ## External (fixed by user)
@@ -135,7 +183,7 @@ Fixed items are removed. Only truly open issues remain here.
 
 ---
 
-**Last updated:** 2026-03-18 (R-2 scan complete)
-**Open:** 16 items (7 BE, 2 FE, 3 IN, 2 DT, 1 AU, 1 from prior)
+**Last updated:** 2026-03-18 (backlog promotion + after-hours)
+**Open:** 24 items (9 BE, 6 FE, 3 IN, 2 DT, 1 AU)
 **Test infrastructure:** 7 items
 **External fixed:** 2 items
