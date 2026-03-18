@@ -925,7 +925,7 @@
       "id": "REM-1",
       "name": "Remediation sprint",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/",
         "client/src/",
@@ -982,13 +982,14 @@
             ".env"
           ]
         }
-      ]
+      ],
+      "commitHash": "00931dd"
     },
     {
       "id": "T-3",
       "name": "Full application test (autonomous) \u2014 post-remediation verification",
       "phase": "T",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "evidence/T-3/",
         "issues.md",
