@@ -889,7 +889,7 @@
       "id": "T-2",
       "name": "Full application test (autonomous) \u2014 comms + usability end-to-end",
       "phase": "T",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "playwright.config.ts",
@@ -901,13 +901,14 @@
       "dependencies": [
         "AC-1"
       ],
-      "description": "Run complete Playwright test suite against all domains. Findings go to issues.md with domain tags."
+      "description": "Run complete Playwright test suite against all domains. Findings go to issues.md with domain tags.",
+      "commitHash": "a9696e3"
     },
     {
       "id": "R-2",
       "name": "Codebase refactoring scan \u2014 major issues + backlog categorization",
       "phase": "R",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "evidence/R-2/",
         "issues.md",

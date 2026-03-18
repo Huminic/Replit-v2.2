@@ -94,6 +94,36 @@ Fixed items are removed. Only truly open issues remain here.
 | TI-006 | Agent selector uses invalid CSS syntax `text=/agent/i` | 6.7, 6.8 |
 | TI-007 | Test 1.6 checks body.message but API returns body.error | 1.6 |
 
+### [IN] I-048: Dead auth stack — 5 unused passport/session packages
+**Background:** R-2 scan found connect-pg-simple, express-session, memorystore, passport, passport-local all in package.json but never imported. Auth was migrated to JWT. These are dead weight and could introduce confusion or vulnerabilities.
+**Outcome:** All 5 packages removed from package.json. Build allowlist in script/build.ts cleaned up.
+**Acceptance Criteria:** npm ls shows no passport/session packages. Build succeeds without them.
+**Next Sprint:** Yes
+
+### [DT] I-049: Missing database indexes on high-frequency columns
+**Background:** R-2 scan found campaignRecipients.campaignId (5 queries), schedulerLocks.lockName (6 queries), and notifications.userId (3 queries) have no indexes. These are hot query paths.
+**Outcome:** Indexes created on these three columns.
+**Acceptance Criteria:** Database migration adds indexes. Query performance improves on campaign execution and notification fetches.
+**Next Sprint:** Yes
+
+### [BE] I-050: Dead 6200-line routes.ts monolith still in codebase
+**Background:** server/routes.ts was decomposed in P4 into server/routes/*.ts. The original monolith file (6200 lines) still exists in the repo. It's dead code that inflates the codebase.
+**Outcome:** server/routes.ts deleted. No imports reference it.
+**Acceptance Criteria:** File deleted. Build succeeds. No runtime errors.
+**Next Sprint:** Yes
+
+### [IN] I-051: Orphaned env vars after MCP migration
+**Background:** TEXTMAGIC_API_KEY, TEXTMAGIC_USERNAME, SESSION_SECRET, and VAPI_API_KEY are in .env but never referenced in code after I-039 (MCP routing) and auth migration. Dead config.
+**Outcome:** Orphaned vars removed from .env. Only actively used vars remain.
+**Acceptance Criteria:** Every var in .env is referenced in code or documented as needed for MCP/external tools.
+**Next Sprint:** Yes
+
+### [BE] I-052: Missing FLEXPRICE_API_KEY and other env vars
+**Background:** R-2 scan found 27 env vars referenced in code but missing from .env. Most critical: FLEXPRICE_API_KEY (billing broken), TEXTMAGIC_WEBHOOK_SECRET, TAVUS_WEBHOOK_SECRET, VITE_VAPI_PUBLIC_KEY.
+**Outcome:** All required env vars documented and set in .env. Billing works.
+**Acceptance Criteria:** No "missing env var" warnings in server logs. Billing pages show FlexPrice data. Webhooks authenticate correctly.
+**Next Sprint:** Yes
+
 ---
 
 ## External (fixed by user)
@@ -105,7 +135,7 @@ Fixed items are removed. Only truly open issues remain here.
 
 ---
 
-**Last updated:** 2026-03-18 (T-2 results + Agent A concordance)
-**Open:** 11 items (6 BE, 2 FE, 2 IN, 1 from prior)
-**Test infrastructure:** 7 items (test file fixes, not app bugs)
+**Last updated:** 2026-03-18 (R-2 scan complete)
+**Open:** 16 items (7 BE, 2 FE, 3 IN, 2 DT, 1 AU, 1 from prior)
+**Test infrastructure:** 7 items
 **External fixed:** 2 items

@@ -56,7 +56,48 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-031 | Partner Admin transient 500 on login — not reproducible | QA-S9 |
 | BL-032 | Post-sprint report overcounts (P4-S2: 26 claimed, 24 actual; P4-S4: 6 claimed, 7 actual) | QA-S3/S5 |
 
+## R-2 Scan Findings (MINOR)
+
+### Backend
+| ID | Item | Source |
+|----|------|--------|
+| BL-033 | N+1 query: campaigns.ts:144-147 fetches all recipients then all conversations | R-2 backend |
+| BL-034 | N+1 notifications: campaigns.ts for-loop createNotification per user — batch with Promise.all | R-2 backend |
+| BL-035 | Inefficient conversation cleanup: conversations.ts:42-51 fetches ALL ai-chat convos | R-2 backend |
+| BL-036 | Duplicate phone formatting: outbound.ts has same normalize logic in 2 functions | R-2 backend |
+| BL-037 | Inline CSV parser: campaigns.ts:26-62 custom parseCSVLine instead of csv-parse lib | R-2 backend |
+| BL-038 | Slug generation race condition: organizations.ts:79 check-then-create gap | R-2 backend |
+| BL-039 | Exception swallowing: multiple .catch blocks log but don't surface errors | R-2 backend |
+| BL-040 | Duplicate lead source classification: insights.ts repeated string matching | R-2 backend |
+| BL-041 | Repeated error catch pattern: billing.ts has 7 identical catch blocks | R-2 backend |
+| BL-042 | comms-test.ts in production server/ directory | R-2 backend |
+| BL-043 | Legacy server/replit_integrations/batch/ directory still exists | R-2 backend |
+| BL-044 | Weak cache invalidation in billingService.ts — no TTL validation | R-2 backend |
+
+### Frontend
+| ID | Item | Source |
+|----|------|--------|
+| BL-045 | insights.tsx: 10+ list renders using key={i} instead of unique IDs | R-2 frontend |
+| BL-046 | AgentConfigPane.tsx: 12x `as any` on agent triggers/tools/settings | R-2 frontend |
+| BL-047 | settings.tsx: 39 useState hooks in single 3898-line component | R-2 frontend |
+| BL-048 | 13 files with console.error() without user-facing toast feedback | R-2 frontend |
+| BL-049 | Missing React.memo() on sub-components (ThinkingCard, PhoneCell, etc.) | R-2 frontend |
+| BL-050 | Phone formatting logic duplicated 3x across files | R-2 frontend |
+
+### Infrastructure
+| ID | Item | Source |
+|----|------|--------|
+| BL-051 | 10+ unused npm packages (framer-motion, next-themes, react-icons, etc.) | R-2 infra |
+| BL-052 | 7 ghost entries in build allowlist (packages not installed) | R-2 infra |
+| BL-053 | nanoid used but not declared in package.json (transitive dep) | R-2 infra |
+| BL-054 | Test/dev packages (vitest, playwright, @types/*) in dependencies not devDependencies | R-2 infra |
+| BL-055 | Page file naming inconsistency (PascalCase vs kebab-case) | R-2 infra |
+| BL-056 | No Vite chunk splitting — entire client ships as one bundle | R-2 infra |
+| BL-057 | No server source maps for production debugging | R-2 infra |
+| BL-058 | @tailwindcss/vite installed but project uses Tailwind v3 via PostCSS | R-2 infra |
+| BL-059 | npm audit: 5 vulnerabilities (3 HIGH in transitive deps) | R-2 infra |
+
 ---
 
-**Last updated:** 2026-03-18 (file reorganization)
-**Total:** 32 items
+**Last updated:** 2026-03-18 (R-2 scan complete)
+**Total:** 59 items (32 prior + 27 from R-2)
