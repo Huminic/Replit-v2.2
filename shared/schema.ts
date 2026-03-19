@@ -91,6 +91,7 @@ export const conversations = pgTable("conversations", {
   channel: text("channel").notNull().default("chat"),
   status: text("status").notNull().default("open"),
   agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
+  assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
   sourceConversationId: uuid("source_conversation_id"),

@@ -39,10 +39,9 @@ test.describe("Domain 10: Tasks & Appointments", () => {
       data: {
         title: "E2E Test Task — Self Assign",
         description: "Created by Playwright domain-10 test",
-        assignedTo: userId,
+        assignedUserId: userId,
         status: "pending",
         priority: "medium",
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       },
     });
 
@@ -53,7 +52,7 @@ test.describe("Domain 10: Tasks & Appointments", () => {
     expect(task.title || task.name).toBeTruthy();
 
     // Verify the task is assigned to self (the requesting user)
-    const assignee = task.assignedTo ?? task.assigned_to ?? task.assigneeId ?? task.user_id;
+    const assignee = task.assignedUserId ?? task.assignedTo ?? task.assigned_to ?? task.assigneeId ?? task.user_id;
     if (assignee) {
       expect(String(assignee)).toBe(String(userId));
     }
@@ -97,7 +96,7 @@ test.describe("Domain 10: Tasks & Appointments", () => {
       data: {
         title: "CRUD Test Task",
         description: "Full lifecycle test",
-        assignedTo: userId,
+        assignedUserId: userId,
         status: "pending",
         priority: "low",
       },

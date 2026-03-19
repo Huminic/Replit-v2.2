@@ -1,10 +1,10 @@
 import type { Express } from "express";
-import { authenticateToken } from "../auth";
+import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
 import { billingService } from "../services/billingService";
 
 export function registerBillingRoutes(app: Express) {
-  app.get("/api/billing/summary", authenticateToken, async (req, res) => {
+  app.get("/api/billing/summary", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -35,7 +35,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/billing/usage", authenticateToken, async (req, res) => {
+  app.get("/api/billing/usage", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -55,7 +55,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/billing/invoices", authenticateToken, async (req, res) => {
+  app.get("/api/billing/invoices", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -71,7 +71,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/billing/plan", authenticateToken, async (req, res) => {
+  app.get("/api/billing/plan", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -95,7 +95,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/billing/plans", authenticateToken, async (req, res) => {
+  app.get("/api/billing/plans", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const plans = await billingService.getPlans();
@@ -106,7 +106,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.get("/api/billing/entitlements", authenticateToken, async (req, res) => {
+  app.get("/api/billing/entitlements", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -162,7 +162,7 @@ export function registerBillingRoutes(app: Express) {
   });
 
   // Entitlement check endpoint — used by tests and external callers
-  app.post("/api/entitlements/check", authenticateToken, async (req, res) => {
+  app.post("/api/entitlements/check", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);
@@ -190,7 +190,7 @@ export function registerBillingRoutes(app: Express) {
     }
   });
 
-  app.post("/api/billing/topup", authenticateToken, async (req, res) => {
+  app.post("/api/billing/topup", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const org = await storage.getOrganization(req.user.organizationId);

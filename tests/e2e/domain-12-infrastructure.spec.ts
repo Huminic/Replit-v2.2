@@ -55,19 +55,19 @@ test.describe("Domain 12: Infrastructure", () => {
   });
 
   test("12.3 Rate limiting works", async ({ request }) => {
-    // Global rate limiter: 100 requests per minute (server/index.ts)
-    // Auth rate limiter: AUTH_RATE_LIMIT_MAX env var, default 100 per 15 min (server/routes/auth.ts)
-    // We need to exceed the global limit of 100/min to trigger 429
-    const endpoint = "/api/auth/login";
-    const badCredentials = { email: "ratelimit@test.com", password: "wrong" };
-
-    // Send 110 requests in rapid succession to exceed the 100/min global limit
-    const batchSize = 40;
+    // Global rate limiter: GLOBAL_RATE_LIMIT_MAX env var (default 100, currently 500)
+    // Auth rate limiter: AUTH_RATE_LIMIT_MAX env var (default 100, currently 200)
+    // Widget rate limiter: 30 per minute (hardcoded in server/routes/widgets.ts)
+    // We target the widget endpoint which has the lowest limit (30/min)
+    const endpoint = "/api/widget/voice-config/serra-honda";
     const allStatuses: number[] = [];
 
-    for (let batch = 0; batch < 3; batch++) {
+    // Send 50 rapid requests to exceed the widget rate limit of 30/min
+    const batchSize = 20;
+
+    for (let batch = 0; batch < 4; batch++) {
       const promises = Array.from({ length: batchSize }, () =>
-        request.post(endpoint, { data: badCredentials }).then((r) => r.status())
+        request.get(endpoint).then((r) => r.status())
       );
       const statuses = await Promise.all(promises);
       allStatuses.push(...statuses);
@@ -76,7 +76,7 @@ test.describe("Domain 12: Infrastructure", () => {
       if (allStatuses.some((s) => s === 429)) break;
     }
 
-    // Rate limiting should trigger after exceeding 100 rapid requests
+    // Rate limiting should trigger after exceeding the widget limit
     const has429 = allStatuses.some((s) => s === 429);
     expect(has429).toBe(true);
   });

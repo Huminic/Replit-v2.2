@@ -19,6 +19,21 @@ export function registerTaskRoutes(app: Express) {
     }
   });
 
+  app.get("/api/tasks/:id", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+      const task = await storage.getTask(req.params.id as string);
+      if (!task) return res.status(404).json({ message: "Task not found" });
+      if (task.organizationId !== req.user.organizationId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      return res.json(task);
+    } catch (err: any) {
+      console.error("Failed to fetch task:", err.message || err);
+      return res.status(500).json({ message: "Failed to fetch task" });
+    }
+  });
+
   app.post("/api/tasks", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });

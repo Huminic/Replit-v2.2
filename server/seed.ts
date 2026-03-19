@@ -7,7 +7,7 @@ const SALT_ROUNDS = 10;
 
 const seedPassword = process.env.SEED_DEFAULT_PASSWORD || (process.env.NODE_ENV === 'development' ? 'password123' : crypto.randomUUID());
 if (!process.env.SEED_DEFAULT_PASSWORD && process.env.NODE_ENV === 'production') {
-  console.log("Generated seed admin password:", seedPassword);
+  console.log("Generated seed admin password: [REDACTED — set SEED_DEFAULT_PASSWORD env var]");
 }
 
 const BILLING_CUSTOMER_MAP: Record<string, string> = process.env.BILLING_CUSTOMER_MAP ? JSON.parse(process.env.BILLING_CUSTOMER_MAP) : {};

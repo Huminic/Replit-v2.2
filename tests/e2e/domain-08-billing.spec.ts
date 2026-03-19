@@ -11,7 +11,7 @@ test.describe("Domain 8: Billing", () => {
     const errors: string[] = [];
     page.on("pageerror", (err) => errors.push(err.message));
 
-    await loginForBrowser(page, testUsers.superAdmin, "/billing");
+    await loginForBrowser(page, testUsers.superAdmin, "/settings/billing");
     await page.waitForTimeout(1000);
 
     // Page should load without crashing
@@ -23,7 +23,7 @@ test.describe("Domain 8: Billing", () => {
   test("8.2 Connected to FlexPrice", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginForBrowser(page, testUsers.superAdmin, "/billing");
+    await loginForBrowser(page, testUsers.superAdmin, "/settings/billing");
     await page.waitForTimeout(1000);
 
     // Check that billing content loaded (not an error page)
@@ -39,7 +39,7 @@ test.describe("Domain 8: Billing", () => {
   test("8.3 Super Admin sees all billing", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginForBrowser(page, testUsers.superAdmin, "/billing");
+    await loginForBrowser(page, testUsers.superAdmin, "/settings/billing");
     await page.waitForTimeout(1000);
 
     // Super admin should see billing content
@@ -59,7 +59,7 @@ test.describe("Domain 8: Billing", () => {
     // Test Partner Admin
     const ctx1 = await browser.newContext({ baseURL: BASE });
     const page1 = await ctx1.newPage();
-    await loginForBrowser(page1, testUsers.partnerAdmin, "/billing");
+    await loginForBrowser(page1, testUsers.partnerAdmin, "/settings/billing");
     await page1.waitForTimeout(1000);
 
     const partnerText = await page1.textContent("body");
@@ -71,7 +71,7 @@ test.describe("Domain 8: Billing", () => {
     // Test Org Admin
     const ctx2 = await browser.newContext({ baseURL: BASE });
     const page2 = await ctx2.newPage();
-    await loginForBrowser(page2, testUsers.orgAdmin, "/billing");
+    await loginForBrowser(page2, testUsers.orgAdmin, "/settings/billing");
     await page2.waitForTimeout(1000);
 
     const orgAdminText = await page2.textContent("body");
@@ -98,7 +98,7 @@ test.describe("Domain 8: Billing", () => {
       expect(billingCount).toBe(0);
 
       // Also try navigating directly — should redirect or show access denied
-      await page.goto("/billing");
+      await page.goto("/settings/billing");
       await page.waitForTimeout(2000);
 
       const currentUrl = page.url();

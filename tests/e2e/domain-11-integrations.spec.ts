@@ -14,9 +14,8 @@ test.describe("Domain 11: Integrations", () => {
   test("11.1 Public widget endpoints work without auth", async ({ request }) => {
     // Public endpoints should respond without any auth token
     const endpoints = [
-      "/api/public/widget/config",
-      "/api/public/widget/health",
-      "/api/public/health",
+      "/api/public/landing/serra-honda",
+      "/api/widget/voice-config/serra-honda",
     ];
 
     let atLeastOneWorks = false;

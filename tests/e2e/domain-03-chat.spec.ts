@@ -65,7 +65,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
       // Wait for a thinking/loading indicator
       const thinkingIndicator = page.locator(
-        '[class*="thinking"], [class*="Thinking"], [class*="loading"], [class*="Loading"], [class*="typing"], [class*="Typing"], [class*="spinner"], [class*="Spinner"]'
+        '.wave-dot, [data-testid="streaming-message"], [data-testid="thinking-card"], [class*="thinking"], [class*="Thinking"], [class*="loading"], [class*="Loading"], [class*="typing"], [class*="Typing"], [class*="spinner"], [class*="Spinner"]'
       );
       // Allow up to 5 seconds for indicator to appear
       try {

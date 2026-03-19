@@ -1177,6 +1177,23 @@
       "commitHash": "ef1f490"
     },
     {
+      "id": "REM-5",
+      "name": "Remediation round 5 \u2014 16 T-6 failures (9 test, 3 app, 2 investigate, 2 firm)",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "server/",
+        "shared/",
+        "evidence/REM-5/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "DEPLOY-1"
+      ]
+    },
+    {
       "id": "L5-1",
       "name": "User walkthrough \u2014 human evaluation and sign-off",
       "phase": "L5",

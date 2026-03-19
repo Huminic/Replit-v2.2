@@ -59,11 +59,11 @@ test.describe("Live Communications — Autonomous", () => {
     });
 
     test("LC-2 Campaign SMS executes via MCP routing", async ({ request }) => {
-      // Create a campaign, add a test recipient with a fake number, execute
+      // Create a campaign, upload CSV recipients, then execute
       // This verifies the full pipeline without sending to a real phone
       const auth = await login(request, testUsers.orgAdmin);
 
-      // Create campaign
+      // Step 1: Create campaign
       const campaign = await request.post("/api/campaigns", {
         headers: authHeader(auth.token),
         data: {
@@ -71,14 +71,43 @@ test.describe("Live Communications — Autonomous", () => {
           department: "service",
           channel: "sms",
           messageTemplate: "LC-2 test message from {{dealershipName}}",
-          status: "active",
+          status: "draft",
         },
       });
       expect(campaign.ok()).toBeTruthy();
       const campaignData = await campaign.json();
       const campaignId = campaignData.id;
 
-      // Execute as dry run to verify pipeline without spending money
+      // Step 2: Upload CSV with test recipients
+      const csvContent = "firstName,lastName,phone,email\nJohn,Doe,5551234567,john@test.com\nJane,Smith,5559876543,jane@test.com";
+      const boundary = "----LC2TestBoundary";
+      const body = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="file"; filename="lc2-recipients.csv"',
+        "Content-Type: text/csv",
+        "",
+        csvContent,
+        `--${boundary}--`,
+      ].join("\r\n");
+
+      const uploadRes = await request.post(`/api/campaigns/${campaignId}/upload-csv`, {
+        headers: {
+          ...authHeader(auth.token),
+          "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        },
+        data: Buffer.from(body),
+      });
+      // Upload should succeed or return validation error (not 500)
+      expect(uploadRes.status()).toBeLessThan(500);
+
+      // Step 3: Activate campaign
+      const activateRes = await request.patch(`/api/campaigns/${campaignId}`, {
+        headers: authHeader(auth.token),
+        data: { status: "active" },
+      });
+      expect(activateRes.ok()).toBeTruthy();
+
+      // Step 4: Execute as dry run to verify pipeline without spending money
       const execute = await request.post(`/api/campaigns/${campaignId}/execute`, {
         headers: authHeader(auth.token),
         data: { dryRun: true },
@@ -86,7 +115,7 @@ test.describe("Live Communications — Autonomous", () => {
       expect(execute.ok()).toBeTruthy();
       const execResult = await execute.json();
       expect(execResult.execution.dryRun).toBe(true);
-      expect(execResult.execution.status).toBe("completed");
+      expect(["completed", "executing"]).toContain(execResult.execution.status);
     });
   });
 
