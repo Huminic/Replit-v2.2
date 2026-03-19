@@ -56,6 +56,9 @@ app.use(cookieParser());
 const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
 const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
 const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://localhost:3000', ...corsOrigins]);
+// Widget endpoints need cross-origin access from any dealer site
+app.use('/api/widget', cors({ origin: '*', methods: ['POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] }));
+
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);

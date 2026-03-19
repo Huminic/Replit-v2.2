@@ -2,6 +2,7 @@ import type { Express } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import rateLimit from "express-rate-limit";
 import { storage } from "../storage";
+import { callMCP } from "../vendorProxy";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -326,12 +327,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .store-btn .slug{font-size:12px;color:#94a3b8;font-weight:400;margin-top:6px}
 .store-btn .persona{font-size:12px;color:#6366f1;font-weight:500;margin-top:4px;font-style:italic}
 .divider{border:none;border-top:2px solid #e2e8f0;margin:40px 0}
-.zip-card{display:flex;align-items:center;gap:20px;background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.2s;text-decoration:none;color:#334155;max-width:560px}
-.zip-card:hover{border-color:#6366f1;background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,0.15)}
-.zip-icon{flex-shrink:0;width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:12px;display:flex;align-items:center;justify-content:center}
-.zip-icon svg{width:28px;height:28px;color:#fff;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.zip-info h3{font-size:16px;font-weight:600;margin-bottom:4px;color:#1e293b}
-.zip-info p{font-size:13px;color:#64748b;line-height:1.5}
+.instructions{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.instructions h3{font-size:16px;font-weight:700;color:#1e293b;margin:24px 0 8px;padding-top:16px;border-top:1px solid #f1f5f9}
+.instructions h3:first-child{margin-top:0;padding-top:0;border-top:none}
+.instructions p{font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px}
+.instructions ul{font-size:14px;color:#475569;line-height:1.8;padding-left:20px;margin-bottom:12px}
+.instructions pre{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:8px;font-size:13px;overflow-x:auto;margin:12px 0}
+.instructions code{background:#f1f5f9;color:#6366f1;padding:2px 6px;border-radius:4px;font-size:13px}
+.instructions pre code{background:none;color:inherit;padding:0}
+.url-list{display:flex;flex-direction:column;gap:8px;margin:12px 0 20px}
+.url-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:13px}
+.url-item strong{min-width:160px;color:#334155;font-size:14px}
+.url-item code{background:#fff;flex:1;word-break:break-all}
 </style>
 </head>
 <body>
@@ -340,23 +347,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <p>File and Configuration Handoff Portal</p>
 </div>
 <div class="container">
-<div class="section-label">Video Widget JavaScript Demonstration</div>
+<div class="section-label">Video Widget Links</div>
 <div class="stores">
-<a class="store-btn" href="${host}/p/serra-honda?mode=video" target="_blank" data-testid="btn-serra-honda">Serra Honda<div class="slug">serra-honda</div><div class="persona">Caroline</div></a>
-<a class="store-btn" href="${host}/p/serra-nissan?mode=video" target="_blank" data-testid="btn-serra-nissan">Serra Nissan<div class="slug">serra-nissan</div><div class="persona">Magnolia</div></a>
-<a class="store-btn" href="${host}/p/tony-serra-ford?mode=video" target="_blank" data-testid="btn-tony-serra-ford">Tony Serra Ford<div class="slug">tony-serra-ford</div><div class="persona">Georgia</div></a>
-<a class="store-btn" href="${host}/p/hyundai-of-columbia?mode=video" target="_blank" data-testid="btn-hyundai-of-columbia">Hyundai of Columbia<div class="slug">hyundai-of-columbia</div><div class="persona">Elizabeth</div></a>
-<a class="store-btn" href="${host}/p/ford-of-columbia?mode=video" target="_blank" data-testid="btn-ford-of-columbia">Ford of Columbia<div class="slug">ford-of-columbia</div><div class="persona">Savannah</div></a>
+<a class="store-btn" href="${host}/widget/dealer/serra-honda.js" target="_blank" data-testid="btn-serra-honda">Serra Honda<div class="slug">serra-honda</div><div class="persona">Caroline</div></a>
+<a class="store-btn" href="${host}/widget/dealer/serra-nissan.js" target="_blank" data-testid="btn-serra-nissan">Serra Nissan<div class="slug">serra-nissan</div><div class="persona">Magnolia</div></a>
+<a class="store-btn" href="${host}/widget/dealer/tony-serra-ford.js" target="_blank" data-testid="btn-tony-serra-ford">Tony Serra Ford<div class="slug">tony-serra-ford</div><div class="persona">Georgia</div></a>
+<a class="store-btn" href="${host}/widget/dealer/hyundai-of-columbia.js" target="_blank" data-testid="btn-hyundai-of-columbia">Hyundai of Columbia<div class="slug">hyundai-of-columbia</div><div class="persona">Elizabeth</div></a>
+<a class="store-btn" href="${host}/widget/dealer/ford-of-columbia.js" target="_blank" data-testid="btn-ford-of-columbia">Ford of Columbia<div class="slug">ford-of-columbia</div><div class="persona">Savannah</div></a>
 </div>
 <hr class="divider">
-<div class="section-label">Dealer.com Files &amp; Instructions</div>
-<a class="zip-card" href="/dealer-handoff/Nexxus_Connect_Dealer.com_Integration.zip" download data-testid="link-download-zip">
-<div class="zip-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-<div class="zip-info">
-<h3>Nexxus_Connect_Dealer.com_Integration.zip</h3>
-<p>Contains integration instructions and JavaScript widget links for all 5 stores. Ready for Dealer.com team handoff.</p>
+<div class="section-label">Integration Instructions</div>
+<div class="instructions">
+<h3>Self-Hosted JavaScript Widget URLs</h3>
+<p>Each dealer has a unique video chat widget delivered as a self-hosted JavaScript file. Click any link above to preview the experience, or use the URLs below for integration.</p>
+<div class="url-list">
+<div class="url-item"><strong>Serra Honda</strong><code>${host}/widget/dealer/serra-honda.js</code></div>
+<div class="url-item"><strong>Serra Nissan</strong><code>${host}/widget/dealer/serra-nissan.js</code></div>
+<div class="url-item"><strong>Tony Serra Ford</strong><code>${host}/widget/dealer/tony-serra-ford.js</code></div>
+<div class="url-item"><strong>Hyundai of Columbia</strong><code>${host}/widget/dealer/hyundai-of-columbia.js</code></div>
+<div class="url-item"><strong>Ford of Columbia</strong><code>${host}/widget/dealer/ford-of-columbia.js</code></div>
 </div>
-</a>
+<h3>Embed Code</h3>
+<p>To embed on a dealer website, add a script tag to the page:</p>
+<pre>&lt;script src="${host}/widget/dealer/{dealer-slug}.js"&gt;&lt;/script&gt;</pre>
+<p>The widget loads automatically on page load. No additional configuration required. Each script is self-contained with the dealer name, branding, and AI persona pre-configured.</p>
+<h3>Direct Links</h3>
+<p>Each URL can also be opened directly in a browser to launch the video chat experience. When accessed directly, the widget renders a full-page name prompt followed by a live Tavus AI video session.</p>
+<h3>Technical Details</h3>
+<ul>
+<li>Hosted at: <code>${host}</code></li>
+<li>Video AI: Tavus (two-way conversational video)</li>
+<li>Requires: Camera and microphone permissions</li>
+<li>Compatible: All modern browsers (Chrome, Firefox, Safari, Edge)</li>
+<li>Mobile: Responsive layout, works on mobile devices</li>
+</ul>
+</div>
 </div>
 </body></html>`;
     res.setHeader("Content-Type", "text/html");
@@ -371,10 +396,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     const host = (process.env.APP_BASE_URL || `${proto}://${req.get("host")}`).replace(/\/+$/, '');
     const color = "#6366f1";
     const name = org.name;
-    const js = `(function(){var H="${host}",S="${slug}",N="${name}",C="${color}";if(document.getElementById("nexxus-widget-"+S))return;var btn=document.createElement("a");btn.id="nexxus-widget-"+S;btn.href=H+"/p/"+S+"?mode=video";btn.target="_blank";btn.rel="noopener";btn.setAttribute("role","button");btn.setAttribute("aria-label","Chat with "+N);btn.style.cssText="position:fixed;bottom:20px;right:20px;z-index:2147483647;cursor:pointer;display:flex;align-items:center;gap:8px;background:"+C+";color:#fff;border-radius:28px;padding:12px 20px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;";btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat with us</span>';btn.onmouseenter=function(){btn.style.transform="scale(1.05)";btn.style.boxShadow="0 6px 24px rgba(0,0,0,0.25)";};btn.onmouseleave=function(){btn.style.transform="scale(1)";btn.style.boxShadow="0 4px 16px rgba(0,0,0,0.18)";};document.body.appendChild(btn);})();`;
+
+    // If accessed directly in a browser, create a Tavus session and redirect to it
+    const acceptHeader = req.get("Accept") || "";
+    if (acceptHeader.includes("text/html") && !acceptHeader.includes("application/javascript")) {
+      try {
+        const agents = await storage.getAgents(org.id);
+        const videoAgent = agents.find((a: any) => a.tavusPersonaId && a.status === "active");
+        if (!videoAgent?.tavusPersonaId) {
+          return res.status(503).send("<html><body><p>Video chat is not currently available for " + name + ".</p></body></html>");
+        }
+        const result = await callMCP("tavus_create_conversation", {
+          persona_id: videoAgent.tavusPersonaId,
+          conversation_name: name + " Visitor",
+        });
+        if (result?.conversation_url) {
+          return res.redirect(result.conversation_url);
+        }
+        return res.status(503).send("<html><body><p>Video chat is temporarily unavailable. Please try again later.</p></body></html>");
+      } catch (err: any) {
+        return res.status(503).send("<html><body><p>Video chat is temporarily unavailable. Please try again later.</p></body></html>");
+      }
+    }
+
+    // When loaded as a <script> tag, create a Tavus session and fullscreen iframe it
+    const js = `(function(){
+var H="${host}",S="${slug}";
+if(document.getElementById("nexxus-vw-"+S))return;
+var d=document.createElement("div");d.id="nexxus-vw-"+S;
+d.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;background:#000;";
+d.innerHTML='<p style="color:#fff;text-align:center;padding:40px;font-family:sans-serif;">Connecting to video chat...</p>';
+document.body.appendChild(d);
+fetch(H+"/api/widget/video-session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:S})})
+.then(function(r){if(!r.ok)throw new Error("Failed");return r.json();})
+.then(function(data){
+  if(!data.conversationUrl)throw new Error("No URL");
+  d.innerHTML='<iframe src="'+data.conversationUrl+'" style="width:100%;height:100%;border:none;" allow="microphone;camera;autoplay;display-capture"></iframe>';
+})
+.catch(function(){
+  d.innerHTML='<p style="color:#fff;text-align:center;padding:40px;font-family:sans-serif;">Video chat is temporarily unavailable.</p>';
+});
+})();`;
     res.setHeader("Content-Type", "application/javascript");
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Cache-Control", "public, max-age=60");
+    res.setHeader("Vary", "Accept");
     res.send(js);
   });
 

@@ -8,7 +8,19 @@ import { requireEntitlement } from "../middleware/entitlementCheck";
 const widgetLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false, message: { error: 'Rate limit exceeded' } });
 
 export function registerWidgetRoutes(app: Express) {
+  // CORS preflight for cross-origin widget calls
+  app.options("/api/widget/video-session", (_req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Max-Age", "86400");
+    res.sendStatus(204);
+  });
+
   app.post("/api/widget/video-session", widgetLimiter, async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     try {
       const { widgetCode, visitorName, slug } = req.body;
 

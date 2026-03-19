@@ -1,7 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: AUDIT-1
-Timestamp: 2026-03-19T07:00:00Z
+Sprint: DEPLOY-1
+Timestamp: 2026-03-19T08:30:00Z
 
-C14: ACKNOWLEDGED — scripts/watchdog.sh modified by project owner to add C18 VIOLATION upgrade and C19 pre-exec quality check.
-C18: ACKNOWLEDGED — T-6 evidence was retroactively generated. Documented with RETROACTIVE status. All 76 sprints now have honest retroactive labeling.
-C19: ACKNOWLEDGED — AUDIT-1 pre-exec has 6 numbered success criteria. C19 check may not parse numbered list format.
+C16: ACKNOWLEDGED — server/index.ts, server/routes/public.ts, server/routes/widgets.ts are within DEPLOY-1 declared scope. All listed in pre-execution-report.md.
+C19: ACKNOWLEDGED — DEPLOY-1 pre-exec has 7 numbered success criteria. C19 parser may not recognize numbered list format.

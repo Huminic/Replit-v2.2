@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-061252
-Timestamp: 2026-03-19T06:12:52Z
+Report-ID: WD-20260319-161534
+Timestamp: 2026-03-19T16:15:34Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 04359ec
+HEAD: 2843bbc
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -18,12 +18,12 @@ C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    VIOLATION — scripts/watchdog.sh has unstaged changes
-C15 memory staleness:    PASS
-C16 drift detection:     WARNING — 219 file(s) modified outside current sprint scope
+C14 governance files:    PASS
+C15 memory staleness:    WARNING — project_sprint_status.md is 11h old
+C16 drift detection:     VIOLATION — 3 application file(s) modified outside sprint scope: server/index.ts,server/routes/public.ts,server/routes/widgets.ts
 C17 plan vs execution:   PASS
-C18 retroactive artifacts:VIOLATION — T-6 pre-exec and post-sprint written 0s apart (bulk-generated)
-C19 pre-exec quality:    VIOLATION — AUDIT-1 Success Criteria section has 0 criteria
+C18 retroactive artifacts:WARNING — DEPLOY-1 pre-execution-report.md written 513m AFTER earliest code change (appears retroactive)
+C19 pre-exec quality:    VIOLATION — DEPLOY-1 Success Criteria section has 0 criteria
 
-SUMMARY: 12 PASS, 3 VIOLATION, 6 WARNING
+SUMMARY: 12 PASS, 2 VIOLATION, 7 WARNING
 === END SCAN ===

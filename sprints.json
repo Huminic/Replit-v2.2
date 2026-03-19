@@ -1145,7 +1145,7 @@
       "id": "AUDIT-1",
       "name": "Governance remediation \u2014 full project code audit and evidence fixes",
       "phase": "AUDIT",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/AUDIT-1/",
         "evidence/*/pre-execution-report.md",
@@ -1155,7 +1155,25 @@
       "dependencies": [
         "T-6"
       ],
-      "description": "Audit every code-touching sprint with dual agents. Rewrite every pre-exec with real success criteria. Verify all claims. Document all defects. No code changes."
+      "description": "Audit every code-touching sprint with dual agents. Rewrite every pre-exec with real success criteria. Verify all claims. Document all defects. No code changes.",
+      "commitHash": "2843bbc"
+    },
+    {
+      "id": "DEPLOY-1",
+      "name": "Widget JS rewrite + live.huminic.app deployment",
+      "phase": "DEPLOY",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/public.ts",
+        "server/routes/widgets.ts",
+        "server/index.ts",
+        "evidence/DEPLOY-1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "AUDIT-1"
+      ],
+      "description": "Rewrite dealer widget JS to use Tavus directly (no custom UI). Add CORS for cross-origin widget API. Deploy to live.huminic.app via Caddy + DNS."
     },
     {
       "id": "L5-1",

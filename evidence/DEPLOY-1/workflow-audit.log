@@ -1,0 +1,4 @@
+[2026-03-19T07:00:00Z] agent-launch | role=orchestrator | task="Investigate widget routes + Coolify + deployment" | scope=evidence/DEPLOY-1/
+[2026-03-19T07:30:00Z] agent-launch | role=backend | task="Build self-contained Tavus widget JS" | scope=server/routes/public.ts,server/routes/widgets.ts,server/index.ts
+[2026-03-19T08:00:00Z] agent-launch | role=test | task="Full widget verification — 25 checks" | scope=evidence/DEPLOY-1/
+[2026-03-19T16:16:16Z] PRE-COMMIT role=orchestrator sprint=DEPLOY-1 result=PASS detail="All 7 gates passed"
