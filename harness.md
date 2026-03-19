@@ -103,13 +103,33 @@ The orchestrator tags issues with the appropriate domain and flags items for the
 4. Acknowledge any pending ghost messages
 5. Delegate code changes to builder agents (orchestrator does not write code)
 6. Execute work
-7. Verify (tests, build, live check)
-8. Write post-sprint-report.md
-9. Run enforcer-checklist.sh
-10. Write cross-sign.md (different role reviews)
-11. Commit: `COMMIT_ROLE=<role> COMMIT_SPRINT=<id> git commit -m "message"`
-12. Update sprints.json with commitHash
-13. Update session state
+7. **Smoke test each fix** — builder runs the specific Playwright test(s) mapped to the issue. Must pass before moving to next issue. Update issue status in issues.md: OPEN → FIXING → FIXED → VERIFIED
+8. **Smoke test all issues** — after all sub-sprints, run all issue-specific tests as a batch before full E2E. Every fix verified individually.
+9. **Update issues.md** — mark each verified issue. Only VERIFIED items can be removed after E2E. Present statuses to user before E2E.
+10. Verify (TypeScript compiles, build succeeds, health check passes)
+11. Write post-sprint-report.md (includes smoke test results per issue)
+12. Run enforcer-checklist.sh
+13. Write cross-sign.md (different role reviews)
+14. Commit: `COMMIT_ROLE=<role> COMMIT_SPRINT=<id> git commit -m "message"`
+15. Update sprints.json with commitHash
+16. Update session state
+
+## Issue Statuses (in issues.md)
+
+| Status | Meaning | Who Sets It |
+|--------|---------|-------------|
+| OPEN | Not yet worked on | Orchestrator (after T-n logging) |
+| FIXING | Builder agent is working on it | Orchestrator (during REM) |
+| FIXED | Code change made, not yet tested | Builder agent |
+| VERIFIED | Smoke test passed — confirmed working | Orchestrator (after smoke test) |
+| CLOSED | Removed from open after E2E confirms | Orchestrator (after T-n passes) |
+
+**Rules:**
+- No issue may be removed from issues.md without VERIFIED status
+- VERIFIED requires a passing smoke test (specific Playwright test, not full E2E)
+- After every T-n run, new failures go INTO issues.md as OPEN with domain tags
+- After every REM-n commit, the orchestrator updates statuses (never removes without VERIFIED)
+- The orchestrator presents issues.md statuses to the user before running the full E2E
 
 ## Required Artifacts Per Sprint
 
@@ -222,16 +242,22 @@ Before every remediation sprint (REM-n), the orchestrator must produce a **Loop 
 
 ### Loop Prep Rules
 1. Every issue in issues.md tagged "Next Sprint: Yes" must appear in the Issue-to-Domain Assignment
-2. Every issue must map to at least one Playwright test — if no test exists, one must be created
+2. Every issue must map to at least one Playwright test — if no test exists, one must be created BEFORE the fix begins
 3. Every issue must map to at least one criterion in acceptance_criteria.md — if none exists, add one
 4. FE sub-sprint requires explicit user approval before work begins
 5. Dependency order must be justified — IN and DT typically run first (infrastructure and data), AU next, BE next, FE last
 6. Test infrastructure fixes (TI-xxx) are included in the prep and executed as part of the appropriate sub-sprint
 7. Prerequisites must all be resolved before the first sub-sprint begins
+8. **Every builder agent prompt MUST include the specific Playwright test command to verify the fix.** Format: `npx playwright test --grep "criterion-id"`. The builder runs this after the fix and reports PASS/FAIL. If FAIL, the builder investigates further — does NOT commit a broken fix.
+9. **After all sub-sprints complete, the orchestrator runs all issue-specific tests as a smoke batch before full E2E.** Any failures are investigated before proceeding.
+10. **The orchestrator presents issues.md with updated statuses to the user before running the full E2E.** User reviews and approves before E2E proceeds.
 
 ### After Remediation Completes
-1. Run T-n (full application test) using the Playwright suite
-2. Compare results against prior T run — count improvements and regressions
+1. Orchestrator smoke tests all FIXED issues — updates statuses to VERIFIED or back to OPEN
+2. Orchestrator presents issues.md statuses to user for review
+3. User approves E2E run
+4. Run T-n (full application test) using the Playwright suite
+5. Compare results against prior T run — count improvements and regressions
 3. Any new failures go to issues.md with domain tags
 4. If issues remain → prepare next Loop Prep (REM-n+1) → repeat
 5. If all tests pass → exit loop → proceed to L5 (user walkthrough)

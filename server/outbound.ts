@@ -456,6 +456,7 @@ export async function startCampaignExecution(
   organizationId: string,
   dryRun: boolean = false
 ): Promise<{ success: boolean; message: string; execution?: Omit<CampaignExecution, "intervalHandle"> }> {
+  try {
   if (activeExecutions.has(campaignId)) {
     const existing = activeExecutions.get(campaignId)!;
     if (existing.status === "executing") {
@@ -624,6 +625,11 @@ export async function startCampaignExecution(
 
   const { intervalHandle, ...publicExec } = execution;
   return { success: true, message: dryRun ? "Dry run started" : "Campaign execution started", execution: publicExec };
+  } catch (err: any) {
+    console.error(`[Campaign ${campaignId}] startCampaignExecution error:`, err?.message || err);
+    activeExecutions.delete(campaignId);
+    return { success: false, message: err?.message || "Campaign execution failed unexpectedly" };
+  }
 }
 
 async function finishExecution(campaignId: string, finalStatus: "completed" | "stopped"): Promise<void> {

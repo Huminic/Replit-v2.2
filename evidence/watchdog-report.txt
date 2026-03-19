@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-011006
-Timestamp: 2026-03-19T01:10:06Z
+Report-ID: WD-20260319-022629
+Timestamp: 2026-03-19T02:26:29Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: fdcdacd
+HEAD: f74f718
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -11,18 +11,18 @@ C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (0h old)
+C7  session state:       PASS (1h old)
 C8  hook integrity:      PASS
 C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    PASS
-C15 memory staleness:    WARNING — project_sprint_status.md is 19h old
-C16 drift detection:     VIOLATION — 6 application file(s) modified outside sprint scope: client/src/components/ProductTour.tsx,client/src/components/layout/SubMenuManager.tsx,client/src/components/layout/TopBar.tsx
-C17 plan vs execution:   VIOLATION — undeclared changes: server/seed.ts
-C18 retroactive artifacts:WARNING — T-4 pre-exec and post-sprint written 28s apart (bulk-generated?)
+C14 governance files:    VIOLATION — CLAUDE.md has unstaged changes
+C15 memory staleness:    VIOLATION — project_sprint_status.md doesn't reference LAUNCH-S2 or LAUNCH-S1
+C16 drift detection:     VIOLATION — 3 application file(s) modified outside sprint scope: server/index.ts,server/outbound.ts,server/routes/campaigns.ts
+C17 plan vs execution:   PASS
+C18 retroactive artifacts:PASS
 
-SUMMARY: 11 PASS, 2 VIOLATION, 7 WARNING
+SUMMARY: 12 PASS, 3 VIOLATION, 5 WARNING
 === END SCAN ===

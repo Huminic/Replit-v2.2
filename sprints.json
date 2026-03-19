@@ -1038,7 +1038,7 @@
       "id": "REM-3",
       "name": "Remediation round 3 \u2014 6 user-reported bugs + test fixes",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/",
         "client/src/",
@@ -1071,7 +1071,26 @@
           "domain": "TI",
           "name": "Test infrastructure \u2014 selectors, conversation API"
         }
-      ]
+      ],
+      "commitHash": "f74f718"
+    },
+    {
+      "id": "ALN-1",
+      "name": "Alignment \u2014 harness fixes, smoke test requirements, issues verification",
+      "phase": "ALN",
+      "status": "in_progress",
+      "scope": [
+        "harness.md",
+        "CLAUDE.md",
+        "issues.md",
+        "acceptance_criteria.md",
+        "evidence/ALN-1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-3"
+      ],
+      "description": "Fix governance workflow gaps. Add smoke testing to sprint lifecycle. Verify all issues. Stress test harness."
     },
     {
       "id": "L5-1",

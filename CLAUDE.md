@@ -48,5 +48,13 @@ Issues tagged by domain in issues.md. Remediation clustered by domain.
 ## Remediation Loop
 Before every REM sprint, produce a **Loop Prep Document** (`evidence/REM-n/loop-prep.md`) containing: issue-to-domain assignment, issue-to-test mapping, issue-to-criterion mapping, declared files per sub-sprint, dependency order, and prerequisites. No code work begins until loop prep is complete. See harness.md for full template.
 
+### Smoke Testing (CRITICAL)
+- After every fix, the builder agent runs the specific Playwright test mapped to that issue. Fix is not complete until the test passes.
+- After all sub-sprints, orchestrator runs all issue-specific tests as a smoke batch.
+- Orchestrator presents issues.md with statuses (OPEN/FIXING/FIXED/VERIFIED) to the user before running full E2E.
+- No issue removed from issues.md without VERIFIED status (passing smoke test).
+- After every T-n run, new failures go INTO issues.md as OPEN with domain tags.
+- After every REM-n, statuses are updated — never silently removed.
+
 ## Current State
 24 open issues across 5 domains. 51 backlog items. 96 Playwright tests (46 passing). Next: REM-1 loop prep, then remediation sub-sprints, then T-3 retest.

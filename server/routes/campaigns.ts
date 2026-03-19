@@ -296,8 +296,9 @@ export function registerCampaignRoutes(app: Express) {
       }
 
       return res.json(result);
-    } catch (err) {
-      return res.status(500).json({ message: "Failed to execute campaign" });
+    } catch (err: any) {
+      console.error(`[Campaign Execute] Error for campaign ${req.params.id}:`, err?.message || err);
+      return res.status(500).json({ message: "Failed to execute campaign", error: err?.message });
     }
   });
 

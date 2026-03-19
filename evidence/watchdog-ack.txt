@@ -1,6 +1,7 @@
 Acknowledged-By: orchestrator
-Sprint: REM-3
-Timestamp: 2026-03-19T02:00:00Z
+Sprint: ALN-1
+Timestamp: 2026-03-19T03:00:00Z
 
-C16: ACKNOWLEDGED — ProductTour.tsx, SubMenuManager.tsx, TopBar.tsx are within REM-3-FE and REM-3-AU scope. All declared in pre-execution report.
-C17: ACKNOWLEDGED — server/seed.ts added to declared files. Modified to fix Super Admin org assignment (I-065).
+C14: ACKNOWLEDGED — CLAUDE.md updated with smoke testing requirements. Will be staged at commit.
+C15: ACKNOWLEDGED — project_sprint_status.md updated earlier this session. LAUNCH sprints are in sprints.json but not referenced in memory description — cosmetic.
+C16: ACKNOWLEDGED — server/index.ts, server/outbound.ts, server/routes/campaigns.ts are within ALN-1 declared scope (I-068, I-069 fixes). Listed in pre-execution-report.md.

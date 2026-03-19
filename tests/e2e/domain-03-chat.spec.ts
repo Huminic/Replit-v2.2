@@ -83,7 +83,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
     // Create a conversation first
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "Web Search Test" },
+      data: { title: "Web Search Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();
@@ -107,7 +107,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "General Knowledge Test" },
+      data: { title: "General Knowledge Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();
@@ -127,7 +127,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "VIN Data Test" },
+      data: { title: "VIN Data Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();
@@ -147,7 +147,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "Tone Test" },
+      data: { title: "Tone Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();
@@ -168,7 +168,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "Multi-Org Test" },
+      data: { title: "Multi-Org Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();
@@ -189,7 +189,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
 
     const convRes = await request.post("/api/conversations", {
       headers: authHeader(token),
-      data: { title: "Empty CRM Test" },
+      data: { title: "Empty CRM Test", customerName: "Test Customer" },
     });
     expect(convRes.ok()).toBe(true);
     const conv = await convRes.json();

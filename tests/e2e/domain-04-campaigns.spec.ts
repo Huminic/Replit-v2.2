@@ -243,9 +243,9 @@ test.describe("Domain 4: Campaigns", () => {
     expect(superStatusRes.ok()).toBe(true);
     const superStatuses = await superStatusRes.json();
 
-    // Both should return arrays — content may differ based on org
-    expect(Array.isArray(adminStatuses)).toBe(true);
-    expect(Array.isArray(superStatuses)).toBe(true);
+    // Endpoint returns an object keyed by campaign ID — verify structure
+    expect(typeof adminStatuses === 'object' && adminStatuses !== null).toBe(true);
+    expect(typeof superStatuses === 'object' && superStatuses !== null).toBe(true);
   });
 
   test("4.8 Campaign stop halts execution", async ({ request }) => {

@@ -4,9 +4,7 @@ import { testUsers, loginForBrowser } from "./helpers/auth";
 const BASE = "http://localhost:5000";
 
 test.describe("Domain 6: Department Pages", () => {
-  test("6.1 Sales page loads with KPIs", async ({ browser }) => {
-    const context = await browser.newContext({ baseURL: BASE });
-    const page = await context.newPage();
+  test("6.1 Sales page loads with KPIs", async ({ page }) => {
     await loginForBrowser(page, testUsers.sales, "/sales");
     await page.waitForTimeout(1000);
 
@@ -18,8 +16,6 @@ test.describe("Domain 6: Department Pages", () => {
     const tileCount = await tiles.count();
     // KPI tiles should render
     expect(tileCount).toBeGreaterThan(0);
-
-    await context.close();
   });
 
   test("6.2 Service page loads with KPIs and campaigns", async ({ browser }) => {

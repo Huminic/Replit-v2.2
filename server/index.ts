@@ -102,15 +102,8 @@ const globalLimiter = rateLimit({
 });
 app.use('/api/', globalLimiter);
 
-// Auth endpoint rate limiter: 10 requests per minute
-const authLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many authentication attempts, please try again later.' },
-});
-app.use('/api/auth/', authLimiter);
+// Auth rate limiting handled by route-level limiter in server/routes/auth.ts
+// (configurable via AUTH_RATE_LIMIT_MAX env var)
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
