@@ -119,6 +119,11 @@ export function TopBar() {
     try {
       await authSwitchOrg(orgId);
       appSwitchOrg(orgId);
+      // Allow the refresh cookie (Set-Cookie from switch-org response) to be fully
+      // committed by the browser before reloading. Without this delay, the page can
+      // reload before the cookie is available, causing the refresh flow to fail and
+      // redirecting to /login (I-066 fix).
+      await new Promise(r => setTimeout(r, 100));
       // Full page reload to ensure all contexts, queries, and cached data refresh for new org
       window.location.href = '/';
     } catch {

@@ -1,6 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: REM-2
-Timestamp: 2026-03-18T22:30:00Z
+Sprint: REM-3
+Timestamp: 2026-03-19T02:00:00Z
 
-C16: ACKNOWLEDGED — server/middleware/entitlementCheck.ts, server/routes/billing.ts, server/services/billingService.ts are within REM-2-BE scope. Pre-execution report updated to include them.
-C17: ACKNOWLEDGED — Declared Files updated to include server/middleware/entitlementCheck.ts and server/services/billingService.ts. These were discovered as root cause during investigation.
+C16: ACKNOWLEDGED — ProductTour.tsx, SubMenuManager.tsx, TopBar.tsx are within REM-3-FE and REM-3-AU scope. All declared in pre-execution report.
+C17: ACKNOWLEDGED — server/seed.ts added to declared files. Modified to fix Super Admin org assignment (I-065).

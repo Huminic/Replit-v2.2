@@ -17,7 +17,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings } from 'lucide-react';
+import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings, User, ArrowLeft, Phone, MessageSquare, Mail, MapPin, Sparkles, Loader2 } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { useUILayout } from '@/contexts/UILayoutContext';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import type { Agent } from '@shared/schema';
@@ -114,10 +116,355 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
   ];
 }
 
+/** Maps sales metric labels to pipeline detail API keys where available */
+const salesMetricApiKeys: Record<string, string> = {
+  'Active Pipeline': 'active_pipeline',
+  'Appointments Set': 'appointments_today',
+};
+
+function SalesMetricDetailDialog({ selectedMetric, onClose, orgId, leadSummary }: {
+  selectedMetric: SalesMetricTile | null;
+  onClose: () => void;
+  orgId: string | undefined;
+  leadSummary: LeadSummary | undefined;
+}) {
+  const { toast } = useToast();
+  const metricKey = selectedMetric ? salesMetricApiKeys[selectedMetric.label] : null;
+  const [viewingContact, setViewingContact] = useState<{ leadId: string; row: any } | null>(null);
+
+  const { data: detailRows, isLoading, isError } = useQuery<any[]>({
+    queryKey: [`/api/metrics/pipeline/details?metric=${metricKey}`, orgId],
+    enabled: !!selectedMetric && !!metricKey,
+  });
+
+  const handleClose = () => {
+    setViewingContact(null);
+    onClose();
+  };
+
+  const renderRecordTable = () => {
+    if (!metricKey) {
+      return (
+        <div className="space-y-3">
+          <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground font-medium">Current Value</span>
+              <span className="text-sm font-semibold text-foreground">{selectedMetric?.value}</span>
+            </div>
+          </div>
+          <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground font-medium">Change</span>
+              <span className="text-sm font-semibold text-foreground">{(selectedMetric?.change ?? 0) > 0 ? '+' : ''}{selectedMetric?.change}%</span>
+            </div>
+          </div>
+          <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground font-medium">Period</span>
+              <span className="text-sm font-semibold text-foreground">Last 30 days</span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground pt-2">
+            {leadSummary?.source === 'warehouse' ? 'Data sourced from warehouse sync.' : leadSummary?.source ? 'Data sourced from VinSolutions CRM.' : 'Data from local metrics.'}
+          </p>
+        </div>
+      );
+    }
+
+    if (isLoading) {
+      return <div className="py-8 text-center text-sm text-muted-foreground">Loading records...</div>;
+    }
+    if (isError) {
+      return <div className="py-8 text-center text-sm text-red-500">Failed to load records</div>;
+    }
+    if (!detailRows || detailRows.length === 0) {
+      return <div className="py-8 text-center text-sm text-muted-foreground">No records found</div>;
+    }
+
+    if (metricKey === 'active_pipeline') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="sales-table-active-pipeline">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Status</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Vehicle</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Lead ID</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`sales-row-pipeline-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
+                  <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
+                  <td className="py-2 px-2">
+                    {row.sourceId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
+                        onClick={() => setViewingContact({ leadId: row.sourceId, row })}
+                        data-testid={`sales-button-view-contact-${idx}`}
+                      >
+                        <User className="h-3 w-3" />
+                        Show Contact
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (metricKey === 'appointments_today') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="sales-table-appointments">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Phone</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Email</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Type</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`sales-row-appointment-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground"><PhoneCell phone={row.customerPhone} toast={toast} /></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[160px]">{row.customerEmail || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.appointmentType}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground">{row.startTime ? new Date(row.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
+        {viewingContact ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Contact Details
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                Live contact information from CRM
+              </DialogDescription>
+            </DialogHeader>
+            <SalesContactDetailView
+              leadId={viewingContact.leadId}
+              leadRow={viewingContact.row}
+              onBack={() => setViewingContact(null)}
+              orgId={orgId}
+            />
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
+                {selectedMetric && (
+                  <>
+                    {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
+                    {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
+                    {selectedMetric.label}
+                  </>
+                )}
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                {metricKey ? 'Records that make up this metric' : 'Detailed breakdown of this sales metric'}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedMetric && (
+              <div className="space-y-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
+                  <span className={cn(
+                    'text-sm font-medium',
+                    selectedMetric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  )}>
+                    {selectedMetric.change > 0 ? '+' : ''}{selectedMetric.change}% vs last 30d
+                  </span>
+                  {metricKey && detailRows && (
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {(detailRows.length ?? 0) >= 100
+                        ? `showing first 100 of ${selectedMetric.value} records`
+                        : `${detailRows.length ?? 0} records`}
+                    </span>
+                  )}
+                </div>
+                <div className="border-t border-border pt-3">
+                  {renderRecordTable()}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PhoneCell({ phone, toast }: { phone: string | null | undefined; toast: any }) {
+  if (!phone || phone === '—') return <span>—</span>;
+  return (
+    <span
+      className="text-primary cursor-pointer hover:underline"
+      onClick={() => {
+        const digits = phone.replace(/\D/g, '');
+        window.open(`tel:${digits}`, '_self');
+        toast({ title: 'Calling', description: `Initiating call to ${digits}` });
+      }}
+    >
+      {phone}
+    </span>
+  );
+}
+
+function SalesContactDetailView({ leadId, leadRow, onBack, orgId }: {
+  leadId: string;
+  leadRow: any;
+  onBack: () => void;
+  orgId?: string;
+}) {
+  const { toast } = useToast();
+  const { data: contact, isLoading, isError } = useQuery<any>({
+    queryKey: [`/api/vin/leads/${leadId}/contact`, orgId],
+    enabled: !!leadId,
+  });
+
+  const contactName = contact
+    ? [contact.firstName, contact.lastName].filter(Boolean).join(' ')
+    : leadRow?.customerName || '—';
+  const contactPhone = contact?.phone || leadRow?.customerPhone || null;
+  const contactEmail = contact?.email || leadRow?.customerEmail || null;
+
+  return (
+    <div className="space-y-5" data-testid="sales-contact-detail-view">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        data-testid="button-back-to-leads"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to leads
+      </button>
+
+      {isLoading ? (
+        <div className="py-10 flex flex-col items-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Loading contact from CRM...</span>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="h-7 w-7 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-foreground" data-testid="text-contact-name">{contactName}</h3>
+              {leadRow?.vinStatus && (
+                <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">{leadRow.vinStatus}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {contactPhone && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1">{contactPhone}</span>
+              </div>
+            )}
+            {contactEmail && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1 truncate">{contactEmail}</span>
+              </div>
+            )}
+            {contact?.city && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1">
+                  {[contact.city, contact.state, contact.zip].filter(Boolean).join(', ')}
+                </span>
+              </div>
+            )}
+            {leadRow?.vehicleOfInterest && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                <Sparkles className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="text-xs text-muted-foreground">Vehicle of Interest</span>
+                  <p className="text-sm text-foreground">{leadRow.vehicleOfInterest}</p>
+                </div>
+              </div>
+            )}
+            {!contactPhone && !contactEmail && !isLoading && (
+              <div className="py-4 text-center text-sm text-muted-foreground">
+                No contact information available
+              </div>
+            )}
+          </div>
+
+          {isError && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              Could not fetch live CRM data. Showing cached info.
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              className="flex-1 gap-2"
+              onClick={() => {
+                if (!contactPhone) { toast({ title: 'No phone number', description: 'No phone number on file.' }); return; }
+                window.open(`tel:${contactPhone.replace(/\D/g, '')}`, '_self');
+              }}
+              disabled={!contactPhone}
+            >
+              <Phone className="h-4 w-4" />
+              Call
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 gap-2"
+              onClick={() => {
+                if (!contactPhone) { toast({ title: 'No phone number', description: 'No phone number on file.' }); return; }
+                window.open(`sms:${contactPhone.replace(/\D/g, '')}`, '_self');
+              }}
+              disabled={!contactPhone}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Text
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function SalesPage() {
   const [currentLocation, setLocation] = useLocation();
   const { selectedAgent, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
+  const { toast } = useToast();
   const orgId = currentOrganization?.id;
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -375,74 +722,12 @@ export default function SalesPage() {
         {activeTab === 'calendar' && renderCalendar()}
       </ScrollArea>
 
-      <Dialog open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" data-testid="dialog-metric-detail">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2" data-testid="text-metric-detail-title">
-              {selectedMetric && (
-                <>
-                  {selectedMetric.trend === 'up' && <TrendingUp className="h-5 w-5 text-green-500" />}
-                  {selectedMetric.trend === 'down' && <TrendingDown className="h-5 w-5 text-red-500" />}
-                  {selectedMetric.label}
-                </>
-              )}
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              Detailed breakdown of this sales metric
-            </DialogDescription>
-          </DialogHeader>
-          {selectedMetric && (
-            <div className="space-y-4">
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-foreground" data-testid="text-metric-detail-value">{selectedMetric.value}</span>
-                <span className={cn(
-                  'text-sm font-medium',
-                  selectedMetric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                )}>
-                  {selectedMetric.change > 0 ? '+' : ''}{selectedMetric.change}% vs last 30d
-                </span>
-              </div>
-              <div className="border-t border-border pt-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Metric Info</h4>
-                <div className="space-y-1">
-                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground font-medium">Current Value</span>
-                      <span className="text-sm font-semibold text-foreground">{selectedMetric.value}</span>
-                    </div>
-                  </div>
-                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground font-medium">Trend</span>
-                      <span className={cn('text-sm font-semibold', selectedMetric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400')}>
-                        {selectedMetric.trend === 'up' ? 'Trending Up' : 'Trending Down'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground font-medium">Change</span>
-                      <span className="text-sm font-semibold text-foreground">{selectedMetric.change > 0 ? '+' : ''}{selectedMetric.change}%</span>
-                    </div>
-                  </div>
-                  <div className="py-1.5 px-2 rounded-md hover:bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground font-medium">Period</span>
-                      <span className="text-sm font-semibold text-foreground">Last 30 days</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border pt-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Data Source</h4>
-                <p className="text-xs text-muted-foreground">
-                  {leadSummary?.source === 'warehouse' ? 'Data sourced from warehouse sync.' : leadSummary?.source ? 'Data sourced from VinSolutions CRM.' : 'Data from local metrics.'}
-                </p>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <SalesMetricDetailDialog
+        selectedMetric={selectedMetric}
+        onClose={() => setSelectedMetric(null)}
+        orgId={orgId}
+        leadSummary={leadSummary}
+      />
     </div>
   );
 }

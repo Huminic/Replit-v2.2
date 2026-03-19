@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260318-204828
-Timestamp: 2026-03-18T20:48:28Z
+Report-ID: WD-20260319-011006
+Timestamp: 2026-03-19T01:10:06Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 243bd53
+HEAD: fdcdacd
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -19,10 +19,10 @@ C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
-C15 memory staleness:    WARNING — project_sprint_status.md is 15h old
-C16 drift detection:     WARNING — 55 file(s) modified outside current sprint scope
-C17 plan vs execution:   PASS
-C18 retroactive artifacts:PASS
+C15 memory staleness:    WARNING — project_sprint_status.md is 19h old
+C16 drift detection:     VIOLATION — 6 application file(s) modified outside sprint scope: client/src/components/ProductTour.tsx,client/src/components/layout/SubMenuManager.tsx,client/src/components/layout/TopBar.tsx
+C17 plan vs execution:   VIOLATION — undeclared changes: server/seed.ts
+C18 retroactive artifacts:WARNING — T-4 pre-exec and post-sprint written 28s apart (bulk-generated?)
 
-SUMMARY: 13 PASS, 0 VIOLATION, 7 WARNING
+SUMMARY: 11 PASS, 2 VIOLATION, 7 WARNING
 === END SCAN ===

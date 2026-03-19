@@ -1023,7 +1023,7 @@
       "id": "T-4",
       "name": "Full application test \u2014 post-REM-2 (loginViaUI fix)",
       "phase": "T",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/T-4/",
         "issues.md",
@@ -1031,6 +1031,46 @@
       ],
       "dependencies": [
         "REM-2"
+      ],
+      "commitHash": "fdcdacd"
+    },
+    {
+      "id": "REM-3",
+      "name": "Remediation round 3 \u2014 6 user-reported bugs + test fixes",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "server/",
+        "client/src/",
+        "tests/e2e/",
+        "evidence/REM-3/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-4"
+      ],
+      "sub_sprints": [
+        {
+          "id": "REM-3-AU",
+          "domain": "AU",
+          "name": "Auth \u2014 Super Admin org, org switch, rate limiter"
+        },
+        {
+          "id": "REM-3-FE",
+          "domain": "FE",
+          "name": "Frontend \u2014 tour, sidebar links, lead modal"
+        },
+        {
+          "id": "REM-3-DT",
+          "domain": "DT",
+          "name": "Data \u2014 dashboard metrics verification"
+        },
+        {
+          "id": "REM-3-TI",
+          "domain": "TI",
+          "name": "Test infrastructure \u2014 selectors, conversation API"
+        }
       ]
     },
     {

@@ -439,8 +439,8 @@ export function SubMenuManager() {
                       role="button"
                       tabIndex={0}
                       className="group relative w-full text-left p-2 rounded-md transition-colors hover-elevate cursor-pointer"
-                      onClick={() => { if (!location.startsWith('/')) setLocation('/'); }}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!location.startsWith('/')) setLocation('/'); } }}
+                      onClick={() => setLocation('/')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLocation('/'); } }}
                       data-testid={`panel-conversation-${conv.id}`}
                     >
                       <div className="flex items-start justify-between gap-2">

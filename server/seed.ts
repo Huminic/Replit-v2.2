@@ -729,13 +729,33 @@ async function seedPartnerAccount() {
 
 async function seedHuminicUsers() {
   const orgs = await storage.getOrganizations();
-  const serraHonda = orgs.find(o => o.slug === "serra-honda");
-  if (!serraHonda) return;
+
+  // Create Huminic org if it doesn't exist (top-level org for Super Admins)
+  let huminicOrg = orgs.find(o => o.slug === "huminic");
+  if (!huminicOrg) {
+    console.log("Creating Huminic organization (top-level Super Admin org)");
+    huminicOrg = await storage.createOrganization({
+      name: "Huminic",
+      slug: "huminic",
+      personaName: "Admin",
+      outboundEnabled: false,
+      smsEnabled: false,
+      phoneEnabled: false,
+      emailEnabled: false,
+    });
+  }
 
   const roles = await storage.getRoles();
   const roleMap: Record<string, string> = {};
   for (const r of roles) {
     roleMap[r.name] = r.id;
+  }
+
+  // Reassign admin@nexxus.com to Huminic if it exists on the wrong org
+  const adminUser = await storage.getUserByEmail("admin@nexxus.com");
+  if (adminUser && adminUser.organizationId !== huminicOrg.id) {
+    console.log(`Reassigning admin@nexxus.com to Huminic org (was on wrong org)`);
+    await storage.updateUser(adminUser.id, { organizationId: huminicOrg.id });
   }
 
   const huminicUsers = [
@@ -751,7 +771,13 @@ async function seedHuminicUsers() {
     const emailLower = u.email.toLowerCase();
     const existing = await storage.getUserByEmail(emailLower);
     if (existing) {
-      console.log(`Huminic user already exists, skipping: ${emailLower}`);
+      // Ensure existing Huminic users are on the correct org
+      if (existing.organizationId !== huminicOrg.id) {
+        console.log(`Reassigning ${emailLower} to Huminic org`);
+        await storage.updateUser(existing.id, { organizationId: huminicOrg.id });
+      } else {
+        console.log(`Huminic user already exists, skipping: ${emailLower}`);
+      }
     } else {
       const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
       await storage.createUser({
@@ -760,7 +786,7 @@ async function seedHuminicUsers() {
         firstName: u.firstName,
         lastName: u.lastName,
         roleId: roleMap[u.role],
-        organizationId: serraHonda.id,
+        organizationId: huminicOrg.id,
         isActive: true,
       });
       console.log(`Huminic user created: ${emailLower}`);
