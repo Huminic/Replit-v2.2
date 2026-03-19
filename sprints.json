@@ -1246,7 +1246,7 @@
       "id": "E2E-1",
       "name": "Full E2E flow tests \u2014 comms, webhooks, campaigns, TeamBox, VIN integration",
       "phase": "E2E",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "evidence/E2E-1/",
@@ -1255,6 +1255,21 @@
       ],
       "dependencies": [
         "REM-7"
+      ],
+      "commitHash": "69db444"
+    },
+    {
+      "id": "T-8",
+      "name": "Full test \u2014 all projects including E2E flows",
+      "phase": "T",
+      "status": "in_progress",
+      "scope": [
+        "evidence/T-8/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "E2E-1"
       ]
     },
     {

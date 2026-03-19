@@ -1,0 +1,8 @@
+[2026-03-19T20:45:00Z] agent-launch | role=orchestrator | task="T-8 pre-exec + test run" | scope=evidence/T-8/,issues.md,sprints.json
+[2026-03-19T20:45:00Z] agent-launch | role=test | task="T-8 full suite — all 5 projects" | scope=evidence/T-8/
+[2026-03-19T21:00:00Z] agent-launch | role=test | task="Independent verification — API/Comms/E2E" | scope=evidence/T-8/
+[2026-03-19T21:00:00Z] agent-launch | role=test | task="Independent verification — Browser/Catalog" | scope=evidence/T-8/
+[2026-03-19T21:00:00Z] agent-launch | role=test | task="Data accuracy verification — DB vs API" | scope=evidence/T-8/
+[2026-03-19T19:23:12Z] PRE-COMMIT role=orchestrator sprint=T-8 result=BLOCKED detail="Watchdog gate: 2 violation(s) not addressed in ack."
+[2026-03-19T19:24:09Z] PRE-COMMIT role=orchestrator sprint=T-8 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-19T19:24:48Z] PRE-COMMIT role=orchestrator sprint=T-8 result=PASS detail="All 7 gates passed"

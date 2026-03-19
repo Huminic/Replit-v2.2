@@ -1,6 +1,8 @@
-Report-ID: WD-20260319-184050
+Report-ID: WD-20260319-192432
 Acknowledged-By: orchestrator
-Sprint: E2E-1
-Timestamp: 2026-03-19T18:40:55Z
+Sprint: T-8
+Timestamp: 2026-03-19T19:24:37Z
 
-C18: ACKNOWLEDGED — DEPLOY-1 retroactive from prior sprint.
+C1: ACKNOWLEDGED — T-8 is in_progress, hash will be set after commit. Batch commits are historical.
+C2: ACKNOWLEDGED — ALN-1 evidence exists, sprint is in sprints.json (may be index mismatch).
+C16: ACKNOWLEDGED — T-8 in_progress, no hash expected yet.
