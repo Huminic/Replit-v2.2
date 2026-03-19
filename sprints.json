@@ -1230,7 +1230,7 @@
       "id": "REM-7",
       "name": "Remediation round 7 \u2014 final 6 test fixes",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "server/routes/public.ts",
@@ -1239,6 +1239,22 @@
       ],
       "dependencies": [
         "T-7"
+      ],
+      "commitHash": "45dbd12"
+    },
+    {
+      "id": "E2E-1",
+      "name": "Full E2E flow tests \u2014 comms, webhooks, campaigns, TeamBox, VIN integration",
+      "phase": "E2E",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "evidence/E2E-1/",
+        "acceptance_criteria.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-7"
       ]
     },
     {

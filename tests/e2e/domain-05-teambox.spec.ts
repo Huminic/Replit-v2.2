@@ -236,18 +236,45 @@ test.describe("Domain 5: TeamBox / Conversations", () => {
     }
   });
 
-  test.fixme("5.9 SMS webhook routes to correct org", async ({ request }) => {
-    // I-036: Inbound SMS agent processing not yet routed to AI
-    const res = await request.post("/api/webhooks/textmagic", {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      form: {
-        sender: "+15551234567",
-        receiver: "+15559876543",
-        text: "E2E test inbound SMS",
-        messageId: "test-e2e-001",
+  test("5.9 SMS webhook routes to correct org", async ({ request }) => {
+    // Send a test TextMagic webhook payload with Serra Honda's receiver number
+    const testPhone = `1555${Date.now().toString().slice(-7)}`;
+    const webhookRes = await request.post("/api/webhooks/textmagic", {
+      data: {
+        sender: testPhone,
+        receiver: "18338096836", // Serra Honda TextMagic number
+        text: "E2E test inbound SMS for org routing",
+        timestamp: Math.floor(Date.now() / 1000),
       },
     });
-    expect(res.ok()).toBeTruthy();
+    expect(webhookRes.status()).toBeLessThan(500);
+
+    if (webhookRes.ok()) {
+      const body = await webhookRes.json();
+      // Webhook should return conversationId on success
+      expect(body.success).toBe(true);
+      expect(body.conversationId).toBeDefined();
+    }
+
+    // Verify the conversation landed in Serra Honda's org (orgAdmin is Serra Honda)
+    const convRes = await request.get("/api/conversations", {
+      headers: authHeader(orgAdminToken),
+    });
+    expect(convRes.ok()).toBeTruthy();
+    const convBody = await convRes.json();
+    const conversations = Array.isArray(convBody) ? convBody : convBody.conversations ?? convBody.data ?? [];
+
+    // Find our test conversation by phone
+    const normalizedTest = testPhone.replace(/[^0-9+]/g, "");
+    const matchingConv = conversations.find((c: any) =>
+      c.customerPhone?.includes(normalizedTest) || c.customerName?.includes(normalizedTest)
+    );
+
+    // Conversation should be visible to Serra Honda org admin
+    expect(matchingConv).toBeDefined();
+    if (matchingConv) {
+      expect(matchingConv.channel).toBe("sms");
+    }
   });
 
   test("5.10 Thread history preserved across time gaps", async ({ request }) => {

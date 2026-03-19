@@ -37,6 +37,11 @@ export default defineConfig({
       testMatch: /live-comms\.spec\.ts/,
       use: { baseURL: "http://localhost:5000" },
     },
+    {
+      name: "e2e",
+      testMatch: /e2e-flows\.spec\.ts/,
+      use: { baseURL: "http://localhost:5000" },
+    },
   ],
   reporter: [
     ["list"],
