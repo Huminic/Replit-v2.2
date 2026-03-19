@@ -41,3 +41,13 @@ Audited 85 acceptance criteria against current codebase. Corrected 4 inaccurate 
 - `npx playwright test --list` shows 96 tests in 12 files
 - TypeScript compiles with zero errors
 - All test names start with criterion ID
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — all 85 criteria have corresponding tests
+- Criterion 2: [PASS] — npx playwright test --list shows 96 tests in 12 files
+- Criterion 3: [PASS] — test names start with criterion ID (e.g., "1.1 Login sets httpOnly cookie")
+- Criterion 4: [PASS] — playwright.config.ts baseURL: http://localhost:5000
+- Criterion 5: [PASS] — tests/e2e/helpers/auth.ts supports all RBAC roles
+- Criterion 6: [PASS] — 4 fixme tests: 4.10 (I-036), 11.2 (I-038), 11.3 (dep I-038), 11.6 (I-037)
+- Criterion 7: [PASS] — 96 total tests across 12 domain files
+- Criterion 8: [PASS] — 4 inaccurate criteria corrected per evidence/AC-1/reconciliation-findings.md

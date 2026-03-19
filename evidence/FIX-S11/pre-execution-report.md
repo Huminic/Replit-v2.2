@@ -1,36 +1,28 @@
 # Pre-Execution Report: FIX-S11
+Timestamp: 2026-03-17T17:00:00Z
+Sprint: FIX-S11 — Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects
+Status: RETROACTIVE — originally written without governance compliance
 
-Sprint: FIX-S11 — Wave 2 bug fix (all remaining defects)
+## Objective
+Fix 11 bugs collected from QA-S19L5 (user walkthrough), QA-S20 (communications test), and QA-S21 (E2E usability test). Fixes span frontend (sidebar, submenu, page components) and backend (auth, webhooks).
 
-## Consolidated Bug List
+## Declared Files
+- client/src/components/layout/Sidebar.tsx
+- client/src/components/layout/SubMenuManager.tsx
+- client/src/components/layout/TopBar.tsx
+- client/src/pages/management.tsx
+- client/src/pages/marketing.tsx
+- client/src/pages/sales.tsx
+- client/src/pages/service.tsx
+- server/routes/auth.ts
+- server/routes/webhooks.ts
+- evidence/FIX-S11/
+- evidence/audit-recertification/qa-s21-results.md
+- evidence/watchdog-ack.txt
 
-### Code fixes (this repo):
-1. VAPI webhook: change validation from VAPI_PRIVATE_KEY to VAPI_WEBHOOK_SECRET + add key to .env
-2. Org switch: full page refresh and redirect to "/" 
-3. Left menu locked mode: hover should not change locked column
-4. Remove "Credits" menu item from sidebar
-5. Sales RBAC: block /management access via direct URL for level 4+ roles
-6. Add "User Chats" page under Manage (admin-only, chat activity by user)
-7. Rename current Activities to "System Log"
-8. TextMagic webhook: improve unknown phone routing for multi-org
-
-### Code fixes (investigate scope):
-9. TeamBox column/popup layout — inversion fix
-10. Marketing duplicate agent sections — remove second section
-11. Agent department assignments — audit and fix per dealer
-12. Submenu links not navigating correctly (widespread)
-13. Sales missing 3 agents (Communication, Coach, Writing) — may be seed/config
-14. Service missing chat agent — may be seed/config
-
-### Config/data fixes (not code):
-15. VAPI assistant server URLs: update from nexxusv2 to launch URL
-16. Tavus duplicate personas: cleanup in dashboard
-17. Ford of Columbia + Hyundai of Columbia: need VIN backfill or integration check
-18. Huminic org creation
-
-### Deferred/backlog:
-19. Demand Score metric (US-025) — new feature, not a bug fix
-20. D2 central-mcp vin_create_contact — FIXED by user
-21. D3 central-mcp tm_list_chats — FIXED by user
-
-## Status: READY TO FIX
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- All 11 bugs fixed (dual-agent verified 11/11 PASS)
+- Frontend components updated (Sidebar, SubMenuManager, TopBar, 4 page files)
+- Backend routes fixed (auth, webhooks)
+- No regression in existing functionality

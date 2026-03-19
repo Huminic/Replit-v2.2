@@ -41,3 +41,10 @@ Location: evidence/T-2/screenshots/catalog/
 
 ## Verdict: FLAGGED
 5 real application issues found. Test infrastructure needs fixes before rerun gives accurate results.
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 113 tests executed (46 passed, 60 failed, 7 skipped)
+- Criterion 2: [PASS] — 60 screenshots in evidence/T-2/screenshots/catalog/ across 5 roles x 12 pages
+- Criterion 3: [PASS] — concordance report in evidence/T-2/agent-a-concordance.md
+- Criterion 4: [PASS] — 5 new issues (I-040 through I-044) logged in issues.md
+- Criterion 5: [PASS] — 5 TI issues (TI-001 through TI-005) documented

@@ -1,36 +1,40 @@
 # Pre-Execution Report: ALN-1
 Timestamp: 2026-03-19T02:30:00Z
 Sprint: ALN-1
-Status: READY
+Status: RETROACTIVE — originally written without governance compliance
 
 ## Objective
-1. Update harness.md with smoke test requirements and issue statuses
-2. Update CLAUDE.md with smoke testing flow
-3. Verify all REM-3 fixes via smoke test (6 VERIFIED, 1 FAIL)
-4. Stress test governance harness (6/7 PASS)
-5. Log unlogged T-4 findings
-6. Fix remaining: dual rate limiter (I-068) + campaign execute (I-069) + 5 TI fixes
-7. Present issues.md statuses to user before E2E
+Alignment sprint — fix governance workflow gaps, add smoke testing to sprint lifecycle, verify all issues, stress test harness, fix remaining bugs (dual rate limiter, campaign execute, TI fixes).
 
 ## Declared Files
-- harness.md
-- CLAUDE.md
-- issues.md
-- sprints.json
-- server/index.ts
-- server/routes/campaigns.ts
-- server/outbound.ts
-- tests/e2e/domain-02-dashboard.spec.ts
-- tests/e2e/domain-03-chat.spec.ts
-- tests/e2e/domain-04-campaigns.spec.ts
-- tests/e2e/domain-06-departments.spec.ts
-- tests/e2e/domain-07-insights.spec.ts
-- evidence/ALN-1/
+```
+CLAUDE.md
+evidence/ALN-1/cross-sign.md
+evidence/ALN-1/enforcer-checklist.txt
+evidence/ALN-1/post-sprint-report.md
+evidence/ALN-1/pre-execution-report.md
+evidence/ALN-1/workflow-audit.log
+evidence/ghost_messages.log
+evidence/watchdog-ack.txt
+evidence/watchdog-report.txt
+harness.md
+issues.md
+server/index.ts
+server/outbound.ts
+server/routes/campaigns.ts
+sprints.json
+tests/e2e/domain-02-dashboard.spec.ts
+tests/e2e/domain-03-chat.spec.ts
+tests/e2e/domain-04-campaigns.spec.ts
+tests/e2e/domain-06-departments.spec.ts
+```
+Source: git diff-tree -r 68e30f5
 
 ## Success Criteria
-- Harness updated with smoke test lifecycle
-- issues.md has statuses on every item
-- Dual rate limiter fixed (single limiter, configurable)
-- Campaign execute investigated and fixed
-- TI fixes applied (selectors, payloads, assertions)
-- 20 rapid logins succeed without 429
+1. Harness updated with smoke test lifecycle (retroactive — derived from post-sprint Part 1)
+2. issues.md has statuses on every item (retroactive — derived from post-sprint Part 3)
+3. Dual rate limiter fixed (retroactive — derived from post-sprint Part 3: I-068)
+4. Campaign execute fixed (retroactive — derived from post-sprint Part 3: I-069)
+5. TI fixes applied — selectors, payloads, assertions (retroactive — derived from post-sprint Part 5)
+6. 20 rapid logins succeed without 429 (retroactive — derived from post-sprint)
+7. Harness stress test (retroactive — derived from post-sprint Part 4: 6/7 gates verified)

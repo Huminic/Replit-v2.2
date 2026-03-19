@@ -22,3 +22,11 @@
 - routes.ts: 6235 → 5844 lines (-391)
 - New route files: 3 (health.ts, auth.ts, index.ts)
 - Endpoints extracted: 9 (1 health + 8 auth)
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- Extracted endpoints work: [PASS] — server/routes/health.ts and server/routes/auth.ts exist with route definitions
+- Registration pattern established: [PASS] — server/routes/index.ts imports and registers domain routes (line 2+)
+- routes.ts reduced: [PASS] — 391 lines removed (auth + unused imports)
+- 9 endpoints extracted: [PASS] — health.ts (1) + auth.ts (8 endpoints)

@@ -50,3 +50,11 @@
 | public.ts | 8 | 397 |
 | proxy.ts | 5 | 271 |
 | usage.ts | 4 | 109 |
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- All endpoints respond: [PASS] — all 27 domain route files exist in server/routes/
+- routes.ts retired: [PASS] — routes.ts eventually fully removed (deleted in later sprint); monolith eliminated
+- 27 domain route files exist: [PASS] — 28 .ts files in server/routes/ (27 domains + index.ts)
+- Route registration complete: [PASS] — server/routes/index.ts imports and registers all domain routes

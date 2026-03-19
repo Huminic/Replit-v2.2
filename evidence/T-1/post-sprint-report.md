@@ -21,3 +21,9 @@ I-001, I-002, I-003, I-004, I-005, I-006, I-007, I-008, I-009, I-013, I-015, I-0
 
 ## Outcome
 All 15 must-fix items confirmed working against acceptance criteria. Sprint CERTIFIED.
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — all 15 fixes verified per evidence/T-1/test-results.md
+- Criterion 2: [PASS] — Agent A (Playwright) 15/15 per test-results.md
+- Criterion 3: [PASS] — Agent B (Code review + DB) 15/15 per test-results.md
+- Criterion 4: [PASS] — 100% concordance, 0 discrepancies

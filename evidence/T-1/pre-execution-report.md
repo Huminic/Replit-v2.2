@@ -1,24 +1,34 @@
-# T-1 Pre-Execution Report
-**Sprint:** T-1
-**Type:** Verification testing of I-1 fixes
-**Date:** 2026-03-17
-**Role:** orchestrator
+# Pre-Execution Report: T-1
+Timestamp: 2026-03-17T22:00:00Z
+Sprint: T-1
+Status: RETROACTIVE — originally written without governance compliance
 
 ## Objective
-Verify all 15 I-1 fixes against their acceptance criteria using dual-agent testing.
+Verification testing — all 15 I-1 fixes against their documented acceptance criteria using dual-agent methodology.
 
-## Scope
-All 15 must-fix items from issues.md (I-001 through I-034).
+## Declared Files
+```
+evidence/T-1/cross-sign.md
+evidence/T-1/enforcer-checklist.txt
+evidence/T-1/post-sprint-report.md
+evidence/T-1/pre-execution-report.md
+evidence/T-1/test-results.md
+evidence/T-1/workflow-audit.log
+evidence/audit-recertification/login-debug.png
+evidence/audit-recertification/sales-login-debug.png
+evidence/audit-recertification/t1-agent-a-management.png
+evidence/audit-recertification/t1-agent-a-sales-sidebar.png
+evidence/audit-recertification/t1-agent-a-teambox.png
+evidence/audit-recertification/t1-agent-b-teambox.png
+evidence/watchdog-ack.txt
+evidence/watchdog-alerts.log
+evidence/watchdog-report.txt
+sprints.json
+```
+Source: git diff-tree -r dfc3463
 
-## Method
-- Dual-agent testing (Agent A: Playwright browser, Agent B: code review + DB queries)
-- Each fix verified against its documented acceptance criteria
-- Independent execution, orchestrator compares results
-
-## Prerequisites
-- I-1 committed (055a87a)
-- App rebuilt and restarted with all changes
-- Dev server running at dev.huminicdev.com
-
-## Acceptance Criteria
-All 15 fixes PASS against their documented AC in issues.md.
+## Success Criteria
+1. All 15 fixes pass against their documented AC (retroactive — derived from post-sprint)
+2. Agent A (Playwright): 15/15 PASS (retroactive — derived from post-sprint)
+3. Agent B (Code review + DB): 15/15 PASS (retroactive — derived from post-sprint)
+4. Concordance: 100% (retroactive — derived from post-sprint)

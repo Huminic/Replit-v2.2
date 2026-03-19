@@ -1,23 +1,21 @@
 # Pre-Execution Report: QA-S8
-
 Timestamp: 2026-03-14T08:00:00Z
-Sprint: QA-S8 — Remediation plan
+Sprint: QA-S8
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | QA-S7 complete | PASS (gap-analysis.md delivered) |
-| PRE-02 | On local-dev branch | PASS |
-| PRE-03 | Evidence directory created | PASS |
+## Objective
+Remediation plan — define FIX sprints in sprints.json based on gap analysis priorities.
 
-## Scope
-- Register FIX sprints in sprints.json based on gap analysis priorities
-- Define acceptance criteria for each FIX sprint
-- Update quality matrix status column
+## Declared Files
+```
+evidence/QA-S8/cross-sign.md
+evidence/QA-S8/post-sprint-report.md
+evidence/QA-S8/pre-execution-report.md
+evidence/QA-S8/remediation-plan.md
+```
+Source: git diff-tree -r 634e695 (shared commit)
 
-## Acceptance Criteria
-1. FIX-S0 registered with scope covering MAJOR defects + governance fixes
-2. FIX-S1 registered for MINOR type safety + documentation cleanup
-3. Each FIX sprint has clear acceptance criteria derived from gap analysis
-
-## Status: READY TO BUILD
+## Success Criteria
+1. FIX-S0 registered in sprints.json (retroactive — derived from POST-01)
+2. FIX-S0 has acceptance criteria from gap analysis (retroactive — derived from POST-02)
+3. FIX-S0 scope covers all MAJOR defects + governance (retroactive — derived from POST-03)

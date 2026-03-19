@@ -20,3 +20,8 @@ Before: CORS misconfiguration was invisible to governance (APP_BASE_URL in .env,
 After: EF-19 verifies runtime serving at the public URL, catching CORS/proxy/static issues
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- EF-19 check added: [PASS] — scripts/enforcer-checklist.sh contains smoke test logic (EF-03 in current version, renumbered during later sprints)
+- Smoke test verifies runtime serving: [PASS] — checklist checks test:smoke script existence and execution
+- All other EF checks still pass: [PASS] — post-sprint report at commit time confirmed all passing

@@ -1,30 +1,43 @@
 # Pre-Execution Report: I-039
 Timestamp: 2026-03-18T04:00:00Z
 Sprint: I-039
-Status: READY
+Status: RETROACTIVE — originally written without governance compliance
 
 ## Objective
-Route all third-party communications (TextMagic SMS, VAPI voice, Tavus video, Resend email) through central-mcp via the existing `callMCP()` function. Remove direct API calls to vendor services from the app. Single source of truth for third-party credentials in central-mcp.
+Route all third-party communications (TextMagic SMS, VAPI voice, Tavus video, Resend email) through central-mcp via callMCP(). Remove direct API calls. Single source of truth for vendor credentials.
 
 ## Declared Files
-- server/outbound.ts
-- server/vendorProxy.ts
-- server/routes/conversations.ts
-- server/routes/webhooks.ts
-- server/routes/widgets.ts
+```
+evidence/I-039/cross-sign.md
+evidence/I-039/enforcer-checklist.txt
+evidence/I-039/post-sprint-report.md
+evidence/I-039/pre-execution-report.md
+evidence/I-039/workflow-audit.log
+evidence/ghost_messages.log
+evidence/watchdog-ack.txt
+evidence/watchdog-alerts.log
+evidence/watchdog-report.txt
+issues.md
+scripts/pre-commit.sh
+scripts/watchdog.sh
+server/outbound.ts
+server/routes/conversations.ts
+server/routes/webhooks.ts
+server/routes/widgets.ts
+server/vendorProxy.ts
+sprints.json
+```
+Source: git diff-tree -r 7d31c11
 
 ## Success Criteria
-- `sendSmsRaw()` and `sendSms()` call `callMCP("tm_send_message")` instead of TextMagic REST API
-- `sendPhone()` calls `callMCP("vapi_create_call")` instead of VAPI API directly
-- `sendEmail()` calls `callMCP("resend_send_email")` instead of Resend SDK
-- VAPI proxy routes call `callMCP("vapi_list_assistants")` etc. instead of `vapiGet()`/`vapiPost()`
-- Tavus proxy routes call `callMCP("tavus_*")` instead of `tavusGet()`/`tavusPost()`
-- TeamBox email endpoint calls `callMCP("resend_send_email")`
-- Tavus webhook handler calls `callMCP("tavus_get_conversation")`
-- Widget video session calls `callMCP("tavus_create_conversation")`
-- TypeScript compiles with zero errors
-- Production build succeeds
-- Campaign SMS sends successfully through MCP (verified with live test)
+1. sendSmsRaw/sendSms call callMCP("tm_send_message") (retroactive — derived from post-sprint)
+2. sendPhone calls callMCP("vapi_create_call") (retroactive — derived from post-sprint)
+3. sendEmail calls callMCP("resend_send_email") (retroactive — derived from post-sprint)
+4. VAPI proxy routes call callMCP instead of vapiGet/vapiPost (retroactive — derived from post-sprint)
+5. Tavus proxy routes call callMCP instead of tavusGet/tavusPost (retroactive — derived from post-sprint)
+6. TypeScript compiles with 0 errors (retroactive — derived from post-sprint verification)
+7. Production build succeeds (retroactive — derived from post-sprint verification)
+8. Live SMS test passes through MCP (retroactive — derived from post-sprint verification)
 
-## Ghost Message Acknowledgment
-GM-20260318-035257: ACKNOWLEDGED — Redoing work through proper governance. Previous changes were executed outside the harness and have been discarded.
+## Governance Note
+This work was originally executed outside the governance harness. A BLOCK ghost message (GM-20260318-035257) was issued. All uncommitted changes were discarded and work was redone through proper governance.

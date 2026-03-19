@@ -30,3 +30,12 @@ Status: COMPLETE
 - client/src/components/ProductTour.tsx (tour dismiss)
 - client/src/components/layout/SubMenuManager.tsx (sidebar links)
 - client/src/pages/sales.tsx (lead modal)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — client/src/components/ProductTour.tsx: onClick removed, only X/Skip/Escape dismisses
+- Criterion 2: [PASS] — client/src/components/layout/SubMenuManager.tsx: onClick condition fixed
+- Criterion 3: [PASS] — server/seed.ts: Super Admin DB updated to Huminic org
+- Criterion 4: [PASS] — client/src/components/layout/TopBar.tsx: 100ms delay before reload
+- Criterion 5: [PASS] — server/routes/auth.ts: AUTH_RATE_LIMIT_MAX env var (default 100)
+- Criterion 6: [PASS] — Serra Honda metrics verified (1300 leads, 29 conversations, 17 campaigns)
+- Criterion 7: [PASS] — client/src/pages/sales.tsx: lead modal with contact list

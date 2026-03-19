@@ -1130,7 +1130,7 @@
       "id": "T-6",
       "name": "Full application test \u2014 post-REM-4 (auth persistence fix)",
       "phase": "T",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/T-6/",
         "issues.md",
@@ -1138,7 +1138,24 @@
       ],
       "dependencies": [
         "REM-4"
-      ]
+      ],
+      "commitHash": "04359ec"
+    },
+    {
+      "id": "AUDIT-1",
+      "name": "Governance remediation \u2014 full project code audit and evidence fixes",
+      "phase": "AUDIT",
+      "status": "in_progress",
+      "scope": [
+        "evidence/AUDIT-1/",
+        "evidence/*/pre-execution-report.md",
+        "evidence/*/post-sprint-report.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-6"
+      ],
+      "description": "Audit every code-touching sprint with dual agents. Rewrite every pre-exec with real success criteria. Verify all claims. Document all defects. No code changes."
     },
     {
       "id": "L5-1",

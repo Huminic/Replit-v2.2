@@ -15,3 +15,12 @@ Sprint: QA-S11 — Authenticated testing: Campaigns + Conversations (L2/L3)
 | POST-07 | Screenshots captured | PASS (6 screenshots) |
 
 ## Status: COMPLETE (0 defects)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 11/11 tests executed per evidence/QA-S11/test-results.md
+- Criterion 2: [PASS] — campaign CRUD confirmed in test-results.md
+- Criterion 3: [PASS] — POST /campaigns/:id/stop verified
+- Criterion 4: [PASS] — conversations filtered by org confirmed
+- Criterion 5: [PASS] — 6 screenshots confirm page rendering
+- Criterion 6: [PASS] — concordance 11/11
+- Criterion 7: [PASS] — 6 screenshots in evidence/audit-recertification/

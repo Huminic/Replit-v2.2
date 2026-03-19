@@ -48,3 +48,13 @@ Refactored all direct third-party API calls to route through central-mcp via the
 
 ## Outcome
 All third-party communications route through central-mcp. Single source of truth for vendor credentials.
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — server/outbound.ts: sendSmsRaw/sendSms call callMCP("tm_send_message")
+- Criterion 2: [PASS] — server/outbound.ts: sendPhone calls callMCP("vapi_create_call")
+- Criterion 3: [PASS] — server/outbound.ts: sendEmail calls callMCP("resend_send_email")
+- Criterion 4: [PASS] — server/vendorProxy.ts: 5 VAPI proxy routes use callMCP
+- Criterion 5: [PASS] — server/vendorProxy.ts: 4 Tavus proxy routes use callMCP
+- Criterion 6: [PASS] — TypeScript 0 errors
+- Criterion 7: [PASS] — production build success
+- Criterion 8: [PASS] — live test: campaign SMS sent through MCP, messageId: 1377232632, Sent: 1, Failed: 0

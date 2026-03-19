@@ -1,17 +1,24 @@
-# P4-S3 Pre-Execution Report
-**Sprint:** P4-S3 — Extract agent, chat, and knowledge/document routes
-**Generated:** 2026-03-13T20:10:00Z
+# Pre-Execution Report: P4-S3
+Timestamp: 2026-03-13T20:10:00Z
+Sprint: P4-S3 — Extract agent, chat, and knowledge/document routes
+Status: RETROACTIVE — originally written without governance compliance
 
-## Pre-Conditions
-- [x] P4-S2 committed (f63599e)
-- [x] Enforcer agent running on port 8004
-- [x] On local-dev branch
+## Objective
+Extract agent (5 endpoints), chat (1 SSE streaming endpoint + tool definitions), and document (4 endpoints) routes from routes.ts. Remove ~808 lines from routes.ts. Preserve SSE streaming behavior in extracted chat route.
 
-## Scope
-- server/routes/agents.ts (NEW — 5 agent endpoints)
-- server/routes/chat.ts (NEW — 1 chat streaming endpoint + tool definitions)
-- server/routes/documents.ts (NEW — 4 document endpoints)
-- server/routes/index.ts (register new routes)
-- server/routes.ts (remove extracted endpoints + unused imports)
-- sprints.json
-- evidence/P4-S3/
+## Declared Files
+- server/routes/agents.ts
+- server/routes/chat.ts
+- server/routes/documents.ts
+- server/routes/index.ts
+- server/routes.ts
+
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- Chat streaming works (SSE preserved in extracted route)
+- Agent CRUD endpoints respond correctly
+- Document endpoints respond correctly
+- routes.ts reduced by ~808 lines
+- 10 endpoints extracted

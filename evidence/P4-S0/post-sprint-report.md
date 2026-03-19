@@ -14,3 +14,11 @@
 ## Changes
 - TAG: pre-decomposition-baseline created
 - MODIFIED: sprints.json (P4-S0 registered)
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- Pages load: [PASS] — HTTPS access confirmed
+- Auth flow works: [PASS] — login/rejection verified
+- API endpoints respond: [PASS] — health and data endpoints confirmed
+- Baseline tag created: [PASS] — git tag pre-decomposition-baseline exists at commit 91be118

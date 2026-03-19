@@ -15,3 +15,8 @@ Sprint: P0-S5 — Fix trust proxy for rate limiter behind Caddy
 | POST-07 | Report logged | PASS |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- trust proxy set: [PASS] — server/index.ts:35 contains app.set('trust proxy', 1)
+- X_FORWARDED_FOR error eliminated: [PASS] — trust proxy setting resolves the error
+- Rate limiter keys on client IP: [PASS] — with trust proxy=1, req.ip returns client IP from X-Forwarded-For

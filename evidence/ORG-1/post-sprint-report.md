@@ -27,3 +27,13 @@ Complete project document reorganization. Prior state had issues tracked in 3 pl
 - Acceptance criteria maps all 30 user stories to criteria IDs
 - 3 known failures documented (matching 3 open issues)
 - File Reorganization/ gitignored
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — no duplication between files confirmed
+- Criterion 2: [PASS] — acceptance_criteria.md: 85 criteria across 12 domains with US mappings
+- Criterion 3: [PASS] — user-stories.md: US-001 through US-030 complete
+- Criterion 4: [PASS] — harness.md: merged from enforcement_harness.json + ghost-protocol-harness.md
+- Criterion 5: [PASS] — issues.md: 3 truly open items (I-036, I-037, I-038) with domain tags
+- Criterion 6: [PASS] — backlog.md: 32 items across 4 categories
+- Criterion 7: [PASS] — File Reorganization/ gitignored
+- Criterion 8: [PASS] — CLAUDE.md has pointers to all documents

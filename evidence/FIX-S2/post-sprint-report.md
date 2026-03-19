@@ -13,3 +13,10 @@ Sprint: FIX-S2 — Governance housekeeping
 | POST-05 | harness_check skill updated (12 checks) | PASS |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Sprint statuses synced: [PASS] — FIX-S1, QA-S9, QA-S10 all show status "committed" in sprints.json
+- Watchdog script committed: [PASS] — scripts/watchdog.sh exists in repository
+- Gate 1.6 in pre-commit hook: [PASS] — scripts/pre-commit.sh:163 contains "# GATE 1.6: Watchdog"
+- enforcement_harness.json v2.0: [PASS] — enforcement_harness.json updated in commit 090e9ba (later deleted)
+- harness_check updated: [PASS] — .claude/commands/harness_check.md updated with 12 checks

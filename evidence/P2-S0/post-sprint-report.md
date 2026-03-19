@@ -27,3 +27,11 @@
 x-content-type-options: nosniff
 x-request-id: 70ca7e10-b8af-4589-9dd6-46d2a5396e6a
 ```
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- Helmet headers present: [PASS] — server/index.ts:73 contains app.use(helmet({...}))
+- Rate limiter configured: [PASS] — rate limiting logic in server/index.ts
+- Entitlement check fails closed: [PASS] — server/middleware/entitlementCheck.ts:39 lines, returns 503 by default
+- X-Request-ID header: [PASS] — request ID middleware in server/index.ts

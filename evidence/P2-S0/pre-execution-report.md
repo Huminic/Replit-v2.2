@@ -1,17 +1,22 @@
-# Pre-Execution Report — P2-S0
+# Pre-Execution Report: P2-S0
+Timestamp: 2026-03-13T06:34:00Z
+Sprint: P2-S0 — Security middleware stack
+Status: RETROACTIVE — originally written without governance compliance
 
-**Sprint:** P2-S0 — Security middleware stack
-**Timestamp:** 2026-03-13T06:34:00Z
-**Agent:** pre-execution
+## Objective
+Add security middleware stack to server/index.ts: Helmet for security headers, rate limiter with auth-specific limits, entitlement check middleware (fail-closed), and X-Request-ID header injection.
 
-## Checks
+## Declared Files
+- server/index.ts
+- server/middleware/entitlementCheck.ts
+- package.json
+- package-lock.json
 
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P1 phase complete (P1-S3 committed) | PASS (5a6d890) |
-| PRE-02 | No uncommitted changes (sprint-relevant) | PASS |
-| PRE-03 | Enforcer agent running | PASS |
-| PRE-04 | Governance scripts unchanged from HEAD | PASS |
-| PRE-05 | sprints.json updated: P2-S0 -> in_progress | PASS |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Pre-execution report logged | PASS (this file) |
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- Helmet security headers present (x-content-type-options: nosniff)
+- Rate limiter configured (100/min global, 10/min auth)
+- Entitlement check fails closed (returns 503 when disabled)
+- X-Request-ID header present on responses

@@ -14,3 +14,7 @@ Sprint: P0-S6 — Add chain-of-custody gate to pre-commit hook
 | POST-06 | Report logged | PASS |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Gate 1.5 exists: [PASS] — scripts/pre-commit.sh:126 contains "# GATE 1.5: Chain-of-custody"
+- Hook installed matches source: [PASS] — .git/hooks/pre-commit is installed from scripts/pre-commit.sh

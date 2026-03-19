@@ -1,17 +1,25 @@
 # Pre-Execution Report: FIX-S2
+Timestamp: 2026-03-15T22:38:00Z
+Sprint: FIX-S2 — Governance housekeeping — sprint status sync + watchdog integration
+Status: RETROACTIVE — originally written without governance compliance
 
-Timestamp: 2026-03-15T22:38:20Z
-Sprint: FIX-S2 — Governance housekeeping
+## Objective
+Sync sprint statuses in sprints.json (FIX-S1, QA-S9, QA-S10 to committed). Commit watchdog script. Add Gate 1.6 (watchdog scan + acknowledgment) to pre-commit hook. Update enforcement_harness.json to v2.0.
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | FIX-S1 committed | PASS (551a3a9) |
-| PRE-02 | On local-dev branch | PASS |
-| PRE-03 | Evidence directory created | PASS |
+## Declared Files
+- sprints.json
+- scripts/pre-commit.sh
+- scripts/watchdog.sh
+- enforcement_harness.json
+- .claude/commands/harness_check.md
+- evidence/FIX-S2/
+- evidence/watchdog-ack.txt
+- evidence/watchdog-report.txt
 
-## Scope
-- Fix trailing sprint statuses (FIX-S1, QA-S9, QA-S10 → committed with 551a3a9)
-- Commit watchdog integration (watchdog.sh, Gate 1.6, enforcement_harness.json v2.0, harness_check skill update)
-
-## Status: READY TO FIX
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- Sprint statuses synced (FIX-S1, QA-S9, QA-S10 set to committed)
+- Watchdog script committed
+- Gate 1.6 in pre-commit hook
+- enforcement_harness.json at v2.0
+- harness_check skill updated with 12 checks

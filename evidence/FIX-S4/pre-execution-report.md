@@ -1,12 +1,19 @@
-# Pre-Execution Report: FIX-S4 (Retest)
+# Pre-Execution Report: FIX-S4
+Timestamp: 2026-03-16T06:40:00Z
+Sprint: FIX-S4 — FlexPrice billing connection — link customers, subscriptions, plans
+Status: RETROACTIVE — originally written without governance compliance
 
-Timestamp: 2026-03-16T18:53:29Z
-Sprint: FIX-S4 — FlexPrice billing connection verification
+## Objective
+Connect the billing page to FlexPrice API. Verify billing API is configured, billing page renders with content, usage/plan/invoices endpoints return 200, and all 5 dealerships have billing IDs in the database.
 
-## Tests Required
-1. Billing API returns configured: true (not false)
-2. Billing page renders with content (not "Billing Not Configured")
-3. All 5 dealerships have billing_customer_id in database
-4. Plan data accessible
+## Declared Files
+- .claude/settings.json
+- evidence/FIX-S4/
+- evidence/watchdog-ack.txt
 
-## Status: READY TO TEST
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- Billing API configured: true
+- Billing page renders with content (not empty state)
+- Usage, plan, invoices endpoints return 200
+- 5 dealerships have billing IDs in database

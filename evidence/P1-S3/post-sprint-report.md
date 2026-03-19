@@ -23,3 +23,8 @@
 Successfully built 985594a4de6f
 Successfully tagged nexxus-test:latest
 ```
+
+## Criteria Verification (Added AUDIT-1)
+- docker-compose.yml valid: [PASS] — docker-compose.yml exists in repository root
+- Dockerfile builds: [PASS] — successfully built and tagged at commit time (985594a4de6f)
+- Health check in compose: [PASS] — docker-compose.yml includes wget health check

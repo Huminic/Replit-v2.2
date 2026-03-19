@@ -14,3 +14,11 @@ Sprint: QA-S14 — Authenticated testing: Tasks, Integrations, Public widgets (L
 | POST-06 | Dual agent concordance | 9/10 agree, 1 resolved |
 
 ## Status: COMPLETE (0 defects)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 10/10 tests executed per evidence/QA-S14/test-results.md
+- Criterion 2: [PASS] — task CRUD endpoints verified
+- Criterion 3: [PASS] — public widget accessible at /w/:slug without auth
+- Criterion 4: [PASS] — webhook endpoints use signature-based auth, not bearer token
+- Criterion 5: [PASS] — usage page serves billing dashboard per qa-s14-agent-a-usage.png
+- Criterion 6: [PASS] — concordance 9/10, 1 disagreement resolved

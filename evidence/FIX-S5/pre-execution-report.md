@@ -1,11 +1,16 @@
-# Pre-Execution Report: FIX-S5 (Retest)
-Timestamp: 2026-03-16T18:58:06Z
-Sprint: FIX-S5 — Chat usability verification
+# Pre-Execution Report: FIX-S5
+Timestamp: 2026-03-16T06:55:00Z
+Sprint: FIX-S5 — Chat usability — activity history, campaign data, empty state handling
+Status: RETROACTIVE — originally written without governance compliance
 
-## Tests Required
-1. Chat can answer "what's been happening?" with real activity data
-2. Chat can answer campaign questions via query_campaigns tool
-3. Empty CRM state: no raw zeros, helpful message instead
-4. Status events show during tool use ("Checking campaign data...")
+## Objective
+Fix 3 chat usability issues: (1) activity questions should reference real org data, (2) campaign questions should trigger "Checking campaign data..." status event, (3) empty CRM state should provide helpful guidance instead of raw zeros.
 
-## Status: READY TO TEST
+## Declared Files
+- server/routes/chat.ts
+
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- Activity questions reference real org data (team, agents, org name)
+- Campaign questions trigger status event and report actual state
+- Empty CRM state suggests checking Settings > Integrations (no raw zeros)

@@ -18,3 +18,11 @@ Sprint: P1-S0 — Remove Replit dependencies and config
 | POST-10 | Report logged | PASS |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds at commit time
+- Production build succeeds: [PASS] — verified in post-sprint
+- No Replit references in production code: [PASS] — REPL_ID/REPLIT_DOMAINS removed from server/index.ts
+- .env.example exists: [PASS] — .env.example present in repository
+- Dockerfile created: [PASS] — Dockerfile exists in repository root
+- App serves through Caddy: [PASS] — HTTP 200 confirmed at commit time

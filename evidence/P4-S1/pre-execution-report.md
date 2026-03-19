@@ -1,18 +1,23 @@
-# P4-S1 Pre-Execution Report
-**Sprint:** P4-S1 — Extract organization, user, and role routes
-**Generated:** 2026-03-13T19:50:00Z
+# Pre-Execution Report: P4-S1
+Timestamp: 2026-03-13T19:50:00Z
+Sprint: P4-S1 — Extract organization, user, and role routes
+Status: RETROACTIVE — originally written without governance compliance
 
-## Pre-Conditions
-- [x] P4-S0 committed (91be118)
-- [x] pre-decomposition-baseline tag exists
-- [x] Enforcer agent running on port 8004
-- [x] On local-dev branch
+## Objective
+Extract organization (5 endpoints), user (8 endpoints), and role (1 endpoint) routes from the monolithic routes.ts into separate domain files. Register them in the central route index. Remove ~654 lines from routes.ts.
 
-## Scope
-- server/routes/users.ts (NEW — 8 user endpoints)
-- server/routes/roles.ts (NEW — 1 role endpoint)
-- server/routes/organizations.ts (NEW — 5 org endpoints)
-- server/routes/index.ts (register new routes)
-- server/routes.ts (remove extracted endpoints + unused schemas)
-- sprints.json
-- evidence/P4-S1/
+## Declared Files
+- server/routes/organizations.ts
+- server/routes/users.ts
+- server/routes/roles.ts
+- server/routes/index.ts
+- server/routes.ts
+
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- All org/user/role API calls work correctly
+- routes.ts reduced by ~654 lines
+- 14 endpoints extracted
+- Route registration pattern followed consistently

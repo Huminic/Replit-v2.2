@@ -1,17 +1,20 @@
-# Pre-Execution Report — P3-S0
+# Pre-Execution Report: P3-S0
+Timestamp: 2026-03-13T06:40:00Z
+Sprint: P3-S0 — Extract scheduler logic from index.ts
+Status: RETROACTIVE — originally written without governance compliance
 
-**Sprint:** P3-S0 — Extract scheduler logic from index.ts
-**Timestamp:** 2026-03-13T06:40:00Z
-**Agent:** pre-execution
+## Objective
+Extract all scheduler/timer logic (campaign scheduler, trigger evaluation) from server/index.ts into a dedicated server/services/scheduler.ts module. Reduce index.ts from ~586 lines to ~189 lines.
 
-## Checks
+## Declared Files
+- server/index.ts
+- server/services/scheduler.ts
 
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P2-S2 committed (latest) | PASS (3e6a8a3) |
-| PRE-02 | No uncommitted changes (sprint-relevant) | PASS |
-| PRE-03 | Enforcer agent running | PASS |
-| PRE-04 | Governance scripts unchanged from HEAD | PASS |
-| PRE-05 | sprints.json updated: P3-S0 -> in_progress | PASS |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Pre-execution report logged | PASS |
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- App starts and all timers fire ("All schedulers started")
+- Campaign scheduler works (same logic, extracted)
+- index.ts reduced significantly (from ~586 to ~189 lines)
+- No behavioral regression (identical logic)

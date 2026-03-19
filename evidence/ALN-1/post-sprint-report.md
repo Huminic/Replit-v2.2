@@ -37,3 +37,12 @@ All T-4 failures investigated and categorized. Real bugs logged (I-068, I-069). 
 - 0 OPEN (app bugs)
 - 1 DEFERRED (I-059)
 - 1 TI OPEN (accessibility)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — harness.md updated with smoke test steps 7-9 in Sprint Lifecycle
+- Criterion 2: [PASS] — issues.md has OPEN/FIXING/FIXED/VERIFIED/CLOSED statuses on all items
+- Criterion 3: [PASS] — I-068 fixed: single configurable rate limiter replaces dual limiter
+- Criterion 4: [PASS] — I-069 fixed: campaign execute root cause identified and resolved
+- Criterion 5: [PASS] — TI-008, TI-009, TI-011, TI-012 fixes applied to test files
+- Criterion 6: [PASS] — rate limiter at 100 threshold allows rapid test logins
+- Criterion 7: [PASS] — 6/7 harness gates verified (1 partial — blocked by earlier gate)

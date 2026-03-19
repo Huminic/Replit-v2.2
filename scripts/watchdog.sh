@@ -1132,7 +1132,7 @@ check_c18() {
     fi
   done
 
-  # Also check recently committed sprints
+  # Also check recently committed sprints — VIOLATION for committed sprints (too late to fix)
   local last_committed
   last_committed=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
   if [ -n "$last_committed" ]; then
@@ -1142,20 +1142,175 @@ check_c18() {
       local pre_mt post_mt
       pre_mt=$(stat -c %Y "$lc_pre_exec")
       post_mt=$(stat -c %Y "$lc_post")
-      # If pre-exec and post-sprint are within 2 minutes of each other, suspicious
+      # If pre-exec and post-sprint are within 2 minutes of each other, bulk-generated
       local gap=$(( post_mt - pre_mt ))
       if [ "$gap" -ge 0 ] && [ "$gap" -le 120 ]; then
+        result="VIOLATION"
+        details+="$last_committed pre-exec and post-sprint written ${gap}s apart (bulk-generated); "
+      fi
+    fi
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C18 retroactive artifacts:VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C18 retroactive artifacts:WARNING — ${details%%; }"
+  else
+    out "C18 retroactive artifacts:PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C19: Pre-execution report quality
+# ─────────────────────────────────────────────
+check_c19() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  # Check all in_progress sprints
+  local in_progress_ids
+  in_progress_ids=$(jq -r '.sprints[] | select(.status == "in_progress") | .id' "$SPRINTS_JSON" 2>/dev/null)
+
+  for sid in $in_progress_ids; do
+    [ -z "$sid" ] && continue
+    local pre_exec="evidence/$sid/pre-execution-report.md"
+
+    # Sprint is in_progress but no pre-exec exists yet — VIOLATION
+    # (means work may have started without a plan)
+    local evidence_dir="evidence/$sid"
+    if [ -d "$evidence_dir" ]; then
+      local file_count
+      file_count=$(find "$evidence_dir" -maxdepth 1 -type f -not -name "pre-execution-report.md" | wc -l)
+      if [ "$file_count" -gt 0 ] && [ ! -f "$pre_exec" ]; then
+        result="VIOLATION"
+        details+="$sid has $file_count evidence files but NO pre-execution-report.md; "
+        continue
+      fi
+    fi
+
+    [ -f "$pre_exec" ] || continue
+
+    # Check required sections
+    local has_declared_files=false
+    local has_success_criteria=false
+    local has_objective=false
+
+    grep -qi "## Declared Files\|## Files\|## Scope\|## File Scope" "$pre_exec" && has_declared_files=true
+    grep -qi "## Success Criteria\|## Criteria\|## Exit Criteria\|## Acceptance" "$pre_exec" && has_success_criteria=true
+    grep -qi "## Objective\|## Goal\|## Purpose\|## What" "$pre_exec" && has_objective=true
+
+    if [ "$has_declared_files" = false ]; then
+      result="VIOLATION"
+      details+="$sid pre-exec missing ## Declared Files; "
+    fi
+
+    if [ "$has_success_criteria" = false ]; then
+      result="VIOLATION"
+      details+="$sid pre-exec missing ## Success Criteria; "
+    fi
+
+    if [ "$has_objective" = false ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="$sid pre-exec missing ## Objective; "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    fi
+
+    # Check Declared Files section actually has file paths
+    if [ "$has_declared_files" = true ]; then
+      local path_count
+      path_count=$(python3 -c "
+import re
+with open('$pre_exec') as f:
+    content = f.read()
+in_section = False
+count = 0
+for line in content.split('\n'):
+    if re.match(r'^##\s+(Declared\s+)?Files|^##\s+(File\s+)?Scope', line, re.IGNORECASE):
+        in_section = True
+        continue
+    if in_section and re.match(r'^##\s', line):
+        break
+    if in_section:
+        if re.match(r'^\s*[-*]\s*\x60?[a-zA-Z0-9_./-]+\.[a-zA-Z]+', line):
+            count += 1
+        elif re.match(r'^\s*[a-zA-Z0-9_]+/[a-zA-Z0-9_./-]+', line):
+            count += 1
+print(count)
+" 2>/dev/null)
+      if [ "$path_count" = "0" ]; then
+        result="VIOLATION"
+        details+="$sid Declared Files section has 0 file paths; "
+      fi
+    fi
+
+    # Check Success Criteria section has actual criteria (at least 1 bullet)
+    if [ "$has_success_criteria" = true ]; then
+      local criteria_count
+      criteria_count=$(python3 -c "
+import re
+with open('$pre_exec') as f:
+    content = f.read()
+in_section = False
+count = 0
+for line in content.split('\n'):
+    if re.match(r'^##\s+(Success\s+)?Criteria|^##\s+Exit\s+Criteria|^##\s+Acceptance', line, re.IGNORECASE):
+        in_section = True
+        continue
+    if in_section and re.match(r'^##\s', line):
+        break
+    if in_section and re.match(r'^\s*[-*]\s+\S', line):
+        count += 1
+print(count)
+" 2>/dev/null)
+      if [ "$criteria_count" = "0" ]; then
+        result="VIOLATION"
+        details+="$sid Success Criteria section has 0 criteria; "
+      fi
+    fi
+
+    # Check minimum line count (pre-exec should be substantive, not a stub)
+    local line_count
+    line_count=$(wc -l < "$pre_exec")
+    if [ "$line_count" -lt 10 ]; then
+      if [ "$result" = "PASS" ]; then result="WARNING"; fi
+      details+="$sid pre-exec only $line_count lines (too thin); "
+      WARNING_COUNT=$((WARNING_COUNT + 1))
+    fi
+  done
+
+  # Also check last committed sprint's pre-exec quality
+  local last_committed
+  last_committed=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+  if [ -n "$last_committed" ]; then
+    local lc_pre_exec="evidence/$last_committed/pre-execution-report.md"
+    if [ -f "$lc_pre_exec" ]; then
+      local lc_lines
+      lc_lines=$(wc -l < "$lc_pre_exec")
+      if [ "$lc_lines" -lt 8 ]; then
         if [ "$result" = "PASS" ]; then result="WARNING"; fi
-        details+="$last_committed pre-exec and post-sprint written ${gap}s apart (bulk-generated?); "
+        details+="$last_committed committed pre-exec only $lc_lines lines (hollow); "
+        WARNING_COUNT=$((WARNING_COUNT + 1))
+      fi
+      # Check if it has success criteria
+      if ! grep -qi "## Success Criteria\|## Criteria\|## Exit Criteria" "$lc_pre_exec"; then
+        if [ "$result" = "PASS" ]; then result="WARNING"; fi
+        details+="$last_committed committed pre-exec has no success criteria; "
         WARNING_COUNT=$((WARNING_COUNT + 1))
       fi
     fi
   fi
 
-  if [ "$result" = "WARNING" ]; then
-    out "C18 retroactive artifacts:WARNING — ${details%%; }"
+  if [ "$result" = "VIOLATION" ]; then
+    out "C19 pre-exec quality:    VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C19 pre-exec quality:    WARNING — ${details%%; }"
   else
-    out "C18 retroactive artifacts:PASS"
+    out "C19 pre-exec quality:    PASS"
     PASS_COUNT=$((PASS_COUNT + 1))
   fi
 }
@@ -1198,6 +1353,7 @@ do_scan() {
   check_c16
   check_c17
   check_c18
+  check_c19
 
   out ""
   out "SUMMARY: $PASS_COUNT PASS, $VIOLATION_COUNT VIOLATION, $WARNING_COUNT WARNING"
@@ -1606,7 +1762,7 @@ case "${1:-}" in
     ;;
   *)
     echo "Usage: $0 {scan|watch|verify-ack|verify-ghost|ghost-msg|ghost-ack}"
-    echo "  scan         — Full audit (C1-C18), writes to stdout + evidence/watchdog-report.txt"
+    echo "  scan         — Full audit (C1-C19), writes to stdout + evidence/watchdog-report.txt"
     echo "  watch        — Real-time monitoring via inotifywait, alerts to evidence/watchdog-alerts.log"
     echo "  verify-ack   — Check if watchdog-ack.txt matches latest report (used by pre-commit hook)"
     echo "  verify-ghost — Check if pending ghost directives are acknowledged (used by pre-commit hook)"

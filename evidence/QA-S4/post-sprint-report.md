@@ -17,3 +17,13 @@ Sprint: QA-S4 — Feature testing: Dashboard, Dept views, Analytics
 | POST-09 | API 404 handler | DEFECT — unregistered /api/* paths return 200 HTML |
 
 ## Status: COMPLETE (1 MAJOR defect found)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 4 metrics endpoints verified in test-results.md
+- Criterion 2: [PASS] — 3 hunches endpoints verified
+- Criterion 3: [PASS] — 4 insights endpoints verified
+- Criterion 4: [PASS] — 11 endpoints match P4-S4 claim
+- Criterion 5: [PASS] — UILayoutContext integration confirmed
+- Criterion 6: [PASS] — main.tsx roleMetrics data preserved
+- Criterion 7: [PASS] — 4 page screenshots captured
+- Criterion 8: [FAIL] — MAJOR: unregistered /api/* paths return 200 HTML instead of 404

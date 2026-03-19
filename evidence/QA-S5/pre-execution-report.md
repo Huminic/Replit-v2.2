@@ -1,20 +1,22 @@
 # Pre-Execution Report: QA-S5
-
 Timestamp: 2026-03-14T05:00:00Z
-Sprint: QA-S5 — Feature testing: Settings, Profile, Billing
+Sprint: QA-S5
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | QA-S4 complete | PASS |
-| PRE-02 | App running | PASS |
-| PRE-03 | On local-dev branch | PASS |
-| PRE-04 | Evidence directory created | PASS |
-| PRE-05 | Dual agent approach | PASS |
+## Objective
+Feature testing — Settings, Profile, Billing. Verify settings, users, organizations, roles, and billing endpoints.
 
-## Scope
-- Domains: Settings (Domain 9), Profile, Billing (Domain 8)
-- Route files: settings.ts, users.ts, organizations.ts, roles.ts, billing.ts
-- Test method: Dual independent agents
+## Declared Files
+```
+evidence/QA-S5/cross-sign.md
+evidence/QA-S5/post-sprint-report.md
+evidence/QA-S5/pre-execution-report.md
+evidence/QA-S5/test-results.md
+```
+Source: git diff-tree -r 634e695 (shared commit)
 
-## Status: READY TO TEST
+## Success Criteria
+1. Settings/Users/Orgs/Roles/Billing endpoints verified (retroactive — derived from POST-02)
+2. Screenshots captured (retroactive — derived from POST-03)
+3. Dual agent concordance (retroactive — derived from POST-04)
+4. Security review (retroactive — POST-05 found MAJOR DEFECT: temp password logged to console)

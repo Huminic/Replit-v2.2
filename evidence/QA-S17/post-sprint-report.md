@@ -11,3 +11,10 @@ Sprint: QA-S17 — Data integrity
 - Per-store isolation verified (6 orgs)
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 7/8 baseline tests pass per evidence/QA-S17/test-results.md
+- Criterion 2: [FAIL] — 4 deep verification defects found (data accuracy issues)
+- Criterion 3: [PASS] — NEXXUS_ORG_MAP fix applied, dashboards show real VIN data
+- Criterion 4: [PASS] — 42+ metrics catalogued in evidence/QA-S17/metric-catalog.md
+- Criterion 5: [PASS] — 6 orgs tested for data isolation

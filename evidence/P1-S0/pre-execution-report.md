@@ -1,17 +1,24 @@
 # Pre-Execution Report: P1-S0
-
 Timestamp: 2026-03-13T06:18:01Z
 Sprint: P1-S0 — Remove Replit dependencies and config
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P0-S6 committed | PASS (ded220f) |
-| PRE-02 | No uncommitted tracked changes (pre-sprint) | PASS |
-| PRE-03 | Enforcer running | PASS (port 8004) |
-| PRE-04 | On local-dev branch | PASS |
-| PRE-05 | sprints.json updated | PASS (P1-S0 registered) |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Report logged | PASS |
+## Objective
+Remove all Replit-specific dependencies and configuration (REPL_ID, REPLIT_DOMAINS) from the codebase. Create Dockerfile and .env.example for self-hosted deployment. Update package.json to remove Replit-specific scripts.
 
-## Status: READY TO BUILD
+## Declared Files
+- server/index.ts
+- package.json
+- vite.config.ts
+- Dockerfile
+- .dockerignore
+- .env.example
+
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- No REPL_ID or REPLIT_DOMAINS references in production code
+- .env.example exists with required environment variables
+- Dockerfile created and functional
+- App serves correctly through Caddy

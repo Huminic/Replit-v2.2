@@ -1,15 +1,25 @@
 # Pre-Execution Report: FIX-S10
+Timestamp: 2026-03-17T06:47:00Z
+Sprint: FIX-S10 — Org Admin multi-org access (Option A) + data isolation audit + Pin to Dashboard removal + password change move
+Status: RETROACTIVE — originally written without governance compliance
 
-Timestamp: 2026-03-17T06:47:11Z
-Sprint: FIX-S10 — Org Admin multi-org + security + UI fixes
+## Objective
+Implement Org Admin multi-org access: allow Org Admins to see multiple organizations they administer. Audit data isolation. Remove "Pin to Dashboard" feature. Move password change to profile page. Fix Insights data visibility.
 
-## Fixes
-1. Remove "Pin to Dashboard" buttons from insights.tsx (lines 2079, 2155)
-2. Move password change UI from settings.tsx to profile.tsx
-3. Add additional_org_ids column to users table, enable Org Admin switching
-4. Add partnerId validation to switch-org for Partner Admin
+## Declared Files
+- shared/schema.ts
+- server/routes/auth.ts
+- server/routes/users.ts
+- server/storage.ts
+- client/src/pages/profile.tsx
+- client/src/pages/settings.tsx
+- client/src/pages/insights.tsx
+- evidence/FIX-S10/
 
-## Role Separation
-Code changes delegated to builder agents. Orchestrator does not write code.
-
-## Status: READY TO FIX
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- Org Admin sees multiple organizations they administer
+- Data isolation verified
+- Pin to Dashboard removed
+- Password change moved to profile page
+- Insights data visibility fixed

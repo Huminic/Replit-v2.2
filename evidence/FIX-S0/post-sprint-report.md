@@ -30,3 +30,11 @@ Sprint: FIX-S0 — Fix MAJOR defects + commit governance fixes + QA evidence
 - evidence/quality-matrix.md — quality matrix
 
 ## Status: COMPLETE — ready to commit
+
+## Criteria Verification (Added AUDIT-1)
+- API 404 handler: [PASS] — server/index.ts:169 contains "// API 404 handler — catch unregistered /api/* paths before SPA fallback"
+- Temp password removed: [PASS] — server/routes/users.ts no longer logs password to console
+- HTML title tag: [PASS] — client/index.html:6 contains <title>Nexxus Connect</title>
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- QA evidence committed: [PASS] — evidence/QA-S0 through QA-S8 directories present in commit 634e695

@@ -1,25 +1,18 @@
 # Pre-Execution Report: P0-S3
-
 Timestamp: 2026-03-13T05:01:00Z
 Sprint: P0-S3 — Switch to production build for external access
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P0-S2 committed | PASS (ddee005) |
-| PRE-02 | No uncommitted changes (tracked) | PASS (only untracked: ecosystem.config.cjs, evidence logs) |
-| PRE-03 | Enforcer running | PASS (port 8004, uptime 8195s) |
-| PRE-04 | On local-dev branch | PASS |
-| PRE-05 | sprints.json updated | PASS (P0-S3 registered as in_progress) |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Report logged | PASS |
+## Objective
+Switch the PM2 ecosystem config from development mode to production build (dist/index.cjs). Verify the application serves correctly through Caddy reverse proxy at dev.huminicdev.com.
 
-## Context
-Vite dev server behind Caddy reverse proxy caused white screen at dev.huminicdev.com due to HMR WebSocket failure. Switching ecosystem.config.cjs from tsx dev mode to production build (dist/index.cjs) resolves external access.
+## Declared Files
+- ecosystem.config.cjs
 
-## Scope
-- ecosystem.config.cjs (dev → production config)
-- sprints.json (P0-S2 status fix, P0-S3 registration)
-- evidence/P0-S3/
-
-## Status: READY TO BUILD
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- ecosystem.config.cjs uses dist/index.cjs as script entry
+- NODE_ENV=production in config
+- Production server responds on port 5000
+- dev.huminicdev.com serves production build (bundled JS/CSS)
+- No HMR/WebSocket dependencies in served HTML

@@ -30,6 +30,12 @@ I-061, I-062, I-063, I-064, I-065, I-066, I-068, I-069, I-070, I-071, I-072, I-0
 
 ## OPEN (new findings from REM-4)
 
+### [AU] I-085: seed.ts logs admin password to console in production
+**Background:** AUDIT-1d found server/seed.ts line 10 logs the seed admin password to console in plaintext. Visible in PM2 logs. Security risk.
+**Outcome:** Password not logged. Seed process completes without exposing credentials.
+**Acceptance Criteria:** Run seed → check PM2 logs → no password visible.
+**Next Sprint:** Yes
+
 ### [DT] I-081: Conversations table missing assignedTo column
 **Background:** The updateConversationSchema accepts `assignedTo` but the conversations table has no such column. PATCH with assignedTo is silently discarded. The `aiPaused` computed field always returns false. Human takeover feature doesn't work at the data layer.
 **Outcome:** Add assignedTo column to conversations table. PATCH sets it, aiPaused returns true when set.

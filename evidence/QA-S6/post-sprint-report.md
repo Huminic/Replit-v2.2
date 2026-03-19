@@ -15,3 +15,11 @@ Sprint: QA-S6 — Feature testing: Tasks, Appointments, Integrations, Public wid
 | POST-07 | Dual agent concordance | PASS (18/18 agree) |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 10 route files, 47 endpoints verified in test-results.md
+- Criterion 2: [PASS] — endpoint counts match P4 claims
+- Criterion 3: [PASS] — public endpoints confirmed unauthenticated
+- Criterion 4: [PASS] — no API key leakage in responses
+- Criterion 5: [PASS] — widget screenshot captured
+- Criterion 6: [PASS] — concordance 18/18

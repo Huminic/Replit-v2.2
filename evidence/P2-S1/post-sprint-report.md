@@ -36,3 +36,14 @@
 - Refresh: accessToken returned, no refreshToken in body
 - Logout: cookie cleared (expires Thu, 01 Jan 1970)
 - Build: dist/index.cjs (1.6mb), dist/public/ assets generated
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — dist/index.cjs generated
+- Login sets httpOnly cookie: [PASS] — server/auth.ts contains setRefreshCookie with HttpOnly, Secure, SameSite=Strict
+- No refreshToken in response body: [PASS] — auth routes return only accessToken + expiresIn
+- Token refresh via cookie: [PASS] — server/routes/auth.ts implements POST /api/auth/refresh reading cookie
+- Logout clears cookie: [PASS] — clearRefreshCookie sets expires to epoch
+- Access token in memory only: [PASS] — client/src/lib/tokenStore.ts (32 lines) manages in-memory token
+- Token rotation active: [PASS] — refresh endpoint deletes old token, issues new one
+- No localStorage token references: [PASS] — all 16 client files migrated to getAccessToken()

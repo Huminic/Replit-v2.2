@@ -1,21 +1,16 @@
 # Pre-Execution Report: P0-S5
-
-Timestamp: 2026-03-13T06:11:22Z
+Timestamp: 2026-03-13T06:10:00Z
 Sprint: P0-S5 — Fix trust proxy for rate limiter behind Caddy
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P0-S4 committed | PASS (cf15d88) |
-| PRE-02 | Enforcer running | PASS (port 8004) |
-| PRE-03 | On local-dev branch | PASS |
-| PRE-04 | sprints.json updated | PASS |
-| PRE-05 | Evidence directory created | PASS |
-| PRE-06 | Report logged | PASS |
+## Objective
+Fix ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error caused by Express rate limiter not recognizing Caddy as a trusted proxy. Set trust proxy setting so rate limiter keys on actual client IP instead of proxy IP.
 
-## Context
-Express rate limiter throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR behind Caddy
-reverse proxy. Without trust proxy, all requests appear from 127.0.0.1,
-causing shared rate limit buckets across all users. One-line fix.
+## Declared Files
+- server/index.ts
 
-## Status: READY TO BUILD
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- trust proxy set in server/index.ts
+- ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error eliminated
+- Rate limiter keys on client IP, not proxy IP

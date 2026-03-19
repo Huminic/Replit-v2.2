@@ -16,3 +16,9 @@
 | POST-06 | Cross-sign review exists | PASS |
 | POST-07 | Enforcer checklist | PENDING |
 | POST-08 | Post-sprint report logged | PASS (this file) |
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- No hardcoded connection strings: [PASS] — server/storage.ts uses process.env.DATABASE_URL
+- App connects to Neon DB: [PASS] — health endpoint returns ok at commit time
+- DATABASE_URL in .env.example: [PASS] — .env.example includes DATABASE_URL placeholder

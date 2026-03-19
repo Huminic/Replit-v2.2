@@ -1,23 +1,19 @@
-# Pre-Execution Report — P2-S2
+# Pre-Execution Report: P2-S2
+Timestamp: 2026-03-13T06:37:00Z
+Sprint: P2-S2 — XSS and input sanitization
+Status: RETROACTIVE — originally written without governance compliance
 
-**Sprint:** P2-S2 — XSS and input sanitization
-**Timestamp:** 2026-03-13T06:37:00Z
-**Agent:** pre-execution
+## Objective
+Harden Markdown rendering component against XSS attacks by adding disallowedElements list and href sanitization. Create server-side input validation middleware.
 
-## Checks
+## Declared Files
+- client/src/components/MarkdownMessage.tsx
+- server/middleware/validate.ts
 
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P2-S0 committed | PASS (4103905) |
-| PRE-02 | No uncommitted changes (sprint-relevant) | PASS |
-| PRE-03 | Enforcer agent running | PASS |
-| PRE-04 | Governance scripts unchanged from HEAD | PASS |
-| PRE-05 | sprints.json updated: P2-S2 -> in_progress | PASS |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Pre-execution report logged | PASS |
-
-## Scope Decision
-
-- MarkdownMessage XSS hardening: PROCEED (client-only change)
-- Validation middleware factory: PROCEED (new file, no routes.ts touch)
-- Auth endpoint validation in routes.ts: DEFERRED (Replit still pushing, minimize routes.ts contact)
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- MarkdownMessage component blocks dangerous elements (script, iframe, object, embed, form, input, style)
+- Server-side validation middleware created
+- Auth endpoint validation deferred to P4 (routes decomposition)

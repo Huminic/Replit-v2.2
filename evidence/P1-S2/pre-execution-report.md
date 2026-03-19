@@ -1,17 +1,18 @@
-# Pre-Execution Report — P1-S2
+# Pre-Execution Report: P1-S2
+Timestamp: 2026-03-13T06:27:00Z
+Sprint: P1-S2 — Database connection abstraction
+Status: RETROACTIVE — originally written without governance compliance
 
-**Sprint:** P1-S2 — Database connection abstraction
-**Timestamp:** 2026-03-13T06:27:00Z
-**Agent:** pre-execution
+## Objective
+Ensure database connection in server/storage.ts uses environment variable (DATABASE_URL) instead of hardcoded connection strings. Update .env.example with DATABASE_URL placeholder.
 
-## Checks
+## Declared Files
+- server/storage.ts
+- .env.example
 
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P1-S1 committed in sprints.json | PASS (2c47307) |
-| PRE-02 | No uncommitted changes (sprint-relevant) | PASS |
-| PRE-03 | Enforcer agent running | PASS |
-| PRE-04 | Governance scripts unchanged from HEAD | PASS |
-| PRE-05 | sprints.json updated: P1-S2 -> in_progress | PASS |
-| PRE-06 | Evidence directory created | PASS |
-| PRE-07 | Pre-execution report logged | PASS (this file) |
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- No hardcoded connection strings in server/storage.ts
+- App starts and connects to Neon PostgreSQL database
+- DATABASE_URL documented in .env.example

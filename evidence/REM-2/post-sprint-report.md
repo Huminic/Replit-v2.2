@@ -33,3 +33,10 @@ Status: COMPLETE
 - TypeScript: 0 errors
 - Build: success
 - Health: ok
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — loginForBrowser() added to helpers/auth.ts, 7 test files updated
+- Criterion 2: [PASS] — T-4 confirms browser pass rate improved from 12/56 to 30/56
+- Criterion 3: [PASS] — entitlementCheck.ts changed to fail-open with degraded flag
+- Criterion 4: [PASS] — TypeScript 0 errors confirmed
+- Criterion 5: [PASS] — production build success confirmed

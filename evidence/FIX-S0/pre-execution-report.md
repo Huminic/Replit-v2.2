@@ -1,24 +1,29 @@
 # Pre-Execution Report: FIX-S0
-
 Timestamp: 2026-03-14T09:00:00Z
 Sprint: FIX-S0 — Fix MAJOR defects + commit governance fixes + QA evidence
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | QA-S8 complete | PASS |
-| PRE-02 | Gap analysis available | PASS |
-| PRE-03 | On local-dev branch | PASS |
-| PRE-04 | Evidence directory created | PASS |
+## Objective
+Fix three MAJOR defects found during QA: (1) API 404 handler missing (SPA fallback catches API misses), (2) temporary password logged to console, (3) HTML missing title tag. Also commit all QA-S0 through QA-S8 evidence, governance script fixes, and audit screenshots.
 
-## Fixes to Apply
-1. API 404 handler in server/index.ts
-2. Remove temp password console.log in server/routes/users.ts
-3. Add title tag in client/index.html
+## Declared Files
+- server/index.ts
+- server/routes/users.ts
+- client/index.html
+- scripts/pre-commit.sh
+- scripts/enforcer-checklist.sh
+- .claude/hooks/context-check.sh
+- .claude/settings.json
+- evidence/QA-S0/ through evidence/QA-S8/
+- evidence/FIX-S0/
+- evidence/audit-recertification/
+- evidence/quality-matrix.md
 
-## Already Applied (just need committing)
-4. scripts/pre-commit.sh — log_audit fix + re-stage
-5. scripts/enforcer-checklist.sh — EF-09 fix
-6. .claude/ — context-check hook + settings
-
-## Status: READY TO FIX
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- API 404 handler added (/api/* catch-all before SPA fallback)
+- Temp password console.log removed from users route
+- HTML title tag added (Nexxus Connect)
+- TypeScript compiles without errors
+- Production build succeeds
+- All QA evidence artifacts committed

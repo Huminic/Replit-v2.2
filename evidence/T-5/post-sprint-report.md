@@ -30,3 +30,9 @@ Status: COMPLETE
 
 ## Governance Note
 This sprint's evidence was not created at execution time. It is being retroactively documented to correct a governance violation where T-5 results were folded into ALN-1's commit without proper T-5 artifacts. The test data is accurate — it was captured and reported during the session.
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 64/113 total (browser 30, API 19, comms 10, catalog 5)
+- Criterion 2: [PASS] — rate limiter at 100 eliminated 429 errors
+- Criterion 3: [PASS] — TI selector/payload fixes improved chat tests
+- Note: Auth session persistence identified as main remaining blocker (14 browser tests redirect to /login)

@@ -1,29 +1,25 @@
 # Pre-Execution Report: QA-S0
-
 Timestamp: 2026-03-14T00:00:00Z
-Sprint: QA-S0 — Feature inventory
+Sprint: QA-S0
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | P5-S0 committed | PASS (6cf3735) |
-| PRE-02 | No uncommitted changes (tracked) | PASS (only uncommitted: governance fixes in scripts/, .claude/) |
-| PRE-03 | Enforcer running | DEFERRED (governance-only sprint, no runtime test needed) |
-| PRE-04 | On local-dev branch | PASS |
-| PRE-05 | sprints.json updated | PASS (QA-S0 registered as in_progress) |
-| PRE-06 | Evidence directory created | PASS (evidence/QA-S0/) |
-| PRE-07 | Report logged | PASS (this file) |
+## Objective
+Feature inventory — map all application domains, pages, endpoints, and user flows into a comprehensive feature map.
 
-## Scope
-- evidence/QA-S0/feature-map.md (primary deliverable)
-- evidence/QA-S0/* (governance artifacts)
-- sprints.json (status update)
+## Declared Files
+```
+evidence/QA-S0/feature-map.md
+evidence/QA-S0/cross-sign.md
+evidence/QA-S0/enforcer-checklist.txt
+evidence/QA-S0/post-sprint-report.md
+evidence/QA-S0/pre-execution-report.md
+sprints.json
+```
+Source: git diff-tree --no-commit-id --name-only -r 634e695 (shared commit with QA-S1 through QA-S8 and FIX-S0)
 
-## Acceptance Criteria
-1. Every user-facing page in client/src/pages/ is mapped to a domain
-2. Every API route group in server/routes/ is mapped to a domain
-3. Each domain lists: pages, endpoints, user flows, originating sprints
-4. No pages or route files are omitted
-5. Feature map is factual — no assumptions about what works or doesn't
-
-## Status: READY TO BUILD
+## Success Criteria
+1. Every page in client/src/pages/ is mapped to a domain (retroactive — derived from post-sprint claim POST-01)
+2. Every route group in server/routes/ is mapped to a domain (retroactive — derived from POST-02)
+3. Each domain lists pages, endpoints, flows, sprints (retroactive — derived from POST-03)
+4. No pages or route files omitted (retroactive — derived from POST-04)
+5. Feature map is factual — no assumptions about what works (retroactive — derived from POST-05)

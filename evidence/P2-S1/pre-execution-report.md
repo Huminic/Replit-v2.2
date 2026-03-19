@@ -1,30 +1,43 @@
-# P2-S1 Pre-Execution Report
-**Sprint:** P2-S1 — Token security (httpOnly cookies)
-**Generated:** 2026-03-13T19:22:00Z
-**Role:** orchestrator
+# Pre-Execution Report: P2-S1
+Timestamp: 2026-03-13T19:22:00Z
+Sprint: P2-S1 — Token security — httpOnly cookies for refresh tokens
+Status: RETROACTIVE — originally written without governance compliance
 
-## Pre-Conditions
-- [x] P2-S0 committed (hash: 4103905)
-- [x] No uncommitted changes (worktree clean before sprint start)
-- [x] Enforcer agent running on port 8004
-- [x] On local-dev branch
-- [x] P2-S1 registered in sprints.json as in_progress
-- [x] Evidence directory created: evidence/P2-S1/
+## Objective
+Replace localStorage-based token storage with httpOnly cookies for refresh tokens and in-memory storage for access tokens. Implement token rotation, cross-tab synchronization via BroadcastChannel, and cookie-parser middleware. Update all 16 client files that reference token storage.
 
-## Sprint Scope
-Files to modify:
-- server/auth.ts (add cookie helpers)
-- server/index.ts (add cookie-parser middleware)
-- server/routes.ts (auth endpoints: login, refresh, logout, switch-org)
-- client/src/lib/tokenStore.ts (NEW: in-memory token store)
-- client/src/lib/queryClient.ts (use tokenStore instead of localStorage)
-- client/src/contexts/AuthContext.tsx (cookie-based refresh, in-memory tokens)
-- client/src/hooks/useSessionTimeout.ts (use tokenStore)
-- client/src/contexts/AppContext.tsx (use tokenStore)
-- 10+ page/component files (replace localStorage.getItem with getAccessToken())
-- package.json, package-lock.json (cookie-parser dependency)
+## Declared Files
+- server/auth.ts
+- server/index.ts
+- server/routes.ts
+- client/src/lib/tokenStore.ts
+- client/src/lib/queryClient.ts
+- client/src/contexts/AuthContext.tsx
+- client/src/components/AgentConfigPane.tsx
+- client/src/components/AppointmentCalendar.tsx
+- client/src/components/marketing/AgentChatView.tsx
+- client/src/contexts/AppContext.tsx
+- client/src/hooks/useSessionTimeout.ts
+- client/src/hooks/useStreamingChat.ts
+- client/src/lib/marketing-agents.ts
+- client/src/lib/tool-executor.ts
+- client/src/pages/agents.tsx
+- client/src/pages/marketing.tsx
+- client/src/pages/profile.tsx
+- client/src/pages/service.tsx
+- client/src/pages/settings.tsx
+- client/src/pages/usage.tsx
+- package.json
+- package-lock.json
 
-## Risk Assessment
-- HIGH: Auth flow change affects all authenticated users
-- MITIGATION: Legacy body-based refresh fallback preserved on server
-- MITIGATION: Access token getter centralized — single point of change
+## Success Criteria
+Retroactive — derived from post-sprint claims:
+- TypeScript compiles without errors
+- Production build succeeds
+- Login sets httpOnly cookie with Secure and SameSite=Strict
+- No refreshToken in response body (only accessToken + expiresIn)
+- Token refresh works via cookie (POST /api/auth/refresh)
+- Logout clears cookie (Set-Cookie expires at epoch)
+- Access token in memory only via getAccessToken() from tokenStore
+- Token rotation active (old refresh deleted, new issued on each use)
+- No localStorage references to tokens remain

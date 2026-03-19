@@ -12,3 +12,10 @@ Severity: INFO
 From: watchdog
 Message: Harness stress test message
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260319-051533
+Timestamp: 2026-03-19T05:15:33Z
+Severity: BLOCK
+From: watchdog
+Message: Pre-execution reports for T-5 and T-6 were written retroactively and lack substance. You must go back and rewrite BOTH pre-execution reports with: (1) ## Objective — what the sprint does and why, (2) ## Declared Files — every file touched, (3) ## Success Criteria — specific, measurable criteria that can be verified after the fact. Then verify the post-sprint results against those criteria and document whether each criterion was met. This is not optional. The harness now checks pre-exec quality (C19) and flags bulk-generated artifacts as VIOLATION (C18).
+Status: ACKNOWLEDGED

@@ -17,3 +17,10 @@ Sprint: P0-S3 — Switch to production build for external access
 | POST-09 | Report logged | PASS |
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- ecosystem.config.cjs uses dist/index.cjs: [PASS] — ecosystem.config.cjs:4 shows script: "dist/index.cjs"
+- NODE_ENV=production in config: [PASS] — ecosystem.config.cjs:8 shows NODE_ENV: "production"
+- Production server responds on port 5000: [PASS] — server/index.ts binds to port 5000
+- dev.huminicdev.com serves production build: [PASS] — verified via HTTP 200 at commit time
+- No HMR/WebSocket dependencies: [PASS] — production build excludes Vite HMR

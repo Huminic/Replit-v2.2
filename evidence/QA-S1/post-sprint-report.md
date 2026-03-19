@@ -21,3 +21,14 @@ Sprint: QA-S1 — Feature testing: Authentication + Infrastructure/Security
 5 MINOR observations identified (see test-results.md). None affect functionality or security.
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — evidence/QA-S1/test-results.md covers all 5 auth endpoints
+- Criterion 2: [PASS] — code review confirmed httpOnly cookie in server/routes/auth.ts
+- Criterion 3: [PASS] — test-results.md verifies response shape
+- Criterion 4: [PASS] — code review confirmed cookie clearing in logout handler
+- Criterion 5: [PASS] — test-results.md confirms rejection of weak passwords
+- Criterion 6: [PASS] — health endpoint returns 200 with JSON shape
+- Criterion 7: [PASS] — Helmet middleware confirmed present
+- Criterion 8: [PASS] — evidence/audit-recertification/qa-s1-agent-a-login.png
+- Criterion 9: [PASS] — 2 screenshots, dual-agent concordance 12/12

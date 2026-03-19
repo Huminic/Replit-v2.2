@@ -15,3 +15,10 @@ Sprint: FIX-S9 — Fix open defects
 - Orchestrator: planned, delegated, compared, did not write code
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Campaign seed data reset: [PASS] — server/seed.ts sets sent_count and replied_count to 0
+- Chat lead count: [PASS] — server/routes/chat.ts reads totalItems for lead count
+- metricsFromWarehouse fallback: [PASS] — server/routes/insights.ts computes metrics from warehouse_leads when API unavailable
+- Lead source labels: [PASS] — insights.ts maps raw URLs to readable labels like "VIN Source #7098"
+- Channel performance: [PASS] — insights.ts maps channels to Website/Phone instead of defaulting to "Other"

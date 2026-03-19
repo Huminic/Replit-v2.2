@@ -17,3 +17,12 @@
 - MODIFIED: server/routes.ts (forgot-password: SHA-256 token hashing)
 - MODIFIED: server/routes.ts (reset-password: strength validation + SHA-256 lookup + session invalidation)
 - MODIFIED: server/routes.ts (change-password: strength validation upgraded from length>=6)
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- SHA-256 token hashing: [PASS] — server/routes/auth.ts:365 uses createHash("sha256").update(token).digest("hex") (moved from routes.ts during P4 decomposition)
+- Password strength validation: [PASS] — server/routes/auth.ts:404-408 checks uppercase, number, special character requirements
+- Reset-password hashes incoming token: [PASS] — server/routes/auth.ts:412 uses createHash for lookup
+- Session invalidation after reset: [PASS] — password reset handler invalidates sessions
+- Change-password strength upgraded: [PASS] — same validation applied to change-password endpoint

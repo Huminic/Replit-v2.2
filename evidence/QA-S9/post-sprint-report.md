@@ -15,3 +15,12 @@ Sprint: QA-S9 — Authenticated testing: Auth flows (L2/L3)
 | POST-07 | Defects documented | PASS (1 MAJOR, 1 MINOR) |
 
 ## Status: COMPLETE (2 defects found)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — all 7 user stories tested per evidence/QA-S9/test-results.md
+- Criterion 2: [PASS] — 6 roles logged in per screenshots qa-s9-agent-a-*.png
+- Criterion 3: [PASS] — RBAC restrictions verified (Sales/Marketing/Service lack Management/Settings)
+- Criterion 4: [PASS] — org switching tested for Super Admin, blocked for non-admin roles
+- Criterion 5: [PASS] — 9+ screenshots in evidence/audit-recertification/
+- Criterion 6: [PASS] — concordance 5/7 with 2 disagreements resolved
+- Criterion 7: [PASS] — 1 MAJOR + 1 MINOR defect documented

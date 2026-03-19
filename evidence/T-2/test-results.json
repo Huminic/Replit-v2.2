@@ -127,7 +127,7 @@
               ],
               "id": "9381e174b3d37b2066d1-d4c8fbeb20db88be39e5",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 5,
+              "line": 29,
               "column": 3
             },
             {
@@ -147,7 +147,7 @@
               ],
               "id": "9381e174b3d37b2066d1-225083dca7fd10bbbee4",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 51,
+              "line": 73,
               "column": 3
             },
             {
@@ -167,7 +167,7 @@
               ],
               "id": "9381e174b3d37b2066d1-1ffef69eb5b197000e2a",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 105,
+              "line": 125,
               "column": 3
             },
             {
@@ -187,7 +187,7 @@
               ],
               "id": "9381e174b3d37b2066d1-f975fd58a22089c6a404",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 129,
+              "line": 173,
               "column": 3
             },
             {
@@ -207,7 +207,7 @@
               ],
               "id": "9381e174b3d37b2066d1-2d702e69d3abd4fad2e9",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 150,
+              "line": 220,
               "column": 3
             },
             {
@@ -227,7 +227,7 @@
               ],
               "id": "9381e174b3d37b2066d1-51c1db0a52ef318a7700",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 193,
+              "line": 290,
               "column": 3
             },
             {
@@ -247,7 +247,7 @@
               ],
               "id": "9381e174b3d37b2066d1-9aa94214e7adef552afc",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 229,
+              "line": 324,
               "column": 3
             },
             {
@@ -267,7 +267,7 @@
               ],
               "id": "9381e174b3d37b2066d1-63e9a57c0b233b03e41e",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 251,
+              "line": 346,
               "column": 3
             },
             {
@@ -287,7 +287,7 @@
               ],
               "id": "9381e174b3d37b2066d1-148724e345fc7b685122",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 272,
+              "line": 365,
               "column": 3
             },
             {
@@ -302,7 +302,7 @@
                       "type": "fixme",
                       "location": {
                         "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-04-campaigns.spec.ts",
-                        "line": 291,
+                        "line": 382,
                         "column": 8
                       }
                     }
@@ -316,7 +316,7 @@
               ],
               "id": "9381e174b3d37b2066d1-4e15330941f97b3908e5",
               "file": "domain-04-campaigns.spec.ts",
-              "line": 291,
+              "line": 382,
               "column": 8
             }
           ]
@@ -337,7 +337,7 @@
           "column": 6,
           "specs": [
             {
-              "title": "5.1 Universal inbox shows email, SMS, voice",
+              "title": "5.1 Universal inbox shows conversations",
               "ok": true,
               "tags": [],
               "tests": [
@@ -351,9 +351,9 @@
                   "status": "skipped"
                 }
               ],
-              "id": "97a50b70ef41d163fac4-321657d801a96dcbe5cb",
+              "id": "97a50b70ef41d163fac4-c5ec935da97f12bba53a",
               "file": "domain-05-teambox.spec.ts",
-              "line": 22,
+              "line": 62,
               "column": 3
             },
             {
@@ -373,11 +373,11 @@
               ],
               "id": "97a50b70ef41d163fac4-32b768641c08ac322e59",
               "file": "domain-05-teambox.spec.ts",
-              "line": 36,
+              "line": 78,
               "column": 3
             },
             {
-              "title": "5.3 Messages display in threaded view",
+              "title": "5.3 Messages endpoint returns thread for conversation",
               "ok": true,
               "tags": [],
               "tests": [
@@ -391,13 +391,13 @@
                   "status": "skipped"
                 }
               ],
-              "id": "97a50b70ef41d163fac4-d4223575e8523779b04e",
+              "id": "97a50b70ef41d163fac4-c22df0eb446da1b4fe3f",
               "file": "domain-05-teambox.spec.ts",
-              "line": 52,
+              "line": 94,
               "column": 3
             },
             {
-              "title": "5.4 Takeover stops AI",
+              "title": "5.4 Takeover stops AI via assignedTo",
               "ok": true,
               "tags": [],
               "tests": [
@@ -411,13 +411,13 @@
                   "status": "skipped"
                 }
               ],
-              "id": "97a50b70ef41d163fac4-1194a09db1a0bc25491b",
+              "id": "97a50b70ef41d163fac4-9a4c7106687b30432c87",
               "file": "domain-05-teambox.spec.ts",
-              "line": 72,
+              "line": 122,
               "column": 3
             },
             {
-              "title": "5.5 Users see their role's conversations",
+              "title": "5.5 Role-based conversation visibility",
               "ok": true,
               "tags": [],
               "tests": [
@@ -431,9 +431,9 @@
                   "status": "skipped"
                 }
               ],
-              "id": "97a50b70ef41d163fac4-dc17184e011ee67ef67a",
+              "id": "97a50b70ef41d163fac4-47aa65e5f7b889395fa1",
               "file": "domain-05-teambox.spec.ts",
-              "line": 91,
+              "line": 158,
               "column": 3
             },
             {
@@ -453,7 +453,7 @@
               ],
               "id": "97a50b70ef41d163fac4-332d9038603adecd8572",
               "file": "domain-05-teambox.spec.ts",
-              "line": 110,
+              "line": 180,
               "column": 3
             },
             {
@@ -473,7 +473,7 @@
               ],
               "id": "97a50b70ef41d163fac4-9f61151df4d70f009716",
               "file": "domain-05-teambox.spec.ts",
-              "line": 121,
+              "line": 191,
               "column": 3
             },
             {
@@ -493,7 +493,7 @@
               ],
               "id": "97a50b70ef41d163fac4-2a8d121f5417eb1f5df1",
               "file": "domain-05-teambox.spec.ts",
-              "line": 131,
+              "line": 201,
               "column": 3
             },
             {
@@ -508,7 +508,7 @@
                       "type": "fixme",
                       "location": {
                         "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/domain-05-teambox.spec.ts",
-                        "line": 153,
+                        "line": 236,
                         "column": 8
                       }
                     }
@@ -522,7 +522,7 @@
               ],
               "id": "97a50b70ef41d163fac4-e2753a09b7ba356612be",
               "file": "domain-05-teambox.spec.ts",
-              "line": 153,
+              "line": 236,
               "column": 8
             },
             {
@@ -542,11 +542,11 @@
               ],
               "id": "97a50b70ef41d163fac4-9d0216026389937aa44b",
               "file": "domain-05-teambox.spec.ts",
-              "line": 167,
+              "line": 250,
               "column": 3
             },
             {
-              "title": "5.11 Workflows tab in persistent column",
+              "title": "5.11 Workflows tab state in TeamBox",
               "ok": true,
               "tags": [],
               "tests": [
@@ -560,9 +560,9 @@
                   "status": "skipped"
                 }
               ],
-              "id": "97a50b70ef41d163fac4-6bd4979a336a1b237bf4",
+              "id": "97a50b70ef41d163fac4-39d10c076a022a787ef3",
               "file": "domain-05-teambox.spec.ts",
-              "line": 187,
+              "line": 277,
               "column": 3
             }
           ]
@@ -885,6 +885,106 @@
               "file": "domain-11-integrations.spec.ts",
               "line": 188,
               "column": 3
+            },
+            {
+              "title": "11.10 Landing page widget loads per dealer with correct dealer name",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-722e5d6e4c3d14b32d36",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 236,
+              "column": 3
+            },
+            {
+              "title": "11.11 VAPI assistant ID matches org's agent record",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-c383f679eb00c37ec905",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 264,
+              "column": 3
+            },
+            {
+              "title": "11.12 Tavus persona ID matches org's agent record",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-3e74f835fae5441fce93",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 286,
+              "column": 3
+            },
+            {
+              "title": "11.13 Widget embed JS serves per org",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-9d5ca0d855c45f0b81dc",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 307,
+              "column": 3
+            },
+            {
+              "title": "11.14 Widget options available (Chat, Voice, Video, Form)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e82725f0f5f43cb2391d-b91ca54bae6d27c0630c",
+              "file": "domain-11-integrations.spec.ts",
+              "line": 333,
+              "column": 3
             }
           ]
         }
@@ -980,7 +1080,7 @@
               ],
               "id": "a7ac3290825a4c85fd81-a569ca2c3bbda2cf5ee6",
               "file": "domain-12-infrastructure.spec.ts",
-              "line": 91,
+              "line": 84,
               "column": 3
             },
             {
@@ -1000,7 +1100,7 @@
               ],
               "id": "a7ac3290825a4c85fd81-7f4db12af6b98448a282",
               "file": "domain-12-infrastructure.spec.ts",
-              "line": 127,
+              "line": 120,
               "column": 3
             },
             {
@@ -1020,7 +1120,7 @@
               ],
               "id": "a7ac3290825a4c85fd81-ec605edd466ce5a9dd6a",
               "file": "domain-12-infrastructure.spec.ts",
-              "line": 154,
+              "line": 151,
               "column": 3
             }
           ]
@@ -1206,7 +1306,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-5630a58fea579957687c",
               "file": "domain-01-auth.spec.ts",
-              "line": 103,
+              "line": 96,
               "column": 3
             },
             {
@@ -1226,7 +1326,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-8376fa40dff8492a3a2a",
               "file": "domain-01-auth.spec.ts",
-              "line": 118,
+              "line": 105,
               "column": 3
             },
             {
@@ -1246,7 +1346,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-1ec4f38b5b62f5c65f1d",
               "file": "domain-01-auth.spec.ts",
-              "line": 131,
+              "line": 118,
               "column": 3
             },
             {
@@ -1266,7 +1366,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-1204ca29ade6924a4b25",
               "file": "domain-01-auth.spec.ts",
-              "line": 146,
+              "line": 133,
               "column": 3
             },
             {
@@ -1286,7 +1386,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-eaa58b656f3eb33c73e7",
               "file": "domain-01-auth.spec.ts",
-              "line": 157,
+              "line": 144,
               "column": 3
             },
             {
@@ -1306,7 +1406,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-56ed045c6a9d9e8a53cc",
               "file": "domain-01-auth.spec.ts",
-              "line": 198,
+              "line": 180,
               "column": 3
             },
             {
@@ -1326,7 +1426,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-641b83a52138cc74dccb",
               "file": "domain-01-auth.spec.ts",
-              "line": 216,
+              "line": 194,
               "column": 3
             },
             {
@@ -1346,7 +1446,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-547e901c3a1bc29b91e7",
               "file": "domain-01-auth.spec.ts",
-              "line": 237,
+              "line": 210,
               "column": 3
             },
             {
@@ -1366,7 +1466,7 @@
               ],
               "id": "d0282ad83ea4169b7e10-2892f1459872aa02f707",
               "file": "domain-01-auth.spec.ts",
-              "line": 249,
+              "line": 222,
               "column": 3
             }
           ]
@@ -1423,7 +1523,7 @@
               ],
               "id": "7c365a6c9791a32086c1-63d7ef9afde4aaec78fc",
               "file": "domain-02-dashboard.spec.ts",
-              "line": 35,
+              "line": 31,
               "column": 3
             },
             {
@@ -1443,7 +1543,7 @@
               ],
               "id": "7c365a6c9791a32086c1-77d6c6c53d4e422d7623",
               "file": "domain-02-dashboard.spec.ts",
-              "line": 73,
+              "line": 58,
               "column": 3
             },
             {
@@ -1463,7 +1563,7 @@
               ],
               "id": "7c365a6c9791a32086c1-29823eb3f54d046c09d8",
               "file": "domain-02-dashboard.spec.ts",
-              "line": 99,
+              "line": 90,
               "column": 3
             },
             {
@@ -1483,7 +1583,7 @@
               ],
               "id": "7c365a6c9791a32086c1-daeafa0e055b82247ef6",
               "file": "domain-02-dashboard.spec.ts",
-              "line": 120,
+              "line": 106,
               "column": 3
             }
           ]
@@ -1560,7 +1660,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-9290bb4f1a4ca6250bde",
               "file": "domain-03-chat.spec.ts",
-              "line": 54,
+              "line": 50,
               "column": 3
             },
             {
@@ -1580,7 +1680,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-8748c23d04d14b5f4ab1",
               "file": "domain-03-chat.spec.ts",
-              "line": 89,
+              "line": 80,
               "column": 3
             },
             {
@@ -1600,7 +1700,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-10d88d7456ee768fbe90",
               "file": "domain-03-chat.spec.ts",
-              "line": 114,
+              "line": 105,
               "column": 3
             },
             {
@@ -1620,7 +1720,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-e95bc875647bba65cdb5",
               "file": "domain-03-chat.spec.ts",
-              "line": 134,
+              "line": 125,
               "column": 3
             },
             {
@@ -1640,7 +1740,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-7d0b58252ff4e12c13ad",
               "file": "domain-03-chat.spec.ts",
-              "line": 154,
+              "line": 145,
               "column": 3
             },
             {
@@ -1660,7 +1760,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-c21aa2d3cd16eb8a9b28",
               "file": "domain-03-chat.spec.ts",
-              "line": 175,
+              "line": 166,
               "column": 3
             },
             {
@@ -1680,7 +1780,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-95ecca76749d7740c90c",
               "file": "domain-03-chat.spec.ts",
-              "line": 195,
+              "line": 186,
               "column": 3
             },
             {
@@ -1700,7 +1800,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-b250e31de8de1097fa59",
               "file": "domain-03-chat.spec.ts",
-              "line": 216,
+              "line": 207,
               "column": 3
             },
             {
@@ -1720,7 +1820,7 @@
               ],
               "id": "a2e8f8febd1a92a7c68b-8064f6106098bde00363",
               "file": "domain-03-chat.spec.ts",
-              "line": 235,
+              "line": 226,
               "column": 3
             }
           ]
@@ -1737,7 +1837,7 @@
         {
           "title": "Domain 6: Department Pages",
           "file": "domain-06-departments.spec.ts",
-          "line": 23,
+          "line": 6,
           "column": 6,
           "specs": [
             {
@@ -1757,7 +1857,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-2c06549a67011cf42929",
               "file": "domain-06-departments.spec.ts",
-              "line": 24,
+              "line": 7,
               "column": 3
             },
             {
@@ -1777,7 +1877,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-d43ab1a69b83e1fbd9f0",
               "file": "domain-06-departments.spec.ts",
-              "line": 44,
+              "line": 21,
               "column": 3
             },
             {
@@ -1797,7 +1897,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-4ff6edee89b3c729a218",
               "file": "domain-06-departments.spec.ts",
-              "line": 61,
+              "line": 36,
               "column": 3
             },
             {
@@ -1817,7 +1917,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-421cfe05ef13c064b36b",
               "file": "domain-06-departments.spec.ts",
-              "line": 78,
+              "line": 51,
               "column": 3
             },
             {
@@ -1837,7 +1937,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-bf15e22e667d8b2b5fab",
               "file": "domain-06-departments.spec.ts",
-              "line": 96,
+              "line": 67,
               "column": 3
             },
             {
@@ -1857,7 +1957,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-b6df27b180944417aa02",
               "file": "domain-06-departments.spec.ts",
-              "line": 118,
+              "line": 87,
               "column": 3
             },
             {
@@ -1877,7 +1977,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-56e9de5b9f21507dee0c",
               "file": "domain-06-departments.spec.ts",
-              "line": 136,
+              "line": 103,
               "column": 3
             },
             {
@@ -1897,7 +1997,7 @@
               ],
               "id": "ec269f7bf79edaf8a0a9-f383095037bed63ab249",
               "file": "domain-06-departments.spec.ts",
-              "line": 154,
+              "line": 119,
               "column": 3
             }
           ]
@@ -1914,7 +2014,7 @@
         {
           "title": "Domain 7: Insights",
           "file": "domain-07-insights.spec.ts",
-          "line": 22,
+          "line": 6,
           "column": 6,
           "specs": [
             {
@@ -1934,7 +2034,7 @@
               ],
               "id": "3e116f991c7fac961201-f4e2db67673dd553a7dc",
               "file": "domain-07-insights.spec.ts",
-              "line": 23,
+              "line": 7,
               "column": 3
             },
             {
@@ -1954,7 +2054,7 @@
               ],
               "id": "3e116f991c7fac961201-6f42b186a31e0d243412",
               "file": "domain-07-insights.spec.ts",
-              "line": 41,
+              "line": 24,
               "column": 3
             },
             {
@@ -1974,7 +2074,7 @@
               ],
               "id": "3e116f991c7fac961201-4179e4704c697ad8637a",
               "file": "domain-07-insights.spec.ts",
-              "line": 59,
+              "line": 40,
               "column": 3
             },
             {
@@ -1994,7 +2094,7 @@
               ],
               "id": "3e116f991c7fac961201-db3141f8b0568f67d32f",
               "file": "domain-07-insights.spec.ts",
-              "line": 77,
+              "line": 56,
               "column": 3
             },
             {
@@ -2014,7 +2114,7 @@
               ],
               "id": "3e116f991c7fac961201-09ecea7fecff735a08f7",
               "file": "domain-07-insights.spec.ts",
-              "line": 103,
+              "line": 80,
               "column": 3
             },
             {
@@ -2034,7 +2134,7 @@
               ],
               "id": "3e116f991c7fac961201-8a01b3ba327eef45ab72",
               "file": "domain-07-insights.spec.ts",
-              "line": 125,
+              "line": 100,
               "column": 3
             }
           ]
@@ -2051,7 +2151,7 @@
         {
           "title": "Domain 8: Billing",
           "file": "domain-08-billing.spec.ts",
-          "line": 22,
+          "line": 6,
           "column": 6,
           "specs": [
             {
@@ -2071,7 +2171,7 @@
               ],
               "id": "5324fd0fd44ff00453eb-0c347cea73172a655fa5",
               "file": "domain-08-billing.spec.ts",
-              "line": 23,
+              "line": 7,
               "column": 3
             },
             {
@@ -2091,7 +2191,7 @@
               ],
               "id": "5324fd0fd44ff00453eb-ab5ea3b5f0ec27196d7c",
               "file": "domain-08-billing.spec.ts",
-              "line": 44,
+              "line": 23,
               "column": 3
             },
             {
@@ -2111,7 +2211,7 @@
               ],
               "id": "5324fd0fd44ff00453eb-291573d5d9f76d00c742",
               "file": "domain-08-billing.spec.ts",
-              "line": 67,
+              "line": 39,
               "column": 3
             },
             {
@@ -2131,7 +2231,7 @@
               ],
               "id": "5324fd0fd44ff00453eb-5c658bc94b2bba287e87",
               "file": "domain-08-billing.spec.ts",
-              "line": 88,
+              "line": 58,
               "column": 3
             },
             {
@@ -2151,7 +2251,7 @@
               ],
               "id": "5324fd0fd44ff00453eb-755d34ede7893ea160c0",
               "file": "domain-08-billing.spec.ts",
-              "line": 116,
+              "line": 84,
               "column": 3
             }
           ]
@@ -2208,7 +2308,7 @@
               ],
               "id": "b552357a8081b5f8b34c-f86165fda88bb9ac0656",
               "file": "domain-09-settings.spec.ts",
-              "line": 25,
+              "line": 17,
               "column": 3
             },
             {
@@ -2228,7 +2328,7 @@
               ],
               "id": "b552357a8081b5f8b34c-dee4d2ab72d51fa01c1e",
               "file": "domain-09-settings.spec.ts",
-              "line": 63,
+              "line": 49,
               "column": 3
             },
             {
@@ -2248,7 +2348,7 @@
               ],
               "id": "b552357a8081b5f8b34c-1a7a04c06067e71719ab",
               "file": "domain-09-settings.spec.ts",
-              "line": 84,
+              "line": 64,
               "column": 3
             },
             {
@@ -2268,7 +2368,7 @@
               ],
               "id": "b552357a8081b5f8b34c-fca8762a4068ec99cdec",
               "file": "domain-09-settings.spec.ts",
-              "line": 116,
+              "line": 96,
               "column": 3
             }
           ]
@@ -2743,10 +2843,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-18T07:20:14.554Z",
-    "duration": 185.192,
+    "startTime": "2026-03-19T03:46:12.639Z",
+    "duration": 182.45100000000002,
     "expected": 0,
-    "skipped": 113,
+    "skipped": 118,
     "unexpected": 0,
     "flaky": 0
   }

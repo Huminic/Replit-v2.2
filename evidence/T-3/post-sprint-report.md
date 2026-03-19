@@ -14,3 +14,9 @@ Post-remediation full application retest with A/B dual agents. 54/113 passed (up
 2. Investigate billing content rendering (FLEXPRICE_API_KEY set but billingCustomerId may be missing)
 3. Fix remaining campaign/tasks/entitlement 500s
 4. Re-enter loop: REM-2 → T-4
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — both agents ran full suite per evidence/T-3/test-report.md
+- Criterion 2: [PASS] — concordance comparison completed
+- Criterion 3: [PASS] — 54/113 passed (+8 over T-2 baseline of 46)
+- Criterion 4: [PASS] — failures analyzed, 28 identified as loginViaUI infrastructure issue

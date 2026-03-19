@@ -1,29 +1,28 @@
 # Pre-Execution Report: QA-S10
-
 Timestamp: 2026-03-15T12:00:00Z
-Sprint: QA-S10 — Authenticated testing: AI Agent + Chat (L2/L3)
+Sprint: QA-S10
+Status: RETROACTIVE — originally written without governance compliance
 
-## Checks
-| ID | Check | Result |
-|----|-------|--------|
-| PRE-01 | QA-S9 complete | PASS |
-| PRE-02 | App running | PASS |
-| PRE-03 | Test credentials working | PASS |
-| PRE-04 | On local-dev branch | PASS |
-| PRE-05 | Evidence directory created | PASS |
-| PRE-06 | Dual agent approach | PASS |
-| PRE-08 | User stories defined | PASS (Domain 3 collected) |
+## Objective
+Authenticated testing — AI Agent + Chat (L2/L3). Verify agent listings, chat history, SSE streaming, web search, multi-turn conversation, and RBAC.
 
-## User Stories Under Test
+## Declared Files
+```
+evidence/QA-S10/cross-sign.md
+evidence/QA-S10/enforcer-checklist.txt
+evidence/QA-S10/post-sprint-report.md
+evidence/QA-S10/pre-execution-report.md
+evidence/QA-S10/test-results.md
+evidence/audit-recertification/qa-s10-agent-a-agents-page.png
+evidence/audit-recertification/qa-s10-agent-a-main-popout.png
+evidence/audit-recertification/qa-s10-agent-b-agents-page.png
+evidence/audit-recertification/qa-s10-agent-b-main-popout.png
+```
+Source: git diff-tree -r 551a3a9
 
-US-1: Agent listings appear per role in left menu popout (below separator line)
-US-2: Main page left popout shows chat history + favorites, NOT agents
-US-3: Center chat shows Thinking cards and typing indicators during AI response
-US-4: Web search tool is enabled and functional
-US-5: Chat handles general knowledge questions (weather, facts) — ChatGPT-level sophistication
-US-6: Multi-turn conversation works (5-10 turns) about company data
-US-7: Multi-turn conversation works (5-10 turns) for general information
-US-8: Agent create/delete restricted to admin roles
-US-9: Document upload exists in chat and in system knowledge (org-admin+)
-
-## Status: READY TO TEST
+## Success Criteria
+1. Multi-turn chat works for company and general queries (retroactive — derived from POST-02)
+2. Web search tool fires (retroactive — derived from POST-03)
+3. Agent RBAC enforced (retroactive — derived from POST-04)
+4. Main page popout correct — shows chat history, not agents (retroactive — derived from POST-05)
+5. Dual agent concordance (retroactive — derived from POST-06)

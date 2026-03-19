@@ -14,3 +14,11 @@
 - NEW: client/src/contexts/UILayoutContext.tsx (7 state values + setters)
 - MODIFIED: client/src/contexts/AppContext.tsx (removed layout state, wraps UILayoutProvider)
 - MODIFIED: 9 layout/page components to use useUILayout()
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- staleTime not Infinity: [PASS] — query config uses 300000ms (5 min)
+- All pages load: [PASS] — EF-19 smoke test passed at commit time
+- AppContext reduced: [PASS] — layout state moved out to UILayoutContext
+- UILayoutContext created: [PASS] — client/src/contexts/UILayoutContext.tsx exists (69 lines) with layout state

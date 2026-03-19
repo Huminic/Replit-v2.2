@@ -19,3 +19,10 @@ Sprint: QA-S0 — Feature inventory
 - evidence/QA-S0/feature-map.md — 12 domains, 22 pages, 27 route groups, ~124 endpoints
 
 ## Status: COMPLETE
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — evidence/QA-S0/feature-map.md lists 22 pages across 12 domains
+- Criterion 2: [PASS] — evidence/QA-S0/feature-map.md lists 27 route groups
+- Criterion 3: [PASS] — each domain section in feature-map.md contains pages, endpoints, flows, sprint references
+- Criterion 4: [PASS] — coverage verification section at bottom of feature-map.md
+- Criterion 5: [PASS] — feature map based on code reads per post-sprint confirmation

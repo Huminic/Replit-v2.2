@@ -14,3 +14,11 @@ Sprint: QA-S12 — Authenticated testing: Dashboard, Dept views, Analytics (L2/L
 | POST-06 | Screenshots captured | PASS (13 screenshots) |
 
 ## Status: COMPLETE (1 MINOR defect)
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 9/9 tests executed per evidence/QA-S12/test-results.md
+- Criterion 2: [PASS] — role-specific metrics confirmed across admin and sales roles
+- Criterion 3: [PASS] — pin-to-dashboard not found (correct — was removed)
+- Criterion 4: [PASS] — all API endpoints return 200 with valid auth
+- Criterion 5: [PASS] — concordance 8/9, 1 disagreement resolved
+- Criterion 6: [PASS] — 15 screenshots in evidence/audit-recertification/qa-s12-*.png

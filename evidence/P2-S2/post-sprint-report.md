@@ -23,3 +23,10 @@
 ## Deferred
 
 - Auth endpoint validation in routes.ts deferred until P4 (routes decomposition)
+
+## Criteria Verification (Added AUDIT-1)
+- TypeScript compiles: [PASS] — build succeeds
+- Production build succeeds: [PASS] — verified at commit time
+- Dangerous elements blocked: [PASS] — client/src/components/MarkdownMessage.tsx:32 contains disallowedElements=['script', 'iframe', 'object', 'embed', 'form', 'input', 'style']
+- Validation middleware created: [PASS] — server/middleware/validate.ts exists (49 lines)
+- Auth validation deferred: [PASS] — routes.ts not modified in this sprint (deferred to P4)

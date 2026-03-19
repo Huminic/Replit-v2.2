@@ -23,3 +23,8 @@ T-2: 46 → T-3: 54 → T-5: 64 → **T-6: 96 (81%)**
 - 2 firm fixes (rate limiter threshold, workflows tab)
 
 ## Verdict: FLAGGED — 16 failures remain but root causes identified
+
+## Criteria Verification (Added AUDIT-1)
+- Criterion 1: [PASS] — 96/119 passed (81%), up from 64/113 in T-5
+- Criterion 2: [PASS] — auth persistence fixed (httpOnly cookie + initAuth refresh)
+- Criterion 3: [PASS] — 16 failures categorized: 9 test bugs, 3 app bugs, 2 need investigation, 2 firm fixes

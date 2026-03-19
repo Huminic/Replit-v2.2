@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-050521
-Timestamp: 2026-03-19T05:05:21Z
+Report-ID: WD-20260319-061252
+Timestamp: 2026-03-19T06:12:52Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 233f906
+HEAD: 04359ec
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -11,18 +11,19 @@ C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (1h old)
+C7  session state:       PASS (0h old)
 C8  hook integrity:      PASS
 C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    PASS
+C14 governance files:    VIOLATION — scripts/watchdog.sh has unstaged changes
 C15 memory staleness:    PASS
-C16 drift detection:     WARNING — 65 file(s) modified outside current sprint scope
+C16 drift detection:     WARNING — 219 file(s) modified outside current sprint scope
 C17 plan vs execution:   PASS
-C18 retroactive artifacts:WARNING — T-5 pre-exec and post-sprint written 14s apart (bulk-generated?)
+C18 retroactive artifacts:VIOLATION — T-6 pre-exec and post-sprint written 0s apart (bulk-generated)
+C19 pre-exec quality:    VIOLATION — AUDIT-1 Success Criteria section has 0 criteria
 
-SUMMARY: 13 PASS, 0 VIOLATION, 7 WARNING
+SUMMARY: 12 PASS, 3 VIOLATION, 6 WARNING
 === END SCAN ===
