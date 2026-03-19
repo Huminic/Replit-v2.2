@@ -304,14 +304,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Try to get a new access token via the refresh cookie.
-      // Skip if no refresh cookie exists — avoids a 400 console error on
-      // unauthenticated page loads (I-058 fix).
-      const hasRefreshCookie = document.cookie.includes('nexxus_refresh');
-      if (!hasRefreshCookie) {
-        setLoading(false);
-        return;
-      }
-
+      // The refresh cookie is httpOnly so it's invisible to document.cookie.
+      // We must attempt the refresh call and let the server decide if the
+      // cookie is present. A 401/400 response simply means no valid session.
       try {
         const response = await fetch('/api/auth/refresh', {
           method: 'POST',

@@ -18,7 +18,7 @@ test.describe("Domain 7: Insights", () => {
     // No uncaught JS errors
     expect(errors).toHaveLength(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("7.2 Dashboard zones render", async ({ browser }) => {
@@ -34,7 +34,7 @@ test.describe("Domain 7: Insights", () => {
     const zoneCount = await zones.count();
     expect(zoneCount).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("7.3 Metric library populates", async ({ browser }) => {
@@ -50,7 +50,7 @@ test.describe("Domain 7: Insights", () => {
     const metricCount = await metrics.count();
     expect(metricCount).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("7.4 Role-filtered — compare metrics for different roles", async ({ browser }) => {
@@ -94,7 +94,7 @@ test.describe("Domain 7: Insights", () => {
     const pinCount = await pinButton.count();
     expect(pinCount).toBe(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("7.6 Lead source labels show meaningful names", async ({ browser }) => {
@@ -108,6 +108,6 @@ test.describe("Domain 7: Insights", () => {
     const hasRawVinSource = /VIN Source #\d+/i.test(pageText || "");
     expect(hasRawVinSource).toBe(false);
 
-    await context.close();
+    await page.close();
   });
 });

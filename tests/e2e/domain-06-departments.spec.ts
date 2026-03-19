@@ -30,7 +30,7 @@ test.describe("Domain 6: Department Pages", () => {
     const tileCount = await tiles.count();
     expect(tileCount).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.3 Marketing page loads with KPIs", async ({ browser }) => {
@@ -45,7 +45,7 @@ test.describe("Domain 6: Department Pages", () => {
     const tileCount = await tiles.count();
     expect(tileCount).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.4 Management page loads with executive overview", async ({ browser }) => {
@@ -61,7 +61,7 @@ test.describe("Domain 6: Department Pages", () => {
     const tileCount = await tiles.count();
     expect(tileCount).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.5 Demand Score tile visible on Management", async ({ browser }) => {
@@ -81,7 +81,7 @@ test.describe("Domain 6: Department Pages", () => {
     const found = await demandScore.first().count();
     expect(found).toBeGreaterThan(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.6 Sales sidebar does NOT show Billing", async ({ browser }) => {
@@ -97,7 +97,7 @@ test.describe("Domain 6: Department Pages", () => {
     const billingCount = await billingLink.count();
     expect(billingCount).toBe(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.7 Sales submenu shows 3 agents below separator", async ({ browser }) => {
@@ -113,7 +113,7 @@ test.describe("Domain 6: Department Pages", () => {
     // Should find at least 3 agent menu items
     expect(agentCount).toBeGreaterThanOrEqual(3);
 
-    await context.close();
+    await page.close();
   });
 
   test("6.8 Service submenu shows at least 1 agent", async ({ browser }) => {
@@ -127,6 +127,6 @@ test.describe("Domain 6: Department Pages", () => {
     const agentCount = await agentItems.count();
     expect(agentCount).toBeGreaterThanOrEqual(1);
 
-    await context.close();
+    await page.close();
   });
 });

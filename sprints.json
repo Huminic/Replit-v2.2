@@ -1078,7 +1078,7 @@
       "id": "ALN-1",
       "name": "Alignment \u2014 harness fixes, smoke test requirements, issues verification",
       "phase": "ALN",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "harness.md",
         "CLAUDE.md",
@@ -1090,7 +1090,40 @@
       "dependencies": [
         "REM-3"
       ],
-      "description": "Fix governance workflow gaps. Add smoke testing to sprint lifecycle. Verify all issues. Stress test harness."
+      "description": "Fix governance workflow gaps. Add smoke testing to sprint lifecycle. Verify all issues. Stress test harness.",
+      "commitHash": "68e30f5"
+    },
+    {
+      "id": "REM-4",
+      "name": "Remediation round 4 \u2014 test fixes, BE fixes, widget verification tests",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "server/",
+        "evidence/REM-4/",
+        "issues.md",
+        "acceptance_criteria.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "ALN-1"
+      ]
+    },
+    {
+      "id": "T-5",
+      "name": "Full application test \u2014 post-ALN-1 (rate limiter + campaign + TI fixes)",
+      "phase": "T",
+      "status": "committed",
+      "scope": [
+        "evidence/T-5/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "ALN-1"
+      ],
+      "commitHash": "68e30f5"
     },
     {
       "id": "L5-1",

@@ -100,6 +100,12 @@ export function registerAuthRoutes(app: Express) {
       const accessToken = generateAccessToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
 
+      // Clear any existing sessions for this user to prevent unique constraint
+      // violations when the same user logs in twice in rapid succession (the JWT
+      // iat granularity is 1 second, so identical payloads within the same second
+      // would produce duplicate refresh tokens).
+      await storage.deleteUserSessions(user.id);
+
       await storage.createSession({
         userId: user.id,
         refreshToken,

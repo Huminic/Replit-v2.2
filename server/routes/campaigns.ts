@@ -229,8 +229,14 @@ export function registerCampaignRoutes(app: Express) {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const dryRun = req.body.dryRun === true;
-      const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : null;
+      // Check kill switch before attempting execution
+      if (existingCampaign.killSwitch) {
+        return res.status(403).json({ message: "Campaign kill switch is active — execution blocked" });
+      }
+
+      const body = req.body || {};
+      const dryRun = body.dryRun === true;
+      const scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null;
 
       if (scheduledAt && scheduledAt > new Date()) {
         const campaign = await storage.updateCampaign(req.params.id as string, {

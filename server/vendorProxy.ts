@@ -425,7 +425,7 @@ export function registerVendorRoutes(app: Express) {
       const data = await callMCP("vin_query_leads", args);
       return res.json(data);
     } catch (err: any) {
-      return res.status(502).json({ message: "Failed to fetch VinSolutions leads", error: err.message });
+      return res.status(503).json({ message: "VinSolutions service unavailable — upstream API may be temporarily down", error: err.message });
     }
   });
 

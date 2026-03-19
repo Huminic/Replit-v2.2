@@ -2,9 +2,31 @@ import { test, expect } from "playwright/test";
 import { testUsers, login, authHeader } from "./helpers/auth";
 
 test.describe("Domain 4: Campaigns", () => {
-  test("4.1 Campaign create/upload/execute flow", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
+  let token: string;
+  let sharedCampaignId: string | null = null;
 
+  test.beforeAll(async ({ request }) => {
+    const session = await login(request, testUsers.orgAdmin);
+    token = session.token;
+
+    // Create a shared campaign for tests that need one
+    const createRes = await request.post("/api/campaigns", {
+      headers: authHeader(token),
+      data: {
+        name: "E2E Shared Test Campaign",
+        department: "sales",
+        channel: "sms",
+        status: "draft",
+      },
+    });
+
+    if (createRes.ok()) {
+      const campaign = await createRes.json();
+      sharedCampaignId = campaign.id;
+    }
+  });
+
+  test("4.1 Campaign create/upload/execute flow", async ({ request }) => {
     // Step 1: Create campaign
     const createRes = await request.post("/api/campaigns", {
       headers: authHeader(token),
@@ -49,8 +71,6 @@ test.describe("Domain 4: Campaigns", () => {
   });
 
   test("4.2 CSV upload accepts required fields", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
-
     // First, get existing campaigns or create one
     const listRes = await request.get("/api/campaigns", {
       headers: authHeader(token),
@@ -103,72 +123,149 @@ test.describe("Domain 4: Campaigns", () => {
   });
 
   test("4.3 Campaign execution sends SMS via MCP", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
+    // Create a dedicated SMS campaign for this test
+    const createRes = await request.post("/api/campaigns", {
+      headers: authHeader(token),
+      data: {
+        name: "E2E SMS Execution Test",
+        department: "sales",
+        channel: "sms",
+        status: "draft",
+      },
+    });
 
-    // Find an active campaign with SMS channel
-    const listRes = await request.get("/api/campaigns", {
+    let campaignId: string;
+    if (createRes.ok()) {
+      const created = await createRes.json();
+      campaignId = created.id;
+    } else {
+      // Fallback: use shared campaign or find one from the list
+      if (sharedCampaignId) {
+        campaignId = sharedCampaignId;
+      } else {
+        const listRes = await request.get("/api/campaigns", {
+          headers: authHeader(token),
+        });
+        expect(listRes.ok()).toBe(true);
+        const campaigns = await listRes.json();
+        const smsCampaign = campaigns.find(
+          (c: any) => c.channel === "sms" || c.channel === "both"
+        );
+        if (!smsCampaign) {
+          test.info().annotations.push({
+            type: "note",
+            description: "No SMS campaign available and creation blocked by entitlement",
+          });
+          return;
+        }
+        campaignId = smsCampaign.id;
+      }
+    }
+
+    // Attempt execution — may be blocked by kill switch or outbound settings, which is OK
+    const execRes = await request.post(`/api/campaigns/${campaignId}/execute`, {
       headers: authHeader(token),
     });
-    expect(listRes.ok()).toBe(true);
-    const campaigns = await listRes.json();
-
-    const smsCampaign = campaigns.find(
-      (c: any) => c.channel === "sms" || c.channel === "both"
-    );
-
-    if (smsCampaign) {
-      // Attempt execution — may be blocked by kill switch or outbound settings, which is OK
-      const execRes = await request.post(`/api/campaigns/${smsCampaign.id}/execute`, {
-        headers: authHeader(token),
-      });
-      // Expect either success or a controlled rejection (not a server crash)
-      expect(execRes.status()).toBeLessThan(500);
-    }
+    // Expect either success or a controlled rejection (not a server crash)
+    expect(execRes.status()).toBeLessThan(500);
   });
 
   test("4.4 Campaign execution sends email via MCP", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
-
-    const listRes = await request.get("/api/campaigns", {
+    // Create a dedicated email campaign for this test
+    const createRes = await request.post("/api/campaigns", {
       headers: authHeader(token),
+      data: {
+        name: "E2E Email Execution Test",
+        department: "marketing",
+        channel: "email",
+        status: "draft",
+      },
     });
-    expect(listRes.ok()).toBe(true);
-    const campaigns = await listRes.json();
 
-    const emailCampaign = campaigns.find(
-      (c: any) => c.channel === "email" || c.channel === "both"
-    );
-
-    if (emailCampaign) {
-      const execRes = await request.post(`/api/campaigns/${emailCampaign.id}/execute`, {
+    let campaignId: string;
+    if (createRes.ok()) {
+      const created = await createRes.json();
+      campaignId = created.id;
+    } else {
+      // Fallback: use shared campaign or find one from the list
+      const listRes = await request.get("/api/campaigns", {
         headers: authHeader(token),
       });
-      expect(execRes.status()).toBeLessThan(500);
+      expect(listRes.ok()).toBe(true);
+      const campaigns = await listRes.json();
+      const emailCampaign = campaigns.find(
+        (c: any) => c.channel === "email" || c.channel === "both"
+      );
+      if (!emailCampaign) {
+        if (sharedCampaignId) {
+          campaignId = sharedCampaignId;
+        } else {
+          test.info().annotations.push({
+            type: "note",
+            description: "No email campaign available and creation blocked by entitlement",
+          });
+          return;
+        }
+      } else {
+        campaignId = emailCampaign.id;
+      }
     }
+
+    const execRes = await request.post(`/api/campaigns/${campaignId}/execute`, {
+      headers: authHeader(token),
+    });
+    expect(execRes.status()).toBeLessThan(500);
   });
 
   test("4.5 Kill switch blocks outbound", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
+    // Create a dedicated campaign for kill switch test
+    let campaignId: string;
+    let originalStatus = "draft";
 
-    const listRes = await request.get("/api/campaigns", {
+    const createRes = await request.post("/api/campaigns", {
       headers: authHeader(token),
+      data: {
+        name: "E2E Kill Switch Test",
+        department: "sales",
+        channel: "sms",
+        status: "draft",
+      },
     });
-    expect(listRes.ok()).toBe(true);
-    const campaigns = await listRes.json();
 
-    if (campaigns.length === 0) return;
-
-    const campaign = campaigns[0];
+    if (createRes.ok()) {
+      const created = await createRes.json();
+      campaignId = created.id;
+      originalStatus = created.status;
+    } else if (sharedCampaignId) {
+      campaignId = sharedCampaignId;
+      // Fetch current status for cleanup
+      const getRes = await request.get(`/api/campaigns/${sharedCampaignId}`, {
+        headers: authHeader(token),
+      });
+      if (getRes.ok()) {
+        const current = await getRes.json();
+        originalStatus = current.status;
+      }
+    } else {
+      const listRes = await request.get("/api/campaigns", {
+        headers: authHeader(token),
+      });
+      expect(listRes.ok()).toBe(true);
+      const campaigns = await listRes.json();
+      if (campaigns.length === 0) return;
+      campaignId = campaigns[0].id;
+      originalStatus = campaigns[0].status;
+    }
 
     // Activate kill switch
-    const killRes = await request.patch(`/api/campaigns/${campaign.id}`, {
+    const killRes = await request.patch(`/api/campaigns/${campaignId}`, {
       headers: authHeader(token),
       data: { killSwitch: true },
     });
     expect(killRes.ok()).toBe(true);
 
     // Attempt execution — should be blocked
-    const execRes = await request.post(`/api/campaigns/${campaign.id}/execute`, {
+    const execRes = await request.post(`/api/campaigns/${campaignId}/execute`, {
       headers: authHeader(token),
     });
     // Execution should fail or be blocked (not 500)
@@ -184,15 +281,13 @@ test.describe("Domain 4: Campaigns", () => {
     }
 
     // Deactivate kill switch (cleanup)
-    await request.patch(`/api/campaigns/${campaign.id}`, {
+    await request.patch(`/api/campaigns/${campaignId}`, {
       headers: authHeader(token),
       data: { killSwitch: false },
     });
   });
 
   test("4.6 Channel-specific pause", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
-
     const listRes = await request.get("/api/campaigns", {
       headers: authHeader(token),
     });
@@ -249,8 +344,6 @@ test.describe("Domain 4: Campaigns", () => {
   });
 
   test("4.8 Campaign stop halts execution", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
-
     const listRes = await request.get("/api/campaigns", {
       headers: authHeader(token),
     });
@@ -270,8 +363,6 @@ test.describe("Domain 4: Campaigns", () => {
   });
 
   test("4.9 Customer replies create TeamBox thread", async ({ request }) => {
-    const { token } = await login(request, testUsers.orgAdmin);
-
     // Check conversations endpoint — TeamBox threads are conversations
     const convRes = await request.get("/api/conversations", {
       headers: authHeader(token),
@@ -292,8 +383,6 @@ test.describe("Domain 4: Campaigns", () => {
     // KNOWN FAILURE: Issue I-036
     // Campaign replies are received but do not trigger automatic AI agent response.
     // This test is marked fixme until I-036 is resolved.
-
-    const { token } = await login(request, testUsers.orgAdmin);
 
     const convRes = await request.get("/api/conversations", {
       headers: authHeader(token),

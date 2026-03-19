@@ -1,7 +1,7 @@
 Acknowledged-By: orchestrator
-Sprint: ALN-1
-Timestamp: 2026-03-19T03:00:00Z
+Sprint: REM-4
+Timestamp: 2026-03-19T04:30:00Z
 
-C14: ACKNOWLEDGED — CLAUDE.md updated with smoke testing requirements. Will be staged at commit.
-C15: ACKNOWLEDGED — project_sprint_status.md updated earlier this session. LAUNCH sprints are in sprints.json but not referenced in memory description — cosmetic.
-C16: ACKNOWLEDGED — server/index.ts, server/outbound.ts, server/routes/campaigns.ts are within ALN-1 declared scope (I-068, I-069 fixes). Listed in pre-execution-report.md.
+C1: ACKNOWLEDGED — T-5 status corrected to committed. Batch commits are historical.
+C15: ACKNOWLEDGED — Memory updated. LAUNCH sprints referenced in sprints.json.
+C16: ACKNOWLEDGED — AuthContext.tsx, index.ts, auth.ts are within REM-4 declared scope (I-070, I-073 auth persistence fixes).

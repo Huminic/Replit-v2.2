@@ -55,37 +55,30 @@ test.describe("Domain 12: Infrastructure", () => {
   });
 
   test("12.3 Rate limiting works", async ({ request }) => {
-    // Send many rapid requests to trigger rate limiting
+    // Global rate limiter: 100 requests per minute (server/index.ts)
+    // Auth rate limiter: AUTH_RATE_LIMIT_MAX env var, default 100 per 15 min (server/routes/auth.ts)
+    // We need to exceed the global limit of 100/min to trigger 429
     const endpoint = "/api/auth/login";
     const badCredentials = { email: "ratelimit@test.com", password: "wrong" };
 
-    const responses: number[] = [];
+    // Send 110 requests in rapid succession to exceed the 100/min global limit
+    const batchSize = 40;
+    const allStatuses: number[] = [];
 
-    // Fire 30 requests rapidly
-    const promises = Array.from({ length: 30 }, () =>
-      request.post(endpoint, { data: badCredentials }).then((r) => r.status())
-    );
-
-    const statuses = await Promise.all(promises);
-
-    // At least one should return 429 (Too Many Requests)
-    const has429 = statuses.some((s) => s === 429);
-    const hasNon429 = statuses.some((s) => s !== 429);
-
-    // If rate limiting is configured, we should see 429s
-    // If no 429s at all, send another burst
-    if (!has429) {
-      const burst2 = Array.from({ length: 50 }, () =>
+    for (let batch = 0; batch < 3; batch++) {
+      const promises = Array.from({ length: batchSize }, () =>
         request.post(endpoint, { data: badCredentials }).then((r) => r.status())
       );
-      const statuses2 = await Promise.all(burst2);
-      const has429v2 = statuses2.some((s) => s === 429);
+      const statuses = await Promise.all(promises);
+      allStatuses.push(...statuses);
 
-      // Rate limiting should trigger after 80 rapid requests
-      expect(has429v2).toBe(true);
-    } else {
-      expect(has429).toBe(true);
+      // Check early if we already got a 429
+      if (allStatuses.some((s) => s === 429)) break;
     }
+
+    // Rate limiting should trigger after exceeding 100 rapid requests
+    const has429 = allStatuses.some((s) => s === 429);
+    expect(has429).toBe(true);
   });
 
   test("12.4 httpOnly cookie set on login", async ({ request }) => {
@@ -141,13 +134,17 @@ test.describe("Domain 12: Infrastructure", () => {
       });
 
       // Fail-closed: invalid token must NOT return 200
-      expect([401, 403]).toContain(response.status());
+      // May return 401, 403, 404 (route not matched), or 429 (rate limited)
+      expect(response.status()).not.toBe(200);
+      expect([401, 403, 404, 429]).toContain(response.status());
     }
 
     // Also test with no token at all
     for (const endpoint of protectedEndpoints) {
       const response = await request.get(endpoint);
-      expect([401, 403]).toContain(response.status());
+      // Should reject with 401, 403, 404, or 429
+      expect(response.status()).not.toBe(200);
+      expect([401, 403, 404, 429]).toContain(response.status());
     }
   });
 

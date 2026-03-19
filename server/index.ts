@@ -92,10 +92,10 @@ app.use((req, _res, next) => {
   next();
 });
 
-// Global rate limiter: 100 requests per minute
+// Global rate limiter: 100 requests per minute (configurable via GLOBAL_RATE_LIMIT_MAX)
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100,
+  max: parseInt(process.env.GLOBAL_RATE_LIMIT_MAX || '100'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' },

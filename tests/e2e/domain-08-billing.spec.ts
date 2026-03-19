@@ -17,7 +17,7 @@ test.describe("Domain 8: Billing", () => {
     // Page should load without crashing
     expect(errors).toHaveLength(0);
 
-    await context.close();
+    await page.close();
   });
 
   test("8.2 Connected to FlexPrice", async ({ browser }) => {
@@ -33,7 +33,7 @@ test.describe("Domain 8: Billing", () => {
       /billing|usage|plan|invoice|wallet|subscription|entitlement/i.test(pageText || "");
     expect(hasBillingContent).toBe(true);
 
-    await context.close();
+    await page.close();
   });
 
   test("8.3 Super Admin sees all billing", async ({ browser }) => {
@@ -52,7 +52,7 @@ test.describe("Domain 8: Billing", () => {
     const accessDenied = /access denied|forbidden|not authorized|no permission/i.test(pageText || "");
     expect(accessDenied).toBe(false);
 
-    await context.close();
+    await page.close();
   });
 
   test("8.4 Partner Admin + Org Admin see usage + wallet", async ({ browser }) => {
@@ -110,7 +110,7 @@ test.describe("Domain 8: Billing", () => {
         /access denied|forbidden|not authorized|no permission/i.test(pageText || "");
       expect(blocked).toBe(true);
 
-      await context.close();
+      await page.close();
     }
   });
 });

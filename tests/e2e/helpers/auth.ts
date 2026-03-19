@@ -142,23 +142,24 @@ export function authHeader(token: string) {
  * Browser-based login that bypasses the SPA login form.
  * Uses API login to get the token, then navigates directly to the target page.
  * This avoids React Router SPA navigation timing issues in headless Chromium.
+ *
+ * The server sets an httpOnly refresh cookie on login response. Playwright's
+ * page.request shares the cookie jar with the page, so the cookie is
+ * automatically available when page.goto() loads the app and AuthContext
+ * calls /api/auth/refresh.
+ *
+ * Cache strategy: the file cache stores access tokens for API tests, but
+ * browser tests always need a fresh login to establish the httpOnly cookie
+ * in each new browser context. We skip the cache for browser login.
  */
 export async function loginForBrowser(
   page: import("playwright/test").Page,
   user: AuthUser,
   targetPath: string = "/"
 ): Promise<{ token: string; userId: string; organizationId: string }> {
-  // Check file-based cache first
-  const cache = readCache();
-  const cached = cache[user.email];
-  if (cached) {
-    // Navigate to target page — the server will recognise the refresh cookie from a prior login
-    await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 30000 });
-    await page.waitForTimeout(2000);
-    return { token: cached.token, userId: cached.userId, organizationId: cached.organizationId };
-  }
-
-  // Use API login to avoid SPA navigation timing issues
+  // Always perform a real login to ensure the httpOnly refresh cookie is set
+  // in this browser context's cookie jar. The file-based cache only stores
+  // access tokens — it cannot transfer httpOnly cookies between contexts.
   const response = await page.request.post("/api/auth/login", {
     data: { email: user.email, password: user.password },
   });
@@ -174,14 +175,17 @@ export async function loginForBrowser(
     organizationId: body.user.organization.id,
   };
 
-  // Save to file-based cache
+  // Update file cache (used by API-only tests via login())
+  const cache = readCache();
   cache[user.email] = { ...result, timestamp: Date.now() };
   writeCache(cache);
 
-  // Navigate to target page — the server set the httpOnly refresh cookie on the login response
+  // Navigate to target page — the httpOnly refresh cookie from the login
+  // response is in the browser's cookie jar. When React boots, AuthContext
+  // will call /api/auth/refresh with the cookie and get an access token.
   await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 30000 });
 
-  // Wait for React to hydrate
+  // Wait for React to hydrate and AuthContext to complete initAuth()
   await page.waitForTimeout(2000);
 
   return result;
