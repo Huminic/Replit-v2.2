@@ -52,10 +52,8 @@ test.describe("Domain 3: Chat & AI Agents", () => {
     // Full verification requires sending a message and watching for the indicator.
     await loginForBrowser(page, testUsers.orgAdmin, "/");
 
-    // Look for any chat input to verify chat is rendered
-    const chatInput = page.locator(
-      'textarea, [class*="chat-input"], [class*="ChatInput"], [class*="message-input"]'
-    ).first();
+    // Look for the actual textarea input to verify chat is rendered
+    const chatInput = page.locator('textarea').first();
     const chatExists = await chatInput.count();
 
     // If chat is present, send a message and check for thinking indicator

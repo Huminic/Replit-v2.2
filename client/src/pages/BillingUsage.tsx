@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
+import { useApp } from '@/contexts/AppContext';
+import { canAccessSystem } from '@/lib/rbac';
 import {
   ArrowLeft, Phone, Video, MessageSquare, Brain, Image, Film, BarChart3, AlertCircle
 } from 'lucide-react';
@@ -63,6 +66,16 @@ function getUsageBadgeVariant(pct: number): 'destructive' | 'secondary' | 'defau
 }
 
 export default function BillingUsage() {
+  const [, setLocation] = useLocation();
+  const { currentRole } = useApp();
+
+  // RBAC guard: only admin roles can access billing
+  useEffect(() => {
+    if (!canAccessSystem(currentRole)) {
+      setLocation('/');
+    }
+  }, [currentRole, setLocation]);
+
   const { data: usageData, isLoading, isError, error } = useQuery<BillingUsageData>({
     queryKey: ['/api/billing/usage'],
   });

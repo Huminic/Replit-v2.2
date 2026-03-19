@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
+import { useApp } from '@/contexts/AppContext';
+import { canAccessSystem } from '@/lib/rbac';
 import { ArrowLeft, Check, X, Crown, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +46,16 @@ interface EntitlementsResponse {
 }
 
 export default function BillingPlan() {
+  const [, setLocation] = useLocation();
+  const { currentRole } = useApp();
+
+  // RBAC guard: only admin roles can access billing
+  useEffect(() => {
+    if (!canAccessSystem(currentRole)) {
+      setLocation('/');
+    }
+  }, [currentRole, setLocation]);
+
   const { data: planData, isLoading: planLoading } = useQuery<PlanResponse>({
     queryKey: ['/api/billing/plan'],
   });

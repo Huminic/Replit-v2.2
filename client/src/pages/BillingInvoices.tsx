@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
+import { useApp } from '@/contexts/AppContext';
+import { canAccessSystem } from '@/lib/rbac';
 import { ArrowLeft, FileText, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -61,6 +64,16 @@ function formatDate(dateStr: string | undefined): string {
 }
 
 export default function BillingInvoices() {
+  const [, setLocation] = useLocation();
+  const { currentRole } = useApp();
+
+  // RBAC guard: only admin roles can access billing
+  useEffect(() => {
+    if (!canAccessSystem(currentRole)) {
+      setLocation('/');
+    }
+  }, [currentRole, setLocation]);
+
   const { data: invoiceData, isLoading } = useQuery<InvoiceResponse>({
     queryKey: ['/api/billing/invoices'],
   });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import {
@@ -15,6 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useLocation } from 'wouter';
+import { useApp } from '@/contexts/AppContext';
+import { canAccessSystem } from '@/lib/rbac';
 
 interface UsageMeter {
   name: string;
@@ -79,8 +82,17 @@ function getBalanceTextColor(balance: number): string {
 
 export default function BillingDashboard() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const { currentRole } = useApp();
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
+
+  // RBAC guard: only admin roles can access billing
+  useEffect(() => {
+    if (!canAccessSystem(currentRole)) {
+      setLocation('/');
+    }
+  }, [currentRole, setLocation]);
 
   const { data: summary, isLoading } = useQuery<BillingSummary>({
     queryKey: ['/api/billing/summary'],

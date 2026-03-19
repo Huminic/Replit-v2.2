@@ -180,6 +180,21 @@ export async function loginForBrowser(
   cache[user.email] = { ...result, timestamp: Date.now() };
   writeCache(cache);
 
+  // Dismiss product tour overlays before navigation so they don't block
+  // test interactions. The tour checks localStorage keys per page segment
+  // with prefix 'nexxus_tour_dismissed_' and has an 800ms delay before showing.
+  // Use addInitScript to set keys before any page JS runs.
+  await page.addInitScript(() => {
+    const prefix = 'nexxus_tour_dismissed_';
+    const pageKeys = [
+      'main', 'teambox', 'my-work', 'sales', 'service', 'marketing',
+      'management', 'agents', 'insights', 'settings', 'profile', 'usage'
+    ];
+    for (const key of pageKeys) {
+      localStorage.setItem(prefix + key, 'true');
+    }
+  });
+
   // Navigate to target page — the httpOnly refresh cookie from the login
   // response is in the browser's cookie jar. When React boots, AuthContext
   // will call /api/auth/refresh with the cookie and get an access token.

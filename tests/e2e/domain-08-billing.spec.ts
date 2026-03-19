@@ -24,11 +24,15 @@ test.describe("Domain 8: Billing", () => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
     await loginForBrowser(page, testUsers.superAdmin, "/settings/billing");
-    await page.waitForTimeout(1000);
+
+    // Wait for billing content to load (skeleton state resolves when API responds)
+    await page.waitForFunction(
+      () => /billing|usage|plan|invoice|wallet|subscription|entitlement/i.test(document.body?.textContent || ""),
+      { timeout: 15000 }
+    );
 
     // Check that billing content loaded (not an error page)
     const pageText = await page.textContent("body");
-    // Should contain billing-related content, not just an error
     const hasBillingContent =
       /billing|usage|plan|invoice|wallet|subscription|entitlement/i.test(pageText || "");
     expect(hasBillingContent).toBe(true);
@@ -60,7 +64,11 @@ test.describe("Domain 8: Billing", () => {
     const ctx1 = await browser.newContext({ baseURL: BASE });
     const page1 = await ctx1.newPage();
     await loginForBrowser(page1, testUsers.partnerAdmin, "/settings/billing");
-    await page1.waitForTimeout(1000);
+
+    await page1.waitForFunction(
+      () => /usage|wallet|billing|plan/i.test(document.body?.textContent || ""),
+      { timeout: 15000 }
+    );
 
     const partnerText = await page1.textContent("body");
     const partnerSeesBilling =
@@ -72,7 +80,11 @@ test.describe("Domain 8: Billing", () => {
     const ctx2 = await browser.newContext({ baseURL: BASE });
     const page2 = await ctx2.newPage();
     await loginForBrowser(page2, testUsers.orgAdmin, "/settings/billing");
-    await page2.waitForTimeout(1000);
+
+    await page2.waitForFunction(
+      () => /usage|wallet|billing|plan/i.test(document.body?.textContent || ""),
+      { timeout: 15000 }
+    );
 
     const orgAdminText = await page2.textContent("body");
     const orgAdminSeesBilling =

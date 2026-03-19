@@ -1,7 +1,7 @@
-Report-ID: WD-20260319-164227
+Report-ID: WD-20260319-172350
 Acknowledged-By: orchestrator
-Sprint: REM-5
-Timestamp: 2026-03-19T16:42:32Z
+Sprint: REM-6
+Timestamp: 2026-03-19T17:23:55Z
 
-C16: ACKNOWLEDGED — files within REM-5 declared scope.
-C18: ACKNOWLEDGED — DEPLOY-1 retroactive artifacts from prior sprint.
+C16: ACKNOWLEDGED — Billing page files within REM-6 scope. Pre-exec updated.
+C17: ACKNOWLEDGED — Declared files updated to include BillingDashboard/Usage/Plan/Invoices.

@@ -1180,7 +1180,7 @@
       "id": "REM-5",
       "name": "Remediation round 5 \u2014 16 T-6 failures (9 test, 3 app, 2 investigate, 2 firm)",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "server/",
@@ -1191,6 +1191,23 @@
       ],
       "dependencies": [
         "DEPLOY-1"
+      ],
+      "commitHash": "797608b"
+    },
+    {
+      "id": "REM-6",
+      "name": "Remediation round 6 \u2014 tour dismiss in tests, billing route guard",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "client/src/",
+        "evidence/REM-6/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-5"
       ]
     },
     {
