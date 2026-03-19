@@ -104,11 +104,15 @@ test.describe("Domain 6: Department Pages", () => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
     await loginForBrowser(page, testUsers.sales, "/sales");
+    await page.waitForTimeout(2000);
+
+    // Hover the Sales sidebar icon to trigger SubMenuManager flyout
+    const salesIcon = page.locator('[data-testid="sidebar-item-sales"]');
+    await salesIcon.hover();
     await page.waitForTimeout(1000);
 
-    // Look for sidebar/submenu items related to agents
-    const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
-    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"]').or(sidebar.getByText(/agent/i));
+    // SubMenuManager renders agents with data-testid="panel-agent-{id}"
+    const agentItems = page.locator('[data-testid^="panel-agent-"]');
     const agentCount = await agentItems.count();
     // Should find at least 3 agent menu items
     expect(agentCount).toBeGreaterThanOrEqual(3);
@@ -120,10 +124,14 @@ test.describe("Domain 6: Department Pages", () => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
     await loginForBrowser(page, testUsers.service, "/service");
+    await page.waitForTimeout(2000);
+
+    // Hover the Service sidebar icon to trigger SubMenuManager flyout
+    const serviceIcon = page.locator('[data-testid="sidebar-item-service"]');
+    await serviceIcon.hover();
     await page.waitForTimeout(1000);
 
-    const sidebar = page.locator('nav, [class*="sidebar"], [class*="menu"], [role="navigation"]');
-    const agentItems = sidebar.locator('[class*="agent"], a[href*="agent"]').or(sidebar.getByText(/agent/i));
+    const agentItems = page.locator('[data-testid^="panel-agent-"]');
     const agentCount = await agentItems.count();
     expect(agentCount).toBeGreaterThanOrEqual(1);
 

@@ -1,11 +1,11 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-180532
-Timestamp: 2026-03-19T18:05:32Z
+Report-ID: WD-20260319-180637
+Timestamp: 2026-03-19T18:06:37Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 7fee26a
+HEAD: 908e439
 
-C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints),7fee26a (2 sprints)
+C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
 C3  cross-signs:         PASS
 C4  checklists:          PASS
@@ -13,17 +13,17 @@ C5  uncommitted:         PASS
 C6  destructive changes: PASS
 C7  session state:       PASS (1h old)
 C8  hook integrity:      PASS
-C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints), 7fee26a (2 sprints)
+C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
 C15 memory staleness:    WARNING — project_sprint_status.md is 13h old
-C16 drift detection:     VIOLATION — T-7 evidence not found at commit 7fee26a; 1 application file(s) modified outside sprint scope: server/routes/public.ts
+C16 drift detection:     WARNING — 61 file(s) modified outside current sprint scope
 C17 plan vs execution:   PASS
 C18 retroactive artifacts:PASS
 C19 pre-exec quality:    PASS
 
-SUMMARY: 14 PASS, 1 VIOLATION, 7 WARNING
+SUMMARY: 14 PASS, 0 VIOLATION, 7 WARNING
 === END SCAN ===

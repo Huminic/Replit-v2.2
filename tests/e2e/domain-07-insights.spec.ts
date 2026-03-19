@@ -83,13 +83,9 @@ test.describe("Domain 7: Insights", () => {
     await loginForBrowser(page, testUsers.orgAdmin, "/insights");
     await page.waitForTimeout(1000);
 
-    // There should be no "Pin" button or pin icon
-    const pinButton = page.locator('button:has-text("Pin")').or(
-      page.locator('[data-testid*="pin"]')
-    ).or(
-      page.locator('[aria-label*="pin" i]')
-    ).or(
-      page.locator('[class*="pin"]')
+    // There should be no "Pin to Dashboard" button or pin icon
+    const pinButton = page.locator('button:has-text("Pin to Dashboard")').or(
+      page.locator('[data-testid="pin-to-dashboard"]')
     );
     const pinCount = await pinButton.count();
     expect(pinCount).toBe(0);

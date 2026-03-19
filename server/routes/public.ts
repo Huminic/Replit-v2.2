@@ -421,7 +421,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
     // When loaded as a <script> tag, create a Tavus session and fullscreen iframe it
     const js = `(function(){
-var H="${host}",S="${slug}";
+var H="${host}",S="${slug}",N="${name}";
 if(document.getElementById("nexxus-vw-"+S))return;
 var d=document.createElement("div");d.id="nexxus-vw-"+S;
 d.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;background:#000;";

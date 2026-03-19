@@ -50,15 +50,16 @@ test.describe("Domain 9: Settings", () => {
     await loginForBrowser(page, testUsers.superAdmin, "/profile");
     await page.waitForTimeout(1000);
 
-    // Look for a tour restart button
-    const tourButton = page.locator('button:has-text("tour"), button:has-text("Tour"), [data-testid*="tour"], a:has-text("tour")');
+    // Click the Preferences tab — the Restart Tour button lives there
+    const preferencesTab = page.locator('[data-testid="tab-profile-preferences"]');
+    await preferencesTab.click();
+    await page.waitForTimeout(500);
+
+    // Look for the restart tour button
+    const tourButton = page.locator('[data-testid="button-restart-tour"]');
     const tourExists = await tourButton.first().isVisible().catch(() => false);
 
-    // Also check page text for tour reference
-    const pageText = await page.textContent("body");
-    const hasTourReference = tourExists || (pageText?.toLowerCase().includes("tour") ?? false);
-
-    expect(hasTourReference).toBe(true);
+    expect(tourExists).toBe(true);
   });
 
   test("9.4 Org Wizard accessible to Super Admin only", async ({ page, request }) => {
@@ -100,21 +101,15 @@ test.describe("Domain 9: Settings", () => {
     await loginForBrowser(page, testUsers.superAdmin, "/settings");
     await page.waitForTimeout(1000);
 
-    // Look for communication gate / kill switch toggle
-    const toggle = page.locator(
-      '[class*="switch" i], [class*="toggle" i], [role="switch"], input[type="checkbox"], ' +
-      'button:has-text("communication"), button:has-text("Communication"), ' +
-      '[data-testid*="communication"], [data-testid*="gate"], [data-testid*="kill"]'
-    );
-    const pageText = await page.textContent("body");
+    // Click the Organization tile to open the Organization section
+    const orgTile = page.locator('[data-testid="settings-tile-organization"]');
+    await orgTile.click();
+    await page.waitForTimeout(1000);
 
-    // The communication gate should be referenced somewhere in settings
-    const hasCommGate =
-      (await toggle.first().isVisible().catch(() => false)) ||
-      (pageText?.toLowerCase().includes("communication") ?? false) ||
-      (pageText?.toLowerCase().includes("kill switch") ?? false) ||
-      (pageText?.toLowerCase().includes("gate") ?? false);
+    // Look for the communication gate toggle
+    const toggle = page.locator('[data-testid="switch-communication-gate"]');
+    const toggleVisible = await toggle.first().isVisible().catch(() => false);
 
-    expect(hasCommGate).toBe(true);
+    expect(toggleVisible).toBe(true);
   });
 });
