@@ -1162,7 +1162,7 @@
       "id": "DEPLOY-1",
       "name": "Widget JS rewrite + live.huminic.app deployment",
       "phase": "DEPLOY",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "server/routes/public.ts",
         "server/routes/widgets.ts",
@@ -1173,7 +1173,8 @@
       "dependencies": [
         "AUDIT-1"
       ],
-      "description": "Rewrite dealer widget JS to use Tavus directly (no custom UI). Add CORS for cross-origin widget API. Deploy to live.huminic.app via Caddy + DNS."
+      "description": "Rewrite dealer widget JS to use Tavus directly (no custom UI). Add CORS for cross-origin widget API. Deploy to live.huminic.app via Caddy + DNS.",
+      "commitHash": "ef1f490"
     },
     {
       "id": "L5-1",
