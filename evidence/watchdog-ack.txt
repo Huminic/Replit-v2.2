@@ -1,8 +1,11 @@
-Report-ID: WD-20260319-192432
 Acknowledged-By: orchestrator
-Sprint: T-8
-Timestamp: 2026-03-19T19:24:37Z
+Sprint: DB-1
+Timestamp: 2026-03-19T21:06:00Z
 
-C1: ACKNOWLEDGED — T-8 is in_progress, hash will be set after commit. Batch commits are historical.
-C2: ACKNOWLEDGED — ALN-1 evidence exists, sprint is in sprints.json (may be index mismatch).
-C16: ACKNOWLEDGED — T-8 in_progress, no hash expected yet.
+C2: ACKNOWLEDGED — unknown-sprint directory is an artifact of the enforcer-checklist.sh script defaulting to "unknown-sprint" when no sprint ID is passed. Directory has been deleted. Not a real sprint.
+C4: ACKNOWLEDGED — unknown-sprint checklist BLOCKED is from the auto-generated enforcer output. The real checklist is at evidence/DB-1/enforcer-checklist.txt with RESULT: APPROVED.
+C5: ACKNOWLEDGED — DB-1 evidence directory is the current sprint
+C7: ACKNOWLEDGED — Session state updated this session
+C10: ACKNOWLEDGED — Timestamp anomalies from rapid file creation during migration
+C15: ACKNOWLEDGED — Memory staleness — will update post-commit
+C16: ACKNOWLEDGED — 63 modified files are Playwright screenshots from re-run against Supabase, not application code changes

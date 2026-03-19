@@ -1262,7 +1262,7 @@
       "id": "T-8",
       "name": "Full test \u2014 all projects including E2E flows",
       "phase": "T",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "evidence/T-8/",
         "issues.md",
@@ -1270,7 +1270,24 @@
       ],
       "dependencies": [
         "E2E-1"
-      ]
+      ],
+      "commitHash": "3c2a3f3"
+    },
+    {
+      "id": "DB-1",
+      "name": "Supabase database migration \u2014 schema swap + user preservation",
+      "phase": "DB",
+      "status": "in_progress",
+      "scope": [
+        ".env",
+        "drizzle.config.ts",
+        "evidence/DB-1/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-8"
+      ],
+      "description": "Migrate from Neon to Supabase. Drop 68 old tables, push 28-table Drizzle schema, seed orgs/roles, insert 9 real users with password resets. Update drizzle.config.ts for DIRECT_URL."
     },
     {
       "id": "L5-1",

@@ -60,6 +60,28 @@ I-061, I-062, I-063, I-064, I-065, I-066, I-068, I-069, I-070, I-071, I-072, I-0
 **Acceptance Criteria:** Kill switch toggle visible and functional on settings page, or test updated to check correct location.
 **Next Sprint:** Yes (investigate)
 
+### [DT] I-086: Insert VAPI call log leads into VIN Solutions per store
+**Background:** Historical VAPI call logs exist as JSON files in `/home/ubuntu/Live-Store/nexxus/uploads/`. Each file contains call data for a specific dealership. These leads need to be inserted into the corresponding VIN Solutions stores within the Durran Cage account. Files:
+- `vapi-calls-hyundai-of-columbia.json` → Hyundai of Columbia
+- `vapi-calls-ford-of-columbia.json` → Ford of Columbia
+- `vapi-calls-serra-honda-of-sylacauga.json` → Serra Honda
+- `vapi-calls-serra-nissan-of-sylacauga.json` → Serra Nissan
+- `vapi-calls-tony-serra-ford.json` → Tony Serra Ford
+**Outcome:** All leads from VAPI call logs inserted into VIN Solutions under the correct dealer IDs in the Durran Cage account.
+**Acceptance Criteria:** For each file: parse call logs → extract lead data (name, phone, email) → POST to VIN Solutions API via MCP → verify contact appears in correct store.
+**Next Sprint:** Yes
+
+### [BE] I-087: Re-enable inbound lead webhook email notifications to Org Admins + extend to Tavus
+**Background:** The old app at `/home/ubuntu/Live-Store/nexxus` had a webhook that sent email notifications to Org Admins when inbound VAPI leads arrived. This needs to be re-enabled in this codebase and extended to also cover Tavus conversation completions. Scope needs verified — determine exactly what triggers the email, what data it includes, who receives it (all Org Admins for that store? Just the assigned user?), and what the email template looks like.
+**Outcome:** Org Admins receive email notifications when: (1) a VAPI call completes with lead data, and (2) a Tavus video conversation completes. Notifications route through MCP (Resend).
+**Acceptance Criteria:**
+- VAPI end-of-call webhook triggers email to store's Org Admin(s)
+- Tavus conversation completion triggers email to store's Org Admin(s)
+- Emails include caller/visitor name, phone, transcript summary
+- Emails route through callMCP (Resend provider)
+- Verify scope: who receives, what triggers, what template
+**Next Sprint:** Yes (investigate scope first)
+
 ---
 
 ## Test Infrastructure
@@ -70,7 +92,7 @@ I-061, I-062, I-063, I-064, I-065, I-066, I-068, I-069, I-070, I-071, I-072, I-0
 
 ---
 
-**Last updated:** 2026-03-19 (REM-4 smoke results)
+**Last updated:** 2026-03-19 (DB-1 migration + I-086, I-087 added)
 **VERIFIED:** 7 items (pending E2E)
-**OPEN:** 4 items (1 DT, 2 FE, 1 AU)
+**OPEN:** 7 items (2 DT, 2 FE, 1 AU, 1 BE, 1 AU)
 **TI OPEN:** 1 item (accessibility)

@@ -9,3 +9,4 @@ server/public
 vite.config.ts.*
 .playwright-auth-cache.json
 test-results/
+evidence/DB-1/supabase-backup.sql

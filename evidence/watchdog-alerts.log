@@ -396,3 +396,143 @@
 [2026-03-19T16:17:21Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
 [2026-03-19T16:17:35Z] Previous ack () invalidated by new report (WD-20260319-161730)
 [2026-03-19T16:17:51Z] Previous ack () invalidated by new report (WD-20260319-161746)
+[2026-03-19T16:18:31Z] Previous ack () invalidated by new report (WD-20260319-161826)
+[2026-03-19T16:22:22Z] Previous ack () invalidated by new report (WD-20260319-162217)
+[2026-03-19T16:25:31Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T16:38:21Z] Previous ack () invalidated by new report (WD-20260319-163816)
+[2026-03-19T16:38:52Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.395764.1773938332284 has evidence but is not in sprints.json
+[2026-03-19T16:38:52Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T16:39:08Z] Previous ack () invalidated by new report (WD-20260319-163903)
+[2026-03-19T16:40:03Z] Previous ack () invalidated by new report (WD-20260319-163957)
+[2026-03-19T16:40:03Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T16:40:08Z] Previous ack (WD-20260319-163957) invalidated by new report (WD-20260319-164003)
+[2026-03-19T16:42:32Z] Previous ack (WD-20260319-163957) invalidated by new report (WD-20260319-164227)
+[2026-03-19T16:42:32Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T16:42:37Z] Previous ack (WD-20260319-164227) invalidated by new report (WD-20260319-164232)
+[2026-03-19T16:42:51Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T17:13:54Z] Previous ack (WD-20260319-164227) invalidated by new report (WD-20260319-171349)
+[2026-03-19T17:14:55Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T17:23:25Z] Previous ack (WD-20260319-164227) invalidated by new report (WD-20260319-172320)
+[2026-03-19T17:23:25Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T17:23:55Z] Previous ack (WD-20260319-172320) invalidated by new report (WD-20260319-172350)
+[2026-03-19T17:23:55Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T17:24:00Z] Previous ack (WD-20260319-172350) invalidated by new report (WD-20260319-172355)
+[2026-03-19T17:24:18Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T17:32:25Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T17:53:25Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T17:53:25Z] ALERT: C1 MULTIPLE_IN_PROGRESS 2 sprints have status in_progress
+[2026-03-19T17:59:57Z] Previous ack (WD-20260319-172350) invalidated by new report (WD-20260319-175952)
+[2026-03-19T17:59:57Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:00:29Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T18:00:34Z] Previous ack (WD-20260319-175952) invalidated by new report (WD-20260319-180029)
+[2026-03-19T18:00:34Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:00:39Z] Previous ack (WD-20260319-180029) invalidated by new report (WD-20260319-180034)
+[2026-03-19T18:01:28Z] Previous ack (WD-20260319-180029) invalidated by new report (WD-20260319-180123)
+[2026-03-19T18:01:28Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:01:33Z] Previous ack (WD-20260319-180123) invalidated by new report (WD-20260319-180128)
+[2026-03-19T18:02:34Z] Previous ack (WD-20260319-180123) invalidated by new report (WD-20260319-180229)
+[2026-03-19T18:02:34Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:02:39Z] Previous ack (WD-20260319-180229) invalidated by new report (WD-20260319-180234)
+[2026-03-19T18:03:35Z] Previous ack (WD-20260319-180229) invalidated by new report (WD-20260319-180331)
+[2026-03-19T18:03:35Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:03:41Z] Previous ack (WD-20260319-180331) invalidated by new report (WD-20260319-180336)
+[2026-03-19T18:04:05Z] Previous ack (WD-20260319-180331) invalidated by new report (WD-20260319-180358)
+[2026-03-19T18:04:05Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:04:10Z] Previous ack (WD-20260319-180358) invalidated by new report (WD-20260319-180405)
+[2026-03-19T18:05:37Z] Previous ack (WD-20260319-180358) invalidated by new report (WD-20260319-180532)
+[2026-03-19T18:05:53Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:05:58Z] Previous ack (WD-20260319-180532) invalidated by new report (WD-20260319-180553)
+[2026-03-19T18:06:17Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T18:06:42Z] Previous ack (WD-20260319-180532) invalidated by new report (WD-20260319-180637)
+[2026-03-19T18:06:42Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:06:48Z] Previous ack (WD-20260319-180637) invalidated by new report (WD-20260319-180643)
+[2026-03-19T18:07:11Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T18:34:16Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T18:40:55Z] Previous ack (WD-20260319-180637) invalidated by new report (WD-20260319-184050)
+[2026-03-19T18:40:55Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T18:41:00Z] Previous ack (WD-20260319-184050) invalidated by new report (WD-20260319-184055)
+[2026-03-19T18:41:18Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T18:49:26Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T19:20:53Z] Previous ack (WD-20260319-184050) invalidated by new report (WD-20260319-192048)
+[2026-03-19T19:23:01Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T19:23:07Z] Previous ack (WD-20260319-184050) invalidated by new report (WD-20260319-192301)
+[2026-03-19T19:23:07Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T19:23:12Z] Previous ack (WD-20260319-192301) invalidated by new report (WD-20260319-192307)
+[2026-03-19T19:23:58Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T19:24:04Z] Previous ack (WD-20260319-192301) invalidated by new report (WD-20260319-192358)
+[2026-03-19T19:24:04Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T19:24:09Z] Previous ack (WD-20260319-192358) invalidated by new report (WD-20260319-192404)
+[2026-03-19T19:24:32Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T19:24:37Z] Previous ack (WD-20260319-192358) invalidated by new report (WD-20260319-192432)
+[2026-03-19T19:24:37Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-03-19T19:24:42Z] Previous ack (WD-20260319-192432) invalidated by new report (WD-20260319-192437)
+[2026-03-19T19:24:58Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T20:20:11Z] ALERT: C8 ORPHAN_EVIDENCE DB-1 has evidence but is not in sprints.json
+[2026-03-19T20:20:30Z] ALERT: C8 ORPHAN_EVIDENCE DB-1 has evidence but is not in sprints.json
+[2026-03-19T20:20:30Z] ALERT: C8 ORPHAN_EVIDENCE DB-1 has evidence but is not in sprints.json
+[2026-03-19T20:20:40Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-03-19T20:57:02Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:02Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:07Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:21Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:57:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:26Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:44Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:45Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:46Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T20:58:47Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T21:00:17Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-03-19T21:00:28Z] Previous ack (WD-20260319-192432) invalidated by new report (WD-20260319-210022)
+[2026-03-19T21:01:21Z] Previous ack (WD-20260319-192432) invalidated by new report (WD-20260319-210115)
+[2026-03-19T21:01:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T21:01:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
+[2026-03-19T21:01:58Z] Previous ack (WD-20260319-192432) invalidated by new report (WD-20260319-210153)
+[2026-03-19T21:02:18Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.395764.1773954138779 has evidence but is not in sprints.json
+[2026-03-19T21:02:18Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json

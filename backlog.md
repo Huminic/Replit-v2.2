@@ -97,7 +97,9 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-058 | @tailwindcss/vite installed but project uses Tailwind v3 via PostCSS | R-2 infra |
 | BL-059 | npm audit: 5 vulnerabilities (3 HIGH in transitive deps) | R-2 infra |
 
+| BL-060 | Resend welcome/invite email for existing users (no endpoint to retry blocked/failed emails) | E2E-1 |
+
 ---
 
-**Last updated:** 2026-03-18 (8 items promoted to issues)
-**Total:** 51 items (59 prior - 8 promoted to I-053 through I-060)
+**Last updated:** 2026-03-19
+**Total:** 52 items
