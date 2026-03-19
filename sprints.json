@@ -1198,7 +1198,7 @@
       "id": "REM-6",
       "name": "Remediation round 6 \u2014 tour dismiss in tests, billing route guard",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "client/src/",
@@ -1208,6 +1208,37 @@
       ],
       "dependencies": [
         "REM-5"
+      ],
+      "commitHash": "7fee26a"
+    },
+    {
+      "id": "T-7",
+      "name": "Full application test \u2014 post-REM-5/REM-6",
+      "phase": "T",
+      "status": "committed",
+      "scope": [
+        "evidence/T-7/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-6"
+      ],
+      "commitHash": "7fee26a"
+    },
+    {
+      "id": "REM-7",
+      "name": "Remediation round 7 \u2014 final 6 test fixes",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "tests/e2e/",
+        "server/routes/public.ts",
+        "evidence/REM-7/",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "T-7"
       ]
     },
     {
