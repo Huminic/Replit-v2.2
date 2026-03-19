@@ -1,9 +1,9 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-050223
-Timestamp: 2026-03-19T05:02:23Z
+Report-ID: WD-20260319-050521
+Timestamp: 2026-03-19T05:05:21Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 4a1ed54
+HEAD: 233f906
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
 C2  evidence artifacts:  PASS
@@ -13,16 +13,16 @@ C5  uncommitted:         PASS
 C6  destructive changes: PASS
 C7  session state:       PASS (1h old)
 C8  hook integrity:      PASS
-C9  chain of custody:    VIOLATION — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; T-5 commitHash pending-retroactive not found in git; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
+C9  chain of custody:    WARNING — P2-S2 out of chronological order; P3-S0 out of chronological order; P3-S2 out of chronological order; batch commits: 634e695 (10 sprints), 551a3a9 (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
-C15 memory staleness:    VIOLATION — project_sprint_status.md doesn't reference LAUNCH-S2 or LAUNCH-S1
-C16 drift detection:     VIOLATION — T-5 claims commit pending-retroactive but hash not in git; T-5 status=committed but evidence/ not in git; 65 file(s) modified outside current sprint scope
-C17 plan vs execution:   PASS (no pre-execution report yet)
+C15 memory staleness:    PASS
+C16 drift detection:     WARNING — 65 file(s) modified outside current sprint scope
+C17 plan vs execution:   PASS
 C18 retroactive artifacts:WARNING — T-5 pre-exec and post-sprint written 14s apart (bulk-generated?)
 
-SUMMARY: 12 PASS, 3 VIOLATION, 7 WARNING
+SUMMARY: 13 PASS, 0 VIOLATION, 7 WARNING
 === END SCAN ===
