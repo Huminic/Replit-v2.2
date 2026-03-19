@@ -1097,7 +1097,7 @@
       "id": "REM-4",
       "name": "Remediation round 4 \u2014 test fixes, BE fixes, widget verification tests",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
       "scope": [
         "tests/e2e/",
         "server/",
@@ -1108,7 +1108,8 @@
       ],
       "dependencies": [
         "ALN-1"
-      ]
+      ],
+      "commitHash": "4a1ed54"
     },
     {
       "id": "T-5",
@@ -1123,7 +1124,21 @@
       "dependencies": [
         "ALN-1"
       ],
-      "commitHash": "68e30f5"
+      "commitHash": "pending-retroactive"
+    },
+    {
+      "id": "T-6",
+      "name": "Full application test \u2014 post-REM-4 (auth persistence fix)",
+      "phase": "T",
+      "status": "in_progress",
+      "scope": [
+        "evidence/T-6/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-4"
+      ]
     },
     {
       "id": "L5-1",
