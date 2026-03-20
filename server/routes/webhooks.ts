@@ -150,6 +150,13 @@ async function sendLeadNotificationEmail(
   htmlBody: string,
   idempotencyKey: string
 ): Promise<{ sent: number; skipped: boolean }> {
+  // CommGate check: respect the org's outbound_enabled flag
+  const org = await storage.getOrganization(orgId);
+  if (!org || !org.outboundEnabled || !org.emailEnabled) {
+    console.log(`[LeadNotify] CommGate blocked — org ${org?.name || orgId} outbound=${org?.outboundEnabled} email=${org?.emailEnabled}. Skipping ${idempotencyKey}`);
+    return { sent: 0, skipped: true };
+  }
+
   // Idempotency check: look for an existing outbound_log entry with this key in messageContent
   const existingLogs = await storage.getOutboundLogs(orgId, {});
   const alreadySent = existingLogs.some(

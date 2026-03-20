@@ -19,11 +19,11 @@ function transformVinLead(raw: any, organizationId: string): InsertWarehouseLead
     customerEmail: raw.contact?.email || raw.email || null,
     customerPhone: raw.contact?.phone || raw.phone || null,
     leadSource: raw.source?.name || raw.leadSource || null,
-    vehicleOfInterest: raw.vehicle?.description || raw.vehicleOfInterest || null,
+    vehicleOfInterest: (Array.isArray(raw.vehiclesOfInterest) && raw.vehiclesOfInterest.length > 0 ? String(raw.vehiclesOfInterest[0]) : null) || raw.vehicle?.description || raw.vehicleOfInterest || null,
     assignedSalesperson: raw.salesperson?.name || raw.assignedSalesperson || null,
     dealerName: raw.dealer?.name || raw.dealerName || null,
-    vinCreatedAt: raw.createdDate ? new Date(raw.createdDate) : raw.createdAt ? new Date(raw.createdAt) : null,
-    vinUpdatedAt: raw.modifiedDate ? new Date(raw.modifiedDate) : raw.updatedAt ? new Date(raw.updatedAt) : null,
+    vinCreatedAt: raw.createdUtc ? new Date(raw.createdUtc) : raw.createdDate ? new Date(raw.createdDate) : raw.createdAt ? new Date(raw.createdAt) : null,
+    vinUpdatedAt: raw.modifiedUtc ? new Date(raw.modifiedUtc) : raw.modifiedDate ? new Date(raw.modifiedDate) : raw.updatedAt ? new Date(raw.updatedAt) : null,
     syncedAt: new Date(),
   };
 }

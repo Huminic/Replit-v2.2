@@ -1331,7 +1331,8 @@
       "id": "HASH-FIX-1",
       "name": "Fix sprints.json commit hashes after git filter-repo rewrite",
       "phase": "FIX",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "8b5cd9e",
       "scope": [
         "sprints.json",
         "evidence/HASH-FIX-1/"
@@ -1345,7 +1346,7 @@
       "id": "REM-9",
       "name": "Remediation round 9 — contact modal, insights calc, sync date mapping, test coverage gaps",
       "phase": "REM",
-      "status": "planned",
+      "status": "in_progress",
       "scope": [
         "server/sync.ts",
         "server/routes/insights.ts",
@@ -1376,6 +1377,49 @@
           "id": "REM-9-TI",
           "domain": "TI",
           "name": "Test Infrastructure — real comms test scripts, coverage gaps"
+        }
+      ]
+    },
+    {
+      "id": "REM-10",
+      "name": "Remediation round 10 \u2014 real comms verification, email hierarchy, VAPI webhook activation",
+      "phase": "REM",
+      "status": "planned",
+      "scope": [
+        "server/routes/webhooks.ts",
+        "server/routes/appointments.ts",
+        "tests/e2e/",
+        "evidence/REM-10/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": ["REM-9"],
+      "description": "Fix email notification hierarchy (partner_admin gets child store notifications). Fix Durran/Victoria org assignments. Update VAPI/Tavus webhook URLs to live.huminic.app. Replay March 18-19 inbound calls with real emails + VIN lead insertion. Elliott test call. Real SMS tests. Full test suite including visual. All with qualified evidence.",
+      "sub_sprints": [
+        {
+          "id": "REM-10-AU",
+          "domain": "AU",
+          "name": "Auth \u2014 Fix Durran org, Victoria additional_org_ids"
+        },
+        {
+          "id": "REM-10-BE",
+          "domain": "BE",
+          "name": "Backend \u2014 Email recipient hierarchy walk via partner_id"
+        },
+        {
+          "id": "REM-10-DT",
+          "domain": "DT",
+          "name": "Data \u2014 Appointment source field preservation"
+        },
+        {
+          "id": "REM-10-IN",
+          "domain": "IN",
+          "name": "Infrastructure \u2014 VAPI/Tavus webhook URLs, rebuild, deploy"
+        },
+        {
+          "id": "REM-10-TI",
+          "domain": "TI",
+          "name": "Test Infrastructure \u2014 callMCP parsing, test design fixes"
         }
       ]
     },

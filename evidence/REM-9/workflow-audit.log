@@ -1,0 +1,11 @@
+agent-launch scope=server/sync.ts,server/routes/webhooks.ts,tests/e2e/,specs/,.claude/agents/,.mcp.json,playwright.config.ts,.ghost/test-output/,evidence/REM-9/,issues.md,sprints.json,backlog.md,CLAUDE.md role=orchestrator sprint=REM-9 ts=2026-03-20T02:30:00Z
+sub-sprint=REM-9-BE agent=rem9-be-sync-fix target=server/sync.ts result=createdUtc-mapping-1300-leads-verified ts=2026-03-20T04:30:00Z
+action=commgate-emergency target=server/routes/webhooks.ts result=email-notifications-gated-by-outbound_enabled ts=2026-03-20T15:52:00Z
+action=playwright-init target=.claude/agents/,.mcp.json,specs/,tests/e2e/seed.spec.ts result=planner-generator-healer-initialized ts=2026-03-20T06:06:00Z
+action=planner-explore target=specs/nexxus-full-coverage.md result=spec-saved-with-live-snapshots ts=2026-03-20T08:00:00Z
+action=generator-write target=tests/e2e/generated-coverage.spec.ts result=18-tests-live-verified ts=2026-03-20T08:10:00Z
+action=overnight-suite target=.ghost/test-output/overnight/ result=144-of-155-passed-phase5-gate-failed ts=2026-03-20T08:40:00Z
+action=issues-update target=issues.md result=I095-I102-TI015-TI017-governance-incidents ts=2026-03-20T16:00:00Z
+action=outbound-shutdown target=organizations result=all-7-orgs-outbound-disabled ts=2026-03-20T15:55:00Z
+[2026-03-20T16:43:46Z] PRE-COMMIT role=orchestrator sprint=REM-9 result=BLOCKED detail="Cross-sign verdict is 'approved(withdocumentedgovernanceviolations)', not 'approved'."
+[2026-03-20T16:44:23Z] PRE-COMMIT role=orchestrator sprint=REM-9 result=PASS detail="All 7 gates passed"

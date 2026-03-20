@@ -12,6 +12,14 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "seed",
+      testMatch: /seed\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+    },
+    {
       name: "api",
       testMatch: /domain-(04|05|10|11|12).*\.spec\.ts/,
       use: { baseURL: "http://localhost:5000" },
@@ -41,6 +49,36 @@ export default defineConfig({
       name: "e2e",
       testMatch: /e2e-flows\.spec\.ts/,
       use: { baseURL: "http://localhost:5000" },
+    },
+    {
+      name: "real-integrations",
+      testMatch: /real-integrations\.spec\.ts/,
+      use: { baseURL: "http://localhost:5000" },
+      timeout: 120_000,
+    },
+    {
+      name: "deep-coverage",
+      testMatch: /deep-coverage\.spec\.ts/,
+      use: { baseURL: "http://localhost:5000" },
+      timeout: 120_000,
+    },
+    {
+      name: "generated",
+      testMatch: /generated-coverage\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+      timeout: 120_000,
+    },
+    {
+      name: "visual",
+      testMatch: /visual-components\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+      timeout: 180_000,
     },
   ],
   reporter: [
