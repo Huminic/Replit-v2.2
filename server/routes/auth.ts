@@ -125,12 +125,20 @@ export function registerAuthRoutes(app: Express) {
           slug: o.slug,
         }));
       } else if (role.level === 2) {
-        // Partner Admin: only orgs in their partner group
+        // Partner Admin: find the group root (the org that has child orgs), then show root + children.
+        // If the user is ON the group root (e.g. Cage), children exist directly.
+        // If the user switched to a child (e.g. Serra Honda), walk UP via partnerId to find root.
+        // Never include the top-level org above the group root (e.g. Huminic).
         const allOrgs = await storage.getOrganizations();
-        const userOrg = allOrgs.find(o => o.id === user.organizationId);
-        // Resolve the partner group root: if user's org has a partnerId, that's the group parent;
-        // otherwise the user's org itself is the group parent
-        const groupParentId = userOrg?.partnerId || user.organizationId;
+        let groupParentId = user.organizationId;
+        const children = allOrgs.filter(o => o.partnerId === groupParentId);
+        if (children.length === 0) {
+          // User is on a child org — walk UP to find the group root
+          const userOrg = allOrgs.find(o => o.id === user.organizationId);
+          if (userOrg?.partnerId) {
+            groupParentId = userOrg.partnerId;
+          }
+        }
         accessibleOrganizations = allOrgs
           .filter(o => o.id === groupParentId || o.partnerId === groupParentId)
           .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
@@ -293,11 +301,16 @@ export function registerAuthRoutes(app: Express) {
         // Super Admin: allow any org
       } else if (req.user.roleLevel === 2) {
         // Partner Admin: validate target org belongs to their partner group
+        // Find group root: if current org has children, it's the root; otherwise walk UP
         const allOrgs = await storage.getOrganizations();
-        const userOrg = allOrgs.find(o => o.id === user.organizationId);
-        // Resolve the partner group root: if user's org has a partnerId, that's the group parent;
-        // otherwise the user's org itself is the group parent
-        const groupParentId = userOrg?.partnerId || user.organizationId;
+        let groupParentId = user.organizationId;
+        const children = allOrgs.filter(o => o.partnerId === groupParentId);
+        if (children.length === 0) {
+          const userOrg = allOrgs.find(o => o.id === user.organizationId);
+          if (userOrg?.partnerId) {
+            groupParentId = userOrg.partnerId;
+          }
+        }
         const partnerOrgs = allOrgs.filter(o => o.id === groupParentId || o.partnerId === groupParentId);
         if (!partnerOrgs.find(o => o.id === organizationId)) {
           return res.status(403).json({ message: "You can only access organizations in your partner group" });

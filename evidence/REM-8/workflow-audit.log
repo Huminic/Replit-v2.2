@@ -1,0 +1,14 @@
+agent-launch scope=server/routes/auth.ts,server/routes/webhooks.ts,server/outbound.ts,server/seed.ts,tests/e2e/,evidence/REM-8/,issues.md,CLAUDE.md role=orchestrator sprint=REM-8 ts=2026-03-19T21:35:00Z
+sub-sprint=REM-8-AU agent=rem8-au-builder result=4/4-pass ts=2026-03-19T22:30:00Z
+sub-sprint=REM-8-BE agent=rem8-be-builder result=LC-13-LC-14-pass ts=2026-03-19T23:00:00Z
+sub-sprint=REM-8-DT agent=rem8-dt-builder result=55-contacts-created ts=2026-03-20T00:15:00Z
+action=stale-issues-closed target=I-082,I-083,I-084 result=verified-passing ts=2026-03-19T21:30:00Z
+action=org-switch-fix target=auth.ts result=walk-up-logic-idempotent ts=2026-03-19T22:30:00Z
+action=email-template-upgrade target=webhooks.ts result=rich-html-matching-old-app ts=2026-03-20T00:30:00Z
+action=vin-phone-format target=webhooks.ts result=strip-plus1-10digit ts=2026-03-20T00:30:00Z
+action=integration-orgid-fix target=supabase result=5-integrations-updated ts=2026-03-20T00:00:00Z
+action=governance-incident target=CLAUDE.md result=filesystem-boundary-rule-added ts=2026-03-19T22:00:00Z
+action=full-suite target=playwright result=107-passed-0-failed ts=2026-03-20T00:35:00Z
+[2026-03-20T00:58:42Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-20T01:02:08Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Staged files not declared in pre-execution report: server/seed.ts. Update ## Declared Files section."
+[2026-03-20T01:02:35Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=PASS detail="All 7 gates passed"

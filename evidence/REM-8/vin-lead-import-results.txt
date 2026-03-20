@@ -1,0 +1,166 @@
+=== VIN Solutions Lead Import Results ===
+Date: 2026-03-20T00:28:53.350Z
+Sprint: REM-8-DT (I-086)
+
+--- Summary ---
+
+Store: Hyundai of Columbia
+  Total calls in file: 33
+  Eligible contacts (name+phone, deduplicated): 27
+  Contacts created: 27
+  Skipped (no name): 0
+  Skipped (no phone): 0
+  Skipped (duplicate phone): 6
+  Skipped (no VIN mapping): 0
+  Failures: 0
+  Created contacts:
+    - AI Lead | +18662422720 | href: null
+    - AI Lead | +16623723023 | href: null
+    - AI Lead | +19844643033 | href: null
+    - AI Lead | +18002203257 | href: null
+    - AI Lead | +18643158840 | href: null
+    - AI Lead | +19313754375 | href: null
+    - AI Lead | +19313747259 | href: null
+    - HANNA DANIEL | +15022024743 | href: null
+    - AI Lead | +16159006491 | href: null
+    - AI Lead | +16154385969 | href: null
+    - WHITE JEFFERY | +19313847509 | href: null
+    - AI Lead | +16159456718 | href: null
+    - LOPEZ MARTHA | +17814745117 | href: null
+    - AI Lead | +16814744492 | href: null
+    - AI Lead | +16158049704 | href: null
+    - WIRELESS CALLER | +19313848126 | href: null
+    - LOS ANGELES CA | +13234561745 | href: null
+    - KRAHLING L. | +13236025125 | href: null
+    - AI Lead | +14245595350 | href: null
+    - WEST LOS ANG CA | +14245595733 | href: null
+    - AI Lead | +13236927047 | href: null
+    - AI Lead | +18452836977 | href: null
+    - NEAL ROBIN | +13154913791 | href: null
+    - AI Lead | +17312253264 | href: null
+    - AI Lead | +16153683181 | href: null
+    - AI Lead | +19312864798 | href: null
+    - AI Lead | +19013255930 | href: null
+
+Store: Ford of Columbia
+  Total calls in file: 10
+  Eligible contacts (name+phone, deduplicated): 7
+  Contacts created: 7
+  Skipped (no name): 0
+  Skipped (no phone): 0
+  Skipped (duplicate phone): 3
+  Skipped (no VIN mapping): 0
+  Failures: 0
+  Created contacts:
+    - AI Lead | +18645462319 | href: null
+    - AI Lead | +19844643033 | href: null
+    - AI Lead | +19312927905 | href: null
+    - AI Lead | +19312521726 | href: null
+    - AI Lead | +17703129964 | href: null
+    - AI Lead | +15028170681 | href: null
+    - AI Lead | +19103660123 | href: null
+
+Store: Serra Honda of Sylacauga
+  Total calls in file: 25
+  Eligible contacts (name+phone, deduplicated): 8
+  Contacts created: 8
+  Skipped (no name): 0
+  Skipped (no phone): 0
+  Skipped (duplicate phone): 17
+  Skipped (no VIN mapping): 0
+  Failures: 0
+  Created contacts:
+    - Duane Wells | +14126546500 | href: null
+    - AI Lead | +14125209388 | href: null
+    - AI Lead | +19012038267 | href: null
+    - AI Lead | +18392729080 | href: null
+    - AI Lead | +19012039398 | href: null
+    - AI Lead | +19313692815 | href: null
+    - AI Lead | +12564599707 | href: null
+    - AI Lead | +12568623318 | href: null
+
+Store: Serra Nissan of Sylacauga
+  Total calls in file: 1
+  Eligible contacts (name+phone, deduplicated): 1
+  Contacts created: 1
+  Skipped (no name): 0
+  Skipped (no phone): 0
+  Skipped (duplicate phone): 0
+  Skipped (no VIN mapping): 0
+  Failures: 0
+  Created contacts:
+    - AI Lead | +12566264331 | href: null
+
+Store: Tony Serra Ford
+  Total calls in file: 1
+  Eligible contacts (name+phone, deduplicated): 1
+  Contacts created: 1
+  Skipped (no name): 0
+  Skipped (no phone): 0
+  Skipped (duplicate phone): 0
+  Skipped (no VIN mapping): 0
+  Failures: 0
+  Created contacts:
+    - AI Lead | +12566260793 | href: null
+
+--- Totals ---
+Total contacts created: 44
+Total failures: 0
+Total skipped: 26
+
+--- Verification ---
+  Hyundai of Columbia: +18662422720 -> NOT VERIFIED (Search failed: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "query"
+    ],
+    "message": "Required"
+  }
+])
+  Ford of Columbia: +18645462319 -> NOT VERIFIED (Search failed: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "query"
+    ],
+    "message": "Required"
+  }
+])
+  Serra Honda of Sylacauga: +14126546500 -> NOT VERIFIED (Search failed: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "query"
+    ],
+    "message": "Required"
+  }
+])
+  Serra Nissan of Sylacauga: +12566264331 -> NOT VERIFIED (Search failed: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "query"
+    ],
+    "message": "Required"
+  }
+])
+  Tony Serra Ford: +12566260793 -> NOT VERIFIED (Search failed: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "query"
+    ],
+    "message": "Required"
+  }
+])

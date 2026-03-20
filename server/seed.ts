@@ -111,6 +111,22 @@ async function seedMissingOrganizations() {
     }
   }
 
+  // Fix org hierarchy: 5 dealerships -> Cage Automotive, Cage -> Huminic
+  const huminicOrg = orgs.find(o => o.slug === "huminic");
+  const dealershipSlugs = ["serra-honda", "serra-nissan", "tony-serra-ford", "hyundai-of-columbia", "ford-of-columbia"];
+  // Refresh orgs to get latest state (including newly created ones)
+  const refreshedOrgs = await storage.getOrganizations();
+  for (const org of refreshedOrgs) {
+    if (dealershipSlugs.includes(org.slug) && org.partnerId !== cageAutomotive.id) {
+      console.log(`Fixing partnerId for ${org.name} -> Cage Automotive`);
+      await storage.updateOrganization(org.id, { partnerId: cageAutomotive.id });
+    }
+    if (org.slug === "cage-automotive" && huminicOrg && org.partnerId !== huminicOrg.id) {
+      console.log(`Fixing partnerId for Cage Automotive -> Huminic`);
+      await storage.updateOrganization(org.id, { partnerId: huminicOrg.id });
+    }
+  }
+
   for (const orgDef of missingOrgs) {
     if (!existingSlugs.includes(orgDef.slug)) {
       console.log(`Creating missing organization: ${orgDef.name}`);

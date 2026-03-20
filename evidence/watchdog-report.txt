@@ -1,12 +1,12 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260319-210153
-Timestamp: 2026-03-19T21:01:53Z
+Report-ID: WD-20260319-210609
+Timestamp: 2026-03-19T21:06:09Z
 Project: nexxus2.2_replit
 Branch: local-dev
 HEAD: 3c2a3f3
 
 C1  sprints.json:        WARNING — batch commits: 551a3a9 (3 sprints),634e695 (10 sprints)
-C2  evidence artifacts:  PASS
+C2  evidence artifacts:  VIOLATION — REM-2 orphaned (not in sprints.json)
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
@@ -19,11 +19,11 @@ C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
-C15 memory staleness:    WARNING — project_sprint_status.md is 15h old
+C15 memory staleness:    WARNING — project_sprint_status.md is 16h old
 C16 drift detection:     WARNING — 63 file(s) modified outside current sprint scope
 C17 plan vs execution:   PASS
 C18 retroactive artifacts:PASS
 C19 pre-exec quality:    PASS
 
-SUMMARY: 14 PASS, 0 VIOLATION, 7 WARNING
+SUMMARY: 13 PASS, 1 VIOLATION, 7 WARNING
 === END SCAN ===

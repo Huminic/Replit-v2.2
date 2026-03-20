@@ -1,7 +1,7 @@
 # Nexxus Connect v2.2
 
 ## What This Is
-CRM/AI platform for automotive dealerships. Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Neon).
+CRM/AI platform for automotive dealerships. Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Supabase).
 
 ## How to Commit
 ```bash
@@ -56,5 +56,16 @@ Before every REM sprint, produce a **Loop Prep Document** (`evidence/REM-n/loop-
 - After every T-n run, new failures go INTO issues.md as OPEN with domain tags.
 - After every REM-n, statuses are updated — never silently removed.
 
+## Agent Filesystem Boundaries (CRITICAL)
+Builder agents MUST NOT modify files outside this project directory (`/home/ubuntu/Claude-store/nexxus2.2_replit/`). This includes:
+- `/home/ubuntu/Claude-store/central-mcp/` — MCP server (separate project)
+- `/home/ubuntu/Claude-store/sysadmin/` — infrastructure authority
+- `/home/ubuntu/Live-Store/` — old app (read-only reference)
+- Any other project under `/home/ubuntu/Claude-store/`
+
+If a builder agent encounters a blocker in an external project, it must STOP and report the blocker. It must NOT fix it. The orchestrator escalates external blockers to the user.
+
+**Incident:** REM-8-DT (2026-03-19) — a builder agent rewrote `central-mcp/src/connectors/vin-connector.ts` without authorization. central-mcp had no git repo, so no backup or revert was possible. The watchdog only monitors this project and had no visibility. This rule exists to prevent recurrence.
+
 ## Current State
-24 open issues across 5 domains. 51 backlog items. 96 Playwright tests (46 passing). Next: REM-1 loop prep, then remediation sub-sprints, then T-3 retest.
+3 open issues. 109 Playwright tests passing (100%). Database: Supabase (migrated from Neon in DB-1). Next: complete REM-8, run T-9 full test.

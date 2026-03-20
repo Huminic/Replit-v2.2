@@ -116,6 +116,7 @@ test.describe("Domain 1: Authentication & Authorization", () => {
   });
 
   test("1.10 Partner Admin sees own companies + subs only", async ({ request }) => {
+    // --- Serra Honda partner admin (leaf-level partner) ---
     const loginRes = await request.post("/api/auth/login", {
       data: { email: testUsers.partnerAdmin.email, password: testUsers.partnerAdmin.password },
     });
@@ -128,6 +129,46 @@ test.describe("Domain 1: Authentication & Authorization", () => {
     // Should include at least their own org
     const orgNames = body.accessibleOrganizations.map((o: any) => o.name);
     expect(orgNames.some((n: string) => n.includes("Serra") || n.includes("Honda"))).toBe(true);
+
+    // --- Cage Automotive partner admin (group-level partner with 5 dealerships) ---
+    const cageLoginRes = await request.post("/api/auth/login", {
+      data: { email: testUsers.cagePartnerAdmin.email, password: testUsers.cagePartnerAdmin.password },
+    });
+    expect(cageLoginRes.ok()).toBe(true);
+    const cageBody = await cageLoginRes.json();
+
+    expect(cageBody.accessibleOrganizations).toBeDefined();
+    expect(Array.isArray(cageBody.accessibleOrganizations)).toBe(true);
+
+    const cageOrgNames: string[] = cageBody.accessibleOrganizations.map((o: any) => o.name);
+
+    // Cage partner admin should see 6 orgs: Cage + 5 dealerships
+    expect(cageBody.accessibleOrganizations.length).toBe(6);
+
+    // Cage partner admin must NOT see Huminic (parent of Cage)
+    expect(cageOrgNames.some((n: string) => n.toLowerCase().includes("huminic"))).toBe(false);
+
+    // Cage partner admin should see their own org
+    expect(cageOrgNames.some((n: string) => n.includes("Cage"))).toBe(true);
+
+    // Cage partner admin should be able to switch to Serra Honda
+    const serraOrg = cageBody.accessibleOrganizations.find((o: any) => o.name.includes("Serra"));
+    expect(serraOrg).toBeDefined();
+    const switchRes = await request.post("/api/auth/switch-org", {
+      headers: { Authorization: `Bearer ${cageBody.accessToken}` },
+      data: { organizationId: serraOrg.id },
+    });
+    expect(switchRes.ok()).toBe(true);
+
+    // Switch back to Cage so subsequent runs aren't affected
+    const switchBack = await switchRes.json();
+    const cageOrg = cageBody.accessibleOrganizations.find((o: any) => o.name.includes("Cage"));
+    if (cageOrg) {
+      await request.post("/api/auth/switch-org", {
+        headers: { Authorization: `Bearer ${switchBack.accessToken}` },
+        data: { organizationId: cageOrg.id },
+      });
+    }
   });
 
   test("1.11 Sales cannot switch orgs", async ({ request }) => {

@@ -29,6 +29,12 @@ export const testUsers: Record<string, AuthUser> = {
     role: "partner_admin",
     orgName: "Serra Honda",
   },
+  cagePartnerAdmin: {
+    email: "durran@cageautomotive.com",
+    password: TEST_PASSWORD,
+    role: "partner_admin",
+    orgName: "Cage Automotive",
+  },
   orgAdmin: {
     email: "orgadmin@serrahonda.com",
     password: TEST_PASSWORD,

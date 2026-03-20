@@ -1277,7 +1277,8 @@
       "id": "DB-1",
       "name": "Supabase database migration \u2014 schema swap + user preservation",
       "phase": "DB",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "d4c74fe",
       "scope": [
         ".env",
         "drizzle.config.ts",
@@ -1288,6 +1289,40 @@
         "T-8"
       ],
       "description": "Migrate from Neon to Supabase. Drop 68 old tables, push 28-table Drizzle schema, seed orgs/roles, insert 9 real users with password resets. Update drizzle.config.ts for DIRECT_URL."
+    },
+    {
+      "id": "REM-8",
+      "name": "Remediation round 8 \u2014 org switch fix, webhook emails, VIN lead import",
+      "phase": "REM",
+      "status": "in_progress",
+      "scope": [
+        "server/routes/auth.ts",
+        "server/routes/webhooks.ts",
+        "server/outbound.ts",
+        "tests/e2e/",
+        "evidence/REM-8/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": ["DB-1"],
+      "description": "Fix Partner Admin org switch (I-088), implement webhook email notifications for VAPI+Tavus (I-087), insert VAPI call log leads into VIN Solutions (I-086).",
+      "sub_sprints": [
+        {
+          "id": "REM-8-AU",
+          "domain": "AU",
+          "name": "Auth \u2014 Partner Admin org switch fix"
+        },
+        {
+          "id": "REM-8-BE",
+          "domain": "BE",
+          "name": "Backend \u2014 Webhook email notifications"
+        },
+        {
+          "id": "REM-8-DT",
+          "domain": "DT",
+          "name": "Data \u2014 VIN Solutions lead import"
+        }
+      ]
     },
     {
       "id": "L5-1",

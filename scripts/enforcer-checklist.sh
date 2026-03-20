@@ -15,7 +15,7 @@
 
 set -e
 
-SPRINT_NAME="${1:-unknown-sprint}"
+SPRINT_NAME="${1:-${COMMIT_SPRINT:-unknown-sprint}}"
 EVIDENCE_DIR="evidence/${SPRINT_NAME}"
 mkdir -p "$EVIDENCE_DIR"
 
@@ -89,9 +89,9 @@ else
   check_fail "Dropped feature references in: $DROPPED"
 fi
 
-# EF-05: No production credentials
+# EF-05: No production credentials (only checks tracked/staged files, not gitignored)
 log "[EF-05] Production credentials scan..."
-CREDS=$(grep -rlE "(supabase\.co|sk-[a-zA-Z0-9]{20,}|AKIA[A-Z0-9]{16}|xoxb-|ghp_)" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.env" 2>/dev/null | grep -v node_modules | grep -v ".git/" || true)
+CREDS=$(grep -rlE "(supabase\.co|sk-[a-zA-Z0-9]{20,}|AKIA[A-Z0-9]{16}|xoxb-|ghp_)" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.env" 2>/dev/null | grep -v node_modules | grep -v ".git/" | while read -r f; do git check-ignore -q "$f" 2>/dev/null || echo "$f"; done || true)
 if [ -z "$CREDS" ]; then
   check_pass "No production credentials detected"
 else

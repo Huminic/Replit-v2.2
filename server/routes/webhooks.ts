@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { storage } from "../storage";
 import { billingService } from "../services/billingService";
+import { callMCP } from "../vendorProxy";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -139,6 +140,159 @@ ${params.transcript}`,
   }
 }
 
+/**
+ * Send a lead notification email to all admins (role levels 1-3) for an organization.
+ * Uses callMCP with resend_send_email. Non-blocking — callers should .catch() errors.
+ */
+async function sendLeadNotificationEmail(
+  orgId: string,
+  subject: string,
+  htmlBody: string,
+  idempotencyKey: string
+): Promise<{ sent: number; skipped: boolean }> {
+  // Idempotency check: look for an existing outbound_log entry with this key in messageContent
+  const existingLogs = await storage.getOutboundLogs(orgId, {});
+  const alreadySent = existingLogs.some(
+    (log) =>
+      log.channel === "email" &&
+      log.status === "sent" &&
+      log.messageContent?.includes(`[notification:${idempotencyKey}]`)
+  );
+  if (alreadySent) {
+    console.log(`[LeadNotify] Skipping duplicate notification for ${idempotencyKey}`);
+    return { sent: 0, skipped: true };
+  }
+
+  // Query admin users for this org (role levels 1, 2, 3)
+  const users = await storage.getUsers(orgId);
+  const adminUsers = users.filter((u) => u.role && u.role.level <= 3 && u.email);
+
+  // Also include super_admins (level 1) from all orgs
+  const allOrgs = await storage.getOrganizations();
+  for (const otherOrg of allOrgs) {
+    if (otherOrg.id === orgId) continue;
+    const otherUsers = await storage.getUsers(otherOrg.id);
+    const superAdmins = otherUsers.filter((u) => u.role && u.role.level === 1 && u.email);
+    for (const sa of superAdmins) {
+      if (!adminUsers.some((au) => au.email === sa.email)) {
+        adminUsers.push(sa);
+      }
+    }
+    // Include partner_admins (level 2) whose org is a parent of the target org
+    const partnerAdmins = otherUsers.filter((u) => u.role && u.role.level === 2 && u.email);
+    for (const pa of partnerAdmins) {
+      if (!adminUsers.some((au) => au.email === pa.email)) {
+        adminUsers.push(pa);
+      }
+    }
+  }
+
+  let sentCount = 0;
+  const FROM_ADDRESS = "Nexxus Connect <notifications@huminic.ai>";
+
+  for (const user of adminUsers) {
+    if (!user.email) continue;
+    try {
+      await callMCP("resend_send_email", {
+        from: FROM_ADDRESS,
+        to: user.email,
+        subject,
+        html: htmlBody,
+      });
+      sentCount++;
+    } catch (emailErr: any) {
+      console.error(`[LeadNotify] Failed to send to ${user.email}:`, emailErr.message);
+    }
+  }
+
+  // Log the notification for idempotency tracking
+  try {
+    await storage.createOutboundLog({
+      organizationId: orgId,
+      campaignId: null,
+      recipientId: null,
+      channel: "email",
+      status: "sent",
+      blockedReason: null,
+      messageContent: `[notification:${idempotencyKey}] ${subject} — sent to ${sentCount} admin(s)`,
+      sentAt: new Date(),
+    });
+  } catch (logErr: any) {
+    console.error(`[LeadNotify] Failed to log notification:`, logErr.message);
+  }
+
+  console.log(`[LeadNotify] Sent "${subject}" to ${sentCount} admin(s) for org ${orgId}`);
+  return { sent: sentCount, skipped: false };
+}
+
+/**
+ * Build HTML email body for a VAPI end-of-call notification.
+ */
+function buildVapiEmailHtml(params: {
+  orgName: string;
+  assistantName: string;
+  customerPhone: string | null;
+  callType: string;
+  duration: string;
+  endedReason: string;
+  summary: string;
+  transcript: string;
+  recordingUrl: string | null;
+  callId: string;
+  startTime: string;
+}): string {
+  const recordingButton = params.recordingUrl
+    ? `<tr><td style="padding:0 40px 30px;text-align:center;"><a href="${params.recordingUrl}" style="display:inline-block;background:#667eea;color:white;padding:12px 30px;text-decoration:none;border-radius:6px;font-weight:500;font-size:14px;">&#127911; Listen to Recording</a></td></tr>`
+    : "";
+
+  const summarySection = params.summary && params.summary !== "No summary available"
+    ? `<tr><td style="padding:0 40px 20px;"><div style="background:#f8f9fa;border-left:4px solid #667eea;padding:16px 20px;border-radius:4px;"><h3 style="margin:0 0 10px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Lead Summary</h3><p style="margin:0;font-size:15px;color:#333;line-height:1.6;">${params.summary}</p></div></td></tr>`
+    : "";
+
+  const transcriptSection = params.transcript
+    ? `<tr><td style="padding:0 40px 30px;"><h3 style="margin:0 0 15px;font-size:16px;color:#333;font-weight:600;">Full Transcript</h3><div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;padding:20px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;color:#495057;white-space:pre-wrap;max-height:400px;overflow-y:auto;">${params.transcript}</div></td></tr>`
+    : "";
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;"><table role="presentation" style="width:100%;border-collapse:collapse;"><tr><td style="padding:40px 20px;"><table role="presentation" style="max-width:600px;margin:0 auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+<tr><td style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px 40px;text-align:center;"><h1 style="margin:0;color:white;font-size:24px;font-weight:600;">&#127919; ${params.orgName}</h1><p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:16px;">Has a New AI Voice Lead!</p></td></tr>
+<tr><td style="padding:30px 40px 20px;"><p style="margin:0;font-size:16px;color:#333;line-height:1.5;">Congratulations! Your AI assistant <strong>${params.assistantName}</strong> just completed a call with a potential customer.</p></td></tr>
+${summarySection}
+<tr><td style="padding:0 40px 30px;"><table role="presentation" style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;font-size:14px;color:#666;width:40%;">Assistant:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.assistantName}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Customer Phone:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.customerPhone || "Unknown"}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Call Type:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.callType}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Duration:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.duration}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Timestamp:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.startTime}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Ended Reason:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.endedReason}</td></tr>
+</table></td></tr>
+${recordingButton}
+${transcriptSection}
+<tr><td style="padding:20px 40px 30px;border-top:1px solid #e9ecef;"><p style="margin:0;font-size:12px;color:#666;line-height:1.5;"><strong>Call ID:</strong> ${params.callId}<br><strong>Questions or issues?</strong> Contact <a href="mailto:support@huminic.ai" style="color:#667eea;text-decoration:none;">support@huminic.ai</a></p><p style="margin:15px 0 0;font-size:11px;color:#999;">Powered by Nexxus AI Voice Platform</p></td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+/**
+ * Build HTML email body for a Tavus conversation-ended notification.
+ */
+function buildTavusEmailHtml(params: {
+  orgName: string;
+  visitorName: string;
+  duration: string;
+  summary: string;
+  conversationId: string;
+}): string {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;"><table role="presentation" style="width:100%;border-collapse:collapse;"><tr><td style="padding:40px 20px;"><table role="presentation" style="max-width:600px;margin:0 auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+<tr><td style="background:linear-gradient(135deg,#7c3aed 0%,#a855f7 100%);padding:30px 40px;text-align:center;"><h1 style="margin:0;color:white;font-size:24px;font-weight:600;">&#127916; ${params.orgName}</h1><p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:16px;">Has a New Video Session Lead!</p></td></tr>
+<tr><td style="padding:30px 40px 20px;"><p style="margin:0;font-size:16px;color:#333;line-height:1.5;">A visitor just completed a video session with your AI assistant.</p></td></tr>
+<tr><td style="padding:0 40px 30px;"><table role="presentation" style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;font-size:14px;color:#666;width:40%;">Visitor:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.visitorName}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Session Duration:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.duration}</td></tr>
+</table></td></tr>
+${params.summary ? `<tr><td style="padding:0 40px 20px;"><div style="background:#f8f9fa;border-left:4px solid #7c3aed;padding:16px 20px;border-radius:4px;"><h3 style="margin:0 0 10px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Engagement Summary</h3><p style="margin:0;font-size:15px;color:#333;line-height:1.6;">${params.summary}</p></div></td></tr>` : ""}
+<tr><td style="padding:20px 40px 30px;border-top:1px solid #e9ecef;"><p style="margin:0;font-size:12px;color:#666;line-height:1.5;"><strong>Session ID:</strong> ${params.conversationId}<br><strong>Questions or issues?</strong> Contact <a href="mailto:support@huminic.ai" style="color:#7c3aed;text-decoration:none;">support@huminic.ai</a></p><p style="margin:15px 0 0;font-size:11px;color:#999;">Powered by Nexxus AI Voice Platform</p></td></tr>
+</table></td></tr></table></body></html>`;
+}
+
 const vapiWebhookPayloadSchema = z.object({
   message: z.object({
     type: z.string(),
@@ -159,7 +313,9 @@ const vapiWebhookPayloadSchema = z.object({
       startedAt: z.string().optional(),
       endedAt: z.string().optional(),
       assistantId: z.string().optional(),
+      recordingUrl: z.string().optional(),
     }).optional(),
+    recordingUrl: z.string().optional(),
   }),
 });
 
@@ -264,11 +420,14 @@ export function registerWebhookRoutes(app: Express) {
         const firstName = nameParts[0] || "Unknown";
         const lastName = nameParts.slice(1).join(" ") || "Caller";
 
+        // Strip +1 prefix — VIN Solutions requires 10-digit phone
+        const vinPhone = customerPhone ? customerPhone.replace(/\D/g, "").replace(/^1(\d{10})$/, "$1") : undefined;
         const contactResult = await callMCP("vin_create_contact", {
           orgId: nexxusOrgId,
           firstName,
           lastName,
-          phone: customerPhone || undefined,
+          phone: vinPhone,
+          leadSourceName: "Phone - AI Voice Agent",
         });
         vinContactHref = contactResult?.href || contactResult?.contactHref || contactResult?.id || null;
         console.log(`[VAPI→VIN] Step 1 success: contact created, href=${vinContactHref}`);
@@ -373,6 +532,53 @@ export function registerWebhookRoutes(app: Express) {
       }).catch(() => {});
 
       console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}`);
+
+      // Send email notification to admins (non-blocking)
+      {
+        const org = await storage.getOrganization(organizationId);
+        const orgName = org?.name || "Dealership";
+        let callDurationStr = "Unknown";
+        if (call.startedAt && call.endedAt) {
+          const secs = Math.round((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000);
+          const mins = Math.floor(secs / 60);
+          const remSecs = secs % 60;
+          callDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${secs}s`;
+        }
+
+        // Look up assistant name
+        let assistantName = "AI Voice Assistant";
+        if (agentId) {
+          try {
+            const agents = await storage.getAgents(organizationId);
+            const agent = agents.find(a => a.id === agentId);
+            if (agent?.name) assistantName = agent.name;
+          } catch {}
+        }
+
+        const emailHtml = buildVapiEmailHtml({
+          orgName,
+          assistantName,
+          customerPhone,
+          callType: call.type || "inbound",
+          duration: callDurationStr,
+          endedReason: call.status || "completed",
+          summary: summary || transcript.substring(0, 300),
+          transcript: transcript || "",
+          recordingUrl: call.recordingUrl || message.recordingUrl || null,
+          callId: call.id || "unknown",
+          startTime: call.startedAt ? new Date(call.startedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) : "Unknown",
+        });
+
+        const idempotencyKey = `vapi-${call.id || conversation.id}`;
+        sendLeadNotificationEmail(
+          organizationId,
+          `${orgName} Has a New AI Voice Lead!`,
+          emailHtml,
+          idempotencyKey
+        ).catch((err) => {
+          console.error("[VAPI Webhook] Email notification failed (non-blocking):", err.message);
+        });
+      }
 
       if (transcript && transcript.length > 0) {
         let callDurationSeconds = 0;
@@ -597,6 +803,41 @@ export function registerWebhookRoutes(app: Express) {
       }).catch(() => {});
 
       console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
+
+      // Send email notification to admins (non-blocking)
+      {
+        const org = await storage.getOrganization(organizationId);
+        const orgName = org?.name || "Dealership";
+        let sessionDurationStr = "Unknown";
+        if (tavusData?.started_at && tavusData?.ended_at) {
+          const secs = Math.round((new Date(tavusData.ended_at).getTime() - new Date(tavusData.started_at).getTime()) / 1000);
+          const mins = Math.floor(secs / 60);
+          const remSecs = secs % 60;
+          sessionDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${secs}s`;
+        } else if (tavusData?.duration) {
+          const mins = Math.floor(tavusData.duration / 60);
+          const remSecs = Math.round(tavusData.duration % 60);
+          sessionDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${tavusData.duration}s`;
+        }
+
+        const emailHtml = buildTavusEmailHtml({
+          orgName,
+          visitorName,
+          duration: sessionDurationStr,
+          summary: summary || transcript.substring(0, 300),
+          conversationId: tavusConversationId,
+        });
+
+        const idempotencyKey = `tavus-${tavusConversationId}`;
+        sendLeadNotificationEmail(
+          organizationId,
+          `${orgName} Has a New Video Session Lead!`,
+          emailHtml,
+          idempotencyKey
+        ).catch((err) => {
+          console.error("[Tavus Webhook] Email notification failed (non-blocking):", err.message);
+        });
+      }
 
       if (transcript && transcript.length > 0) {
         let sessionDurationSeconds = 0;
