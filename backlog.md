@@ -98,8 +98,10 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-059 | npm audit: 5 vulnerabilities (3 HIGH in transitive deps) | R-2 infra |
 
 | BL-060 | Resend welcome/invite email for existing users (no endpoint to retry blocked/failed emails) | E2E-1 |
+| BL-061 | Date range selection for analytics — allow users to filter dashboard metrics, insights, and reports by custom date range (day/week/month/quarter/custom) | User requirement |
+| BL-062 | Route all remaining direct API key usage through MCP — VAPI_PRIVATE_KEY (vendorProxy.ts proxy routes), TAVUS_API_KEY (vendorProxy.ts), RESEND_API_KEY (auth.ts, users.ts, conversations.ts, scheduler.ts), FLEXPRICE_API_KEY (billingService.ts). Keys should only exist in central-mcp, not in app .env | REM-8 audit |
 
 ---
 
-**Last updated:** 2026-03-19
-**Total:** 52 items
+**Last updated:** 2026-03-20
+**Total:** 54 items

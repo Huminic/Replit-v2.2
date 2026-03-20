@@ -1,8 +1,9 @@
 Acknowledged-By: orchestrator
-Sprint: REM-8
-Timestamp: 2026-03-20T02:05:00Z
+Sprint: HASH-FIX-1
+Timestamp: 2026-03-20T03:11:00Z
 
-C2: ACKNOWLEDGED — REM-8 evidence directory complete
-C5: ACKNOWLEDGED — REM-8 is current sprint
-C14: ACKNOWLEDGED — CLAUDE.md changes are intentional (filesystem boundary rule)
-C16: ACKNOWLEDGED — Modified files include security scrub of exposed keys in evidence files
+C2: ACKNOWLEDGED — HASH-FIX-1 evidence directory complete
+C5: ACKNOWLEDGED — HASH-FIX-1 is the current sprint
+C9: ACKNOWLEDGED — This sprint exists to fix the C9 chain-of-custody violations caused by git filter-repo
+C14: ACKNOWLEDGED — CLAUDE.md staged changes are intentional (action protocol + filesystem boundary rules)
+C16: ACKNOWLEDGED — Modified files are governance only (sprints.json, CLAUDE.md, issues.md, backlog.md)

@@ -10,11 +10,11 @@
     "tested"
   ],
   "domains": {
-    "FE": "Frontend \u2014 UI, pages, forms, client logic",
-    "BE": "Backend \u2014 APIs, business rules, services, integrations",
-    "DT": "Data \u2014 schema, database, migrations, reporting data",
-    "AU": "Auth/Security \u2014 login, permissions, security controls",
-    "IN": "Infrastructure \u2014 deploys, environments, monitoring, scaling"
+    "FE": "Frontend — UI, pages, forms, client logic",
+    "BE": "Backend — APIs, business rules, services, integrations",
+    "DT": "Data — schema, database, migrations, reporting data",
+    "AU": "Auth/Security — login, permissions, security controls",
+    "IN": "Infrastructure — deploys, environments, monitoring, scaling"
   },
   "sprints": [
     {
@@ -24,7 +24,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T01:00:00Z",
       "completedAt": "2026-03-13T01:57:00Z",
-      "commitHash": "6efea9e"
+      "commitHash": "b764e3c"
     },
     {
       "id": "P0-S1",
@@ -33,7 +33,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T02:05:00Z",
       "completedAt": "2026-03-13T02:19:00Z",
-      "commitHash": "b7d89c3"
+      "commitHash": "c0451e3"
     },
     {
       "id": "P0-S2",
@@ -42,7 +42,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T02:45:00Z",
       "completedAt": "2026-03-13T02:48:00Z",
-      "commitHash": "ddee005"
+      "commitHash": "e288894"
     },
     {
       "id": "P0-S3",
@@ -51,7 +51,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T05:00:00Z",
       "completedAt": "2026-03-13T05:02:00Z",
-      "commitHash": "fd272c0"
+      "commitHash": "8260f6a"
     },
     {
       "id": "P0-S4",
@@ -60,7 +60,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T05:35:00Z",
       "completedAt": "2026-03-13T05:35:00Z",
-      "commitHash": "cf15d88"
+      "commitHash": "dfa3297"
     },
     {
       "id": "P0-S5",
@@ -69,7 +69,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T06:10:00Z",
       "completedAt": "2026-03-13T06:12:00Z",
-      "commitHash": "245e5e0"
+      "commitHash": "03b9660"
     },
     {
       "id": "P0-S6",
@@ -78,7 +78,7 @@
       "status": "committed",
       "startedAt": "2026-03-13T06:15:00Z",
       "completedAt": "2026-03-13T06:20:00Z",
-      "commitHash": "ded220f"
+      "commitHash": "aca5fd2"
     },
     {
       "id": "P1-S0",
@@ -86,7 +86,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:25:00Z",
-      "commitHash": "3b542e9"
+      "commitHash": "7ab9a5c"
     },
     {
       "id": "P1-S1",
@@ -94,7 +94,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:22:00Z",
-      "commitHash": "2c47307"
+      "commitHash": "6ee35be"
     },
     {
       "id": "P1-S2",
@@ -102,7 +102,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:27:00Z",
-      "commitHash": "1bd8d31"
+      "commitHash": "b36e50b"
     },
     {
       "id": "P1-S3",
@@ -110,7 +110,7 @@
       "phase": "P1",
       "status": "committed",
       "startedAt": "2026-03-13T06:30:00Z",
-      "commitHash": "5a6d890"
+      "commitHash": "b2345a5"
     },
     {
       "id": "P2-S0",
@@ -118,15 +118,15 @@
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T06:34:00Z",
-      "commitHash": "4103905"
+      "commitHash": "aafe20b"
     },
     {
       "id": "P2-S1",
-      "name": "Token security \u2014 httpOnly cookies for refresh tokens",
+      "name": "Token security — httpOnly cookies for refresh tokens",
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T19:21:50Z",
-      "commitHash": "cb78830"
+      "commitHash": "b9c81d9"
     },
     {
       "id": "P2-S2",
@@ -134,14 +134,14 @@
       "phase": "P2",
       "status": "committed",
       "startedAt": "2026-03-13T06:37:00Z",
-      "commitHash": "3e6a8a3"
+      "commitHash": "5563a96"
     },
     {
       "id": "P2-S3",
       "name": "Password security and credential handling",
       "phase": "P2",
       "status": "committed",
-      "commitHash": "44f776d"
+      "commitHash": "f87c1b3"
     },
     {
       "id": "P3-S0",
@@ -149,68 +149,68 @@
       "phase": "P3",
       "status": "committed",
       "startedAt": "2026-03-13T06:40:00Z",
-      "commitHash": "7363146"
+      "commitHash": "004f616"
     },
     {
       "id": "P3-S1",
-      "name": "Route registration pattern \u2014 extract health + auth routes",
+      "name": "Route registration pattern — extract health + auth routes",
       "phase": "P3",
       "status": "committed",
-      "commitHash": "71108ab"
+      "commitHash": "8c5354d"
     },
     {
       "id": "P3-S2",
-      "name": "Frontend architecture \u2014 AppContext split",
+      "name": "Frontend architecture — AppContext split",
       "phase": "P3",
       "status": "committed",
       "startedAt": "2026-03-13T19:28:36Z",
-      "commitHash": "2174d9d"
+      "commitHash": "ab2ccde"
     },
     {
       "id": "P4-S0",
       "name": "Final snapshot and baseline tag",
       "phase": "P4",
       "status": "committed",
-      "commitHash": "91be118"
+      "commitHash": "a5219ca"
     },
     {
       "id": "P4-S1",
       "name": "Extract organization, user, and role routes",
       "phase": "P4",
       "status": "committed",
-      "commitHash": "5d2f218"
+      "commitHash": "2dc9a03"
     },
     {
       "id": "P4-S2",
       "name": "Extract communication routes (campaigns, conversations, notifications, SMS)",
       "phase": "P4",
       "status": "committed",
-      "commitHash": "f63599e"
+      "commitHash": "bc1eb97"
     },
     {
       "id": "P4-S3",
       "name": "Extract agent, chat, and knowledge/document routes",
       "phase": "P4",
       "status": "committed",
-      "commitHash": "7f04732"
+      "commitHash": "8f09017"
     },
     {
       "id": "P4-S4",
       "name": "Extract remaining routes and retire monolith",
       "phase": "P4",
       "status": "committed",
-      "commitHash": "2660160"
+      "commitHash": "d5451b1"
     },
     {
       "id": "P5-S0",
       "name": "Test infrastructure setup",
       "phase": "P5",
       "status": "committed",
-      "commitHash": "6cf3735"
+      "commitHash": "cbb25a7"
     },
     {
       "id": "QA-S0",
-      "name": "Feature inventory \u2014 map application domains, pages, endpoints, and user flows",
+      "name": "Feature inventory — map application domains, pages, endpoints, and user flows",
       "phase": "QA",
       "status": "committed",
       "startedAt": "2026-03-14T00:00:00Z",
@@ -218,11 +218,11 @@
         "evidence/QA-S0/",
         "sprints.json"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S1",
-      "name": "Feature testing \u2014 Authentication + Infrastructure/Security",
+      "name": "Feature testing — Authentication + Infrastructure/Security",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -232,11 +232,11 @@
       "dependencies": [
         "QA-S0"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S2",
-      "name": "Feature testing \u2014 AI Agent, Chat streaming (SSE)",
+      "name": "Feature testing — AI Agent, Chat streaming (SSE)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -246,11 +246,11 @@
       "dependencies": [
         "QA-S1"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S3",
-      "name": "Feature testing \u2014 Campaigns, Conversations, Messaging",
+      "name": "Feature testing — Campaigns, Conversations, Messaging",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -260,11 +260,11 @@
       "dependencies": [
         "QA-S2"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S4",
-      "name": "Feature testing \u2014 Dashboard, Dept views, Analytics",
+      "name": "Feature testing — Dashboard, Dept views, Analytics",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -274,11 +274,11 @@
       "dependencies": [
         "QA-S3"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S5",
-      "name": "Feature testing \u2014 Settings, Profile, Billing",
+      "name": "Feature testing — Settings, Profile, Billing",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -288,11 +288,11 @@
       "dependencies": [
         "QA-S4"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S6",
-      "name": "Feature testing \u2014 Tasks, Appointments, Integrations, Public widgets",
+      "name": "Feature testing — Tasks, Appointments, Integrations, Public widgets",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -302,11 +302,11 @@
       "dependencies": [
         "QA-S5"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S7",
-      "name": "Gap analysis \u2014 merge findings, prioritize remediation",
+      "name": "Gap analysis — merge findings, prioritize remediation",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -316,11 +316,11 @@
       "dependencies": [
         "QA-S6"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "QA-S8",
-      "name": "Remediation plan \u2014 define FIX sprints",
+      "name": "Remediation plan — define FIX sprints",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -330,14 +330,14 @@
       "dependencies": [
         "QA-S7"
       ],
-      "commitHash": "634e695"
+      "commitHash": "9198948"
     },
     {
       "id": "FIX-S0",
       "name": "Fix MAJOR defects + commit governance fixes + QA evidence",
       "phase": "FIX",
       "status": "committed",
-      "commitHash": "634e695",
+      "commitHash": "9198948",
       "scope": [
         "server/index.ts",
         "server/routes/users.ts",
@@ -362,7 +362,7 @@
     },
     {
       "id": "FIX-S1",
-      "name": "Governance remediation \u2014 missing artifacts, enforcer checklists, harness tooling",
+      "name": "Governance remediation — missing artifacts, enforcer checklists, harness tooling",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -378,11 +378,11 @@
       "dependencies": [
         "FIX-S0"
       ],
-      "commitHash": "551a3a9"
+      "commitHash": "8f61d60"
     },
     {
       "id": "QA-S9",
-      "name": "Authenticated testing \u2014 Auth flows (L2/L3)",
+      "name": "Authenticated testing — Auth flows (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -393,11 +393,11 @@
       "dependencies": [
         "FIX-S0"
       ],
-      "commitHash": "551a3a9"
+      "commitHash": "8f61d60"
     },
     {
       "id": "QA-S10",
-      "name": "Authenticated testing \u2014 AI Agent, Chat (L2/L3)",
+      "name": "Authenticated testing — AI Agent, Chat (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -408,11 +408,11 @@
       "dependencies": [
         "QA-S9"
       ],
-      "commitHash": "551a3a9"
+      "commitHash": "8f61d60"
     },
     {
       "id": "FIX-S2",
-      "name": "Governance housekeeping \u2014 sprint status sync + watchdog integration",
+      "name": "Governance housekeeping — sprint status sync + watchdog integration",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -427,11 +427,11 @@
       "dependencies": [
         "FIX-S1"
       ],
-      "commitHash": "090e9ba"
+      "commitHash": "9cde984"
     },
     {
       "id": "QA-S11",
-      "name": "Authenticated testing \u2014 Campaigns + Conversations (L2/L3)",
+      "name": "Authenticated testing — Campaigns + Conversations (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -442,11 +442,11 @@
       "dependencies": [
         "QA-S10"
       ],
-      "commitHash": "1e976c5"
+      "commitHash": "fec45ad"
     },
     {
       "id": "QA-S12",
-      "name": "Authenticated testing \u2014 Dashboard, Dept views, Analytics (L2/L3)",
+      "name": "Authenticated testing — Dashboard, Dept views, Analytics (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -458,11 +458,11 @@
       "dependencies": [
         "QA-S11"
       ],
-      "commitHash": "dfd87e0"
+      "commitHash": "b42ace8"
     },
     {
       "id": "QA-S13",
-      "name": "Authenticated testing \u2014 Settings, Billing, Profile (L2/L3)",
+      "name": "Authenticated testing — Settings, Billing, Profile (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -473,11 +473,11 @@
       "dependencies": [
         "QA-S12"
       ],
-      "commitHash": "7d2d520"
+      "commitHash": "8db914a"
     },
     {
       "id": "QA-S14",
-      "name": "Authenticated testing \u2014 Tasks, Integrations, Public widgets (L2/L3)",
+      "name": "Authenticated testing — Tasks, Integrations, Public widgets (L2/L3)",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -488,11 +488,11 @@
       "dependencies": [
         "QA-S13"
       ],
-      "commitHash": "9bebe30"
+      "commitHash": "2619ff3"
     },
     {
       "id": "QA-S15",
-      "name": "Final gap analysis \u2014 merge L1 + L2 findings",
+      "name": "Final gap analysis — merge L1 + L2 findings",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -503,11 +503,11 @@
       "dependencies": [
         "QA-S14"
       ],
-      "commitHash": "f0d966c"
+      "commitHash": "7767d97"
     },
     {
       "id": "FIX-S3",
-      "name": "Auth fixes \u2014 logout bug, error message, restart tour, org wizard, org data correction",
+      "name": "Auth fixes — logout bug, error message, restart tour, org wizard, org data correction",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -524,11 +524,11 @@
       "dependencies": [
         "QA-S15"
       ],
-      "commitHash": "4ac05ca"
+      "commitHash": "5e78e71"
     },
     {
       "id": "FIX-S4",
-      "name": "FlexPrice billing connection \u2014 link customers, subscriptions, plans",
+      "name": "FlexPrice billing connection — link customers, subscriptions, plans",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -540,11 +540,11 @@
       "dependencies": [
         "FIX-S3"
       ],
-      "commitHash": "b1d75f5"
+      "commitHash": "d938a72"
     },
     {
       "id": "FIX-S5",
-      "name": "Chat usability \u2014 activity history, campaign data, empty state handling",
+      "name": "Chat usability — activity history, campaign data, empty state handling",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -555,11 +555,11 @@
       "dependencies": [
         "FIX-S4"
       ],
-      "commitHash": "3d99987"
+      "commitHash": "4c377ce"
     },
     {
       "id": "FIX-S6",
-      "name": "Chat tuning \u2014 conversational formatting, multi-org context, status events",
+      "name": "Chat tuning — conversational formatting, multi-org context, status events",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -570,11 +570,11 @@
       "dependencies": [
         "FIX-S5"
       ],
-      "commitHash": "0f27dc4"
+      "commitHash": "79e87f0"
     },
     {
       "id": "FIX-S7",
-      "name": "Type safety cleanup \u2014 remove unnecessary as-any casts",
+      "name": "Type safety cleanup — remove unnecessary as-any casts",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -590,11 +590,11 @@
       "dependencies": [
         "FIX-S6"
       ],
-      "commitHash": "69a96dc"
+      "commitHash": "2809423"
     },
     {
       "id": "FIX-S8",
-      "name": "Cleanup \u2014 documentation corrections, header notes",
+      "name": "Cleanup — documentation corrections, header notes",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -605,11 +605,11 @@
       "dependencies": [
         "FIX-S7"
       ],
-      "commitHash": "b6fa3a7"
+      "commitHash": "e96774b"
     },
     {
       "id": "QA-S16",
-      "name": "Live communication testing \u2014 VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
+      "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -620,11 +620,11 @@
       "dependencies": [
         "FIX-S8"
       ],
-      "commitHash": "af0d2e6"
+      "commitHash": "952abfc"
     },
     {
       "id": "QA-S17",
-      "name": "Data integrity \u2014 metrics, calculations, insights match actual data",
+      "name": "Data integrity — metrics, calculations, insights match actual data",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -634,11 +634,11 @@
       "dependencies": [
         "QA-S16"
       ],
-      "commitHash": "f0c6dae"
+      "commitHash": "d0242d3"
     },
     {
       "id": "QA-S18",
-      "name": "Marketing agents \u2014 verify each agent produces correct asset type",
+      "name": "Marketing agents — verify each agent produces correct asset type",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -648,11 +648,11 @@
       "dependencies": [
         "QA-S17"
       ],
-      "commitHash": "7393dec"
+      "commitHash": "c2cb07a"
     },
     {
       "id": "FIX-S9",
-      "name": "Fix open defects \u2014 campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
+      "name": "Fix open defects — campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -670,11 +670,11 @@
       "dependencies": [
         "QA-S18"
       ],
-      "commitHash": "055a87a"
+      "commitHash": "6360474"
     },
     {
       "id": "QA-S19",
-      "name": "Full audit \u2014 feature map + user stories + acceptance criteria walkthrough",
+      "name": "Full audit — feature map + user stories + acceptance criteria walkthrough",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -684,7 +684,7 @@
       "dependencies": [
         "FIX-S9"
       ],
-      "commitHash": "e7c43bc"
+      "commitHash": "1cb8776"
     },
     {
       "id": "FIX-S10",
@@ -704,11 +704,11 @@
       "dependencies": [
         "QA-S19"
       ],
-      "commitHash": "6f54566"
+      "commitHash": "bab0080"
     },
     {
       "id": "QA-S19L5",
-      "name": "L5 Admin walkthrough \u2014 user-reported findings collection",
+      "name": "L5 Admin walkthrough — user-reported findings collection",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -718,11 +718,11 @@
       "dependencies": [
         "FIX-S10"
       ],
-      "commitHash": "106e1f1"
+      "commitHash": "19e74ef"
     },
     {
       "id": "QA-S20",
-      "name": "Full communications test \u2014 VAPI, TextMagic, Tavus, campaigns E2E",
+      "name": "Full communications test — VAPI, TextMagic, Tavus, campaigns E2E",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -732,11 +732,11 @@
       "dependencies": [
         "QA-S19L5"
       ],
-      "commitHash": "4a35925"
+      "commitHash": "1786429"
     },
     {
       "id": "QA-S21",
-      "name": "Full E2E usability test \u2014 every page, every role, Playwright screenshots",
+      "name": "Full E2E usability test — every page, every role, Playwright screenshots",
       "phase": "QA",
       "status": "committed",
       "scope": [
@@ -747,11 +747,11 @@
       "dependencies": [
         "QA-S20"
       ],
-      "commitHash": "f017498"
+      "commitHash": "406d70b"
     },
     {
       "id": "FIX-S11",
-      "name": "Wave 2 bug fix \u2014 all QA-S19L5 + QA-S20 + QA-S21 defects",
+      "name": "Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects",
       "phase": "FIX",
       "status": "committed",
       "scope": [
@@ -769,7 +769,7 @@
       "dependencies": [
         "QA-S21"
       ],
-      "commitHash": "448e81a"
+      "commitHash": "d9160e1"
     },
     {
       "id": "R-1",
@@ -787,7 +787,7 @@
         "FIX-S11"
       ],
       "description": "Consolidate ALL open issues from QA-S19L5, QA-S20, QA-S21, FIX-S11 gaps, and backlog into a single issues.md file. Update governance files and enforcement harness to use issues.md as the single source of truth for open issues going forward. Realign the plan for a clear line of sight to launch.",
-      "commitHash": "72c5672"
+      "commitHash": "a01ecef"
     },
     {
       "id": "I-1",
@@ -805,11 +805,11 @@
       "dependencies": [
         "R-1"
       ],
-      "commitHash": "2b29dd2"
+      "commitHash": "035fb0e"
     },
     {
       "id": "T-1",
-      "name": "Verification testing \u2014 all 15 I-1 fixes against AC",
+      "name": "Verification testing — all 15 I-1 fixes against AC",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -820,14 +820,14 @@
         "I-1"
       ],
       "completedAt": "2026-03-17T12:00:00Z",
-      "commitHash": "dfc3463"
+      "commitHash": "93322e9"
     },
     {
       "id": "I-039",
       "name": "Route all third-party communications through MCP",
       "phase": "I",
       "status": "committed",
-      "commitHash": "7d31c11",
+      "commitHash": "905c4a0",
       "scope": [
         "server/outbound.ts",
         "server/vendorProxy.ts",
@@ -845,7 +845,7 @@
     },
     {
       "id": "ORG-1",
-      "name": "File reorganization \u2014 governance docs, acceptance criteria, user stories",
+      "name": "File reorganization — governance docs, acceptance criteria, user stories",
       "phase": "ORG",
       "status": "committed",
       "scope": [
@@ -864,7 +864,7 @@
         "I-039"
       ],
       "description": "Reorganize all project documents. Consolidate issues, create acceptance criteria with 85 checkable items, save user stories, create harness.md, update CLAUDE.md, archive old files.",
-      "commitHash": "2d505be"
+      "commitHash": "9756b94"
     },
     {
       "id": "AC-1",
@@ -883,11 +883,11 @@
         "ORG-1"
       ],
       "description": "Reconcile feature map and user stories against current code. Set up Playwright config. Create test files organized by feature domain (domains 1-12) with each test mapped to a criterion ID. Clean up or replace existing Vitest stubs in tests/observability/. 3 criteria expected to fail (4.10, 11.2, 11.6) due to open issues.",
-      "commitHash": "e249b69"
+      "commitHash": "71fb61c"
     },
     {
       "id": "T-2",
-      "name": "Full application test (autonomous) \u2014 comms + usability end-to-end",
+      "name": "Full application test (autonomous) — comms + usability end-to-end",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -902,11 +902,11 @@
         "AC-1"
       ],
       "description": "Run complete Playwright test suite against all domains. Findings go to issues.md with domain tags.",
-      "commitHash": "a9696e3"
+      "commitHash": "9cadba5"
     },
     {
       "id": "R-2",
-      "name": "Codebase refactoring scan \u2014 major issues + backlog categorization",
+      "name": "Codebase refactoring scan — major issues + backlog categorization",
       "phase": "R",
       "status": "committed",
       "scope": [
@@ -919,7 +919,7 @@
         "T-2"
       ],
       "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix in issues.md with domain tags, categorize everything else into backlog.md.",
-      "commitHash": "6667c2e"
+      "commitHash": "e8f521d"
     },
     {
       "id": "REM-1",
@@ -942,7 +942,7 @@
         {
           "id": "REM-1-FE",
           "domain": "FE",
-          "name": "Frontend \u2014 UI, pages, forms, client logic",
+          "name": "Frontend — UI, pages, forms, client logic",
           "scope": [
             "client/src/"
           ]
@@ -950,7 +950,7 @@
         {
           "id": "REM-1-BE",
           "domain": "BE",
-          "name": "Backend \u2014 APIs, business rules, services, integrations",
+          "name": "Backend — APIs, business rules, services, integrations",
           "scope": [
             "server/"
           ]
@@ -958,7 +958,7 @@
         {
           "id": "REM-1-DT",
           "domain": "DT",
-          "name": "Data \u2014 schema, database, migrations, reporting data",
+          "name": "Data — schema, database, migrations, reporting data",
           "scope": [
             "shared/schema.ts",
             "server/storage.ts"
@@ -967,7 +967,7 @@
         {
           "id": "REM-1-AU",
           "domain": "AU",
-          "name": "Auth/Security \u2014 login, permissions, security controls",
+          "name": "Auth/Security — login, permissions, security controls",
           "scope": [
             "server/auth.ts",
             "server/routes/auth.ts"
@@ -976,18 +976,18 @@
         {
           "id": "REM-1-IN",
           "domain": "IN",
-          "name": "Infrastructure \u2014 deploys, environments, monitoring, scaling",
+          "name": "Infrastructure — deploys, environments, monitoring, scaling",
           "scope": [
             "scripts/",
             ".env"
           ]
         }
       ],
-      "commitHash": "00931dd"
+      "commitHash": "2902c8e"
     },
     {
       "id": "T-3",
-      "name": "Full application test (autonomous) \u2014 post-remediation verification",
+      "name": "Full application test (autonomous) — post-remediation verification",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -999,11 +999,11 @@
         "REM-1"
       ],
       "description": "Rerun complete test suite after remediation. Loop back to REM if issues remain.",
-      "commitHash": "b62dfd2"
+      "commitHash": "822e58f"
     },
     {
       "id": "REM-2",
-      "name": "Remediation round 2 \u2014 loginViaUI fix + remaining BE/FE issues",
+      "name": "Remediation round 2 — loginViaUI fix + remaining BE/FE issues",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1017,11 +1017,11 @@
         "T-3"
       ],
       "description": "Fix loginViaUI test infrastructure (28 tests blocked), remaining campaign/tasks/billing bugs.",
-      "commitHash": "243bd53"
+      "commitHash": "3e76bf4"
     },
     {
       "id": "T-4",
-      "name": "Full application test \u2014 post-REM-2 (loginViaUI fix)",
+      "name": "Full application test — post-REM-2 (loginViaUI fix)",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -1032,11 +1032,11 @@
       "dependencies": [
         "REM-2"
       ],
-      "commitHash": "fdcdacd"
+      "commitHash": "7a6f7a7"
     },
     {
       "id": "REM-3",
-      "name": "Remediation round 3 \u2014 6 user-reported bugs + test fixes",
+      "name": "Remediation round 3 — 6 user-reported bugs + test fixes",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1054,29 +1054,29 @@
         {
           "id": "REM-3-AU",
           "domain": "AU",
-          "name": "Auth \u2014 Super Admin org, org switch, rate limiter"
+          "name": "Auth — Super Admin org, org switch, rate limiter"
         },
         {
           "id": "REM-3-FE",
           "domain": "FE",
-          "name": "Frontend \u2014 tour, sidebar links, lead modal"
+          "name": "Frontend — tour, sidebar links, lead modal"
         },
         {
           "id": "REM-3-DT",
           "domain": "DT",
-          "name": "Data \u2014 dashboard metrics verification"
+          "name": "Data — dashboard metrics verification"
         },
         {
           "id": "REM-3-TI",
           "domain": "TI",
-          "name": "Test infrastructure \u2014 selectors, conversation API"
+          "name": "Test infrastructure — selectors, conversation API"
         }
       ],
-      "commitHash": "f74f718"
+      "commitHash": "d5b6846"
     },
     {
       "id": "ALN-1",
-      "name": "Alignment \u2014 harness fixes, smoke test requirements, issues verification",
+      "name": "Alignment — harness fixes, smoke test requirements, issues verification",
       "phase": "ALN",
       "status": "committed",
       "scope": [
@@ -1091,11 +1091,11 @@
         "REM-3"
       ],
       "description": "Fix governance workflow gaps. Add smoke testing to sprint lifecycle. Verify all issues. Stress test harness.",
-      "commitHash": "68e30f5"
+      "commitHash": "73dbdc8"
     },
     {
       "id": "REM-4",
-      "name": "Remediation round 4 \u2014 test fixes, BE fixes, widget verification tests",
+      "name": "Remediation round 4 — test fixes, BE fixes, widget verification tests",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1109,11 +1109,11 @@
       "dependencies": [
         "ALN-1"
       ],
-      "commitHash": "4a1ed54"
+      "commitHash": "3424944"
     },
     {
       "id": "T-5",
-      "name": "Full application test \u2014 post-ALN-1 (rate limiter + campaign + TI fixes)",
+      "name": "Full application test — post-ALN-1 (rate limiter + campaign + TI fixes)",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -1124,11 +1124,11 @@
       "dependencies": [
         "ALN-1"
       ],
-      "commitHash": "233f906"
+      "commitHash": "11e6108"
     },
     {
       "id": "T-6",
-      "name": "Full application test \u2014 post-REM-4 (auth persistence fix)",
+      "name": "Full application test — post-REM-4 (auth persistence fix)",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -1139,11 +1139,11 @@
       "dependencies": [
         "REM-4"
       ],
-      "commitHash": "04359ec"
+      "commitHash": "f95242e"
     },
     {
       "id": "AUDIT-1",
-      "name": "Governance remediation \u2014 full project code audit and evidence fixes",
+      "name": "Governance remediation — full project code audit and evidence fixes",
       "phase": "AUDIT",
       "status": "committed",
       "scope": [
@@ -1156,7 +1156,7 @@
         "T-6"
       ],
       "description": "Audit every code-touching sprint with dual agents. Rewrite every pre-exec with real success criteria. Verify all claims. Document all defects. No code changes.",
-      "commitHash": "2843bbc"
+      "commitHash": "fa44c9f"
     },
     {
       "id": "DEPLOY-1",
@@ -1174,11 +1174,11 @@
         "AUDIT-1"
       ],
       "description": "Rewrite dealer widget JS to use Tavus directly (no custom UI). Add CORS for cross-origin widget API. Deploy to live.huminic.app via Caddy + DNS.",
-      "commitHash": "ef1f490"
+      "commitHash": "a177914"
     },
     {
       "id": "REM-5",
-      "name": "Remediation round 5 \u2014 16 T-6 failures (9 test, 3 app, 2 investigate, 2 firm)",
+      "name": "Remediation round 5 — 16 T-6 failures (9 test, 3 app, 2 investigate, 2 firm)",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1192,11 +1192,11 @@
       "dependencies": [
         "DEPLOY-1"
       ],
-      "commitHash": "797608b"
+      "commitHash": "49e0a18"
     },
     {
       "id": "REM-6",
-      "name": "Remediation round 6 \u2014 tour dismiss in tests, billing route guard",
+      "name": "Remediation round 6 — tour dismiss in tests, billing route guard",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1209,11 +1209,11 @@
       "dependencies": [
         "REM-5"
       ],
-      "commitHash": "7fee26a"
+      "commitHash": "77f84c4"
     },
     {
       "id": "T-7",
-      "name": "Full application test \u2014 post-REM-5/REM-6",
+      "name": "Full application test — post-REM-5/REM-6",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -1224,11 +1224,11 @@
       "dependencies": [
         "REM-6"
       ],
-      "commitHash": "908e439"
+      "commitHash": "077dd30"
     },
     {
       "id": "REM-7",
-      "name": "Remediation round 7 \u2014 final 6 test fixes",
+      "name": "Remediation round 7 — final 6 test fixes",
       "phase": "REM",
       "status": "committed",
       "scope": [
@@ -1240,11 +1240,11 @@
       "dependencies": [
         "T-7"
       ],
-      "commitHash": "45dbd12"
+      "commitHash": "9cfc5ab"
     },
     {
       "id": "E2E-1",
-      "name": "Full E2E flow tests \u2014 comms, webhooks, campaigns, TeamBox, VIN integration",
+      "name": "Full E2E flow tests — comms, webhooks, campaigns, TeamBox, VIN integration",
       "phase": "E2E",
       "status": "committed",
       "scope": [
@@ -1256,11 +1256,11 @@
       "dependencies": [
         "REM-7"
       ],
-      "commitHash": "69db444"
+      "commitHash": "4d826e5"
     },
     {
       "id": "T-8",
-      "name": "Full test \u2014 all projects including E2E flows",
+      "name": "Full test — all projects including E2E flows",
       "phase": "T",
       "status": "committed",
       "scope": [
@@ -1271,14 +1271,14 @@
       "dependencies": [
         "E2E-1"
       ],
-      "commitHash": "3c2a3f3"
+      "commitHash": "8010e76"
     },
     {
       "id": "DB-1",
-      "name": "Supabase database migration \u2014 schema swap + user preservation",
+      "name": "Supabase database migration — schema swap + user preservation",
       "phase": "DB",
       "status": "committed",
-      "commitHash": "d4c74fe",
+      "commitHash": "81d0ed4",
       "scope": [
         ".env",
         "drizzle.config.ts",
@@ -1292,9 +1292,10 @@
     },
     {
       "id": "REM-8",
-      "name": "Remediation round 8 \u2014 org switch fix, webhook emails, VIN lead import",
+      "name": "Remediation round 8 — org switch fix, webhook emails, VIN lead import",
       "phase": "REM",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "e9167e4",
       "scope": [
         "server/routes/auth.ts",
         "server/routes/webhooks.ts",
@@ -1304,29 +1305,83 @@
         "issues.md",
         "sprints.json"
       ],
-      "dependencies": ["DB-1"],
+      "dependencies": [
+        "DB-1"
+      ],
       "description": "Fix Partner Admin org switch (I-088), implement webhook email notifications for VAPI+Tavus (I-087), insert VAPI call log leads into VIN Solutions (I-086).",
       "sub_sprints": [
         {
           "id": "REM-8-AU",
           "domain": "AU",
-          "name": "Auth \u2014 Partner Admin org switch fix"
+          "name": "Auth — Partner Admin org switch fix"
         },
         {
           "id": "REM-8-BE",
           "domain": "BE",
-          "name": "Backend \u2014 Webhook email notifications"
+          "name": "Backend — Webhook email notifications"
         },
         {
           "id": "REM-8-DT",
           "domain": "DT",
-          "name": "Data \u2014 VIN Solutions lead import"
+          "name": "Data — VIN Solutions lead import"
+        }
+      ]
+    },
+    {
+      "id": "HASH-FIX-1",
+      "name": "Fix sprints.json commit hashes after git filter-repo rewrite",
+      "phase": "FIX",
+      "status": "in_progress",
+      "scope": [
+        "sprints.json",
+        "evidence/HASH-FIX-1/"
+      ],
+      "dependencies": [
+        "REM-8"
+      ],
+      "description": "git filter-repo rewrote all commit SHAs when scrubbing exposed API keys. All 80+ commitHash values in sprints.json are now invalid. Update to post-rewrite hashes using git log mapping."
+    },
+    {
+      "id": "REM-9",
+      "name": "Remediation round 9 — contact modal, insights calc, sync date mapping, test coverage gaps",
+      "phase": "REM",
+      "status": "planned",
+      "scope": [
+        "server/sync.ts",
+        "server/routes/insights.ts",
+        "server/routes/metrics.ts",
+        "client/src/pages/main.tsx",
+        "client/src/pages/sales.tsx",
+        "tests/e2e/",
+        "evidence/REM-9/",
+        "issues.md",
+        "sprints.json"
+      ],
+      "dependencies": [
+        "REM-8"
+      ],
+      "description": "Fix contact modal (I-089), insights calculations (I-090), sync date mapping. Then create real comms test scripts covering ghost audit gaps (I-091 through I-094, TG-001 through TG-010).",
+      "sub_sprints": [
+        {
+          "id": "REM-9-BE",
+          "domain": "BE",
+          "name": "Backend — sync date mapping, insights calculation, takeover fix"
+        },
+        {
+          "id": "REM-9-FE",
+          "domain": "FE",
+          "name": "Frontend — contact modal fix (requires user approval)"
+        },
+        {
+          "id": "REM-9-TI",
+          "domain": "TI",
+          "name": "Test Infrastructure — real comms test scripts, coverage gaps"
         }
       ]
     },
     {
       "id": "L5-1",
-      "name": "User walkthrough \u2014 human evaluation and sign-off",
+      "name": "User walkthrough — human evaluation and sign-off",
       "phase": "L5",
       "status": "planned",
       "scope": [
@@ -1341,7 +1396,7 @@
     },
     {
       "id": "LAUNCH-S0",
-      "name": "Infrastructure \u2014 Coolify container, env vars, Caddy, widget JS URLs",
+      "name": "Infrastructure — Coolify container, env vars, Caddy, widget JS URLs",
       "phase": "LAUNCH",
       "status": "planned",
       "scope": [
@@ -1367,7 +1422,7 @@
     },
     {
       "id": "LAUNCH-S2",
-      "name": "User sign-off \u2014 ship it",
+      "name": "User sign-off — ship it",
       "phase": "LAUNCH",
       "status": "planned",
       "scope": [

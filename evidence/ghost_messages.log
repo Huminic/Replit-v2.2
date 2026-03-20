@@ -19,3 +19,10 @@ Severity: BLOCK
 From: watchdog
 Message: Pre-execution reports for T-5 and T-6 were written retroactively and lack substance. You must go back and rewrite BOTH pre-execution reports with: (1) ## Objective — what the sprint does and why, (2) ## Declared Files — every file touched, (3) ## Success Criteria — specific, measurable criteria that can be verified after the fact. Then verify the post-sprint results against those criteria and document whether each criterion was met. This is not optional. The harness now checks pre-exec quality (C19) and flags bulk-generated artifacts as VIOLATION (C18).
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260320-035633
+Timestamp: 2026-03-20T03:56:33Z
+Severity: BLOCK
+From: watchdog
+Message: Three violations detected: (1) server/sync.ts and server/vendorProxy.ts modified outside sprint scope — revert with git checkout before proceeding. (2) All sprints.json commitHash values invalid after filter-repo — must be fixed in a registered sprint. (3) Undeclared file changes in C17. No commits until all three are resolved in order: revert first, hash fix second, sync fix third.
+Status: ACKNOWLEDGED

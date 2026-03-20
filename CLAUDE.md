@@ -56,6 +56,9 @@ Before every REM sprint, produce a **Loop Prep Document** (`evidence/REM-n/loop-
 - After every T-n run, new failures go INTO issues.md as OPEN with domain tags.
 - After every REM-n, statuses are updated — never silently removed.
 
+## Action Protocol (CRITICAL)
+Do NOT take action (edit files, run commands, dispatch agents) unless the user explicitly directs it. When the user asks a question or presents information, RESPOND with analysis and options — do NOT jump into execution. Wait for explicit instruction before proceeding. "Yes" or "go ahead" or a specific directive means act. A question or observation does NOT mean act.
+
 ## Agent Filesystem Boundaries (CRITICAL)
 Builder agents MUST NOT modify files outside this project directory (`/home/ubuntu/Claude-store/nexxus2.2_replit/`). This includes:
 - `/home/ubuntu/Claude-store/central-mcp/` — MCP server (separate project)

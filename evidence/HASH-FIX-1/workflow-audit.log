@@ -1,0 +1,5 @@
+agent-launch scope=sprints.json,CLAUDE.md,issues.md,backlog.md,evidence/ role=orchestrator sprint=HASH-FIX-1 ts=2026-03-20T03:00:00Z
+action=hash-mapping target=sprints.json result=86-hashes-updated-0-invalid ts=2026-03-20T03:10:00Z
+[2026-03-20T04:02:22Z] PRE-COMMIT role=orchestrator sprint=HASH-FIX-1 result=BLOCKED detail="Cross-sign embedded timestamp is stale (3136s ago). Re-generate the artifact."
+[2026-03-20T04:02:41Z] PRE-COMMIT role=orchestrator sprint=HASH-FIX-1 result=BLOCKED detail="Staged files outside orchestrator scope."
+[2026-03-20T04:03:28Z] PRE-COMMIT role=orchestrator sprint=HASH-FIX-1 result=PASS detail="All 7 gates passed"
