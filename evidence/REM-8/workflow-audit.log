@@ -1,4 +1,4 @@
-agent-launch scope=server/routes/auth.ts,server/routes/webhooks.ts,server/outbound.ts,server/seed.ts,tests/e2e/,evidence/REM-8/,issues.md,CLAUDE.md role=orchestrator sprint=REM-8 ts=2026-03-19T21:35:00Z
+agent-launch scope=server/routes/auth.ts,server/routes/webhooks.ts,server/outbound.ts,server/seed.ts,scripts/enforcer-checklist.sh,tests/e2e/,evidence/,attached_assets/,issues.md,CLAUDE.md role=orchestrator sprint=REM-8 ts=2026-03-19T21:35:00Z
 sub-sprint=REM-8-AU agent=rem8-au-builder result=4/4-pass ts=2026-03-19T22:30:00Z
 sub-sprint=REM-8-BE agent=rem8-be-builder result=LC-13-LC-14-pass ts=2026-03-19T23:00:00Z
 sub-sprint=REM-8-DT agent=rem8-dt-builder result=55-contacts-created ts=2026-03-20T00:15:00Z
@@ -12,3 +12,8 @@ action=full-suite target=playwright result=107-passed-0-failed ts=2026-03-20T00:
 [2026-03-20T00:58:42Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
 [2026-03-20T01:02:08Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Staged files not declared in pre-execution report: server/seed.ts. Update ## Declared Files section."
 [2026-03-20T01:02:35Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=PASS detail="All 7 gates passed"
+[2026-03-20T02:05:11Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Enforcer checklist is stale (modified 3798s ago, max 1800s). Re-run the generator."
+[2026-03-20T02:05:46Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Watchdog gate: Ack is 66 minutes old (max 60). Re-acknowledge."
+[2026-03-20T02:07:10Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Cross-sign is stale (modified 4165s ago, max 1800s). Re-run the generator."
+[2026-03-20T02:07:22Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=BLOCKED detail="Cross-sign embedded timestamp is stale (5476s ago). Re-generate the artifact."
+[2026-03-20T02:07:47Z] PRE-COMMIT role=orchestrator sprint=REM-8 result=PASS detail="All 7 gates passed"

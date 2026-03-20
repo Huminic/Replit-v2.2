@@ -309,7 +309,7 @@ Add a small credit balance indicator to the sidebar or header:
 ## Environment Variables to Add
 
 ```
-FLEXPRICE_API_KEY=REDACTED-FLEXPRICE-API-KEY
+FLEXPRICE_API_KEY=<REDACTED>
 FLEXPRICE_BASE_URL=https://api.cloud.flexprice.io/v1
 ```
 

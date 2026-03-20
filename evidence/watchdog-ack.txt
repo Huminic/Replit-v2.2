@@ -1,10 +1,8 @@
 Acknowledged-By: orchestrator
 Sprint: REM-8
-Timestamp: 2026-03-20T00:59:00Z
+Timestamp: 2026-03-20T02:05:00Z
 
-C2: ACKNOWLEDGED — REM-8 evidence directory is complete with all required artifacts
-C5: ACKNOWLEDGED — REM-8 is the current sprint
-C7: ACKNOWLEDGED — Session state updated this session
-C14: ACKNOWLEDGED — CLAUDE.md staged changes are intentional: added Agent Filesystem Boundaries rule and updated Current State section after DB-1 migration and REM-8 governance incident
-C15: ACKNOWLEDGED — Memory updated this session
-C16: ACKNOWLEDGED — Modified files are application code changes for I-088, I-087, screenshots from Playwright re-runs
+C2: ACKNOWLEDGED — REM-8 evidence directory complete
+C5: ACKNOWLEDGED — REM-8 is current sprint
+C14: ACKNOWLEDGED — CLAUDE.md changes are intentional (filesystem boundary rule)
+C16: ACKNOWLEDGED — Modified files include security scrub of exposed keys in evidence files
