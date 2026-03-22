@@ -10,7 +10,8 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "exploratory",
-      "status": "in_progress"
+      "status": "committed",
+      "commitHash": "87b4c12"
     },
     {
       "id": "V-1.1",
@@ -18,7 +19,7 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "verification",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": "V-1.2",

@@ -1,5 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: E-1.0
-Timestamp: 2026-03-22T12:00:00Z
+Sprint: V-1.1
+Timestamp: 2026-03-22T14:50:00Z
 
-All checks acknowledged. GHOST-ALIGN-1 reset the project governance. Starting fresh with Phase 1.
+C1: ACKNOWLEDGED — E-1.0 commitHash was missing, now set to 87b4c12 (GHOST-ALIGN-1 commit that included E-1.0 evidence)
+C16: ACKNOWLEDGED — E-1.0 committed in GHOST-ALIGN-1 batch commit. No drift — light governance sprint.
