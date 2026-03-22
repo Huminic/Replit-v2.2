@@ -138,8 +138,9 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "gap",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d2da915"
     },
     {
       "id": "T-2.EXIT",
@@ -147,7 +148,7 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
