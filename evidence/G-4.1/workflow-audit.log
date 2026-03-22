@@ -1,0 +1,2 @@
+[2026-03-22T23:50:31Z] PRE-COMMIT role=orchestrator sprint=G-4.1 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-22T23:51:15Z] PRE-COMMIT role=orchestrator sprint=G-4.1 result=PASS detail="All 7 gates passed"
