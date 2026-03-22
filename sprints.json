@@ -158,8 +158,9 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "exploratory",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "e6ab493"
     },
     {
       "id": "I-3.1",
@@ -167,7 +168,7 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "issue",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
