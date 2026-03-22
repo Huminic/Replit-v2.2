@@ -148,8 +148,9 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d403cf9"
     },
     {
       "id": "E-3.0",
@@ -157,7 +158,7 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "exploratory",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
