@@ -118,8 +118,9 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "issue",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "1a6f954"
     },
     {
       "id": "I-2.4",
@@ -127,7 +128,7 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "issue",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {

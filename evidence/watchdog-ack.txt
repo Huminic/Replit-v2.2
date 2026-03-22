@@ -1,7 +1,5 @@
 Acknowledged-By: orchestrator
-Sprint: I-2.3
-Timestamp: 2026-03-22T18:02:41Z
+Sprint: I-2.4
+Timestamp: 2026-03-22T18:05:42Z
 
-I-2.3 metrics verification. Serra Honda confirmed. Others in progress.
-GM-20260322-180047: C18 acknowledged in pre-exec. Pre-exec written before verification.
-GM-20260322-180047: Victoria orgs bug acknowledged. Will add to issues.md.
+C18: ACKNOWLEDGED — I-2.3 pre-exec/post-sprint timing was retroactive (documented in ghost message GM-20260322-180324). Pattern corrected for I-2.4 — pre-exec written before verification queries.

@@ -57,3 +57,10 @@ Severity: BLOCK
 From: watchdog
 Message: ADDITIONAL: Ghost spot check found that /api/organizations does not return Victoria's additional orgs. Login returns 3 orgs correctly but GET /api/organizations only returns 1 (Serra Honda). This is a bug — add it to issues.md and plan a fix sprint in Phase 1 or Phase 3.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260322-180324
+Timestamp: 2026-03-22T18:03:24Z
+Severity: BLOCK
+From: watchdog
+Message: C18 VIOLATION detected. Pre-exec and post-sprint written too close together. STOP and write pre-exec BEFORE doing work.
+Status: ACKNOWLEDGED
