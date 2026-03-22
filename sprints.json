@@ -232,8 +232,9 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "verification",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d494001"
     },
     {
       "id": "T-3.EXIT",
@@ -241,7 +242,7 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
