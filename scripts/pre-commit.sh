@@ -385,6 +385,28 @@ fi
 echo "  PASS (all staged application files declared)"
 fi
 
+
+# ═══════════════════════════════════════════════════════════════════
+# GATE 2.6: Pre-exec must predate code changes (anti-retroactive)
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 2.6/7] Pre-exec timing check..."
+if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+  echo "  SKIP (light governance sprint)"
+else
+  PRE_EXEC_MTIME=$(stat -c %Y "${EVIDENCE_DIR}/pre-execution-report.md" 2>/dev/null || echo 0)
+  POST_SPRINT_MTIME=$(stat -c %Y "${EVIDENCE_DIR}/post-sprint-report.md" 2>/dev/null || echo 0)
+  
+  if [ "$PRE_EXEC_MTIME" -gt 0 ] && [ "$POST_SPRINT_MTIME" -gt 0 ]; then
+    GAP=$((POST_SPRINT_MTIME - PRE_EXEC_MTIME))
+    if [ "$GAP" -lt 300 ]; then
+      block "Pre-exec and post-sprint written ${GAP}s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
+    fi
+    echo "  PASS (${GAP}s between pre-exec and post-sprint)"
+  else
+    echo "  SKIP (missing pre-exec or post-sprint — checked by other gates)"
+  fi
+fi
+
 # ═══════════════════════════════════════════════════════════════════
 # GATE 3: Enforcer checklist (fresh + approved)
 # ═══════════════════════════════════════════════════════════════════
