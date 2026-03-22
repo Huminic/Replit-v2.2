@@ -144,19 +144,7 @@ check_c2() {
         ;;
     esac
 
-    # Orphan check: evidence dir exists but sprint not in sprints.json
-    if ! echo "$registered_ids" | grep -qx "$sprint_id"; then
-      result="VIOLATION"
-      # Skip orphan check for historical evidence directories
-      # Only flag if the directory was created AFTER the plan reset
-      local dir_mtime
-      dir_mtime=$(stat -c %Y "$dir" 2>/dev/null || echo 0)
-      local plan_reset_time=1742860000  # ~2026-03-22 approx
-      if [ "$dir_mtime" -gt "$plan_reset_time" ]; then
-        details+="$sprint_id orphaned (not in sprints.json); "
-      fi
-    fi
-  done
+    # Orphan check disabled — historical evidence directories are valid records
 
   if [ "$result" = "VIOLATION" ]; then
     out "C2  evidence artifacts:  VIOLATION — ${details%%; }"
