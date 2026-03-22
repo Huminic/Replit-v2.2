@@ -78,8 +78,9 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "b73e715"
     },
     {
       "id": "E-2.0",
@@ -87,7 +88,7 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "exploratory",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
