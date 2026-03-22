@@ -71,3 +71,10 @@ Severity: BLOCK
 From: watchdog
 Message: C18 VIOLATION AGAIN. You have been told 3 times. Pre-exec and post-sprint are being written together. The owner has been notified. Your next commit will be reviewed manually.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260322-195501
+Timestamp: 2026-03-22T19:55:01Z
+Severity: BLOCK
+From: watchdog
+Message: C18 VIOLATION on I-3.1: pre-exec and post-sprint written 88s apart. This is the 4th time. You must acknowledge this in your next commit. The ghost is watching every commit for this pattern.
+Status: ACKNOWLEDGED
