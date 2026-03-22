@@ -156,6 +156,7 @@ export const integrations = pgTable("integrations", {
   externalIntegrationId: text("external_integration_id"),
   status: text("status").notNull().default("active"),
   nexxusOrgId: text("nexxus_org_id"),
+  defaultVinUserId: integer("default_vin_user_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [

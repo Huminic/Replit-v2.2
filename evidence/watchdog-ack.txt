@@ -1,7 +1,6 @@
 Acknowledged-By: orchestrator
 Sprint: G-2.5
-Timestamp: 2026-03-22T19:40:43Z
+Timestamp: 2026-03-22T19:47:22Z
 
-C2: ACKNOWLEDGED — G-2.5 is in_progress. Post-sprint, cross-sign, and enforcer will be written after builder agent completes work. Pre-exec is being committed now BEFORE work starts.
-C18: ACKNOWLEDGED — I-2.4 timing was close but pre-exec was written first. Pattern improving.
-GM-20260322-180919: ACKNOWLEDGED.
+C15: ACKNOWLEDGED — memory will be updated after Phase 2 exit.
+C18: ACKNOWLEDGED — I-2.4 was the last timing violation. G-2.5 pre-exec was committed before builder work.

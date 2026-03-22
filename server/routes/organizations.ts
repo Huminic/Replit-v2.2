@@ -2,8 +2,9 @@ import type { Express } from "express";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { authenticateToken, requireRole } from "../auth";
-import { storage } from "../storage";
-import { updateOrganizationSchema } from "@shared/schema";
+import { storage, db } from "../storage";
+import { updateOrganizationSchema, integrations } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 const createOrgSchema = z.object({
   orgName: z.string().min(1, "Organization name is required").max(200),
@@ -274,6 +275,57 @@ export function registerOrganizationRoutes(app: Express) {
       return res.json(updated);
     } catch (err) {
       return res.status(500).json({ message: "Failed to update slug" });
+    }
+  });
+
+  // GET /api/integrations/:orgId/vin-config
+  app.get("/api/integrations/:orgId/vin-config", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      const orgId = req.params.orgId as string;
+      const [record] = await db
+        .select({
+          dealerId: integrations.externalDealerId,
+          defaultVinUserId: integrations.defaultVinUserId,
+          dealerName: integrations.externalDealerName,
+        })
+        .from(integrations)
+        .where(eq(integrations.organizationId, orgId));
+
+      if (!record) {
+        return res.status(404).json({ message: "No integration found for this organization" });
+      }
+      return res.json(record);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch VIN config" });
+    }
+  });
+
+  // PATCH /api/integrations/:orgId/vin-config
+  app.patch("/api/integrations/:orgId/vin-config", authenticateToken, requireRole(3), async (req, res) => {
+    try {
+      const orgId = req.params.orgId as string;
+      const { defaultVinUserId } = req.body;
+
+      if (defaultVinUserId === undefined || typeof defaultVinUserId !== "number") {
+        return res.status(400).json({ message: "defaultVinUserId must be a number" });
+      }
+
+      const result = await db
+        .update(integrations)
+        .set({ defaultVinUserId, updatedAt: new Date() })
+        .where(eq(integrations.organizationId, orgId))
+        .returning({
+          dealerId: integrations.externalDealerId,
+          defaultVinUserId: integrations.defaultVinUserId,
+          dealerName: integrations.externalDealerName,
+        });
+
+      if (!result.length) {
+        return res.status(404).json({ message: "No integration found for this organization" });
+      }
+      return res.json(result[0]);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update VIN config" });
     }
   });
 }
