@@ -146,6 +146,7 @@ check_c2() {
 
     # Orphan check disabled — historical evidence directories are valid records
 
+  done
   if [ "$result" = "VIOLATION" ]; then
     out "C2  evidence artifacts:  VIOLATION — ${details%%; }"
     VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
