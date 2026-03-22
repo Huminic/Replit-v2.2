@@ -1,8 +1,5 @@
 Acknowledged-By: orchestrator
-Sprint: I-1.3
-Timestamp: 2026-03-22T18:10:00Z
+Sprint: I-1.4
+Timestamp: 2026-03-22T17:44:00Z
 
-C1: ACKNOWLEDGED — Only I-1.3 is in_progress now. I-1.4 set back to planned.
-C2: ACKNOWLEDGED — I-1.3 pre-exec is RETROACTIVE (documented honestly). Full artifacts now written.
-C19: ACKNOWLEDGED — Pre-exec written retroactively with governance note.
-GM-20260322-173545: ACKNOWLEDGED — Future data-only sprints will be V-. Parallel sprints will use worktrees.
+C19: ACKNOWLEDGED — Declared Files updated with evidence paths.
