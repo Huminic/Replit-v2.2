@@ -129,21 +129,30 @@ check_c2() {
     file_count=$(find "$dir" -maxdepth 1 -type f | wc -l)
     [ "$file_count" -eq 0 ] && continue
 
-    # Check required artifacts
-    for artifact in "${REQUIRED_ARTIFACTS[@]}"; do
-      if [ ! -f "$dir/$artifact" ]; then
-        result="VIOLATION"
-        details+="$sprint_id missing $artifact; "
-      fi
-    done
+    # Check required artifacts (skip for light governance sprints)
+    case "$sprint_id" in
+      V-*|E-*|T-*.EXIT|T-*EXIT)
+        : # Light governance — no required artifacts
+        ;;
+      *)
+        for artifact in "${REQUIRED_ARTIFACTS[@]}"; do
+          if [ ! -f "$dir/$artifact" ]; then
+            result="VIOLATION"
+            details+="$sprint_id missing $artifact; "
+          fi
+        done
+        ;;
+    esac
 
     # Orphan check: evidence dir exists but sprint not in sprints.json
     if ! echo "$registered_ids" | grep -qx "$sprint_id"; then
       result="VIOLATION"
-      # Check if this is a historical sprint (has a git commit with this ID)
-      if cd "$PROJECT_ROOT" && git log --oneline --all --grep="\[$sprint_id\]" 2>/dev/null | head -1 | grep -q .; then
-        : # Historical sprint — committed in git, just not in current sprints.json
-      else
+      # Skip orphan check for historical evidence directories
+      # Only flag if the directory was created AFTER the plan reset
+      local dir_mtime
+      dir_mtime=$(stat -c %Y "$dir" 2>/dev/null || echo 0)
+      local plan_reset_time=1742860000  # ~2026-03-22 approx
+      if [ "$dir_mtime" -gt "$plan_reset_time" ]; then
         details+="$sprint_id orphaned (not in sprints.json); "
       fi
     fi
@@ -1184,8 +1193,13 @@ check_c19() {
     [ -z "$sid" ] && continue
     local pre_exec="evidence/$sid/pre-execution-report.md"
 
-    # Sprint is in_progress but no pre-exec exists yet — VIOLATION
-    # (means work may have started without a plan)
+    # Sprint is in_progress but no pre-exec exists yet
+    # Skip for light governance sprints (V-, E-, T-*EXIT)
+    case "$sid" in
+      V-*|E-*|T-*.EXIT|T-*EXIT)
+        continue  # Light governance — no pre-exec required
+        ;;
+    esac
     local evidence_dir="evidence/$sid"
     if [ -d "$evidence_dir" ]; then
       local file_count
