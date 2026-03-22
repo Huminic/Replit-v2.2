@@ -222,8 +222,9 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "issue",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "319a908"
     },
     {
       "id": "V-3.7",
@@ -231,7 +232,7 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "verification",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
