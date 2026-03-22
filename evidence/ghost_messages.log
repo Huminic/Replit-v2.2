@@ -64,3 +64,10 @@ Severity: BLOCK
 From: watchdog
 Message: C18 VIOLATION detected. Pre-exec and post-sprint written too close together. STOP and write pre-exec BEFORE doing work.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260322-180919
+Timestamp: 2026-03-22T18:09:19Z
+Severity: BLOCK
+From: watchdog
+Message: C18 VIOLATION AGAIN. You have been told 3 times. Pre-exec and post-sprint are being written together. The owner has been notified. Your next commit will be reviewed manually.
+Status: ACKNOWLEDGED
