@@ -1,6 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: V-1.1
-Timestamp: 2026-03-22T14:50:00Z
+Sprint: V-1.2
+Timestamp: 2026-03-22T17:35:00Z
 
-C1: ACKNOWLEDGED — E-1.0 commitHash was missing, now set to 87b4c12 (GHOST-ALIGN-1 commit that included E-1.0 evidence)
-C16: ACKNOWLEDGED — E-1.0 committed in GHOST-ALIGN-1 batch commit. No drift — light governance sprint.
+C1: ACKNOWLEDGED — V-1.2 is in_progress, being committed now. Hash will be added post-commit.
+C16: ACKNOWLEDGED — Same as C1. Sprint in_progress during commit.

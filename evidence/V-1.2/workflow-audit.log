@@ -1,0 +1,3 @@
+[2026-03-22T17:26:21Z] PRE-COMMIT role=orchestrator sprint=V-1.2 result=BLOCKED detail="Watchdog gate: Ack is 342 minutes old (max 60). Re-acknowledge."
+[2026-03-22T17:26:48Z] PRE-COMMIT role=orchestrator sprint=V-1.2 result=BLOCKED detail="Watchdog gate: 2 violation(s) not addressed in ack."
+[2026-03-22T17:27:52Z] PRE-COMMIT role=orchestrator sprint=V-1.2 result=PASS detail="All 7 gates passed"

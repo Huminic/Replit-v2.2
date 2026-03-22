@@ -20,10 +20,11 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-1.2"
-      ]
+      ],
+      "commitHash": "c8ce557"
     },
     {
       "id": "V-1.2",
@@ -31,7 +32,7 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "verification",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": [
         "V-1.1"
       ]
