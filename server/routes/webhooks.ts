@@ -141,8 +141,15 @@ ${params.transcript}`,
 }
 
 /**
- * Send a lead notification email to all admins (role levels 1-3) for an organization.
+ * Send a lead notification email to all admins for an organization.
  * Uses callMCP with resend_send_email. Non-blocking — callers should .catch() errors.
+ *
+ * Recipient hierarchy:
+ *   Level 3 — Org admins: users whose organizationId matches the call's org
+ *   Level 2 — Partner admins: walk UP via partner_id to find parent org, get its level-2 users
+ *   Level 1 — Super admins: level-1 users from ALL orgs
+ *   Additional — Any user (level <= 3) who has this orgId in their additional_org_ids
+ *   Exclusion — admin@ test email addresses are always excluded
  */
 async function sendLeadNotificationEmail(
   orgId: string,
@@ -170,45 +177,84 @@ async function sendLeadNotificationEmail(
     return { sent: 0, skipped: true };
   }
 
-  // Query admin users for this org (role levels 1, 2, 3)
-  const users = await storage.getUsers(orgId);
-  const adminUsers = users.filter((u) => u.role && u.role.level <= 3 && u.email);
+  // ---- Recipient resolution: walk the org hierarchy ----
+  const recipientEmails = new Set<string>();
 
-  // Also include super_admins (level 1) from all orgs
-  const allOrgs = await storage.getOrganizations();
-  for (const otherOrg of allOrgs) {
-    if (otherOrg.id === orgId) continue;
-    const otherUsers = await storage.getUsers(otherOrg.id);
-    const superAdmins = otherUsers.filter((u) => u.role && u.role.level === 1 && u.email);
-    for (const sa of superAdmins) {
-      if (!adminUsers.some((au) => au.email === sa.email)) {
-        adminUsers.push(sa);
-      }
+  // Level 3 — Org admins: users whose organizationId matches the call's org
+  const orgUsers = await storage.getUsers(orgId);
+  for (const u of orgUsers) {
+    if (u.role && u.role.level === 3 && u.email) {
+      recipientEmails.add(u.email);
     }
-    // Include partner_admins (level 2) whose org is a parent of the target org
-    const partnerAdmins = otherUsers.filter((u) => u.role && u.role.level === 2 && u.email);
-    for (const pa of partnerAdmins) {
-      if (!adminUsers.some((au) => au.email === pa.email)) {
-        adminUsers.push(pa);
+  }
+
+  // Level 2 — Partner admins: walk UP via partner_id to find parent org
+  if (org.partnerId) {
+    const parentUsers = await storage.getUsers(org.partnerId);
+    for (const u of parentUsers) {
+      if (u.role && u.role.level === 2 && u.email) {
+        recipientEmails.add(u.email);
       }
     }
   }
 
+  // Level 1 — Super admins from ALL orgs
+  const allOrgs = await storage.getOrganizations();
+  for (const anyOrg of allOrgs) {
+    const anyOrgUsers = await storage.getUsers(anyOrg.id);
+    for (const u of anyOrgUsers) {
+      if (u.role && u.role.level === 1 && u.email) {
+        recipientEmails.add(u.email);
+      }
+    }
+  }
+
+  // Additional — users (level <= 3) who have this orgId in their additional_org_ids
+  for (const anyOrg of allOrgs) {
+    if (anyOrg.id === orgId) continue; // already handled above
+    const otherUsers = await storage.getUsers(anyOrg.id);
+    for (const u of otherUsers) {
+      if (
+        u.role &&
+        u.role.level <= 3 &&
+        u.email &&
+        Array.isArray(u.additionalOrgIds) &&
+        u.additionalOrgIds.includes(orgId)
+      ) {
+        recipientEmails.add(u.email);
+      }
+    }
+  }
+
+  // Exclusion — remove admin@ test email addresses
+  for (const email of recipientEmails) {
+    if (email.startsWith("admin@")) {
+      recipientEmails.delete(email);
+    }
+  }
+
+  const recipients = Array.from(recipientEmails);
+  if (recipients.length === 0) {
+    console.warn(`[LeadNotify] No recipients found for org ${org.name} (${orgId}). Skipping ${idempotencyKey}`);
+    return { sent: 0, skipped: false };
+  }
+
+  console.log(`[LeadNotify] Resolved ${recipients.length} recipient(s) for org "${org.name}": ${recipients.join(", ")}`);
+
   let sentCount = 0;
   const FROM_ADDRESS = "Nexxus Connect <notifications@huminic.ai>";
 
-  for (const user of adminUsers) {
-    if (!user.email) continue;
+  for (const email of recipients) {
     try {
       await callMCP("resend_send_email", {
         from: FROM_ADDRESS,
-        to: user.email,
+        to: email,
         subject,
         html: htmlBody,
       });
       sentCount++;
     } catch (emailErr: any) {
-      console.error(`[LeadNotify] Failed to send to ${user.email}:`, emailErr.message);
+      console.error(`[LeadNotify] Failed to send to ${email}:`, emailErr.message);
     }
   }
 
@@ -233,71 +279,194 @@ async function sendLeadNotificationEmail(
 }
 
 /**
- * Build HTML email body for a VAPI end-of-call notification.
+ * Generate lead notification email HTML.
+ * Template ported from v1 notificationEmailService.ts (generateEmailHTML).
+ * Supports both voice (VAPI) and video (Tavus) notifications.
  */
-function buildVapiEmailHtml(params: {
+function generateLeadEmailHTML(params: {
   orgName: string;
   assistantName: string;
-  customerPhone: string | null;
-  callType: string;
+  customerPhone?: string | null;
+  callType?: string;
   duration: string;
-  endedReason: string;
+  endedReason?: string;
   summary: string;
-  transcript: string;
-  recordingUrl: string | null;
+  transcript?: string;
+  recordingUrl?: string | null;
   callId: string;
-  startTime: string;
+  startTime?: string;
+  /** "voice" or "video" — controls gradient color and wording */
+  channel: "voice" | "video";
 }): string {
-  const recordingButton = params.recordingUrl
-    ? `<tr><td style="padding:0 40px 30px;text-align:center;"><a href="${params.recordingUrl}" style="display:inline-block;background:#667eea;color:white;padding:12px 30px;text-decoration:none;border-radius:6px;font-weight:500;font-size:14px;">&#127911; Listen to Recording</a></td></tr>`
+  const isVideo = params.channel === "video";
+  const gradientStart = isVideo ? "#7c3aed" : "#667eea";
+  const gradientEnd = isVideo ? "#a855f7" : "#764ba2";
+  const accentColor = isVideo ? "#7c3aed" : "#667eea";
+  const headerEmoji = isVideo ? "&#127916;" : "&#127919;";
+  const headerSubtitle = isVideo ? "Has a New Video Session Lead!" : "Has a New AI Voice Lead!";
+  const introText = isVideo
+    ? "A visitor just completed a video session with your AI assistant."
+    : `Congratulations! Your AI assistant <strong>${params.assistantName}</strong> just completed a call with a potential customer.`;
+
+  const summaryBlock = params.summary && params.summary !== "No summary available"
+    ? `
+          <tr>
+            <td style="padding: 0 40px 20px;">
+              <div style="background: #f8f9fa; border-left: 4px solid ${accentColor}; padding: 16px 20px; border-radius: 4px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Lead Summary
+                </h3>
+                <p style="margin: 0; font-size: 15px; color: #333; line-height: 1.6;">
+                  ${params.summary}
+                </p>
+              </div>
+            </td>
+          </tr>`
     : "";
 
-  const summarySection = params.summary && params.summary !== "No summary available"
-    ? `<tr><td style="padding:0 40px 20px;"><div style="background:#f8f9fa;border-left:4px solid #667eea;padding:16px 20px;border-radius:4px;"><h3 style="margin:0 0 10px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Lead Summary</h3><p style="margin:0;font-size:15px;color:#333;line-height:1.6;">${params.summary}</p></div></td></tr>`
+  // Build detail rows
+  let detailRows = `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666; width: 40%;">Assistant:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.assistantName}</td>
+                </tr>`;
+
+  if (params.customerPhone) {
+    detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">Customer Phone:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.customerPhone}</td>
+                </tr>`;
+  }
+
+  if (params.callType) {
+    detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">Call Type:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.callType}</td>
+                </tr>`;
+  }
+
+  detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">Duration:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.duration}</td>
+                </tr>`;
+
+  if (params.startTime) {
+    detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">Timestamp:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.startTime}</td>
+                </tr>`;
+  }
+
+  if (params.endedReason) {
+    detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">Ended Reason:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.endedReason}</td>
+                </tr>`;
+  }
+
+  const recordingBlock = params.recordingUrl
+    ? `
+          <tr>
+            <td style="padding: 0 40px 30px; text-align: center;">
+              <a href="${params.recordingUrl}" style="display: inline-block; background: ${accentColor}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px;">
+                &#127911; Listen to Recording
+              </a>
+            </td>
+          </tr>`
     : "";
 
-  const transcriptSection = params.transcript
-    ? `<tr><td style="padding:0 40px 30px;"><h3 style="margin:0 0 15px;font-size:16px;color:#333;font-weight:600;">Full Transcript</h3><div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;padding:20px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;color:#495057;white-space:pre-wrap;max-height:400px;overflow-y:auto;">${params.transcript}</div></td></tr>`
+  const transcriptBlock = params.transcript
+    ? `
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #333; font-weight: 600;">
+                Full Transcript
+              </h3>
+              <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 20px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8; color: #495057; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+${params.transcript}
+              </div>
+            </td>
+          </tr>`
     : "";
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;"><table role="presentation" style="width:100%;border-collapse:collapse;"><tr><td style="padding:40px 20px;"><table role="presentation" style="max-width:600px;margin:0 auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-<tr><td style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px 40px;text-align:center;"><h1 style="margin:0;color:white;font-size:24px;font-weight:600;">&#127919; ${params.orgName}</h1><p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:16px;">Has a New AI Voice Lead!</p></td></tr>
-<tr><td style="padding:30px 40px 20px;"><p style="margin:0;font-size:16px;color:#333;line-height:1.5;">Congratulations! Your AI assistant <strong>${params.assistantName}</strong> just completed a call with a potential customer.</p></td></tr>
-${summarySection}
-<tr><td style="padding:0 40px 30px;"><table role="presentation" style="width:100%;border-collapse:collapse;">
-<tr><td style="padding:8px 0;font-size:14px;color:#666;width:40%;">Assistant:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.assistantName}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Customer Phone:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.customerPhone || "Unknown"}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Call Type:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.callType}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Duration:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.duration}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Timestamp:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.startTime}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Ended Reason:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.endedReason}</td></tr>
-</table></td></tr>
-${recordingButton}
-${transcriptSection}
-<tr><td style="padding:20px 40px 30px;border-top:1px solid #e9ecef;"><p style="margin:0;font-size:12px;color:#666;line-height:1.5;"><strong>Call ID:</strong> ${params.callId}<br><strong>Questions or issues?</strong> Contact <a href="mailto:support@huminic.ai" style="color:#667eea;text-decoration:none;">support@huminic.ai</a></p><p style="margin:15px 0 0;font-size:11px;color:#999;">Powered by Nexxus AI Voice Platform</p></td></tr>
-</table></td></tr></table></body></html>`;
-}
+  const supportEmail = process.env.SUPPORT_EMAIL || "support@huminic.ai";
 
-/**
- * Build HTML email body for a Tavus conversation-ended notification.
- */
-function buildTavusEmailHtml(params: {
-  orgName: string;
-  visitorName: string;
-  duration: string;
-  summary: string;
-  conversationId: string;
-}): string {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;"><table role="presentation" style="width:100%;border-collapse:collapse;"><tr><td style="padding:40px 20px;"><table role="presentation" style="max-width:600px;margin:0 auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-<tr><td style="background:linear-gradient(135deg,#7c3aed 0%,#a855f7 100%);padding:30px 40px;text-align:center;"><h1 style="margin:0;color:white;font-size:24px;font-weight:600;">&#127916; ${params.orgName}</h1><p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:16px;">Has a New Video Session Lead!</p></td></tr>
-<tr><td style="padding:30px 40px 20px;"><p style="margin:0;font-size:16px;color:#333;line-height:1.5;">A visitor just completed a video session with your AI assistant.</p></td></tr>
-<tr><td style="padding:0 40px 30px;"><table role="presentation" style="width:100%;border-collapse:collapse;">
-<tr><td style="padding:8px 0;font-size:14px;color:#666;width:40%;">Visitor:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.visitorName}</td></tr>
-<tr><td style="padding:8px 0;font-size:14px;color:#666;">Session Duration:</td><td style="padding:8px 0;font-size:14px;color:#333;font-weight:500;">${params.duration}</td></tr>
-</table></td></tr>
-${params.summary ? `<tr><td style="padding:0 40px 20px;"><div style="background:#f8f9fa;border-left:4px solid #7c3aed;padding:16px 20px;border-radius:4px;"><h3 style="margin:0 0 10px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Engagement Summary</h3><p style="margin:0;font-size:15px;color:#333;line-height:1.6;">${params.summary}</p></div></td></tr>` : ""}
-<tr><td style="padding:20px 40px 30px;border-top:1px solid #e9ecef;"><p style="margin:0;font-size:12px;color:#666;line-height:1.5;"><strong>Session ID:</strong> ${params.conversationId}<br><strong>Questions or issues?</strong> Contact <a href="mailto:support@huminic.ai" style="color:#7c3aed;text-decoration:none;">support@huminic.ai</a></p><p style="margin:15px 0 0;font-size:11px;color:#999;">Powered by Nexxus AI Voice Platform</p></td></tr>
-</table></td></tr></table></body></html>`;
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New AI ${isVideo ? "Video" : "Voice"} Lead</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <!-- Header with gradient -->
+          <tr>
+            <td style="background: linear-gradient(135deg, ${gradientStart} 0%, ${gradientEnd} 100%); padding: 30px 40px; text-align: center;">
+              <h1 style="margin: 0; color: white; font-size: 24px; font-weight: 600;">
+                ${headerEmoji} ${params.orgName}
+              </h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
+                ${headerSubtitle}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Intro Section -->
+          <tr>
+            <td style="padding: 30px 40px 20px;">
+              <p style="margin: 0; font-size: 16px; color: #333; line-height: 1.5;">
+                ${introText}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Lead Summary Box -->
+          ${summaryBlock}
+
+          <!-- Details Grid -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                ${detailRows}
+              </table>
+            </td>
+          </tr>
+
+          <!-- Recording Link Button -->
+          ${recordingBlock}
+
+          <!-- Transcript Section -->
+          ${transcriptBlock}
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 40px 30px; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0; font-size: 12px; color: #666; line-height: 1.5;">
+                <strong>Call ID:</strong> ${params.callId}<br>
+                <strong>Questions or issues?</strong> Contact <a href="mailto:${supportEmail}" style="color: ${accentColor}; text-decoration: none;">${supportEmail}</a>
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: #999;">
+                Powered by Nexxus AI Voice Platform
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
 }
 
 const vapiWebhookPayloadSchema = z.object({
@@ -562,7 +731,7 @@ export function registerWebhookRoutes(app: Express) {
           } catch {}
         }
 
-        const emailHtml = buildVapiEmailHtml({
+        const emailHtml = generateLeadEmailHTML({
           orgName,
           assistantName,
           customerPhone,
@@ -574,6 +743,7 @@ export function registerWebhookRoutes(app: Express) {
           recordingUrl: call.recordingUrl || message.recordingUrl || null,
           callId: call.id || "unknown",
           startTime: call.startedAt ? new Date(call.startedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) : "Unknown",
+          channel: "voice",
         });
 
         const idempotencyKey = `vapi-${call.id || conversation.id}`;
@@ -827,12 +997,13 @@ export function registerWebhookRoutes(app: Express) {
           sessionDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${tavusData.duration}s`;
         }
 
-        const emailHtml = buildTavusEmailHtml({
+        const emailHtml = generateLeadEmailHTML({
           orgName,
-          visitorName,
+          assistantName: visitorName,
           duration: sessionDurationStr,
           summary: summary || transcript.substring(0, 300),
-          conversationId: tavusConversationId,
+          callId: tavusConversationId,
+          channel: "video",
         });
 
         const idempotencyKey = `tavus-${tavusConversationId}`;

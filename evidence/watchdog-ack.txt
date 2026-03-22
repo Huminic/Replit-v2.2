@@ -1,6 +1,6 @@
 Acknowledged-By: orchestrator
 Sprint: I-3.2
-Timestamp: 2026-03-22T19:54:41Z
+Timestamp: 2026-03-22T20:04:47Z
 
-C2: ACKNOWLEDGED — I-3.2 is in_progress, I-3.3 pre-exec written. Post-sprint/cross-sign/enforcer will come after builder work.
-C18: ACKNOWLEDGED — I-3.1 was a verification sprint with minimal work. Timing was close. Pattern corrected.
+C2: ACKNOWLEDGED — I-3.3 is planned (not in_progress). Its worktree was rejected. Pre-exec exists but no post-sprint yet because work hasn't been done.
+C18: ACKNOWLEDGED — I-3.1 timing was close (88s). Gate 2.6 now prevents this mechanically.
