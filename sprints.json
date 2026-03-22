@@ -242,8 +242,9 @@
       "phase": 3,
       "phaseFile": "03-communications.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "bdd85b6"
     },
     {
       "id": "E-4.0",
@@ -251,7 +252,7 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "exploratory",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
