@@ -154,8 +154,8 @@ export function registerSmsRoutes(app: Express) {
         if (org) {
           const settings = (org.settings || {}) as Record<string, any>;
           const tz = settings.timezone || "America/New_York";
-          const startHour = parseInt(settings.businessHoursStart || "08", 10);
-          const endHour = parseInt(settings.businessHoursEnd || "18", 10);
+          const startHour = parseInt(settings.businessHoursStart || "07", 10);
+          const endHour = parseInt(settings.businessHoursEnd || "22", 10);
 
           // Get current hour in the org's timezone
           const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
@@ -165,6 +165,14 @@ export function registerSmsRoutes(app: Express) {
             isAfterHours = true;
             console.log(`[TextMagic Webhook] After-hours detected (${currentHour}:00 ${tz}, hours: ${startHour}-${endHour})`);
 
+            // Build after-hours auto-response from configurable template
+            const defaultAfterHoursMsg = "Thank you for reaching out to {orgName}. Our team is available from {businessHoursStart}:00 to {businessHoursEnd}:00. We'll follow up first thing in the morning.";
+            const afterHoursTemplate = settings.afterHoursMessage || defaultAfterHoursMsg;
+            const afterHoursMessage = afterHoursTemplate
+              .replace(/\{orgName\}/g, org.name || "our team")
+              .replace(/\{businessHoursStart\}/g, String(startHour).padStart(2, "0"))
+              .replace(/\{businessHoursEnd\}/g, String(endHour).padStart(2, "0"));
+
             // Send auto-response
             try {
               const { processOutboundSend } = await import("../outbound");
@@ -172,11 +180,33 @@ export function registerSmsRoutes(app: Express) {
                 organizationId,
                 channel: "sms",
                 to: normalizedPhone,
-                messageContent: "We are currently closed. Your message has been saved for priority follow-up.",
+                messageContent: afterHoursMessage,
               });
               console.log(`[TextMagic Webhook] After-hours auto-response sent to ${normalizedPhone}`);
             } catch (autoErr: any) {
               console.error(`[TextMagic Webhook] After-hours auto-response failed:`, autoErr.message);
+            }
+
+            // Queue follow-up for next business hours opening
+            try {
+              const tomorrow7am = new Date();
+              tomorrow7am.setDate(tomorrow7am.getDate() + (currentHour >= startHour ? 1 : 0));
+              tomorrow7am.setHours(startHour, 0, 0, 0);
+
+              await storage.createScheduledAction({
+                organizationId,
+                actionType: "queued_sms",
+                payload: {
+                  channel: "sms",
+                  to: normalizedPhone,
+                  conversationId: null, // conversation not yet resolved at this point; handler can look up by phone
+                  originalMessage: normalizedContent,
+                },
+                executeAt: tomorrow7am,
+              });
+              console.log(`[TextMagic Webhook] Queued follow-up SMS for ${normalizedPhone} at ${tomorrow7am.toISOString()}`);
+            } catch (queueErr: any) {
+              console.error(`[TextMagic Webhook] Failed to queue follow-up:`, queueErr.message);
             }
           }
         }

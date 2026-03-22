@@ -75,6 +75,22 @@ async function processScheduledActions() {
             log(`Executed scheduled trigger action: ${p.type} for ${p.customerName}`, "scheduler");
           }
         }
+
+        if (action.actionType === 'queued_sms') {
+          const p = action.payload as any;
+          try {
+            const { processOutboundSend } = await import("../outbound");
+            await processOutboundSend({
+              organizationId: action.organizationId,
+              channel: p.channel || "sms",
+              to: p.to,
+              messageContent: `Follow-up: You messaged us after hours. A team member will be reaching out shortly.`,
+            });
+            log(`Processed queued SMS to ${p.to}`, "scheduler");
+          } catch (qErr: any) {
+            log(`Queued SMS to ${p.to} failed: ${qErr.message}`, "scheduler");
+          }
+        }
         await storage.markScheduledActionExecuted(action.id);
       } catch (actErr: any) {
         log(`Scheduled action ${action.id} failed: ${actErr.message}`, "scheduler");

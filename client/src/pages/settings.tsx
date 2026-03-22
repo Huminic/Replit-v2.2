@@ -481,6 +481,15 @@ export default function SettingsPage() {
   });
   const [orgFieldsInitialized, setOrgFieldsInitialized] = useState(false);
 
+  // After-hours / business hours settings
+  const [afterHoursFields, setAfterHoursFields] = useState({
+    timezone: 'America/New_York',
+    businessHoursStart: '07',
+    businessHoursEnd: '22',
+    afterHoursMessage: 'Thank you for reaching out to {orgName}. Our team is available from {businessHoursStart}:00 to {businessHoursEnd}:00. We\'ll follow up first thing in the morning.',
+  });
+  const [afterHoursInitialized, setAfterHoursInitialized] = useState(false);
+
   useEffect(() => {
     if (authUser?.organization && !orgFieldsInitialized) {
       const org = authUser.organization as any;
@@ -495,6 +504,19 @@ export default function SettingsPage() {
     }
   }, [authUser, orgFieldsInitialized, personaName]);
 
+  useEffect(() => {
+    if (authUser?.organization && !afterHoursInitialized) {
+      const settings = (authUser.organization as any).settings || {};
+      setAfterHoursFields({
+        timezone: settings.timezone || 'America/New_York',
+        businessHoursStart: settings.businessHoursStart || '07',
+        businessHoursEnd: settings.businessHoursEnd || '22',
+        afterHoursMessage: settings.afterHoursMessage || 'Thank you for reaching out to {orgName}. Our team is available from {businessHoursStart}:00 to {businessHoursEnd}:00. We\'ll follow up first thing in the morning.',
+      });
+      setAfterHoursInitialized(true);
+    }
+  }, [authUser, afterHoursInitialized]);
+
   const saveOrgFieldsMutation = useMutation({
     mutationFn: async (data: { name?: string; personaName?: string }) => {
       if (!authUser?.organization?.id) return;
@@ -506,6 +528,20 @@ export default function SettingsPage() {
       }
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
       toast({ title: 'Settings saved', description: 'Organization settings updated.' });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Failed to save', description: err.message || 'An error occurred', variant: 'destructive' });
+    },
+  });
+
+  const saveAfterHoursMutation = useMutation({
+    mutationFn: async (data: typeof afterHoursFields) => {
+      await apiRequest('PATCH', '/api/settings/org', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/org'] });
+      toast({ title: 'Settings saved', description: 'Business hours settings updated.' });
     },
     onError: (err: any) => {
       toast({ title: 'Failed to save', description: err.message || 'An error occurred', variant: 'destructive' });
@@ -3391,6 +3427,80 @@ export default function SettingsPage() {
                   data-testid="button-save-org"
                 >
                   {saveOrgFieldsMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Business Hours & After-Hours Messaging</CardTitle>
+              <CardDescription>Configure when your team is available and what customers see after hours</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Timezone</p>
+                  <p className="text-xs text-muted-foreground">Your organization's timezone for business hours</p>
+                </div>
+                <Input
+                  value={afterHoursFields.timezone}
+                  onChange={(e) => setAfterHoursFields(p => ({ ...p, timezone: e.target.value }))}
+                  className="max-w-[200px]"
+                  data-testid="input-timezone"
+                  placeholder="America/New_York"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Business Hours Start</p>
+                  <p className="text-xs text-muted-foreground">Hour (0-23) when business hours begin</p>
+                </div>
+                <Input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={afterHoursFields.businessHoursStart}
+                  onChange={(e) => setAfterHoursFields(p => ({ ...p, businessHoursStart: e.target.value }))}
+                  className="max-w-[100px]"
+                  data-testid="input-business-hours-start"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">Business Hours End</p>
+                  <p className="text-xs text-muted-foreground">Hour (0-23) when business hours end</p>
+                </div>
+                <Input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={afterHoursFields.businessHoursEnd}
+                  onChange={(e) => setAfterHoursFields(p => ({ ...p, businessHoursEnd: e.target.value }))}
+                  className="max-w-[100px]"
+                  data-testid="input-business-hours-end"
+                />
+              </div>
+              <div className="py-1">
+                <div className="mb-2">
+                  <p className="font-medium text-foreground text-sm">After-Hours Auto-Response</p>
+                  <p className="text-xs text-muted-foreground">Message sent to customers outside business hours. Use {'{orgName}'}, {'{businessHoursStart}'}, {'{businessHoursEnd}'} as placeholders.</p>
+                </div>
+                <Textarea
+                  value={afterHoursFields.afterHoursMessage}
+                  onChange={(e) => setAfterHoursFields(p => ({ ...p, afterHoursMessage: e.target.value }))}
+                  rows={3}
+                  data-testid="textarea-after-hours-message"
+                />
+              </div>
+              <div className="pt-2">
+                <Button
+                  size="sm"
+                  disabled={saveAfterHoursMutation.isPending}
+                  onClick={() => saveAfterHoursMutation.mutate(afterHoursFields)}
+                  data-testid="button-save-business-hours"
+                >
+                  {saveAfterHoursMutation.isPending ? 'Saving...' : 'Save Business Hours'}
                 </Button>
               </div>
             </CardContent>
