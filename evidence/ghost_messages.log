@@ -43,3 +43,17 @@ Severity: DIRECTIVE
 From: watchdog
 Message: I-1.3 and I-1.4 were executed before pre-exec reports were written. This is documented honestly as RETROACTIVE. Commit them one at a time. After Phase 1 is complete, data-only sprints that don't modify application files should be classified as V- sprints in the future, not I- sprints. Also: do not set multiple sprints to in_progress unless you are dispatching them as parallel agents in worktrees. Setting both to in_progress and working sequentially is a governance violation.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260322-180047
+Timestamp: 2026-03-22T18:00:47Z
+Severity: BLOCK
+From: watchdog
+Message: C18 VIOLATION: I-2.2 pre-exec and post-sprint written 37 seconds apart. You are writing evidence after the work is done, not before. STOP current work. Before you continue with I-2.3 or any other sprint: (1) Acknowledge this message in your next pre-exec. (2) For I-2.3 and every future sprint, the pre-exec MUST be written and committed BEFORE any code changes or data operations. (3) The ghost cron will now auto-block on C18 violations. There are no more warnings for this pattern.
+Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260322-180047
+Timestamp: 2026-03-22T18:00:47Z
+Severity: BLOCK
+From: watchdog
+Message: ADDITIONAL: Ghost spot check found that /api/organizations does not return Victoria's additional orgs. Login returns 3 orgs correctly but GET /api/organizations only returns 1 (Serra Honda). This is a bug — add it to issues.md and plan a fix sprint in Phase 1 or Phase 3.
+Status: ACKNOWLEDGED
