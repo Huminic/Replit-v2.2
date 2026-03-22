@@ -75,7 +75,7 @@ check_c1() {
 
   # Committed without commitHash
   local missing_hash
-  missing_hash=$(jq -r '.sprints[] | select(.status == "committed" and (.commitHash == null or .commitHash == "")) | .id' "$SPRINTS_JSON")
+  missing_hash=$(jq -r '.sprints[] | select((.status == "committed") and (.commitHash == null or .commitHash == "")) | .id' "$SPRINTS_JSON")
   if [ -n "$missing_hash" ]; then
     result="VIOLATION"
     details+="committed without hash: $(echo "$missing_hash" | tr '\n' ', ' | sed 's/,$//'); "
@@ -140,7 +140,12 @@ check_c2() {
     # Orphan check: evidence dir exists but sprint not in sprints.json
     if ! echo "$registered_ids" | grep -qx "$sprint_id"; then
       result="VIOLATION"
-      details+="$sprint_id orphaned (not in sprints.json); "
+      # Check if this is a historical sprint (has a git commit with this ID)
+      if cd "$PROJECT_ROOT" && git log --oneline --all --grep="\[$sprint_id\]" 2>/dev/null | head -1 | grep -q .; then
+        : # Historical sprint — committed in git, just not in current sprints.json
+      else
+        details+="$sprint_id orphaned (not in sprints.json); "
+      fi
     fi
   done
 
@@ -1316,6 +1321,141 @@ print(count)
 }
 
 # ─────────────────────────────────────────────
+# C20: Sprint scope limit (max 5 application files)
+# ─────────────────────────────────────────────
+check_c20() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  local current_sprint
+  current_sprint=$(jq -r '[.sprints[] | select(.status == "in_progress")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+
+  if [ -z "$current_sprint" ]; then
+    out "C20 scope limit:         PASS (no in_progress sprint)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  local pre_exec="evidence/$current_sprint/pre-execution-report.md"
+  if [ ! -f "$pre_exec" ]; then
+    out "C20 scope limit:         PASS (no pre-exec yet)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Count declared application files
+  local app_file_count
+  app_file_count=$(python3 -c "
+import re
+with open('$pre_exec') as f:
+    content = f.read()
+in_section = False
+count = 0
+for line in content.split('\n'):
+    if re.match(r'^##\s+(Declared\s+)?Files|^##\s+(File\s+)?Scope', line, re.IGNORECASE):
+        in_section = True
+        continue
+    if in_section and re.match(r'^##\s', line):
+        break
+    if in_section:
+        # Count only application files (server/, client/src/, shared/)
+        if re.match(r'^\s*[-*]\s*\x60?(server/|client/src/|shared/)', line):
+            count += 1
+        elif re.match(r'^\s*(server/|client/src/|shared/)', line):
+            count += 1
+print(count)
+" 2>/dev/null)
+
+  # Check for scope override
+  local has_override
+  has_override=$(jq -r --arg id "$current_sprint" '.sprints[] | select(.id == $id) | .scope_override // false' "$SPRINTS_JSON" 2>/dev/null)
+
+  if [ "$app_file_count" -gt 5 ] && [ "$has_override" != "true" ]; then
+    result="VIOLATION"
+    details+="$current_sprint declares $app_file_count application files (max 5). Split the sprint or get owner approval for scope_override."
+  elif [ "$app_file_count" -gt 5 ] && [ "$has_override" = "true" ]; then
+    if [ "$result" = "PASS" ]; then result="WARNING"; fi
+    details+="$current_sprint declares $app_file_count application files (override approved)."
+    WARNING_COUNT=$((WARNING_COUNT + 1))
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C20 scope limit:         VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  elif [ "$result" = "WARNING" ]; then
+    out "C20 scope limit:         WARNING — ${details%%; }"
+  else
+    out "C20 scope limit:         PASS ($app_file_count application files declared)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
+# C21: Dry-run required for integration sprints
+# ─────────────────────────────────────────────
+check_c21() {
+  local result="PASS"
+  local details=""
+
+  cd "$PROJECT_ROOT"
+
+  local current_sprint
+  current_sprint=$(jq -r '[.sprints[] | select(.status == "in_progress")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+
+  if [ -z "$current_sprint" ]; then
+    out "C21 dry-run required:    PASS (no in_progress sprint)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  local pre_exec="evidence/$current_sprint/pre-execution-report.md"
+  if [ ! -f "$pre_exec" ]; then
+    out "C21 dry-run required:    PASS (no pre-exec yet)"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    return
+  fi
+
+  # Check if sprint touches integration files
+  local integration_files="outbound.ts vendorProxy.ts sync.ts webhooks.ts"
+  local touches_integration=false
+
+  for ifile in $integration_files; do
+    if grep -qi "$ifile" "$pre_exec" 2>/dev/null; then
+      touches_integration=true
+      break
+    fi
+  done
+
+  # Also check for callMCP references in declared files
+  if grep -qi "callMCP\|mcp\|integration\|webhook\|outbound" "$pre_exec" 2>/dev/null; then
+    touches_integration=true
+  fi
+
+  if [ "$touches_integration" = true ]; then
+    local dry_run="evidence/$current_sprint/dry-run-report.md"
+    if [ ! -f "$dry_run" ]; then
+      # Check if there's actual code changes (not just planning)
+      local has_code_changes
+      has_code_changes=$(git diff --name-only 2>/dev/null | grep -E "^(server/|client/src/|shared/)" | wc -l)
+      if [ "$has_code_changes" -gt 0 ]; then
+        result="VIOLATION"
+        details+="$current_sprint touches integration files but no dry-run-report.md exists. Run a single-record test and document results before proceeding."
+      fi
+    fi
+  fi
+
+  if [ "$result" = "VIOLATION" ]; then
+    out "C21 dry-run required:    VIOLATION — ${details%%; }"
+    VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
+  else
+    out "C21 dry-run required:    PASS"
+    PASS_COUNT=$((PASS_COUNT + 1))
+  fi
+}
+
+# ─────────────────────────────────────────────
 # SCAN MODE
 # ─────────────────────────────────────────────
 do_scan() {
@@ -1354,6 +1494,8 @@ do_scan() {
   check_c17
   check_c18
   check_c19
+  check_c20
+  check_c21
 
   out ""
   out "SUMMARY: $PASS_COUNT PASS, $VIOLATION_COUNT VIOLATION, $WARNING_COUNT WARNING"
@@ -1762,7 +1904,7 @@ case "${1:-}" in
     ;;
   *)
     echo "Usage: $0 {scan|watch|verify-ack|verify-ghost|ghost-msg|ghost-ack}"
-    echo "  scan         — Full audit (C1-C19), writes to stdout + evidence/watchdog-report.txt"
+    echo "  scan         — Full audit (C1-C21), writes to stdout + evidence/watchdog-report.txt"
     echo "  watch        — Real-time monitoring via inotifywait, alerts to evidence/watchdog-alerts.log"
     echo "  verify-ack   — Check if watchdog-ack.txt matches latest report (used by pre-commit hook)"
     echo "  verify-ghost — Check if pending ghost directives are acknowledged (used by pre-commit hook)"

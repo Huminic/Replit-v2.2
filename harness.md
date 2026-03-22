@@ -76,6 +76,7 @@ When a scan finds violations, the dev agent must write `evidence/watchdog-ack.tx
 |--------|---------|
 | planned | Registered in sprints.json, work not started |
 | in_progress | Actively being worked on (max 1 at a time) |
+| parked | Work was committed but success criteria not fully met. Sprint is paused, not closed. Remaining work tracked in issues.md. Can be resumed or folded into a future sprint. |
 | remediating | Sprint is being fixed or reworked |
 | committed | Done, with git commit hash as proof |
 | tested | Verified post-commit by a testing sprint |
@@ -277,3 +278,95 @@ Before every remediation sprint (REM-n), the orchestrator must produce a **Loop 
 - `plan.md` is the authoritative roadmap
 - sprints.json is the authoritative execution ledger
 - No other file defines what work is planned or what work was done
+# Harness Additions — Paste Into harness.md
+
+## Verification Sprint Process (Light Governance)
+
+Verification sprints (V- prefix) confirm that existing features work.
+They do NOT modify application code. They have a lighter governance
+process than development sprints.
+
+**Required for V- sprints:**
+- Register in sprints.json with status "in_progress"
+- Create evidence directory
+- Run the verification (test, API check, UI check)
+- Write verification result to evidence/{sprint}/verification-result.md
+- Commit evidence through pre-commit hook
+
+**NOT required for V- sprints:**
+- Pre-execution report (the sprint description in plan.md is the plan)
+- Cross-sign (no code to review)
+- Enforcer checklist (no code changes to check)
+- Dry-run report (no external service writes)
+
+**The pre-commit hook recognizes V- sprints:**
+- Gate 2: evidence directory must exist
+- Gate 2.5: SKIP for V- sprints (no declared files needed)
+- Gate 3: SKIP for V- sprints (no enforcer checklist needed)
+- Gate 4: SKIP for V- sprints (no cross-sign needed)
+- Gates 1, 1.5, 1.6, 1.7, 1.8, 5, 6, 7: still enforced
+
+## Entry Inspection Sprint Process (E- prefix)
+
+Entry inspections verify phase dependencies before work begins.
+Read-only — no code changes.
+
+**Required:**
+- Register in sprints.json
+- Read dependency phase files, check for issues
+- Write entry inspection report to evidence/{sprint}/
+- Commit evidence
+
+**Same light process as V- sprints.**
+
+## Exit Inspection Sprint Process (T-X.EXIT)
+
+Exit inspections verify a phase is complete before the next starts.
+Run acceptance criteria and tests.
+
+**Required:**
+- Register in sprints.json
+- Run relevant Playwright tests
+- Check all phase sprints are committed
+- Write verdict to evidence/{sprint}/
+- Commit evidence
+
+**Same light process as V- sprints.**
+
+## Phase Entry/Exit Protocol
+
+Every phase follows this sequence:
+1. E-X.0 (Entry Inspection) — verify dependencies, check for drift
+2. Work sprints (I-, G-, P-, R-, M-, D- prefixes) — full governance
+3. T-X.EXIT (Exit Inspection) — verify all work, write verdict
+
+If the exit verdict is not "SOLID", the next phase is BLOCKED.
+Issues found during exit become new sprints in the CURRENT phase.
+
+## Sprint Status Vocabulary
+
+| Status | Meaning |
+|--------|---------|
+| planned | Sprint registered, work not started |
+| in_progress | Sprint actively being worked on |
+| committed | Sprint complete, committed with hash |
+| parked | Sprint attempted but criteria not fully met |
+| blocked | Sprint cannot start (dependency not met) |
+
+## Sprint Type Prefixes
+
+| Prefix | Type | Governance Level |
+|--------|------|-----------------|
+| E- | Exploratory (entry inspection) | Light |
+| V- | Verification | Light |
+| T- | Testing (exit inspection) | Light |
+| I- | Issue fix | Full |
+| G- | Gap fill | Full |
+| P- | Plan (general development) | Full |
+| R- | Remediation | Full |
+| M- | Maintenance | Full |
+| D- | Deferred | Full |
+| L- | Launch | Full |
+
+Light = no pre-exec, no cross-sign, no enforcer checklist.
+Full = all governance artifacts required.

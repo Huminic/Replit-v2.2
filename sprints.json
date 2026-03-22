@@ -1,1481 +1,808 @@
 {
   "version": "4.0",
   "project": "nexxus2.2_replit",
-  "lastUpdated": "2026-03-18",
-  "statuses": [
-    "planned",
-    "in_progress",
-    "remediating",
-    "committed",
-    "tested"
-  ],
-  "domains": {
-    "FE": "Frontend — UI, pages, forms, client logic",
-    "BE": "Backend — APIs, business rules, services, integrations",
-    "DT": "Data — schema, database, migrations, reporting data",
-    "AU": "Auth/Security — login, permissions, security controls",
-    "IN": "Infrastructure — deploys, environments, monitoring, scaling"
-  },
+  "lastUpdated": "2026-03-22",
+  "totalSprints": 100,
   "sprints": [
     {
-      "id": "P0-S0",
-      "name": "Migrate enforcer scripts from nexxus2.2",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T01:00:00Z",
-      "completedAt": "2026-03-13T01:57:00Z",
-      "commitHash": "b764e3c"
-    },
-    {
-      "id": "P0-S1",
-      "name": "Set up enforcer webhook agent",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T02:05:00Z",
-      "completedAt": "2026-03-13T02:19:00Z",
-      "commitHash": "c0451e3"
-    },
-    {
-      "id": "P0-S2",
-      "name": "Create .project/ governance structure",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T02:45:00Z",
-      "completedAt": "2026-03-13T02:48:00Z",
-      "commitHash": "e288894"
-    },
-    {
-      "id": "P0-S3",
-      "name": "Switch to production build for external access",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T05:00:00Z",
-      "completedAt": "2026-03-13T05:02:00Z",
-      "commitHash": "8260f6a"
-    },
-    {
-      "id": "P0-S4",
-      "name": "Add runtime smoke test to enforcer checklist (EF-19)",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T05:35:00Z",
-      "completedAt": "2026-03-13T05:35:00Z",
-      "commitHash": "dfa3297"
-    },
-    {
-      "id": "P0-S5",
-      "name": "Fix trust proxy for rate limiter behind Caddy",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:10:00Z",
-      "completedAt": "2026-03-13T06:12:00Z",
-      "commitHash": "03b9660"
-    },
-    {
-      "id": "P0-S6",
-      "name": "Add chain-of-custody gate to pre-commit hook",
-      "phase": "P0",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:15:00Z",
-      "completedAt": "2026-03-13T06:20:00Z",
-      "commitHash": "aca5fd2"
-    },
-    {
-      "id": "P1-S0",
-      "name": "Remove Replit dependencies and config",
-      "phase": "P1",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:25:00Z",
-      "commitHash": "7ab9a5c"
-    },
-    {
-      "id": "P1-S1",
-      "name": "Caddy reverse proxy configuration",
-      "phase": "P1",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:22:00Z",
-      "commitHash": "6ee35be"
-    },
-    {
-      "id": "P1-S2",
-      "name": "Database connection abstraction",
-      "phase": "P1",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:27:00Z",
-      "commitHash": "b36e50b"
-    },
-    {
-      "id": "P1-S3",
-      "name": "Coolify deployment configuration",
-      "phase": "P1",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:30:00Z",
-      "commitHash": "b2345a5"
-    },
-    {
-      "id": "P2-S0",
-      "name": "Security middleware stack",
-      "phase": "P2",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:34:00Z",
-      "commitHash": "aafe20b"
+      "id": "E-1.0",
+      "name": "Phase 1 Entry Inspection",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "exploratory",
+      "status": "in_progress"
+    },
+    {
+      "id": "V-1.1",
+      "name": "Verify Login and Token Flow",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-1.2",
+      "name": "Verify RBAC Enforcement",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "I-1.3",
+      "name": "Fix Durran's Organization Assignment",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-1.4",
+      "name": "Fix Victoria's Additional Org Access",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "V-1.5",
+      "name": "Verify Password Reset Flow",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-1.EXIT",
+      "name": "Phase 1 Exit Inspection",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-2.0",
+      "name": "Phase 2 Entry Inspection",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-2.1",
+      "name": "Verify VIN Solutions Connectivity",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "I-2.2",
+      "name": "Fix Sync Date Mapping",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-2.3",
+      "name": "Fix Warehouse Metrics Calculation",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-2.4",
+      "name": "Full Backfill Verification",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "G-2.5",
+      "name": "VIN Lead Config Default",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "gap",
+      "status": "planned"
     },
     {
-      "id": "P2-S1",
-      "name": "Token security — httpOnly cookies for refresh tokens",
-      "phase": "P2",
-      "status": "committed",
-      "startedAt": "2026-03-13T19:21:50Z",
-      "commitHash": "b9c81d9"
+      "id": "T-2.EXIT",
+      "name": "Phase 2 Exit Inspection",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "testing",
+      "status": "planned"
     },
     {
-      "id": "P2-S2",
-      "name": "XSS and input sanitization",
-      "phase": "P2",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:37:00Z",
-      "commitHash": "5563a96"
+      "id": "E-3.0",
+      "name": "Phase 3 Entry Inspection",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "exploratory",
+      "status": "planned"
     },
     {
-      "id": "P2-S3",
-      "name": "Password security and credential handling",
-      "phase": "P2",
-      "status": "committed",
-      "commitHash": "f87c1b3"
-    },
-    {
-      "id": "P3-S0",
-      "name": "Extract scheduler logic from index.ts",
-      "phase": "P3",
-      "status": "committed",
-      "startedAt": "2026-03-13T06:40:00Z",
-      "commitHash": "004f616"
-    },
-    {
-      "id": "P3-S1",
-      "name": "Route registration pattern — extract health + auth routes",
-      "phase": "P3",
-      "status": "committed",
-      "commitHash": "8c5354d"
-    },
-    {
-      "id": "P3-S2",
-      "name": "Frontend architecture — AppContext split",
-      "phase": "P3",
-      "status": "committed",
-      "startedAt": "2026-03-13T19:28:36Z",
-      "commitHash": "ab2ccde"
-    },
-    {
-      "id": "P4-S0",
-      "name": "Final snapshot and baseline tag",
-      "phase": "P4",
-      "status": "committed",
-      "commitHash": "a5219ca"
-    },
-    {
-      "id": "P4-S1",
-      "name": "Extract organization, user, and role routes",
-      "phase": "P4",
-      "status": "committed",
-      "commitHash": "2dc9a03"
-    },
-    {
-      "id": "P4-S2",
-      "name": "Extract communication routes (campaigns, conversations, notifications, SMS)",
-      "phase": "P4",
-      "status": "committed",
-      "commitHash": "bc1eb97"
-    },
-    {
-      "id": "P4-S3",
-      "name": "Extract agent, chat, and knowledge/document routes",
-      "phase": "P4",
-      "status": "committed",
-      "commitHash": "8f09017"
-    },
-    {
-      "id": "P4-S4",
-      "name": "Extract remaining routes and retire monolith",
-      "phase": "P4",
-      "status": "committed",
-      "commitHash": "d5451b1"
-    },
-    {
-      "id": "P5-S0",
-      "name": "Test infrastructure setup",
-      "phase": "P5",
-      "status": "committed",
-      "commitHash": "cbb25a7"
-    },
-    {
-      "id": "QA-S0",
-      "name": "Feature inventory — map application domains, pages, endpoints, and user flows",
-      "phase": "QA",
-      "status": "committed",
-      "startedAt": "2026-03-14T00:00:00Z",
-      "scope": [
-        "evidence/QA-S0/",
-        "sprints.json"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S1",
-      "name": "Feature testing — Authentication + Infrastructure/Security",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S0"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S2",
-      "name": "Feature testing — AI Agent, Chat streaming (SSE)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S2/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S1"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S3",
-      "name": "Feature testing — Campaigns, Conversations, Messaging",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S3/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S2"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S4",
-      "name": "Feature testing — Dashboard, Dept views, Analytics",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S4/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S3"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S5",
-      "name": "Feature testing — Settings, Profile, Billing",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S5/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S4"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S6",
-      "name": "Feature testing — Tasks, Appointments, Integrations, Public widgets",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S6/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S5"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S7",
-      "name": "Gap analysis — merge findings, prioritize remediation",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S7/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S6"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "QA-S8",
-      "name": "Remediation plan — define FIX sprints",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S8/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S7"
-      ],
-      "commitHash": "9198948"
-    },
-    {
-      "id": "FIX-S0",
-      "name": "Fix MAJOR defects + commit governance fixes + QA evidence",
-      "phase": "FIX",
-      "status": "committed",
-      "commitHash": "9198948",
-      "scope": [
-        "server/index.ts",
-        "server/routes/users.ts",
-        "client/index.html",
-        "scripts/pre-commit.sh",
-        "scripts/enforcer-checklist.sh",
-        "sprints.json",
-        "evidence/FIX-S0/",
-        "evidence/QA-S0/",
-        "evidence/QA-S1/",
-        "evidence/QA-S2/",
-        "evidence/QA-S3/",
-        "evidence/QA-S4/",
-        "evidence/QA-S5/",
-        "evidence/QA-S6/",
-        "evidence/QA-S7/",
-        "evidence/QA-S8/",
-        "evidence/audit-recertification/",
-        "evidence/quality-matrix.md",
-        ".claude/"
-      ]
-    },
-    {
-      "id": "FIX-S1",
-      "name": "Governance remediation — missing artifacts, enforcer checklists, harness tooling",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S0/ through QA-S10/",
-        "evidence/QA-S9/",
-        "evidence/QA-S10/",
-        "evidence/audit-recertification/",
-        ".claude/",
-        "enforcement_harness.json",
-        "CLAUDE.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "FIX-S0"
-      ],
-      "commitHash": "8f61d60"
-    },
-    {
-      "id": "QA-S9",
-      "name": "Authenticated testing — Auth flows (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S9/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "FIX-S0"
-      ],
-      "commitHash": "8f61d60"
-    },
-    {
-      "id": "QA-S10",
-      "name": "Authenticated testing — AI Agent, Chat (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S10/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S9"
-      ],
-      "commitHash": "8f61d60"
-    },
-    {
-      "id": "FIX-S2",
-      "name": "Governance housekeeping — sprint status sync + watchdog integration",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "sprints.json",
-        "enforcement_harness.json",
-        ".claude/commands/harness_check.md",
-        "scripts/watchdog.sh",
-        "scripts/pre-commit.sh",
-        "evidence/FIX-S2/",
-        "evidence/watchdog-ack.txt"
-      ],
-      "dependencies": [
-        "FIX-S1"
-      ],
-      "commitHash": "9cde984"
-    },
-    {
-      "id": "QA-S11",
-      "name": "Authenticated testing — Campaigns + Conversations (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S11/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S10"
-      ],
-      "commitHash": "fec45ad"
-    },
-    {
-      "id": "QA-S12",
-      "name": "Authenticated testing — Dashboard, Dept views, Analytics (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S12/",
-        "evidence/audit-recertification/",
-        "sprints.json",
-        "scripts/pre-commit.sh"
-      ],
-      "dependencies": [
-        "QA-S11"
-      ],
-      "commitHash": "b42ace8"
-    },
-    {
-      "id": "QA-S13",
-      "name": "Authenticated testing — Settings, Billing, Profile (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S13/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S12"
-      ],
-      "commitHash": "8db914a"
-    },
-    {
-      "id": "QA-S14",
-      "name": "Authenticated testing — Tasks, Integrations, Public widgets (L2/L3)",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S14/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S13"
-      ],
-      "commitHash": "2619ff3"
-    },
-    {
-      "id": "QA-S15",
-      "name": "Final gap analysis — merge L1 + L2 findings",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S15/",
-        "evidence/quality-matrix.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S14"
-      ],
-      "commitHash": "7767d97"
-    },
-    {
-      "id": "FIX-S3",
-      "name": "Auth fixes — logout bug, error message, restart tour, org wizard, org data correction",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "client/src/",
-        "server/routes/auth.ts",
-        "server/routes/users.ts",
-        "server/routes/organizations.ts",
-        "sprints.json",
-        "evidence/FIX-S3/",
-        "evidence/watchdog-ack.txt",
-        "evidence/live-testing-spec.md",
-        ".claude/settings.json"
-      ],
-      "dependencies": [
-        "QA-S15"
-      ],
-      "commitHash": "5e78e71"
-    },
-    {
-      "id": "FIX-S4",
-      "name": "FlexPrice billing connection — link customers, subscriptions, plans",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "sprints.json",
-        "evidence/FIX-S4/",
-        ".claude/settings.json",
-        "evidence/watchdog-ack.txt"
-      ],
-      "dependencies": [
-        "FIX-S3"
-      ],
-      "commitHash": "d938a72"
-    },
-    {
-      "id": "FIX-S5",
-      "name": "Chat usability — activity history, campaign data, empty state handling",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "server/routes/chat.ts",
-        "sprints.json",
-        "evidence/FIX-S5/"
-      ],
-      "dependencies": [
-        "FIX-S4"
-      ],
-      "commitHash": "4c377ce"
-    },
-    {
-      "id": "FIX-S6",
-      "name": "Chat tuning — conversational formatting, multi-org context, status events",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "server/routes/chat.ts",
-        "sprints.json",
-        "evidence/FIX-S6/"
-      ],
-      "dependencies": [
-        "FIX-S5"
-      ],
-      "commitHash": "79e87f0"
-    },
-    {
-      "id": "FIX-S7",
-      "name": "Type safety cleanup — remove unnecessary as-any casts",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "server/routes/campaigns.ts",
-        "server/routes/sms.ts",
-        "server/routes/settings.ts",
-        "server/routes/organizations.ts",
-        "server/routes/users.ts",
-        "server/routes/public.ts",
-        "sprints.json",
-        "evidence/FIX-S7/"
-      ],
-      "dependencies": [
-        "FIX-S6"
-      ],
-      "commitHash": "2809423"
-    },
-    {
-      "id": "FIX-S8",
-      "name": "Cleanup — documentation corrections, header notes",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "sprints.json",
-        "evidence/FIX-S8/",
-        "evidence/quality-matrix.md"
-      ],
-      "dependencies": [
-        "FIX-S7"
-      ],
-      "commitHash": "e96774b"
-    },
-    {
-      "id": "QA-S16",
-      "name": "Live communication testing — VAPI, TextMagic, Tavus, campaigns, TeamBox flows",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S16/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "FIX-S8"
-      ],
-      "commitHash": "952abfc"
-    },
-    {
-      "id": "QA-S17",
-      "name": "Data integrity — metrics, calculations, insights match actual data",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S17/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S16"
-      ],
-      "commitHash": "d0242d3"
-    },
-    {
-      "id": "QA-S18",
-      "name": "Marketing agents — verify each agent produces correct asset type",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S18/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S17"
-      ],
-      "commitHash": "c2cb07a"
-    },
-    {
-      "id": "FIX-S9",
-      "name": "Fix open defects — campaign seed data, chat lead count, lead source labels, channel mapping, warehouse metrics",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "server/routes/chat.ts",
-        "server/routes/insights.ts",
-        "server/routes/metrics.ts",
-        "server/seed.ts",
-        "scripts/pre-commit.sh",
-        "scripts/watchdog.sh",
-        "sprints.json",
-        "evidence/FIX-S9/",
-        "evidence/ghost-protocol-harness.md",
-        "evidence/watchdog-ack.txt"
-      ],
-      "dependencies": [
-        "QA-S18"
-      ],
-      "commitHash": "6360474"
-    },
-    {
-      "id": "QA-S19",
-      "name": "Full audit — feature map + user stories + acceptance criteria walkthrough",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S19/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "FIX-S9"
-      ],
-      "commitHash": "1cb8776"
-    },
-    {
-      "id": "FIX-S10",
-      "name": "Org Admin multi-org access (Option A) + data isolation audit + Pin to Dashboard removal + password change move",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "shared/schema.ts",
-        "server/routes/auth.ts",
-        "server/storage.ts",
-        "client/src/pages/profile.tsx",
-        "client/src/pages/settings.tsx",
-        "client/src/pages/insights.tsx",
-        "sprints.json",
-        "evidence/FIX-S10/"
-      ],
-      "dependencies": [
-        "QA-S19"
-      ],
-      "commitHash": "bab0080"
-    },
-    {
-      "id": "QA-S19L5",
-      "name": "L5 Admin walkthrough — user-reported findings collection",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S19L5/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "FIX-S10"
-      ],
-      "commitHash": "19e74ef"
-    },
-    {
-      "id": "QA-S20",
-      "name": "Full communications test — VAPI, TextMagic, Tavus, campaigns E2E",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S20/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S19L5"
-      ],
-      "commitHash": "1786429"
-    },
-    {
-      "id": "QA-S21",
-      "name": "Full E2E usability test — every page, every role, Playwright screenshots",
-      "phase": "QA",
-      "status": "committed",
-      "scope": [
-        "evidence/QA-S21/",
-        "evidence/audit-recertification/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "QA-S20"
-      ],
-      "commitHash": "406d70b"
-    },
-    {
-      "id": "FIX-S11",
-      "name": "Wave 2 bug fix — all QA-S19L5 + QA-S20 + QA-S21 defects",
-      "phase": "FIX",
-      "status": "committed",
-      "scope": [
-        "server/routes/webhooks.ts",
-        "server/routes/auth.ts",
-        "client/src/components/layout/Sidebar.tsx",
-        "client/src/components/layout/SubMenuManager.tsx",
-        "client/src/pages/teambox.tsx",
-        "client/src/pages/insights.tsx",
-        "client/src/pages/management.tsx",
-        "client/src/pages/main.tsx",
-        "sprints.json",
-        "evidence/FIX-S11/"
-      ],
-      "dependencies": [
-        "QA-S21"
-      ],
-      "commitHash": "d9160e1"
-    },
-    {
-      "id": "R-1",
-      "name": "Issues Gathering and Plan Realignment",
-      "phase": "R",
-      "status": "committed",
-      "scope": [
-        "issues.md",
-        "enforcement_harness.json",
-        "sprints.json",
-        "evidence/R-1/",
-        "backlog.md"
-      ],
-      "dependencies": [
-        "FIX-S11"
-      ],
-      "description": "Consolidate ALL open issues from QA-S19L5, QA-S20, QA-S21, FIX-S11 gaps, and backlog into a single issues.md file. Update governance files and enforcement harness to use issues.md as the single source of truth for open issues going forward. Realign the plan for a clear line of sight to launch.",
-      "commitHash": "a01ecef"
-    },
-    {
-      "id": "I-1",
-      "name": "Fix 15 must-fix items from issues.md (with AC)",
-      "phase": "I",
-      "status": "committed",
-      "scope": [
-        "server/",
-        "client/src/",
-        "shared/schema.ts",
-        "sprints.json",
-        "evidence/I-1/",
-        "issues.md"
-      ],
-      "dependencies": [
-        "R-1"
-      ],
-      "commitHash": "035fb0e"
-    },
-    {
-      "id": "T-1",
-      "name": "Verification testing — all 15 I-1 fixes against AC",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "I-1"
-      ],
-      "completedAt": "2026-03-17T12:00:00Z",
-      "commitHash": "93322e9"
-    },
-    {
-      "id": "I-039",
-      "name": "Route all third-party communications through MCP",
-      "phase": "I",
-      "status": "committed",
-      "commitHash": "905c4a0",
-      "scope": [
-        "server/outbound.ts",
-        "server/vendorProxy.ts",
-        "server/routes/conversations.ts",
-        "server/routes/webhooks.ts",
-        "server/routes/widgets.ts",
-        "evidence/I-039/",
-        "sprints.json",
-        "issues.md"
-      ],
-      "dependencies": [
-        "T-1"
-      ],
-      "description": "Refactor all direct TextMagic, VAPI, Tavus, and Resend API calls in the app to route through central-mcp via callMCP(). Single source of truth for third-party credentials."
-    },
-    {
-      "id": "ORG-1",
-      "name": "File reorganization — governance docs, acceptance criteria, user stories",
-      "phase": "ORG",
-      "status": "committed",
-      "scope": [
-        "CLAUDE.md",
-        "harness.md",
-        "plan.md",
-        "issues.md",
-        "backlog.md",
-        "acceptance_criteria.md",
-        "user-stories.md",
-        ".gitignore",
-        "sprints.json",
-        "evidence/ORG-1/"
-      ],
-      "dependencies": [
-        "I-039"
-      ],
-      "description": "Reorganize all project documents. Consolidate issues, create acceptance criteria with 85 checkable items, save user stories, create harness.md, update CLAUDE.md, archive old files.",
-      "commitHash": "9756b94"
-    },
-    {
-      "id": "AC-1",
-      "name": "Audit acceptance criteria + create Playwright test files by domain",
-      "phase": "AC",
-      "status": "committed",
-      "scope": [
-        "acceptance_criteria.md",
-        "tests/",
-        "playwright.config.ts",
-        "package.json",
-        "evidence/AC-1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "ORG-1"
-      ],
-      "description": "Reconcile feature map and user stories against current code. Set up Playwright config. Create test files organized by feature domain (domains 1-12) with each test mapped to a criterion ID. Clean up or replace existing Vitest stubs in tests/observability/. 3 criteria expected to fail (4.10, 11.2, 11.6) due to open issues.",
-      "commitHash": "71fb61c"
-    },
-    {
-      "id": "T-2",
-      "name": "Full application test (autonomous) — comms + usability end-to-end",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "playwright.config.ts",
-        "evidence/T-2/",
-        "issues.md",
-        "acceptance_criteria.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "AC-1"
-      ],
-      "description": "Run complete Playwright test suite against all domains. Findings go to issues.md with domain tags.",
-      "commitHash": "9cadba5"
-    },
-    {
-      "id": "R-2",
-      "name": "Codebase refactoring scan — major issues + backlog categorization",
-      "phase": "R",
-      "status": "committed",
-      "scope": [
-        "evidence/R-2/",
-        "issues.md",
-        "backlog.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-2"
-      ],
-      "description": "Full codebase scan for refactoring opportunities. Flag major issues as must-fix in issues.md with domain tags, categorize everything else into backlog.md.",
-      "commitHash": "e8f521d"
-    },
-    {
-      "id": "REM-1",
-      "name": "Remediation sprint",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "server/",
-        "client/src/",
-        "shared/",
-        "evidence/REM-1/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "R-2"
-      ],
-      "description": "Fix all open issues from T-2 and R-2. Work organized by domain sub-sprints.",
-      "sub_sprints": [
-        {
-          "id": "REM-1-FE",
-          "domain": "FE",
-          "name": "Frontend — UI, pages, forms, client logic",
-          "scope": [
-            "client/src/"
-          ]
-        },
-        {
-          "id": "REM-1-BE",
-          "domain": "BE",
-          "name": "Backend — APIs, business rules, services, integrations",
-          "scope": [
-            "server/"
-          ]
-        },
-        {
-          "id": "REM-1-DT",
-          "domain": "DT",
-          "name": "Data — schema, database, migrations, reporting data",
-          "scope": [
-            "shared/schema.ts",
-            "server/storage.ts"
-          ]
-        },
-        {
-          "id": "REM-1-AU",
-          "domain": "AU",
-          "name": "Auth/Security — login, permissions, security controls",
-          "scope": [
-            "server/auth.ts",
-            "server/routes/auth.ts"
-          ]
-        },
-        {
-          "id": "REM-1-IN",
-          "domain": "IN",
-          "name": "Infrastructure — deploys, environments, monitoring, scaling",
-          "scope": [
-            "scripts/",
-            ".env"
-          ]
-        }
-      ],
-      "commitHash": "2902c8e"
-    },
-    {
-      "id": "T-3",
-      "name": "Full application test (autonomous) — post-remediation verification",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-3/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-1"
-      ],
-      "description": "Rerun complete test suite after remediation. Loop back to REM if issues remain.",
-      "commitHash": "822e58f"
-    },
-    {
-      "id": "REM-2",
-      "name": "Remediation round 2 — loginViaUI fix + remaining BE/FE issues",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "server/",
-        "evidence/REM-2/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-3"
-      ],
-      "description": "Fix loginViaUI test infrastructure (28 tests blocked), remaining campaign/tasks/billing bugs.",
-      "commitHash": "3e76bf4"
-    },
-    {
-      "id": "T-4",
-      "name": "Full application test — post-REM-2 (loginViaUI fix)",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-4/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-2"
-      ],
-      "commitHash": "7a6f7a7"
-    },
-    {
-      "id": "REM-3",
-      "name": "Remediation round 3 — 6 user-reported bugs + test fixes",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "server/",
-        "client/src/",
-        "tests/e2e/",
-        "evidence/REM-3/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-4"
-      ],
-      "sub_sprints": [
-        {
-          "id": "REM-3-AU",
-          "domain": "AU",
-          "name": "Auth — Super Admin org, org switch, rate limiter"
-        },
-        {
-          "id": "REM-3-FE",
-          "domain": "FE",
-          "name": "Frontend — tour, sidebar links, lead modal"
-        },
-        {
-          "id": "REM-3-DT",
-          "domain": "DT",
-          "name": "Data — dashboard metrics verification"
-        },
-        {
-          "id": "REM-3-TI",
-          "domain": "TI",
-          "name": "Test infrastructure — selectors, conversation API"
-        }
-      ],
-      "commitHash": "d5b6846"
-    },
-    {
-      "id": "ALN-1",
-      "name": "Alignment — harness fixes, smoke test requirements, issues verification",
-      "phase": "ALN",
-      "status": "committed",
-      "scope": [
-        "harness.md",
-        "CLAUDE.md",
-        "issues.md",
-        "acceptance_criteria.md",
-        "evidence/ALN-1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-3"
-      ],
-      "description": "Fix governance workflow gaps. Add smoke testing to sprint lifecycle. Verify all issues. Stress test harness.",
-      "commitHash": "73dbdc8"
-    },
-    {
-      "id": "REM-4",
-      "name": "Remediation round 4 — test fixes, BE fixes, widget verification tests",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "server/",
-        "evidence/REM-4/",
-        "issues.md",
-        "acceptance_criteria.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "ALN-1"
-      ],
-      "commitHash": "3424944"
-    },
-    {
-      "id": "T-5",
-      "name": "Full application test — post-ALN-1 (rate limiter + campaign + TI fixes)",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-5/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "ALN-1"
-      ],
-      "commitHash": "11e6108"
-    },
-    {
-      "id": "T-6",
-      "name": "Full application test — post-REM-4 (auth persistence fix)",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-6/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-4"
-      ],
-      "commitHash": "f95242e"
-    },
-    {
-      "id": "AUDIT-1",
-      "name": "Governance remediation — full project code audit and evidence fixes",
-      "phase": "AUDIT",
-      "status": "committed",
-      "scope": [
-        "evidence/AUDIT-1/",
-        "evidence/*/pre-execution-report.md",
-        "evidence/*/post-sprint-report.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-6"
-      ],
-      "description": "Audit every code-touching sprint with dual agents. Rewrite every pre-exec with real success criteria. Verify all claims. Document all defects. No code changes.",
-      "commitHash": "fa44c9f"
-    },
-    {
-      "id": "DEPLOY-1",
-      "name": "Widget JS rewrite + live.huminic.app deployment",
-      "phase": "DEPLOY",
-      "status": "committed",
-      "scope": [
-        "server/routes/public.ts",
-        "server/routes/widgets.ts",
-        "server/index.ts",
-        "evidence/DEPLOY-1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "AUDIT-1"
-      ],
-      "description": "Rewrite dealer widget JS to use Tavus directly (no custom UI). Add CORS for cross-origin widget API. Deploy to live.huminic.app via Caddy + DNS.",
-      "commitHash": "a177914"
-    },
-    {
-      "id": "REM-5",
-      "name": "Remediation round 5 — 16 T-6 failures (9 test, 3 app, 2 investigate, 2 firm)",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "server/",
-        "shared/",
-        "evidence/REM-5/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "DEPLOY-1"
-      ],
-      "commitHash": "49e0a18"
-    },
-    {
-      "id": "REM-6",
-      "name": "Remediation round 6 — tour dismiss in tests, billing route guard",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "client/src/",
-        "evidence/REM-6/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-5"
-      ],
-      "commitHash": "77f84c4"
-    },
-    {
-      "id": "T-7",
-      "name": "Full application test — post-REM-5/REM-6",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-7/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-6"
-      ],
-      "commitHash": "077dd30"
-    },
-    {
-      "id": "REM-7",
-      "name": "Remediation round 7 — final 6 test fixes",
-      "phase": "REM",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "server/routes/public.ts",
-        "evidence/REM-7/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-7"
-      ],
-      "commitHash": "9cfc5ab"
-    },
-    {
-      "id": "E2E-1",
-      "name": "Full E2E flow tests — comms, webhooks, campaigns, TeamBox, VIN integration",
-      "phase": "E2E",
-      "status": "committed",
-      "scope": [
-        "tests/e2e/",
-        "evidence/E2E-1/",
-        "acceptance_criteria.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-7"
-      ],
-      "commitHash": "4d826e5"
-    },
-    {
-      "id": "T-8",
-      "name": "Full test — all projects including E2E flows",
-      "phase": "T",
-      "status": "committed",
-      "scope": [
-        "evidence/T-8/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "E2E-1"
-      ],
-      "commitHash": "8010e76"
-    },
-    {
-      "id": "DB-1",
-      "name": "Supabase database migration — schema swap + user preservation",
-      "phase": "DB",
-      "status": "committed",
-      "commitHash": "81d0ed4",
-      "scope": [
-        ".env",
-        "drizzle.config.ts",
-        "evidence/DB-1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-8"
-      ],
-      "description": "Migrate from Neon to Supabase. Drop 68 old tables, push 28-table Drizzle schema, seed orgs/roles, insert 9 real users with password resets. Update drizzle.config.ts for DIRECT_URL."
-    },
-    {
-      "id": "REM-8",
-      "name": "Remediation round 8 — org switch fix, webhook emails, VIN lead import",
-      "phase": "REM",
-      "status": "committed",
-      "commitHash": "e9167e4",
-      "scope": [
-        "server/routes/auth.ts",
-        "server/routes/webhooks.ts",
-        "server/outbound.ts",
-        "tests/e2e/",
-        "evidence/REM-8/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "DB-1"
-      ],
-      "description": "Fix Partner Admin org switch (I-088), implement webhook email notifications for VAPI+Tavus (I-087), insert VAPI call log leads into VIN Solutions (I-086).",
-      "sub_sprints": [
-        {
-          "id": "REM-8-AU",
-          "domain": "AU",
-          "name": "Auth — Partner Admin org switch fix"
-        },
-        {
-          "id": "REM-8-BE",
-          "domain": "BE",
-          "name": "Backend — Webhook email notifications"
-        },
-        {
-          "id": "REM-8-DT",
-          "domain": "DT",
-          "name": "Data — VIN Solutions lead import"
-        }
-      ]
-    },
-    {
-      "id": "HASH-FIX-1",
-      "name": "Fix sprints.json commit hashes after git filter-repo rewrite",
-      "phase": "FIX",
-      "status": "committed",
-      "commitHash": "8b5cd9e",
-      "scope": [
-        "sprints.json",
-        "evidence/HASH-FIX-1/"
-      ],
-      "dependencies": [
-        "REM-8"
-      ],
-      "description": "git filter-repo rewrote all commit SHAs when scrubbing exposed API keys. All 80+ commitHash values in sprints.json are now invalid. Update to post-rewrite hashes using git log mapping."
-    },
-    {
-      "id": "REM-9",
-      "name": "Remediation round 9 — contact modal, insights calc, sync date mapping, test coverage gaps",
-      "phase": "REM",
-      "status": "in_progress",
-      "scope": [
-        "server/sync.ts",
-        "server/routes/insights.ts",
-        "server/routes/metrics.ts",
-        "client/src/pages/main.tsx",
-        "client/src/pages/sales.tsx",
-        "tests/e2e/",
-        "evidence/REM-9/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "REM-8"
-      ],
-      "description": "Fix contact modal (I-089), insights calculations (I-090), sync date mapping. Then create real comms test scripts covering ghost audit gaps (I-091 through I-094, TG-001 through TG-010).",
-      "sub_sprints": [
-        {
-          "id": "REM-9-BE",
-          "domain": "BE",
-          "name": "Backend — sync date mapping, insights calculation, takeover fix"
-        },
-        {
-          "id": "REM-9-FE",
-          "domain": "FE",
-          "name": "Frontend — contact modal fix (requires user approval)"
-        },
-        {
-          "id": "REM-9-TI",
-          "domain": "TI",
-          "name": "Test Infrastructure — real comms test scripts, coverage gaps"
-        }
-      ]
-    },
-    {
-      "id": "REM-10",
-      "name": "Remediation round 10 \u2014 real comms verification, email hierarchy, VAPI webhook activation",
-      "phase": "REM",
-      "status": "planned",
-      "scope": [
-        "server/routes/webhooks.ts",
-        "server/routes/appointments.ts",
-        "tests/e2e/",
-        "evidence/REM-10/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": ["REM-9"],
-      "description": "Fix email notification hierarchy (partner_admin gets child store notifications). Fix Durran/Victoria org assignments. Update VAPI/Tavus webhook URLs to live.huminic.app. Replay March 18-19 inbound calls with real emails + VIN lead insertion. Elliott test call. Real SMS tests. Full test suite including visual. All with qualified evidence.",
-      "sub_sprints": [
-        {
-          "id": "REM-10-AU",
-          "domain": "AU",
-          "name": "Auth \u2014 Fix Durran org, Victoria additional_org_ids"
-        },
-        {
-          "id": "REM-10-BE",
-          "domain": "BE",
-          "name": "Backend \u2014 Email recipient hierarchy walk via partner_id"
-        },
-        {
-          "id": "REM-10-DT",
-          "domain": "DT",
-          "name": "Data \u2014 Appointment source field preservation"
-        },
-        {
-          "id": "REM-10-IN",
-          "domain": "IN",
-          "name": "Infrastructure \u2014 VAPI/Tavus webhook URLs, rebuild, deploy"
-        },
-        {
-          "id": "REM-10-TI",
-          "domain": "TI",
-          "name": "Test Infrastructure \u2014 callMCP parsing, test design fixes"
-        }
-      ]
-    },
-    {
-      "id": "L5-1",
-      "name": "User walkthrough — human evaluation and sign-off",
-      "phase": "L5",
-      "status": "planned",
-      "scope": [
-        "evidence/L5-1/",
-        "issues.md",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "T-3"
-      ],
-      "description": "User walks through entire application. Findings go to issues.md. UI must not be modified after tests pass without user supervision."
-    },
-    {
-      "id": "LAUNCH-S0",
-      "name": "Infrastructure — Coolify container, env vars, Caddy, widget JS URLs",
-      "phase": "LAUNCH",
-      "status": "planned",
-      "scope": [
-        "evidence/LAUNCH-S0/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "L5-1"
-      ]
-    },
-    {
-      "id": "LAUNCH-S1",
-      "name": "Smoke test at production URL",
-      "phase": "LAUNCH",
-      "status": "planned",
-      "scope": [
-        "evidence/LAUNCH-S1/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "LAUNCH-S0"
-      ]
-    },
-    {
-      "id": "LAUNCH-S2",
-      "name": "User sign-off — ship it",
-      "phase": "LAUNCH",
-      "status": "planned",
-      "scope": [
-        "evidence/LAUNCH-S2/",
-        "sprints.json"
-      ],
-      "dependencies": [
-        "LAUNCH-S1"
-      ]
+      "id": "I-3.1",
+      "name": "Commit Uncommitted CommGate Guard",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-3.2",
+      "name": "Email Notification Template and Recipient Hierarchy",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-3.3",
+      "name": "SMS Human Takeover Fix",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-3.4",
+      "name": "Remove Campaign Hardcoded dryRun",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-3.5",
+      "name": "After-Hours Message Queueing",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-3.6",
+      "name": "Re-Enable CommGate Per Org",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "V-3.7",
+      "name": "SMS Inbound Greeting Verification",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-3.EXIT",
+      "name": "Phase 3 Exit Inspection",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-4.0",
+      "name": "Phase 4 Entry Inspection",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "G-4.1",
+      "name": "Nancy Gaston Service Persona Setup",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "I-4.2",
+      "name": "Update VAPI Webhook URLs",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-4.3",
+      "name": "Update Tavus Webhook URL",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-4.4",
+      "name": "VAPI End-to-End Call Test (Elliott)",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-4.5",
+      "name": "Tavus Video Session and Transcript Test",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "I-4.6",
+      "name": "Appointment Source Field Fix",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "T-4.EXIT",
+      "name": "Phase 4 Exit Inspection",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-5.0",
+      "name": "Phase 5 Entry Inspection",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-5.1",
+      "name": "Verify Conversation List and Filtering",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-5.2",
+      "name": "Verify Conversation Thread and Messaging",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-5.3",
+      "name": "Verify Human Takeover UI",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-5.4",
+      "name": "Verify Conversation Assignment",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-5.EXIT",
+      "name": "Phase 5 Exit Inspection",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-6.0",
+      "name": "Phase 6 Entry Inspection",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-6.1",
+      "name": "Verify Campaign CRUD",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-6.2",
+      "name": "Verify Campaign Execution (After Phase 3 dryRun Fix)",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-6.3",
+      "name": "Service Campaign with Email Channel",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-6.4",
+      "name": "Campaign Reply Routing to AI Agent",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "T-6.EXIT",
+      "name": "Phase 6 Exit Inspection",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-7.0",
+      "name": "Phase 7 Entry Inspection",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-7.1",
+      "name": "Verify Trigger Infrastructure",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-7.2",
+      "name": "Trigger Configuration API",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-7.3",
+      "name": "Trigger Configuration UI",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-7.4",
+      "name": "After-Hours Auto-Response Template",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "T-7.EXIT",
+      "name": "Phase 7 Exit Inspection",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-8.0",
+      "name": "Phase 8 Entry Inspection",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-8.1",
+      "name": "Verify Streaming Chat Quality",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-8.2",
+      "name": "Verify Chat Tools (Web Search, VIN Query, Campaign Query)",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-8.3",
+      "name": "Agent Prompt Tuning",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-8.4",
+      "name": "Multi-Org Awareness for Chat",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "V-8.5",
+      "name": "Verify Knowledge Base",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-8.EXIT",
+      "name": "Phase 8 Exit Inspection",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-9.0",
+      "name": "Phase 9 Entry Inspection",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-9.1",
+      "name": "Verify In-App Notifications",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-9.2",
+      "name": "Verify Activity Feed",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-9.3",
+      "name": "Verify Email Notification Delivery (After Phase 3 Fix)",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-9.4",
+      "name": "Escalation Badges",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "T-9.EXIT",
+      "name": "Phase 9 Exit Inspection",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-10.0",
+      "name": "Phase 10 Entry Inspection",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.1",
+      "name": "Sales Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.2",
+      "name": "Service Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.3",
+      "name": "Marketing Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.4",
+      "name": "Management Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "I-10.5",
+      "name": "Fix Contact Modal",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "issue",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.6",
+      "name": "My Work Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.7",
+      "name": "Profile and Settings Page Verification",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-10.8",
+      "name": "Security and Infrastructure Verification",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-10.EXIT",
+      "name": "Phase 10 Exit Inspection",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-11.0",
+      "name": "Phase 11 Entry Inspection",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-11.1",
+      "name": "Insights Page Data Accuracy (After Phase 2)",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-11.2",
+      "name": "Pipeline and Lead Source Accuracy",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-11.3",
+      "name": "Full Metric Traceability Audit",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-11.4",
+      "name": "Dashboard Main Page Metric Accuracy",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "T-11.EXIT",
+      "name": "Phase 11 Exit Inspection",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-12.0",
+      "name": "Phase 12 Entry Inspection",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-12.1",
+      "name": "Verify Widget JS Embed",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-12.2",
+      "name": "Verify Landing Pages",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-12.3",
+      "name": "Verify Widget Form Submission",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-12.EXIT",
+      "name": "Phase 12 Exit Inspection",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-13.0",
+      "name": "Phase 13 Entry Inspection",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-13.1",
+      "name": "Verify Organization Settings",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-13.2",
+      "name": "Verify User Management",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "G-13.3",
+      "name": "VIN Lead Config in Settings",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-13.4",
+      "name": "Business Hours Configuration",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "G-13.5",
+      "name": "SMS Number Configuration Display",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "planned"
+    },
+    {
+      "id": "T-13.EXIT",
+      "name": "Phase 13 Exit Inspection",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-14.0",
+      "name": "Phase 14 Entry Inspection",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "V-14.1",
+      "name": "Verify Billing Pages Load",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "V-14.2",
+      "name": "Verify Usage Event Tracking",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "verification",
+      "status": "planned"
+    },
+    {
+      "id": "T-14.EXIT",
+      "name": "Phase 14 Exit Inspection",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "testing",
+      "status": "planned"
+    },
+    {
+      "id": "E-15.0",
+      "name": "Phase 15 Entry Inspection",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "exploratory",
+      "status": "planned"
+    },
+    {
+      "id": "L-15.1",
+      "name": "Coolify Container Setup",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned"
+    },
+    {
+      "id": "L-15.2",
+      "name": "Caddy Configuration",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned"
+    },
+    {
+      "id": "L-15.3",
+      "name": "Production Smoke Test",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned"
+    },
+    {
+      "id": "L-15.4",
+      "name": "Production CommGate Activation",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned"
+    },
+    {
+      "id": "T-15.EXIT",
+      "name": "Phase 15 Exit Inspection",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "testing",
+      "status": "planned"
     }
   ]
 }

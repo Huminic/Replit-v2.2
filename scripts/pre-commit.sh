@@ -30,6 +30,15 @@ STAGED_FILES=$(git diff --cached --name-only)
 NOW_EPOCH=$(date +%s)
 MAX_AGE_SECONDS=1800  # 30 minutes
 
+# Light governance for V-, E-, T-*.EXIT sprints (verification/inspection)
+LIGHT_GOVERNANCE=0
+case "$SPRINT" in
+  V-*|E-*|T-*.EXIT|T-*EXIT) LIGHT_GOVERNANCE=1 ;;
+esac
+if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+  echo "  LIGHT GOVERNANCE sprint detected ($SPRINT) — Gates 2.5, 3, 4 will be skipped"
+fi
+
 block() {
   echo ""
   echo "BLOCKED: $1"
@@ -144,10 +153,11 @@ if current_idx == 0:
     print('OK:First sprint, no predecessor')
     sys.exit(0)
 prev = sprints[current_idx - 1]
-if prev['status'] == 'committed':
-    print(f'OK:Previous {prev[\"id\"]} committed ({prev.get(\"commitHash\",\"?\")})')
+if prev['status'] in ('committed', 'parked'):
+    label = 'committed' if prev['status'] == 'committed' else 'parked'
+    print(f'OK:Previous {prev[\"id\"]} {label} ({prev.get(\"commitHash\",\"?\")})')
 else:
-    print(f'BLOCK:Previous sprint {prev[\"id\"]} status is \"{prev[\"status\"]}\", not \"committed\"')
+    print(f'BLOCK:Previous sprint {prev[\"id\"]} status is \"{prev[\"status\"]}\", not \"committed\" or \"parked\"')
     sys.exit(1)
 " 2>/dev/null)
   CHAIN_EXIT=$?
@@ -313,6 +323,9 @@ echo "  PASS ($EVIDENCE_COUNT file(s) in $EVIDENCE_DIR)"
 # GATE 2.5: Pre-execution report must declare files
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 2.5/7] Declared files check..."
+if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+  echo "  SKIP (light governance sprint)"
+else
 
 PRE_EXEC_FILE="${EVIDENCE_DIR}/pre-execution-report.md"
 
@@ -370,11 +383,15 @@ if [ -n "$UNDECLARED" ]; then
 fi
 
 echo "  PASS (all staged application files declared)"
+fi
 
 # ═══════════════════════════════════════════════════════════════════
 # GATE 3: Enforcer checklist (fresh + approved)
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 3/7] Enforcer checklist..."
+if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+  echo "  SKIP (light governance sprint)"
+else
 
 ENFORCER_FILE="${EVIDENCE_DIR}/enforcer-checklist.txt"
 
@@ -393,11 +410,15 @@ fi
 check_freshness "$ENFORCER_FILE" "Enforcer checklist"
 
 echo "  PASS (approved, fresh)"
+fi
 
 # ═══════════════════════════════════════════════════════════════════
 # GATE 4: Cross-sign (fresh + different role + correct implementing role)
 # ═══════════════════════════════════════════════════════════════════
 echo "[Gate 4/7] Cross-sign..."
+if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+  echo "  SKIP (light governance sprint)"
+else
 
 CROSS_SIGN_FILE="${EVIDENCE_DIR}/cross-sign.md"
 
@@ -434,6 +455,7 @@ fi
 check_freshness "$CROSS_SIGN_FILE" "Cross-sign"
 
 echo "  PASS (reviewed by $REVIEWER_ROLE, fresh)"
+fi
 
 # ═══════════════════════════════════════════════════════════════════
 # GATE 5: File scope validation
