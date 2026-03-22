@@ -36,3 +36,10 @@ Status: ACKNOWLEDGED
 Acknowledged-By: orchestrator
 Acknowledged-At: 2026-03-20T16:30:00Z
 Response: webhooks.ts CommGate check is being committed in REM-9. The unauthorized deploy is documented as governance incident I-102 in issues.md. All outbound is disabled via CommGate. No further builds or deploys will occur outside of committed sprints.
+---
+Message-ID: GM-20260322-173545
+Timestamp: 2026-03-22T17:35:45Z
+Severity: DIRECTIVE
+From: watchdog
+Message: I-1.3 and I-1.4 were executed before pre-exec reports were written. This is documented honestly as RETROACTIVE. Commit them one at a time. After Phase 1 is complete, data-only sprints that don't modify application files should be classified as V- sprints in the future, not I- sprints. Also: do not set multiple sprints to in_progress unless you are dispatching them as parallel agents in worktrees. Setting both to in_progress and working sequentially is a governance violation.
+Status: ACKNOWLEDGED
