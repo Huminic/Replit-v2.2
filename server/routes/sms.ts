@@ -314,9 +314,14 @@ export function registerSmsRoutes(app: Express) {
       // Skip if after-hours — the auto-response already handled it
       if (!isAfterHours) (async () => {
         try {
-          // Skip if conversation has been taken over by a human
-          if ((conversation as any).assignedTo) {
-            console.log(`[SMS AI] Skipping AI response — conversation ${conversation.id} taken over by human`);
+          // Re-query conversation to get fresh assignedTo state
+          const freshConversation = await storage.getConversation(conversation!.id);
+          if (!freshConversation) {
+            console.log(`[SMS AI] Conversation ${conversation!.id} no longer exists — skipping AI response`);
+            return;
+          }
+          if (freshConversation.assignedTo) {
+            console.log(`[SMS AI] AI paused — human takeover active (conversation ${freshConversation.id}, assignedTo: ${freshConversation.assignedTo})`);
             return;
           }
 
