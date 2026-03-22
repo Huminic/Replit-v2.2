@@ -316,3 +316,31 @@ Use these superpowers at the right moments:
 - /superpowers:dispatching-parallel-agents — for independent builder tasks
 - /superpowers:requesting-code-review — at cluster completion
 - /superpowers:systematic-debugging — before proposing any bug fix
+
+## Parallel Sprint Execution
+
+When working through a phase, check each sprint's `canParallelWith` field
+in sprints.json. If two or more sprints can run in parallel:
+
+1. Dispatch each as a separate Agent with `isolation: "worktree"`
+2. Each agent gets its sprint description from the phase file
+3. Each agent works in its own isolated copy of the repo
+4. Wait for all parallel agents to complete
+5. Review each agent's results
+6. Merge worktree changes if approved
+7. Commit through the pre-commit hook
+
+Rules:
+- Only parallelize sprints that have `canParallelWith` entries
+- Never parallelize sprints that share declared files
+- If any parallel agent fails, do NOT merge the others — fix the failure first
+- Entry (E-) and exit (T-) inspections are always sequential, never parallel
+- Development sprints (I-, G-) that modify the same file CANNOT be parallel
+  even if canParallelWith says they can — the declared files are the truth
+
+Example:
+```
+// sprints.json shows V-10.1 canParallelWith: ["V-10.2", "V-10.3", "V-10.4"]
+// These verify different pages — safe to run simultaneously
+// Dispatch 4 agents, each in a worktree, each checking one page
+```
