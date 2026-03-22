@@ -68,8 +68,9 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "verification",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "03adf44"
     },
     {
       "id": "T-1.EXIT",
@@ -77,7 +78,7 @@
       "phase": 1,
       "phaseFile": "01-auth-security.md",
       "type": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
