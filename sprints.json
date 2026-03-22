@@ -88,8 +88,9 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "exploratory",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "71fabea"
     },
     {
       "id": "V-2.1",
@@ -97,7 +98,7 @@
       "phase": 2,
       "phaseFile": "02-data-sync.md",
       "type": "verification",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
