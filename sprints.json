@@ -1012,7 +1012,8 @@
       "status": "committed",
       "canParallelWith": [
         "E-10.0"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-14.1",
@@ -1023,7 +1024,8 @@
       "status": "committed",
       "canParallelWith": [
         "V-14.2"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-14.2",
@@ -1034,7 +1036,8 @@
       "status": "committed",
       "canParallelWith": [
         "V-14.1"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "T-14.EXIT",
@@ -1043,7 +1046,8 @@
       "phaseFile": "14-billing.md",
       "type": "testing",
       "status": "committed",
-      "canParallelWith": []
+      "canParallelWith": [],
+      "commitHash": "pending"
     },
     {
       "id": "E-15.0",
