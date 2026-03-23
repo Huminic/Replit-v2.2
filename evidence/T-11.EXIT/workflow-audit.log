@@ -1,0 +1,3 @@
+[2026-03-23T05:21:20Z] PRE-COMMIT role=backend sprint=T-11.EXIT result=BLOCKED detail="Staged files outside backend scope."
+[2026-03-23T05:25:08Z] PRE-COMMIT role=backend sprint=T-11.EXIT result=BLOCKED detail="Staged files outside backend scope."
+[2026-03-23T05:26:10Z] PRE-COMMIT role=orchestrator sprint=T-11.EXIT result=BLOCKED detail="TypeScript compilation failed (EF-01)."

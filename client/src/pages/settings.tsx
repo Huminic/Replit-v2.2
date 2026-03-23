@@ -150,6 +150,86 @@ import {
 import type { Widget as DbWidget } from '@shared/schema';
 import { getAccessToken } from '@/lib/tokenStore';
 
+function VinLeadConfigSection({ orgId }: { orgId?: string }) {
+  const { toast } = useToast();
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+
+  const { data: vinConfig } = useQuery({
+    queryKey: ['/api/integrations', orgId, 'vin-config'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/integrations/${orgId}/vin-config`);
+      return res.json();
+    },
+    enabled: !!orgId,
+  });
+
+  const { data: vinUsers, isLoading: usersLoading } = useQuery({
+    queryKey: ['/api/vin/users', orgId],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/vin/users/${orgId}`);
+      return res.json();
+    },
+    enabled: !!orgId,
+  });
+
+  useEffect(() => {
+    if (vinConfig?.defaultVinUserId) {
+      setSelectedUserId(String(vinConfig.defaultVinUserId));
+    }
+  }, [vinConfig?.defaultVinUserId]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      return apiRequest('PATCH', `/api/integrations/${orgId}/vin-config`, { defaultVinUserId: userId });
+    },
+    onSuccess: () => {
+      toast({ title: 'VIN lead config saved' });
+      queryClient.invalidateQueries({ queryKey: ['/api/integrations', orgId, 'vin-config'] });
+    },
+    onError: () => {
+      toast({ title: 'Failed to save', variant: 'destructive' });
+    },
+  });
+
+  if (!orgId) return null;
+
+  return (
+    <details className="text-xs" data-testid="vin-lead-config-section">
+      <summary className="cursor-pointer text-muted-foreground flex items-center gap-1">
+        <ChevronDown className="h-3 w-3" /> Default VIN Sales Rep
+      </summary>
+      <div className="mt-2 space-y-3 pl-4 border-l-2 border-primary/30">
+        <p className="text-muted-foreground">
+          Select the default sales rep for new VIN leads at this dealership.
+        </p>
+        <select
+          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+          value={selectedUserId}
+          onChange={(e) => {
+            setSelectedUserId(e.target.value);
+            const userId = parseInt(e.target.value, 10);
+            if (userId) saveMutation.mutate(userId);
+          }}
+          disabled={usersLoading || saveMutation.isPending}
+          data-testid="select-default-vin-user"
+        >
+          <option value="">
+            {usersLoading ? 'Loading VIN users...' : 'Select a sales rep'}
+          </option>
+          {(vinUsers?.users || []).map((u: any) => (
+            <option key={u.userId} value={String(u.userId)}>
+              {u.displayLabel}
+            </option>
+          ))}
+        </select>
+        {vinConfig?.dealerName && (
+          <p className="text-[10px] text-muted-foreground">Dealer: {vinConfig.dealerName} (ID: {vinConfig.dealerId})</p>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function dbWidgetToIndividual(w: DbWidget): IndividualWidget {
   const cfg = (w.config || {}) as Record<string, any>;
   return {
@@ -2760,6 +2840,9 @@ export default function SettingsPage() {
                 </Button>
               </div>
             </details>
+          )}
+          {tool.id === 'crm' && (
+            <VinLeadConfigSection orgId={currentOrganization?.id} />
           )}
           <details className="text-xs opacity-50">
             <summary className="cursor-pointer text-muted-foreground flex items-center gap-1">

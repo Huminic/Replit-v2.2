@@ -204,851 +204,125 @@
   },
   "suites": [
     {
-      "title": "live-comms.spec.ts",
-      "file": "live-comms.spec.ts",
+      "title": "domain-04-campaigns.spec.ts",
+      "file": "domain-04-campaigns.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Live Communications — Autonomous",
-          "file": "live-comms.spec.ts",
-          "line": 47,
+          "title": "Domain 4: Campaigns",
+          "file": "domain-04-campaigns.spec.ts",
+          "line": 4,
           "column": 6,
-          "specs": [],
-          "suites": [
+          "specs": [
             {
-              "title": "TextMagic SMS via MCP",
-              "file": "live-comms.spec.ts",
-              "line": 49,
-              "column": 8,
-              "specs": [
+              "title": "4.5 Kill switch blocks outbound",
+              "ok": true,
+              "tags": [],
+              "tests": [
                 {
-                  "title": "LC-1 MCP tm_send_message tool is accessible",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [
                     {
-                      "timeout": 60000,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2356,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-22T21:14:19.118Z",
                       "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 111,
-                          "error": {
-                            "message": "Error: No data in MCP response for tm_get_message_price",
-                            "stack": "Error: No data in MCP response for tm_get_message_price\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:53:22",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for tm_get_message_price\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:53:22"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:36.845Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-35cd8--message-tool-is-accessible-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
+                      "attachments": []
                     }
                   ],
-                  "id": "f1489abbfe9882f947de-a35c0359b0d0ad3f278f",
-                  "file": "live-comms.spec.ts",
-                  "line": 51,
-                  "column": 5
-                },
-                {
-                  "title": "LC-2 Campaign SMS executes via MCP routing",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 1,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 3545,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:38.240Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-787875b953947f50d4fb",
-                  "file": "live-comms.spec.ts",
-                  "line": 61,
-                  "column": 5
+                  "status": "expected"
                 }
-              ]
+              ],
+              "id": "9381e174b3d37b2066d1-2d702e69d3abd4fad2e9",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 220,
+              "column": 3
             },
             {
-              "title": "VAPI Voice via MCP",
-              "file": "live-comms.spec.ts",
-              "line": 122,
-              "column": 8,
-              "specs": [
+              "title": "4.6 Channel-specific pause",
+              "ok": true,
+              "tags": [],
+              "tests": [
                 {
-                  "title": "LC-3 MCP vapi_list_assistants returns dealer assistants",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api",
+                  "projectName": "api",
+                  "results": [
                     {
-                      "timeout": 60000,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2314,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-22T21:14:22.617Z",
                       "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 1,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 76,
-                          "error": {
-                            "message": "Error: No data in MCP response for vapi_list_assistants",
-                            "stack": "Error: No data in MCP response for vapi_list_assistants\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:125:22",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for vapi_list_assistants\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:125:22"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:41.821Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-ec7aa-s-returns-dealer-assistants-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
+                      "attachments": []
                     }
                   ],
-                  "id": "f1489abbfe9882f947de-948a7c0a8a17bf47965b",
-                  "file": "live-comms.spec.ts",
-                  "line": 124,
-                  "column": 5
-                },
-                {
-                  "title": "LC-4 MCP vapi_list_phone_numbers returns configured numbers",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 2,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 120,
-                          "error": {
-                            "message": "Error: No data in MCP response for vapi_list_phone_numbers",
-                            "stack": "Error: No data in MCP response for vapi_list_phone_numbers\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:138:22",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for vapi_list_phone_numbers\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:138:22"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:43.164Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-c15aa--returns-configured-numbers-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-267dbafc7457d56ead33",
-                  "file": "live-comms.spec.ts",
-                  "line": 137,
-                  "column": 5
-                },
-                {
-                  "title": "LC-5 MCP vapi_get_call retrieves call details",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [
-                        {
-                          "type": "skip",
-                          "location": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "line": 159,
-                            "column": 14
-                          }
-                        }
-                      ],
-                      "expectedStatus": "skipped",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 3,
-                          "parallelIndex": 0,
-                          "status": "skipped",
-                          "duration": 100,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:44.535Z",
-                          "annotations": [
-                            {
-                              "type": "skip",
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "line": 159,
-                                "column": 14
-                              }
-                            }
-                          ],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "skipped"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-4021e6eada3882456256",
-                  "file": "live-comms.spec.ts",
-                  "line": 149,
-                  "column": 5
-                },
-                {
-                  "title": "LC-6 VAPI outbound call with context overrides",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 3,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 38,
-                          "error": {
-                            "message": "Error: No data in MCP response for vapi_list_assistants",
-                            "stack": "Error: No data in MCP response for vapi_list_assistants\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:167:27",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for vapi_list_assistants\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:167:27"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:44.663Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-a8a01-call-with-context-overrides-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-8ca14997605ae24917e7",
-                  "file": "live-comms.spec.ts",
-                  "line": 164,
-                  "column": 5
+                  "status": "expected"
                 }
-              ]
-            },
-            {
-              "title": "Resend Email via MCP",
-              "file": "live-comms.spec.ts",
-              "line": 203,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "LC-7 MCP resend_send_email delivers to test address",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 4,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 117,
-                          "error": {
-                            "message": "Error: No data in MCP response for resend_send_email",
-                            "stack": "Error: No data in MCP response for resend_send_email\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:207:22",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for resend_send_email\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:207:22"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:45.974Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-5acba-il-delivers-to-test-address-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-7a3469aca93fee5c3b5a",
-                  "file": "live-comms.spec.ts",
-                  "line": 205,
-                  "column": 5
-                },
-                {
-                  "title": "LC-8 TeamBox outbound email endpoint works",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 5,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1310,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:47.341Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-027c29b4f63c97ff46bd",
-                  "file": "live-comms.spec.ts",
-                  "line": 218,
-                  "column": 5
-                }
-              ]
-            },
-            {
-              "title": "Tavus Video via MCP",
-              "file": "live-comms.spec.ts",
-              "line": 247,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "LC-9 MCP tavus_list_personas returns dealer personas",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 5,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 83,
-                          "error": {
-                            "message": "Error: No data in MCP response for tavus_list_personas",
-                            "stack": "Error: No data in MCP response for tavus_list_personas\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:250:22",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for tavus_list_personas\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:250:22"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:48.676Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-1c1d0-nas-returns-dealer-personas-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-376f223628ecb96f87a3",
-                  "file": "live-comms.spec.ts",
-                  "line": 249,
-                  "column": 5
-                },
-                {
-                  "title": "LC-10 Tavus personas match VAPI assistants per dealer",
-                  "ok": false,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 6,
-                          "parallelIndex": 0,
-                          "status": "failed",
-                          "duration": 121,
-                          "error": {
-                            "message": "Error: No data in MCP response for tavus_list_personas",
-                            "stack": "Error: No data in MCP response for tavus_list_personas\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:257:24",
-                            "location": {
-                              "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                              "column": 9,
-                              "line": 44
-                            },
-                            "snippet": "  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {"
-                          },
-                          "errors": [
-                            {
-                              "location": {
-                                "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                                "column": 9,
-                                "line": 44
-                              },
-                              "message": "Error: No data in MCP response for tavus_list_personas\n\n  42 |     }\n  43 |   }\n> 44 |   throw new Error(`No data in MCP response for ${toolName}`);\n     |         ^\n  45 | }\n  46 |\n  47 | test.describe(\"Live Communications — Autonomous\", () => {\n    at callMCP (/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:44:9)\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts:257:24"
-                            }
-                          ],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:50.000Z",
-                          "annotations": [],
-                          "attachments": [
-                            {
-                              "name": "trace",
-                              "contentType": "application/zip",
-                              "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/live-comms-Live-Communicat-0d9de--VAPI-assistants-per-dealer-comms/trace.zip"
-                            }
-                          ],
-                          "errorLocation": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/live-comms.spec.ts",
-                            "column": 9,
-                            "line": 44
-                          }
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-3b69b75e201cebe8f1b5",
-                  "file": "live-comms.spec.ts",
-                  "line": 256,
-                  "column": 5
-                }
-              ]
-            },
-            {
-              "title": "Webhook Email Notifications",
-              "file": "live-comms.spec.ts",
-              "line": 271,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "LC-13 VAPI end-of-call webhook triggers email notification",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 7,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 768,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:51.431Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-eda9571e3de5d7d466f1",
-                  "file": "live-comms.spec.ts",
-                  "line": 273,
-                  "column": 5
-                },
-                {
-                  "title": "LC-14 Tavus conversation.ended webhook triggers email notification",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 7,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 25,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:52.225Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-8667bc1ec0fa7c430f49",
-                  "file": "live-comms.spec.ts",
-                  "line": 332,
-                  "column": 5
-                }
-              ]
-            },
-            {
-              "title": "VIN Solutions via MCP",
-              "file": "live-comms.spec.ts",
-              "line": 378,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "LC-11 VIN Solutions lead query returns data for Serra Honda",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 7,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1371,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:52.266Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-dbe322ba0aeb1cf029bd",
-                  "file": "live-comms.spec.ts",
-                  "line": 380,
-                  "column": 5
-                },
-                {
-                  "title": "LC-12 Warehouse leads exist for Serra Honda",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 60000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "comms",
-                      "projectName": "comms",
-                      "results": [
-                        {
-                          "workerIndex": 7,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 548,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-03-20T06:42:53.650Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "f1489abbfe9882f947de-ccc712398c99d52857de",
-                  "file": "live-comms.spec.ts",
-                  "line": 402,
-                  "column": 5
-                }
-              ]
+              ],
+              "id": "9381e174b3d37b2066d1-51c1db0a52ef318a7700",
+              "file": "domain-04-campaigns.spec.ts",
+              "line": 290,
+              "column": 3
             }
           ]
         }
       ]
     },
     {
-      "title": "deep-coverage.spec.ts",
-      "file": "deep-coverage.spec.ts",
+      "title": "domain-05-teambox.spec.ts",
+      "file": "domain-05-teambox.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "US-005: Walk-In Auto-Followup",
-          "file": "deep-coverage.spec.ts",
-          "line": 17,
+          "title": "Domain 5: TeamBox / Conversations",
+          "file": "domain-05-teambox.spec.ts",
+          "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "DC-US005-1 Scheduled actions can be created for followup",
+              "title": "5.4 Takeover stops AI via assignedTo",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 120000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
+                  "projectId": "api",
+                  "projectName": "api",
                   "results": [
                     {
-                      "workerIndex": 8,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 515,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Tasks for org: 16\n"
-                        },
-                        {
-                          "text": "Followup tasks: 1\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:55.472Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-e9e7e8ba33743fb5c8ac",
-              "file": "deep-coverage.spec.ts",
-              "line": 19,
-              "column": 3
-            },
-            {
-              "title": "DC-US005-2 Trigger engine processes scheduled actions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 327,
+                      "duration": 1276,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-20T06:42:56.024Z",
+                      "startTime": "2026-03-22T21:14:24.971Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1056,326 +330,50 @@
                   "status": "expected"
                 }
               ],
-              "id": "9ad6128e37f81270f6c7-f4b524f188656c889cb3",
-              "file": "deep-coverage.spec.ts",
-              "line": 39,
+              "id": "97a50b70ef41d163fac4-9a4c7106687b30432c87",
+              "file": "domain-05-teambox.spec.ts",
+              "line": 122,
               "column": 3
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "title": "domain-09-settings.spec.ts",
+      "file": "domain-09-settings.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
         {
-          "title": "US-007: Pipeline Review",
-          "file": "deep-coverage.spec.ts",
-          "line": 82,
+          "title": "Domain 9: Settings",
+          "file": "domain-09-settings.spec.ts",
+          "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "DC-US007-1 Dashboard pipeline metrics are non-zero",
+              "title": "9.5 Communication gate toggle in settings",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 120000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
+                  "projectId": "browser",
+                  "projectName": "browser",
                   "results": [
                     {
-                      "workerIndex": 8,
+                      "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 575,
+                      "duration": 5375,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Pipeline: activePipeline=92, appointments=0, escalations=10\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:56.394Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-ed52f7a738a67b2d188d",
-              "file": "deep-coverage.spec.ts",
-              "line": 84,
-              "column": 3
-            },
-            {
-              "title": "DC-US007-2 Warehouse leads API supports status filtering",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 908,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Active leads: 0\n"
-                        },
-                        {
-                          "text": "Sold leads: 0\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:56.984Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-e707bb1866a498f61766",
-              "file": "deep-coverage.spec.ts",
-              "line": 99,
-              "column": 3
-            },
-            {
-              "title": "DC-US007-3 VIN lead summary endpoint returns breakdown",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 727,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "VIN summary: {\"period\":{\"start\":\"2026-02-18\",\"end\":\"2026-03-20\"},\"totalLeads\":470,\"totalLeadsChange\":0,\"newLeads\":0,\"newLeadsChange\":0,\"activeLeads\":160,\"activeLeadsChange\":0,\"soldLeads\":16,\"soldLeadsChange\":0,\"lostLeads\":36,\"waitingForResponse\":78,\"appointments\":0,\"conversionRate\":3.4,\"source\":\"warehouse\",\"sync\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:57.907Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-6b7518e6d5a539230730",
-              "file": "deep-coverage.spec.ts",
-              "line": 130,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "US-010: Recall Notification Flow",
-          "file": "deep-coverage.spec.ts",
-          "line": 150,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-US010-1 Service campaign can be created and executed",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 993,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Recall campaign created: b231738e-7d9d-4779-8cb3-b454398ae7ee\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:58.650Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-8b2c78e8f2114b236201",
-              "file": "deep-coverage.spec.ts",
-              "line": 152,
-              "column": 3
-            },
-            {
-              "title": "DC-US010-2 Customer reply to recall creates appointment-eligible conversation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5928,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Total conversations: 59\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:42:59.655Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-3cf73ee22f85bc4ca8ea",
-              "file": "deep-coverage.spec.ts",
-              "line": 177,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "US-013: Widget Scheduling",
-          "file": "deep-coverage.spec.ts",
-          "line": 209,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-US013-1 Appointment CRUD works via API",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 495,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"widget\"\u001b[39m\nReceived: \u001b[31m\"manual\"\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"widget\"\u001b[39m\nReceived: \u001b[31m\"manual\"\u001b[39m\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/deep-coverage.spec.ts:242:27",
-                        "location": {
-                          "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/deep-coverage.spec.ts",
-                          "column": 27,
-                          "line": 242
-                        },
-                        "snippet": "  240 |       expect(appt.id).toBeDefined();\n  241 |       expect(appt.status).toBe(\"scheduled\");\n> 242 |       expect(appt.source).toBe(\"widget\");\n      |                           ^\n  243 |\n  244 |       // Read\n  245 |       const getRes = await request.get(`/api/appointments/${appt.id}`, {"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/deep-coverage.spec.ts",
-                            "column": 27,
-                            "line": 242
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"widget\"\u001b[39m\nReceived: \u001b[31m\"manual\"\u001b[39m\n\n  240 |       expect(appt.id).toBeDefined();\n  241 |       expect(appt.status).toBe(\"scheduled\");\n> 242 |       expect(appt.source).toBe(\"widget\");\n      |                           ^\n  243 |\n  244 |       // Read\n  245 |       const getRes = await request.get(`/api/appointments/${appt.id}`, {\n    at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/deep-coverage.spec.ts:242:27"
-                        }
-                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-20T06:43:05.596Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "trace",
-                          "contentType": "application/zip",
-                          "path": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results/deep-coverage-US-013-Widge-2db11-ointment-CRUD-works-via-API-deep-coverage/trace.zip"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/deep-coverage.spec.ts",
-                        "column": 27,
-                        "line": 242
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-c5422d996c64d25a3593",
-              "file": "deep-coverage.spec.ts",
-              "line": 211,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "US-020: History Preserve",
-          "file": "deep-coverage.spec.ts",
-          "line": 284,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-US020-1 Conversation thread preserves messages across time",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2761,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "No conversation with 2+ messages found for thread continuity test\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:07.453Z",
+                      "startTime": "2026-03-22T21:14:29.093Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1383,226 +381,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "9ad6128e37f81270f6c7-03dc89d7dd5ee4b21377",
-              "file": "deep-coverage.spec.ts",
-              "line": 286,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "US-023: Metric Accuracy",
-          "file": "deep-coverage.spec.ts",
-          "line": 335,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-US023-1 Dashboard metrics match warehouse lead counts",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1011,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Dashboard activePipeline: 92, Warehouse total: 1300\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:10.239Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-fa773e90275485904621",
-              "file": "deep-coverage.spec.ts",
-              "line": 337,
-              "column": 3
-            },
-            {
-              "title": "DC-US023-2 Insights conversion rate is mathematically valid",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 573,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Total: 470, Sold: 0, Rate: 3.4\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:11.280Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-0eebac39ef9c02e0c91b",
-              "file": "deep-coverage.spec.ts",
-              "line": 364,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "Webhook Idempotency",
-          "file": "deep-coverage.spec.ts",
-          "line": 396,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-IDEM-1 Duplicate VAPI webhook does not create duplicate conversation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4424,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Duplicate webhook test: 2 conversations created\n"
-                        },
-                        {
-                          "text": "FINDING: Duplicate conversations created for same VAPI call ID — no idempotency check\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:11.875Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-95849fe10ba39f6e7f56",
-              "file": "deep-coverage.spec.ts",
-              "line": 398,
-              "column": 3
-            },
-            {
-              "title": "DC-IDEM-2 Malformed webhook payloads don't crash server",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 41,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Malformed payloads: VAPI=400, Tavus=401, TM=400, Invalid=400\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:16.331Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-574319e80d655b79fe12",
-              "file": "deep-coverage.spec.ts",
-              "line": 442,
-              "column": 3
-            }
-          ]
-        },
-        {
-          "title": "Cross-Org Data Leak Prevention",
-          "file": "deep-coverage.spec.ts",
-          "line": 477,
-          "column": 6,
-          "specs": [
-            {
-              "title": "DC-LEAK-1 All major endpoints enforce org scoping",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "deep-coverage",
-                  "projectName": "deep-coverage",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2617,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Org scoping verified on 5 endpoints\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-20T06:43:16.389Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9ad6128e37f81270f6c7-b3bb1a080db80536d763",
-              "file": "deep-coverage.spec.ts",
-              "line": 479,
+              "id": "b552357a8081b5f8b34c-fca8762a4068ec99cdec",
+              "file": "domain-09-settings.spec.ts",
+              "line": 100,
               "column": 3
             }
           ]
@@ -1612,11 +393,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-20T06:42:35.528Z",
-    "duration": 43533.145,
-    "expected": 19,
-    "skipped": 1,
-    "unexpected": 8,
+    "startTime": "2026-03-22T21:14:17.550Z",
+    "duration": 17151.739999999998,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }

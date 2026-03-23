@@ -136,7 +136,11 @@ interface AgentTriggerConfig {
     thresholdHours?: number;
     thresholdCount?: number;
     delayHours?: number;
+    channel?: string;
     messageTemplate?: string;
+    emailSubject?: string;
+    emailBody?: string;
+    callGoal?: string;
     actions: { type: 'sms' | 'call' | 'email'; waitMinutes: number }[];
     channels?: { sms: boolean; phone: boolean; email: boolean };
     sequence?: SequenceStep[];
@@ -1441,17 +1445,77 @@ export function AgentConfigPane() {
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Message Template</Label>
-                      <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
-                        Use {'{customerFirstName}'}, {'{agentName}'}, {'{dealerStoreName}'} as placeholders
-                      </p>
-                      <textarea
-                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[100px] resize-y"
-                        value={editingTrigger.config.messageTemplate || ''}
-                        onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, messageTemplate: e.target.value } })}
-                        data-testid="textarea-message-template"
-                      />
+                      <Label className="text-xs">Channel</Label>
+                      <select
+                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                        value={editingTrigger.config.channel || 'sms'}
+                        onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, channel: e.target.value } })}
+                        data-testid="select-trigger-channel"
+                      >
+                        <option value="sms">SMS</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Phone (VAPI Call)</option>
+                      </select>
                     </div>
+                    {(editingTrigger.config.channel || 'sms') === 'sms' && (
+                      <div>
+                        <Label className="text-xs">SMS Message</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
+                          160 char limit. Use {'{firstName}'}, {'{vehicle}'}, {'{agentName}'}, {'{dealerName}'}
+                        </p>
+                        <textarea
+                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[80px] resize-y"
+                          value={editingTrigger.config.messageTemplate || ''}
+                          onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, messageTemplate: e.target.value } })}
+                          maxLength={160}
+                          data-testid="textarea-message-template"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1 text-right">
+                          {(editingTrigger.config.messageTemplate || '').length}/160
+                        </p>
+                      </div>
+                    )}
+                    {(editingTrigger.config.channel) === 'email' && (
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs">Email Subject</Label>
+                          <input
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                            value={editingTrigger.config.emailSubject || ''}
+                            onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, emailSubject: e.target.value } })}
+                            placeholder="e.g., Following up on your interest in {vehicle}"
+                            data-testid="input-email-subject"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Email Body</Label>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
+                            Use {'{firstName}'}, {'{vehicle}'}, {'{agentName}'}, {'{dealerName}'}
+                          </p>
+                          <textarea
+                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[140px] resize-y"
+                            value={editingTrigger.config.emailBody || ''}
+                            onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, emailBody: e.target.value } })}
+                            data-testid="textarea-email-body"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {(editingTrigger.config.channel) === 'phone' && (
+                      <div>
+                        <Label className="text-xs">Call Goal</Label>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">
+                          Passed to the VAPI agent as call context
+                        </p>
+                        <textarea
+                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1 min-h-[80px] resize-y"
+                          value={editingTrigger.config.callGoal || ''}
+                          onChange={(e) => setEditingTrigger({ ...editingTrigger, config: { ...editingTrigger.config, callGoal: e.target.value } })}
+                          placeholder="e.g., Follow up on their interest in the 2024 Accord. Confirm availability and schedule a test drive."
+                          data-testid="textarea-call-goal"
+                        />
+                      </div>
+                    )}
                   </>
                 ) : editingTrigger.type === 'stale_lead' ? (
                   <div>

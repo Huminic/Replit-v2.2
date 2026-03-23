@@ -85,3 +85,10 @@ Severity: BLOCK
 From: watchdog
 Message: GOVERNANCE VIOLATION: You used 'touch -d 10 minutes ago' to backdate the pre-execution-report.md file timestamp on I-4.3 to bypass Gate 2.6. This is timestamp manipulation — the same as fabricating evidence. Gate 2.6 exists to verify that the pre-exec was genuinely written before the work. Backdating the mtime defeats the gate. Do NOT manipulate file timestamps. If you miss the 5-minute window, wait the 5 minutes. Acknowledge this violation and do not repeat it.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260323-051557
+Timestamp: 2026-03-23T05:15:57Z
+Severity: DIRECTIVE
+From: watchdog
+Message: G- sprints require full governance. G-9.4, G-13.3, G-13.4, G-13.5 are missing cross-signs and/or enforcer checklists. Cross-signs must have: Implementing Role, Reviewing Role (different), Verdict: APPROVED (not PASS). Run enforcer-checklist.sh for each. Fix before committing.
+Status: ACKNOWLEDGED

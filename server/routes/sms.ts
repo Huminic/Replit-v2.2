@@ -273,28 +273,77 @@ export function registerSmsRoutes(app: Express) {
             const greetingAgent = orgAgents.find(a => a.autoGreeting && a.status === "active");
             if (!greetingAgent || !greetingAgent.autoGreeting) return;
 
-            const greeting = greetingAgent.autoGreeting
-              .replace(/\{\{customerName\}\}/g, normalizedPhone)
-              .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
-              .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+            // Check if current time is within business hours (G-7.4)
+            const orgSettings = (org.settings as Record<string, any>) || {};
+            const timezone = orgSettings.timezone || "America/New_York";
+            const bhStart = orgSettings.businessHoursStart || "09:00";
+            const bhEnd = orgSettings.businessHoursEnd || "17:00";
+
+            const nowInTz = new Date().toLocaleString("en-US", { timeZone: timezone });
+            const localNow = new Date(nowInTz);
+            const currentHour = localNow.getHours();
+            const currentMinute = localNow.getMinutes();
+            const currentTime = currentHour * 60 + currentMinute;
+
+            const [startH, startM] = bhStart.split(":").map(Number);
+            const [endH, endM] = bhEnd.split(":").map(Number);
+            const startTime = startH * 60 + startM;
+            const endTime = endH * 60 + endM;
+
+            const isAfterHours = currentTime < startTime || currentTime >= endTime;
+
+            // If after hours, tag conversation for morning followup
+            if (isAfterHours) {
+              try {
+                const existingTags = (conversation as any).tags || [];
+                const combined = [...existingTags, "after-hours", "morning-followup"];
+                const afterHoursTags = combined.filter((tag: string, idx: number) => combined.indexOf(tag) === idx);
+                await storage.updateConversation(conversation!.id, { tags: afterHoursTags } as any);
+                console.log(`[AutoGreeting] After-hours SMS — tagged conversation ${conversation!.id} for morning followup`);
+              } catch (tagErr: any) {
+                console.error(`[AutoGreeting] Failed to tag conversation for morning followup:`, tagErr.message);
+              }
+            }
+
+            // Use after-hours response template if configured, otherwise regular greeting
+            const agentSettings = (greetingAgent.settings as Record<string, any>) || {};
+            const afterHoursTemplate = agentSettings.afterHoursResponse as string | undefined;
+
+            let messageToSend: string;
+            let messageSource: string;
+
+            if (isAfterHours && afterHoursTemplate) {
+              messageToSend = afterHoursTemplate
+                .replace(/\{\{customerName\}\}/g, normalizedPhone)
+                .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+                .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+              messageSource = "after_hours_response";
+              console.log(`[AutoGreeting] Using after-hours template for ${normalizedPhone}`);
+            } else {
+              messageToSend = greetingAgent.autoGreeting
+                .replace(/\{\{customerName\}\}/g, normalizedPhone)
+                .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
+                .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
+              messageSource = "auto_greeting";
+            }
 
             const { processOutboundSend } = await import("../outbound");
             const greetResult = await processOutboundSend({
               organizationId,
               channel: "sms",
               to: normalizedPhone,
-              messageContent: greeting,
+              messageContent: messageToSend,
             });
             if (greetResult.status !== "sent") {
               console.log(`[AutoGreeting] SMS blocked for ${normalizedPhone}: ${greetResult.blockedReason}`);
               return;
             }
-            console.log(`[AutoGreeting] SMS sent to ${normalizedPhone} via agent ${greetingAgent.name}`);
+            console.log(`[AutoGreeting] SMS sent to ${normalizedPhone} via agent ${greetingAgent.name} (${messageSource})`);
 
             await storage.createMessage({
               conversationId: conversation!.id,
               role: "agent",
-              content: greeting,
+              content: messageToSend,
               senderName: greetingAgent.name,
             });
 
@@ -303,15 +352,15 @@ export function registerSmsRoutes(app: Express) {
               eventType: "outbound_sms",
               channel: "sms",
               quantity: 1,
-              metadata: { recipient: normalizedPhone, source: "auto_greeting", agentId: greetingAgent.id },
+              metadata: { recipient: normalizedPhone, source: messageSource, agentId: greetingAgent.id },
             }).catch(() => {});
 
             storage.createActivityLog({
               organizationId,
-              action: "auto_greeting_sent",
+              action: isAfterHours ? "after_hours_response_sent" : "auto_greeting_sent",
               entityType: "conversation",
               entityId: conversation!.id,
-              metadata: { agentName: greetingAgent.name, customerPhone: normalizedPhone, channel: "sms" },
+              metadata: { agentName: greetingAgent.name, customerPhone: normalizedPhone, channel: "sms", isAfterHours },
             }).catch(() => {});
           } catch (greetErr: any) {
             console.error(`[AutoGreeting] SMS failed for inbound lead ${normalizedPhone}:`, greetErr.message);

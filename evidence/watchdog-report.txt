@@ -1,31 +1,31 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260322-102647
-Timestamp: 2026-03-22T10:26:47Z
+Report-ID: WD-20260323-060125
+Timestamp: 2026-03-23T06:01:25Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: d0b5f9d
+HEAD: a89b2f9
 
-C1  sprints.json:        PASS
-C2  evidence artifacts:  VIOLATION — REM-10 missing post-sprint-report.md; REM-10 missing cross-sign.md; REM-10 missing enforcer-checklist.txt; VIN-1 missing post-sprint-report.md; VIN-1 missing cross-sign.md; VIN-1 missing enforcer-checklist.txt
-C3  cross-signs:         PASS
-C4  checklists:          PASS
+C1  sprints.json:        WARNING — batch commits: 127b928 (3 sprints),76e08c2 (2 sprints),95d8973 (2 sprints),c4bfce7 (5 sprints)
+C2  evidence artifacts:  VIOLATION — G-11.3 missing enforcer-checklist.txt; G-11.4 missing enforcer-checklist.txt; G-13.4 missing cross-sign.md; G-13.4 missing enforcer-checklist.txt; G-13.5 missing cross-sign.md; G-13.5 missing enforcer-checklist.txt; G-7.4 missing enforcer-checklist.txt; G-9.4 missing enforcer-checklist.txt
+C3  cross-signs:         VIOLATION — G-11.3 verdict not APPROVED: **Verdict:** PASS; G-11.3 missing role fields; G-11.4 verdict not APPROVED: **Verdict:** PASS; G-11.4 missing role fields; G-9.4 verdict not APPROVED: **Verdict:** PASS; G-9.4 missing role fields
+C4  checklists:          VIOLATION — G-7.2 BLOCKED
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (1h old)
+C7  session state:       PASS (0h old)
 C8  hook integrity:      PASS
-C9  chain of custody:    PASS
-C10 timestamps:          PASS
+C9  chain of custody:    WARNING — E-6.0 out of chronological order; batch commits: c4bfce7 (5 sprints), 127b928 (3 sprints), 95d8973 (2 sprints), 76e08c2 (2 sprints)
+C10 timestamps:          WARNING — TIMESTAMP_ANOMALY G-11.3: all 4 files within 2s; TIMESTAMP_ANOMALY G-11.4: all 3 files within 2s; TIMESTAMP_ANOMALY G-7.4: all 3 files within 2s
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    VIOLATION — scripts/watchdog.sh has unstaged changes
-C15 memory staleness:    VIOLATION — project_sprint_status.md doesn't reference T-15.EXIT or L-15.4
-C16 drift detection:     WARNING — 1 file(s) modified outside current sprint scope
-C17 plan vs execution:   PASS (no pre-execution report yet)
+C14 governance files:    PASS
+C15 memory staleness:    WARNING — project_sprint_status.md is 19h old
+C16 drift detection:     PASS
+C17 plan vs execution:   WARNING — Declared Files section exists but no file paths found
 C18 retroactive artifacts:PASS
 C19 pre-exec quality:    PASS
-C20 scope limit:         PASS (no pre-exec yet)
-C21 dry-run required:    PASS (no pre-exec yet)
+C20 scope limit:         PASS (0 application files declared)
+C21 dry-run required:    PASS
 
-SUMMARY: 16 PASS, 3 VIOLATION, 1 WARNING
+SUMMARY: 12 PASS, 3 VIOLATION, 8 WARNING
 === END SCAN ===
