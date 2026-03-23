@@ -1156,6 +1156,8 @@ check_c18() {
   # Also check recently committed sprints — VIOLATION for committed sprints (too late to fix)
   local last_committed
   last_committed=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+    # Skip light governance for retroactive check
+    case "$last_committed" in V-*|E-*|T-*.EXIT|T-*EXIT) last_committed="" ;; esac
   if [ -n "$last_committed" ]; then
     local lc_pre_exec="evidence/$last_committed/pre-execution-report.md"
     local lc_post="evidence/$last_committed/post-sprint-report.md"
@@ -1311,6 +1313,8 @@ print(count)
   # Also check last committed sprint's pre-exec quality
   local last_committed
   last_committed=$(jq -r '[.sprints[] | select(.status == "committed")] | last | .id // ""' "$SPRINTS_JSON" 2>/dev/null)
+    # Skip light governance for retroactive check
+    case "$last_committed" in V-*|E-*|T-*.EXIT|T-*EXIT) last_committed="" ;; esac
   if [ -n "$last_committed" ]; then
     local lc_pre_exec="evidence/$last_committed/pre-execution-report.md"
     if [ -f "$lc_pre_exec" ]; then

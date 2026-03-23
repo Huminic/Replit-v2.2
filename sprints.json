@@ -329,7 +329,7 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "verification",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": [
         "V-5.2",
         "V-5.3",
@@ -342,12 +342,21 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "verification",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": [
         "V-5.1",
         "V-5.3",
         "V-5.4"
       ]
+    },
+    {
+      "id": "I-5.3",
+      "name": "Fix Takeover Payload + Assignment Dropdown (Bundled)",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "issue",
+      "status": "in_progress",
+      "canParallelWith": []
     },
     {
       "id": "V-5.3",
@@ -367,15 +376,6 @@
       "type": "verification",
       "status": "abandoned",
       "abandonedReason": "Superseded by I-5.3 \u2014 assignment UI did not exist, needed implementation not verification",
-      "canParallelWith": []
-    },
-    {
-      "id": "I-5.3",
-      "name": "Fix Takeover Payload + Assignment Dropdown (Bundled)",
-      "phase": 5,
-      "phaseFile": "05-teambox.md",
-      "type": "issue",
-      "status": "in_progress",
       "canParallelWith": []
     },
     {
@@ -518,11 +518,12 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-8.2",
         "V-8.5"
-      ]
+      ],
+      "commitHash": "c4bfce7"
     },
     {
       "id": "V-8.2",
@@ -530,11 +531,12 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-8.1",
         "V-8.5"
-      ]
+      ],
+      "commitHash": "c4bfce7"
     },
     {
       "id": "G-8.3",
@@ -542,8 +544,9 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "gap",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "c4bfce7"
     },
     {
       "id": "G-8.4",
@@ -551,8 +554,9 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "gap",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "c4bfce7"
     },
     {
       "id": "V-8.5",
@@ -560,11 +564,12 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-8.1",
         "V-8.2"
-      ]
+      ],
+      "commitHash": "c4bfce7"
     },
     {
       "id": "T-8.EXIT",
