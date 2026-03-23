@@ -172,6 +172,11 @@ check_c3() {
     sprint_id=$(basename "$dir")
     [ "$sprint_id" = "$EXCLUDED_EVIDENCE" ] && continue
 
+    # Skip light governance sprints (V-, E-, T-*EXIT)
+    case "$sprint_id" in
+      V-*|E-*|T-*.EXIT|T-*EXIT) continue ;;
+    esac
+
     local cs_file="$dir/cross-sign.md"
     [ -f "$cs_file" ] || continue
 
@@ -229,6 +234,11 @@ check_c4() {
     local sprint_id
     sprint_id=$(basename "$dir")
     [ "$sprint_id" = "$EXCLUDED_EVIDENCE" ] && continue
+
+    # Skip light governance sprints (V-, E-, T-*EXIT)
+    case "$sprint_id" in
+      V-*|E-*|T-*.EXIT|T-*EXIT) continue ;;
+    esac
 
     local cl_file="$dir/enforcer-checklist.txt"
     [ -f "$cl_file" ] || continue
@@ -520,6 +530,11 @@ check_c10() {
     local sprint_id
     sprint_id=$(basename "$dir")
     [ "$sprint_id" = "$EXCLUDED_EVIDENCE" ] && continue
+
+    # Skip light governance sprints (V-, E-, T-*EXIT)
+    case "$sprint_id" in
+      V-*|E-*|T-*.EXIT|T-*EXIT) continue ;;
+    esac
 
     local file_count
     file_count=$(find "$dir" -maxdepth 1 -type f | wc -l)

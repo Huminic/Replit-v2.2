@@ -24,7 +24,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock } from 'lucide-react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import type { Conversation, Message, Task } from '@shared/schema';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { Conversation, Message, Task, User } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
 type ConversationStatus = 'open' | 'assigned' | 'participating' | 'automated' | 'scheduled' | 'followup' | 'pending' | 'closed';
@@ -168,7 +169,7 @@ function TaskListSkeleton() {
 }
 
 export default function TeamboxPage() {
-  const { agents, currentOrganization } = useApp();
+  const { agents, currentOrganization, currentUser } = useApp();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'conversations' | 'tasks' | 'workflows'>('conversations');
@@ -274,10 +275,12 @@ export default function TeamboxPage() {
     mutationFn: async (conversationId: string) => {
       return apiRequest('PATCH', `/api/conversations/${conversationId}`, {
         status: 'open',
+        assignedTo: currentUser.id,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      toast({ title: 'Conversation taken over', description: 'AI responses paused. You are now handling this conversation.' });
     },
   });
 
@@ -289,6 +292,23 @@ export default function TeamboxPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+  });
+
+  const { data: teamMembers = [] } = useQuery<User[]>({
+    queryKey: ['/api/users', orgId],
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: async ({ conversationId, userId }: { conversationId: string; userId: string | null }) => {
+      return apiRequest('PATCH', `/api/conversations/${conversationId}`, {
+        assignedTo: userId,
+        status: userId ? 'assigned' : 'open',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      toast({ title: 'Conversation assigned' });
     },
   });
 
@@ -938,6 +958,32 @@ export default function TeamboxPage() {
                   <p className="text-sm" data-testid="text-agent-name">{getAgentName(selectedConversation.agentId, agents) || 'AI Agent'}</p>
                 </div>
               )}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Assign to</p>
+                <Select
+                  value={selectedConversation.assignedTo || 'unassigned'}
+                  onValueChange={(value) => {
+                    if (!selectedConversationId) return;
+                    assignMutation.mutate({
+                      conversationId: selectedConversationId,
+                      userId: value === 'unassigned' ? null : value,
+                    });
+                  }}
+                  disabled={assignMutation.isPending}
+                >
+                  <SelectTrigger className="h-8 text-xs" data-testid="select-assign-to">
+                    <SelectValue placeholder="Unassigned" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {teamMembers.map(member => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.firstName} {member.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="border-t border-border pt-3">
                 <p className="text-xs text-muted-foreground mb-2">Quick Actions</p>
                 <div className="flex flex-col gap-1">
