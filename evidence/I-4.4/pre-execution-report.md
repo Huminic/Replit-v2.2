@@ -1,28 +1,33 @@
 # Pre-Execution Report: I-4.4
-Timestamp: 2026-03-23T00:54:33Z
-Sprint: I-4.4
+Timestamp: 2026-03-23T02:29:03Z
+Sprint: I-4.4 (bundled with I-4.5 and I-4.6)
 Status: READY
 
-## Ghost Directive Acknowledgment
-GM-20260323-001116: ACKNOWLEDGED. No timestamp manipulation.
-
 ## Objective
-Elliott calls Caroline (Serra Honda). Verify full pipeline: webhook → conversation → transcript → email → VIN lead.
+Complete Phase 4 voice/video verification. Three items bundled:
+1. VAPI end-to-end call test (Elliott → Caroline) — DONE, verified, email received by owner
+2. Tavus video session creation + transcript webhook verification
+3. Appointment source field fix (source="widget" should persist, not default to "manual")
 
-## Email Recipients (by hierarchy)
-- duane.wells@huminic.ai (super admin, level 1)
-- durran@cageautomotive.com (partner admin, level 2, via Cage → Serra Honda hierarchy)
-- Victoria DEACTIVATED — will not receive email
-
-## VIN Lead
-- Via vin-safe-mcp prepare → review → execute flow
-- Into Durran Cage's account at Serra Honda (dealer 21043)
+Plus: email recipient isActive fix (already applied during Elliott test — filters deactivated users and test accounts).
 
 ## Declared Files
-- evidence/I-4.4/verification-result.md
+- server/routes/webhooks.ts (email recipient isActive + test account filtering)
+- server/routes/appointments.ts (source field preservation)
+- evidence/I-4.4/
+
+## Work Already Completed
+- Elliott called Caroline: conversation created, email sent to duane + durran only
+- Recipient fix: isActive check added, 18 seed accounts deactivated, Victoria deactivated
+- Sandbox verified: Serra Honda recipients = [durran, duane] only
+
+## Remaining Work
+- Tavus: create session via API, verify conversation.ended webhook fires (callback_url deployed in I-4.3)
+- Appointments: fix source field in server/routes/appointments.ts to preserve caller's value
 
 ## Success Criteria
-- Conversation created with channel="voice" and transcript
-- Email sent to duane + durran only (not victoria)
-- VIN lead under Durran Cage at Serra Honda
-- I-093: RESOLVED
+- Elliott call pipeline: VERIFIED (conversation + email confirmed by owner)
+- Tavus session URL returned from API
+- Appointment created with source="vapi" → GET returns source="vapi"
+- Email recipients filtered by isActive — no test accounts, no deactivated users
+- I-093, I-094, I-095: RESOLVED

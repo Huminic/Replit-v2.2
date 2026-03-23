@@ -300,24 +300,6 @@
       "canParallelWith": []
     },
     {
-      "id": "I-4.5",
-      "name": "Tavus Video Session and Transcript Test",
-      "phase": 4,
-      "phaseFile": "04-voice-video.md",
-      "type": "issue",
-      "status": "planned",
-      "canParallelWith": []
-    },
-    {
-      "id": "I-4.6",
-      "name": "Appointment Source Field Fix",
-      "phase": 4,
-      "phaseFile": "04-voice-video.md",
-      "type": "issue",
-      "status": "planned",
-      "canParallelWith": []
-    },
-    {
       "id": "T-4.EXIT",
       "name": "Phase 4 Exit Inspection",
       "phase": 4,
