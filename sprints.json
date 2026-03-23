@@ -272,10 +272,11 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "issue",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "I-4.3"
-      ]
+      ],
+      "commitHash": "5182e60"
     },
     {
       "id": "I-4.3",
@@ -283,7 +284,7 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "issue",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": [
         "I-4.2"
       ]

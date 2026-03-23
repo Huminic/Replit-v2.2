@@ -1,8 +1,5 @@
 Acknowledged-By: orchestrator
-Sprint: I-4.2
-Timestamp: 2026-03-23T00:07:55Z
+Sprint: I-4.3
+Timestamp: 2026-03-23T00:08:27Z
 
-C2: ACKNOWLEDGED — I-4.3 is in_progress, artifacts after work.
-C16: ACKNOWLEDGED — public.ts, widgets.ts, vendorProxy.ts modified by I-4.3 builder (will be committed in I-4.3).
-C17: ACKNOWLEDGED — I-4.3 declared files will include those 3 files.
-C21: ACKNOWLEDGED — I-4.2 was VAPI API config change (not application integration code). No dry-run needed for external API updates.
+I-4.3 complete. callback_url in all 3 call sites. Gate 2.6 satisfied.

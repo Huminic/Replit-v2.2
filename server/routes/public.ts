@@ -409,6 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         const result = await callMCP("tavus_create_conversation", {
           persona_id: videoAgent.tavusPersonaId,
           conversation_name: name + " Visitor",
+          callback_url: "https://live.huminic.app/api/webhooks/tavus",
         });
         if (result?.conversation_url) {
           return res.redirect(result.conversation_url);

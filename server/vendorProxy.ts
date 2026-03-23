@@ -365,7 +365,10 @@ export function registerVendorRoutes(app: Express) {
       if (!personaId) {
         return res.status(400).json({ message: "personaId is required" });
       }
-      const mcpPayload: Record<string, unknown> = { persona_id: personaId };
+      const mcpPayload: Record<string, unknown> = {
+        persona_id: personaId,
+        callback_url: "https://live.huminic.app/api/webhooks/tavus",
+      };
       if (visitorName) {
         mcpPayload.conversation_name = `Session with ${visitorName}`;
         mcpPayload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;

@@ -49,7 +49,10 @@ export function registerWidgetRoutes(app: Express) {
       }
 
       const { callMCP } = await import("../vendorProxy");
-      const mcpPayload: Record<string, unknown> = { persona_id: agentWithTavus.tavusPersonaId };
+      const mcpPayload: Record<string, unknown> = {
+        persona_id: agentWithTavus.tavusPersonaId,
+        callback_url: "https://live.huminic.app/api/webhooks/tavus",
+      };
       if (visitorName) {
         mcpPayload.conversation_name = `Widget session with ${visitorName}`;
         mcpPayload.custom_greeting = `Hello ${visitorName}, how can I help you today?`;
