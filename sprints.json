@@ -329,12 +329,13 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-5.2",
         "V-5.3",
         "V-5.4"
-      ]
+      ],
+      "commitHash": "76e08c2"
     },
     {
       "id": "V-5.2",
@@ -342,12 +343,13 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "verification",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "V-5.1",
         "V-5.3",
         "V-5.4"
-      ]
+      ],
+      "commitHash": "76e08c2"
     },
     {
       "id": "I-5.3",
