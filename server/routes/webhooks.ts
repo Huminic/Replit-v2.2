@@ -183,7 +183,7 @@ async function sendLeadNotificationEmail(
   // Level 3 — Org admins: users whose organizationId matches the call's org
   const orgUsers = await storage.getUsers(orgId);
   for (const u of orgUsers) {
-    if (u.role && u.role.level === 3 && u.email) {
+    if (u.role && u.role.level === 3 && u.email && u.isActive !== false) {
       recipientEmails.add(u.email);
     }
   }
@@ -192,7 +192,7 @@ async function sendLeadNotificationEmail(
   if (org.partnerId) {
     const parentUsers = await storage.getUsers(org.partnerId);
     for (const u of parentUsers) {
-      if (u.role && u.role.level === 2 && u.email) {
+      if (u.role && u.role.level === 2 && u.email && u.isActive !== false) {
         recipientEmails.add(u.email);
       }
     }
@@ -203,7 +203,7 @@ async function sendLeadNotificationEmail(
   for (const anyOrg of allOrgs) {
     const anyOrgUsers = await storage.getUsers(anyOrg.id);
     for (const u of anyOrgUsers) {
-      if (u.role && u.role.level === 1 && u.email) {
+      if (u.role && u.role.level === 1 && u.email && u.isActive !== false) {
         recipientEmails.add(u.email);
       }
     }
@@ -218,6 +218,7 @@ async function sendLeadNotificationEmail(
         u.role &&
         u.role.level <= 3 &&
         u.email &&
+        u.isActive !== false &&
         Array.isArray(u.additionalOrgIds) &&
         u.additionalOrgIds.includes(orgId)
       ) {
@@ -226,9 +227,10 @@ async function sendLeadNotificationEmail(
     }
   }
 
-  // Exclusion — remove admin@ test email addresses
+  // Exclusion — remove test/seed accounts (belt-and-suspenders alongside isActive check)
+  const testPatterns = ['@nexxus.com', '@test.com'];
   for (const email of recipientEmails) {
-    if (email.startsWith("admin@")) {
+    if (email.startsWith("admin@") || testPatterns.some(p => email.endsWith(p))) {
       recipientEmails.delete(email);
     }
   }

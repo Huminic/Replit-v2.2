@@ -34,7 +34,7 @@ export function registerAppointmentRoutes(app: Express) {
   app.post("/api/appointments", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const { title, customerName, customerPhone, customerEmail, appointmentType, department, startTime, endTime, notes, assignedUserId } = req.body;
+      const { title, customerName, customerPhone, customerEmail, appointmentType, department, startTime, endTime, notes, assignedUserId, source, status } = req.body;
       if (!title || !customerName || !startTime || !endTime) {
         return res.status(400).json({ message: "Missing required fields: title, customerName, startTime, endTime" });
       }
@@ -49,9 +49,9 @@ export function registerAppointmentRoutes(app: Express) {
         organizationId: req.user.organizationId,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        status: "scheduled",
+        status: status || "scheduled",
         notes: notes || null,
-        source: "manual",
+        source: source || "manual",
       });
 
       try {
