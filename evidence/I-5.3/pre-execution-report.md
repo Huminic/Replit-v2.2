@@ -19,8 +19,8 @@ Both are frontend-only changes in `client/src/pages/teambox.tsx`. Owner approved
 
 ## Success Criteria
 
-1. Takeover mutation sends `{ status: 'open', assignedTo: currentUserId }`
-2. Assignment dropdown lists team members from `/api/users`
-3. Selecting a user PATCHes conversation with `assignedTo: userId`
-4. Assigned user name visible in customer info panel
-5. No TypeScript errors
+- Takeover mutation sends `{ status: 'open', assignedTo: currentUserId }`
+- Assignment dropdown lists team members from `/api/users`
+- Selecting a user PATCHes conversation with `assignedTo: userId`
+- Assigned user name visible in customer info panel
+- No TypeScript errors

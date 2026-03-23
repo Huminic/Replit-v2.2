@@ -1,5 +1,9 @@
 Acknowledged-By: orchestrator
-Sprint: I-5.3
-Timestamp: 2026-03-23T04:35:00Z
+Sprint: V-8.1
+Timestamp: 2026-03-23T05:00:00Z
 
-C15: ACKNOWLEDGED — I-5.3 bundled fix for takeover payload + assignment dropdown. Owner approved UI changes.
+C1: ACKNOWLEDGED — Multiple in_progress is temporary: Phase 8 sprints are being batch-committed in this commit. I-5.3 is the active work sprint. E-5.0/E-6.0 already committed (127b928).
+C4: ACKNOWLEDGED — I-5.3 enforcer BLOCKED due to EF-12 (invalid sprint status vocabulary). Status vocabulary has been corrected (parked->abandoned). I-5.3 enforcer will be re-run after this commit.
+C9: ACKNOWLEDGED — "evidence-only" fake hashes removed. Phase 8 sprints will receive real commit hash from this commit.
+C16: ACKNOWLEDGED — Phase 8 drift resolved. Proper statuses and evidence in place.
+C19: ACKNOWLEDGED — G-8.3 and G-8.4 pre-exec Declared Files and Success Criteria sections reformatted with bullet points and file paths.
