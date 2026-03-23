@@ -510,8 +510,9 @@
       "phase": 7,
       "phaseFile": "07-triggers.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
     },
     {
       "id": "E-8.0",
@@ -659,8 +660,9 @@
       "phase": 9,
       "phaseFile": "09-notifications.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
     },
     {
       "id": "E-10.0",
@@ -668,10 +670,11 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "exploratory",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "E-14.0"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.1",
@@ -679,12 +682,13 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.2",
         "V-10.3",
         "V-10.4"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.2",
@@ -692,12 +696,13 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.1",
         "V-10.3",
         "V-10.4"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.3",
@@ -705,12 +710,13 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.1",
         "V-10.2",
         "V-10.4"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.4",
@@ -718,12 +724,13 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.1",
         "V-10.2",
         "V-10.3"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "I-10.5",
@@ -731,8 +738,9 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "issue",
-      "status": "planned",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.6",
@@ -740,11 +748,12 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.7",
         "V-10.8"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.7",
@@ -752,11 +761,12 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.6",
         "V-10.8"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "V-10.8",
@@ -764,11 +774,12 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-10.6",
         "V-10.7"
-      ]
+      ],
+      "commitHash": "pending"
     },
     {
       "id": "T-10.EXIT",
@@ -776,8 +787,9 @@
       "phase": 10,
       "phaseFile": "10-department-pages.md",
       "type": "testing",
-      "status": "planned",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "pending"
     },
     {
       "id": "E-11.0",
@@ -844,8 +856,9 @@
       "phase": 11,
       "phaseFile": "11-insights-metrics.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
     },
     {
       "id": "E-12.0",
@@ -907,8 +920,9 @@
       "phase": 12,
       "phaseFile": "12-widgets-landing.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
     },
     {
       "id": "E-13.0",
@@ -985,8 +999,9 @@
       "phase": 13,
       "phaseFile": "13-settings-admin.md",
       "type": "testing",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
     },
     {
       "id": "E-14.0",
@@ -994,7 +1009,7 @@
       "phase": 14,
       "phaseFile": "14-billing.md",
       "type": "exploratory",
-      "status": "in_progress",
+      "status": "committed",
       "canParallelWith": [
         "E-10.0"
       ]
@@ -1005,7 +1020,7 @@
       "phase": 14,
       "phaseFile": "14-billing.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-14.2"
       ]
@@ -1016,7 +1031,7 @@
       "phase": 14,
       "phaseFile": "14-billing.md",
       "type": "verification",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": [
         "V-14.1"
       ]
@@ -1027,7 +1042,7 @@
       "phase": 14,
       "phaseFile": "14-billing.md",
       "type": "testing",
-      "status": "planned",
+      "status": "committed",
       "canParallelWith": []
     },
     {

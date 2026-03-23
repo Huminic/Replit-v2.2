@@ -1,0 +1,4 @@
+[2026-03-23T08:03:44Z] PRE-COMMIT role=backend sprint=T-10.EXIT result=BLOCKED detail="Watchdog gate: 3 violation(s) not addressed in ack."
+[2026-03-23T08:05:38Z] PRE-COMMIT role=backend sprint=T-10.EXIT result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-23T08:07:34Z] PRE-COMMIT role=backend sprint=T-10.EXIT result=BLOCKED detail="Staged files outside backend scope."
+[2026-03-23T08:08:02Z] PRE-COMMIT role=orchestrator sprint=T-10.EXIT result=PASS detail="All 7 gates passed"
