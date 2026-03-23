@@ -1,5 +1,5 @@
 Acknowledged-By: orchestrator
-Sprint: I-4.3
-Timestamp: 2026-03-23T00:08:27Z
+Sprint: I-4.4
+Timestamp: 2026-03-23T00:55:41Z
 
-I-4.3 complete. callback_url in all 3 call sites. Gate 2.6 satisfied.
+C2: ACKNOWLEDGED — I-4.4 in_progress, post-sprint after Elliott call test.
