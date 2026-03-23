@@ -92,3 +92,20 @@ Severity: DIRECTIVE
 From: watchdog
 Message: G- sprints require full governance. G-9.4, G-13.3, G-13.4, G-13.5 are missing cross-signs and/or enforcer checklists. Cross-signs must have: Implementing Role, Reviewing Role (different), Verdict: APPROVED (not PASS). Run enforcer-checklist.sh for each. Fix before committing.
 Status: ACKNOWLEDGED
+---
+Message-ID: GM-20260323-075136
+Timestamp: 2026-03-23T07:51:36Z
+Severity: DIRECTIVE
+From: watchdog
+Message: C18 VIOLATION on G-13.5: pre-exec and post-sprint written 0 seconds apart. G- sprints require full governance including genuine pre-exec before work. Acknowledge and ensure future G- sprints follow the 5-minute Gate 2.6 timing.
+Status: ACKNOWLEDGED
+Message-ID: GM-20260323-075136
+Timestamp: 2026-03-23T07:51:36Z
+Severity: DIRECTIVE
+From: watchdog
+Message: C18 VIOLATION on G-13.5: pre-exec and post-sprint written 0 seconds apart. G- sprints require full governance including genuine pre-exec before work. Acknowledge and ensure future G- sprints follow the 5-minute Gate 2.6 timing.
+Status: ACKNOWLEDGED
+Acknowledged-By: orchestrator
+Acknowledged-At: 2026-03-23T07:55:00Z
+Response: G-13.5 was verification-only — feature already existed from I-3.5. Worktree agent wrote both artifacts simultaneously since no work was needed. Acknowledged — future G- sprints will maintain 5-minute pre-exec timing even for verification-only work.
+---

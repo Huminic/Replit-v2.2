@@ -1,12 +1,12 @@
-# Pre-Execution Report: T-12.EXIT
+# Pre-Execution Report: T-13.EXIT
 
-**Sprint:** T-12.EXIT
+**Sprint:** T-13.EXIT
 **Type:** Testing (read-only)
 **Date:** 2026-03-23
 
 ## Declared Files
 
-- `evidence/T-12.EXIT/` — evidence output only
+- `evidence/T-13.EXIT/` — evidence output only
 
 ## Success Criteria
 
