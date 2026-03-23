@@ -296,8 +296,9 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "issue",
-      "status": "in_progress",
-      "canParallelWith": []
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "3419f89"
     },
     {
       "id": "T-4.EXIT",
@@ -305,7 +306,7 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {
