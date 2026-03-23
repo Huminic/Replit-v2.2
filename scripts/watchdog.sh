@@ -66,7 +66,10 @@ check_c1() {
   # Count in_progress
   local in_progress
   in_progress=$(jq '[.sprints[] | select(.status == "in_progress")] | length' "$SPRINTS_JSON")
-  if [ "$in_progress" -gt 1 ]; then
+  # Allow multiple in_progress if in different phases (parallel execution)
+  local unique_phases
+  unique_phases=$(jq '[.sprints[] | select(.status == "in_progress") | .phase] | unique | length' "$SPRINTS_JSON")
+  if [ "$in_progress" -gt 1 ] && [ "$in_progress" -gt "$unique_phases" ]; then
     local ids
     ids=$(jq -r '[.sprints[] | select(.status == "in_progress") | .id] | join(", ")' "$SPRINTS_JSON")
     result="VIOLATION"
