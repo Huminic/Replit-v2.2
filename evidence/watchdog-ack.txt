@@ -1,7 +1,7 @@
 Acknowledged-By: orchestrator
-Sprint: I-5.3
-Timestamp: 2026-03-23T05:15:00Z
+Sprint: T-5.EXIT
+Timestamp: 2026-03-23T05:05:00Z
 
-C1: ACKNOWLEDGED — Only I-5.3 is in_progress. V-5.1/V-5.2 committed (76e08c2).
-C4: ACKNOWLEDGED — I-5.3 enforcer APPROVED (UI_EXCEPTION=true, owner approved).
-C14: ACKNOWLEDGED — watchdog.sh no actual changes (false positive from mid-scan).
+C1: ACKNOWLEDGED — T-5.EXIT and T-8.EXIT in_progress for exit inspections.
+C14: ACKNOWLEDGED — No actual governance file changes.
+C17: ACKNOWLEDGED — T-8.EXIT pre-exec updated with Declared Files section. T-5.EXIT pre-exec already has it.

@@ -357,6 +357,16 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "f1b5e54"
+    },
+    {
+      "id": "T-5.EXIT",
+      "name": "Phase 5 Exit Inspection",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "testing",
       "status": "in_progress",
       "canParallelWith": []
     },
@@ -378,15 +388,6 @@
       "type": "verification",
       "status": "abandoned",
       "abandonedReason": "Superseded by I-5.3 \u2014 assignment UI did not exist, needed implementation not verification",
-      "canParallelWith": []
-    },
-    {
-      "id": "T-5.EXIT",
-      "name": "Phase 5 Exit Inspection",
-      "phase": 5,
-      "phaseFile": "05-teambox.md",
-      "type": "testing",
-      "status": "planned",
       "canParallelWith": []
     },
     {
@@ -579,7 +580,7 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "canParallelWith": []
     },
     {

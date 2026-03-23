@@ -9,9 +9,12 @@
 
 Confirm Phase 8 is complete: all sprints done, acceptance criteria verified, no scope violations.
 
-## Checklist
+## Declared Files
 
-1. Verify every sprint in Phase 8 has completed
-2. Run acceptance criteria for Phase 8
-3. Check for scope violations (files modified outside declared scope)
-4. Write verdict: SOLID or issues list
+- `evidence/T-8.EXIT/` — evidence output only (no application files)
+
+## Success Criteria
+
+- All Phase 8 sprints committed with valid hashes
+- Acceptance criteria verified for chat, tools, personas, multi-org, knowledge base
+- No scope violations
