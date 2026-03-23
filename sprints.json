@@ -306,7 +306,8 @@
       "phase": 4,
       "phaseFile": "04-voice-video.md",
       "type": "testing",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "032149d",
       "canParallelWith": []
     },
     {
@@ -315,8 +316,8 @@
       "phase": 5,
       "phaseFile": "05-teambox.md",
       "type": "exploratory",
-      "status": "planned",
-      "canParallelWith": []
+      "status": "in_progress",
+      "canParallelWith": ["E-6.0", "E-8.0"]
     },
     {
       "id": "V-5.1",
@@ -385,8 +386,8 @@
       "phase": 6,
       "phaseFile": "06-campaigns.md",
       "type": "exploratory",
-      "status": "planned",
-      "canParallelWith": []
+      "status": "in_progress",
+      "canParallelWith": ["E-5.0", "E-8.0"]
     },
     {
       "id": "V-6.1",
@@ -493,8 +494,8 @@
       "phase": 8,
       "phaseFile": "08-ai-chat-agents.md",
       "type": "exploratory",
-      "status": "planned",
-      "canParallelWith": []
+      "status": "in_progress",
+      "canParallelWith": ["E-5.0", "E-6.0"]
     },
     {
       "id": "V-8.1",
