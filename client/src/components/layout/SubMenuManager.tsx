@@ -658,7 +658,6 @@ export function SubMenuManager() {
                   {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
                   {renderNavItem({ id: 'mg-activities', label: 'System Log', icon: Activity, path: '/management?tab=activities' })}
                   {renderNavItem({ id: 'mg-user-chats', label: 'User Chats', icon: MessageSquare, path: '/management?tab=user-chats' })}
-                  {renderNavItem({ id: 'mg-roi', label: 'ROI', icon: DollarSign, path: '/management?tab=roi' })}
                 </nav>
               </div>
             </ScrollArea>
@@ -741,7 +740,6 @@ export function SubMenuManager() {
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'pf-profile', label: 'My Profile', icon: UserIcon, path: '/profile' })}
                   {renderNavItem({ id: 'pf-prefs', label: 'Preferences', icon: Settings, path: '/profile/preferences' })}
-                  {canAccessSystem(currentRole) && renderNavItem({ id: 'pf-billing', label: 'Billing', icon: CreditCard, path: '/profile/billing' })}
                 </nav>
               </div>
             </ScrollArea>

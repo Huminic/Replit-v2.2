@@ -172,11 +172,21 @@ export default function TeamboxPage() {
   const { agents, currentOrganization, currentUser } = useApp();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
-  const [viewMode, setViewMode] = useState<'conversations' | 'tasks' | 'workflows'>('conversations');
+  const [viewMode, setViewMode] = useState<'conversations' | 'tasks' | 'workflows'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') === 'tasks' ? 'tasks' : 'conversations';
+  });
   const [activeView, setActiveView] = useState<'conversations' | 'phone' | 'video'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
-  const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
+  const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ch = params.get('channel');
+    if (ch && ['sms', 'email', 'voice', 'video', 'chat'].includes(ch)) {
+      return ch as ConversationChannel;
+    }
+    return 'all';
+  });
   const [activeTaskType, setActiveTaskType] = useState<TaskType | 'all'>('all');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);

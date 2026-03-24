@@ -1513,8 +1513,8 @@
       "id": "S-10",
       "name": "Launch",
       "phase": "launch",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "3beb615",
       "description": "CI/CD pipeline (GitHub Actions \u2192 Coolify), production smoke test, full regression, owner walkthrough, stakeholder demo, go-live sign-off.",
       "resolves": [],
       "dependsOn": [

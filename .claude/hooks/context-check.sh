@@ -66,6 +66,35 @@ if [ -n "$DIRTY" ]; then
   echo "Git: UNCOMMITTED CHANGES PRESENT"
 fi
 
+# 4. Ghost gate status — check if waiting for entry/exit gate
+GHOST_DIR="/home/ubuntu/Claude-store/nexxus2.2_replit"
+CURRENT_SPRINT=$(grep "Working On:.*S-[0-9]" "$SESSION_STATE" 2>/dev/null | grep -oE "S-[0-9]+" | head -1)
+if [ -n "$CURRENT_SPRINT" ]; then
+  PRE_EXEC="$GHOST_DIR/evidence/$CURRENT_SPRINT/pre-execution-report.md"
+  POST_SPRINT="$GHOST_DIR/evidence/$CURRENT_SPRINT/post-sprint-report.md"
+
+  # Check entry gate
+  if [ -f "$PRE_EXEC" ]; then
+    if grep -q "ENTRY GATE: APPROVED" "$PRE_EXEC" 2>/dev/null; then
+      echo "Ghost gate: $CURRENT_SPRINT ENTRY GATE APPROVED — work permitted"
+    elif grep -q "ENTRY GATE: REJECTED" "$PRE_EXEC" 2>/dev/null; then
+      echo "Ghost gate: $CURRENT_SPRINT ENTRY GATE REJECTED — check pre-exec for reasons"
+    else
+      # Don't block — ghost cron will write the verdict within 2 minutes
+      echo "Ghost gate: $CURRENT_SPRINT entry gate PENDING — ghost agent reviewing (auto, ~2 min)"
+    fi
+  fi
+
+  # Check exit gate of previous sprint
+  PREV_NUM=$(( ${CURRENT_SPRINT#S-} - 1 ))
+  if [ "$PREV_NUM" -ge 0 ]; then
+    PREV_POST="$GHOST_DIR/evidence/S-$PREV_NUM/post-sprint-report.md"
+    if [ -f "$PREV_POST" ] && ! grep -q "EXIT GATE: CLEARED" "$PREV_POST" 2>/dev/null; then
+      echo "WARNING: Previous sprint S-$PREV_NUM exit gate NOT CLEARED"
+    fi
+  fi
+fi
+
 echo "--- END CONTEXT CHECK ---"
 
 exit 0
