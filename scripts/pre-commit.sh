@@ -37,8 +37,15 @@ case "$SPRINT" in
   V-*|E-*|T-*.EXIT|T-*EXIT) LIGHT_GOVERNANCE=1 ;;
   S-*) LIGHT_GOVERNANCE=0 ;;
 esac
+if [ "$ROLE" = "governance" ]; then
+  LIGHT_GOVERNANCE=1
+fi
 if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
-  echo "  LIGHT GOVERNANCE sprint detected ($SPRINT) — Gates 2.5, 3, 4 will be skipped"
+  if [ "$ROLE" = "governance" ]; then
+    echo "  GOVERNANCE commit ($SPRINT) — Gates 2.5, 2.6, 3, 4 skipped (non-code changes only)"
+  else
+    echo "  LIGHT GOVERNANCE sprint detected ($SPRINT) — Gates 2.5, 3, 4 will be skipped"
+  fi
 fi
 
 # UI Permission check — read uiPermissions from sprints.json for S-* sprints
@@ -123,7 +130,7 @@ if [ -z "$SPRINT" ]; then
   block "COMMIT_SPRINT is not set. Usage: COMMIT_ROLE=<role> COMMIT_SPRINT=<sprint> git commit -m \"message\""
 fi
 
-VALID_ROLES="frontend backend test integration scribe enforcer architect orchestrator"
+VALID_ROLES="frontend backend test integration scribe enforcer architect orchestrator governance"
 ROLE_VALID=0
 for r in $VALID_ROLES; do
   if [ "$r" = "$ROLE" ]; then

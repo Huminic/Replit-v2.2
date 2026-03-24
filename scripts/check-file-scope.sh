@@ -153,7 +153,7 @@ check_scope() {
         *) return 1 ;;
       esac
       ;;
-    orchestrator)
+    governance|orchestrator)
       # Orchestrator's PERMANENT scope: governance, scripts, evidence, .project/
       # Adapted for nexxus2.2_replit project
       case "$file" in

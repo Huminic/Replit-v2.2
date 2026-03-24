@@ -61,6 +61,15 @@ Agent(
 )
 ```
 
+### Step 0: PRE-EXEC WITH TEST PLAN
+Before ANY implementation, write the pre-execution report. It MUST include a `## Test Plan` section listing:
+- Every NEW test file to be written (e.g., "Create tests/e2e/s2-teambox.spec.ts")
+- Every EXISTING test file to run (e.g., "Run tests/e2e/domain-05-teambox.spec.ts")
+- Every CROSS-TEST from the Section 0 cross-test table below
+- The exact `npx playwright test` commands that will be executed
+
+If the test plan is empty or missing, the sprint CANNOT proceed.
+
 ### Step 1: IMPLEMENT
 Build the sprint's components following plan.md SPEC sections and sprints.json component list. Delegate code changes to builder sub-agents.
 
@@ -116,7 +125,14 @@ if cross-test failure:
             → Do NOT modify out-of-scope files
 ```
 
-### Step 6: COMMIT
+### Step 6: POST-SPRINT REPORT
+Write post-sprint-report.md. It MUST contain:
+- `## AC Results` — table with every AC ID, PASS/FAIL, and specific evidence reference
+- `## Test Execution` — the EXACT npx playwright test commands that were run, with pass/fail counts from the output (e.g., "12 passed, 0 failed"). Copy-paste from terminal.
+- `## Cross-Test Results` — same format for cross-tests. "Not applicable" only if the cross-test table shows no cross-tests for this sprint.
+- If ANY AC is FAIL → must be escalated to owner before committing. Do NOT commit with known failures.
+
+### Step 7: COMMIT
 Follow harness lifecycle: evidence artifacts → enforcer checklist → cross-sign → commit through hook.
 
 ### Bug Routing Rules

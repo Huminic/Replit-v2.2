@@ -58,8 +58,42 @@ Before writing any code for a sprint, complete this checklist:
 6. **Update session state:** Write current sprint ID to session-state.md before starting.
 7. **Verify pre-requisites:** If the sprint depends on other sprints (check `dependsOn`), verify those are committed with hashes.
 8. **Role:** You are the ORCHESTRATOR. You do NOT write application code directly. Delegate to builder sub-agents. You manage the sprint lifecycle, evidence, and governance.
+9. **Write pre-execution-report.md** with ALL required sections:
+   - `## Objective`
+   - `## Declared Files`
+   - `## UI Changes` (if uiPermissions is DECLARED)
+   - `## Acceptance Criteria` (copy from sprints.json)
+   - `## Test Plan` — list EVERY test file to write and run, EVERY cross-test, and the EXACT npx playwright test commands
+10. **GHOST GATE (file-based):** After writing the pre-exec, STOP. The ghost agent will:
+    - Read evidence/S-[X]/pre-execution-report.md
+    - Diff it against sprints.json (components, ACs, files, UI permissions)
+    - Write a `## Ghost Entry Gate` section AT THE BOTTOM of the same pre-execution-report.md with its verdict
+    - If APPROVED: you will see "ENTRY GATE: APPROVED" in the file — you may begin implementation
+    - If REJECTED: you will see "ENTRY GATE: REJECTED" with reasons — fix and resubmit
+    - Do NOT start coding until the file contains "ENTRY GATE: APPROVED"
+    - Check: `grep "ENTRY GATE: APPROVED" evidence/S-[X]/pre-execution-report.md`
 
 If ANY checklist item reveals an issue → STOP and resolve it before proceeding. Do not start implementation with unresolved questions.
+
+## Sprint Completion Protocol (CRITICAL — do this AFTER every sprint)
+
+After all tests pass and before committing:
+
+1. **Write post-sprint-report.md** with ALL required sections:
+   - `## AC Results` — table with EVERY AC from sprints.json: ID, PASS/FAIL, evidence reference
+   - `## Test Execution` — the EXACT npx playwright test commands run, copy-pasted terminal output with pass/fail counts
+   - `## Cross-Test Results` — same format for cross-tests (or "N/A — no cross-tests for this sprint")
+   - If ANY AC is FAIL → STOP and escalate to owner. Do NOT commit with known failures.
+2. **Commit through harness** (all gates must pass)
+3. **GHOST GATE (file-based):** After committing, STOP. The ghost agent will:
+   - Read evidence/S-[X]/post-sprint-report.md
+   - Verify test execution, AC results, cross-test results
+   - Run the 11-question gate checklist
+   - Write a `## Ghost Exit Gate` section AT THE BOTTOM of the same post-sprint-report.md with its verdict
+   - If CLEARED: you will see "EXIT GATE: CLEARED" in the file — you may start next sprint's pre-exec
+   - If NOT CLEARED: you will see "EXIT GATE: NOT CLEARED" with reasons — fix and resubmit
+   - Do NOT start the next sprint until the file contains "EXIT GATE: CLEARED"
+   - Check: `grep "EXIT GATE: CLEARED" evidence/S-[X]/post-sprint-report.md`
 
 sprints.json is the single source of truth for what to build and what "done" means. plan.md provides implementation details. acceptance_criteria.md is a human-readable summary — do NOT use it as primary reference.
 
