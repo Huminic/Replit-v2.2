@@ -34,7 +34,8 @@ import {
   MessageSquare, LayoutDashboard, CheckSquare,
   Building2, Bell, Palette,
   Megaphone, Users, DollarSign, ExternalLink, Inbox,
-  ChevronDown, ChevronRight, X
+  ChevronDown, ChevronRight, X,
+  Smartphone, Mail, Phone, Video
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -480,8 +481,10 @@ export function SubMenuManager() {
         );
 
       case 'teambox': {
-        const openCount = allConversations.filter(c => c.status === 'open').length;
-        const automatedCount = allConversations.filter(c => c.status === 'automated').length;
+        const smsCount = allConversations.filter(c => c.channel === 'sms').length;
+        const emailCount = allConversations.filter(c => c.channel === 'email').length;
+        const voiceCount = allConversations.filter(c => c.channel === 'voice').length;
+        const videoCount = allConversations.filter(c => c.channel === 'video').length;
         return (
           <>
             <div className="p-3 border-b border-border">
@@ -494,17 +497,17 @@ export function SubMenuManager() {
             </div>
             <ScrollArea className="flex-1">
               <div className="p-2">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Channels</p>
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'tb-conversations', label: 'Conversations', icon: MessageSquare, path: '/teambox', badge: String(openCount), active: location === '/teambox' })}
-                  {renderNavItem({ id: 'tb-tasks', label: 'Tasks', icon: CheckSquare, path: '/teambox?tab=tasks' })}
+                  {renderNavItem({ id: 'tb-sms', label: 'SMS', icon: Smartphone, path: '/teambox?channel=sms', badge: smsCount > 0 ? String(smsCount) : undefined })}
+                  {renderNavItem({ id: 'tb-email', label: 'Email', icon: Mail, path: '/teambox?channel=email', badge: emailCount > 0 ? String(emailCount) : undefined })}
+                  {renderNavItem({ id: 'tb-phone', label: 'Phone', icon: Phone, path: '/teambox?channel=voice', badge: voiceCount > 0 ? String(voiceCount) : undefined })}
+                  {renderNavItem({ id: 'tb-video', label: 'Video', icon: Video, path: '/teambox?channel=video', badge: videoCount > 0 ? String(videoCount) : undefined })}
                 </nav>
               </div>
               <div className="p-2 border-t border-border">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Quick Filters</p>
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'tb-open', label: 'Open', icon: Inbox, badge: String(openCount) })}
-                  {renderNavItem({ id: 'tb-automated', label: 'Automated', icon: Bot, badge: String(automatedCount) })}
-                  {renderNavItem({ id: 'tb-followup', label: 'Followup', icon: Bell })}
+                  {renderNavItem({ id: 'tb-tasks', label: 'Tasks', icon: CheckSquare, path: '/teambox?tab=tasks' })}
                 </nav>
               </div>
             </ScrollArea>

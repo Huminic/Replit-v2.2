@@ -253,7 +253,7 @@
       "name": "AI Chat (Home)",
       "phase": "cleanup",
       "status": "committed",
-      "commitHash": "e308fc8",
+      "commitHash": "e5b186e",
       "description": "Verify main page layout, chat quality, streaming, tools, favorites, chat history. No structural changes needed.",
       "resolves": [],
       "dependsOn": [
@@ -380,7 +380,7 @@
       "id": "S-2",
       "name": "TeamBox",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Rebuild popout (SMS/Email/Phone/Video/Tasks), add top menu bar, Phone/Video tabs with VAPI/Tavus logs, restyle filters, test channel flows.",
       "resolves": [

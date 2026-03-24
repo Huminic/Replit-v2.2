@@ -24,7 +24,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MessageSquare, Phone, Mail, Send, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock, UserCheck } from 'lucide-react';
+import { Search, Filter, MessageSquare, Phone, Mail, Send, Ban, Smartphone, Bot, Loader2, AlertTriangle, CheckSquare, MailX, ChevronRight, Clock, UserCheck, Video, ExternalLink, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,7 +87,7 @@ type TaskType = 'task' | 'escalation' | 'unsent_message';
 type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 
 const taskTypeConfig: Record<TaskType, { label: string; icon: React.ElementType; color: string; bg: string; border: string }> = {
-  task: { label: 'Task', icon: CheckSquare, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/50', border: 'border-blue-200 dark:border-blue-800' },
+  task: { label: 'Task', icon: CheckSquare, color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-900/50', border: 'border-slate-200 dark:border-slate-700' },
   escalation: { label: 'Escalation', icon: AlertTriangle, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/50', border: 'border-orange-200 dark:border-orange-800' },
   unsent_message: { label: 'Unsent Message', icon: MailX, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/50', border: 'border-red-200 dark:border-red-800' },
 };
@@ -173,6 +173,7 @@ export default function TeamboxPage() {
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'conversations' | 'tasks' | 'workflows'>('conversations');
+  const [activeView, setActiveView] = useState<'conversations' | 'phone' | 'video'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<ConversationStatus | 'all'>('all');
   const [activeChannel, setActiveChannel] = useState<ConversationChannel | 'all'>('all');
@@ -185,10 +186,21 @@ export default function TeamboxPage() {
 
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations', orgId],
+    refetchInterval: 5000,
   });
 
   const { data: allTasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['/api/tasks', orgId],
+  });
+
+  const { data: vapiCalls = [], isLoading: vapiLoading } = useQuery<any[]>({
+    queryKey: ['/api/vapi/calls'],
+    enabled: activeView === 'phone',
+  });
+
+  const { data: tavusConversations = [], isLoading: tavusLoading } = useQuery<any[]>({
+    queryKey: ['/api/tavus/conversations'],
+    enabled: activeView === 'video',
   });
 
   const filteredTasks = allTasks.filter(t => {
@@ -355,7 +367,169 @@ export default function TeamboxPage() {
   };
 
   return (
-    <div className="flex h-full overflow-hidden" data-testid="teambox-page">
+    <div className="flex flex-col h-full overflow-hidden" data-testid="teambox-page">
+      {/* S-2.1: Top horizontal menu bar */}
+      <div className="border-b border-border px-6 pt-4 flex-shrink-0" data-testid="teambox-top-menu">
+        <h1 className="text-xl font-semibold mb-3">TeamBox</h1>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setActiveView('conversations')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+              activeView === 'conversations'
+                ? 'border-primary text-foreground font-medium'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+            data-testid="tab-teambox-conversations"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Conversations
+          </button>
+          <button
+            onClick={() => setActiveView('phone')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+              activeView === 'phone'
+                ? 'border-primary text-foreground font-medium'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+            data-testid="tab-teambox-phone"
+          >
+            <Phone className="h-4 w-4" />
+            Phone
+          </button>
+          <button
+            onClick={() => setActiveView('video')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-md transition-colors border-b-2',
+              activeView === 'video'
+                ? 'border-primary text-foreground font-medium'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+            data-testid="tab-teambox-video"
+          >
+            <Video className="h-4 w-4" />
+            Video
+          </button>
+        </div>
+      </div>
+
+      {/* S-2.3: Phone tab content */}
+      {activeView === 'phone' && (
+        <div className="flex-1 overflow-auto p-6" data-testid="phone-tab-content">
+          <h2 className="text-lg font-semibold mb-4">VAPI Call Logs</h2>
+          {vapiLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : vapiCalls.length === 0 ? (
+            <div className="text-center text-sm text-muted-foreground py-12">No call logs found</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="phone-calls-table">
+                <thead>
+                  <tr className="border-b border-border text-left">
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Date</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Caller Number</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Assistant</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Duration</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Status</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vapiCalls.map((call: any, idx: number) => (
+                    <tr key={call.id || idx} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="py-2 px-3 text-xs">
+                        {call.createdAt ? new Date(call.createdAt).toLocaleString() : call.startedAt ? new Date(call.startedAt).toLocaleString() : '-'}
+                      </td>
+                      <td className="py-2 px-3 text-xs font-mono">{call.customer?.number || call.phoneNumber || '-'}</td>
+                      <td className="py-2 px-3 text-xs">{call.assistant?.name || call.assistantId || '-'}</td>
+                      <td className="py-2 px-3 text-xs">
+                        {call.endedAt && call.startedAt
+                          ? `${Math.round((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000)}s`
+                          : call.duration ? `${call.duration}s` : '-'}
+                      </td>
+                      <td className="py-2 px-3">
+                        <Badge variant="secondary" className="text-[10px]">{call.status || '-'}</Badge>
+                      </td>
+                      <td className="py-2 px-3">
+                        {call.transcript && (
+                          <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" onClick={() => toast({ title: 'Transcript', description: typeof call.transcript === 'string' ? call.transcript.slice(0, 200) : 'Transcript available' })}>
+                            <FileText className="h-3 w-3" />
+                            Transcript
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* S-2.4: Video tab content */}
+      {activeView === 'video' && (
+        <div className="flex-1 overflow-auto p-6" data-testid="video-tab-content">
+          <h2 className="text-lg font-semibold mb-4">Tavus Video Sessions</h2>
+          {tavusLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : tavusConversations.length === 0 ? (
+            <div className="text-center text-sm text-muted-foreground py-12">No video sessions found</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="video-sessions-table">
+                <thead>
+                  <tr className="border-b border-border text-left">
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Date</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Visitor</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Persona</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Duration</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Status</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tavusConversations.map((session: any, idx: number) => (
+                    <tr key={session.id || session.conversation_id || idx} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="py-2 px-3 text-xs">
+                        {session.created_at ? new Date(session.created_at).toLocaleString() : session.createdAt ? new Date(session.createdAt).toLocaleString() : '-'}
+                      </td>
+                      <td className="py-2 px-3 text-xs">{session.visitor_name || session.visitorName || '-'}</td>
+                      <td className="py-2 px-3 text-xs">{session.persona_name || session.personaName || session.replica_id || '-'}</td>
+                      <td className="py-2 px-3 text-xs">
+                        {session.ended_at && session.created_at
+                          ? `${Math.round((new Date(session.ended_at).getTime() - new Date(session.created_at).getTime()) / 1000)}s`
+                          : session.duration ? `${session.duration}s` : '-'}
+                      </td>
+                      <td className="py-2 px-3">
+                        <Badge variant="secondary" className="text-[10px]">{session.status || '-'}</Badge>
+                      </td>
+                      <td className="py-2 px-3">
+                        {(session.recording_url || session.recordingUrl) && (
+                          <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" asChild>
+                            <a href={session.recording_url || session.recordingUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-3 w-3" />
+                              Recording
+                            </a>
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Conversations view (original 4-column layout) */}
+      {activeView === 'conversations' && <div className="flex flex-1 overflow-hidden">
       <div className="w-64 border-r border-border flex flex-col bg-muted/30 flex-shrink-0 hidden lg:flex">
         <div className="p-2 border-b border-border">
           <div className="flex rounded-md bg-muted p-0.5 mb-2">
@@ -1002,6 +1176,7 @@ export default function TeamboxPage() {
           </ScrollArea>
         </div>
       )}
+    </div>}
     </div>
   );
 }
