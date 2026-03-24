@@ -72,8 +72,6 @@
       "Bash(git push *)",
       "Bash(git reset --hard *)",
       "Bash(git checkout -- *)",
-      "Bash(pm2 restart *)",
-      "Bash(pm2 reload *)",
       "Bash(pm2 delete *)",
       "Bash(pm2 stop *)"
     ]

@@ -10,18 +10,14 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "seed",
         "name": "seed",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -35,9 +31,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "api",
         "name": "api",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -51,9 +45,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "browser",
         "name": "browser",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -67,9 +59,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "catalog",
         "name": "catalog",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -83,9 +73,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "comms",
         "name": "comms",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -99,9 +87,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "e2e",
         "name": "e2e",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -115,9 +101,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "real-integrations",
         "name": "real-integrations",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -131,9 +115,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "deep-coverage",
         "name": "deep-coverage",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -147,9 +129,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "generated",
         "name": "generated",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -163,9 +143,7 @@
         "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "visual",
         "name": "visual",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
@@ -199,203 +177,20 @@
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.58.2",
-    "workers": 1,
+    "workers": 2,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "domain-04-campaigns.spec.ts",
-      "file": "domain-04-campaigns.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Domain 4: Campaigns",
-          "file": "domain-04-campaigns.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "4.5 Kill switch blocks outbound",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "api",
-                  "projectName": "api",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2356,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-22T21:14:19.118Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9381e174b3d37b2066d1-2d702e69d3abd4fad2e9",
-              "file": "domain-04-campaigns.spec.ts",
-              "line": 220,
-              "column": 3
-            },
-            {
-              "title": "4.6 Channel-specific pause",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "api",
-                  "projectName": "api",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2314,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-22T21:14:22.617Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "9381e174b3d37b2066d1-51c1db0a52ef318a7700",
-              "file": "domain-04-campaigns.spec.ts",
-              "line": 290,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "domain-05-teambox.spec.ts",
-      "file": "domain-05-teambox.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Domain 5: TeamBox / Conversations",
-          "file": "domain-05-teambox.spec.ts",
-          "line": 6,
-          "column": 6,
-          "specs": [
-            {
-              "title": "5.4 Takeover stops AI via assignedTo",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "api",
-                  "projectName": "api",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1276,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-22T21:14:24.971Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "97a50b70ef41d163fac4-9a4c7106687b30432c87",
-              "file": "domain-05-teambox.spec.ts",
-              "line": 122,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "domain-09-settings.spec.ts",
-      "file": "domain-09-settings.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Domain 9: Settings",
-          "file": "domain-09-settings.spec.ts",
-          "line": 6,
-          "column": 6,
-          "specs": [
-            {
-              "title": "9.5 Communication gate toggle in settings",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "browser",
-                  "projectName": "browser",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5375,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-03-22T21:14:29.093Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "b552357a8081b5f8b34c-fca8762a4068ec99cdec",
-              "file": "domain-09-settings.spec.ts",
-              "line": 100,
-              "column": 3
-            }
-          ]
-        }
-      ]
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2026-03-22T21:14:17.550Z",
-    "duration": 17151.739999999998,
-    "expected": 4,
+    "startTime": "2026-03-23T14:17:22.102Z",
+    "duration": 14.117999999999938,
+    "expected": 0,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

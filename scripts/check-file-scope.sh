@@ -45,7 +45,7 @@ check_governance() {
   local file="$1"
   local role="$2"
   for gov in $GOVERNANCE_FILES; do
-    if [ "$file" = "$gov" ] && [ "$role" != "orchestrator" ]; then
+    if [ "$file" = "$gov" ] && [ "$role" != "orchestrator" ] && [ "$role" != "governance" ]; then
       return 1
     fi
   done

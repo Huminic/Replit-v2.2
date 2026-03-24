@@ -1,25 +1,25 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260324-030101
-Timestamp: 2026-03-24T03:01:01Z
+Report-ID: WD-20260324-061041
+Timestamp: 2026-03-24T06:10:41Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: e6d1169
+HEAD: 9e51685
 
 C1  sprints.json:        PASS
-C2  evidence artifacts:  PASS
+C2  evidence artifacts:  VIOLATION — S-0 missing post-sprint-report.md
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (1h old)
+C7  session state:       PASS (0h old)
 C8  hook integrity:      PASS
 C9  chain of custody:    PASS
 C10 timestamps:          PASS
-C11 plan alignment:      PASS
+C11 plan alignment:      PASS (no plan files found)
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    VIOLATION — CLAUDE.md has staged changes; scripts/pre-commit.sh has staged changes
-C15 memory staleness:    VIOLATION — project_sprint_status.md is 40h old; project_sprint_status.md doesn't reference S-10 or S-9
+C14 governance files:    VIOLATION — CLAUDE.md has staged changes; scripts/pre-commit.sh has staged changes; scripts/check-file-scope.sh has unstaged changes; scripts/check-file-scope.sh has staged changes
+C15 memory staleness:    PASS
 C16 drift detection:     PASS
 C17 plan vs execution:   PASS (no in_progress sprint)
 C18 retroactive artifacts:PASS
@@ -27,5 +27,5 @@ C19 pre-exec quality:    PASS
 C20 scope limit:         PASS (no in_progress sprint)
 C21 dry-run required:    PASS (no in_progress sprint)
 
-SUMMARY: 18 PASS, 2 VIOLATION, 1 WARNING
+SUMMARY: 18 PASS, 2 VIOLATION, 0 WARNING
 === END SCAN ===
