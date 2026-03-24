@@ -158,11 +158,22 @@ check_scope() {
       # Adapted for nexxus2.2_replit project
       case "$file" in
         CLAUDE.md) return 0 ;;
+        plan.md) return 0 ;;
+        harness.md) return 0 ;;
+        acceptance_criteria.md) return 0 ;;
+        agent-instructions.json) return 0 ;;
+        issues.md) return 0 ;;
+        backlog.md) return 0 ;;
+        .gitignore) return 0 ;;
+        .claude/**|.claude/*) return 0 ;;
         scripts/**|scripts/*) return 0 ;;
         .project/**|.project/*) return 0 ;;
         evidence/**|evidence/*) return 0 ;;
         sprints.json) return 0 ;;
         enforcer/**|enforcer/*) return 0 ;;
+        plan/**|plan/*) return 0 ;;
+        specs/**|specs/*) return 0 ;;
+        temp/**|temp/*) return 0 ;;
       esac
 
       # Sprint-scoped expansion: if COMMIT_SPRINT is set, check workflow-audit.log

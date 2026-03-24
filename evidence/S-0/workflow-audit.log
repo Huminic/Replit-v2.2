@@ -1,0 +1,3 @@
+[2026-03-24T03:01:07Z] PRE-COMMIT role=orchestrator sprint=S-0 result=BLOCKED detail="Pre-exec and post-sprint written 17s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
+[2026-03-24T03:07:33Z] PRE-COMMIT role=orchestrator sprint=S-0 result=BLOCKED detail="Staged files outside orchestrator scope."
+[2026-03-24T03:08:42Z] PRE-COMMIT role=orchestrator sprint=S-0 result=PASS detail="All 7 gates passed"

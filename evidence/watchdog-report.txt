@@ -1,31 +1,31 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260323-080951
-Timestamp: 2026-03-23T08:09:51Z
+Report-ID: WD-20260324-030101
+Timestamp: 2026-03-24T03:01:01Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 4dcaa93
+HEAD: e6d1169
 
-C1  sprints.json:        VIOLATION — committed without hash: E-14.0,V-14.1,V-14.2,T-14.EXIT; batch commits: 127b928 (3 sprints),4b0eef2 (23 sprints),76e08c2 (2 sprints),95d8973 (2 sprints),9b4514c (5 sprints),bf7109d (10 sprints),c4bfce7 (5 sprints)
+C1  sprints.json:        PASS
 C2  evidence artifacts:  PASS
-C3  cross-signs:         VIOLATION — I-10.5 verdict not APPROVED: **Verdict:** APPROVED
+C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (0h old)
+C7  session state:       PASS (1h old)
 C8  hook integrity:      PASS
-C9  chain of custody:    WARNING — E-6.0 out of chronological order; E-8.0 out of chronological order; E-11.0 out of chronological order; E-12.0 out of chronological order; E-13.0 out of chronological order; batch commits: 4b0eef2 (23 sprints), bf7109d (10 sprints), c4bfce7 (5 sprints), 9b4514c (5 sprints), 127b928 (3 sprints), 95d8973 (2 sprints), 76e08c2 (2 sprints)
+C9  chain of custody:    PASS
 C10 timestamps:          PASS
 C11 plan alignment:      PASS
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    PASS
-C15 memory staleness:    WARNING — project_sprint_status.md is 21h old
-C16 drift detection:     VIOLATION — E-14.0 claims commit null but hash not in git; V-14.1 claims commit null but hash not in git; V-14.2 claims commit null but hash not in git; T-14.EXIT claims commit null but hash not in git
+C14 governance files:    VIOLATION — CLAUDE.md has staged changes; scripts/pre-commit.sh has staged changes
+C15 memory staleness:    VIOLATION — project_sprint_status.md is 40h old; project_sprint_status.md doesn't reference S-10 or S-9
+C16 drift detection:     PASS
 C17 plan vs execution:   PASS (no in_progress sprint)
 C18 retroactive artifacts:PASS
 C19 pre-exec quality:    PASS
 C20 scope limit:         PASS (no in_progress sprint)
 C21 dry-run required:    PASS (no in_progress sprint)
 
-SUMMARY: 15 PASS, 3 VIOLATION, 8 WARNING
+SUMMARY: 18 PASS, 2 VIOLATION, 1 WARNING
 === END SCAN ===

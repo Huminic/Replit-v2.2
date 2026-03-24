@@ -31,12 +31,27 @@ NOW_EPOCH=$(date +%s)
 MAX_AGE_SECONDS=1800  # 30 minutes
 
 # Light governance for V-, E-, T-*.EXIT sprints (verification/inspection)
+# S-* sprints (v5.0 page-based) are FULL governance — they contain mixed work
 LIGHT_GOVERNANCE=0
 case "$SPRINT" in
   V-*|E-*|T-*.EXIT|T-*EXIT) LIGHT_GOVERNANCE=1 ;;
+  S-*) LIGHT_GOVERNANCE=0 ;;
 esac
 if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
   echo "  LIGHT GOVERNANCE sprint detected ($SPRINT) — Gates 2.5, 3, 4 will be skipped"
+fi
+
+# UI Permission check — read uiPermissions from sprints.json for S-* sprints
+UI_PERMISSIONS=""
+if [[ "$SPRINT" == S-* ]] && [ -f "sprints.json" ]; then
+  UI_PERMISSIONS=$(python3 -c "
+import json
+d = json.load(open('sprints.json'))
+for s in d['sprints']:
+    if s['id'] == '$SPRINT':
+        print(s.get('uiPermissions', ''))
+        break
+" 2>/dev/null)
 fi
 
 block() {
@@ -245,7 +260,7 @@ echo "[Gate 1.7/7] Session state content..."
 SESSION_STATE_FILE="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md"
 if [ -f "$SESSION_STATE_FILE" ]; then
   # Check that session state references the current sprint
-  SESSION_SPRINT=$(grep -oE 'QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+' "$SESSION_STATE_FILE" | sort -u | tail -1)
+  SESSION_SPRINT=$(grep -oE 'S-[0-9]+|QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+' "$SESSION_STATE_FILE" | sort -u | tail -1)
   if [ -n "$SESSION_SPRINT" ]; then
     # Session state should reference the current sprint or the one just before it
     if echo "$SESSION_SPRINT $SPRINT" | python3 -c "
@@ -539,10 +554,40 @@ else
     CHANGED_LINES=$(git diff --cached --stat -- "$page_file" 2>/dev/null | tail -1 | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | paste -sd+ - | bc 2>/dev/null || echo 0)
     [ -z "$CHANGED_LINES" ] && CHANGED_LINES=0
     if [ "$CHANGED_LINES" -gt 40 ]; then
-      block "$page_file has $CHANGED_LINES lines changed (max 40, EF-14)."
+      block "$page_file has $CHANGED_LINES lines changed (max 40, EF-14). Set UI_EXCEPTION=true if owner approved larger UI changes in sprint pre-exec."
     fi
   done
   echo "    PASS"
+fi
+
+# EF-18: UI Permission Gate (v5.0 sprints)
+echo "  [EF-18] UI Permission Gate..."
+if [ -n "$UI_PERMISSIONS" ]; then
+  # Check if any client/src/pages/ or client/src/components/ files are staged
+  UI_FILES_STAGED=""
+  for staged in $STAGED_FILES; do
+    case "$staged" in
+      client/src/pages/*|client/src/components/*)
+        UI_FILES_STAGED="$UI_FILES_STAGED $staged"
+        ;;
+    esac
+  done
+
+  if [ -n "$UI_FILES_STAGED" ]; then
+    if echo "$UI_PERMISSIONS" | grep -qi "^NONE"; then
+      block "UI files staged ($UI_FILES_STAGED) but sprint $SPRINT has uiPermissions=NONE. No UI changes allowed in this sprint (EF-18)."
+    elif echo "$UI_PERMISSIONS" | grep -qi "^DECLARED"; then
+      # UI changes are allowed — the pre-exec must declare what's being changed
+      # The declared files gate (2.5) already validates this
+      echo "    PASS (UI changes declared in sprint permissions)"
+    else
+      echo "    PASS (UI permissions: $UI_PERMISSIONS)"
+    fi
+  else
+    echo "    PASS (no UI files staged)"
+  fi
+else
+  echo "    PASS (no UI permission restrictions — legacy sprint)"
 fi
 
 # EF-15: Data Array Guard

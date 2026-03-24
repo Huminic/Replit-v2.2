@@ -2,7 +2,6 @@
 replit.md
 .DS_Store
 .env
-File Reorganization/
 dist
 node_modules
 server/public
@@ -11,3 +10,6 @@ vite.config.ts.*
 test-results/
 evidence/DB-1/supabase-backup.sql
 .ghost/
+attached_assets/
+temp/
+File Reorganization/

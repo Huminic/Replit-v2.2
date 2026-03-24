@@ -1,10 +1,7 @@
 Acknowledged-By: orchestrator
-Sprint: T-14.EXIT
-Timestamp: 2026-03-23T08:20:00Z
+Sprint: S-0
+Timestamp: 2026-03-24T02:58:12Z
 
-C1: ACKNOWLEDGED — Phase 14 hashes "pending" — pre-commit placeholders being committed now.
-C3: ACKNOWLEDGED — I-10.5 cross-sign fixed to plain text.
-C9: ACKNOWLEDGED — "pending" hashes for Phase 14 are pre-commit placeholders. Out-of-chronological-order entries from parallel phase execution across batches. All phases verified individually.
-C14: ACKNOWLEDGED — No governance file changes.
-C16: ACKNOWLEDGED — "pending" hashes will be replaced with actual commit hash post-commit.
-C18: ACKNOWLEDGED — G-13.5 retroactive artifacts from verification-only worktree agent.
+C2: ACKNOWLEDGED — VERIFY-ALL evidence directory removed (old plan sprint, never completed, not in v5.0)
+C14: ACKNOWLEDGED — Governance files being committed in this GOV-RESET commit. All changes are intentional plan rewrite.
+C15: ACKNOWLEDGED — Memory files are stale from old 15-phase plan. MEMORY.md updated with staleness warning. Governance files are authoritative.
