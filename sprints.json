@@ -1151,8 +1151,8 @@
       "id": "S-7",
       "name": "System + Profile + Top Icons",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "4090f15",
       "description": "Verify 8 settings sections, rename Take Tour\u2192Reset Tour, remove Billing from Profile, landing page opens new window, Activity vs Notifications.",
       "resolves": [],
       "dependsOn": [
@@ -1252,7 +1252,7 @@
       "id": "S-8",
       "name": "Landing Page / Widgets",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Video widget opens in parent window, store name on landing page, widget scheduling, form submission, dealer widget verification.",
       "resolves": [

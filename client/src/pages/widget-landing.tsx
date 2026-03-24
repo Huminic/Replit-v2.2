@@ -317,6 +317,8 @@ export default function WidgetLandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
+        // Open Tavus video session in a new browser window/tab instead of embedding in iframe
+        window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
         setVideoSessionUrl(data.conversationUrl);
         setVideoStatus('connected');
       } else {
@@ -751,6 +753,12 @@ export default function WidgetLandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col-reverse lg:flex-row relative" data-testid="landing-page">
+      <h1
+        className="absolute top-4 left-4 z-30 text-xl font-bold text-white lg:text-gray-900"
+        data-testid="landing-store-name"
+      >
+        {ORG_NAME}
+      </h1>
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-white">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2.5 mb-4">
