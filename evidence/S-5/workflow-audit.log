@@ -1,0 +1,2 @@
+[2026-03-24T08:10:00Z] agent-launch role=orchestrator sprint=S-5 scope=client/src/pages/marketing.tsx,tests/e2e/s5-marketing.spec.ts
+[2026-03-24T08:20:07Z] PRE-COMMIT role=orchestrator sprint=S-5 result=PASS detail="All 7 gates passed"
