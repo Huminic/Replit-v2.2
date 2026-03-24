@@ -1290,7 +1290,7 @@ for line in content.split('\n'):
         continue
     if in_section and re.match(r'^##\s', line):
         break
-    if in_section and re.match(r'^\s*[-*]\s+\S', line):
+    if in_section and (re.match(r'^\s*[-*]\s+\S', line) or re.match(r'^\s*\|\s*\S', line)):
         count += 1
 print(count)
 " 2>/dev/null)

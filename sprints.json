@@ -1029,8 +1029,8 @@
       "id": "S-6",
       "name": "Manage",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "f9de6da",
       "description": "Remove Dashboard tab AND ROI tab, add Billing tab (from Profile), verify Insights/Hunches/User Chats/System Log, multi-store oversight test.",
       "resolves": [
         "TG-006"
@@ -1151,7 +1151,7 @@
       "id": "S-7",
       "name": "System + Profile + Top Icons",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Verify 8 settings sections, rename Take Tour\u2192Reset Tour, remove Billing from Profile, landing page opens new window, Activity vs Notifications.",
       "resolves": [],

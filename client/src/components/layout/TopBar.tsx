@@ -178,13 +178,13 @@ export function TopBar() {
 
       {/* Right-side action icons */}
       <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-        {/* Globe icon — opens /p/[org-slug] landing page */}
+        {/* Globe icon — opens /p/[org-slug] landing page in new window */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setLocation(`/p/${currentOrganization?.slug || 'demo'}`)}
+              onClick={() => window.open(`/p/${currentOrganization?.slug || 'demo'}`, '_blank')}
               data-testid="button-public-page"
             >
               <Globe className="h-5 w-5 text-muted-foreground" />

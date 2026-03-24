@@ -1,6 +1,7 @@
 Acknowledged-By: orchestrator
-Sprint: S-6
-Timestamp: 2026-03-24T10:30:00Z
+Sprint: S-7
+Timestamp: 2026-03-24T11:05:00Z
 
-C1: ACKNOWLEDGED — S-6 in_progress.
+C1: ACKNOWLEDGED — S-7 in_progress.
 C19: ACKNOWLEDGED — Pre-exec uses AC table.
+C20: ACKNOWLEDGED — TopBar.tsx not in pre-exec declared files. Pre-exec declared AppLayout.tsx but the landing page icon is in TopBar.tsx (child component rendered by AppLayout). Post-sprint report documents this. Single-line change (setLocation → window.open).

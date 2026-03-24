@@ -440,12 +440,12 @@ export default function ProfilePage() {
                     variant="outline"
                     onClick={() => {
                       setShowTour(true);
-                      toast({ title: 'Tour restarted', description: 'The product tour will begin on the next page you visit.' });
+                      toast({ title: 'Tour reset', description: 'The product tour will begin on the next page you visit.' });
                     }}
-                    data-testid="button-restart-tour"
+                    data-testid="button-reset-tour"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
-                    Restart Tour
+                    Reset Tour
                   </Button>
                 </CardContent>
               </Card>
