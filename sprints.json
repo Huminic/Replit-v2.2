@@ -380,8 +380,8 @@
       "id": "S-2",
       "name": "TeamBox",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "a661e2e",
       "description": "Rebuild popout (SMS/Email/Phone/Video/Tasks), add top menu bar, Phone/Video tabs with VAPI/Tavus logs, restyle filters, test channel flows.",
       "resolves": [
         "TG-004",
@@ -581,7 +581,7 @@
       "id": "S-3",
       "name": "Sales",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Verify 4 agent cards, Data Guru rename display, tile-by-tile data accuracy, pipeline, calendar integration, agent quality.",
       "resolves": [
