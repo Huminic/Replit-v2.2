@@ -252,8 +252,8 @@
       "id": "S-1",
       "name": "AI Chat (Home)",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "e308fc8",
       "description": "Verify main page layout, chat quality, streaming, tools, favorites, chat history. No structural changes needed.",
       "resolves": [],
       "dependsOn": [

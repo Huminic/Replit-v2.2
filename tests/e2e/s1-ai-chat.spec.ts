@@ -130,24 +130,20 @@ test("S-1.AC6: VIN leads summary returns data for Serra Honda", async ({ request
 // ==========================================
 // S-1.AC7: Web search
 // ==========================================
-test("S-1.AC7: web search — BRAVE_API_KEY check", async () => {
+test("S-1.AC7: web search — BRAVE_SEARCH_API_KEY set", async () => {
   const fs = await import("fs");
   const envContent = fs.readFileSync(".env", "utf-8");
-  const hasBraveKey = envContent.includes("BRAVE_API_KEY=") &&
-    !envContent.includes("BRAVE_API_KEY=\n") &&
-    !envContent.includes("BRAVE_API_KEY=''");
+  // The env var is BRAVE_SEARCH_API_KEY (not BRAVE_API_KEY)
+  const hasBraveKey = envContent.includes("BRAVE_SEARCH_API_KEY=") &&
+    !envContent.includes("BRAVE_SEARCH_API_KEY=\n") &&
+    !envContent.includes("BRAVE_SEARCH_API_KEY=''");
 
-  if (!hasBraveKey) {
-    console.log("  BRAVE_API_KEY not set — web search will not function");
-    console.log("  This is an environment config issue, not a code defect");
-    // Check that the search tool code exists in the codebase
-    const chatCode = fs.readFileSync("server/routes/chat.ts", "utf-8");
-    expect(chatCode, "Chat code should reference web search tool").toContain("search");
-    // Mark as conditional pass — code exists, env key missing
-    test.info().annotations.push({ type: "warning", description: "BRAVE_API_KEY not set" });
-  } else {
-    console.log("  BRAVE_API_KEY is set — web search should work");
-  }
+  expect(hasBraveKey, "BRAVE_SEARCH_API_KEY must be set in .env for web search").toBe(true);
+  console.log("  BRAVE_SEARCH_API_KEY is set — web search should work");
+
+  // Verify the chat code references web search
+  const chatCode = fs.readFileSync("server/routes/chat.ts", "utf-8");
+  expect(chatCode, "Chat code should reference search tool").toContain("search");
 });
 
 // ==========================================

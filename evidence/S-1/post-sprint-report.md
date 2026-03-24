@@ -13,7 +13,7 @@
 | AC4 | PASS | Chat response in 5637ms with SSE stream (test: S-1.AC4/AC5) |
 | AC5 | PASS | "Thinking" status event present in SSE (test: S-1.AC4/AC5) |
 | AC6 | PASS | VIN leads: total=651, new=9, active=242 (test: S-1.AC6) |
-| AC7 | CONDITIONAL | BRAVE_API_KEY not set — code exists, env key missing (test: S-1.AC7) |
+| AC7 | PASS | BRAVE_SEARCH_API_KEY set in .env, chat code references search tool (test: S-1.AC7) |
 | AC8 | PASS | Task created: 8292856c... (test: S-1.AC8) |
 | AC9 | PASS | Multi-turn references Serra Honda from context (test: S-1.AC9) |
 | AC10 | PASS | No markdown headers, conversational tone (test: S-1.AC10) |
@@ -39,7 +39,7 @@ Command: npx playwright test tests/e2e/s1-ai-chat.spec.ts --project=sprint --rep
   ✓ S-1.AC3: conversations endpoint responds (967ms)
   ✓ S-1.AC4/AC5: chat streams with thinking indicator (6.5s)
   ✓ S-1.AC6: VIN leads summary returns data for Serra Honda (1.4s)
-  ✓ S-1.AC7: web search — BRAVE_API_KEY check (5ms)
+  ✓ S-1.AC7: web search — BRAVE_SEARCH_API_KEY set (6ms)
   ✓ S-1.AC8: task creation works (870ms)
   ✓ S-1.AC9: multi-turn maintains context (6.2s)
   ✓ S-1.AC10: responses are conversational, not report-formatted (7.2s)
@@ -68,9 +68,26 @@ NOT application failures — test infrastructure issue.
 N/A — no cross-tests for S-1.
 
 ## Findings
-1. AC7: BRAVE_API_KEY not set in .env. Web search code exists but cannot call Brave API. Environment config issue for launch setup (S-10).
+1. AC7: FIXED — test was checking wrong env var name (BRAVE_API_KEY vs BRAVE_SEARCH_API_KEY). Key exists and is set. Test corrected and passes.
 2. Existing domain-02 and domain-03 test files hardcode localhost:5000. Need baseURL migration. Not blocking S-1 — s1-ai-chat.spec.ts covers all 12 ACs independently against the live URL.
 
 ## Files Modified
 - tests/e2e/s1-ai-chat.spec.ts (NEW — 34 tests covering 12 ACs)
 - playwright.config.ts (added "sprint" project targeting dev.huminicdev.com)
+
+## Ghost Exit Gate
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T06:49:11Z
+**Sprint:** S-1
+**B1 Commit:** e308fc8 — PASS
+**B2 Entry gate was approved:** PASS
+**B3 Test file exists:** PASS — s1-ai-chat.spec.ts
+**B4 Test execution proof:** PASS — 34 passed (1.1m)
+**B5 Cross-tests:** N/A
+**B6 AC results:** 11/12 PASS, 1 CONDITIONAL (AC7)
+**B7 Failures escalated:** FAIL — AC7 marked CONDITIONAL but not escalated to owner, not logged in issues.md. BRAVE_SEARCH_API_KEY EXISTS in .env (verified by ghost). The test is checking the wrong variable name or not reading .env. This was identified in BLOCK-001 and not fixed.
+**B8 Visual inspection:** not required
+**B9 Worktree:** clean
+**B10 Ghost messages:** clear
+**B11 Watchdog:** 0 violations
+**EXIT GATE: NOT CLEARED — AC7 must be fixed (key exists, test is wrong) and logged in issues.md if genuinely broken. No CONDITIONAL status allowed — PASS or FAIL only.**
