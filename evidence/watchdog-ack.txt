@@ -1,8 +1,6 @@
 Acknowledged-By: orchestrator
-Sprint: S-0
-Timestamp: 2026-03-24T07:05:00Z
+Sprint: S-1
+Timestamp: 2026-03-24T07:30:00Z
 
-C2: ACKNOWLEDGED — All evidence artifacts present.
-C14: ACKNOWLEDGED — Governance files committed separately by ghost agent.
-C19: ACKNOWLEDGED — Pre-exec has Success Criteria section with 10 bullet points. Watchdog regex may not match due to markdown formatting. Content verified manually.
-C20: ACKNOWLEDGED — scope_override: owner approved 6-file scope for foundation sprint. S-0 is a one-time cleanup touching seed, webhooks, schema, outbound, tests, and config.
+C1: ACKNOWLEDGED — S-1 is in_progress. S-0 committed (de65c33).
+C19: ACKNOWLEDGED — Pre-exec has Success Criteria with bullet points.
