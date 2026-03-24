@@ -8,13 +8,13 @@
  * Access gating handled by canAccessSection() in users.ts via Sidebar navigation.
  *
  * Tabs:
- *   - Dashboard: Service KPI metric tiles (active campaigns, messages sent, replies, appointments, declined services, upsell rate)
- *   - Agents: Agent cards for service department AI agents
- *   - Campaigns: Campaign table with CSV upload info, status, channel, recipient/sent/replied counts, kill switch toggle.
+ *   - Campaigns (default): Campaign table with CSV upload info, status, channel, recipient/sent/replied counts, kill switch toggle.
  *     Shows "Communications Paused" badge when global communication gate is OFF (communicationGateEnabled from AppContext).
  *     Campaign Safety card explains kill switch and per-conversation disconnect in TeamBox.
- *   - Insights: Placeholder for Wave 2 service analytics
- *   - Calendar: Placeholder for Wave 2 service appointment scheduling
+ *     Prominent "New Campaign" and "Upload CSV" buttons at top. Row click opens campaign detail dialog.
+ *   - Agents: Agent cards for service department AI agents
+ *   - Insights: Service KPI metric tiles (active campaigns, messages sent, replies, etc.) plus embedded InsightsPage
+ *   - Calendar: Service appointment scheduling
  *
  * Kill Switch: Toggle to immediately stop all outbound messages for a campaign.
  * CRITICAL FEATURE — added after spam incident. Each campaign row has its own toggle.
@@ -22,7 +22,7 @@
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -57,9 +57,8 @@ interface ServiceMetricTile {
 }
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'agents', label: 'Agents', icon: Bot },
   { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
+  { id: 'agents', label: 'Agents', icon: Bot },
   { id: 'insights', label: 'Insights', icon: BarChart3 },
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
 ];
@@ -87,7 +86,7 @@ export default function ServicePage() {
   const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('campaigns');
 
   // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
   useEffect(() => {
@@ -121,6 +120,7 @@ export default function ServicePage() {
 
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [csvUploadCampaignId, setCsvUploadCampaignId] = useState<string | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<APICampaign | null>(null);
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState('');
   const [newCampaignChannel, setNewCampaignChannel] = useState('sms');
@@ -233,28 +233,6 @@ export default function ServicePage() {
     },
   });
 
-  const renderDashboard = () => (
-    <div className="p-6 space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold mb-1">Service Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Service department performance and campaign metrics</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {serviceMetrics.map(metric => (
-          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-2xl font-bold">{metric.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
   /** Agents tab — service department AI agent cards */
   const renderAgents = () => {
     if (agentsLoading) {
@@ -341,6 +319,10 @@ export default function ServicePage() {
               Communications Paused
             </Badge>
           )}
+          <Button size="sm" variant="outline" data-testid="button-upload-csv" onClick={() => { setCsvUploadCampaignId('bulk'); csvInputRef.current?.click(); }}>
+            <Upload className="h-4 w-4 mr-1.5" />
+            Upload CSV
+          </Button>
           <Button size="sm" data-testid="button-new-campaign" onClick={() => setNewCampaignOpen(true)}>
             New Campaign
           </Button>
@@ -368,7 +350,7 @@ export default function ServicePage() {
           </thead>
           <tbody>
             {serviceCampaigns.map(campaign => (
-              <tr key={campaign.id} className="border-b border-border last:border-0 hover:bg-accent/50 transition-colors" data-testid={`campaign-row-${campaign.id}`}>
+              <tr key={campaign.id} className="border-b border-border last:border-0 hover:bg-accent/50 transition-colors cursor-pointer" data-testid={`campaign-row-${campaign.id}`} onClick={() => setSelectedCampaign(campaign)}>
                 <td className="px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">{campaign.name}</p>
@@ -392,7 +374,7 @@ export default function ServicePage() {
                 <td className="px-4 py-3 text-right text-sm">{campaign.recipientCount}</td>
                 <td className="px-4 py-3 text-right text-sm">{campaign.sentCount}</td>
                 <td className="px-4 py-3 text-right text-sm">{campaign.repliedCount}</td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-center">
                     <Switch
                       checked={!campaign.killSwitch}
@@ -402,7 +384,7 @@ export default function ServicePage() {
                     />
                   </div>
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-center gap-1">
                     {(() => {
                       const execStatus = executionStatuses[campaign.id];
@@ -593,17 +575,97 @@ export default function ServicePage() {
           <div>
             <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Campaign Safety</p>
             <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-              Use the Kill Switch to immediately stop all outbound messages for a campaign. 
+              Use the Kill Switch to immediately stop all outbound messages for a campaign.
               Individual conversations can also be disconnected from campaigns in TeamBox.
             </p>
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={!!selectedCampaign} onOpenChange={(open) => { if (!open) setSelectedCampaign(null); }}>
+        <DialogContent className="sm:max-w-lg" data-testid="dialog-campaign-detail">
+          <DialogHeader>
+            <DialogTitle>{selectedCampaign?.name}</DialogTitle>
+            <DialogDescription>Campaign details and statistics</DialogDescription>
+          </DialogHeader>
+          {selectedCampaign && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className={cn('w-2 h-2 rounded-full', campaignStatusColors[selectedCampaign.status])} />
+                    <span className="text-sm capitalize font-medium">{selectedCampaign.status}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Channel</p>
+                  <Badge variant="outline" className="mt-1 text-[10px]">{selectedCampaign.channel.toUpperCase()}</Badge>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Recipients</p>
+                  <p className="text-sm font-medium mt-1">{selectedCampaign.recipientCount}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Sent</p>
+                  <p className="text-sm font-medium mt-1">{selectedCampaign.sentCount}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Replied</p>
+                  <p className="text-sm font-medium mt-1">{selectedCampaign.repliedCount}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Kill Switch</p>
+                  <Badge variant={selectedCampaign.killSwitch ? "destructive" : "secondary"} className="mt-1 text-[10px]">
+                    {selectedCampaign.killSwitch ? "ACTIVE — Messages Stopped" : "OFF — Messages Flowing"}
+                  </Badge>
+                </div>
+              </div>
+              {selectedCampaign.csvFilename && (
+                <div>
+                  <p className="text-xs text-muted-foreground">CSV File</p>
+                  <p className="text-sm font-medium mt-1 flex items-center gap-1">
+                    <Upload className="h-3 w-3" />
+                    {selectedCampaign.csvFilename}
+                  </p>
+                </div>
+              )}
+              {selectedCampaign.messageTemplate && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Message Template</p>
+                  <p className="text-sm mt-1 bg-muted/50 rounded-md p-2 whitespace-pre-wrap">{selectedCampaign.messageTemplate}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
   const renderInsights = () => (
-    <InsightsPage embedded />
+    <div className="space-y-6">
+      <div className="p-6 space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">Service Metrics</h2>
+          <p className="text-sm text-muted-foreground">Service department performance overview</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {serviceMetrics.map(metric => (
+            <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">{metric.label}</p>
+                  <metric.icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <p className="text-2xl font-bold">{metric.value}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <InsightsPage embedded />
+    </div>
   );
 
   const renderCalendar = () => <AppointmentCalendar department="service" />;
@@ -647,7 +709,6 @@ export default function ServicePage() {
       </div>
 
       <ScrollArea className="flex-1">
-        {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'agents' && renderAgents()}
         {activeTab === 'campaigns' && renderCampaigns()}
         {activeTab === 'insights' && renderInsights()}

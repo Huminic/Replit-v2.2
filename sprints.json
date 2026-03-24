@@ -581,8 +581,8 @@
       "id": "S-3",
       "name": "Sales",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "0622918",
       "description": "Verify 4 agent cards, Data Guru rename display, tile-by-tile data accuracy, pipeline, calendar integration, agent quality.",
       "resolves": [
         "I-105",
@@ -718,7 +718,7 @@
       "id": "S-4",
       "name": "Service",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Restructure tabs (Campaigns first, remove Dashboard), enhance campaign CRUD/detail, move KPIs to Insights, Nancy Gaston instructions, campaign e2e, recall flow, after-hours.",
       "resolves": [
