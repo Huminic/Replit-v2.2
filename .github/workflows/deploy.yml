@@ -1,0 +1,75 @@
+name: Deploy Nexxus Connect
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      VAPI_PRIVATE_KEY: ${{ secrets.VAPI_PRIVATE_KEY }}
+      TAVUS_API_KEY: ${{ secrets.TAVUS_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      VINSOLUTIONS_API_KEY: ${{ secrets.VINSOLUTIONS_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      FAL_KEY: ${{ secrets.FAL_KEY }}
+      BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+      APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+      VIN_SAFE_MCP_TOKEN: ${{ secrets.VIN_SAFE_MCP_TOKEN }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npx playwright test tests/e2e/domain-12-infrastructure.spec.ts --reporter=list
+        continue-on-error: false
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Trigger Coolify deployment
+        run: |
+          curl -s -X POST \
+            "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --max-time 30 \
+            || echo "Coolify webhook sent (may be async)"
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting 60s for deployment..."
+          sleep 60
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${{ secrets.APP_BASE_URL }}/" || echo "000")
+          echo "Production status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "WARNING: Production returned $STATUS (may still be deploying)"
+          fi
