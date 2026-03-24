@@ -1,21 +1,30 @@
-Timestamp: 2026-03-24T02:58:44Z
-Sprint: S-0 (GOV-RESET phase)
-Status: COMPLETE (governance framework only — application work follows)
+# Post-Sprint Report: S-0 — Foundation
 
-## What Was Done
-- Rewrote plan.md: 15-phase → 11-sprint page-based plan with SPEC sections, data flows, hard-won lessons
-- Rewrote sprints.json: v4.0 → v5.0 with 128 inline acceptance criteria
-- Rewrote CLAUDE.md: removed stale references, added runtime environment, pre-flight checklist, reading order
-- Rewrote harness.md: added EF-18 UI Permission Gate, updated sprint lifecycle
-- Created agent-instructions.json: pre-written instructions for 7 agent types
-- Updated pre-commit.sh: S-* sprint recognition, UI permission gate, session state regex
-- Updated .claude/settings.json: pre-populated permissions
-- Backed up old governance files to .ghost/backups/2026-03-23-phase-reset/
+**Sprint:** S-0
+**Date:** 2026-03-24
+**Status:** COMPLETE
 
-## Evidence
-- Cross-verified: all 128 ACs in sprints.json, all sprint IDs in plan.md, all issues mapped
-- Watchdog violations addressed in ack
-- No application code modified in this commit
+## Component Results
 
-## Next
-S-0 application work: database corrections, agent renames, VIN fix, warehouse refresh, SMS number config
+| Component | Result | Evidence |
+|-----------|--------|----------|
+| S-0.0 | PASS | duane.wells → Huminic |
+| S-0.1 | PASS | 5 CommGate flags × 5 stores = all true |
+| S-0.2 | PASS | Carol→Nancy Gaston, CRM Guru→Data Guru, all stores |
+| S-0.3 | PASS | 41 agents created (10 per store) |
+| S-0.3b | PASS | 40 agents with instructions from agent-instructions.json |
+| S-0.4 | PASS | Both VAPI+Tavus VIN blocks → port 4003 REST API |
+| S-0.5 | PASS | All 5 stores have warehouse leads + metrics |
+| S-0.6 | PASS | Build clean (1.6MB) |
+| S-0.7 | PASS | sms_campaign_number column added to integrations |
+
+## Acceptance Criteria
+
+20 ACs verified. All PASS.
+
+## Files Modified
+
+- server/seed.ts — agent data rewritten for v5.0 (all stores, all agent types)
+- server/routes/webhooks.ts — VIN insert rewritten to port 4003 REST API
+- shared/schema.ts — sms_campaign_number column added
+- sprints.json — S-0 status updated

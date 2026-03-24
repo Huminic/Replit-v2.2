@@ -436,11 +436,48 @@ export async function seedDatabase() {
     { name: "Georgia", department: "sales", description: "Tony Serra Ford AI Sales Agent. Specializes in truck and fleet sales inquiries.", channels: ["voice", "video"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: "+1 (256) 459-9707", vapiAssistantId: "ad478eb2-6602-42c5-9732-3d4648013307", tavusPersonaId: "pe791670615d" },
     { name: "Elizabeth", department: "marketing", description: "Hyundai of Columbia AI Marketing Agent. Handles campaign responses and lead nurturing.", channels: ["voice", "video"], dealership: "Hyundai of Columbia", orgId: hyundaiOfColumbia.id, assignedPhone: "+1 (901) 203-9398", vapiAssistantId: "6d12a8fa-0ed0-4ec1-bfdb-e84587ff86c0", tavusPersonaId: "p92b0da01c4f" },
     { name: "Savannah", department: "service", description: "Ford of Columbia AI Service Agent. Manages service lane communications and upsell opportunities.", channels: ["voice", "video"], dealership: "Ford of Columbia", orgId: fordOfColumbia.id, assignedPhone: "+1 (931) 369-2815", vapiAssistantId: "6216451c-e0a3-43d0-aece-ae382bd8df25", tavusPersonaId: "pf233f09f33d" },
-    { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
-    { name: "Service Agent", department: "service", description: "Serra Honda AI Service Knowledge Agent. Provides service campaign insights, recall information, maintenance scheduling guidance, and service lane performance data.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
-    { name: "Marketing Agent", department: "marketing", description: "Serra Honda AI Marketing Knowledge Agent. Analyzes marketing campaign performance, tracks lead source ROI, manages promotional content, and provides marketing analytics insights.", channels: ["chat"], dealership: "Serra Honda", orgId: serraHonda.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
-    { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Serra Nissan", orgId: serraNissan.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
-    { name: "CRM Guru", department: "sales", description: "VIN Solutions CRM data expert. Prioritizes CRM data for lead insights, pipeline analysis, and customer history lookups.", channels: ["chat"], dealership: "Tony Serra Ford", orgId: tonySerraFord.id, assignedPhone: null, vapiAssistantId: null, tavusPersonaId: null },
+    // Chat agents — created for ALL 5 stores via loop below
+  ];
+
+  // Chat agents seeded per store (v5.0 agent structure)
+  const chatAgentDefs = [
+    { name: "Data Guru", department: "sales", description: "VIN Solutions CRM data expert. Pipeline analysis, lead insights, customer history." },
+    { name: "Sales Coach", department: "sales", description: "Sales coaching, objection handling, follow-up strategies." },
+    { name: "Communication Writer", department: "sales", description: "Professional email/SMS drafts, follow-up templates, lead nurturing sequences." },
+    { name: "Nancy Gaston", department: "service", description: "Service campaign management, recall notifications, maintenance scheduling, service knowledge." },
+    { name: "Photo Studio", department: "marketing", description: "AI vehicle photo generation and background swapping via fal.ai." },
+    { name: "Video Producer", department: "marketing", description: "Promotional video creation and voiceover generation via fal.ai." },
+    { name: "Copywriter", department: "marketing", description: "Ad copy generation in 5 categories via OpenAI." },
+    { name: "Market Intel", department: "marketing", description: "Competitor analysis and local market intelligence." },
+    { name: "Creative Director", department: "marketing", description: "Creative asset scoring and brand consistency evaluation." },
+  ];
+
+  const allStores = [
+    { orgId: serraHonda.id, name: "Serra Honda" },
+    { orgId: serraNissan.id, name: "Serra Nissan" },
+    { orgId: tonySerraFord.id, name: "Tony Serra Ford" },
+    { orgId: hyundaiOfColumbia.id, name: "Hyundai of Columbia" },
+    { orgId: fordOfColumbia.id, name: "Ford of Columbia" },
+  ];
+
+  for (const store of allStores) {
+    for (const def of chatAgentDefs) {
+      agentData.push({
+        name: def.name,
+        department: def.department,
+        description: def.description,
+        channels: ["chat"],
+        dealership: store.name,
+        orgId: store.orgId,
+        assignedPhone: null as any,
+        vapiAssistantId: null as any,
+        tavusPersonaId: null as any,
+      });
+    }
+  }
+
+  // Placeholder to close the original array reference
+  const _endOfAgentData = [
   ];
 
   const createdAgents: Record<string, string> = {};

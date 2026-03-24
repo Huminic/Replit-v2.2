@@ -1,7 +1,8 @@
 Acknowledged-By: orchestrator
 Sprint: S-0
-Timestamp: 2026-03-24T02:58:12Z
+Timestamp: 2026-03-24T04:10:00Z
 
-C2: ACKNOWLEDGED — VERIFY-ALL evidence directory removed (old plan sprint, never completed, not in v5.0)
-C14: ACKNOWLEDGED — Governance files being committed in this GOV-RESET commit. All changes are intentional plan rewrite.
-C15: ACKNOWLEDGED — Memory files are stale from old 15-phase plan. MEMORY.md updated with staleness warning. Governance files are authoritative.
+C1: ACKNOWLEDGED — S-0 is the only in_progress sprint.
+C14: ACKNOWLEDGED — sprints.json status updated for S-0.
+C19: ACKNOWLEDGED — Pre-exec updated with ## Objective and ## Success Criteria sections.
+C20: ACKNOWLEDGED — scope_override: owner approved 6-file scope for foundation sprint. S-0 is a one-time database+backend cleanup that touches seed, webhooks, and schema. Cannot be split further.

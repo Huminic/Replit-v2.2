@@ -157,6 +157,7 @@ export const integrations = pgTable("integrations", {
   status: text("status").notNull().default("active"),
   nexxusOrgId: text("nexxus_org_id"),
   defaultVinUserId: integer("default_vin_user_id"),
+  smsCampaignNumber: text("sms_campaign_number"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [

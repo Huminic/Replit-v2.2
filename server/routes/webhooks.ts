@@ -591,70 +591,82 @@ export function registerWebhookRoutes(app: Express) {
       };
 
       try {
-        const { callMCP, resolveNexxusOrgId } = await import("../vendorProxy");
-        const nexxusOrgId = resolveNexxusOrgId(organizationId);
+        // VIN lead creation via vin-safe-mcp REST API (port 4003)
+        // Per-dealer userId and leadSourceName resolved from integrations table
+        const integration = await storage.getIntegrations(organizationId, { provider: "vinsolutions" });
+        const vinUserId = integration?.[0]?.defaultVinUserId || null;
 
         const nameParts = customerName.split(" ");
-        const firstName = nameParts[0] || "Unknown";
-        const lastName = nameParts.slice(1).join(" ") || "Caller";
-
-        // Strip +1 prefix — VIN Solutions requires 10-digit phone
+        const firstName = nameParts[0] || "AI";
+        const lastName = nameParts.slice(1).join(" ") || "LEAD";
         const vinPhone = customerPhone ? customerPhone.replace(/\D/g, "").replace(/^1(\d{10})$/, "$1") : undefined;
-        const contactResult = await callMCP("vin_create_contact", {
-          orgId: nexxusOrgId,
+
+        const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
+        const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
+
+        const prepareBody: Record<string, any> = {
+          orgId: organizationId,
           firstName,
           lastName,
           phone: vinPhone,
-          leadSourceName: "Phone - AI Voice Agent",
-        });
-        vinContactHref = contactResult?.href || contactResult?.contactHref || contactResult?.id || null;
-        console.log(`[VAPI→VIN] Step 1 success: contact created, href=${vinContactHref}`);
+          leadType: "PHONE",
+          description: `${summary || `Inbound VAPI call from ${customerName}`}\n\nRecording: ${call.recordingUrl || message.recordingUrl || "N/A"}`,
+        };
+        if (vinUserId) prepareBody.userId = vinUserId;
 
-        try {
-          await callMCP("vin_create_lead", {
-            orgId: nexxusOrgId,
-            contactHref: vinContactHref,
-            source: "VAPI Inbound Call",
-            description: summary || `Inbound call from ${customerName}`,
-            transcript: transcript.substring(0, 5000),
+        const prepareRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_prepare_lead`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify(prepareBody),
+        });
+        const prepareData = await prepareRes.json();
+
+        if (prepareData.status === "READY" && prepareData.approval_token) {
+          console.log(`[VAPI→VIN] Prepare OK: assigned to ${prepareData.resolution?.assignedTo?.name}, source=${prepareData.resolution?.leadSource?.name}`);
+
+          const executeRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_execute_lead`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ approval_token: prepareData.approval_token, user_confirmed: true }),
           });
-          vinLeadCreated = true;
-          console.log(`[VAPI→VIN] Step 2 success: lead created for contact ${vinContactHref}`);
-        } catch (step2Err: any) {
-          console.error(`[VAPI→VIN] Step 2 FAILED (lead creation):`, step2Err.message);
+          const executeData = await executeRes.json();
+
+          if (executeData.status === "EXECUTED" && executeData.verification?.status === "VERIFIED_CORRECT") {
+            vinContactHref = String(executeData.contactId);
+            vinLeadCreated = true;
+            console.log(`[VAPI→VIN] Lead created: contact=${executeData.contactId}, lead=${executeData.leadId}, assigned=${executeData.verification.assignedTo?.name}`);
+          } else {
+            console.error(`[VAPI→VIN] Execute failed or verification mismatch:`, JSON.stringify(executeData).slice(0, 500));
+            await storage.createTask({
+              type: "escalation",
+              title: "VIN Lead Creation Failed (Execute/Verify)",
+              description: `Prepare succeeded but execute/verify failed.\n\nResult: ${JSON.stringify(executeData).slice(0, 1000)}`,
+              status: "todo",
+              priority: "critical",
+              organizationId,
+              tags: ["escalation", "vin-integration", "vapi", "auto-generated"],
+              metadata: JSON.stringify({ trigger_id: `vapi-vin-${Date.now()}`, org_id: organizationId, execute_result: executeData, conversation_id: conversation.id }),
+            });
+          }
+        } else {
+          console.error(`[VAPI→VIN] Prepare failed:`, JSON.stringify(prepareData).slice(0, 500));
           await storage.createTask({
             type: "escalation",
-            title: "VIN Lead Creation Failed (Step 2)",
-            description: `Contact was created (href: ${vinContactHref}) but lead creation failed.\n\nError: ${step2Err.message}`,
+            title: "VIN Lead Prepare Failed",
+            description: `vin_safe_prepare_lead returned: ${JSON.stringify(prepareData).slice(0, 1000)}`,
             status: "todo",
             priority: "critical",
             organizationId,
             tags: ["escalation", "vin-integration", "vapi", "auto-generated"],
-            metadata: JSON.stringify({
-              trigger_id: `vapi-vin-${Date.now()}`,
-              org_id: organizationId,
-              failed_step: 2,
-              contact_href: vinContactHref,
-              error_response: step2Err.message,
-              timestamp: new Date().toISOString(),
-              original_vapi_data: vapiPayloadSnapshot,
-              conversation_id: conversation.id,
-            }),
+            metadata: JSON.stringify({ trigger_id: `vapi-vin-${Date.now()}`, org_id: organizationId, prepare_result: prepareData, conversation_id: conversation.id }),
           });
-          storage.createActivityLog({
-            organizationId,
-            action: "vin_lead_creation_failed",
-            entityType: "conversation",
-            entityId: conversation.id,
-            metadata: { failed_step: 2, contact_href: vinContactHref, error: step2Err.message },
-          }).catch(() => {});
         }
-      } catch (step1Err: any) {
-        console.error(`[VAPI→VIN] Step 1 FAILED (contact creation):`, step1Err.message);
+      } catch (vinErr: any) {
+        console.error(`[VAPI→VIN] FAILED:`, vinErr.message);
         await storage.createTask({
           type: "escalation",
-          title: "VIN Contact Creation Failed (Step 1)",
-          description: `Failed to create VIN Solutions contact for VAPI call.\n\nCaller: ${customerName} (${customerPhone || "no phone"})\nError: ${step1Err.message}`,
+          title: "VIN Lead Creation Failed",
+          description: `Failed to create VIN Solutions lead for VAPI call.\n\nCaller: ${customerName} (${customerPhone || "no phone"})\nError: ${vinErr.message}`,
           status: "todo",
           priority: "critical",
           organizationId,
@@ -663,7 +675,7 @@ export function registerWebhookRoutes(app: Express) {
             trigger_id: `vapi-vin-${Date.now()}`,
             org_id: organizationId,
             failed_step: 1,
-            error_response: step1Err.message,
+            error_response: vinErr.message,
             timestamp: new Date().toISOString(),
             original_vapi_data: vapiPayloadSnapshot,
             conversation_id: conversation.id,
@@ -671,10 +683,10 @@ export function registerWebhookRoutes(app: Express) {
         });
         storage.createActivityLog({
           organizationId,
-          action: "vin_contact_creation_failed",
+          action: "vin_lead_creation_failed",
           entityType: "conversation",
           entityId: conversation.id,
-          metadata: { failed_step: 1, error: step1Err.message, customerName, customerPhone },
+          metadata: { error: vinErr.message, customerName, customerPhone },
         }).catch(() => {});
       }
 
@@ -892,70 +904,83 @@ export function registerWebhookRoutes(app: Express) {
 
       let vinLeadCreated = false;
       try {
-        const { callMCP, resolveNexxusOrgId } = await import("../vendorProxy");
-        const nexxusOrgId = resolveNexxusOrgId(organizationId);
+        // VIN lead creation via vin-safe-mcp REST API (port 4003)
+        const integration = await storage.getIntegrations(organizationId, { provider: "vinsolutions" });
+        const vinUserId = integration?.[0]?.defaultVinUserId || null;
 
         const nameParts = visitorName.split(" ");
-        const firstName = nameParts[0] || "Video";
-        const lastName = nameParts.slice(1).join(" ") || "Visitor";
+        const firstName = nameParts[0] || "AI";
+        const lastName = nameParts.slice(1).join(" ") || "LEAD";
 
-        const contactResult = await callMCP("vin_create_contact", {
-          orgId: nexxusOrgId,
+        const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
+        const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
+
+        const prepareBody: Record<string, any> = {
+          orgId: organizationId,
           firstName,
           lastName,
-        });
-        const vinContactHref = contactResult?.href || contactResult?.contactHref || contactResult?.id || null;
-        console.log(`[Tavus→VIN] Step 1 success: contact created, href=${vinContactHref}`);
+          leadType: "PHONE",
+          description: `${summary || `Tavus video session with ${visitorName}`}\n\nSession ID: ${tavusConversationId}`,
+        };
+        if (vinUserId) prepareBody.userId = vinUserId;
 
-        try {
-          await callMCP("vin_create_lead", {
-            orgId: nexxusOrgId,
-            contactHref: vinContactHref,
-            source: "Tavus Video Conversation",
-            description: summary || `Video conversation with ${visitorName}`,
-            transcript: transcript.substring(0, 5000),
+        const prepareRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_prepare_lead`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify(prepareBody),
+        });
+        const prepareData = await prepareRes.json();
+
+        if (prepareData.status === "READY" && prepareData.approval_token) {
+          console.log(`[Tavus→VIN] Prepare OK: assigned to ${prepareData.resolution?.assignedTo?.name}`);
+
+          const executeRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_execute_lead`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ approval_token: prepareData.approval_token, user_confirmed: true }),
           });
-          vinLeadCreated = true;
-          console.log(`[Tavus→VIN] Step 2 success: lead created for contact ${vinContactHref}`);
-        } catch (step2Err: any) {
-          console.error(`[Tavus→VIN] Step 2 FAILED (lead creation):`, step2Err.message);
+          const executeData = await executeRes.json();
+
+          if (executeData.status === "EXECUTED" && executeData.verification?.status === "VERIFIED_CORRECT") {
+            vinLeadCreated = true;
+            console.log(`[Tavus→VIN] Lead created: contact=${executeData.contactId}, lead=${executeData.leadId}`);
+          } else {
+            console.error(`[Tavus→VIN] Execute failed:`, JSON.stringify(executeData).slice(0, 500));
+            await storage.createTask({
+              type: "escalation",
+              title: "VIN Lead Creation Failed — Tavus Video",
+              description: `Prepare succeeded but execute failed.\n\nResult: ${JSON.stringify(executeData).slice(0, 1000)}`,
+              status: "todo",
+              priority: "critical",
+              organizationId,
+              tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
+              metadata: JSON.stringify({ trigger_id: `tavus-vin-${Date.now()}`, execute_result: executeData, conversation_id: conversation.id }),
+            });
+          }
+        } else {
+          console.error(`[Tavus→VIN] Prepare failed:`, JSON.stringify(prepareData).slice(0, 500));
           await storage.createTask({
             type: "escalation",
-            title: "VIN Lead Creation Failed — Tavus Video (Step 2)",
-            description: `Contact was created (href: ${vinContactHref}) but lead creation failed.\n\nError: ${step2Err.message}`,
+            title: "VIN Lead Prepare Failed — Tavus Video",
+            description: `vin_safe_prepare_lead returned: ${JSON.stringify(prepareData).slice(0, 1000)}`,
             status: "todo",
             priority: "critical",
             organizationId,
             tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
-            metadata: JSON.stringify({
-              trigger_id: `tavus-vin-${Date.now()}`,
-              org_id: organizationId,
-              failed_step: 2,
-              contact_href: vinContactHref,
-              error_response: step2Err.message,
-              tavus_conversation_id: tavusConversationId,
-              conversation_id: conversation.id,
-            }),
+            metadata: JSON.stringify({ trigger_id: `tavus-vin-${Date.now()}`, prepare_result: prepareData, conversation_id: conversation.id }),
           });
         }
-      } catch (step1Err: any) {
-        console.error(`[Tavus→VIN] Step 1 FAILED (contact creation):`, step1Err.message);
+      } catch (vinErr: any) {
+        console.error(`[Tavus→VIN] FAILED:`, vinErr.message);
         await storage.createTask({
           type: "escalation",
-          title: "VIN Contact Creation Failed — Tavus Video (Step 1)",
-          description: `Failed to create VIN Solutions contact for Tavus video.\n\nVisitor: ${visitorName}\nError: ${step1Err.message}`,
+          title: "VIN Lead Creation Failed — Tavus Video",
+          description: `Failed to create VIN Solutions lead.\n\nVisitor: ${visitorName}\nError: ${vinErr.message}`,
           status: "todo",
           priority: "critical",
           organizationId,
           tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
-          metadata: JSON.stringify({
-            trigger_id: `tavus-vin-${Date.now()}`,
-            org_id: organizationId,
-            failed_step: 1,
-            error_response: step1Err.message,
-            tavus_conversation_id: tavusConversationId,
-            conversation_id: conversation.id,
-          }),
+          metadata: JSON.stringify({ trigger_id: `tavus-vin-${Date.now()}`, error: vinErr.message, conversation_id: conversation.id }),
         });
       }
 
