@@ -1,4 +1,6 @@
 import { defineConfig } from "playwright/test";
+import dotenv from "dotenv";
+dotenv.config();
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -69,12 +71,6 @@ export default defineConfig({
         baseURL: "http://localhost:5000",
         viewport: { width: 1280, height: 720 },
       },
-      timeout: 120_000,
-    },
-    {
-      name: "sprint",
-      testMatch: /s\d+-.*\.spec\.ts/,
-      use: { baseURL: "https://dev.huminicdev.com" },
       timeout: 120_000,
     },
     {

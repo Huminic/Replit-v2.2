@@ -30,6 +30,21 @@ async function callMCP(request: any, toolName: string, args: Record<string, unkn
   });
 
   const text = await response.text();
+
+  // Try plain JSON first — MCP server may return JSON without SSE framing
+  try {
+    const json = JSON.parse(text);
+    if (json.result?.content?.[0]?.text) {
+      try { return JSON.parse(json.result.content[0].text); }
+      catch { return json.result.content[0].text; }
+    }
+    if (json.error) throw new Error(json.error.message);
+    if (json.result) return json.result;
+  } catch {
+    // Not valid JSON as a whole — try SSE line-by-line
+  }
+
+  // Fall back to SSE data: line parsing
   for (const line of text.split("\n")) {
     if (line.startsWith("data: ")) {
       const parsed = JSON.parse(line.slice(6));
@@ -41,7 +56,7 @@ async function callMCP(request: any, toolName: string, args: Record<string, unkn
       return parsed.result;
     }
   }
-  throw new Error(`No data in MCP response for ${toolName}`);
+  throw new Error(`No data in MCP response for ${toolName}: ${text.slice(0, 200)}`);
 }
 
 test.describe("Live Communications — Autonomous", () => {

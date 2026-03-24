@@ -1252,8 +1252,8 @@
       "id": "S-8",
       "name": "Landing Page / Widgets",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "6cece97",
       "description": "Video widget opens in parent window, store name on landing page, widget scheduling, form submission, dealer widget verification.",
       "resolves": [
         "TG-005"
@@ -1355,7 +1355,7 @@
       "id": "S-9",
       "name": "Cross-Cutting",
       "phase": "testing",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "VAPI assistant audit, weekend call replay, multi-tenant isolation, walk-in followup, accessibility, test infra fixes.",
       "resolves": [

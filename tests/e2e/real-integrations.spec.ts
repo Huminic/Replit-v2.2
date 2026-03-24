@@ -476,25 +476,41 @@ test.describe("Domain: Tavus Video — Real Sessions", () => {
   });
 
   test("RI-TAVUS-2 Tavus personas are configured for all 5 dealers", async ({ request }) => {
-    const auth = await login(request, testUsers.orgAdmin);
+    // Each org admin only sees their own agents, so loop all 5 dealer logins
+    const dealerAccounts = [
+      { email: "serra_honda@huminic.ai", password: "NexxusTest2026", role: "org_admin", orgName: "Serra Honda" },
+      { email: "serra_nissan@huminic.ai", password: "NexxusTest2026", role: "org_admin", orgName: "Serra Nissan" },
+      { email: "serra_ford@huminic.ai", password: "NexxusTest2026", role: "org_admin", orgName: "Tony Serra Ford" },
+      { email: "columbia_hyundai@huminic.ai", password: "NexxusTest2026", role: "org_admin", orgName: "Hyundai of Columbia" },
+      { email: "columbia_ford@huminic.ai", password: "NexxusTest2026", role: "org_admin", orgName: "Ford of Columbia" },
+    ];
 
-    // Get agents with Tavus persona IDs from our DB
-    const agentsRes = await request.get("/api/agents", {
-      headers: authHeader(auth.token),
-    });
-    expect(agentsRes.ok()).toBeTruthy();
-    const agents = await agentsRes.json();
-    const agentList = Array.isArray(agents) ? agents : agents.data || [];
+    let totalTavusAgents = 0;
+    const dealersWithPersona: string[] = [];
 
-    const tavusAgents = agentList.filter((a: any) => a.tavusPersonaId);
-    console.log(`Agents with Tavus personas: ${tavusAgents.length}`);
+    for (const account of dealerAccounts) {
+      const auth = await login(request, account);
 
-    // Each dealer should have at least one agent with a Tavus persona
-    for (const agent of tavusAgents) {
-      console.log(`  ${agent.name} (${agent.dealership}): tavusPersonaId=${agent.tavusPersonaId}`);
+      const agentsRes = await request.get("/api/agents", {
+        headers: authHeader(auth.token),
+      });
+      expect(agentsRes.ok()).toBeTruthy();
+      const agents = await agentsRes.json();
+      const agentList = Array.isArray(agents) ? agents : agents.data || [];
+
+      const tavusAgents = agentList.filter((a: any) => a.tavusPersonaId);
+      if (tavusAgents.length > 0) {
+        dealersWithPersona.push(account.orgName);
+        totalTavusAgents += tavusAgents.length;
+      }
+
+      for (const agent of tavusAgents) {
+        console.log(`  ${account.orgName}: ${agent.name} tavusPersonaId=${agent.tavusPersonaId}`);
+      }
     }
 
-    expect(tavusAgents.length).toBeGreaterThanOrEqual(5);
+    console.log(`Dealers with Tavus personas: ${dealersWithPersona.length}/5 (${totalTavusAgents} total agents)`);
+    expect(dealersWithPersona.length).toBeGreaterThanOrEqual(5);
   });
 });
 

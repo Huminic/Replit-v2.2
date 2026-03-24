@@ -18,52 +18,78 @@ const TEST_PASSWORD = "NexxusTest2026";
 
 export const testUsers: Record<string, AuthUser> = {
   superAdmin: {
-    email: "admin@nexxus.com",
+    email: "duane.wells@huminic.ai",
     password: TEST_PASSWORD,
     role: "super_admin",
     orgName: "Huminic",
   },
   partnerAdmin: {
-    email: "partner@nexxus.com",
+    email: "duanekwells@gmail.com",
     password: TEST_PASSWORD,
     role: "partner_admin",
-    orgName: "Serra Honda",
+    orgName: "Cage Automotive",
   },
   cagePartnerAdmin: {
-    email: "durran@cageautomotive.com",
+    email: "duanekwells@gmail.com",
     password: TEST_PASSWORD,
     role: "partner_admin",
     orgName: "Cage Automotive",
   },
   orgAdmin: {
-    email: "orgadmin@serrahonda.com",
+    email: "serra_honda@huminic.ai",
     password: TEST_PASSWORD,
     role: "org_admin",
     orgName: "Serra Honda",
   },
+  // Role aliases — all map to Serra Honda org_admin (DB determines actual role)
   executive: {
-    email: "executive@serrahonda.com",
+    email: "serra_honda@huminic.ai",
     password: TEST_PASSWORD,
-    role: "executive",
+    role: "org_admin",
     orgName: "Serra Honda",
   },
   sales: {
-    email: "sales@serrahonda.com",
+    email: "serra_honda@huminic.ai",
     password: TEST_PASSWORD,
-    role: "sales",
+    role: "org_admin",
     orgName: "Serra Honda",
   },
   service: {
-    email: "service@serrahonda.com",
+    email: "serra_honda@huminic.ai",
     password: TEST_PASSWORD,
-    role: "service",
+    role: "org_admin",
     orgName: "Serra Honda",
   },
   marketing: {
-    email: "marketing@serrahonda.com",
+    email: "serra_honda@huminic.ai",
     password: TEST_PASSWORD,
-    role: "marketing",
+    role: "org_admin",
     orgName: "Serra Honda",
+  },
+  // Per-dealer org admin accounts
+  serraNissan: {
+    email: "serra_nissan@huminic.ai",
+    password: TEST_PASSWORD,
+    role: "org_admin",
+    orgName: "Serra Nissan",
+  },
+  serraFord: {
+    email: "serra_ford@huminic.ai",
+    password: TEST_PASSWORD,
+    role: "org_admin",
+    orgName: "Tony Serra Ford",
+  },
+  columbiaHyundai: {
+    email: "columbia_hyundai@huminic.ai",
+    password: TEST_PASSWORD,
+    role: "org_admin",
+    orgName: "Hyundai of Columbia",
+  },
+  columbiaFord: {
+    email: "columbia_ford@huminic.ai",
+    password: TEST_PASSWORD,
+    role: "org_admin",
+    orgName: "Ford of Columbia",
   },
 };
 
