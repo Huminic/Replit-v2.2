@@ -39,6 +39,7 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Conversation, Message, Task, User } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
@@ -191,6 +192,7 @@ export default function TeamboxPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [transcriptModal, setTranscriptModal] = useState<{ open: boolean; transcript: string; audioUrl?: string; callerNumber?: string }>({ open: false, transcript: '' });
   const scrollRef = useRef<HTMLDivElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -362,7 +364,7 @@ export default function TeamboxPage() {
     sendReplyMutation.mutate({
       conversationId: selectedConversationId,
       content: replyText.trim(),
-      senderName: 'Agent',
+      senderName: currentUser?.name || 'Agent',
     });
   };
 
@@ -377,6 +379,7 @@ export default function TeamboxPage() {
   };
 
   return (
+    <>
     <div className="flex flex-col h-full overflow-hidden" data-testid="teambox-page">
       {/* S-2.1: Top horizontal menu bar */}
       <div className="border-b border-border px-6 pt-4 flex-shrink-0" data-testid="teambox-top-menu">
@@ -422,6 +425,26 @@ export default function TeamboxPage() {
             Video
           </button>
         </div>
+        {/* Channel filter chips — visible in conversations view */}
+        {activeView === 'conversations' && (
+          <div className="flex gap-1 mt-2 pb-2" data-testid="channel-filter-bar">
+            {channelFilters.map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => setActiveChannel(filter.id)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded-full transition-colors border',
+                  activeChannel === filter.id
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background text-muted-foreground border-border hover:bg-accent'
+                )}
+                data-testid={`channel-chip-${filter.id}`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* S-2.3: Phone tab content */}
@@ -465,7 +488,12 @@ export default function TeamboxPage() {
                       </td>
                       <td className="py-2 px-3">
                         {call.transcript && (
-                          <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" onClick={() => toast({ title: 'Transcript', description: typeof call.transcript === 'string' ? call.transcript.slice(0, 200) : 'Transcript available' })}>
+                          <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" onClick={() => setTranscriptModal({
+                            open: true,
+                            transcript: typeof call.transcript === 'string' ? call.transcript : JSON.stringify(call.transcript),
+                            audioUrl: call.recordingUrl || call.recording_url,
+                            callerNumber: call.customer?.number || call.phoneNumber,
+                          })}>
                             <FileText className="h-3 w-3" />
                             Transcript
                           </Button>
@@ -1188,5 +1216,38 @@ export default function TeamboxPage() {
       )}
     </div>}
     </div>
+
+      <Dialog open={transcriptModal.open} onOpenChange={(open) => setTranscriptModal(prev => ({ ...prev, open }))}>
+        <DialogContent className="max-w-lg max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Call Transcript
+              {transcriptModal.callerNumber && (
+                <Badge variant="secondary" className="text-xs ml-2">{transcriptModal.callerNumber}</Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[50vh]">
+            <div className="text-sm whitespace-pre-wrap leading-relaxed p-1">
+              {transcriptModal.transcript || 'No transcript available'}
+            </div>
+          </ScrollArea>
+          {transcriptModal.audioUrl && (
+            <div className="pt-2 border-t">
+              <a
+                href={transcriptModal.audioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Listen to Recording
+              </a>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

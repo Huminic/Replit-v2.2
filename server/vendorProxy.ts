@@ -391,16 +391,28 @@ export function registerVendorRoutes(app: Express) {
       if (personaId) convArgs.persona_id = personaId as string;
       const data = await callMCP("tavus_list_conversations", convArgs);
       const items = Array.isArray(data) ? data : (data?.data || []);
-      const conversations = items.map((c: any) => ({
-        id: c.conversation_id,
-        name: c.conversation_name,
-        status: c.status,
-        personaId: c.persona_id,
-        replicaId: c.replica_id,
-        conversationUrl: c.conversation_url,
-        createdAt: c.created_at,
-        updatedAt: c.updated_at,
-      }));
+
+      // Org scoping: only return conversations for this org's Tavus personas
+      const orgId = (req as any).user?.organizationId;
+      let orgPersonaIds: Set<string> | null = null;
+      if (orgId) {
+        const { storage: storageModule } = await import("./storage");
+        const orgAgents = await storageModule.getAgents(orgId);
+        orgPersonaIds = new Set(orgAgents.filter((a: any) => a.tavusPersonaId).map((a: any) => a.tavusPersonaId!));
+      }
+
+      const conversations = items
+        .filter((c: any) => !orgPersonaIds || orgPersonaIds.has(c.persona_id))
+        .map((c: any) => ({
+          id: c.conversation_id,
+          name: c.conversation_name,
+          status: c.status,
+          personaId: c.persona_id,
+          replicaId: c.replica_id,
+          conversationUrl: c.conversation_url,
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+        }));
       return res.json(conversations);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch Tavus conversations", error: err.message });

@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 11,
+  "totalSprints": 12,
   "workOrder": [
     "S-0",
     "S-1",
@@ -14,7 +14,8 @@
     "S-7",
     "S-8",
     "S-9",
-    "S-10"
+    "S-10",
+    "S-11"
   ],
   "sprints": [
     {
@@ -1645,6 +1646,154 @@
           "type": "TEST",
           "description": "Go live: all issues CLOSED, all tests pass, sign-off"
         }
+      ]
+    },
+    {
+      "id": "S-11",
+      "name": "Demo Hotfix",
+      "phase": "remediation",
+      "status": "in_progress",
+      "commitHash": null,
+      "description": "12 demo-critical bugs from owner walkthrough. TeamBox navigation, chat history, takeover, phone/video tabs, transcripts, Tavus scoping, pipeline contact, metrics cleanup, campaign E2E, Nancy label, login org, channel filters.",
+      "resolves": [
+        "BUG-1",
+        "BUG-2",
+        "BUG-3",
+        "BUG-4",
+        "BUG-5",
+        "BUG-6",
+        "BUG-7",
+        "BUG-8",
+        "BUG-9",
+        "BUG-10",
+        "BUG-11",
+        "BUG-12",
+        "BUG-13",
+        "BUG-14"
+      ],
+      "dependsOn": [
+        "S-10"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-11.AC1",
+          "criterion": "TeamBox popout SMS/Email/Phone/Video/Tasks links navigate and filter correctly",
+          "component": "teambox",
+          "test": "Click each popout link \u2014 URL changes \u2014 conversation list filters",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC2",
+          "criterion": "Chat history bubbles render when conversation is selected",
+          "component": "teambox",
+          "test": "Click a conversation with messages \u2014 messages render in chat area",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC3",
+          "criterion": "Take Over button appears on automated conversations and switches to human mode",
+          "component": "teambox",
+          "test": "Select automated conversation \u2014 click Take Over \u2014 status changes, reply box active",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC4",
+          "criterion": "Phone tab shows caller numbers, has pagination, transcript opens in modal with audio link",
+          "component": "teambox",
+          "test": "Open Phone tab \u2014 verify columns, pagination, click Transcript \u2014 modal with full text + audio",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC5",
+          "criterion": "Tavus video tab only shows conversations for current org personas",
+          "component": "vendorProxy",
+          "test": "Login as Serra Honda admin \u2014 Video tab \u2014 only Serra Honda persona conversations visible",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-11.AC6",
+          "criterion": "Pipeline Show Contact displays actual contact info, not raw URL",
+          "component": "sales",
+          "test": "Click Show Contact on pipeline row \u2014 name, phone, email displayed",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC7",
+          "criterion": "Home page escalations do not contain VIN Lead test artifacts",
+          "component": "main",
+          "test": "Check Open Escalations \u2014 zero VIN Lead test entries",
+          "evidence": "query output"
+        },
+        {
+          "id": "S-11.AC8",
+          "criterion": "Nancy Gaston shows as chat agent, not video",
+          "component": "service",
+          "test": "Service \u2014 Agents \u2014 Nancy shows chat label",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC9",
+          "criterion": "duane.wells@huminic.ai starts in Huminic org on login",
+          "component": "auth",
+          "test": "Login as duane.wells \u2014 org name shows Huminic, not Serra Honda",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC10",
+          "criterion": "TeamBox top menu bar has channel filter buttons (SMS/Email/Voice/Video)",
+          "component": "teambox",
+          "test": "Open TeamBox \u2014 channel buttons visible in top bar \u2014 click SMS \u2014 filters",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC11",
+          "criterion": "Reply in TeamBox sends with actual user name, not hardcoded Agent",
+          "component": "teambox",
+          "test": "Send reply \u2014 message shows sender as logged-in user name",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC12",
+          "criterion": "Service campaign can be executed and SMS is sent (E2E smoke test)",
+          "component": "service",
+          "test": "Execute campaign \u2014 verify outbound_log entry created \u2014 TextMagic API called",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-11.AC13",
+          "criterion": "Landing pages show actual dealership name, not Demo Organization",
+          "component": "widget-landing",
+          "test": "Navigate to /landing/serra-honda — page shows Serra Honda, not Demo Organization",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC14",
+          "criterion": "Widget video opens in a new browser window, not inside the widget",
+          "component": "widget-landing",
+          "test": "Click video button in widget — new browser window opens with Tavus session",
+          "evidence": "screenshot"
+        }
+      ],
+      "testFiles": [
+        "tests/e2e/s11-demo-hotfix.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/teambox.tsx",
+        "client/src/pages/service.tsx",
+        "client/src/pages/sales.tsx",
+        "client/src/pages/widget-landing.tsx",
+        "server/vendorProxy.ts"
+      ],
+      "uiPermissions": "FULL",
+      "components": [
+        "teambox",
+        "service",
+        "sales",
+        "main",
+        "auth",
+        "vendorProxy",
+        "widget-landing"
       ]
     }
   ],

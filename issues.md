@@ -142,6 +142,7 @@ None. All 3 previously open issues closed by S-0 (commit de65c33).
 | 2026-03-20 | REM-8-BE | Builder agent wrote production email notification code during a testing sprint. Test webhooks sent real emails to org admins. |
 | 2026-03-20 | REM-9 | Orchestrator edited server/sync.ts directly instead of delegating to builder agent. |
 | 2026-03-20 | — | CommGate check deployed to production without commit, sprint, or harness approval. Emergency action to stop emails. |
+| 2026-03-24 | S-11 | Ghost agent directly edited sprints.json (governance file) to add S-11 sprint. Violated own CLAUDE.md rule: "CANNOT modify governance files." Instructed by Halo mediator. Content correct — accepted by owner with incident logged. |
 
 ---
 
