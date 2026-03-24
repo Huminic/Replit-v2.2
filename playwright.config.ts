@@ -72,6 +72,12 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
+      name: "sprint",
+      testMatch: /s\d+-.*\.spec\.ts/,
+      use: { baseURL: "https://dev.huminicdev.com" },
+      timeout: 120_000,
+    },
+    {
       name: "visual",
       testMatch: /visual-components\.spec\.ts/,
       use: {
@@ -79,6 +85,15 @@ export default defineConfig({
         viewport: { width: 1280, height: 720 },
       },
       timeout: 180_000,
+    },
+    {
+      name: "sprint",
+      testMatch: /s\d+-.*\.spec\.ts/,
+      use: {
+        baseURL: "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+      timeout: 120_000,
     },
   ],
   reporter: [

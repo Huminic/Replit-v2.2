@@ -102,3 +102,19 @@ npx playwright test tests/e2e/domain-12-infrastructure.spec.ts --reporter=list
 4. S-0.7 code (sms_campaign_number in outbound/campaigns/sms) will be completed — it was falsely claimed as done
 5. No commit until all tests pass, post-sprint has real output, and owner reviews
 6. Ghost exit gate must write `EXIT GATE: CLEARED` before moving to S-1
+
+## Ghost Entry Gate
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T06:13:01Z
+**Sprint:** S-0
+**A1 Previous cleared:** SKIP (first sprint)
+**A2 Worktree:** clean (no application files dirty)
+**A3 Session state:** PASS (references S-0 restarted)
+**A4 Pre-exec exists:** PASS
+**A5 Objective:** PASS
+**A6 Test Plan:** PASS (s0-foundation.spec.ts + domain-12-infrastructure.spec.ts, 2 npx commands)
+**A7 Declared Files:** PASS (6 files matching sprints.json)
+**A8 Match check:** MATCH (6 files, 9 components, 20 ACs, testFiles match)
+**A9 UI permissions:** PASS (NONE — no UI changes)
+**A10 Ghost messages:** PASS (BLOCK-001 acknowledged in pre-exec)
+**ENTRY GATE: APPROVED**

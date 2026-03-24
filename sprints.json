@@ -21,7 +21,7 @@
       "id": "S-0",
       "name": "Foundation",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Database corrections, agent renames/creation, VIN fix, warehouse refresh, build fix. No UI changes.",
       "resolves": [

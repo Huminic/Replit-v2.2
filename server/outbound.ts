@@ -78,18 +78,23 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
   }
 }
 
-export async function sendSmsRaw(to: string, content: string): Promise<void> {
+export async function sendSmsRaw(to: string, content: string, fromNumber?: string): Promise<void> {
   const phone = to.replace(/[^0-9+]/g, "");
   const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
 
-  const result = await callMCP("tm_send_message", {
+  const mcpParams: Record<string, string> = {
     text: content,
     phones: formattedPhone,
-  });
-  console.log(`[TextMagic/MCP] SMS sent to ${formattedPhone}, messageId: ${result.id}`);
+  };
+  if (fromNumber) {
+    mcpParams.from = fromNumber;
+  }
+
+  const result = await callMCP("tm_send_message", mcpParams);
+  console.log(`[TextMagic/MCP] SMS sent to ${formattedPhone}${fromNumber ? ` from ${fromNumber}` : ""}, messageId: ${result.id}`);
 }
 
-export async function sendSms(to: string, content: string, organizationId?: string): Promise<void> {
+export async function sendSms(to: string, content: string, organizationId?: string, fromNumber?: string): Promise<void> {
   if (organizationId) {
     const blacklisted = await storage.getBlacklistEntry(to, organizationId);
     if (blacklisted) {
@@ -108,14 +113,7 @@ export async function sendSms(to: string, content: string, organizationId?: stri
     return;
   }
 
-  const phone = to.replace(/[^0-9+]/g, "");
-  const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
-
-  const result = await callMCP("tm_send_message", {
-    text: content,
-    phones: formattedPhone,
-  });
-  console.log(`[TextMagic/MCP] SMS sent to ${to}, messageId: ${result.id}`);
+  await sendSmsRaw(to, content, fromNumber);
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
@@ -346,9 +344,17 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
 
   try {
     switch (request.channel) {
-      case "sms":
-        await sendSms(request.to, request.messageContent, request.organizationId);
+      case "sms": {
+        let fromNumber: string | undefined;
+        try {
+          const integrations = await storage.getIntegrations(request.organizationId, { provider: "vinsolutions" });
+          if (integrations.length > 0 && integrations[0].smsCampaignNumber) {
+            fromNumber = integrations[0].smsCampaignNumber;
+          }
+        } catch {}
+        await sendSms(request.to, request.messageContent, request.organizationId, fromNumber);
         break;
+      }
       case "email":
         await sendEmail(request.to, request.messageContent);
         break;
