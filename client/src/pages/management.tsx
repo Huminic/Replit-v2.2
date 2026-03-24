@@ -8,17 +8,18 @@
  * Access gating handled by canAccessSection() in users.ts via Sidebar navigation.
  *
  * Tabs:
- *   - Dashboard: Cross-department KPI metric tiles (total revenue, active accounts, team activity score, MRR, customer satisfaction, avg deal size)
- *   - Insights: Placeholder for Wave 2 cross-department analytics and trend analysis
+ *   - Insights: Cross-department analytics and trend analysis
  *   - Hunches: AI-generated business insights ranked by confidence and impact. Each hunch has a pattern + recommendation format.
- *   - Activities: Recent team/agent actions across all departments using staticActivityFeed from activity-utils.ts
- *   - ROI: Placeholder for Wave 3 ROI analysis (requires credit/metering system first)
+ *   - System Log: Recent team/agent actions across all departments
+ *   - User Chats: View chat conversations by user across departments and agents
+ *   - Billing: Organization billing dashboard (BillingDashboard component)
  *
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, BarChart3, Lightbulb, Activity, DollarSign, TrendingUp, TrendingDown, Users, Target, Briefcase, ArrowUpRight, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare, Gauge } from 'lucide-react';
+import { BarChart3, Lightbulb, Activity, CreditCard, Target, Briefcase, Loader2, User, Bot, Server, Check, X, RotateCw, Sparkles, MessageSquare } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
+import BillingDashboard from '@/pages/BillingDashboard';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,37 +34,17 @@ import { useApp } from '@/contexts/AppContext';
 import { canAccessManagement } from '@/lib/rbac';
 import type { ActivityLog, Hunch } from '@shared/schema';
 
-/** Sub-navigation tabs for the management page — includes Hunches (AI insights) and ROI (Wave 3) */
+/** Sub-navigation tabs for the management page */
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'insights', label: 'Insights', icon: BarChart3 },
   { id: 'hunches', label: 'Hunches', icon: Lightbulb },
   { id: 'activities', label: 'System Log', icon: Activity },
   { id: 'user-chats', label: 'User Chats', icon: MessageSquare },
-  { id: 'roi', label: 'ROI', icon: DollarSign },
+  { id: 'billing', label: 'Billing', icon: CreditCard },
 ];
 
-interface ManagementMetricTile {
-  id: string;
-  label: string;
-  value: string;
-  change?: number;
-  trend?: 'up' | 'down' | 'neutral';
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface DashboardMetrics {
-  conversationCounts: { total: number; open: number; closed: number; byChannel: Record<string, number> };
-  messageCounts: { total: number; last30Days: number };
-  campaignStats: { total: number; active: number; totalSent: number; totalReplied: number; replyRate: number; byDepartment: Record<string, { total: number; active: number; sent: number; replied: number; replyRate: number }> };
-  agentCounts: { total: number; active: number; byDepartment: Record<string, number> };
-  userCounts: { total: number; active: number };
-  pipeline: { activePipeline: number; appointmentsToday: number; openEscalations: number; outboundSent24h: number };
-}
-
-
 export default function ManagementPage() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('insights');
   const { toast } = useToast();
   const { currentOrganization, currentRole } = useApp();
   const [currentLocation, setLocation] = useLocation();
@@ -82,10 +63,6 @@ export default function ManagementPage() {
       setLocation('/');
     }
   }, [currentRole, setLocation]);
-
-  const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
-    queryKey: ['/api/metrics/dashboard', orgId],
-  });
 
   const { data: activityLogs, isLoading: activityLoading } = useQuery<ActivityLog[]>({
     queryKey: ['/api/activity-log', orgId],
@@ -116,48 +93,6 @@ export default function ManagementPage() {
       toast({ title: "Update failed", description: "Could not update hunch.", variant: "destructive" });
     },
   });
-
-  const pipeline = metrics?.pipeline;
-
-  // Demand Score (US-025): weighted formula normalized to 0-100
-  // activePipeline * 0.4 + outboundSent24h (proxy for new leads) * 0.3 + appointmentsToday * 0.3
-  const demandScore = useMemo(() => {
-    if (!pipeline) return 0;
-    const raw = (pipeline.activePipeline * 0.4) + (pipeline.outboundSent24h * 0.3) + (pipeline.appointmentsToday * 0.3);
-    return Math.min(100, Math.max(0, Math.round(raw)));
-  }, [pipeline]);
-
-  const managementMetrics: ManagementMetricTile[] = [
-    { id: 'mgmt-1', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Target },
-    { id: 'mgmt-2', label: 'Active Agents', value: String(metrics?.agentCounts?.active ?? 0), change: 0, trend: 'up' as const, icon: Users },
-    { id: 'mgmt-3', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
-    { id: 'mgmt-4', label: 'Open Escalations', value: String(pipeline?.openEscalations ?? 0), change: 0, trend: 'up' as const, icon: TrendingUp },
-    { id: 'mgmt-5', label: 'Outbound Sent (24h)', value: String(pipeline?.outboundSent24h ?? 0), change: 0, trend: 'up' as const, icon: ArrowUpRight },
-    { id: 'mgmt-6', label: 'Active Campaigns', value: String(metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Briefcase },
-    { id: 'mgmt-7', label: 'Demand Score', value: String(demandScore), change: 0, trend: demandScore >= 50 ? 'up' as const : 'down' as const, icon: Gauge },
-  ];
-
-  const renderDashboard = () => (
-    <div className="p-6 space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold mb-1">Management Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Cross-department KPIs and team performance</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {managementMetrics.map(metric => (
-          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-2xl font-bold">{metric.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
 
   const renderInsights = () => (
     <InsightsPage embedded />
@@ -348,14 +283,10 @@ export default function ManagementPage() {
     </div>
   );
 
-  /** ROI tab — placeholder for Wave 3 ROI analysis (requires credit/metering system to be built first) */
-  const renderROI = () => (
-    <div className="p-6 flex items-center justify-center h-full">
-      <div className="text-center space-y-3">
-        <DollarSign className="h-12 w-12 text-muted-foreground mx-auto" />
-        <h3 className="text-lg font-medium">ROI Analysis</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">Return on investment tracking across all departments, campaigns, and AI initiatives.</p>
-      </div>
+  /** Billing tab — renders the BillingDashboard component */
+  const renderBilling = () => (
+    <div data-testid="billing-tab-content">
+      <BillingDashboard />
     </div>
   );
 
@@ -384,12 +315,11 @@ export default function ManagementPage() {
       </div>
 
       <ScrollArea className="flex-1">
-        {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'insights' && renderInsights()}
         {activeTab === 'hunches' && renderHunches()}
         {activeTab === 'activities' && renderActivities()}
         {activeTab === 'user-chats' && renderUserChats()}
-        {activeTab === 'roi' && renderROI()}
+        {activeTab === 'billing' && renderBilling()}
       </ScrollArea>
     </div>
   );

@@ -911,8 +911,8 @@
       "id": "S-5",
       "name": "Marketing",
       "phase": "cleanup",
-      "status": "in_progress",
-      "commitHash": null,
+      "status": "committed",
+      "commitHash": "db24d21",
       "description": "Remove Campaigns entirely, verify tabs, add Studio filters, verify 5 agent cards, agent quality tests.",
       "resolves": [],
       "dependsOn": [
@@ -1029,7 +1029,7 @@
       "id": "S-6",
       "name": "Manage",
       "phase": "cleanup",
-      "status": "planned",
+      "status": "in_progress",
       "commitHash": null,
       "description": "Remove Dashboard tab AND ROI tab, add Billing tab (from Profile), verify Insights/Hunches/User Chats/System Log, multi-store oversight test.",
       "resolves": [

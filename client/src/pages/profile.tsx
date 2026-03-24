@@ -6,9 +6,8 @@
  *   Edit Profile button is demo-only (shows toast).
  * - Preferences: Appearance (dark mode toggle), notification settings (push, email digest),
  *   regional settings (language, timezone).
- * - Billing: Current plan display, usage meters (voice/video/SMS/documents with Progress bars),
- *   overage calculations, add-ons table, invoice history.
- *   Falls back to "Billing not enabled" card when billingEnabled is false.
+ *
+ * Note: Billing was moved to the Management page (BillingDashboard component) in S-6.
  *
  * Data sources:
  * - currentUser and currentOrganization from AppContext
@@ -18,10 +17,9 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { 
-  User, 
-  Settings, 
-  CreditCard,
+import {
+  User,
+  Settings,
   Mail,
   Phone,
   Building2,
@@ -30,11 +28,6 @@ import {
   Moon,
   Globe,
   Clock,
-  Eye,
-  Mic,
-  Video,
-  MessageCircle,
-  FileText,
   Loader2,
   Camera,
   RotateCcw,
@@ -49,10 +42,7 @@ import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { getRoleLabel } from '@/lib/agent-utils';
@@ -64,7 +54,6 @@ import { getAccessToken } from '@/lib/tokenStore';
 export default function ProfilePage() {
   const { toast } = useToast();
   const { currentUser, currentOrganization, updateCurrentUser, setShowTour } = useApp();
-  const [billingEnabled] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
@@ -163,7 +152,6 @@ export default function ProfilePage() {
   const [location] = useLocation();
   const getTabFromPath = () => {
     if (location.includes('/profile/preferences')) return 'preferences';
-    if (location.includes('/profile/billing')) return 'billing';
     return 'profile';
   };
   const [activeProfileTab, setActiveProfileTab] = useState(getTabFromPath);
@@ -193,10 +181,6 @@ export default function ProfilePage() {
             <TabsTrigger value="preferences" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-preferences">
               <Settings className="h-4 w-4" />
               Preferences
-            </TabsTrigger>
-            <TabsTrigger value="billing" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none gap-2" data-testid="tab-profile-billing">
-              <CreditCard className="h-4 w-4" />
-              Billing
             </TabsTrigger>
           </TabsList>
         </div>
@@ -469,185 +453,6 @@ export default function ProfilePage() {
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="billing" className="flex-1 m-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 space-y-6 max-w-2xl">
-              {billingEnabled ? (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Current Plan</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div>
-                          <p className="font-semibold text-foreground" data-testid="text-plan-name">Pro Plan</p>
-                          <p className="text-sm text-muted-foreground">Base Monthly Fee: $99/month</p>
-                        </div>
-                        <Badge data-testid="badge-plan-status">Active</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Anniversary Date</span>
-                          <p className="font-medium text-foreground" data-testid="text-anniversary-date">March 15</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Next Invoice</span>
-                          <p className="font-medium text-foreground" data-testid="text-next-invoice">March 15, 2026</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Separator />
-
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-foreground">Usage This Period</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Card>
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Mic className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-foreground">Voice</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">847 / 1,000 minutes</span>
-                            <span className="font-medium text-foreground" data-testid="text-voice-usage">85%</span>
-                          </div>
-                          <Progress value={85} className="h-2" data-testid="progress-voice" />
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Video className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-foreground">Video</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">123 / 500 minutes</span>
-                            <span className="font-medium text-foreground" data-testid="text-video-usage">25%</span>
-                          </div>
-                          <Progress value={25} className="h-2" data-testid="progress-video" />
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-foreground">SMS</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">2,340 msgs</span>
-                            <span className="font-medium text-foreground" data-testid="text-sms-usage">65%</span>
-                          </div>
-                          <Progress value={65} className="h-2" data-testid="progress-sms" />
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-foreground">Documents</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">89 docs</span>
-                            <span className="font-medium text-foreground" data-testid="text-docs-usage">10%</span>
-                          </div>
-                          <Progress value={10} className="h-2" data-testid="progress-documents" />
-                        </CardContent>
-                      </Card>
-                    </div>
-                    <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-muted/50 border border-border">
-                      <span className="text-muted-foreground">Overage</span>
-                      <span className="font-medium text-foreground" data-testid="text-overage">$12.50 <span className="text-muted-foreground font-normal">(voice: 47 min x $0.25 + markup)</span></span>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-foreground">Add-Ons This Period</h3>
-                    <Card>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Recurring</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow data-testid="row-addon-sms">
-                            <TableCell className="text-foreground">Extra SMS bundle</TableCell>
-                            <TableCell className="text-foreground">$25</TableCell>
-                            <TableCell><Badge variant="secondary">Monthly</Badge></TableCell>
-                          </TableRow>
-                          <TableRow data-testid="row-addon-setup">
-                            <TableCell className="text-foreground">Setup fee</TableCell>
-                            <TableCell className="text-foreground">$150</TableCell>
-                            <TableCell><Badge variant="outline">One-time</Badge></TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </Card>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-foreground">Invoice History</h3>
-                    <Card>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">View</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow data-testid="row-invoice-feb">
-                            <TableCell className="text-foreground">Feb 15</TableCell>
-                            <TableCell className="text-foreground">$136.50</TableCell>
-                            <TableCell><Badge variant="secondary">Sent</Badge></TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="sm" onClick={() => toast({ title: 'View invoice', description: 'Invoice viewing is not available in demo mode.' })} data-testid="button-view-invoice-feb">
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow data-testid="row-invoice-jan">
-                            <TableCell className="text-foreground">Jan 15</TableCell>
-                            <TableCell className="text-foreground">$124.00</TableCell>
-                            <TableCell><Badge>Paid</Badge></TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="sm" onClick={() => toast({ title: 'View invoice', description: 'Invoice viewing is not available in demo mode.' })} data-testid="button-view-invoice-jan">
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </Card>
-                  </div>
-                </>
-              ) : (
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-center py-8">
-                      <CreditCard className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-foreground font-medium" data-testid="text-billing-disabled">Billing is not enabled for this organization.</p>
-                      <p className="text-sm text-muted-foreground mt-1">Contact your administrator for more information.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </ScrollArea>
-        </TabsContent>
       </Tabs>
     </div>
   );
