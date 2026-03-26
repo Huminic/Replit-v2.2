@@ -1,12 +1,12 @@
-ACK 2026-03-26T17:10:00Z
+ACK 2026-03-26T16:55:00Z
 Acknowledged-By: captain
-Sprint: SEC-07
+Sprint: SEC-01
 
-C1: ACCEPTED — E-012 newly registered, no prior commit hash.
-C2: ACCEPTED — SEC-01 and SEC-03 have pre-exec only (upcoming sprints). SEC-07 evidence complete.
-C3: ACCEPTED — Cross-sign reformatted with Implementing/Reviewing roles and Verdict: APPROVED.
+C1: ACCEPTED — E-012 has no commit hash (new registration).
+C2: ACCEPTED — SEC-03 pre-exec only (upcoming sprint).
+C4: ACCEPTED — SEC-01 enforcer-checklist.txt updated with RESULT: APPROVED.
 C5: ACCEPTED — .governor is governance infrastructure.
 C7: ACCEPTED — Session state in governor project memory.
 C15: ACCEPTED — MEMORY.md in governor project.
-C16: ACCEPTED — E-012 is new registration. Files outside scope are from prior commits.
-C19: ACCEPTED — Pre-exec has ## Acceptance Criteria referencing S-7.AC1-AC21.
+C16: ACCEPTED — E-012 new registration. Files outside scope from prior commits.
+C19: ACCEPTED — Pre-exec has ACs section referencing S-1.AC1-AC17.

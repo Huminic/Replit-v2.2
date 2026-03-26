@@ -23,7 +23,8 @@
  *   Will connect to AI backend at nexxusv2.huminicdev.com with conversation context.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useSearch, useLocation } from 'wouter';
 import { Send, Plus, Sparkles, TrendingUp, TrendingDown, X, ChevronDown, ChevronRight, ChevronUp, Brain, Globe, Square, RotateCcw, AlertCircle, Phone, MessageSquare, ArrowLeft, User, Mail, MapPin, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -569,6 +570,23 @@ export default function MainPage() {
   const [initialized, setInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [, setLocation] = useLocation();
+  const searchString = useSearch();
+
+  // Resume a conversation when ?conversationId=X is in the URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const resumeId = params.get('conversationId');
+    if (resumeId) {
+      setConversationId(resumeId);
+      setMessages([]);
+      setInitialized(true);
+      setHasSentMessage(false);
+      setTilesCollapsed(false);
+      // Clean the URL without triggering re-render
+      window.history.replaceState({}, '', '/');
+    }
+  }, [searchString]);
 
   const { data: pipelineData } = useQuery<PipelineData>({
     queryKey: ['/api/metrics/pipeline', orgId],
@@ -867,6 +885,7 @@ export default function MainPage() {
                     setMessages([]);
                     setInputValue('');
                     setConversationId(null);
+                    setInitialized(false);
                   }}
                 >
                   <Plus className="h-5 w-5 text-muted-foreground" />

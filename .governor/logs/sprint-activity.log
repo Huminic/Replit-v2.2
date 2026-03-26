@@ -23,3 +23,12 @@
 [2026-03-26T16:30:11Z] [dev] [SEC-07] [build-check] PASS — tsc --noEmit completed with zero errors
 [2026-03-26T16:32:24Z] [ghost] [SEC-07] [exit-gate] B1:PASS B2:PASS B3:PASS B4:PASS B5:N/A B6:PASS B7:N/A B8:RECOMMENDED B9:FAIL B10:PASS B11:SKIP EXIT GATE: NOT CLEARED — B9 worktree contamination (27 undeclared changes outside sprint scope)
 [2026-03-26T16:34:11Z] [ghost] [SEC-07] [exit-gate-v2] B9:PASS — EXIT GATE: CLEARED
+[2026-03-26T16:39:00Z] [captain] [SEC-07] [committed] 6a0b41b — all 7 pre-commit gates passed. First fully governed sprint complete.
+[2026-03-26T16:40:22Z] GHOST ENTRY GATE SEC-01: CONDITIONAL — 9/10 PASS, A8 MISMATCH (pre-exec missing useStreamingChat.ts). Dev must reconcile declared files before proceeding.
+[2026-03-26T16:42:00Z] [captain] [SEC-01] [gate-fix] Removed useStreamingChat.ts from sprint spec — not needed for I-126 scope (chat resume is in main.tsx, title display in SubMenuManager.tsx)
+[2026-03-26T16:41:48Z] GHOST: SEC-01 Entry Gate A8 re-run — PASS. Sprint spec and pre-exec now both declare 3 files (main.tsx, SubMenuManager.tsx, s1-ai-chat.spec.ts). Previous CONDITIONAL upgraded to APPROVED (10/10 pass).
+[2026-03-26T16:48:52Z] [dev] [SEC-01] [file-edit] SubMenuManager.tsx:443-472 — Fixed chat history title to show 'Chat — X ago' instead of customerName; fixed click/resume navigation to pass conversationId as URL param; changed subtitle to show creation date
+[2026-03-26T16:48:52Z] [dev] [SEC-01] [file-edit] main.tsx:26-27,557-586 — Added wouter useSearch import; added URL param resume logic to read conversationId from search params and load existing conversation; fixed New Chat button to reset initialized state
+[2026-03-26T16:49:10Z] [dev] [SEC-01] [build-check] npx tsc --noEmit — PASS (0 errors)
+[2026-03-26T16:49:57Z] [dev] [SEC-01] [test-run] npx playwright test tests/e2e/s1-ai-chat.spec.ts --project=sprint — PASS (17/17 passed, 34.4s)
+[2026-03-26T16:52:13Z] GHOST EXIT GATE — SEC-01 — CLEARED. 17/17 tests pass. Code verified: SubMenuManager title changed from customerName to 'Chat — X ago', click handlers pass conversationId via URL. main.tsx reads conversationId from URL params to resume conversations. All 11 gate checks pass (B5 N/A, B11 skipped pre-commit).

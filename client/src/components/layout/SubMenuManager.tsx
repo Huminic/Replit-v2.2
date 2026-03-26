@@ -440,12 +440,12 @@ export function SubMenuManager() {
                       role="button"
                       tabIndex={0}
                       className="group relative w-full text-left p-2 rounded-md transition-colors hover-elevate cursor-pointer"
-                      onClick={() => setLocation('/')}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLocation('/'); } }}
+                      onClick={() => setLocation(`/?conversationId=${conv.id}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLocation(`/?conversationId=${conv.id}`); } }}
                       data-testid={`panel-conversation-${conv.id}`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-medium text-foreground truncate flex-1">{conv.customerName || 'Chat'}</p>
+                        <p className="text-xs font-medium text-foreground truncate flex-1">{conv.lastMessageAt ? `Chat — ${formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}` : 'New Chat'}</p>
                         <div className="flex items-center gap-1">
                           {conv.unreadCount > 0 && <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
                           <DropdownMenu>
@@ -455,7 +455,7 @@ export function SubMenuManager() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" side="bottom" className="w-36">
-                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setLocation('/'); }} data-testid={`menu-resume-${conv.id}`}>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setLocation(`/?conversationId=${conv.id}`); }} data-testid={`menu-resume-${conv.id}`}>
                                 <Play className="h-3.5 w-3.5 mr-2" /> Resume
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteConversationMutation.mutate(conv.id); }} data-testid={`menu-delete-${conv.id}`}>
@@ -465,9 +465,9 @@ export function SubMenuManager() {
                           </DropdownMenu>
                         </div>
                       </div>
-                      {conv.lastMessageAt && (
+                      {conv.createdAt && (
                         <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                          {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
+                          Created {formatDistanceToNow(new Date(conv.createdAt), { addSuffix: true })}
                         </p>
                       )}
                     </div>

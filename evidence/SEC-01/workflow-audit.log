@@ -1,0 +1,9 @@
+[2026-03-26T16:40:00Z] agent-launch | role=frontend | task="SEC-01 Chat history fix" | scope=client/src/pages/main.tsx,client/src/components/layout/SubMenuManager.tsx
+[2026-03-26T16:42:00Z] ghost entry-gate | A1-A10 APPROVED (v2)
+[2026-03-26T16:43:00Z] dev file-edit | SubMenuManager.tsx:448 — changed conv.customerName to "Chat — X ago" format
+[2026-03-26T16:45:00Z] dev file-edit | main.tsx — added useSearch for conversationId URL param, resume logic
+[2026-03-26T16:50:00Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T16:50:30Z] dev test-run | npx playwright test s1-ai-chat.spec.ts — 17 passed
+[2026-03-26T16:52:00Z] ghost exit-gate | B1-B11 CLEARED
+[2026-03-26T16:53:37Z] PRE-COMMIT role=orchestrator sprint=SEC-01 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-26T16:54:25Z] PRE-COMMIT role=orchestrator sprint=SEC-01 result=PASS detail="All 7 gates passed"

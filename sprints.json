@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 14,
+  "totalSprints": 17,
   "workOrder": [
     "S-0",
     "S-1",
@@ -17,7 +17,9 @@
     "S-10",
     "S-11",
     "E-012",
-    "E-013"
+    "E-013",
+    "SEC-01",
+    "SEC-03"
   ],
   "sprints": [
     {
@@ -1766,14 +1768,14 @@
           "id": "S-11.AC13",
           "criterion": "Landing pages show actual dealership name, not Demo Organization",
           "component": "widget-landing",
-          "test": "Navigate to /landing/serra-honda — page shows Serra Honda, not Demo Organization",
+          "test": "Navigate to /landing/serra-honda \u2014 page shows Serra Honda, not Demo Organization",
           "evidence": "screenshot"
         },
         {
           "id": "S-11.AC14",
           "criterion": "Widget video opens in a new browser window, not inside the widget",
           "component": "widget-landing",
-          "test": "Click video button in widget — new browser window opens with Tavus session",
+          "test": "Click video button in widget \u2014 new browser window opens with Tavus session",
           "evidence": "screenshot"
         }
       ],
@@ -1803,9 +1805,13 @@
       "name": "Six-Layer Verification",
       "phase": "qa_resolve_loop",
       "status": "committed",
-      "description": "Exploratory sprint — full application inventory and six-layer verification. Produced codebase inventory, UI inventory, FE/BE/DT verification, test coverage matrix.",
-      "dependsOn": ["S-11"],
-      "blocks": ["E-013"],
+      "description": "Exploratory sprint \u2014 full application inventory and six-layer verification. Produced codebase inventory, UI inventory, FE/BE/DT verification, test coverage matrix.",
+      "dependsOn": [
+        "S-11"
+      ],
+      "blocks": [
+        "E-013"
+      ],
       "acceptanceCriteria": [],
       "declaredFiles": []
     },
@@ -1816,8 +1822,19 @@
       "status": "committed",
       "commitHash": "45e98ff",
       "description": "10 section audits against operator manifest. 48 new ACs, ghost gates, dev constraints, test reconciliation, 10 section sprint specs.",
-      "dependsOn": ["E-012"],
-      "blocks": ["SEC-01", "SEC-02", "SEC-03", "SEC-04", "SEC-05", "SEC-06", "SEC-07", "SEC-08"],
+      "dependsOn": [
+        "E-012"
+      ],
+      "blocks": [
+        "SEC-01",
+        "SEC-02",
+        "SEC-03",
+        "SEC-04",
+        "SEC-05",
+        "SEC-06",
+        "SEC-07",
+        "SEC-08"
+      ],
       "acceptanceCriteria": [],
       "declaredFiles": []
     },
@@ -1825,12 +1842,55 @@
       "id": "SEC-07",
       "name": "System / Profile / Top Icons",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-117 Reset Tour, I-118 remove Billing link, I-120 AI Config RBAC, I-127 hide My Work",
-      "dependsOn": ["E-013"],
+      "dependsOn": [
+        "E-013"
+      ],
       "blocks": [],
       "acceptanceCriteria": [],
-      "declaredFiles": ["client/src/components/layout/TopBar.tsx", "client/src/pages/settings.tsx", "client/src/components/layout/Sidebar.tsx", "client/src/components/layout/SubMenuManager.tsx", "tests/e2e/s7-system-profile.spec.ts"]
+      "declaredFiles": [
+        "client/src/components/layout/TopBar.tsx",
+        "client/src/pages/settings.tsx",
+        "client/src/components/layout/Sidebar.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "6a0b41b"
+    },
+    {
+      "id": "SEC-01",
+      "name": "AI Chat (Home)",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-126: Chat history title + resume fix",
+      "dependsOn": [
+        "SEC-07"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/main.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-03",
+      "name": "Sales",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-112 activity feed, I-114 conversion rate, I-130 agent favorites",
+      "dependsOn": [
+        "SEC-01"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/sales.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s3-sales.spec.ts"
+      ]
     }
   ],
   "historicalSprints": {
