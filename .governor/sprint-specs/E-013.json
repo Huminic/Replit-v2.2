@@ -1,0 +1,41 @@
+{
+  "id": "E-013",
+  "category": "Exploratory",
+  "name": "Full Preparation for Section Sprints",
+  "phase": "qa_resolve_loop",
+  "status": "in_progress",
+  "causedBy": "governance-transition + operator-manifest",
+  "outcome": "Every section sprint fully prepped. ACs revised, test strategy aligned, harness cleaned up, ghost gates defined, dev constraints written, 10 section specs drafted and ready for execution.",
+  "codebaseArea": ["client/src/pages/", "server/routes/", "tests/e2e/", "acceptance_criteria.md", "issues.md", "backlog.md", "sprints.json"],
+  "acceptanceCriteria": [
+    "E-013.AC1: 10 section audits complete — code vs manifest comparison for each section with file:line evidence",
+    "E-013.AC2: 10 section descriptions drafted — ready for operator edit",
+    "E-013.AC3: ACCEPTANCE.md revised — all manifest gaps have ACs (chat history delete/scroll, agent/human filter, form submissions, web call VAPI, RBAC super admin, billing data)",
+    "E-013.AC4: Test file map — one authoritative .spec.ts per section, old files disposition documented",
+    "E-013.AC5: Ghost gate criteria defined per section — evidence requirements, verification checks, pass/fail rules",
+    "E-013.AC6: Dev harness constraints per section — declared files, UI permissions, scope limits",
+    "E-013.AC7: Governance files cleaned — issues.md, backlog.md, sprints.json, hardwonknowledge.md all current",
+    "E-013.AC8: 10 section sprint specs written to .governor/sprint-specs/",
+    "E-013.AC9: Priority labels (T1/T2/T3) applied to all ACs and section sprints",
+    "E-013.AC10: Operator has edited and approved all 10 section descriptions",
+    "E-013.AC11: Test suite reconciliation — I-110 fixed (hardcoded URLs → env var), I-103 fixed (always-true assertions replaced), I-104 decided (keep/delete stubs), deprecated domain-* files archived",
+    "E-013.AC12: Pre-existing issues mapped — I-103/I-104/I-106/I-107/I-109/I-110/I-111 assigned to appropriate sprint specs",
+    "E-013.AC13: Uncommitted changes resolved — I-109 committed or stashed, clean git state",
+    "E-013.AC14: Baseline test run — all s0-s8 spec files executed, pass/fail documented per AC, results saved to evidence"
+  ],
+  "dimensions": {
+    "layers": ["S1", "S2", "S3", "S4", "S5", "S6"],
+    "featureDims": ["FE", "BE", "DT", "AU", "IN"],
+    "testLevels": []
+  },
+  "wholeProductFit": "This sprint is the bridge between E-012 findings and section-by-section remediation. Without it, every section sprint starts with discovery work that should have been done upfront.",
+  "parallelizable": false,
+  "declaredFiles": [],
+  "commit": null,
+  "evidence": ".governor/evidence/E-013/",
+  "priorityTiers": {
+    "T1": "Data integrity and external data flow — data lands in the right place, integrations pass data correctly, webhooks fire correctly, CRM sync accurate",
+    "T2": "Internal features users interact with daily — metrics accuracy, campaign execution, chat quality, agent functionality, data display correctness",
+    "T3": "Advanced configuration, governance, appearance — settings, sub-agent management, chat governance, knowledge base, theme"
+  }
+}

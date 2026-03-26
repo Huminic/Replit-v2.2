@@ -1,0 +1,5 @@
+[2026-03-26T06:33:30Z] PRE-COMMIT role=governance sprint=E-013 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-26T06:33:50Z] PRE-COMMIT role=governance sprint=E-013 result=BLOCKED detail="Staged files outside governance scope."
+[2026-03-26T06:39:55Z] PRE-COMMIT role=governance sprint=E-013 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-26T06:40:18Z] PRE-COMMIT role=governance sprint=E-013 result=BLOCKED detail="Governance file 'sprints.json' staged by role 'governance'. Only orchestrator may modify."
+[2026-03-26T06:40:39Z] PRE-COMMIT role=orchestrator sprint=E-013 result=PASS detail="All 7 gates passed"

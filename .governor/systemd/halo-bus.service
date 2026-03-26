@@ -1,0 +1,7 @@
+[Unit]
+Description=Route nexxus2.2_replit governor bus events
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/ubuntu/Claude-store/nexxus2.2_replit
+ExecStart=/usr/bin/env bash /home/ubuntu/Claude-store/nexxus2.2_replit/.governor/scripts/route.sh

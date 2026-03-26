@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 12,
+  "totalSprints": 14,
   "workOrder": [
     "S-0",
     "S-1",
@@ -15,7 +15,9 @@
     "S-8",
     "S-9",
     "S-10",
-    "S-11"
+    "S-11",
+    "E-012",
+    "E-013"
   ],
   "sprints": [
     {
@@ -1795,6 +1797,28 @@
         "vendorProxy",
         "widget-landing"
       ]
+    },
+    {
+      "id": "E-012",
+      "name": "Six-Layer Verification",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Exploratory sprint — full application inventory and six-layer verification. Produced codebase inventory, UI inventory, FE/BE/DT verification, test coverage matrix.",
+      "dependsOn": ["S-11"],
+      "blocks": ["E-013"],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "E-013",
+      "name": "Full Preparation for Section Sprints",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "10 section audits against operator manifest. 48 new ACs, ghost gates, dev constraints, test reconciliation, 10 section sprint specs.",
+      "dependsOn": ["E-012"],
+      "blocks": ["SEC-01", "SEC-02", "SEC-03", "SEC-04", "SEC-05", "SEC-06", "SEC-07", "SEC-08"],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
     }
   ],
   "historicalSprints": {

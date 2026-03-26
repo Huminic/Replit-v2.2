@@ -1,0 +1,8 @@
+{
+  "idea": ["vision captured", "feature map started"],
+  "ui_truth": ["screen states mapped", "ui acceptance written"],
+  "backend": ["contracts defined", "rules implemented"],
+  "integration": ["vertical slice connected"],
+  "qa_resolve_loop": ["independent testing done", "major defects remediated"],
+  "deploy": ["checklist complete", "smoke verified"]
+}

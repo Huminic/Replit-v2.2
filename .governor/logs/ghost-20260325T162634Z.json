@@ -1,0 +1,18 @@
+{
+  "reportId": "GHOST-ghost-20260325T162634Z",
+  "status": "pass",
+  "phase": "qa_resolve_loop",
+  "activeSprint": null,
+  "checks": {
+    "app-state.json": true,
+    "active-phase.json": true,
+    "lifecycle-state.json": true,
+    "role-registry.json": true,
+    "phase_consistent": true,
+    "active_sprint_spec_exists": true,
+    "active_sprint_evidence_exists": true,
+    "bus_dirs_present": true
+  },
+  "violations": [],
+  "nextAction": "HALO_CONTINUE"
+}

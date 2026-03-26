@@ -1,0 +1,24 @@
+{
+  "id": "SEC-06",
+  "category": "Remediation",
+  "name": "Manage Section Sprint",
+  "section": "S-6",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Fix Manage page: implement User Chats (currently placeholder), fix sub-menu (remove Dashboard, add Hunches/Billing), wire FlexPrice billing (I-105), verify Hunches state machine, verify RBAC redirect.",
+  "acceptanceCriteria": ["S-6.AC1 through S-6.AC14"],
+  "newACs": ["S-6.AC10", "S-6.AC11", "S-6.AC12", "S-6.AC13", "S-6.AC14"],
+  "issues": ["I-105", "I-115", "I-116"],
+  "declaredFiles": [
+    "client/src/pages/management.tsx",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s6-manage.spec.ts"
+  ],
+  "testFile": "tests/e2e/s6-manage.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-6.1", "G-6.2", "G-6.3", "G-6.4"],
+  "auditFile": ".governor/evidence/E-013/sections/06-manage.md",
+  "evidence": ".governor/evidence/SEC-06/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

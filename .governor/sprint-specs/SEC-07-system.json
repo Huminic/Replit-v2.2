@@ -1,0 +1,26 @@
+{
+  "id": "SEC-07",
+  "category": "Remediation",
+  "name": "System / Profile / Top Icons Section Sprint",
+  "section": "S-7",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Fix System/Profile/TopIcons: verify RBAC per settings tile, test User Management CRUD, verify CommGate and channel toggles, rename Take a Tour to Reset Tour, remove Billing from profile dropdown, fix AI Config tile/sub-menu RBAC inconsistency, test profile photo upload and change password.",
+  "acceptanceCriteria": ["S-7.AC1 through S-7.AC21"],
+  "newACs": ["S-7.AC8", "S-7.AC9", "S-7.AC10", "S-7.AC11", "S-7.AC12", "S-7.AC13", "S-7.AC14", "S-7.AC15", "S-7.AC16", "S-7.AC17", "S-7.AC18", "S-7.AC19", "S-7.AC20", "S-7.AC21"],
+  "issues": ["I-111", "I-117", "I-118", "I-120"],
+  "declaredFiles": [
+    "client/src/pages/settings.tsx",
+    "client/src/pages/profile.tsx",
+    "client/src/components/layout/TopBar.tsx",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s7-system-profile.spec.ts"
+  ],
+  "testFile": "tests/e2e/s7-system-profile.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-7.1", "G-7.2", "G-7.3", "G-7.4", "G-7.5", "G-7.6"],
+  "auditFile": ".governor/evidence/E-013/sections/07-system.md",
+  "evidence": ".governor/evidence/SEC-07/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

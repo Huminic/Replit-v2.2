@@ -1,0 +1,8 @@
+{
+  "id": "ISS-001",
+  "severity": "major",
+  "phase": "qa_resolve_loop",
+  "summary": "",
+  "evidence": [],
+  "recommendedAction": ""
+}

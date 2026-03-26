@@ -101,7 +101,29 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-061 | Date range selection for analytics — allow users to filter dashboard metrics, insights, and reports by custom date range (day/week/month/quarter/custom) | User requirement |
 | BL-062 | Route all remaining direct API key usage through MCP — VAPI_PRIVATE_KEY (vendorProxy.ts proxy routes), TAVUS_API_KEY (vendorProxy.ts), RESEND_API_KEY (auth.ts, users.ts, conversations.ts, scheduler.ts), FLEXPRICE_API_KEY (billingService.ts). Keys should only exist in central-mcp, not in app .env | REM-8 audit |
 
+## Deferred from Operator Manifest (2026-03-26)
+
+| ID | Item | Source |
+|----|------|--------|
+| BL-063 | My Work page — hide and defer | Operator manifest |
+| BL-064 | Copilot chat popout in System settings (right-side panel for AI-assisted config) | Operator manifest |
+
+## E-013 Audit Findings — Not Blocking Launch (2026-03-26)
+
+| ID | Item | Source |
+|----|------|--------|
+| BL-065 | Thinking cards in AI Chat — show reasoning/tool-use steps (BL-024 already tracks this) | E-013 S-1 audit |
+| BL-066 | Like/dislike feedback buttons on AI chat responses | E-013 S-1 audit |
+| BL-067 | Landing page org-specific branding (colors, not hardcoded WIDGET_TEAL/GUNMETAL_BLUE) | E-013 S-9 audit |
+| BL-068 | Widget appearance uses org config from settings (not hardcoded) | E-013 S-10 audit |
+| BL-069 | Role Switcher dev tool needs production gate (remove or restrict) | E-013 S-8 audit |
+| BL-070 | Knowledge Base Web Pages — real URL crawling (currently demo-only toast) | E-013 S-7 audit |
+| BL-071 | Knowledge Base Databases — placeholder ("Future: connect external databases") | E-013 S-7 audit |
+| BL-072 | Agent Behavior save in AI Config is demo-only (shows toast, doesn't persist) | E-013 S-7 audit |
+| BL-073 | Contact phone on Profile page is hardcoded "+1 (555) 123-4567" | E-013 S-8 audit |
+| BL-074 | Notification data source verification — may be client-side mock vs real API | E-013 S-8 audit |
+
 ---
 
-**Last updated:** 2026-03-20
-**Total:** 54 items
+**Last updated:** 2026-03-26 (E-013 backlog additions)
+**Total:** 66 items

@@ -6,7 +6,7 @@
  */
 import { test, expect } from "playwright/test";
 
-const BASE = "https://dev.huminicdev.com";
+const BASE = process.env.BASE_URL || "https://dev.huminicdev.com";
 const PASSWORD = "NexxusTest2026";
 
 async function getToken(request: any, email: string = "serra_honda@huminic.ai"): Promise<string> {

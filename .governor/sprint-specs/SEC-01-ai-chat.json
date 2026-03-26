@@ -1,0 +1,25 @@
+{
+  "id": "SEC-01",
+  "category": "Remediation",
+  "name": "AI Chat Section Sprint",
+  "section": "S-1",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T2",
+  "description": "Fix gaps identified in E-013 audit for AI Chat (Home) page. Add chat history delete, file upload verification, metric drill-down, chat quality test.",
+  "acceptanceCriteria": ["S-1.AC1 through S-1.AC17"],
+  "newACs": ["S-1.AC13", "S-1.AC14", "S-1.AC15", "S-1.AC16", "S-1.AC17"],
+  "issues": [],
+  "declaredFiles": [
+    "client/src/pages/main.tsx",
+    "client/src/hooks/useStreamingChat.ts",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s1-ai-chat.spec.ts"
+  ],
+  "testFile": "tests/e2e/s1-ai-chat.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-1.1", "G-1.2", "G-1.3", "G-1.4"],
+  "auditFile": ".governor/evidence/E-013/sections/01-ai-chat.md",
+  "evidence": ".governor/evidence/SEC-01/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

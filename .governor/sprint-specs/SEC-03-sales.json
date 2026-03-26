@@ -1,0 +1,24 @@
+{
+  "id": "SEC-03",
+  "category": "Remediation",
+  "name": "Sales Section Sprint",
+  "section": "S-3",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Fix Sales page: replace hardcoded Recent Activity with API data, fix Conversion Rate change bug, verify Active Pipeline dual-source resolution, verify all 4 agents respond, add VAPI appointment calendar test.",
+  "acceptanceCriteria": ["S-3.AC1 through S-3.AC16"],
+  "newACs": ["S-3.AC12", "S-3.AC13", "S-3.AC14", "S-3.AC15", "S-3.AC16"],
+  "issues": ["I-112", "I-114"],
+  "declaredFiles": [
+    "client/src/pages/sales.tsx",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s3-sales.spec.ts"
+  ],
+  "testFile": "tests/e2e/s3-sales.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-3.1", "G-3.2", "G-3.3", "G-3.4"],
+  "auditFile": ".governor/evidence/E-013/sections/03-sales.md",
+  "evidence": ".governor/evidence/SEC-03/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

@@ -1,0 +1,24 @@
+{
+  "id": "SEC-09",
+  "category": "Verification",
+  "name": "Cross-Cutting Section Sprint",
+  "section": "S-9",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Cross-cutting verification: VAPI assistant alignment, org isolation (no cross-org data leakage), walk-in followup trigger, accessibility audit, live-comms suite, Tavus integration.",
+  "acceptanceCriteria": ["S-9.AC1 through S-9.AC10"],
+  "newACs": [],
+  "issues": [],
+  "declaredFiles": [
+    "tests/e2e/s9-cross-cutting.spec.ts",
+    "tests/e2e/live-comms.spec.ts",
+    "tests/e2e/real-integrations.spec.ts"
+  ],
+  "testFile": "tests/e2e/s9-cross-cutting.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.7"],
+  "auditFile": null,
+  "evidence": ".governor/evidence/SEC-09/",
+  "dependsOn": ["SEC-01", "SEC-02", "SEC-03", "SEC-04", "SEC-05", "SEC-06", "SEC-07", "SEC-08"],
+  "blocks": ["SEC-10"]
+}

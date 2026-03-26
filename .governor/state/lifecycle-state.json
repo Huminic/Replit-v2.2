@@ -1,0 +1,12 @@
+{
+  "workflow": [
+    "reconnaissance",
+    "idea",
+    "ui_truth",
+    "backend",
+    "integration",
+    "qa_resolve_loop",
+    "deploy"
+  ],
+  "current": "qa_resolve_loop"
+}

@@ -4,7 +4,7 @@ import { callMCP } from "./vendorProxy";
 import { billingService } from "./services/billingService";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
 
-const DEFAULT_RATE_LIMIT_MAX = 3;
+const DEFAULT_RATE_LIMIT_MAX = 100;
 const RATE_LIMIT_HOURS = 24;
 
 let _resendInstance: Resend | null = null;

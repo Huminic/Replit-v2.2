@@ -71,6 +71,11 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-1.AC10 | Conversational tone (not report-formatted) | S-1.2 | s1-ai-chat: assert response does NOT start with "## " or contain markdown tables | Response analysis |
 | S-1.AC11 | Chat History tab lists previous conversations | S-1.4 | s1-ai-chat: navigate to Chat History, assert conversation items visible | Screenshot |
 | S-1.AC12 | Favorites add/remove/persist works | S-1.4 | s1-ai-chat: add favorite, navigate away, return, assert still favorited | Screenshot sequence |
+| S-1.AC13 | Chat history delete: click delete → conversation removed from list and API | S-1.4 | s1-ai-chat: delete conversation, assert removed from DOM and GET /api/conversations returns fewer items | API + DOM |
+| S-1.AC14 | Chat history scroll: list with 20+ items scrolls without breaking layout | S-1.4 | s1-ai-chat: seed 20+ conversations, verify ScrollArea works | Screenshot |
+| S-1.AC15 | Metric tile drill-down: click tile → dialog shows breakdown matching API data | S-1.1 | s1-ai-chat: click tile, compare dialog data to /api/metrics/pipeline/details | API comparison |
+| S-1.AC16 | File upload: plus button opens picker, file uploads, chat analyzes content | S-1.5 | s1-ai-chat: upload file, assert chat references file content in response | Conversation log |
+| S-1.AC17 | Chat response quality: ask dealership-specific question, verify org-context in response | S-1.2 | s1-ai-chat: ask about org inventory/hours, assert answer uses org data | Conversation log |
 
 ---
 
@@ -94,6 +99,11 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-2.AC14 | Near-real-time: new message appears within 10 seconds via polling (refetchInterval: 5000ms) | S-2.9 | s2-teambox: have browser open on TeamBox, POST message via API, assert it appears within 10s without navigation | Screenshot timing |
 | S-2.AC15 | Human takeover: assign user → AI stops auto-responding | S-2.10 | s2-teambox: PATCH conversation assignedTo, send inbound, assert no AI response | API proof |
 | S-2.AC16 | Human takeover: un-assign → AI resumes | S-2.10 | s2-teambox: PATCH conversation assignedTo=null, send inbound, assert AI responds | API proof |
+| S-2.AC17 | Agent vs human filter: toggle shows only automated OR only human conversations | S-2.5 | s2-teambox: click automated filter, assert all visible items are automated | Screenshot |
+| S-2.AC18 | Form submissions visible in conversation list and filterable | S-2.6 | s2-teambox: submit widget form, assert conversation appears with channel=form | Query + Screenshot |
+| S-2.AC19 | Message history renders actual chat content when conversation selected | S-2.7 | s2-teambox: click conversation with known messages, assert message text visible (not blank) | Screenshot |
+| S-2.AC20 | Service campaign conversations appear in TeamBox | S-2.7 | s2-teambox: execute service campaign, verify reply creates conversation in TeamBox | Screenshot |
+| S-2.AC21 | Delete conversation removes from list and API | S-2.11 | s2-teambox: delete conversation, assert removed from DOM and DB | API + DOM |
 
 ---
 
@@ -112,6 +122,11 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-3.AC9 | Data Guru returns real VIN data when asked | S-3.6 | s3-sales: chat with Data Guru, ask for leads, assert response contains lead data | Conversation log |
 | S-3.AC10 | Sales Coach provides coaching advice | S-3.6 | s3-sales: chat with Sales Coach, ask coaching question, assert relevant response | Conversation log |
 | S-3.AC11 | Communication Writer produces email draft | S-3.6 | s3-sales: chat with Writer, ask for draft, assert response is formatted email | Conversation log |
+| S-3.AC12 | Recent Activity feed shows real data from API (not hardcoded mock) | S-3.4 | s3-sales: assert Recent Activity entries come from API, not static array (lines 591-603) | Code + DOM |
+| S-3.AC13 | Conversion Rate change shows delta (not absolute rate) | S-3.4 | s3-sales: compare change value to actual period-over-period delta | API comparison |
+| S-3.AC14 | Active Pipeline resolves consistently between two data sources | S-3.4 | s3-sales: verify pipeline.activePipeline and leadSummary.activeLeads alignment | API comparison |
+| S-3.AC15 | VAPI webhook creates appointment that appears in Sales Calendar | S-3.3 | s3-sales: trigger VAPI call, verify appointment in DB and Calendar tab | Query + Screenshot |
+| S-3.AC16 | Waiting on Response and Appointments Set show real change data (not hardcoded 0) | S-3.4 | s3-sales: assert change values on these tiles are not always 0 | API comparison |
 
 ---
 
@@ -133,6 +148,10 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-4.AC12 | Nancy books appointment when asked | S-4.10 | s4-service: ask Nancy to schedule service, verify appointment created in DB | Query proof |
 | S-4.AC13 | After-hours: message queued when business_hours_end is before current time | S-4.11 | s4-service: temporarily set org business_hours_end to 1hr before now, send message, assert queued not sent, restore original value | Log proof |
 | S-4.AC14 | After-hours: queued message releases at 7 AM | S-4.11 | s4-service: verify scheduled release mechanism exists | Code/config proof |
+| S-4.AC15 | Service Insights metrics are service-department-filtered (not org-wide) | S-4.4 | s4-service: verify Open Conversations and Total Conversations use service filter | Code + API |
+| S-4.AC16 | Service metrics show real change/trend data (not hardcoded zeros) | S-4.4 | s4-service: assert change values on metric tiles are not all zero | API comparison |
+| S-4.AC17 | Sub-menu label matches page tabs (no phantom "Dashboard") | S-4.1 | s4-service: assert sub-menu first item is NOT "Dashboard" | Screenshot |
+| S-4.AC18 | Campaign execution E2E: create → CSV → dryRun → execute → SMS delivered → reply in TeamBox | S-4.8 | s4-service: full flow with real SMS (owner phone only) | Log + Query proof |
 
 ---
 
@@ -149,6 +168,12 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-5.AC7 | Dashboard tiles match API values | S-5.5 | s5-marketing: tile-by-tile comparison | Documented table |
 | S-5.AC8 | Photo Studio produces image artifact via fal.ai proxy | S-5.6 | s5-marketing: chat, request image, assert IMAGE artifact returned with URL | Conversation log |
 | S-5.AC9 | Copywriter produces ad copy with categories | S-5.6 | s5-marketing: chat, request copy, assert structured response | Conversation log |
+| S-5.AC10 | Sub-menu "Campaigns" link removed (matches page which has no Campaigns tab) | S-5.1 | s5-marketing: open sub-menu, assert no "Campaigns" item | Screenshot (negative) |
+| S-5.AC11 | Marketing metrics show real change/trend data (not hardcoded zeros) | S-5.5 | s5-marketing: assert change values on metric tiles are not all zero | API comparison |
+| S-5.AC12 | Marketing metrics show marketing-specific data (not org-wide fallback) | S-5.5 | s5-marketing: compare tile values to byDepartment.marketing (not global) | API comparison |
+| S-5.AC13 | StudioGallery shows real artifacts (not empty placeholder) | S-5.3 | s5-marketing: navigate Studio, assert gallery content renders | Screenshot |
+| S-5.AC14 | Video Producer agent produces video artifact | S-5.6 | s5-marketing: chat with Video Producer, request video, assert artifact | Conversation log |
+| S-5.AC15 | Market Intel agent provides competitor/market analysis | S-5.6 | s5-marketing: chat with Market Intel, ask analysis question, assert relevant data | Conversation log |
 
 ---
 
@@ -165,6 +190,11 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-6.AC7 | Partner admin (Cage) sees all 5 dealerships | S-6.5 | s6-manage: login as Cage partner admin, verify 5 stores visible | Screenshot |
 | S-6.AC8 | Partner admin does NOT see Huminic data | S-6.5 | s6-manage: assert no "Huminic" text in data areas | Screenshot (negative) |
 | S-6.AC9 | System Log shows real activity entries | S-6.6 | s6-manage: click System Log, assert entries with timestamps | Screenshot |
+| S-6.AC10 | Sub-menu matches page tabs (remove phantom Dashboard, add Hunches and Billing) | S-6.1 | s6-manage: compare sub-menu items to page tab labels | Screenshot |
+| S-6.AC11 | Hunches generate button produces new insights | S-6.7 | s6-manage: click Generate Hunches, assert new hunch card appears | API + Screenshot |
+| S-6.AC12 | Hunches accept/dismiss/resolve state machine works | S-6.7 | s6-manage: accept hunch → assert status changes → resolve → assert final state | Screenshot sequence |
+| S-6.AC13 | Billing tab shows real FlexPrice data when configured | S-6.2 | s6-manage: verify BillingDashboard renders actual plan/usage data (I-105) | API + Screenshot |
+| S-6.AC14 | Management RBAC: non-management roles redirected to home | S-6.8 | s6-manage: login as sales role, navigate /management, assert redirect to / | Navigation proof |
 
 ---
 
@@ -179,6 +209,20 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-7.AC5 | No Billing link/section in Profile page | S-7.3 | s7-system-profile: full text search of profile for "Billing" | Screenshot (negative) |
 | S-7.AC6 | Landing page icon opens new browser window | S-7.4 | s7-system-profile: click landing page icon, assert new window/tab opened | Browser behavior proof |
 | S-7.AC7 | Activity Feed vs Notifications investigation documented | S-7.5 | Investigation report comparing data sources | Document |
+| S-7.AC8 | Settings tiles respect RBAC: super_admin sees 7, partner_admin sees 6 (no AI Config tile), org_admin sees 6 | S-7.1 | s7-system-profile: switch roles, count visible tiles per role | Screenshot per role |
+| S-7.AC9 | User Management CRUD: add, edit, deactivate, reset password all work | S-7.6 | s7-system-profile: execute each CRUD operation, verify via API | API proof |
+| S-7.AC10 | Communication Gate toggle persists and stops all outbound | S-7.1 | s7-system-profile: toggle OFF, attempt campaign execute, assert blocked | API proof |
+| S-7.AC11 | Channel toggles persist and control outbound per channel | S-7.1 | s7-system-profile: toggle SMS off, attempt SMS send, assert blocked | API proof |
+| S-7.AC12 | Knowledge Base document upload: file appears in table, can be deleted | S-7.7 | s7-system-profile: upload file, assert row in table, delete, assert removed | Screenshot sequence |
+| S-7.AC13 | AI Configuration system prompt saves and affects chat behavior | S-7.8 | s7-system-profile: change system prompt, verify chat response reflects change | Conversation log |
+| S-7.AC14 | Business hours settings persist and trigger after-hours auto-response | S-7.9 | s7-system-profile: set hours, send message outside hours, assert auto-response | Log proof |
+| S-7.AC15 | "Take a Tour" renamed to "Reset Tour" in TopBar profile dropdown | S-7.2 | s7-system-profile: open profile dropdown, assert text "Reset Tour" (not "Take a Tour") | Screenshot |
+| S-7.AC16 | Billing link removed from TopBar profile dropdown | S-7.3 | s7-system-profile: open profile dropdown, assert no "Billing" item | Screenshot (negative) |
+| S-7.AC17 | Profile photo upload works (POST /api/users/me/photo) | S-7.10 | s7-system-profile: upload photo, assert avatar updates | Screenshot |
+| S-7.AC18 | Profile edit saves (name, email via PATCH /api/users/me) | S-7.10 | s7-system-profile: edit name, save, verify persists on reload | Screenshot |
+| S-7.AC19 | Change password works with validation | S-7.10 | s7-system-profile: change password, login with new password | API proof |
+| S-7.AC20 | Org switcher changes org context and reloads | S-7.4 | s7-system-profile: switch org, verify page shows new org data | Screenshot |
+| S-7.AC21 | Notification data comes from real backend API (not mock) | S-7.5 | s7-system-profile: verify /api/notifications endpoint exists and returns data | API proof |
 
 ---
 
@@ -193,6 +237,13 @@ Each sprint must satisfy ALL its criteria before it can be marked complete.
 | S-8.AC5 | Widget form submission creates conversation in TeamBox | S-8.4 | s8-landing-widgets: POST /api/widget/contact, query conversations table | API + query proof |
 | S-8.AC6 | All 5 dealer widget JS files serve valid JavaScript | S-8.5 | s8-landing-widgets: GET /widget/dealer/{slug}.js x5, assert 200 + application/javascript | API response x5 |
 | S-8.AC7 | Widget JS contains correct dealer name | S-8.5 | s8-landing-widgets: parse JS content, assert dealer name string present | Content assertion |
+| S-8.AC8 | Landing page loads for valid org slug (store name + persona shown) | S-8.2 | s8-landing-widgets: navigate /p/{slug}, assert org name and persona name visible | Screenshot |
+| S-8.AC9 | Landing page contact form submits and shows success state | S-8.4 | s8-landing-widgets: fill form, submit, assert success message | Screenshot |
+| S-8.AC10 | Web Chat widget produces AI responses scoped to org | S-8.6 | s8-landing-widgets: open chat widget, send message, assert AI response | Screenshot |
+| S-8.AC11 | Web Call behavior matches manifest: collect number → trigger outbound VAPI call | S-8.7 | s8-landing-widgets: click Web Call, verify number prompt and VAPI outbound trigger | Functional test |
+| S-8.AC12 | Widget menu shows all 4 options (Chat, Call, Form, Video) | S-8.6 | s8-landing-widgets: click widget button, assert 4 option buttons | Screenshot |
+| S-8.AC13 | Widget embed code generates valid embeddable snippet | S-8.5 | s8-landing-widgets: generate embed code in settings, validate HTML/JS syntax | Code assertion |
+| S-8.AC14 | ?mode=video auto-launches fullscreen video session | S-8.1 | s8-landing-widgets: navigate /p/{slug}?mode=video, assert video connecting state | Screenshot |
 
 ---
 
@@ -274,14 +325,14 @@ Every user story maps to at least one sprint AC. Stories in BACKLOG have no AC �
 
 # Layer 4: Launch Readiness Summary
 
-**Total Sprint ACs:** 108
+**Total Sprint ACs:** 156 (108 original + 48 from E-013 audits)
 **Passing:** 0 (not yet executed)
-**Known blockers:** I-086 (VIN), I-090 (warehouse), I-101 (CommGate) — all addressed in S-0
-**Not tested:** 108
+**Known blockers:** I-105 (FlexPrice billing), I-102 (Photo Studio FE), TI-018 (Photo Studio FE — same as I-102)
+**Not tested:** 156
 
 This section will be updated as sprints complete. Each sprint marks its ACs as PASS/FAIL with evidence links.
 
 ---
 
-**Last updated:** 2026-03-23 (Phase Reset)
+**Last updated:** 2026-03-26 (E-013 audit — 48 new ACs added from 10 section audits)
 **Backup of previous:** .ghost/backups/2026-03-23-phase-reset/acceptance_criteria.md

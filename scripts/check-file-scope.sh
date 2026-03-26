@@ -156,6 +156,7 @@ check_scope() {
     governance|orchestrator)
       # Orchestrator's PERMANENT scope: governance, scripts, evidence, .project/
       # Adapted for nexxus2.2_replit project
+      # Updated 2026-03-26: added .governor/, hardwonknowledge.md, tests/, server/ for E-013
       case "$file" in
         CLAUDE.md) return 0 ;;
         plan.md) return 0 ;;
@@ -164,8 +165,10 @@ check_scope() {
         agent-instructions.json) return 0 ;;
         issues.md) return 0 ;;
         backlog.md) return 0 ;;
+        hardwonknowledge.md) return 0 ;;
         .gitignore) return 0 ;;
         .claude/**|.claude/*) return 0 ;;
+        .governor/**|.governor/*) return 0 ;;
         scripts/**|scripts/*) return 0 ;;
         .project/**|.project/*) return 0 ;;
         evidence/**|evidence/*) return 0 ;;
@@ -174,6 +177,8 @@ check_scope() {
         plan/**|plan/*) return 0 ;;
         specs/**|specs/*) return 0 ;;
         temp/**|temp/*) return 0 ;;
+        tests/**|tests/*) return 0 ;;
+        server/**|server/*) return 0 ;;
       esac
 
       # Sprint-scoped expansion: if COMMIT_SPRINT is set, check workflow-audit.log

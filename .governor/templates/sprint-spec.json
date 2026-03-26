@@ -1,0 +1,21 @@
+{
+  "id": "P-001",
+  "title": "",
+  "type": "Plan",
+  "phase": "ui_truth",
+  "causedBy": "",
+  "reason": "",
+  "codebaseArea": [],
+  "dimensions": {
+    "layers": [],
+    "areas": []
+  },
+  "declaredFiles": [],
+  "acceptanceCriteria": [],
+  "wholeProductFit": "",
+  "testPlan": {
+    "requiredLevels": [],
+    "requiredArtifacts": []
+  },
+  "status": "proposed"
+}

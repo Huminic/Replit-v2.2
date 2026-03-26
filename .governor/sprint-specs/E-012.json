@@ -1,0 +1,59 @@
+{
+  "id": "E-012",
+  "category": "Exploratory",
+  "name": "Full Application Inventory and Verification",
+  "phase": "qa_resolve_loop",
+  "status": "in_progress",
+  "causedBy": "governance-transition",
+  "outcome": "Complete dimensional inventory of nexxus app (FE/BE/DT/AU/IN), verified AC coverage via Playwright MCP and API testing, corrected test suite, populated issues.md with all failures by dimension, remediation sprint specs ready",
+  "codebaseArea": ["client/", "server/", "shared/", "tests/"],
+  "acceptanceCriteria": [
+    "E-012.AC1: Complete FE inventory — every route, page, component cataloged with file paths [DONE]",
+    "E-012.AC2: Complete BE inventory — every API endpoint, service, integration cataloged [DONE]",
+    "E-012.AC3: Complete DT inventory — every model, migration, seed file cataloged [DONE]",
+    "E-012.AC4: Complete AU inventory — every auth rule, role, permission check cataloged [DONE]",
+    "E-012.AC5: Complete IN inventory — every service config, port, deployment artifact cataloged [DONE]",
+    "E-012.AC6: Playwright MCP verification of every untested route with org switching [IN PROGRESS]",
+    "E-012.AC7: API verification of FAL, billing, insights, hunches endpoints + org isolation [IN PROGRESS]",
+    "E-012.AC8: Test coverage matrix — every .spec.ts mapped to routes, dimensions, roles, orgs [IN PROGRESS]",
+    "E-012.AC9: issues.md updated with all failures segmented by FE/BE/DT/AU/IN [PENDING]",
+    "E-012.AC10: Remediation sprint spec(s) written for all failures [PENDING]"
+  ],
+  "dimensions": {
+    "layers": ["S1", "S2", "S3", "S4", "S5", "S6"],
+    "featureDims": ["FE", "BE", "DT", "AU", "IN"],
+    "testLevels": ["T1", "T2", "T3", "T4"]
+  },
+  "wholeProductFit": "This sprint establishes the verified truth of the application state. Without it, all subsequent remediation and deployment decisions are based on unverified claims.",
+  "parallelizable": true,
+  "declaredFiles": [],
+  "commit": null,
+  "evidence": ".governor/evidence/E-012/",
+  "artifacts": {
+    "codebase-inventory": ".governor/evidence/E-012/codebase-inventory-raw.txt [DONE]",
+    "ui-inventory": ".governor/evidence/E-012/ui-inventory.md [DONE]",
+    "fe-verification": ".governor/evidence/E-012/fe-verification.md [PENDING]",
+    "be-dt-verification": ".governor/evidence/E-012/be-dt-verification.md [PENDING]",
+    "test-coverage-matrix": ".governor/evidence/E-012/test-coverage-matrix.md [PENDING]",
+    "ap-check": "AP check completed in conversation — corrected 3 false claims, found 5 new gaps"
+  },
+  "riskMitigations": {
+    "fal-key": "Confirmed in .env — failures are real, not config",
+    "org-isolation": "Two org_admin accounts: serra_honda@huminic.ai, serra_nissan@huminic.ai",
+    "tour-overlay": "Dismiss via [data-testid='button-tour-close'] or Escape key",
+    "auth-for-api": "POST /api/auth/login with {email, password} → JWT",
+    "fqdn": "https://dev.huminicdev.com for all Playwright MCP verification"
+  },
+  "correctedGaps": [
+    "FAL integration — zero test coverage (Critical)",
+    "Org isolation — cross-org data leakage untested (Critical)",
+    "/settings/billing/usage, /plan, /invoices — untested routes (Critical)",
+    "/agents page UI — no FE test (High)",
+    "/settings/org-wizard UI — untested (High)",
+    "/profile/preferences, /profile/billing — untested routes (High)",
+    "/usage page — completely untested (High)",
+    "Multi-org switching — no test simulates switch (Medium)",
+    "SSE streaming — minimal coverage (Medium)",
+    "TI-018 — Photo Studio FAL broken (Open)"
+  ]
+}

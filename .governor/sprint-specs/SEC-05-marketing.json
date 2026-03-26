@@ -1,0 +1,25 @@
+{
+  "id": "SEC-05",
+  "category": "Remediation",
+  "name": "Marketing Section Sprint",
+  "section": "S-5",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T2",
+  "description": "Fix Marketing page: remove Campaigns from sub-menu, fix hardcoded metric trends, fix global stats fallback, verify StudioGallery content, test all 5 marketing agents.",
+  "acceptanceCriteria": ["S-5.AC1 through S-5.AC15"],
+  "newACs": ["S-5.AC10", "S-5.AC11", "S-5.AC12", "S-5.AC13", "S-5.AC14", "S-5.AC15"],
+  "issues": ["I-102", "I-113", "I-115"],
+  "declaredFiles": [
+    "client/src/pages/marketing.tsx",
+    "client/src/lib/marketing-agents.ts",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s5-marketing.spec.ts"
+  ],
+  "testFile": "tests/e2e/s5-marketing.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-5.1", "G-5.2", "G-5.3", "G-5.4"],
+  "auditFile": ".governor/evidence/E-013/sections/05-marketing.md",
+  "evidence": ".governor/evidence/SEC-05/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

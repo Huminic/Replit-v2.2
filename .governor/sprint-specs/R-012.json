@@ -1,0 +1,72 @@
+{
+  "id": "R-012",
+  "category": "Remediation",
+  "name": "E-012 Remediation — Test Integrity, Billing Integration, Coverage Gaps",
+  "phase": "qa_resolve_loop",
+  "status": "proposed",
+  "causedBy": "E-012 six-layer verification findings",
+  "outcome": "All Critical and High severity issues from E-012 resolved. S-11 test assertions are real. Billing wired to FlexPrice. Uncovered routes have tests. App passes re-verification.",
+  "codebaseArea": ["tests/e2e/", "server/services/billingService.ts", "server/outbound.ts", "client/"],
+  "acceptanceCriteria": [
+    "R-012.AC1: s11-demo-hotfix.spec.ts has 0 always-true assertions — all 8 replaced with real functional assertions",
+    "R-012.AC2: FlexPrice billing endpoints return real data — summary, usage, invoices, plan, entitlements all return configured state",
+    "R-012.AC3: 7 uncovered routes have basic load/render tests that pass — /my-work, /usage, /settings/billing/*, /settings/org-wizard, /profile/preferences",
+    "R-012.AC4: Photo Studio agent frontend integration works — user can trigger image generation from marketing studio",
+    "R-012.AC5: Uncommitted git changes resolved — either committed with sprint or reverted with explanation",
+    "R-012.AC6: 103 stub tests evaluated — either implemented with real assertions or removed with documented reason",
+    "R-012.AC7: Test base URLs use environment variable — not hardcoded production URL"
+  ],
+  "dimensions": {
+    "layers": ["S1", "S2", "S3", "S6"],
+    "featureDims": ["FE", "BE", "IN"],
+    "testLevels": ["T1", "T2"]
+  },
+  "wholeProductFit": "Resolves all launch-blocking issues found in E-012. After this sprint, the app should pass a clean six-layer re-verification and be ready for deploy phase transition.",
+  "parallelizable": true,
+  "declaredFiles": [
+    "tests/e2e/s11-demo-hotfix.spec.ts",
+    "tests/e2e/r12-coverage-gaps.spec.ts",
+    "tests/observability/*.test.ts",
+    "server/services/billingService.ts",
+    "server/routes/billing.ts",
+    "client/src/pages/marketing.tsx",
+    "client/src/components/marketing/AgentChatView.tsx",
+    "playwright.config.ts"
+  ],
+  "commit": null,
+  "evidence": ".governor/evidence/R-012/",
+  "issuesResolved": ["I-102", "I-103", "I-104", "I-105", "I-109", "I-110", "I-111"],
+  "preExecutionChecklist": {
+    "captain": {
+      "scope": "Orchestrate 7 issue resolutions. Dispatch researcher for FlexPrice API investigation. Dispatch implementer for test fixes, billing wiring, and Photo Studio FE fix. Dispatch verifier to confirm.",
+      "why": "7 issues block launch. Tests with fake assertions mean we cant trust verification. Billing is a launch blocker per operator.",
+      "success": "All 7 ACs pass with real evidence. Re-verification clean across affected layers.",
+      "next": "Close S-11. Propose deploy phase transition."
+    },
+    "researcher": {
+      "scope": "Investigate FlexPrice API — what endpoints exist, what auth is needed, what data comes back. Read billingService.ts to understand current integration state. Investigate Photo Studio FE — read marketing.tsx and AgentChatView.tsx to find where FAL proxy is called and why it fails.",
+      "why": "Cant wire billing without knowing the API. Cant fix Photo Studio without understanding the FE integration.",
+      "success": "Report with: FlexPrice API endpoints, auth pattern, sample responses. Photo Studio FE failure point with file:line reference.",
+      "next": "Findings feed implementer dispatch."
+    },
+    "implementer": {
+      "scope": "1) Replace 8 always-true assertions in s11 with real Playwright/API assertions. 2) Wire FlexPrice billing endpoints based on researcher findings. 3) Write 7 route coverage tests. 4) Fix Photo Studio FE integration. 5) Change test base URLs to env var. 6) Evaluate and clean up 103 stub tests. 7) Commit or revert uncommitted changes.",
+      "why": "These are the code changes needed to resolve all 7 issues.",
+      "success": "All declared files modified. Tests pass. Billing endpoints return data. Photo Studio queues images.",
+      "next": "Verifier checks the work."
+    },
+    "verifier": {
+      "scope": "After implementer: run updated s11 tests, verify no always-true assertions remain. Hit billing endpoints, verify real data. Run 7 new route tests. Test Photo Studio image generation. Verify git is clean.",
+      "why": "Independent verification. The whole point of the ghost gate.",
+      "success": "Verification report with PASS/FAIL per AC, specific evidence for each.",
+      "next": "If clean, Captain closes issues. If not, loop."
+    }
+  },
+  "risks": [
+    "FlexPrice API may require org-level configuration beyond just the API key — could need customer IDs, wallet setup",
+    "Real assertions for S-11 ACs may reveal actual bugs — the always-true assertions were hiding something",
+    "Photo Studio FE fix may require understanding the marketing agent chat interface deeply",
+    "Stub test evaluation is judgment call — some may be worth implementing, others are dead weight"
+  ],
+  "difficulty": "High — billing integration is new code, test fixes may expose hidden bugs"
+}

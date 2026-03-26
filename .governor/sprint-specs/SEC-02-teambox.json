@@ -1,0 +1,24 @@
+{
+  "id": "SEC-02",
+  "category": "Remediation",
+  "name": "TeamBox Section Sprint",
+  "section": "S-2",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Fix gaps in TeamBox: agent/human filter, form submissions, message history rendering, service campaign conversations, delete conversations. Verify Take Over and VAPI/Tavus logs.",
+  "acceptanceCriteria": ["S-2.AC1 through S-2.AC21"],
+  "newACs": ["S-2.AC17", "S-2.AC18", "S-2.AC19", "S-2.AC20", "S-2.AC21"],
+  "issues": [],
+  "declaredFiles": [
+    "client/src/pages/teambox.tsx",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s2-teambox.spec.ts"
+  ],
+  "testFile": "tests/e2e/s2-teambox.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-2.1", "G-2.2", "G-2.3", "G-2.4"],
+  "auditFile": ".governor/evidence/E-013/sections/02-teambox.md",
+  "evidence": ".governor/evidence/SEC-02/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}

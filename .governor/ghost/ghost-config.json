@@ -1,0 +1,9 @@
+{
+  "app_name": "nexxus2.2_replit",
+  "app_root": "/home/ubuntu/Claude-store/nexxus2.2_replit",
+  "deploy_url": "https://live.huminic.app",
+  "test_command": "npx playwright test",
+  "protected_paths": ["server/", "client/src/", "shared/", ".governor/"],
+  "governance_files": [".governor/", "CLAUDE.md", "SPEC.md", "ACCEPTANCE.md", "PLAN.md", "sprints.json"],
+  "sprint_id_pattern": "^[PRGIEMDTL]-\\d{3}$"
+}

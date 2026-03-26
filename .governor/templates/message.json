@@ -1,0 +1,12 @@
+{
+  "id": "MSG-YYYYMMDD-0001",
+  "from": "captain",
+  "to": "halo",
+  "type": "REQ_PHASE_CHANGE",
+  "app": "nexxus2.2_replit",
+  "phase": "ui_truth",
+  "sprintId": null,
+  "createdAt": "2026-03-24T00:00:00Z",
+  "requiresAck": true,
+  "payload": {}
+}

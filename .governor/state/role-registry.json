@@ -1,0 +1,12 @@
+{
+  "core": {
+    "captain": true,
+    "halo": true,
+    "dev": true,
+    "ghost": true
+  },
+  "extensions": {
+    "qa": false,
+    "docs_writer": false
+  }
+}

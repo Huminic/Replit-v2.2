@@ -1,0 +1,23 @@
+{
+  "id": "SEC-10",
+  "category": "Launch",
+  "name": "Launch Sprint",
+  "section": "S-10",
+  "phase": "launch_prep",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Launch preparation: CI/CD pipeline, Coolify deployment, production smoke tests, full regression, owner walkthrough, stakeholder demo, all issues closed.",
+  "acceptanceCriteria": ["S-10.AC1 through S-10.AC11"],
+  "newACs": [],
+  "issues": [],
+  "declaredFiles": [
+    "tests/e2e/s10-launch.spec.ts",
+    ".github/workflows/"
+  ],
+  "testFile": "tests/e2e/s10-launch.spec.ts",
+  "ghostGates": ["G-0.7"],
+  "auditFile": null,
+  "evidence": ".governor/evidence/SEC-10/",
+  "dependsOn": ["SEC-09"],
+  "blocks": []
+}

@@ -1,0 +1,7 @@
+[Unit]
+Description=Ghost verification sweep for nexxus2.2_replit
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/ubuntu/Claude-store/nexxus2.2_replit
+ExecStart=/usr/bin/env bash /home/ubuntu/Claude-store/nexxus2.2_replit/.governor/scripts/watchdog.sh

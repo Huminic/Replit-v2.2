@@ -1,0 +1,11 @@
+[Unit]
+Description=Stall watch timer for nexxus2.2_replit
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=10min
+Persistent=true
+Unit=nexxus2.2_replit-stall-watch.service
+
+[Install]
+WantedBy=timers.target

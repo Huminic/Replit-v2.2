@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch nexxus2.2_replit governor bus
+
+[Path]
+PathModified=/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/bus/captain-to-halo
+PathModified=/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/bus/dev-to-halo
+PathModified=/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/bus/ghost-to-halo
+PathModified=/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/bus/qa-to-halo
+PathModified=/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/bus/docs_writer-to-halo
+Unit=nexxus2.2_replit-halo-bus.service
+
+[Install]
+WantedBy=default.target

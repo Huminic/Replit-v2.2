@@ -1,0 +1,24 @@
+{
+  "id": "SEC-04",
+  "category": "Remediation",
+  "name": "Service Section Sprint",
+  "section": "S-4",
+  "phase": "qa_resolve_loop",
+  "status": "queued",
+  "priority": "T1",
+  "description": "Fix Service page: fix sub-menu Dashboard label, add service-filtered metrics for Open/Total Conversations, fix hardcoded metric trends, verify campaign E2E flow, verify Nancy Gaston is only agent.",
+  "acceptanceCriteria": ["S-4.AC1 through S-4.AC18"],
+  "newACs": ["S-4.AC15", "S-4.AC16", "S-4.AC17", "S-4.AC18"],
+  "issues": ["I-106", "I-107", "I-113", "I-115"],
+  "declaredFiles": [
+    "client/src/pages/service.tsx",
+    "client/src/components/layout/SubMenuManager.tsx",
+    "tests/e2e/s4-service.spec.ts"
+  ],
+  "testFile": "tests/e2e/s4-service.spec.ts",
+  "ghostGates": ["G-0.1", "G-0.2", "G-0.3", "G-0.4", "G-0.5", "G-0.6", "G-0.7", "G-4.1", "G-4.2", "G-4.3", "G-4.4", "G-4.5"],
+  "auditFile": ".governor/evidence/E-013/sections/04-service.md",
+  "evidence": ".governor/evidence/SEC-04/",
+  "dependsOn": ["E-013"],
+  "blocks": []
+}
