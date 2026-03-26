@@ -8,12 +8,15 @@ Fix 12 demo-critical bugs found during owner walkthrough. Priority: DB cleanup f
 
 **Modified (existing):**
 - client/src/pages/teambox.tsx — Popout nav, chat history, takeover, phone/video tabs, transcript modal, channel filters, reply sender name (BUGs #1,#2,#3,#4,#5,#10,#12)
+- client/src/pages/widget-landing.tsx — Landing page slug routing, video window.open (AC13, AC14)
+- client/src/App.tsx — /w/:slug route for dynamic dealer landing pages (AC13)
 - client/src/pages/service.tsx — Nancy Gaston type fix (BUG #10)
 - client/src/pages/sales.tsx — Pipeline contact URL display (BUG #7)
 - server/vendorProxy.ts — Tavus org scoping (BUG #6)
+- server/seed.ts — Production seed calls seedHuminicUsers() for duane.wells org persistence (AC9)
 
 **New:**
-- tests/e2e/s11-demo-hotfix.spec.ts — Verification tests for all 12 ACs
+- tests/e2e/s11-demo-hotfix.spec.ts — Verification tests for all 14 ACs
 
 **Data fixes (DB/cleanup):**
 - BUG #8: Remove VIN Lead test artifacts from escalations

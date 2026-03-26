@@ -1,5 +1,5 @@
+Report-Hash: dfcf7039d05b5517948703a294a8c965
 Acknowledged-By: orchestrator
-Sprint: S-8
-Timestamp: 2026-03-24T11:30:00Z
-
-C1: ACKNOWLEDGED — S-8 in_progress.
+Sprint: S-11
+Timestamp: 2026-03-24T18:52:45Z
+C20: ACCEPTED — owner-directed hotfix sprint, 7 files required for 14 demo bugs. scope_override approved.

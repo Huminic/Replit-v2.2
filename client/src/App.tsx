@@ -39,7 +39,7 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
-      <Route path="/w/demo" component={WidgetLandingPage} />
+      <Route path="/w/:slug" component={WidgetLandingPage} />
       <Route path="/p/:slug" component={WidgetLandingPage} />
       <Route>
         <ProtectedRoute>

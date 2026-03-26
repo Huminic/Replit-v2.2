@@ -1,31 +1,31 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260324-061041
-Timestamp: 2026-03-24T06:10:41Z
+Report-ID: WD-20260324-184101
+Timestamp: 2026-03-24T18:41:01Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 9e51685
+HEAD: 20f0638
 
 C1  sprints.json:        PASS
-C2  evidence artifacts:  VIOLATION — S-0 missing post-sprint-report.md
+C2  evidence artifacts:  PASS
 C3  cross-signs:         PASS
 C4  checklists:          PASS
 C5  uncommitted:         PASS
 C6  destructive changes: PASS
-C7  session state:       PASS (0h old)
+C7  session state:       PASS (2h old)
 C8  hook integrity:      PASS
 C9  chain of custody:    PASS
 C10 timestamps:          PASS
 C11 plan alignment:      PASS (no plan files found)
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    VIOLATION — CLAUDE.md has staged changes; scripts/pre-commit.sh has staged changes; scripts/check-file-scope.sh has unstaged changes; scripts/check-file-scope.sh has staged changes
+C14 governance files:    PASS
 C15 memory staleness:    PASS
-C16 drift detection:     PASS
-C17 plan vs execution:   PASS (no in_progress sprint)
+C16 drift detection:     WARNING — 70 file(s) modified outside current sprint scope
+C17 plan vs execution:   PASS
 C18 retroactive artifacts:PASS
-C19 pre-exec quality:    PASS
-C20 scope limit:         PASS (no in_progress sprint)
-C21 dry-run required:    PASS (no in_progress sprint)
+C19 pre-exec quality:    WARNING — S-10 committed pre-exec has no success criteria
+C20 scope limit:         VIOLATION — S-11 declares 7 application files (max 5). Split the sprint or get owner approval for scope_override.
+C21 dry-run required:    PASS
 
-SUMMARY: 18 PASS, 2 VIOLATION, 0 WARNING
+SUMMARY: 17 PASS, 1 VIOLATION, 2 WARNING
 === END SCAN ===

@@ -33,8 +33,9 @@ interface LandingPageOrg {
 type WidgetMode = 'closed' | 'chat' | 'video' | 'voice' | 'form' | 'menu';
 
 export default function WidgetLandingPage() {
-  const [, params] = useRoute('/p/:slug');
-  const slug = params?.slug || 'demo';
+  const [, pParams] = useRoute('/p/:slug');
+  const [, wParams] = useRoute('/w/:slug');
+  const slug = pParams?.slug || wParams?.slug || 'demo';
 
   const [orgData, setOrgData] = useState<LandingPageOrg | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +121,7 @@ export default function WidgetLandingPage() {
           });
           if (res.ok) {
             const data = await res.json();
-            setVideoSessionUrl(data.conversationUrl);
+            window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
             setVideoStatus('connected');
           } else { setVideoStatus('error'); }
         } catch { setVideoStatus('error'); }
@@ -174,13 +175,14 @@ export default function WidgetLandingPage() {
         </div>
 
         <div className="flex-1 relative flex items-center justify-center">
-          {videoStatus === 'connected' && videoSessionUrl ? (
-            <iframe
-              src={videoSessionUrl}
-              className="absolute inset-0 w-full h-full"
-              allow="microphone;camera;autoplay"
-              data-testid="tavus-video-iframe"
-            />
+          {videoStatus === 'connected' ? (
+            <div className="text-center px-6" data-testid="video-opened-message">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-6 flex items-center justify-center">
+                <Video className="h-14 w-14 text-white" />
+              </div>
+              <p className="text-white font-semibold text-lg">Video opened in new window</p>
+              <p className="text-white/60 text-sm mt-2">Your video session with {PERSONA_NAME} is running in a separate browser tab.</p>
+            </div>
           ) : videoStatus === 'connecting' ? (
             <div className="text-center">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-6 flex items-center justify-center animate-pulse">
@@ -317,9 +319,8 @@ export default function WidgetLandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        // Open Tavus video session in a new browser window/tab instead of embedding in iframe
+        // Open Tavus video in a new browser window — do NOT embed in widget iframe
         window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
-        setVideoSessionUrl(data.conversationUrl);
         setVideoStatus('connected');
       } else {
         setVideoStatus('error');
@@ -553,13 +554,14 @@ export default function WidgetLandingPage() {
               </button>
             </div>
 
-            {videoStatus === 'connected' && videoSessionUrl ? (
-              <iframe
-                src={videoSessionUrl}
-                className="absolute inset-0 w-full h-full"
-                allow="microphone;camera;autoplay"
-                data-testid="tavus-video-iframe"
-              />
+            {videoStatus === 'connected' ? (
+              <div className="text-center px-4" data-testid="video-opened-message-widget">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-3 flex items-center justify-center">
+                  <Video className="h-8 w-8 text-white" />
+                </div>
+                <p className="text-white font-medium text-sm">Video opened in new window</p>
+                <p className="text-white/60 text-xs mt-1">Session running in a separate tab</p>
+              </div>
             ) : videoStatus === 'connecting' ? (
               <div className="text-center">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-teal-500 mx-auto mb-4 flex items-center justify-center animate-pulse">

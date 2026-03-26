@@ -301,6 +301,9 @@ async function seedProductionDatabase() {
   if (Object.keys(BILLING_CUSTOMER_MAP).length > 0) {
     await seedBillingData();
   }
+
+  // Always ensure Huminic users are on correct org (runs on every startup)
+  await seedHuminicUsers();
 }
 
 export async function seedDatabase() {
