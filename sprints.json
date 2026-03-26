@@ -1813,12 +1813,24 @@
       "id": "E-013",
       "name": "Full Preparation for Section Sprints",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
+      "commitHash": "45e98ff",
       "description": "10 section audits against operator manifest. 48 new ACs, ghost gates, dev constraints, test reconciliation, 10 section sprint specs.",
       "dependsOn": ["E-012"],
       "blocks": ["SEC-01", "SEC-02", "SEC-03", "SEC-04", "SEC-05", "SEC-06", "SEC-07", "SEC-08"],
       "acceptanceCriteria": [],
       "declaredFiles": []
+    },
+    {
+      "id": "SEC-07",
+      "name": "System / Profile / Top Icons",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-117 Reset Tour, I-118 remove Billing link, I-120 AI Config RBAC, I-127 hide My Work",
+      "dependsOn": ["E-013"],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": ["client/src/components/layout/TopBar.tsx", "client/src/pages/settings.tsx", "client/src/components/layout/Sidebar.tsx", "client/src/components/layout/SubMenuManager.tsx", "tests/e2e/s7-system-profile.spec.ts"]
     }
   ],
   "historicalSprints": {

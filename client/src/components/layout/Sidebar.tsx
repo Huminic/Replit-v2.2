@@ -24,7 +24,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { 
   MessageSquare,
   Inbox,
-  User,
   ShoppingCart,
   Wrench,
   Megaphone,
@@ -54,7 +53,8 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { id: 'ai-chat', label: 'AI Chat', icon: MessageSquare, path: '/', hasPanel: true, section: 'ai-chat' },
   { id: 'teambox', label: 'TeamBox', icon: Inbox, path: '/teambox', hasPanel: true, section: 'teambox' },
-  { id: 'my-work', label: 'My Work', icon: User, path: '/my-work', hasPanel: true, section: 'my-work' },
+  // I-127: My Work hidden from sidebar navigation pending feature completion
+  // { id: 'my-work', label: 'My Work', icon: User, path: '/my-work', hasPanel: true, section: 'my-work' },
   { id: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', hasPanel: true, section: 'sales' },
   { id: 'service', label: 'Service', icon: Wrench, path: '/service', hasPanel: true, section: 'service' },
   { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/marketing', hasPanel: true, section: 'marketing' },

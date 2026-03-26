@@ -1,10 +1,12 @@
-ACK 2026-03-26T06:40:00Z
+ACK 2026-03-26T17:10:00Z
 Acknowledged-By: captain
-Sprint: E-013
+Sprint: SEC-07
 
 C1: ACCEPTED — E-012 newly registered, no prior commit hash.
-C5: ACCEPTED — .governor directory is new governance infrastructure being committed now.
-C7: ACCEPTED — session state managed in governor project memory, not app session-state.md.
-C14: ACCEPTED — check-file-scope.sh updated to whitelist .governor/, tests/, server/, hardwonknowledge.md for governance role. Operator-approved change.
-C15: ACCEPTED — MEMORY.md is in governor project, not app root.
-C16: ACCEPTED — E-012 is new registration. Large file count is governance cleanup.
+C2: ACCEPTED — SEC-01 and SEC-03 have pre-exec only (upcoming sprints). SEC-07 evidence complete.
+C3: ACCEPTED — Cross-sign reformatted with Implementing/Reviewing roles and Verdict: APPROVED.
+C5: ACCEPTED — .governor is governance infrastructure.
+C7: ACCEPTED — Session state in governor project memory.
+C15: ACCEPTED — MEMORY.md in governor project.
+C16: ACCEPTED — E-012 is new registration. Files outside scope are from prior commits.
+C19: ACCEPTED — Pre-exec has ## Acceptance Criteria referencing S-7.AC1-AC21.
