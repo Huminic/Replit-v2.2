@@ -34,7 +34,9 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
-import type { Agent } from '@shared/schema';
+import type { Agent, ActivityLog } from '@shared/schema';
+import { formatDistanceToNow } from 'date-fns';
+import { mapActivityLogToItem, getActivityColor } from '@/lib/activity-utils';
 
 interface SalesMetricTile {
   id: string;
@@ -112,7 +114,8 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: 0, trend: 'up' as const, icon: Clock },
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), icon: TrendingUp },
-    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: summary.conversionRate, trend: t(summary.conversionRate), icon: TrendingUp },
+    // change: 0 — API does not provide conversionRateChange; using absolute rate as delta was misleading (I-114)
+    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: 0, trend: 'up' as const, icon: TrendingUp },
   ];
 }
 
@@ -488,6 +491,10 @@ export default function SalesPage() {
     queryKey: ['/api/metrics/dashboard', orgId],
   });
 
+  const { data: activityLogs, isLoading: activityLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/activity-log?limit=10', orgId],
+  });
+
   const salesMetrics = buildSalesMetrics(leadSummary, dashboardMetrics?.pipeline);
 
   /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
@@ -587,20 +594,31 @@ export default function SalesPage() {
             <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {[
-                { action: 'New lead from website', time: '5 min ago', type: 'lead' },
-                { action: 'Sales Agent qualified lead #1042', time: '12 min ago', type: 'agent' },
-                { action: 'Follow-up call completed', time: '28 min ago', type: 'call' },
-                { action: 'Proposal sent to David Jackson', time: '1 hour ago', type: 'email' },
-                { action: 'Test drive scheduled - Emily Davis', time: '2 hours ago', type: 'calendar' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                  <span className="text-sm flex-1">{item.action}</span>
-                  <span className="text-xs text-muted-foreground">{item.time}</span>
-                </div>
-              ))}
+            <div className="space-y-3" data-testid="recent-activity-feed">
+              {activityLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="w-2 h-2 rounded-full" />
+                    <Skeleton className="h-3 flex-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                ))
+              ) : (activityLogs && activityLogs.length > 0) ? (
+                activityLogs.slice(0, 10).map((log) => {
+                  const item = mapActivityLogToItem(log);
+                  return (
+                    <div key={item.id} className="flex items-center gap-3" data-testid={`activity-item-${item.id}`}>
+                      <div className={cn('w-2 h-2 rounded-full flex-shrink-0', getActivityColor(item.type))} />
+                      <span className="text-sm flex-1">{item.description}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-3">No recent activity</p>
+              )}
             </div>
           </CardContent>
         </Card>

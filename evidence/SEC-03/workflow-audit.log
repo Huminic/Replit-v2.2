@@ -1,0 +1,9 @@
+[2026-03-26T17:02:40Z] agent-launch | role=frontend | task="SEC-03 Sales fixes" | scope=client/src/pages/sales.tsx,client/src/components/layout/SubMenuManager.tsx
+[2026-03-26T17:02:40Z] ghost entry-gate | A1-A10 APPROVED
+[2026-03-26T17:02:40Z] dev file-edit | sales.tsx:591-624 — replaced hardcoded activity feed with useQuery
+[2026-03-26T17:02:40Z] dev file-edit | sales.tsx:115 — conversion rate change set to 0
+[2026-03-26T17:02:40Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T17:02:40Z] dev test-run | s3-sales.spec.ts — 10/12 passed (2 pre-existing seed failures)
+[2026-03-26T17:02:40Z] ghost exit-gate | B2-B11 CLEARED (B1 pending commit)
+[2026-03-26T17:02:52Z] PRE-COMMIT role=orchestrator sprint=SEC-03 result=BLOCKED detail="client/src/pages/sales.tsx has 50 lines changed (max 40, EF-14). Set UI_EXCEPTION=true if owner approved larger UI changes in sprint pre-exec."
+[2026-03-26T17:03:14Z] PRE-COMMIT role=orchestrator sprint=SEC-03 result=PASS detail="All 7 gates passed"

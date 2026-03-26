@@ -32,3 +32,14 @@
 [2026-03-26T16:49:10Z] [dev] [SEC-01] [build-check] npx tsc --noEmit — PASS (0 errors)
 [2026-03-26T16:49:57Z] [dev] [SEC-01] [test-run] npx playwright test tests/e2e/s1-ai-chat.spec.ts --project=sprint — PASS (17/17 passed, 34.4s)
 [2026-03-26T16:52:13Z] GHOST EXIT GATE — SEC-01 — CLEARED. 17/17 tests pass. Code verified: SubMenuManager title changed from customerName to 'Chat — X ago', click handlers pass conversationId via URL. main.tsx reads conversationId from URL params to resume conversations. All 11 gate checks pass (B5 N/A, B11 skipped pre-commit).
+[2026-03-26T16:55:00Z] [captain] [SEC-01] [committed] 7a32baa — all 7 gates passed
+2026-03-26T16:55:45Z | GHOST | SEC-03 | ENTRY GATE: APPROVED | A1-A10 all PASS | ghost-agent
+[2026-03-26T16:57:55Z] [dev] [SEC-03] [file-edit] sales.tsx:115 — I-114: Set conversionRate change to 0 with comment; absolute rate was misleading as trend delta
+[2026-03-26T16:57:55Z] [dev] [SEC-03] [file-edit] sales.tsx:37-39 — I-112: Added imports for ActivityLog, formatDistanceToNow, mapActivityLogToItem, getActivityColor
+[2026-03-26T16:57:55Z] [dev] [SEC-03] [file-edit] sales.tsx:490-493 — I-112: Added useQuery for /api/activity-log?limit=10
+[2026-03-26T16:57:55Z] [dev] [SEC-03] [file-edit] sales.tsx:591-621 — I-112: Replaced hardcoded mock activity feed with real API data via useQuery, loading skeleton, empty state
+[2026-03-26T16:58:20Z] [dev] [SEC-03] [file-edit] s3-sales.spec.ts:271-307 — Added S-3.AC12 (activity-log API test) and S-3.AC13 (conversion rate change field code check)
+[2026-03-26T16:59:36Z] [dev] [SEC-03] [build-check] PASS — tsc --noEmit completed with zero errors
+[2026-03-26T16:59:36Z] [dev] [SEC-03] [test-run] npx playwright test s3-sales.spec.ts --project=sprint — 10/12 passed (2 pre-existing failures: AC1 expects 4 agents but 5 exist, AC2 'Unauthorized' agent has short description — both are seed data issues outside sprint scope)
+[2026-03-26T16:59:36Z] [dev] [SEC-03] [assessment] I-130: Favorites system for agents tab deferred — requires new API endpoints, DB persistence, and significant state management. Agents tab layout is consistent with other pages.
+[2026-03-26T17:02:08Z] GHOST EXIT GATE SEC-03: NOT CLEARED — B1 FAIL (no commit). Code changes verified correct. 10/11 checks pass. Awaiting commit.

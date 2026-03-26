@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 17,
+  "totalSprints": 18,
   "workOrder": [
     "S-0",
     "S-1",
@@ -19,7 +19,8 @@
     "E-012",
     "E-013",
     "SEC-01",
-    "SEC-03"
+    "SEC-03",
+    "SEC-04"
   ],
   "sprints": [
     {
@@ -1862,7 +1863,7 @@
       "id": "SEC-01",
       "name": "AI Chat (Home)",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-126: Chat history title + resume fix",
       "dependsOn": [
         "SEC-07"
@@ -1873,13 +1874,14 @@
         "client/src/pages/main.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s1-ai-chat.spec.ts"
-      ]
+      ],
+      "commitHash": "7a32baa"
     },
     {
       "id": "SEC-03",
       "name": "Sales",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "in_progress",
       "description": "I-112 activity feed, I-114 conversion rate, I-130 agent favorites",
       "dependsOn": [
         "SEC-01"
@@ -1890,6 +1892,23 @@
         "client/src/pages/sales.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s3-sales.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-04",
+      "name": "Service",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-106/107 rate limit, I-113 metric trends, I-115 sub-menu, I-128 Campaign Safety dismiss, I-129 tooltips, I-130 agent favorites, I-132 multi-channel campaigns",
+      "dependsOn": [
+        "SEC-03"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/service.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s4-service.spec.ts"
       ]
     }
   ],
