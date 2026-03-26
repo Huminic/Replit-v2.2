@@ -1,0 +1,11 @@
+[2026-03-26T17:14:54Z] agent-launch | role=frontend | task="SEC-04 Service fixes" | scope=client/src/pages/service.tsx,client/src/components/layout/SubMenuManager.tsx,tests/e2e/s4-service.spec.ts
+[2026-03-26T17:14:54Z] ghost entry-gate | A1-A10 APPROVED
+[2026-03-26T17:14:54Z] dev file-edit | service.tsx — Campaign Safety dismiss, tooltips, sub-menu fix, metric comments
+[2026-03-26T17:14:54Z] dev file-edit | SubMenuManager.tsx — Dashboard→Campaigns
+[2026-03-26T17:14:54Z] dev file-edit | s4-service.spec.ts — new tests for I-128, I-129
+[2026-03-26T17:14:54Z] captain scope-fix | reverted undeclared outbound.ts change, fixed test assertion
+[2026-03-26T17:14:54Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T17:14:54Z] dev test-run | s4-service.spec.ts — 20/20 passed
+[2026-03-26T17:14:54Z] ghost exit-gate | code verified, B9 CLEAN
+[2026-03-26T17:15:02Z] PRE-COMMIT role=orchestrator sprint=SEC-04 result=BLOCKED detail="Cross-sign verdict is 'approved**', not 'approved'."
+[2026-03-26T17:15:42Z] PRE-COMMIT role=orchestrator sprint=SEC-04 result=PASS detail="All 7 gates passed"

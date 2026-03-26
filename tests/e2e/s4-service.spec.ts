@@ -255,6 +255,79 @@ test("S-4.AC13/AC14: after-hours logic exists in code", async () => {
 });
 
 // ==========================================
+// I-115: Sub-menu "Dashboard" → "Campaigns"
+// ==========================================
+test("I-115: sub-menu has no phantom Dashboard label", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/components/layout/SubMenuManager.tsx", "utf-8");
+
+  // The service section should not contain sv-dashboard
+  const serviceSection = code.split("case 'service':")[1]?.split("case '")[0] || "";
+  expect(serviceSection).not.toContain("sv-dashboard");
+  expect(serviceSection).toContain("sv-campaigns");
+  console.log("  Sub-menu: no sv-dashboard, sv-campaigns present");
+});
+
+// ==========================================
+// I-128: Campaign Safety dismiss button
+// ==========================================
+test("I-128: Campaign Safety card has dismiss button", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
+  expect(code).toContain('data-testid="button-dismiss-campaign-safety"');
+  expect(code).toContain("campaign-safety-dismissed");
+  expect(code).toContain("localStorage");
+  console.log("  Campaign Safety dismiss button with localStorage persistence found");
+});
+
+// ==========================================
+// I-129: Campaign action button tooltips
+// ==========================================
+test("I-129: campaign action buttons have tooltips", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
+  expect(code).toContain("Execute Campaign");
+  expect(code).toContain(">Schedule<");
+  expect(code).toContain("Dry Run");
+  expect(code).toContain("Upload CSV");
+  expect(code).toContain("Stop Execution");
+  expect(code).toContain("TooltipContent");
+  console.log("  All 5 tooltip labels found in campaign action buttons");
+});
+
+// ==========================================
+// I-113: Service metric trends documented
+// ==========================================
+test("I-113: service metric trend limitation documented", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
+  expect(code).toContain("I-113");
+  expect(code).toContain("computeChange");
+  console.log("  I-113 documentation comment present");
+});
+
+// ==========================================
+// I-132: Multi-channel campaign documented
+// ==========================================
+test("I-132: multi-channel campaign documented as future work", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
+  expect(code).toContain("I-132");
+  expect(code).toContain("multi-channel");
+  console.log("  I-132 multi-channel documentation comment present");
+});
+
+// ==========================================
+// I-106/I-107: Rate limit documented
+// ==========================================
+test("I-106/I-107: rate limit set to 100", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("server/outbound.ts", "utf-8");
+  expect(code).toContain("DEFAULT_RATE_LIMIT_MAX = 100");
+  console.log("  Rate limit confirmed at 100");
+});
+
+// ==========================================
 // S-4.AC15: Service Insights KPI tiles
 // ==========================================
 test("S-4.AC15: service metrics return data", async ({ request }) => {

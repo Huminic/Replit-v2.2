@@ -1,11 +1,11 @@
-ACK 2026-03-26T17:10:00Z
+ACK 2026-03-26T17:20:00Z
 Acknowledged-By: captain
-Sprint: SEC-03
+Sprint: SEC-04
 
 C1: ACCEPTED — E-012 new registration.
-C2: ACCEPTED — Upcoming sprint evidence dirs are pre-staged.
-C3: ACCEPTED — Cross-sign has correct format with Verdict: APPROVED.
-C4: ACCEPTED — Enforcer checklist has RESULT: APPROVED.
+C2: ACCEPTED — Upcoming sprint evidence dirs pre-staged.
+C3: ACCEPTED — Cross-sign correct format.
+C4: ACCEPTED — Enforcer checklist APPROVED.
 C5: ACCEPTED — .governor is governance infrastructure.
 C7: ACCEPTED — Session state in governor project memory.
 C15: ACCEPTED — MEMORY.md in governor project.

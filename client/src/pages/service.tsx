@@ -22,7 +22,7 @@
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -41,6 +41,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useApp } from '@/contexts/AppContext';
 import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -87,6 +88,7 @@ export default function ServicePage() {
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('campaigns');
+  const [campaignSafetyDismissed, setCampaignSafetyDismissed] = useState(() => localStorage.getItem('campaign-safety-dismissed') === 'true');
 
   // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
   useEffect(() => {
@@ -101,12 +103,22 @@ export default function ServicePage() {
   });
 
   const serviceStats = metrics?.campaignStats?.byDepartment?.service;
+  /**
+   * Known limitation (I-113): All service metric tiles have hardcoded `change: 0, trend: 'up'`.
+   * The backend computeChange() function is sales-specific and does not produce
+   * change/trend data for service department metrics. This requires a backend enhancement
+   * to compute period-over-period deltas for service KPIs before the frontend can display them.
+   *
+   * Additionally, svm-4 (Open Conversations) and svm-5 (Total Conversations) show org-wide
+   * counts, not service-department-filtered counts. The /api/metrics/dashboard endpoint does
+   * not currently break down conversation counts by department.
+   */
   const serviceMetrics: ServiceMetricTile[] = [
     { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
     { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
     { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
-    { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), change: 0, trend: 'up' as const, icon: CalendarCheck },
-    { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: ThumbsDown },
+    { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), change: 0, trend: 'up' as const, icon: CalendarCheck }, // org-wide, not service-filtered — see comment above
+    { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: ThumbsDown }, // org-wide, not service-filtered — see comment above
     { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: DollarSign },
   ];
 
@@ -233,7 +245,17 @@ export default function ServicePage() {
     },
   });
 
-  /** Agents tab — service department AI agent cards */
+  /**
+   * Agents tab — service department AI agent cards
+   *
+   * I-130 Assessment: Agent favorites feasibility.
+   * A generic favorites API exists (/api/favorites) that stores path+label pairs (page bookmarks).
+   * Adding per-agent favorites would require either: (a) repurposing the existing path-based
+   * favorites system to store agent paths like "/agents?id=X", or (b) adding a dedicated
+   * agent favorites endpoint. Either approach also needs UI changes (star icon per card,
+   * favorites filter/sort). This crosses the declared file boundary (AppContext, API routes)
+   * and is deferred to a future sprint.
+   */
   const renderAgents = () => {
     if (agentsLoading) {
       return (
@@ -398,69 +420,91 @@ export default function ServicePage() {
                                 {execStatus.processed}/{execStatus.totalRecipients}
                                 {execStatus.dryRun ? " (dry)" : ""}
                               </Badge>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => stopMutation.mutate({ id: campaign.id })}
-                                disabled={stopMutation.isPending}
-                                data-testid={`button-stop-campaign-${campaign.id}`}
-                              >
-                                <Square className="h-4 w-4 text-red-500" />
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => stopMutation.mutate({ id: campaign.id })}
+                                    disabled={stopMutation.isPending}
+                                    data-testid={`button-stop-campaign-${campaign.id}`}
+                                  >
+                                    <Square className="h-4 w-4 text-red-500" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Stop Execution</TooltipContent>
+                              </Tooltip>
                             </>
                           ) : (
                             <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
-                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
-                                data-testid={`button-start-campaign-${campaign.id}`}
-                                title="Execute now"
-                              >
-                                <Play className="h-4 w-4" />
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
+                                    disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                    data-testid={`button-start-campaign-${campaign.id}`}
+                                  >
+                                    <Play className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Execute Campaign</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setScheduleDialogCampaignId(campaign.id);
+                                      setScheduleDateTime('');
+                                    }}
+                                    disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                    data-testid={`button-schedule-campaign-${campaign.id}`}
+                                  >
+                                    <CalendarIcon className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Schedule</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: true })}
+                                    disabled={executeMutation.isPending || campaign.recipientCount === 0}
+                                    data-testid={`button-dryrun-campaign-${campaign.id}`}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Dry Run</TooltipContent>
+                              </Tooltip>
+                            </>
+                          )}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
-                                  setScheduleDialogCampaignId(campaign.id);
-                                  setScheduleDateTime('');
+                                  setCsvUploadCampaignId(campaign.id);
+                                  csvInputRef.current?.click();
                                 }}
-                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
-                                data-testid={`button-schedule-campaign-${campaign.id}`}
-                                title="Schedule for later"
+                                disabled={csvUploadMutation.isPending}
+                                data-testid={`button-upload-csv-${campaign.id}`}
                               >
-                                <CalendarIcon className="h-4 w-4" />
+                                {csvUploadMutation.isPending && csvUploadCampaignId === campaign.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Upload className="h-4 w-4" />
+                                )}
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: true })}
-                                disabled={executeMutation.isPending || campaign.recipientCount === 0}
-                                data-testid={`button-dryrun-campaign-${campaign.id}`}
-                                title="Dry run"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setCsvUploadCampaignId(campaign.id);
-                              csvInputRef.current?.click();
-                            }}
-                            disabled={csvUploadMutation.isPending}
-                            data-testid={`button-upload-csv-${campaign.id}`}
-                          >
-                            {csvUploadMutation.isPending && csvUploadCampaignId === campaign.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Upload className="h-4 w-4" />
-                            )}
-                          </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Upload CSV</TooltipContent>
+                          </Tooltip>
                         </>
                       );
                     })()}
@@ -473,6 +517,12 @@ export default function ServicePage() {
       </div>
       )}
 
+      {/*
+        * I-132: Multi-channel campaign support (email + text + phone combination per campaign)
+        * is a planned feature. Currently each campaign supports a single channel only.
+        * Implementing multi-channel requires backend changes to the campaign model to store
+        * an array of channels and route messages per-channel during execution.
+        */}
       <Dialog open={newCampaignOpen} onOpenChange={setNewCampaignOpen}>
         <DialogContent>
           <DialogHeader>
@@ -569,18 +619,32 @@ export default function ServicePage() {
         </DialogContent>
       </Dialog>
 
-      <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+      {!campaignSafetyDismissed && (
+      <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20" data-testid="card-campaign-safety">
         <CardContent className="p-4 flex items-start gap-3">
           <Ban className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Campaign Safety</p>
             <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
               Use the Kill Switch to immediately stop all outbound messages for a campaign.
               Individual conversations can also be disconnected from campaigns in TeamBox.
             </p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
+            onClick={() => {
+              setCampaignSafetyDismissed(true);
+              localStorage.setItem('campaign-safety-dismissed', 'true');
+            }}
+            data-testid="button-dismiss-campaign-safety"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </CardContent>
       </Card>
+      )}
 
       <Dialog open={!!selectedCampaign} onOpenChange={(open) => { if (!open) setSelectedCampaign(null); }}>
         <DialogContent className="sm:max-w-lg" data-testid="dialog-campaign-detail">

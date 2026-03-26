@@ -577,9 +577,8 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'sv-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/service', active: location === '/service' })}
+                  {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service', active: location === '/service' })}
                   {renderNavItem({ id: 'sv-agents', label: 'Agents', icon: Bot, path: '/service?tab=agents' })}
-                  {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service?tab=campaigns' })}
                   {renderNavItem({ id: 'sv-insights', label: 'Insights', icon: BarChart3, path: '/service?tab=insights' })}
                   {renderNavItem({ id: 'sv-calendar', label: 'Calendar', icon: CalendarIcon, path: '/service?tab=calendar' })}
                 </nav>

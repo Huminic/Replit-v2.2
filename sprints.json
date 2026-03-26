@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 18,
+  "totalSprints": 19,
   "workOrder": [
     "S-0",
     "S-1",
@@ -20,7 +20,8 @@
     "E-013",
     "SEC-01",
     "SEC-03",
-    "SEC-04"
+    "SEC-04",
+    "SEC-05"
   ],
   "sprints": [
     {
@@ -1881,7 +1882,7 @@
       "id": "SEC-03",
       "name": "Sales",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-112 activity feed, I-114 conversion rate, I-130 agent favorites",
       "dependsOn": [
         "SEC-01"
@@ -1892,13 +1893,14 @@
         "client/src/pages/sales.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s3-sales.spec.ts"
-      ]
+      ],
+      "commitHash": "dea6421"
     },
     {
       "id": "SEC-04",
       "name": "Service",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "in_progress",
       "description": "I-106/107 rate limit, I-113 metric trends, I-115 sub-menu, I-128 Campaign Safety dismiss, I-129 tooltips, I-130 agent favorites, I-132 multi-channel campaigns",
       "dependsOn": [
         "SEC-03"
@@ -1909,6 +1911,23 @@
         "client/src/pages/service.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s4-service.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-05",
+      "name": "Marketing",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-102 Photo Studio, I-113 metric trends, I-115 sub-menu, I-124 duplicate agents, I-130 favorites",
+      "dependsOn": [
+        "SEC-04"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/marketing.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s5-marketing.spec.ts"
       ]
     }
   ],
