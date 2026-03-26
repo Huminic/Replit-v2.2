@@ -122,6 +122,9 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-072 | Agent Behavior save in AI Config is demo-only (shows toast, doesn't persist) | E-013 S-7 audit |
 | BL-073 | Contact phone on Profile page is hardcoded "+1 (555) 123-4567" | E-013 S-8 audit |
 | BL-074 | Notification data source verification — may be client-side mock vs real API | E-013 S-8 audit |
+| BL-075 | AI Chat file upload — plus button starts new chat, no file picker/upload exists. Page header comment is aspirational. | SEC-01 verification |
+| BL-076 | TeamBox delete conversation — backend DELETE /api/conversations/:id exists (role-3 auth), but no UI button/mutation/dialog in teambox.tsx | SEC-02 verification |
+| BL-077 | TeamBox agent vs human filter — only "automated" status filter exists, no dedicated "human only" toggle (~20 lines to add) | SEC-02 verification |
 
 ---
 

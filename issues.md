@@ -271,11 +271,11 @@ None. All 3 previously open issues closed by S-0 (commit de65c33).
 **Sprint:** S-7
 
 ### [FE] I-119: Web Call widget behavior differs from manifest
-**Status:** INVESTIGATING
+**Status:** REMEDIATING
 **Layer:** S8/FE+BE
 **Severity:** Medium
-**Evidence:** Manifest says "ask for number, trigger VAPI call to prospect." Code does browser-based VAPI call to AI assistant (no number collection, no outbound phone call). Needs operator clarification on intended behavior.
-**Sprint:** S-8
+**Evidence:** Operator clarified: Web Call should be "Instant Call Back" — visitor enters phone number, system triggers outbound VAPI call TO that number. Current code does browser-based AI voice call. Requires: rename button to "Instant Call Back", add phone number input, trigger outbound VAPI call via backend.
+**Sprint:** SEC-08
 
 ### [FE] I-120: AI Config tile RBAC inconsistent with sub-menu
 **Status:** REMEDIATING

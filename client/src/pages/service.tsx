@@ -101,10 +101,18 @@ export default function ServicePage() {
   });
 
   const serviceStats = metrics?.campaignStats?.byDepartment?.service;
+  // I-113: change/trend data is hardcoded to 0/'up' because /api/metrics/dashboard does not
+  // return period-over-period deltas for service metrics. The computeChange() logic exists in
+  // the insights endpoint (server/routes/insights.ts) but is sales-pipeline-specific.
+  // To fix properly, the BE would need to expose change data per department in the dashboard response.
   const serviceMetrics: ServiceMetricTile[] = [
     { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
     { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
     { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
+    // S-4.AC15: Open Conversations and Total Conversations are org-wide, not service-filtered.
+    // The /api/metrics/dashboard endpoint returns conversationCounts without department breakdown.
+    // The server query (storage.ts ~L687) groups by status and channel only, not by department.
+    // Filtering would require a BE change to add conversationCounts.byDepartment.
     { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), change: 0, trend: 'up' as const, icon: CalendarCheck },
     { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: ThumbsDown },
     { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: DollarSign },

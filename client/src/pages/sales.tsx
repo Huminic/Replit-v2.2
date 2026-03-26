@@ -34,7 +34,8 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { getAgentStatusColor } from '@/lib/agent-utils';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
-import type { Agent } from '@shared/schema';
+import type { Agent, ActivityLog } from '@shared/schema';
+import { formatDistanceToNow } from 'date-fns';
 
 interface SalesMetricTile {
   id: string;
@@ -109,10 +110,12 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },
     { id: 'sm-3', label: 'Active Pipeline', value: String(activePipeline), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
+    // API does not provide period-over-period change data for waitingForResponse or appointments
     { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: 0, trend: 'up' as const, icon: Clock },
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), icon: TrendingUp },
-    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: summary.conversionRate, trend: t(summary.conversionRate), icon: TrendingUp },
+    // API does not provide conversionRateChange — using 0 instead of the absolute rate (I-114 fix)
+    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: 0, trend: t(summary.conversionRate), icon: TrendingUp },
   ];
 }
 
@@ -488,6 +491,10 @@ export default function SalesPage() {
     queryKey: ['/api/metrics/dashboard', orgId],
   });
 
+  const { data: activityLogs = [], isLoading: activityLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/activity-log?limit=10', orgId],
+  });
+
   const salesMetrics = buildSalesMetrics(leadSummary, dashboardMetrics?.pipeline);
 
   /** Dashboard tab — metric tiles grid + top performing agents card + recent activity feed */
@@ -587,20 +594,31 @@ export default function SalesPage() {
             <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {[
-                { action: 'New lead from website', time: '5 min ago', type: 'lead' },
-                { action: 'Sales Agent qualified lead #1042', time: '12 min ago', type: 'agent' },
-                { action: 'Follow-up call completed', time: '28 min ago', type: 'call' },
-                { action: 'Proposal sent to David Jackson', time: '1 hour ago', type: 'email' },
-                { action: 'Test drive scheduled - Emily Davis', time: '2 hours ago', type: 'calendar' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                  <span className="text-sm flex-1">{item.action}</span>
-                  <span className="text-xs text-muted-foreground">{item.time}</span>
-                </div>
-              ))}
+            <div className="space-y-3" data-testid="recent-activity-feed">
+              {activityLoading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="w-2 h-2 rounded-full flex-shrink-0" />
+                    <Skeleton className="h-4 flex-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                ))
+              ) : activityLogs.length > 0 ? (
+                activityLogs.slice(0, 5).map((log) => (
+                  <div key={log.id} className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                    <span className="text-sm flex-1">
+                      {log.action}{log.entityType ? ` on ${log.entityType}` : ''}
+                      {(log.metadata as any)?.details ? `: ${(log.metadata as any).details}` : ''}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {log.createdAt ? formatDistanceToNow(new Date(log.createdAt), { addSuffix: true }) : ''}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No recent activity</p>
+              )}
             </div>
           </CardContent>
         </Card>

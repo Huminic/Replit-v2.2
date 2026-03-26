@@ -6,7 +6,7 @@
   "phase": "qa_resolve_loop",
   "status": "queued",
   "priority": "T1",
-  "description": "Verify Landing Pages and Widgets: confirm video new window, store name top-left, contact form submission, web chat AI responses, web call behavior (needs operator clarification on outbound vs browser call), widget embed code, ?mode=video auto-launch.",
+  "description": "Verify and fix Landing Pages and Widgets: confirm video new window, store name top-left, contact form submission, web chat AI responses. Change Web Call to 'Instant Call Back' — visitor enters phone number, system triggers outbound VAPI call to that number (not browser-based AI call). Widget embed code, ?mode=video auto-launch.",
   "acceptanceCriteria": ["S-8.AC1 through S-8.AC14"],
   "newACs": ["S-8.AC8", "S-8.AC9", "S-8.AC10", "S-8.AC11", "S-8.AC12", "S-8.AC13", "S-8.AC14"],
   "issues": ["I-119"],

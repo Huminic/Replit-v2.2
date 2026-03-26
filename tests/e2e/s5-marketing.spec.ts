@@ -88,6 +88,35 @@ test("S-5.AC7: dashboard metrics return values", async ({ request }) => {
   console.log(`  Dashboard: agents=${data.agentCounts?.total}, conversations=${data.conversationCounts?.total}`);
 });
 
+test("S-5.AC10 (I-115): sub-menu has no Campaigns link", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/components/layout/SubMenuManager.tsx", "utf-8");
+  // The marketing section should not contain a Campaigns nav item
+  const marketingSection = code.slice(code.indexOf("case 'marketing':"), code.indexOf("case 'management':"));
+  expect(marketingSection).not.toContain("mk-campaigns");
+  expect(marketingSection).not.toContain("tab=campaigns");
+  console.log("  Sub-menu: no Campaigns link in marketing section");
+});
+
+test("S-5.AC11 (I-113): metric trends not hardcoded to zero", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/marketing.tsx", "utf-8");
+  // Metric tiles should not have hardcoded change: 0, trend: 'up'
+  const metricsBlock = code.slice(code.indexOf("marketingMetrics:"), code.indexOf("renderDashboard"));
+  expect(metricsBlock).not.toContain("change: 0");
+  expect(metricsBlock).not.toContain("trend: 'up'");
+  console.log("  Metrics: no hardcoded change/trend values");
+});
+
+test("S-5.AC12: fallback behavior is documented", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/marketing.tsx", "utf-8");
+  // The fallback from marketing-specific to global stats should have an explanatory comment
+  expect(code).toContain("Fallback logic (intentional)");
+  expect(code).toContain("byDepartment.marketing");
+  console.log("  Fallback: documented with explanatory comment");
+});
+
 test("S-5.AC8: Photo Studio responds with image-related content", async ({ request }) => {
   const token = await getToken(request);
   const convRes = await request.post(`${BASE}/api/conversations`, {

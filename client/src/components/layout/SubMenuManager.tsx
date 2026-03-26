@@ -10,7 +10,7 @@
  *   - teambox: Conversation/task/workflow navigation + quick filters (open/automated/followup)
  *   - my-work: Assistant/dashboard/tasks/chat tab links
  *   - sales/service/marketing: Tab navigation + agent list with expandable conversations
- *   - management: Dashboard/insights/hunches/activities/ROI navigation
+ *   - management: Insights/hunches/activities/user-chats/billing navigation
  *   - system: Settings items filtered by currentRole RBAC
  *   - profile: User info + profile/preferences/billing links
  *
@@ -577,9 +577,8 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'sv-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/service', active: location === '/service' })}
+                  {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service', active: location === '/service' })}
                   {renderNavItem({ id: 'sv-agents', label: 'Agents', icon: Bot, path: '/service?tab=agents' })}
-                  {renderNavItem({ id: 'sv-campaigns', label: 'Campaigns', icon: Megaphone, path: '/service?tab=campaigns' })}
                   {renderNavItem({ id: 'sv-insights', label: 'Insights', icon: BarChart3, path: '/service?tab=insights' })}
                   {renderNavItem({ id: 'sv-calendar', label: 'Calendar', icon: CalendarIcon, path: '/service?tab=calendar' })}
                 </nav>
@@ -604,7 +603,6 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mk-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/marketing', active: location === '/marketing' })}
-                  {renderNavItem({ id: 'mk-campaigns', label: 'Campaigns', icon: Megaphone, path: '/marketing?tab=campaigns' })}
                   {renderNavItem({ id: 'mk-studio', label: 'Studio', icon: Palette, path: '/marketing?tab=studio' })}
                   {renderNavItem({ id: 'mk-insights', label: 'Insights', icon: BarChart3, path: '/marketing?tab=insights' })}
                 </nav>
@@ -654,10 +652,11 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'mg-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/management', active: location === '/management' })}
-                  {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
+                  {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management', active: location === '/management' })}
+                  {renderNavItem({ id: 'mg-hunches', label: 'Hunches', icon: Lightbulb, path: '/management?tab=hunches' })}
                   {renderNavItem({ id: 'mg-activities', label: 'System Log', icon: Activity, path: '/management?tab=activities' })}
                   {renderNavItem({ id: 'mg-user-chats', label: 'User Chats', icon: MessageSquare, path: '/management?tab=user-chats' })}
+                  {renderNavItem({ id: 'mg-billing', label: 'Billing', icon: CreditCard, path: '/management?tab=billing' })}
                 </nav>
               </div>
             </ScrollArea>

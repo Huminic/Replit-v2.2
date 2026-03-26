@@ -1,10 +1,10 @@
-ACK 2026-03-26T06:40:00Z
+ACK 2026-03-26T07:15:00Z
 Acknowledged-By: captain
 Sprint: E-013
 
 C1: ACCEPTED — E-012 newly registered, no prior commit hash.
-C5: ACCEPTED — .governor directory is new governance infrastructure being committed now.
-C7: ACCEPTED — session state managed in governor project memory, not app session-state.md.
-C14: ACCEPTED — check-file-scope.sh updated to whitelist .governor/, tests/, server/, hardwonknowledge.md for governance role. Operator-approved change.
-C15: ACCEPTED — MEMORY.md is in governor project, not app root.
-C16: ACCEPTED — E-012 is new registration. Large file count is governance cleanup.
+C5: ACCEPTED — Evidence dirs are sprint output being committed.
+C7: ACCEPTED — Session state in governor project memory.
+C14: ACCEPTED — check-file-scope.sh was updated in prior commit (45e98ff).
+C15: ACCEPTED — MEMORY.md in governor project.
+C16: ACCEPTED — Large file count is 8 section sprints committed together.
