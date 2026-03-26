@@ -1957,7 +1957,7 @@
       "id": "SEC-02",
       "name": "TeamBox",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "Verification sprint",
       "dependsOn": [
         "SEC-06"
@@ -1968,13 +1968,14 @@
         "client/src/pages/teambox.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s2-teambox.spec.ts"
-      ]
+      ],
+      "commitHash": "df3d321"
     },
     {
       "id": "SEC-08",
       "name": "Landing/Widgets",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "in_progress",
       "description": "I-119 Instant Call Back, I-121 video popup, I-122 deploy",
       "dependsOn": [
         "SEC-02"

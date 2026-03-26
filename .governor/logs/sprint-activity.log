@@ -87,3 +87,14 @@
 [2026-03-26T17:45:27Z] [dev] [SEC-02] [verification] S-2.AC17: Agent/human filter — status filters include 'automated' but no dedicated agent/human toggle exists. Channel filters: all/sms/email/chat/whatsapp/voice. No boolean isAutomated filter chip.
 [2026-03-26T17:45:27Z] [dev] [SEC-02] [verification] S-2.AC20: Campaign conversations — getConversations filters by org/status/channel/agentId only. No exclusion of campaignId. Conversations with campaignId WILL appear in TeamBox. Confirmed campaignId is a nullable FK on conversations table.
 [2026-03-26T17:45:27Z] [dev] [SEC-02] [verification] S-2.AC21: Delete conversation — backend endpoint exists: DELETE /api/conversations/:id (requires role>=3). Frontend delete exists in SubMenuManager (deleteConversationMutation at line 96-104) but NOT in teambox.tsx main view. No delete button/context menu on the TeamBox page itself.
+[2026-03-26T17:49:28Z] [captain] [SEC-02] [committed] df3d321 — all 7 gates passed
+[2026-03-26T17:51:35Z] GHOST ENTRY GATE SEC-08: APPROVED (10/10 PASS) — SEC-02 cleared (df3d321), worktree clean, 3 declared files match sprints.json, UI changes documented, test plan specified.
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:93-95 — Added callbackPhone and callbackStatus state variables (I-119)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:305-323 — Added submitCallback() function for POST /api/widget/voice-callback (I-119)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:106-131 — Fixed ?mode=video auto-launch: open window synchronously before async fetch (I-121)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:325-365 — Fixed startVideoChat: open about:blank synchronously, redirect after fetch (I-121, I-122 comment)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:439-450 — Changed menu button: 'Web Call' → 'Instant Call Back', description updated (I-119)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] widget-landing.tsx:620-700 — Replaced voice widget VAPI UI with phone callback form (I-119)
+[2026-03-26T17:55:20Z] [dev] [SEC-08] [file-edit] s8-landing-widgets.spec.ts:17-42 — Updated video test for popup blocker fix, added callback tests (I-119, I-121)
+[2026-03-26T17:56:32Z] [dev] [SEC-08] [evidence] post-sprint-report.md, cross-sign.md, enforcer-checklist.txt — Sprint evidence written
+[2026-03-26T17:58:01Z] SEC-08 EXIT GATE: CLEARED — 9/9 checks passed. Ghost verified: label change, callback form, popup fix (both paths), cross-sign valid, no undeclared files.

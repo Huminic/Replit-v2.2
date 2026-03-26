@@ -1,0 +1,20 @@
+ENFORCER CHECKLIST: SEC-08
+Timestamp: 2026-03-26T17:55:44Z
+
+[PASS] Pre-execution report exists and was followed
+[PASS] Only declared files modified (widget-landing.tsx, s8-landing-widgets.spec.ts)
+[PASS] widget-types.ts not modified (no changes needed)
+[PASS] TypeScript build clean (npx tsc --noEmit)
+[PASS] All 12 tests pass (npx playwright test --project=sprint)
+[PASS] I-119: Menu label changed to "Instant Call Back" / "Get a call back now"
+[PASS] I-119: Voice widget replaced with phone callback form
+[PASS] I-119: submitCallback POSTs to /api/widget/voice-callback
+[PASS] I-119: VAPI code preserved but not called from UI
+[PASS] I-121: Video popup fix uses window.open('about:blank') synchronous pattern
+[PASS] I-121: Fix applied to both startVideoChat() and ?mode=video auto-launch
+[PASS] I-122: Deployment comment added
+[PASS] Sprint activity logged to .governor/logs/sprint-activity.log
+[PASS] Post-sprint report written
+[PASS] Cross-sign written
+
+RESULT: APPROVED

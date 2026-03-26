@@ -1,0 +1,8 @@
+[2026-03-26T17:58:30Z] agent-launch | role=frontend | task="SEC-08 Landing/Widgets fixes" | scope=client/src/pages/widget-landing.tsx,client/src/lib/widget-types.ts,tests/e2e/s8-landing-widgets.spec.ts
+[2026-03-26T17:58:30Z] ghost entry-gate | APPROVED
+[2026-03-26T17:58:30Z] dev file-edit | widget-landing.tsx — Instant Call Back (label, phone form, submitCallback)
+[2026-03-26T17:58:30Z] dev file-edit | widget-landing.tsx — video popup fix (sync window.open before fetch, both locations)
+[2026-03-26T17:58:30Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T17:58:30Z] dev test-run | s8-landing-widgets.spec.ts — 12/12 passed
+[2026-03-26T17:58:30Z] ghost exit-gate | CLEARED — code verified
+[2026-03-26T17:58:42Z] PRE-COMMIT role=orchestrator sprint=SEC-08 result=PASS detail="All 7 gates passed"

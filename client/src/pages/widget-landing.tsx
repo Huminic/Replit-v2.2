@@ -91,6 +91,8 @@ export default function WidgetLandingPage() {
   const [micMuted, setMicMuted] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended' | 'error'>('idle');
   const [voiceVolume, setVoiceVolume] = useState(0);
+  const [callbackPhone, setCallbackPhone] = useState('');
+  const [callbackStatus, setCallbackStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [videoSessionUrl, setVideoSessionUrl] = useState<string | null>(null);
   const [videoStatus, setVideoStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const vapiRef = useRef<Vapi | null>(null);
@@ -108,12 +110,14 @@ export default function WidgetLandingPage() {
       setWidgetMode('video');
       setVideoStatus('connecting');
       setVideoActive(true);
+      // I-121: Open window SYNCHRONOUSLY before async work to avoid popup blocker
+      const videoWindow = window.open('about:blank', '_blank');
       (async () => {
         try {
           const cfgRes = await fetch(`/api/widget/voice-config/${slug}`);
-          if (!cfgRes.ok) { setVideoStatus('error'); return; }
+          if (!cfgRes.ok) { if (videoWindow) videoWindow.close(); setVideoStatus('error'); return; }
           const cfg = await cfgRes.json();
-          if (!cfg?.tavusPersonaId) { setVideoStatus('error'); return; }
+          if (!cfg?.tavusPersonaId) { if (videoWindow) videoWindow.close(); setVideoStatus('error'); return; }
           const res = await fetch('/api/widget/video-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -121,10 +125,10 @@ export default function WidgetLandingPage() {
           });
           if (res.ok) {
             const data = await res.json();
-            window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
+            if (videoWindow) { videoWindow.location.href = data.conversationUrl; }
             setVideoStatus('connected');
-          } else { setVideoStatus('error'); }
-        } catch { setVideoStatus('error'); }
+          } else { if (videoWindow) videoWindow.close(); setVideoStatus('error'); }
+        } catch { if (videoWindow) videoWindow.close(); setVideoStatus('error'); }
       })();
     }
   }, [queryMode, orgData, loading, autoLaunched, slug]);
@@ -302,12 +306,37 @@ export default function WidgetLandingPage() {
     setWidgetMode('closed');
   };
 
+  const submitCallback = async () => {
+    if (!callbackPhone.trim()) return;
+    setCallbackStatus('submitting');
+    try {
+      const res = await fetch('/api/widget/voice-callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, phoneNumber: callbackPhone.trim() }),
+      });
+      if (res.ok) {
+        setCallbackStatus('success');
+      } else {
+        setCallbackStatus('error');
+      }
+    } catch {
+      setCallbackStatus('error');
+    }
+  };
+
+  // I-121: Open window SYNCHRONOUSLY in click handler to avoid popup blocker,
+  // then redirect after async fetch completes.
+  // I-122: These widget changes require deployment to take effect on the live site.
   const startVideoChat = async () => {
+    // Open blank window SYNCHRONOUSLY in click handler — not blocked by popup blocker
+    const videoWindow = window.open('about:blank', '_blank');
     setWidgetMode('video');
     setVideoStatus('connecting');
     setVideoActive(true);
     const config = await fetchVoiceConfig();
     if (!config?.tavusPersonaId) {
+      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
       return;
     }
@@ -319,14 +348,17 @@ export default function WidgetLandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        // Open Tavus video in a new browser window — do NOT embed in widget iframe
-        window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
+        if (videoWindow) {
+          videoWindow.location.href = data.conversationUrl;
+        }
         setVideoStatus('connected');
       } else {
+        if (videoWindow) videoWindow.close();
         setVideoStatus('error');
       }
     } catch (err) {
       console.error('Video session error:', err);
+      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
     }
   };
@@ -428,15 +460,15 @@ export default function WidgetLandingPage() {
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => startVoiceCall()}
+              onClick={() => { setWidgetMode('voice'); setCallbackStatus('idle'); setCallbackPhone(''); }}
               data-testid="widget-option-voice"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
                 <Phone className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Web Call</p>
-                <p className="text-xs text-gray-500">Talk to our AI assistant</p>
+                <p className="font-medium text-sm text-gray-900">Instant Call Back</p>
+                <p className="text-xs text-gray-500">Get a call back now</p>
               </div>
             </button>
             <button
@@ -612,78 +644,79 @@ export default function WidgetLandingPage() {
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[300px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
           <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
-              <button onClick={() => { endVoiceCall(); setWidgetMode('menu'); }} className="text-white/70 hover:text-white text-xs">←</button>
-              <p className="font-semibold text-xs">Voice Call</p>
+              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs">←</button>
+              <p className="font-semibold text-xs">Instant Call Back</p>
             </div>
-            <button onClick={() => endVoiceCall()} className="text-white/70 hover:text-white">
+            <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            {voiceStatus === 'connecting' ? (
+            {callbackStatus === 'submitting' ? (
               <>
                 <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
                   <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Connecting...</p>
-                <p className="text-xs text-gray-500 mt-1">Setting up voice call</p>
+                <p className="font-medium text-sm text-gray-900">Requesting call back...</p>
               </>
-            ) : voiceStatus === 'connected' ? (
+            ) : callbackStatus === 'success' ? (
               <>
                 <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                  <Phone className="h-8 w-8 text-emerald-600" />
+                  <CheckCircle2 className="h-8 w-8 text-emerald-600" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Connected to {PERSONA_NAME}</p>
-                <p className="text-xs text-gray-500 mt-1">AI Voice Assistant</p>
-                <div className="flex items-center gap-1 mt-3">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="w-1 rounded-full bg-emerald-500 transition-all" style={{ height: `${12 + voiceVolume * 20 + Math.sin(Date.now() / 200 + i) * 4}px` }} />
-                  ))}
-                </div>
+                <p className="font-medium text-sm text-gray-900">We're calling you now!</p>
+                <p className="text-xs text-gray-500 mt-1">Please keep your phone nearby</p>
+                <button
+                  className="mt-4 text-xs font-medium hover:underline"
+                  style={{ color: WIDGET_TEAL }}
+                  onClick={() => { setCallbackStatus('idle'); setCallbackPhone(''); }}
+                  data-testid="button-callback-another"
+                >
+                  Request another call
+                </button>
               </>
-            ) : voiceStatus === 'error' ? (
+            ) : callbackStatus === 'error' ? (
               <>
                 <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
                   <Phone className="h-8 w-8 text-red-400" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Call unavailable</p>
-                <p className="text-xs text-gray-500 mt-1">Voice calling is not configured yet. Please try Web Chat instead.</p>
-              </>
-            ) : voiceStatus === 'ended' ? (
-              <>
-                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                  <Phone className="h-8 w-8 text-gray-400" />
-                </div>
-                <p className="font-medium text-sm text-gray-900">Call ended</p>
-                <p className="text-xs text-gray-500 mt-1">Thank you for calling</p>
+                <p className="font-medium text-sm text-gray-900">Unable to place call. Please try again.</p>
+                <button
+                  className="mt-4 text-xs font-medium hover:underline"
+                  style={{ color: WIDGET_TEAL }}
+                  onClick={() => setCallbackStatus('idle')}
+                  data-testid="button-callback-retry"
+                >
+                  Try again
+                </button>
               </>
             ) : (
               <>
-                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                  <Phone className="h-8 w-8 text-emerald-600" />
+                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                  <Phone className="h-7 w-7 text-emerald-600" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Ready to call</p>
+                <p className="font-medium text-sm text-gray-900">Get a call back now</p>
+                <p className="text-xs text-gray-500 mt-1 mb-4">Enter your phone number and we'll call you</p>
+                <input
+                  type="tel"
+                  value={callbackPhone}
+                  onChange={(e) => setCallbackPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
+                  className="w-full text-sm h-9 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  data-testid="input-callback-phone"
+                />
+                <Button
+                  className="w-full mt-3 text-white"
+                  style={{ backgroundColor: WIDGET_TEAL }}
+                  onClick={submitCallback}
+                  disabled={!callbackPhone.trim()}
+                  data-testid="button-callback-submit"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Me
+                </Button>
               </>
             )}
-          </div>
-          <div className="p-3 border-t border-gray-100 flex items-center justify-center gap-4">
-            <button
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${micMuted ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              onClick={() => {
-                setMicMuted(!micMuted);
-                if (vapiRef.current) vapiRef.current.send({ type: 'control', control: micMuted ? 'unmute-assistant' : 'mute-assistant' });
-              }}
-              data-testid="button-voice-mic"
-            >
-              {micMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </button>
-            <button
-              className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-              onClick={() => endVoiceCall()}
-              data-testid="button-voice-end"
-            >
-              <Phone className="h-4 w-4 rotate-[135deg]" />
-            </button>
           </div>
         </div>
       );
