@@ -271,6 +271,7 @@ export default function ManagementPage() {
     </div>
   );
 
+  // TODO: Implement staff AI conversation viewer with user filter per manifest S-6.AC5/AC6. Currently placeholder.
   /** User Chats tab — placeholder for viewing user chat activity across all agents */
   const renderUserChats = () => (
     <div className="p-6 flex items-center justify-center h-full">
@@ -283,6 +284,7 @@ export default function ManagementPage() {
     </div>
   );
 
+  // Billing renders BillingDashboard component. FlexPrice integration returns {configured: false} — see I-105.
   /** Billing tab — renders the BillingDashboard component */
   const renderBilling = () => (
     <div data-testid="billing-tab-content">

@@ -1921,7 +1921,7 @@
       "id": "SEC-05",
       "name": "Marketing",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-102 Photo Studio, I-113 metric trends, I-115 sub-menu, I-124 duplicate agents, I-130 favorites",
       "dependsOn": [
         "SEC-04"
@@ -1932,13 +1932,14 @@
         "client/src/pages/marketing.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s5-marketing.spec.ts"
-      ]
+      ],
+      "commitHash": "9556313"
     },
     {
       "id": "SEC-06",
       "name": "Manage",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "in_progress",
       "description": "I-105 billing, I-115 sub-menu, I-116 User Chats",
       "dependsOn": [
         "SEC-05"

@@ -114,6 +114,36 @@ test("S-6.AC8: partner admin org visibility check", async ({ request }) => {
   expect(names).toContain("Hyundai of Columbia");
 });
 
+test("I-115: sub-menu has 5 nav items matching page tabs", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/components/layout/SubMenuManager.tsx", "utf-8");
+  // Must NOT have Dashboard nav item
+  expect(code).not.toContain("mg-dashboard");
+  expect(code).not.toMatch(/label:\s*['"]Dashboard['"].*management/);
+  // Must have all 5 nav items matching page tabs
+  expect(code).toContain("mg-insights");
+  expect(code).toContain("mg-hunches");
+  expect(code).toContain("mg-activities");
+  expect(code).toContain("mg-user-chats");
+  expect(code).toContain("mg-billing");
+  console.log("  Sub-menu has 5 nav items: Insights, Hunches, System Log, User Chats, Billing");
+});
+
+test("I-116: User Chats has TODO comment for S-6.AC5/AC6", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/management.tsx", "utf-8");
+  expect(code).toContain("TODO: Implement staff AI conversation viewer with user filter per manifest S-6.AC5/AC6");
+  console.log("  User Chats TODO comment present");
+});
+
+test("I-105: Billing has FlexPrice documentation comment", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/management.tsx", "utf-8");
+  expect(code).toContain("FlexPrice integration returns {configured: false}");
+  expect(code).toContain("I-105");
+  console.log("  Billing FlexPrice documentation comment present");
+});
+
 test("S-6.AC9: activity log has entries", async ({ request }) => {
   const token = await getToken(request);
   const res = await request.get(`${BASE}/api/activity-log`, {

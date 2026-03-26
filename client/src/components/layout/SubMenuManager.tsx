@@ -10,7 +10,7 @@
  *   - teambox: Conversation/task/workflow navigation + quick filters (open/automated/followup)
  *   - my-work: Assistant/dashboard/tasks/chat tab links
  *   - sales/service/marketing: Tab navigation + agent list with expandable conversations
- *   - management: Dashboard/insights/hunches/activities/ROI navigation
+ *   - management: Insights/hunches/system-log/user-chats/billing navigation
  *   - system: Settings items filtered by currentRole RBAC
  *   - profile: User info + profile/preferences/billing links
  *
@@ -652,10 +652,11 @@ export function SubMenuManager() {
             <ScrollArea className="flex-1">
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
-                  {renderNavItem({ id: 'mg-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/management', active: location === '/management' })}
-                  {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights' })}
+                  {renderNavItem({ id: 'mg-insights', label: 'Insights', icon: BarChart3, path: '/management?tab=insights', active: location === '/management' || location.includes('tab=insights') })}
+                  {renderNavItem({ id: 'mg-hunches', label: 'Hunches', icon: Lightbulb, path: '/management?tab=hunches' })}
                   {renderNavItem({ id: 'mg-activities', label: 'System Log', icon: Activity, path: '/management?tab=activities' })}
                   {renderNavItem({ id: 'mg-user-chats', label: 'User Chats', icon: MessageSquare, path: '/management?tab=user-chats' })}
+                  {renderNavItem({ id: 'mg-billing', label: 'Billing', icon: CreditCard, path: '/management?tab=billing' })}
                 </nav>
               </div>
             </ScrollArea>
