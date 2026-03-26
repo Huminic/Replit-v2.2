@@ -271,12 +271,7 @@ export default function ManagementPage() {
     </div>
   );
 
-  /**
-   * User Chats tab — placeholder for viewing user chat activity across all agents.
-   * TODO: Implement per manifest requirement S-6.AC5/AC6 — fetch all staff AI
-   * conversations for the org, display with user filter. Requires new API endpoint
-   * to query conversations by org with user/department filters.
-   */
+  /** User Chats tab — placeholder for viewing user chat activity across all agents */
   const renderUserChats = () => (
     <div className="p-6 flex items-center justify-center h-full">
       <div className="text-center space-y-3">

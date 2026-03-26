@@ -1,15 +1,15 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260326-064027
-Timestamp: 2026-03-26T06:40:27Z
+Report-ID: WD-20260326-063018
+Timestamp: 2026-03-26T06:30:18Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: c400633
+HEAD: 20f0638
 
-C1  sprints.json:        VIOLATION — committed without hash: E-012
+C1  sprints.json:        PASS
 C2  evidence artifacts:  PASS
 C3  cross-signs:         PASS
 C4  checklists:          PASS
-C5  uncommitted:         VIOLATION — 2 untracked evidence dirs: .governor,evidence
+C5  uncommitted:         PASS
 C6  destructive changes: PASS
 C7  session state:       VIOLATION — session-state.md is 30h old (max 4h)
 C8  hook integrity:      PASS
@@ -18,14 +18,14 @@ C10 timestamps:          PASS
 C11 plan alignment:      PASS (no plan files found)
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
-C14 governance files:    VIOLATION — scripts/check-file-scope.sh has staged changes
-C15 memory staleness:    VIOLATION — MEMORY.md is 51h old; session-state.md last updated 30h before latest commit
-C16 drift detection:     VIOLATION — E-012 claims commit null but hash not in git; 102 file(s) modified outside current sprint scope
-C17 plan vs execution:   PASS (no pre-execution report yet)
+C14 governance files:    PASS
+C15 memory staleness:    WARNING — MEMORY.md is 51h old
+C16 drift detection:     VIOLATION — 1 application file(s) modified outside sprint scope: server/outbound.ts
+C17 plan vs execution:   VIOLATION — undeclared changes: server/outbound.ts
 C18 retroactive artifacts:PASS
-C19 pre-exec quality:    PASS
-C20 scope limit:         PASS (no pre-exec yet)
-C21 dry-run required:    PASS (no pre-exec yet)
+C19 pre-exec quality:    WARNING — S-10 committed pre-exec has no success criteria
+C20 scope limit:         VIOLATION — S-11 declares 7 application files (max 5). Split the sprint or get owner approval for scope_override.
+C21 dry-run required:    VIOLATION — S-11 touches integration files but no dry-run-report.md exists. Run a single-record test and document results before proceeding.
 
-SUMMARY: 14 PASS, 6 VIOLATION, 2 WARNING
+SUMMARY: 13 PASS, 5 VIOLATION, 2 WARNING
 === END SCAN ===

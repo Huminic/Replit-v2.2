@@ -34,6 +34,7 @@ import {
   ChevronDown,
   User,
   Settings,
+  CreditCard,
   LogOut,
   Building2,
   Check,
@@ -62,6 +63,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { ActivityLog } from '@shared/schema';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRoleLabel } from '@/lib/agent-utils';
+import { canAccessSystem } from '@/lib/rbac';
 import { formatDistanceToNow } from 'date-fns';
 
 /**
@@ -367,9 +369,15 @@ export function TopBar() {
               <Settings className="h-4 w-4 mr-2" />
               Preferences
             </DropdownMenuItem>
+            {canAccessSystem(currentRole) && (
+              <DropdownMenuItem onClick={() => setLocation('/profile/billing')} data-testid="menu-item-billing">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Billing
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => { setShowTour(true); }} data-testid="menu-item-take-tour">
               <Compass className="h-4 w-4 mr-2" />
-              Reset Tour
+              Take a Tour
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={handleLogout} data-testid="menu-item-logout">

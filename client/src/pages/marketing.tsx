@@ -82,17 +82,12 @@ export default function MarketingPage() {
     queryKey: ['/api/metrics/dashboard', orgId],
   });
 
-  // Fallback logic (intentional): uses marketing-specific stats from campaignStats.byDepartment.marketing
-  // when available, otherwise falls back to org-wide campaignStats. This ensures tiles always show data
-  // even when marketing-specific campaign data hasn't been segmented yet. (S-5.AC12)
   const mktStats = metrics?.campaignStats?.byDepartment?.marketing;
-  // NOTE: change/trend data is not provided by /api/metrics/dashboard. Omitting change/trend
-  // properties until the backend supports period-over-period comparison. (I-113)
   const marketingMetrics: MarketingMetricTile[] = [
-    { id: 'mm-1', label: 'Campaign Performance', value: `${mktStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, icon: Target },
-    { id: 'mm-2', label: 'Campaigns Active', value: String(mktStats?.active ?? metrics?.campaignStats?.active ?? 0), icon: Megaphone },
-    { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), icon: MousePointerClick },
-    { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: Globe },
+    { id: 'mm-1', label: 'Campaign Performance', value: `${mktStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: Target },
+    { id: 'mm-2', label: 'Campaigns Active', value: String(mktStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
+    { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MousePointerClick },
+    { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: Globe },
   ];
 
   const renderDashboard = () => (

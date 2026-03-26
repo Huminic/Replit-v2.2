@@ -91,9 +91,6 @@ export default function WidgetLandingPage() {
   const [micMuted, setMicMuted] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended' | 'error'>('idle');
   const [voiceVolume, setVoiceVolume] = useState(0);
-  const [callbackPhone, setCallbackPhone] = useState('');
-  const [callbackStatus, setCallbackStatus] = useState<'form' | 'submitting' | 'success' | 'error'>('form');
-  const [callbackError, setCallbackError] = useState('');
   const [videoSessionUrl, setVideoSessionUrl] = useState<string | null>(null);
   const [videoStatus, setVideoStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const vapiRef = useRef<Vapi | null>(null);
@@ -305,30 +302,6 @@ export default function WidgetLandingPage() {
     setWidgetMode('closed');
   };
 
-  const submitCallback = async () => {
-    if (!callbackPhone.trim()) return;
-    setCallbackStatus('submitting');
-    setCallbackError('');
-    try {
-      const res = await fetch('/api/widget/voice-callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, phoneNumber: callbackPhone.trim() }),
-      });
-      if (res.ok) {
-        setCallbackStatus('success');
-      } else {
-        const errData = await res.json().catch(() => ({ message: 'Request failed' }));
-        setCallbackError(errData.message || 'Failed to request callback');
-        setCallbackStatus('error');
-      }
-    } catch (err) {
-      console.error('Callback request error:', err);
-      setCallbackError('Unable to connect. Please try again.');
-      setCallbackStatus('error');
-    }
-  };
-
   const startVideoChat = async () => {
     setWidgetMode('video');
     setVideoStatus('connecting');
@@ -455,15 +428,15 @@ export default function WidgetLandingPage() {
             </button>
             <button
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left border border-gray-100"
-              onClick={() => { setCallbackStatus('form'); setCallbackPhone(''); setCallbackError(''); setWidgetMode('voice'); }}
+              onClick={() => startVoiceCall()}
               data-testid="widget-option-voice"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
                 <Phone className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Instant Call Back</p>
-                <p className="text-xs text-gray-500">Get a call back now</p>
+                <p className="font-medium text-sm text-gray-900">Web Call</p>
+                <p className="text-xs text-gray-500">Talk to our AI assistant</p>
               </div>
             </button>
             <button
@@ -636,87 +609,81 @@ export default function WidgetLandingPage() {
 
     if (widgetMode === 'voice') {
       return (
-        <div className="bg-white rounded-2xl shadow-2xl w-80 flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
+        <div className="bg-white rounded-2xl shadow-2xl w-80 h-[300px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
           <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
-              <button onClick={() => { setWidgetMode('menu'); setCallbackStatus('form'); }} className="text-white/70 hover:text-white text-xs" data-testid="button-callback-back">←</button>
-              <p className="font-semibold text-xs">Instant Call Back</p>
+              <button onClick={() => { endVoiceCall(); setWidgetMode('menu'); }} className="text-white/70 hover:text-white text-xs">←</button>
+              <p className="font-semibold text-xs">Voice Call</p>
             </div>
-            <button onClick={() => { setWidgetMode('closed'); setCallbackStatus('form'); }} className="text-white/70 hover:text-white" data-testid="button-callback-close">
+            <button onClick={() => endVoiceCall()} className="text-white/70 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            {callbackStatus === 'form' ? (
+            {voiceStatus === 'connecting' ? (
               <>
-                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                  <Phone className="h-7 w-7 text-emerald-600" />
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Get a call back now</p>
-                <p className="text-xs text-gray-500 mt-1 mb-4">Enter your phone number and we'll call you right away</p>
-                <input
-                  type="tel"
-                  value={callbackPhone}
-                  onChange={(e) => setCallbackPhone(e.target.value)}
-                  placeholder="(555) 123-4567"
-                  className="w-full text-sm h-10 px-3 rounded-md border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-3"
-                  onKeyDown={(e) => e.key === 'Enter' && submitCallback()}
-                  data-testid="input-callback-phone"
-                />
-                <Button
-                  className="w-full text-white"
-                  style={{ backgroundColor: WIDGET_TEAL }}
-                  onClick={submitCallback}
-                  disabled={!callbackPhone.trim()}
-                  data-testid="button-callback-submit"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Me Now
-                </Button>
+                <p className="font-medium text-sm text-gray-900">Connecting...</p>
+                <p className="text-xs text-gray-500 mt-1">Setting up voice call</p>
               </>
-            ) : callbackStatus === 'submitting' ? (
+            ) : voiceStatus === 'connected' ? (
               <>
-                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                  <Loader2 className="h-7 w-7 text-emerald-600 animate-spin" />
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-emerald-600" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Requesting call back...</p>
-                <p className="text-xs text-gray-500 mt-1">Please wait</p>
+                <p className="font-medium text-sm text-gray-900">Connected to {PERSONA_NAME}</p>
+                <p className="text-xs text-gray-500 mt-1">AI Voice Assistant</p>
+                <div className="flex items-center gap-1 mt-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-1 rounded-full bg-emerald-500 transition-all" style={{ height: `${12 + voiceVolume * 20 + Math.sin(Date.now() / 200 + i) * 4}px` }} />
+                  ))}
+                </div>
               </>
-            ) : callbackStatus === 'success' ? (
+            ) : voiceStatus === 'error' ? (
               <>
-                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-red-400" />
                 </div>
-                <p className="font-medium text-sm text-gray-900" data-testid="callback-success-message">We're calling you now!</p>
-                <p className="text-xs text-gray-500 mt-1">Please answer the incoming call from {ORG_NAME}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => { setCallbackStatus('form'); setCallbackPhone(''); }}
-                  data-testid="button-callback-another"
-                >
-                  Request another call
-                </Button>
+                <p className="font-medium text-sm text-gray-900">Call unavailable</p>
+                <p className="text-xs text-gray-500 mt-1">Voice calling is not configured yet. Please try Web Chat instead.</p>
               </>
-            ) : callbackStatus === 'error' ? (
+            ) : voiceStatus === 'ended' ? (
               <>
-                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                  <Phone className="h-7 w-7 text-red-400" />
+                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-gray-400" />
                 </div>
-                <p className="font-medium text-sm text-gray-900">Call back unavailable</p>
-                <p className="text-xs text-gray-500 mt-1">{callbackError || 'Something went wrong. Please try again.'}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setCallbackStatus('form')}
-                  data-testid="button-callback-retry"
-                >
-                  Try again
-                </Button>
+                <p className="font-medium text-sm text-gray-900">Call ended</p>
+                <p className="text-xs text-gray-500 mt-1">Thank you for calling</p>
               </>
-            ) : null}
+            ) : (
+              <>
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                  <Phone className="h-8 w-8 text-emerald-600" />
+                </div>
+                <p className="font-medium text-sm text-gray-900">Ready to call</p>
+              </>
+            )}
+          </div>
+          <div className="p-3 border-t border-gray-100 flex items-center justify-center gap-4">
+            <button
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${micMuted ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              onClick={() => {
+                setMicMuted(!micMuted);
+                if (vapiRef.current) vapiRef.current.send({ type: 'control', control: micMuted ? 'unmute-assistant' : 'mute-assistant' });
+              }}
+              data-testid="button-voice-mic"
+            >
+              {micMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
+            <button
+              className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+              onClick={() => endVoiceCall()}
+              data-testid="button-voice-end"
+            >
+              <Phone className="h-4 w-4 rotate-[135deg]" />
+            </button>
           </div>
         </div>
       );
