@@ -116,6 +116,48 @@ test("S-5.AC8: Photo Studio responds with image-related content", async ({ reque
   console.log(`  Photo Studio: ${body.length} chars`);
 });
 
+test("I-115: sub-menu has no Campaigns link", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/components/layout/SubMenuManager.tsx", "utf-8");
+  // The marketing case should not contain a Campaigns nav item
+  expect(code).not.toContain("mk-campaigns");
+  expect(code).not.toContain("label: 'Campaigns', icon: Megaphone, path: '/marketing?tab=campaigns'");
+  console.log("  No Campaigns link in marketing sub-menu");
+});
+
+test("I-113: marketing metric tiles have no hardcoded change/trend", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/marketing.tsx", "utf-8");
+  // Extract the marketingMetrics array lines (between the array declaration and the closing bracket)
+  const metricsMatch = code.match(/const marketingMetrics[\s\S]*?\];/);
+  expect(metricsMatch, "marketingMetrics array found").toBeTruthy();
+  const metricsBlock = metricsMatch![0];
+  // Should not contain hardcoded change: 0 or trend: 'up'
+  expect(metricsBlock).not.toContain("change: 0");
+  expect(metricsBlock).not.toContain("trend: 'up'");
+  console.log("  No hardcoded change/trend in marketing metric tiles");
+});
+
+test("I-124: marketing sub-menu has no duplicate agent list", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/components/layout/SubMenuManager.tsx", "utf-8");
+  // Extract the marketing case block
+  const marketingCase = code.substring(code.indexOf("case 'marketing':"), code.indexOf("case 'management':"));
+  // Should NOT contain renderAgentList('marketing') — the MARKETING_AGENTS section is the consolidated list
+  expect(marketingCase).not.toContain("renderAgentList('marketing')");
+  // Should still contain MARKETING_AGENTS rendering
+  expect(marketingCase).toContain("MARKETING_AGENTS");
+  console.log("  Single consolidated agent list in marketing sub-menu");
+});
+
+test("I-102: Photo Studio FE/FAL issue documented in code", async () => {
+  const fs = await import("fs");
+  const code = fs.readFileSync("client/src/pages/marketing.tsx", "utf-8");
+  expect(code).toContain("I-102");
+  expect(code).toContain("Photo Studio");
+  console.log("  I-102 Photo Studio FE issue documented in marketing.tsx");
+});
+
 test("S-5.AC9: Copywriter produces ad copy", async ({ request }) => {
   const token = await getToken(request);
   const convRes = await request.post(`${BASE}/api/conversations`, {

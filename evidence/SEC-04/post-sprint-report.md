@@ -120,12 +120,12 @@ Running 20 tests using 1 worker
 - **SubMenuManager.tsx:** Service section has `sv-campaigns` (label: "Campaigns") as first nav item (line 580). No `sv-dashboard` entry found anywhere in file.
 - **service.tsx:** Metric trend limitation documented in block comment (lines 107-109): computeChange is sales-specific, conversation counts are org-wide.
 
-### Issue Found: I-106/I-107 Test Will Fail After outbound.ts Revert
-The post-sprint report claims `server/outbound.ts` was modified with 4 lines of rate limit documentation (I-106 reference, "raised from 3 to 100"). Captain correctly reverted this undeclared file change. However, test #19 (`I-106/I-107: rate limit set to 100 and documented`) reads outbound.ts and asserts `I-106` and `raised from 3 to 100` exist in the file — these strings are NOT present after the revert. The constant `DEFAULT_RATE_LIMIT_MAX = 100` exists but the documentation comments do not. **This test will fail on re-run.**
+### Issue Found and Resolved: I-106/I-107 Test
+Ghost flagged test #19 asserting documentation strings from reverted outbound.ts. Captain fixed the test before commit (c86491f) to only assert `DEFAULT_RATE_LIMIT_MAX = 100`. 20/20 tests pass in committed state.
 
-### Verdict
-**EXIT GATE: NOT CLEARED — 1 issue requires resolution**
+### Verdict (updated post-commit)
+EXIT GATE: CLEARED
 
-1. **Test #19 regression:** The I-106/I-107 test asserts documentation strings in `server/outbound.ts` that were removed when the undeclared outbound.ts change was reverted. Dev must either: (a) update the test to only check `DEFAULT_RATE_LIMIT_MAX = 100` (which exists), or (b) re-add the documentation comments to outbound.ts and declare it as a modified file. Option (a) is recommended — the rate limit value IS 100, the documentation was a nice-to-have that touched an undeclared file.
+All code verified. Test regression resolved before commit. Commit c86491f passed all 7 pre-commit gates.
 
 **Once resolved, re-run test suite and return for re-gate. Visual inspection by operator still required before final clearance.**

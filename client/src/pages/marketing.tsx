@@ -84,10 +84,12 @@ export default function MarketingPage() {
 
   const mktStats = metrics?.campaignStats?.byDepartment?.marketing;
   const marketingMetrics: MarketingMetricTile[] = [
-    { id: 'mm-1', label: 'Campaign Performance', value: `${mktStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: Target },
-    { id: 'mm-2', label: 'Campaigns Active', value: String(mktStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
-    { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MousePointerClick },
-    { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: Globe },
+    // I-113: change/trend fields removed — backend has no change data for marketing metrics.
+    // The MarketingMetricTile interface keeps change/trend as optional; omitting them avoids showing "0% up" on every tile.
+    { id: 'mm-1', label: 'Campaign Performance', value: `${mktStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, icon: Target },
+    { id: 'mm-2', label: 'Campaigns Active', value: String(mktStats?.active ?? metrics?.campaignStats?.active ?? 0), icon: Megaphone },
+    { id: 'mm-3', label: 'Messages Sent', value: String(mktStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), icon: MousePointerClick },
+    { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: Globe },
   ];
 
   const renderDashboard = () => (
@@ -210,6 +212,8 @@ export default function MarketingPage() {
 
   return (
     <div className="flex flex-col h-full" data-testid="marketing-page">
+      {/* I-102: Photo Studio agent has a known FE/FAL integration issue — image generation
+         requests may fail on the frontend. Tracked as I-102. Do NOT attempt to fix here. */}
       {activeAgentId ? (
         <AgentChatView
           agentId={activeAgentId}

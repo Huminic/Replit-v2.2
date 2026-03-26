@@ -603,7 +603,6 @@ export function SubMenuManager() {
               <div className="p-2">
                 <nav className="flex flex-col gap-0.5">
                   {renderNavItem({ id: 'mk-dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/marketing', active: location === '/marketing' })}
-                  {renderNavItem({ id: 'mk-campaigns', label: 'Campaigns', icon: Megaphone, path: '/marketing?tab=campaigns' })}
                   {renderNavItem({ id: 'mk-studio', label: 'Studio', icon: Palette, path: '/marketing?tab=studio' })}
                   {renderNavItem({ id: 'mk-insights', label: 'Insights', icon: BarChart3, path: '/marketing?tab=insights' })}
                 </nav>
@@ -633,7 +632,7 @@ export function SubMenuManager() {
                     })}
                   </div>
                 </div>
-                {renderAgentList('marketing')}
+                {/* I-124: Removed duplicate agent list call — MARKETING_AGENTS section above is the consolidated agent list */}
               </div>
             </ScrollArea>
           </>

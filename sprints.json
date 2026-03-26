@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 19,
+  "totalSprints": 22,
   "workOrder": [
     "S-0",
     "S-1",
@@ -21,7 +21,10 @@
     "SEC-01",
     "SEC-03",
     "SEC-04",
-    "SEC-05"
+    "SEC-05",
+    "SEC-06",
+    "SEC-02",
+    "SEC-08"
   ],
   "sprints": [
     {
@@ -1900,7 +1903,7 @@
       "id": "SEC-04",
       "name": "Service",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-106/107 rate limit, I-113 metric trends, I-115 sub-menu, I-128 Campaign Safety dismiss, I-129 tooltips, I-130 agent favorites, I-132 multi-channel campaigns",
       "dependsOn": [
         "SEC-03"
@@ -1911,13 +1914,14 @@
         "client/src/pages/service.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s4-service.spec.ts"
-      ]
+      ],
+      "commitHash": "c86491f"
     },
     {
       "id": "SEC-05",
       "name": "Marketing",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "in_progress",
       "description": "I-102 Photo Studio, I-113 metric trends, I-115 sub-menu, I-124 duplicate agents, I-130 favorites",
       "dependsOn": [
         "SEC-04"
@@ -1928,6 +1932,57 @@
         "client/src/pages/marketing.tsx",
         "client/src/components/layout/SubMenuManager.tsx",
         "tests/e2e/s5-marketing.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-06",
+      "name": "Manage",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-105 billing, I-115 sub-menu, I-116 User Chats",
+      "dependsOn": [
+        "SEC-05"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/management.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s6-manage.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-02",
+      "name": "TeamBox",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "Verification sprint",
+      "dependsOn": [
+        "SEC-06"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/teambox.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s2-teambox.spec.ts"
+      ]
+    },
+    {
+      "id": "SEC-08",
+      "name": "Landing/Widgets",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-119 Instant Call Back, I-121 video popup, I-122 deploy",
+      "dependsOn": [
+        "SEC-02"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/widget-landing.tsx",
+        "client/src/lib/widget-types.ts",
+        "tests/e2e/s8-landing-widgets.spec.ts"
       ]
     }
   ],

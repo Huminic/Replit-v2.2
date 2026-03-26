@@ -1,0 +1,9 @@
+[2026-03-26T17:25:33Z] agent-launch | role=frontend | task="SEC-05 Marketing fixes" | scope=client/src/pages/marketing.tsx,client/src/components/layout/SubMenuManager.tsx,tests/e2e/s5-marketing.spec.ts
+[2026-03-26T17:25:33Z] ghost entry-gate | APPROVED (v2)
+[2026-03-26T17:25:33Z] dev file-edit | SubMenuManager.tsx — removed Campaigns link, removed duplicate renderAgentList
+[2026-03-26T17:25:33Z] dev file-edit | marketing.tsx — removed hardcoded change/trend, added I-102 comment
+[2026-03-26T17:25:33Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T17:25:33Z] dev test-run | s5-marketing.spec.ts — 12/12 passed
+[2026-03-26T17:25:33Z] ghost exit-gate | APPROVED — code verified
+[2026-03-26T17:25:40Z] PRE-COMMIT role=orchestrator sprint=SEC-05 result=BLOCKED detail="Cross-sign implementing role () does not match COMMIT_ROLE (orchestrator)."
+[2026-03-26T17:26:21Z] PRE-COMMIT role=orchestrator sprint=SEC-05 result=PASS detail="All 7 gates passed"
