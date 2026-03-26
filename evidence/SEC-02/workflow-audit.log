@@ -1,0 +1,11 @@
+[2026-03-26T17:47:20Z] agent-launch | role=frontend | task="SEC-02 TeamBox verification" | scope=client/src/pages/teambox.tsx,client/src/components/layout/SubMenuManager.tsx,tests/e2e/s2-teambox.spec.ts
+[2026-03-26T17:47:20Z] ghost entry-gate | APPROVED
+[2026-03-26T17:47:20Z] dev verification | AC19: message rendering correct, data-side if blank
+[2026-03-26T17:47:20Z] dev verification | AC17: no agent/human toggle, "automated" filter only
+[2026-03-26T17:47:20Z] dev verification | AC20: campaign convos appear, no exclusion filter
+[2026-03-26T17:47:20Z] dev verification | AC21: delete in sidebar, not in main TeamBox page
+[2026-03-26T17:47:20Z] dev build-check | tsc --noEmit PASS
+[2026-03-26T17:47:20Z] dev test-run | s2-teambox.spec.ts — 15/15 passed
+[2026-03-26T17:47:20Z] ghost exit-gate | CLEARED (verification only, no code changes)
+[2026-03-26T17:47:28Z] PRE-COMMIT role=orchestrator sprint=SEC-02 result=BLOCKED detail="Pre-exec and post-sprint written 213s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
+[2026-03-26T17:49:19Z] PRE-COMMIT role=orchestrator sprint=SEC-02 result=PASS detail="All 7 gates passed"
