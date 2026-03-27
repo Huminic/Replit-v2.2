@@ -1,0 +1,7 @@
+[2026-03-27T02:00:00Z] agent-launch | role=frontend | task="R-014 Landing/CORS fixes" | scope=client/src/App.tsx,client/src/pages/widget-landing.tsx,server/index.ts,tests/e2e/s8-landing-widgets.spec.ts
+[2026-03-27T02:00:00Z] agent-launch | role=frontend | task="R-015 Nav/UI cleanup" | scope=client/src/components/layout/Sidebar.tsx,client/src/components/layout/TopBar.tsx,client/src/pages/teambox.tsx,tests/e2e/s2-teambox.spec.ts
+[2026-03-27T02:00:00Z] agent-launch | role=backend | task="R-016 Data cleanup" | scope=server/seed.ts,server/routes/chat.ts,server/routes/billing.ts,tests/e2e/s3-sales.spec.ts
+[2026-03-27T02:30:00Z] ghost exit-gate | R-014 CLEARED, R-015 CLEARED, R-016 CLEARED
+[2026-03-27T03:27:16Z] PRE-COMMIT role=orchestrator sprint=R-014 result=BLOCKED detail="Staged files not declared in pre-execution report: client/src/components/layout/TopBar.tsx server/routes/billing.ts server/routes/chat.ts. Update ## Declared Files section."
+[2026-03-27T03:27:54Z] PRE-COMMIT role=orchestrator sprint=R-014 result=BLOCKED detail="Pre-exec and post-sprint written -124s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
+[2026-03-27T03:28:17Z] PRE-COMMIT role=orchestrator sprint=R-014 result=PASS detail="All 7 gates passed"

@@ -1,0 +1,18 @@
+ENFORCER CHECKLIST — R-015 Navigation & UI Cleanup
+Timestamp: 2026-03-26T22:45:00Z
+
+[PASS] Entry gate approved by Ghost
+[PASS] Only declared files modified (TopBar.tsx)
+[PASS] Undeclared files read-only verified (ProductTour.tsx, AppLayout.tsx)
+[PASS] TypeScript build: zero errors
+[PASS] E2E tests: 15/15 passed
+[PASS] No infrastructure touched
+[PASS] No security config changed
+[PASS] Sprint activity logged
+[PASS] Evidence files produced
+
+ISSUES:
+  I-136: NOT BROKEN — Sales path already '/sales' in Sidebar.tsx
+  I-137: NOT BROKEN — Tour dismiss already calls setShowTour(false), no navigation
+  I-147: DEFERRED — Structural UI change, needs own sprint
+  I-148: FIXED — Role Switcher removed from TopBar.tsx

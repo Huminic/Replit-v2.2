@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 22,
+  "totalSprints": 43,
   "workOrder": [
     "S-0",
     "S-1",
@@ -24,7 +24,28 @@
     "SEC-05",
     "SEC-06",
     "SEC-02",
-    "SEC-08"
+    "SEC-08",
+    "T-013",
+    "T-014",
+    "T-015",
+    "T-020",
+    "T-021",
+    "T-022a",
+    "T-022b",
+    "T-022c",
+    "T-022d",
+    "T-022e",
+    "T-022f",
+    "T-016",
+    "T-016b",
+    "T-017a",
+    "T-017b",
+    "T-018",
+    "T-019",
+    "R-014",
+    "R-015",
+    "R-016",
+    "R-017"
   ],
   "sprints": [
     {
@@ -1975,7 +1996,7 @@
       "id": "SEC-08",
       "name": "Landing/Widgets",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "description": "I-119 Instant Call Back, I-121 video popup, I-122 deploy",
       "dependsOn": [
         "SEC-02"
@@ -1986,6 +2007,388 @@
         "client/src/pages/widget-landing.tsx",
         "client/src/lib/widget-types.ts",
         "tests/e2e/s8-landing-widgets.spec.ts"
+      ],
+      "commitHash": "03ab563"
+    },
+    {
+      "id": "T-013",
+      "name": "Navigation, UI & Mobile",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify all navigation links, SEC UI fixes live, mobile viewport",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-014",
+      "name": "Data Flow, Metrics & Billing Baseline",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify data tiles, form\u2192TeamBox, billing API baseline",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-015",
+      "name": "RBAC, Isolation & Auth Flows",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "5-org isolation, role access, org switcher, password reset",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s9-cross-cutting.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-020",
+      "name": "Static Code Scan",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Auth middleware audit, org_id filter check, hardcoded data scan",
+      "dependsOn": [],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-021",
+      "name": "Accessibility (axe-core)",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "axe-core scan all 8 major pages, document violations",
+      "dependsOn": [],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s9-cross-cutting.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022a",
+      "name": "AI Chat Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Streaming perf, favorites, delete, multi-turn, task creation, edge cases",
+      "dependsOn": [
+        "T-013"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022b",
+      "name": "Sales Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Agents, pipeline vs warehouse, calendar, agent conversations",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022c",
+      "name": "Service Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Campaign UI, Nancy agent, appointment booking, calendar",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-017b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s4-service.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022d",
+      "name": "Marketing & Studio Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Studio filters, gallery, 5 creative agents, dashboard tiles",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s5-marketing.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022e",
+      "name": "Settings & Profile Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "User CRUD, KB upload, system prompt, photo, password + cleanup",
+      "dependsOn": [
+        "T-015"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022f",
+      "name": "Landing & Widget Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "5 dealer pages, embed code, widget JS, appointments, cross-origin",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s8-landing-widgets.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-016",
+      "name": "Integration Verification",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "VAPI, Tavus, CommGate, MCP, webhooks, embed cross-origin",
+      "dependsOn": [
+        "T-013",
+        "T-014",
+        "T-015",
+        "T-022f"
+      ],
+      "blocks": [
+        "T-016b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/real-integrations.spec.ts",
+        "tests/e2e/live-comms.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-016b",
+      "name": "Comms Pre-Flight",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify elliott can call, TextMagic can price-check, Nancy vapiAssistantId resolves",
+      "dependsOn": [
+        "T-016"
+      ],
+      "blocks": [
+        "T-017a",
+        "T-017b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "utilities/elliott-test.ts",
+        "tests/e2e/live-comms.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-017a",
+      "name": "Comms \u2014 Sales Inbound/Outbound",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Elliott\u2192Caroline, SMS inbound, VAPI webhook\u2192email\u2192VIN lead, takeover",
+      "dependsOn": [
+        "T-016b"
+      ],
+      "blocks": [
+        "T-018"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/real-integrations.spec.ts",
+        "utilities/elliott-test.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-017b",
+      "name": "Comms \u2014 Service Campaigns & Compliance",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Campaign E2E, STOP/opt-out, after-hours queue, Elliott\u2192Nancy, walk-in trigger",
+      "dependsOn": [
+        "T-016b",
+        "T-022c"
+      ],
+      "blocks": [
+        "T-018"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/live-comms.spec.ts",
+        "utilities/elliott-test.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-018",
+      "name": "TeamBox Unified Inbox E2E",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "All channels visible, realtime, kill switch queue, transcripts, filters",
+      "dependsOn": [
+        "T-017a",
+        "T-017b"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s2-teambox.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-019",
+      "name": "Chat & Agent Usability + Edge Cases",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "All agents domain-tested, edge cases, streaming perf, agent cards",
+      "dependsOn": [
+        "T-018"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "R-014",
+      "name": "Landing Page & Widget Fixes",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-134 route race, I-135 CORS cross-origin",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/App.tsx",
+        "client/src/pages/widget-landing.tsx",
+        "server/index.ts",
+        "tests/e2e/s8-landing-widgets.spec.ts"
+      ]
+    },
+    {
+      "id": "R-015",
+      "name": "Navigation & UI Cleanup",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-136 Sales nav, I-137 Tour, I-147 TeamBox tabs, I-148 Role Switcher removal",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/components/layout/Sidebar.tsx",
+        "client/src/components/layout/TopBar.tsx",
+        "client/src/pages/teambox.tsx",
+        "tests/e2e/s2-teambox.spec.ts"
+      ]
+    },
+    {
+      "id": "R-016",
+      "name": "Data Cleanup",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-138 Unauthorized Agent, I-139 CRM Guru, Tasks stub",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "server/seed.ts",
+        "server/routes/chat.ts",
+        "tests/e2e/s3-sales.spec.ts"
+      ]
+    },
+    {
+      "id": "R-017",
+      "name": "Backend Fixes",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "I-140 password reset, I-141 webhook 422, I-142 VIN source, I-143 TCPA, I-144 blacklist",
+      "dependsOn": [
+        "R-014",
+        "R-015",
+        "R-016"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "server/routes/webhooks.ts",
+        "server/outbound.ts",
+        "server/routes/auth.ts",
+        "tests/e2e/real-integrations.spec.ts"
       ]
     }
   ],

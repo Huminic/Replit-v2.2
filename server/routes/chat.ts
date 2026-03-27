@@ -262,8 +262,8 @@ Data provenance rules (CRITICAL):
 - When web search results are used, cite them naturally
 - Always make it clear whether information comes "from our records" (CRM/vendor data) or "from our knowledge base" (uploaded org documents)${orgSystemPrompt ? `\n\nOrganization-specific prompt:\n${orgSystemPrompt}` : ''}${chatInstructions ? `\n\nChat quality instructions (follow these carefully):\n${chatInstructions}` : ''}${isCrmGuru ? `
 
-CRM GURU MODE (ACTIVE):
-You are operating as the CRM Guru — the dedicated CRM intelligence agent. Follow these rules strictly:
+DATA GURU MODE (ACTIVE):
+You are operating as the Data Guru — the dedicated CRM intelligence agent. Follow these rules strictly:
 1. ALWAYS query VinSolutions data FIRST for any CRM-related question using vin_query_leads or vin_lead_summary tools
 2. If VinSolutions data is insufficient, supplement with internal data warehouse — but ALWAYS explicitly state: "I found additional data in your internal data warehouse" when using warehouse data
 3. VinSolutions data is the primary source of truth for all CRM operations: leads, contacts, deals, activities
@@ -272,7 +272,7 @@ You are operating as the CRM Guru — the dedicated CRM intelligence agent. Foll
 
 When the user asks a question that requires deep CRM data (specific lead details, deal histories, contact records, pipeline specifics):
 - First try to answer from available internal data warehouse
-- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to CRM Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${activityContext}${campaignContext}${hunchContext}${knowledgeContext}`;
+- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to Data Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${activityContext}${campaignContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")

@@ -37,7 +37,6 @@ import {
   LogOut,
   Building2,
   Check,
-  ArrowDownRight,
   Globe,
   Compass
 } from 'lucide-react';
@@ -91,8 +90,7 @@ export function TopBar() {
   const { 
     currentUser,
     currentRole,
-    setCurrentRole,
-    currentOrganization, 
+    currentOrganization,
     organizations, 
     notifications, 
     unreadNotificationCount,
@@ -376,38 +374,6 @@ export function TopBar() {
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* Role Switcher — DEV TOOL for testing RBAC. Shows all 8 roles. Remove/restrict in production */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" data-testid="button-role-switcher">
-              <ArrowDownRight className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52" data-testid="dropdown-role-switcher">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Role (Dev)</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {([
-              { value: 'super_admin' as const, label: 'Super Admin' },
-              { value: 'partner_admin' as const, label: 'Partner Admin' },
-              { value: 'org_admin' as const, label: 'Org Admin' },
-              { value: 'executive' as const, label: 'Executive' },
-              { value: 'sales_manager' as const, label: 'Sales Manager' },
-              { value: 'sales' as const, label: 'Sales' },
-              { value: 'service' as const, label: 'Service' },
-              { value: 'marketing' as const, label: 'Marketing' },
-            ]).map((role) => (
-              <DropdownMenuItem
-                key={role.value}
-                onClick={() => setCurrentRole(role.value)}
-                className="flex items-center justify-between"
-                data-testid={`role-option-${role.value}`}
-              >
-                <span>{role.label}</span>
-                {currentRole === role.value && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

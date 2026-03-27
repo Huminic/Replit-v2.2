@@ -129,7 +129,7 @@ export function registerBillingRoutes(app: Express) {
         { key: "consulting_hours", name: "Consulting Hours" },
         { key: "crm_integration", name: "CRM Integration" },
         { key: "advanced_analytics", name: "Advanced Analytics" },
-        { key: "crm_guru", name: "CRM Guru Agent" },
+        { key: "crm_guru", name: "Data Guru Agent" },
         { key: "generative_studio", name: "Generative Studio" },
         { key: "competitive_intel", name: "Competitive Intelligence" },
       ];

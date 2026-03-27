@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,14 +33,31 @@ import ForgotPasswordPage from "@/pages/forgot-password";
 import ResetPasswordPage from "@/pages/reset-password";
 import UsagePage from "@/pages/usage";
 
-function Router() {
+/**
+ * Public routes — rendered WITHOUT AuthProvider so auth initialization
+ * (token refresh, user fetch) never fires for public visitors.
+ * Fixes I-134: /p/:slug and /w/:slug no longer race with auth state.
+ */
+function PublicRouter() {
+  return (
+    <Switch>
+      <Route path="/w/:slug" component={WidgetLandingPage} />
+      <Route path="/p/:slug" component={WidgetLandingPage} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+/**
+ * Auth-gated routes — only rendered when PublicRouter doesn't match.
+ * AuthProvider wraps only these routes so public pages stay independent.
+ */
+function AuthenticatedRouter() {
   return (
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
-      <Route path="/w/:slug" component={WidgetLandingPage} />
-      <Route path="/p/:slug" component={WidgetLandingPage} />
       <Route>
         <ProtectedRoute>
           <AppProvider>
@@ -77,16 +94,33 @@ function Router() {
   );
 }
 
+/**
+ * Checks if the current path is a public widget/landing route.
+ * These routes must never trigger AuthProvider initialization.
+ */
+function isPublicRoute(path: string): boolean {
+  return path.startsWith('/p/') || path.startsWith('/w/');
+}
+
 function App() {
+  const [location] = useLocation();
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <ThemeProvider>
-            <AuthProvider>
-              <Toaster />
-              <Router />
-            </AuthProvider>
+            {isPublicRoute(location) ? (
+              <>
+                <Toaster />
+                <PublicRouter />
+              </>
+            ) : (
+              <AuthProvider>
+                <Toaster />
+                <AuthenticatedRouter />
+              </AuthProvider>
+            )}
           </ThemeProvider>
         </TooltipProvider>
       </QueryClientProvider>

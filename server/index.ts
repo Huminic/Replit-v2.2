@@ -56,21 +56,32 @@ app.use(cookieParser());
 const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
 const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
 const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://localhost:3000', ...corsOrigins]);
-// Widget endpoints need cross-origin access from any dealer site
-app.use('/api/widget', cors({ origin: '*', methods: ['POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] }));
+// Widget endpoints need cross-origin access from any dealer site (I-135 fix).
+// Both /api/widget/* and /widget/* paths must accept requests from any origin.
+const widgetCors = cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] });
+app.use('/api/widget', widgetCors);
+app.use('/widget', widgetCors);
 
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.has(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// General CORS for all other routes — rejects unknown origins.
+// Widget paths are excluded above so the permissive policy isn't overridden.
+app.use((req, res, next) => {
+  // Skip general CORS for widget paths — already handled above
+  if (req.path.startsWith('/api/widget') || req.path.startsWith('/widget')) {
+    return next();
+  }
+  cors({
+    origin: function(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })(req, res, next);
+});
 
 // Security headers via Helmet
 app.use(helmet({
