@@ -127,3 +127,10 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 
 **Last updated:** 2026-03-26 (E-013 backlog additions)
 **Total:** 66 items
+| BL-078 | Mobile responsive — sidebar doesn't collapse at 375px, all pages overflow. No responsive breakpoints. | T-013 verification |
+| BL-079 | AI Chat task creation — /api/tasks endpoint exists but createTask not in chat tool schema (server/routes/chat.ts). AI cannot create tasks from conversation. | T-022a verification |
+| BL-080 | Nancy (service agent) can't persist appointments — no createAppointment tool in chat function schema. Confirms conversationally but no DB write. | T-022c verification |
+| BL-081 | Session instability — /api/auth/refresh failures during department navigation. Aggressive session management causes re-auth during testing. | T-022c verification |
+| BL-082 | Kill switch is block-and-drop by design — messages silently blocked, not queued for retry. Accepted by operator. | T-018 / operator directive |
+| BL-083 | Walk-in auto-followup trigger (US-005, S-9.AC7) — not implemented, backlogged | T-017b / operator directive |
+| BL-084 | Tasks feature — stub or remove from chat tools and TeamBox, not part of customer criteria | Operator directive |

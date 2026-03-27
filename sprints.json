@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 43,
+  "totalSprints": 46,
   "workOrder": [
     "S-0",
     "S-1",
@@ -45,7 +45,10 @@
     "R-014",
     "R-015",
     "R-016",
-    "R-017"
+    "R-017",
+    "T-023",
+    "L-001",
+    "M-001"
   ],
   "sprints": [
     {
@@ -2394,6 +2397,94 @@
         "tests/e2e/real-integrations.spec.ts",
         "server/storage.ts"
       ]
+    },
+    {
+      "id": "T-023",
+      "name": "Operator Walkthrough + Interactive Comms Test",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "Operator walks every page with Captain monitoring. Interactive comms test using operator real email/phone. Captain monitors agent responses in real-time. Final tighten-up before launch.",
+      "dependsOn": [
+        "R-017"
+      ],
+      "blocks": [
+        "L-001"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "L-001",
+      "name": "Launch Prep",
+      "phase": "launch_prep",
+      "status": "parked",
+      "description": "Push to main, CI/CD, Coolify deploy, production smoke, owner sign-off",
+      "dependsOn": [
+        "T-023"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "M-001",
+      "category": "Maintenance",
+      "name": "Harness Remediation + UI Inventory + Gap Analysis",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "causedBy": "gap",
+      "outcome": "Harness enforces authorization gates, complete UI inventory produced, gaps identified, remediation sprints defined with enter/exit criteria, test suite updated",
+      "codebaseArea": [
+        "triad-governor-v2/GOVERNOR_REFERENCE.md",
+        "triad-governor-v2/templates/",
+        ".governor/",
+        "tests/e2e/",
+        "issues.md",
+        "decisions.md"
+      ],
+      "acceptanceCriteria": [
+        "M-001.B1",
+        "M-001.B2",
+        "M-001.B3",
+        "M-001.B4",
+        "M-001.B5",
+        "M-001.B6",
+        "M-001.B7",
+        "M-001.B8",
+        "M-001.B9",
+        "M-001.B10",
+        "M-001.B11",
+        "M-001.B12",
+        "M-001.B13",
+        "M-001.B14",
+        "M-001.B15"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2"
+        ],
+        "featureDims": [
+          "FE"
+        ],
+        "testLevels": [
+          "T3"
+        ]
+      },
+      "wholeProductFit": "Foundation sprint \u2014 harness must be correct before any further testing or remediation",
+      "parallelizable": false,
+      "declaredFiles": [
+        "CLAUDE.md",
+        "GOVERNOR_REFERENCE.md",
+        "templates/",
+        ".governor/ghost/ghost_knowledge.md",
+        "decisions.md",
+        "issues.md",
+        "sprints.json",
+        "tests/e2e/*.spec.ts"
+      ],
+      "commit": null,
+      "evidence": ".governor/evidence/M-001/"
     }
   ],
   "historicalSprints": {

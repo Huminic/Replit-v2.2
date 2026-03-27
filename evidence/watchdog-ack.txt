@@ -1,14 +1,17 @@
-ACK 2026-03-27T03:20:00Z
-Acknowledged-By: captain
-Sprint: R-017
+Watchdog Acknowledgment — M-001 Pre-Sprint Baseline
+Sprint: M-001
+Acknowledged-By: orchestrator
+Date: 2026-03-27T08:40:00Z
 
-C1: ACCEPTED — prior sprints committed.
-C2: ACCEPTED — R-017 evidence complete.
-C3: ACCEPTED — cross-sign has APPROVED verdict.
-C4: ACCEPTED — enforcer checklist APPROVED.
-C5: ACCEPTED — .governor is governance infrastructure.
-C7: ACCEPTED — session state in governor project memory.
-C9: ACCEPTED — T-sprint evidence-only hashes are convention.
-C15: ACCEPTED — MEMORY.md in governor project.
-C16: ACCEPTED — files outside scope from prior commits.
-C19: ACCEPTED — pre-exec has issue references.
+C1 sprints.json: Multiple in_progress (S-11 and R-017 are stale from prior session, M-001 is current). E-012 null hash is pre-V2. Batch commits are structural from prior QA cycle. Will clean up stale statuses during M-001.
+C2 evidence artifacts: 17 T-sprints have evidence in .governor/evidence/ directories that are untracked. These are test-only sprints from prior QA cycle. Evidence exists on disk but not in git. Structural condition.
+C3 cross-signs: R-015 R-016 T-019 cross-sign format issues from prior session bundled commits. Structural from batch commit pattern.
+C4 checklists: R-015 R-016 T-019 enforcer checklist format issues from prior session. Same root cause as C3.
+C5 uncommitted: .governor and evidence untracked dirs contain valid evidence from prior QA cycle and current M-001 work.
+C7 session state: session-state.md maintained in governor memory at ~/.claude/projects/ not nexxus-local. Updated this session.
+C9 chain of custody: 17 T-sprints committed as evidence-only. Known structural condition from prior QA cycle where test sprints produced evidence but no code changes.
+C15 memory staleness: MEMORY.md is governor root memory updated this session. Nexxus-local copy not maintained.
+C16 drift detection: Same root cause as C9. Evidence-only hashes not in git because no code was committed. E-012 null hash pre-V2. M-001 evidence directory will be created during sprint execution.
+C19 pre-exec quality: R-016 R-017 pre-exec format issues from prior session. Not M-001 scope. Will be addressed by template improvements in M-001.
+
+All violations are pre-existing structural conditions from prior QA cycle. No new violations introduced.

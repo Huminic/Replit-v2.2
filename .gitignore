@@ -9,6 +9,7 @@ vite.config.ts.*
 .playwright-auth-cache.json
 test-results/
 evidence/DB-1/supabase-backup.sql
+.halo/
 .ghost/
 attached_assets/
 temp/

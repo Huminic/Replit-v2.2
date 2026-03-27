@@ -284,12 +284,209 @@ None. All 3 previously open issues closed by S-0 (commit de65c33).
 **Evidence:** settings.tsx settingsTiles has AI Config as `['super_admin']` only. SubMenuManager shows it for `['super_admin', 'partner_admin']` (read-only). Tile won't appear for partner_admin but sub-menu link will.
 **Sprint:** S-7
 
+### [BE] I-132: Campaign channel field needs to support multi-channel (email + text + phone combination)
+**Status:** REMEDIATING
+**Layer:** S4/BE/FE
+**Severity:** High
+**Evidence:** Operator directive — campaigns currently have a single channel field (SMS, Email, or Phone). Must be configurable to use any combination of channels per campaign. Affects campaign creation UI (New Campaign dialog) and backend execution logic.
+**Sprint:** SEC-04
+
+### [IN] I-133: Caroline and Nancy Gaston each need dedicated TextMagic phone numbers
+**Status:** INVESTIGATING
+**Layer:** S3+S4/IN
+**Severity:** High
+**Evidence:** Operator directive — can't reliably separate sales and service SMS on one number. Each comms agent (Caroline for sales, Nancy for service) needs their own TextMagic number. Dealerships generally need 2 numbers. Focus on Serra for service testing. Need to verify whether TextMagic routing can distinguish by context or if separate numbers are required.
+**Sprint:** Pre-SEC-09 (infrastructure setup)
+
+### [FE/BE/IN] I-131: Full communications test plan — interactive and autonomous flows
+**Status:** INVESTIGATING
+**Layer:** S2+S3+S4/FE/BE/IN
+**Severity:** High
+**Evidence:** Operator provided complete comms test plan. Covers Sales inbound text/phone + outbound phone, Service inbound text + outbound text/phone campaigns, Tavus transcripts, TeamBox all-scenario verification. Autonomous testing uses elliott.ts (VAPI), TextMagic test numbers, Resend logs, Tavus session creation. Interactive uses operator's real email/phone. Full plan at .governor/evidence/E-013/comms-test-plan.md
+**Sprint:** SEC-09 (cross-cutting) + dedicated comms test sprint
+**Open questions:** TextMagic API version, single vs multi outbound number, service channel configurability, second VAPI agent per dealer setup
+
+### [FE] I-130: Agent pages need favorites and sub-menu bar
+**Status:** REMEDIATING
+**Layer:** S3+S4+S5/FE
+**Severity:** Medium
+**Evidence:** Operator report — the Agents tab on Sales, Service, and Marketing pages lacks a favorites feature and a sub-menu bar consistent with other pages. Should have a top menu bar with favorites section (matching TeamBox and other page patterns). Applies to all department agent pages.
+**Sprint:** SEC-03, SEC-04, SEC-05
+
+### [FE] I-129: Service campaign action buttons need tooltips
+**Status:** REMEDIATING
+**Layer:** S4/FE
+**Severity:** Low
+**Evidence:** Operator report — campaign row action buttons (Execute, Schedule, Dry Run, Upload CSV, Stop) are icon-only with no tooltips. Users can't tell what each button does without hovering context. Add Tooltip wrappers with descriptive labels.
+**Sprint:** SEC-04
+
+### [FE] I-128: Campaign Safety message on Service page has no dismiss button
+**Status:** REMEDIATING
+**Layer:** S4/FE
+**Severity:** Medium
+**Evidence:** Operator report — Service page Campaigns tab shows a persistent "Campaign Safety" info card explaining kill switch behavior. No way to close/dismiss it. It takes up space on every visit. Needs a dismiss button (X) or should be collapsible, ideally with state persisted to localStorage so it doesn't reappear after dismissal.
+**Sprint:** SEC-04
+
+### [FE] I-127: "My Work" still visible in navigation — should be hidden
+**Status:** REMEDIATING
+**Layer:** S1/FE
+**Severity:** Medium
+**Evidence:** Operator report — "My Work" nav item is still showing in the sidebar menu. BL-063 says "My Work page — hide and defer." The nav item needs removed from the sidebar navigation. Page route can stay but shouldn't be navigable from the UI.
+**Sprint:** SEC-07
+
+### [FE] I-126: Chat history shows username instead of chat title, resume doesn't load conversation
+**Status:** REMEDIATING
+**Layer:** S1/FE
+**Severity:** High
+**Evidence:** Operator report — two issues in AI Chat sidebar history: (1) Each conversation shows the username of the creator instead of a meaningful chat title (should show first message summary or topic). (2) Clicking a chat to resume it does nothing visible — the conversation messages don't load into the chat window. The chat should populate with the previous messages and allow continuation. Located in SubMenuManager.tsx ai-chat section (history list) and main.tsx (chat resume handler).
+**Sprint:** SEC-01
+
+### [FE] I-125: All popout/sub-menu links need functional verification
+**Status:** INVESTIGATING
+**Layer:** S1-S8/FE
+**Severity:** Medium
+**Evidence:** Operator directive — every popout/sub-menu link across all sections must be verified to navigate to the correct page/tab. Not just label checks — click each link, confirm it lands on the right content. Covers: AI Chat, TeamBox, Sales, Service, Marketing, Manage, System popouts.
+**Sprint:** SEC-09 (cross-cutting E2E verification)
+
+### [FE] I-124: Marketing popout has duplicate agent sections
+**Status:** REMEDIATING
+**Layer:** S5/FE
+**Severity:** Medium
+**Evidence:** Operator report — marketing sub-menu popout shows two agent sections: an "Agents" section AND an "AI Agents" section with search bar at the bottom. The "AI Agents" section at the bottom needs removed or consolidated with the upper "Agents" section. Located in SubMenuManager.tsx marketing case.
+**Sprint:** SEC-05
+
+### [FE/BE] I-123: Widget and landing page form submissions need verified in TeamBox
+**Status:** INVESTIGATING
+**Layer:** S8+S2/FE/BE
+**Severity:** High
+**Evidence:** Operator request — both the widget contact form and the landing page contact form POST to /api/widget/contact. Need to verify: (1) submissions create a conversation in the DB, (2) that conversation appears in TeamBox, (3) the conversation has the correct channel type and customer info. Existing AC S-8.AC5 covers this but has not been functionally tested. SEC-02 verification confirmed TeamBox fetches ALL conversations without source filtering, so if the backend creates the conversation correctly it should appear.
+**Sprint:** SEC-09 (cross-cutting E2E verification)
+
+### [FE] I-122: Web Call widget still shows old VAPI browser call — Instant Call Back not deployed
+**Status:** REMEDIATING
+**Layer:** S8/FE+IN
+**Severity:** High
+**Evidence:** Operator report — clicking Web Call shows "no audio communication is available or configured" error instead of the Instant Call Back phone number input. Root cause: SEC-08 code changes (b464674) are committed locally but not deployed. Live site still runs the old browser-based VAPI call flow, which fails when vapiAssistantId is not configured for the org's widget. Fix: deploy the build. Also need the backend route /api/widget/voice-callback created before Instant Call Back will function end-to-end.
+**Sprint:** SEC-08 + SEC-10 (deployment)
+
+### [FE] I-121: Video widget window.open blocked by popup blockers
+**Status:** REMEDIATING
+**Layer:** S8/FE
+**Severity:** High
+**Evidence:** Operator report — clicking 2-way Video shows "Video opened in new window" message but no window opens. Root cause: `window.open()` is called inside an async `fetch()` callback (after POST /api/widget/video-session), not in the direct user click handler. Browsers block `window.open()` when it's not in the synchronous call stack of a user gesture. Two fix options: (A) open the window first with `window.open('about:blank')` in the click handler, then set `win.location` after the fetch resolves, or (B) show a "Click here to open video" link after the session is created so the user triggers the navigation directly.
+**Sprint:** SEC-08
+
 ---
 
-**Last updated:** 2026-03-26 (E-013 section audits — 9 new issues added)
+**Last updated:** 2026-03-26 (I-121 added — video popup blocker issue)
 **CLOSED:** 41 items (40 prior + I-108 false issue)
 **REMEDIATING:** 15 items (I-102–I-105, I-109–I-118, I-120)
 **INVESTIGATING:** 3 items (I-106, I-107, I-119 — need operator input)
 **TEST GAPS:** 3 open (TG-004 opt-out, TG-008 after-hours, TG-010 SSE) — 6 closed
 **TI OPEN:** 1 item (TI-018 — reassigned to I-102, frontend issue confirmed)
 **GOVERNANCE INCIDENTS:** 5 (including S-11 ghost edit)
+
+### [FE] I-134: Landing page /p/{slug} route redirect race condition
+**Status:** REMEDIATING
+**Layer:** S8/FE
+**Severity:** High
+**Evidence:** T-022f DEF-1 — wouter v3 Switch catch-all matches before explicit /p/:slug route. AuthProvider triggers redirect to /login or /. Landing pages don't render reliably when admin is logged in on same browser. Affects all 5 dealer pages.
+**Sprint:** R-next
+
+### [BE] I-135: Widget CORS blocks cross-origin embed
+**Status:** REMEDIATING
+**Layer:** S8/BE
+**Severity:** High
+**Evidence:** T-022f DEF-2 — requests with Origin header get HTTP 500 "Not allowed by CORS". Without Origin, returns Access-Control-Allow-Origin: *. Embed code won't work on external dealer websites. Fix: add dealer domains to CORS whitelist or use * for widget endpoints.
+**Sprint:** R-next
+
+### [FE] I-136: Sales sidebar button routes to /marketing instead of /sales
+**Status:** REMEDIATING
+**Layer:** S3/FE
+**Severity:** High
+**Evidence:** T-022b P1 — clicking Sales nav item navigates to /marketing. Wrong route in Sidebar.tsx or AppLayout.tsx.
+**Sprint:** R-next
+
+### [FE] I-137: Product Tour Skip/Close navigates to /w/{org-slug}, breaking session
+**Status:** REMEDIATING
+**Layer:** FE
+**Severity:** High
+**Evidence:** T-022b P2 — Tour overlay Skip/Close buttons navigate to public widget page, destroying authenticated session. Likely cause of session instability (BL-081) seen in T-022c and T-022d.
+**Sprint:** R-next
+
+### [DT] I-138: "Unauthorized Agent" test artifact visible in Sales agent list
+**Status:** REMEDIATING
+**Layer:** S3/DT
+**Severity:** Medium
+**Evidence:** T-022b P3 — 5 agents shown instead of 4. "Unauthorized Agent" is a test artifact in seed data. Should be removed or filtered.
+**Sprint:** R-next
+
+### [BE] I-139: Data Guru hallucinates "CRM Guru mode" in responses
+**Status:** INVESTIGATING
+**Layer:** S3/BE
+**Severity:** Low
+**Evidence:** T-022b P3 — Agent references non-existent "CRM Guru mode" in chat. Likely stale instruction text referencing old agent name.
+**Sprint:** R-next
+
+### [BE] I-140: Password reset fails — "failed to reset password"
+**Status:** INVESTIGATING
+**Layer:** S7/BE
+**Severity:** High
+**Evidence:** Operator report — attempted to reset serra_honda@huminic.ai password to "NexxusTest2026!" (added special char per validation requirement). Got "failed to reset password" error. Password validation accepts the format (special char present) but the reset itself fails. Could be: reset token expired, backend error in POST /api/auth/reset-password, or Resend email never delivered the reset link.
+**Sprint:** R-next
+
+### [BE] I-141: VAPI end-of-call webhook returns 422 — transcripts not stored
+**Status:** REMEDIATING
+**Layer:** S2+S9/BE
+**Severity:** High
+**Evidence:** T-017a — Elliott→Caroline call completed, webhook fired, but server returned 422 on transcript payload (missing `message` field). Conversation created with 0 messages. Transcripts never reach TeamBox.
+**Sprint:** R-next
+
+### [BE] I-142: VIN lead source mapping — "Website" vs "Dealers WebSite"
+**Status:** REMEDIATING
+**Layer:** S3/BE
+**Severity:** Medium
+**Evidence:** T-017a — VAPI webhook tried to create VIN lead with source "Website" but dealer 21043 expects "Dealers WebSite". Lead creation failed. Source string mismatch between VAPI config and VIN Solutions dealer setup.
+**Sprint:** R-next
+
+### [BE] I-143: No business-hours gate on outbound campaign execution — TCPA risk
+**Status:** REMEDIATING
+**Layer:** S4/BE
+**Severity:** High
+**Evidence:** T-017b AC4 — after-hours check is inbound-only (SMS webhook handler). Outbound campaign pipeline has no business-hours gate. Campaigns can execute and send SMS at any hour. This is a TCPA compliance risk.
+**Sprint:** R-next
+
+### [BE] I-144: Blacklist not checked in CommGate — dry runs report success for blacklisted numbers
+**Status:** REMEDIATING
+**Layer:** S4/BE
+**Severity:** Medium
+**Evidence:** T-017b AC7/AC8 — checkCommGate() skips blacklist check. Blacklist is only enforced at sendSms() level. Dry runs show blacklisted numbers as "would send" when they'd actually be blocked on real execution.
+**Sprint:** R-next
+
+### [BE] I-145: Walk-in followup trigger does not exist
+**Status:** INVESTIGATING
+**Layer:** S9/BE
+**Severity:** Medium
+**Evidence:** T-017b AC9 — no walk-in trigger mechanism found. Walk-in references in code are analytics/reporting only (insights.ts). US-005 (Walk-In Auto-Followup) has no implementation. S-9.AC7 untestable.
+**Sprint:** R-next
+
+### [BE] I-146: Kill switch is block-and-drop, not queue-and-release
+**Status:** INVESTIGATING
+**Layer:** S2/BE
+**Severity:** Medium
+**Evidence:** T-018 AC6 — when outboundEnabled=false, messages stored in conversation but SMS silently blocked. Re-enabling does NOT retry blocked messages. Operator manifest implies queue-and-release behavior. Need operator clarification on intended behavior.
+**Sprint:** R-next
+
+### [FE] I-147: TeamBox tabs don't match popout — needs Conversations removed, Tasks added
+**Status:** REMEDIATING
+**Layer:** S2/FE
+**Severity:** Medium
+**Evidence:** T-018 AC12 — page top tabs show Conversations/Phone/Video. Popout correctly has SMS/Email/Phone/Video/Tasks. Top tabs should match popout. Remove "Conversations" tab, add channel-based tabs matching popout.
+**Sprint:** R-next
+
+### [FE] I-148: Role Switcher arrow (dev tool) must be removed from TopBar
+**Status:** REMEDIATING
+**Layer:** S7/FE
+**Severity:** Medium
+**Evidence:** Operator directive — ArrowDownRight icon in TopBar is a dev testing tool for quick RBAC role switching without logging in. Must be removed for production. Located in TopBar.tsx lines 389-420.
+**Sprint:** R-next
