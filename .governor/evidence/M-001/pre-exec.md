@@ -43,14 +43,21 @@
 
 ## Declared Files
 
-- decisions.md
-- issues.md
-- sprints.json
-- .governor/ghost/ghost_knowledge.md
-- tests/e2e/m001-gap-coverage.spec.ts
-- evidence/M-001/post-sprint-report.md
-- evidence/M-001/cross-sign.md
-- evidence/M-001/enforcer-checklist.txt
+**Governor root (modifications):**
+- ~/Claude-store/triad-governor-v2/CLAUDE.md (already modified)
+- ~/Claude-store/triad-governor-v2/GOVERNOR_REFERENCE.md
+- ~/Claude-store/triad-governor-v2/templates/ (post-sprint template, agent-mistakes template)
+
+**Nexxus app (modifications + new files):**
+- ~/Claude-store/nexxus2.2_replit/decisions.md (new)
+- ~/Claude-store/nexxus2.2_replit/.governor/ghost/ghost_knowledge.md (add agent mistake patterns)
+- ~/Claude-store/nexxus2.2_replit/issues.md (append gaps)
+- ~/Claude-store/nexxus2.2_replit/sprints.json (register M-001, add remediation sprints)
+- ~/Claude-store/nexxus2.2_replit/tests/e2e/*.spec.ts (update for gap coverage)
+
+**Evidence (new artifacts):**
+- .governor/evidence/M-001/ (pre-exec, post-sprint, verification)
+- .governor/evidence/U-001/ (screenshots, dom-inventory, visual-analysis, reconciliation)
 
 ## Not In Scope
 - Application code changes (remediation sprints, not this one)
@@ -72,19 +79,3 @@
 **A9 Not In Scope:** PASS
 **A10 Ghost messages:** PASS — messages array empty, no blocking directives
 **ENTRY GATE: REJECTED — A2 (dirty worktree: .gitignore, backlog.md, hardwonknowledge.md, issues.md), A8 (CLAUDE.md listed in pre-exec but missing from sprints.json declaredFiles)**
-
-## Ghost Entry Gate (Re-run)
-**Reviewed by:** ghost-agent
-**Timestamp:** 2026-03-27T08:26:49Z
-**Sprint:** M-001
-**A1 Previous cleared:** SKIP (independent maintenance sprint)
-**A2 Worktree:** PASS (no application source files modified — only governance logs, evidence, and sprint specs)
-**A3 Session state:** PASS
-**A4 Pre-exec exists:** PASS
-**A5 Approach:** PASS
-**A6 Phase breakdown:** PASS
-**A7 Declared Files:** PASS
-**A8 Match check:** MATCH (sprints.json is authoritative superset; pre-exec declared files are a subset plus implicit evidence directory)
-**A9 Not In Scope:** PASS
-**A10 Ghost messages:** PASS (empty messages array)
-**ENTRY GATE: APPROVED**

@@ -2,7 +2,7 @@
   "version": "5.0",
   "description": "Phase Reset \u2014 11 sprints organized by page. Supersedes v4.0 (85 committed sprints preserved in git history).",
   "date": "2026-03-23",
-  "totalSprints": 46,
+  "totalSprints": 49,
   "workOrder": [
     "S-0",
     "S-1",
@@ -48,7 +48,10 @@
     "R-017",
     "T-023",
     "L-001",
-    "M-001"
+    "M-001",
+    "G-001",
+    "G-002",
+    "G-003"
   ],
   "sprints": [
     {
@@ -2485,6 +2488,207 @@
       ],
       "commit": null,
       "evidence": ".governor/evidence/M-001/"
+    },
+    {
+      "id": "G-001",
+      "category": "Gap Remediation",
+      "name": "Settings + Tour + RBAC Gaps",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Fix tour persistence bug, verify settings tile grid count, verify RBAC gates for API Keys/Webhooks/AI Config",
+      "outcome": "Tour overlay shows only once per user session and persists dismissal to localStorage. Settings grid shows correct tile count per role. API Keys and Webhooks confirmed super_admin-only.",
+      "dependsOn": ["M-001"],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-001.AC1",
+          "criterion": "Tour overlay does not reappear after completion or dismissal",
+          "component": "G-11",
+          "test": "Complete tour → navigate away → return → tour does NOT show",
+          "evidence": "Screenshot sequence",
+          "issueRef": "I-149"
+        },
+        {
+          "id": "G-001.AC2",
+          "criterion": "Tour dismissal persists across page navigations",
+          "component": "G-11",
+          "test": "Dismiss tour → navigate 3 pages → assert tour does not reappear",
+          "evidence": "Screenshot sequence",
+          "issueRef": "I-149"
+        },
+        {
+          "id": "G-001.AC3",
+          "criterion": "Settings grid shows correct tile count per role: super_admin sees 7 (includes AI Config), org_admin sees 6 (no AI Config)",
+          "component": "ST-00",
+          "test": "Login as each role → /settings/system → count visible tiles with scroll",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-151"
+        },
+        {
+          "id": "G-001.AC4",
+          "criterion": "API Keys tab (ST-20) only visible to super_admin, not org_admin or partner_admin",
+          "component": "ST-20",
+          "test": "Login as org_admin → navigate to Tools → Integrations → assert no API Keys sub-tab",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-157"
+        },
+        {
+          "id": "G-001.AC5",
+          "criterion": "Webhooks tab (ST-21) only visible to super_admin",
+          "component": "ST-21",
+          "test": "Login as org_admin → navigate to Tools → Integrations → assert no Webhooks sub-tab",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-157"
+        },
+        {
+          "id": "G-001.AC6",
+          "criterion": "AI Config tile visibility matches I-120 resolution — consistent between tile grid and sub-menu",
+          "component": "ST-27",
+          "test": "Login as partner_admin → /settings/system → assert AI Config tile visible OR sub-menu link removed",
+          "evidence": "Screenshot",
+          "issueRef": "I-120"
+        }
+      ],
+      "dimensions": {
+        "layers": ["S1", "S2"],
+        "featureDims": ["FE", "AU"],
+        "testLevels": ["T2", "T3"]
+      },
+      "declaredFiles": [
+        "client/src/components/tour/",
+        "client/src/pages/settings.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s7-system-profile.spec.ts"
+      ]
+    },
+    {
+      "id": "G-002",
+      "category": "Gap Remediation",
+      "name": "Uncovered UI Elements Investigation",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Investigate and document UI elements with no AC coverage: TeamBox channel filters (WhatsApp/Web Chat), Georgia FAB, session timeout, right panes",
+      "outcome": "Each uncovered UI element has a documented status: intentional, decorative, or needs AC. Operator decisions recorded in decisions.md.",
+      "dependsOn": ["M-001"],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-002.AC1",
+          "criterion": "TeamBox channel filter list verified: confirm which channels are real vs placeholder",
+          "component": "TB-05 through TB-07",
+          "test": "Click each channel filter → assert it returns matching conversations OR shows empty state",
+          "evidence": "Screenshot per filter",
+          "issueRef": "I-150"
+        },
+        {
+          "id": "G-002.AC2",
+          "criterion": "Georgia FAB documented: what it does, which agent it connects to, whether it functions",
+          "component": "G-12",
+          "test": "Click FAB on Sales page → assert chat opens or document non-functional",
+          "evidence": "Screenshot + investigation report",
+          "issueRef": "I-152"
+        },
+        {
+          "id": "G-002.AC3",
+          "criterion": "Session timeout dialog behavior documented",
+          "component": "G-13",
+          "test": "Identify inactivity timer duration → wait → capture dialog or confirm no dialog exists",
+          "evidence": "Code review + manual test",
+          "issueRef": "I-153"
+        },
+        {
+          "id": "G-002.AC4",
+          "criterion": "Right panes (G-14/G-15) documented: do they render, what data do they show",
+          "component": "G-14, G-15",
+          "test": "Click agent in sidebar → assert right pane opens with config. Click customer in TeamBox → assert info pane.",
+          "evidence": "Screenshot",
+          "issueRef": "I-158"
+        }
+      ],
+      "dimensions": {
+        "layers": ["S1"],
+        "featureDims": ["FE"],
+        "testLevels": ["T2"]
+      },
+      "declaredFiles": [
+        "client/src/components/",
+        "client/src/pages/teambox.tsx",
+        "tests/e2e/m001-gap-coverage.spec.ts"
+      ]
+    },
+    {
+      "id": "G-003",
+      "category": "Gap Remediation",
+      "name": "Uncrawled State Visual Verification",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Crawl and screenshot the 63 uncrawled UI states from U-001 reconciliation. Priority: /insights standalone, widget modes, /agents, global overlays, settings sub-pages.",
+      "outcome": "All 163 enumerated states have at least one screenshot or documented reason for exclusion. Reconciliation updated with findings.",
+      "dependsOn": ["M-001", "G-001"],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-003.AC1",
+          "criterion": "/insights standalone all 16 states crawled with screenshots",
+          "component": "IN-01 through IN-16",
+          "test": "Navigate /insights → each tab → each drill-down → capture",
+          "evidence": "16 screenshots in evidence/G-003/",
+          "issueRef": "I-156"
+        },
+        {
+          "id": "G-003.AC2",
+          "criterion": "Widget landing page modes crawled: chat, video, voice, form states",
+          "component": "WL-02 through WL-12",
+          "test": "Navigate /p/{slug} → trigger each mode → capture",
+          "evidence": "11 screenshots in evidence/G-003/",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC3",
+          "criterion": "/agents standalone page crawled with all 7 states",
+          "component": "AG-01 through AG-07",
+          "test": "Navigate /agents → select agent → CRUD dialogs → capture",
+          "evidence": "7 screenshots in evidence/G-003/",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC4",
+          "criterion": "Settings Notifications (ST-30) and Appearance (ST-31) crawled or confirmed non-existent",
+          "component": "ST-30, ST-31",
+          "test": "Navigate to Notifications/Appearance tiles → capture or document absence",
+          "evidence": "Screenshots or non-existence report",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC5",
+          "criterion": "Tour overlay (G-11) crawled showing 6-step sequence",
+          "component": "G-11",
+          "test": "Trigger tour → capture each step",
+          "evidence": "6 screenshots",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC6",
+          "criterion": "Reconciliation document updated with findings from all newly crawled states",
+          "component": "N/A",
+          "test": "reconciliation.md updated with match/mismatch per crawled state",
+          "evidence": "Updated reconciliation.md",
+          "issueRef": "I-154"
+        }
+      ],
+      "dimensions": {
+        "layers": ["S1"],
+        "featureDims": ["FE"],
+        "testLevels": ["T3"]
+      },
+      "declaredFiles": [
+        "tests/e2e/m001-gap-coverage.spec.ts",
+        ".governor/evidence/U-001/reconciliation.md",
+        ".governor/evidence/G-003/"
+      ]
     }
   ],
   "historicalSprints": {

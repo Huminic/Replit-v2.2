@@ -1,0 +1,98 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]: Nexxus Connect™
+      - button "Serra Honda" [ref=e13] [cursor=pointer]:
+        - img
+        - generic [ref=e14]: Serra Honda
+        - img
+      - generic [ref=e15]:
+        - button [ref=e16] [cursor=pointer]:
+          - img
+        - button "50" [ref=e17] [cursor=pointer]:
+          - img
+          - generic [ref=e18]: "50"
+        - button [ref=e19] [cursor=pointer]:
+          - img
+        - button [ref=e20] [cursor=pointer]:
+          - img
+        - button "SHA" [ref=e21] [cursor=pointer]:
+          - generic [ref=e23]: SHA
+          - img
+    - generic [ref=e24]:
+      - complementary [ref=e25]:
+        - button [ref=e27] [cursor=pointer]:
+          - img
+        - navigation [ref=e29]:
+          - button "AI Chat" [ref=e30] [cursor=pointer]:
+            - img
+            - generic [ref=e31]: AI Chat
+          - button "TeamBox" [ref=e32] [cursor=pointer]:
+            - img
+            - generic [ref=e33]: TeamBox
+          - button "Sales" [ref=e34] [cursor=pointer]:
+            - img
+            - generic [ref=e35]: Sales
+          - button "Service" [ref=e36] [cursor=pointer]:
+            - img
+            - generic [ref=e37]: Service
+          - button "Marketing" [ref=e38] [cursor=pointer]:
+            - img
+            - generic [ref=e39]: Marketing
+          - button "Manage" [ref=e41] [cursor=pointer]:
+            - img
+            - generic [ref=e42]: Manage
+        - navigation [ref=e44]:
+          - button "System" [ref=e45] [cursor=pointer]:
+            - img
+            - generic [ref=e46]: System
+        - button "Logout" [ref=e48] [cursor=pointer]:
+          - img
+          - generic [ref=e49]: Logout
+      - generic [ref=e50]:
+        - main [ref=e51]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "Marketing" [level=1] [ref=e55]
+              - generic [ref=e56]:
+                - button "Dashboard" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+                  - text: Dashboard
+                - button "Agents" [ref=e63] [cursor=pointer]:
+                  - img [ref=e64]
+                  - text: Agents
+                - button "Studio" [ref=e67] [cursor=pointer]:
+                  - img [ref=e68]
+                  - text: Studio
+                - button "Insights" [ref=e74] [cursor=pointer]:
+                  - img [ref=e75]
+                  - text: Insights
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - heading "Marketing Dashboard" [level=2] [ref=e82]
+                - paragraph [ref=e83]: Campaign performance and lead generation metrics
+              - generic [ref=e84]:
+                - generic [ref=e86] [cursor=pointer]:
+                  - generic [ref=e87]:
+                    - paragraph [ref=e88]: Campaign Performance
+                    - img [ref=e89]
+                  - paragraph [ref=e93]: 0%
+                - generic [ref=e95] [cursor=pointer]:
+                  - generic [ref=e96]:
+                    - paragraph [ref=e97]: Campaigns Active
+                    - img [ref=e98]
+                  - paragraph [ref=e101]: "0"
+                - generic [ref=e103] [cursor=pointer]:
+                  - generic [ref=e104]:
+                    - paragraph [ref=e105]: Messages Sent
+                    - img [ref=e106]
+                  - paragraph [ref=e112]: "0"
+                - generic [ref=e114] [cursor=pointer]:
+                  - generic [ref=e115]:
+                    - paragraph [ref=e116]: Replies Received
+                    - img [ref=e117]
+                  - paragraph [ref=e120]: "0"
+        - button "Open configuration" [ref=e122] [cursor=pointer]:
+          - img

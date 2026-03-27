@@ -1,0 +1,206 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]: Nexxus Connect™
+      - button "Serra Honda" [ref=e13] [cursor=pointer]:
+        - img
+        - generic [ref=e14]: Serra Honda
+        - img
+      - generic [ref=e15]:
+        - button [ref=e16] [cursor=pointer]:
+          - img
+        - button "50" [ref=e17] [cursor=pointer]:
+          - img
+          - generic [ref=e18]: "50"
+        - button [ref=e19] [cursor=pointer]:
+          - img
+        - button [ref=e20] [cursor=pointer]:
+          - img
+        - button "SHA" [ref=e21] [cursor=pointer]:
+          - generic [ref=e23]: SHA
+          - img
+    - generic [ref=e24]:
+      - complementary [ref=e25]:
+        - button [ref=e27] [cursor=pointer]:
+          - img
+        - navigation [ref=e29]:
+          - button "AI Chat" [ref=e30] [cursor=pointer]:
+            - img
+            - generic [ref=e31]: AI Chat
+          - button "TeamBox" [ref=e32] [cursor=pointer]:
+            - img
+            - generic [ref=e33]: TeamBox
+          - button "Sales" [ref=e34] [cursor=pointer]:
+            - img
+            - generic [ref=e35]: Sales
+          - button "Service" [ref=e37] [cursor=pointer]:
+            - img
+            - generic [ref=e38]: Service
+          - button "Marketing" [ref=e39] [cursor=pointer]:
+            - img
+            - generic [ref=e40]: Marketing
+          - button "Manage" [ref=e41] [cursor=pointer]:
+            - img
+            - generic [ref=e42]: Manage
+        - navigation [ref=e44]:
+          - button "System" [ref=e45] [cursor=pointer]:
+            - img
+            - generic [ref=e46]: System
+        - button "Logout" [ref=e48] [cursor=pointer]:
+          - img
+          - generic [ref=e49]: Logout
+      - generic [ref=e50]:
+        - main [ref=e51]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "Sales" [level=1] [ref=e55]
+              - generic [ref=e56]:
+                - button "Dashboard" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+                  - text: Dashboard
+                - button "Agents" [ref=e63] [cursor=pointer]:
+                  - img [ref=e64]
+                  - text: Agents
+                - button "Insights" [ref=e67] [cursor=pointer]:
+                  - img [ref=e68]
+                  - text: Insights
+                - button "Calendar" [ref=e70] [cursor=pointer]:
+                  - img [ref=e71]
+                  - text: Calendar
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - heading "Sales Dashboard" [level=2] [ref=e79]
+                  - paragraph [ref=e80]: Real-time sales pipeline and performance metrics
+                - generic [ref=e81]:
+                  - generic [ref=e82]: Warehouse
+                  - generic [ref=e83]: Synced 7h ago
+              - generic [ref=e84]:
+                - generic [ref=e86] [cursor=pointer]:
+                  - generic [ref=e87]:
+                    - paragraph [ref=e88]: Total Leads (30d)
+                    - img [ref=e89]
+                  - paragraph [ref=e93]: "581"
+                  - generic [ref=e94]:
+                    - img [ref=e95]
+                    - generic [ref=e98]: 0%
+                    - generic [ref=e99]: vs last 30d
+                - generic [ref=e101] [cursor=pointer]:
+                  - generic [ref=e102]:
+                    - paragraph [ref=e103]: New Leads
+                    - img [ref=e104]
+                  - paragraph [ref=e109]: "9"
+                  - generic [ref=e110]:
+                    - img [ref=e111]
+                    - generic [ref=e114]: 0%
+                    - generic [ref=e115]: vs last 30d
+                - generic [ref=e117] [cursor=pointer]:
+                  - generic [ref=e118]:
+                    - paragraph [ref=e119]: Active Pipeline
+                    - img [ref=e120]
+                  - paragraph [ref=e122]: "109"
+                  - generic [ref=e123]:
+                    - img [ref=e124]
+                    - generic [ref=e127]: 0%
+                    - generic [ref=e128]: vs last 30d
+                - generic [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131]:
+                    - paragraph [ref=e132]: Waiting on Response
+                    - img [ref=e133]
+                  - paragraph [ref=e136]: "79"
+                  - generic [ref=e137]:
+                    - img [ref=e138]
+                    - generic [ref=e141]: 0%
+                    - generic [ref=e142]: vs last 30d
+                - generic [ref=e144] [cursor=pointer]:
+                  - generic [ref=e145]:
+                    - paragraph [ref=e146]: Appointments Set
+                    - img [ref=e147]
+                  - paragraph [ref=e150]: "0"
+                  - generic [ref=e151]:
+                    - img [ref=e152]
+                    - generic [ref=e155]: 0%
+                    - generic [ref=e156]: vs last 30d
+                - generic [ref=e158] [cursor=pointer]:
+                  - generic [ref=e159]:
+                    - paragraph [ref=e160]: Sold
+                    - img [ref=e161]
+                  - paragraph [ref=e164]: "20"
+                  - generic [ref=e165]:
+                    - img [ref=e166]
+                    - generic [ref=e169]: 0%
+                    - generic [ref=e170]: vs last 30d
+                - generic [ref=e172] [cursor=pointer]:
+                  - generic [ref=e173]:
+                    - paragraph [ref=e174]: Conversion Rate
+                    - img [ref=e175]
+                  - paragraph [ref=e178]: 3.4%
+                  - generic [ref=e179]:
+                    - img [ref=e180]
+                    - generic [ref=e183]: 0%
+                    - generic [ref=e184]: vs last 30d
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - generic [ref=e188]: Top Performing Agents
+                  - generic [ref=e190]:
+                    - generic [ref=e191]:
+                      - generic [ref=e192]: "1"
+                      - img [ref=e195]
+                      - generic [ref=e198]:
+                        - paragraph [ref=e199]: Caroline
+                        - paragraph [ref=e200]: voice
+                    - generic [ref=e202]:
+                      - generic [ref=e203]: "2"
+                      - img [ref=e206]
+                      - generic [ref=e209]:
+                        - paragraph [ref=e210]: Data Guru
+                        - paragraph [ref=e211]: chat
+                    - generic [ref=e213]:
+                      - generic [ref=e214]: "3"
+                      - img [ref=e217]
+                      - generic [ref=e220]:
+                        - paragraph [ref=e221]: Sales Coach
+                        - paragraph [ref=e222]: chat
+                    - generic [ref=e224]:
+                      - generic [ref=e225]: "4"
+                      - img [ref=e228]
+                      - generic [ref=e231]:
+                        - paragraph [ref=e232]: Communication Writer
+                        - paragraph [ref=e233]: chat
+                - generic [ref=e235]:
+                  - generic [ref=e237]: Recent Activity
+                  - generic [ref=e239]:
+                    - generic [ref=e240]:
+                      - generic [ref=e242]: Escalation Email Sent
+                      - generic [ref=e243]: about 3 hours ago
+                    - generic [ref=e244]:
+                      - generic [ref=e246]: Campaign Resumed
+                      - generic [ref=e247]: about 3 hours ago
+                    - generic [ref=e248]:
+                      - generic [ref=e250]: Campaign Created
+                      - generic [ref=e251]: about 3 hours ago
+                    - generic [ref=e252]:
+                      - generic [ref=e254]: Vapi Call Received
+                      - generic [ref=e255]: about 3 hours ago
+                    - generic [ref=e256]:
+                      - generic [ref=e258]: Sms Inbound Received
+                      - generic [ref=e259]: about 3 hours ago
+                    - generic [ref=e260]:
+                      - generic [ref=e262]: Campaign Completed
+                      - generic [ref=e263]: about 3 hours ago
+                    - generic [ref=e264]:
+                      - generic [ref=e266]: Campaign Executed
+                      - generic [ref=e267]: about 3 hours ago
+                    - generic [ref=e268]:
+                      - generic [ref=e270]: Campaign Active
+                      - generic [ref=e271]: about 3 hours ago
+                    - generic [ref=e272]:
+                      - generic [ref=e274]: Campaign Created
+                      - generic [ref=e275]: about 3 hours ago
+                    - generic [ref=e276]:
+                      - generic [ref=e278]: Vapi Call Received
+                      - generic [ref=e279]: about 3 hours ago
+        - button "Open configuration" [ref=e281] [cursor=pointer]:
+          - img

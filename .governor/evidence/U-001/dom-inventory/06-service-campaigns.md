@@ -1,0 +1,1308 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - generic [ref=e8]:
+      - banner [ref=e9]:
+        - generic [ref=e11]: Nexxus Connect™
+        - button "Serra Honda" [ref=e13] [cursor=pointer]:
+          - img
+          - generic [ref=e14]: Serra Honda
+          - img
+        - generic [ref=e15]:
+          - button [ref=e16] [cursor=pointer]:
+            - img
+          - button "50" [ref=e17] [cursor=pointer]:
+            - img
+            - generic [ref=e18]: "50"
+          - button [ref=e19] [cursor=pointer]:
+            - img
+          - button [ref=e20] [cursor=pointer]:
+            - img
+          - button "SHA" [ref=e21] [cursor=pointer]:
+            - generic [ref=e23]: SHA
+            - img
+      - generic [ref=e24]:
+        - complementary [ref=e25]:
+          - button [ref=e27] [cursor=pointer]:
+            - img
+          - navigation [ref=e29]:
+            - button "AI Chat" [ref=e30] [cursor=pointer]:
+              - img
+              - generic [ref=e31]: AI Chat
+            - button "TeamBox" [ref=e32] [cursor=pointer]:
+              - img
+              - generic [ref=e33]: TeamBox
+            - button "Sales" [ref=e34] [cursor=pointer]:
+              - img
+              - generic [ref=e35]: Sales
+            - button "Service" [ref=e36] [cursor=pointer]:
+              - img
+              - generic [ref=e37]: Service
+            - button "Marketing" [ref=e39] [cursor=pointer]:
+              - img
+              - generic [ref=e40]: Marketing
+            - button "Manage" [ref=e41] [cursor=pointer]:
+              - img
+              - generic [ref=e42]: Manage
+          - navigation [ref=e44]:
+            - button "System" [ref=e45] [cursor=pointer]:
+              - img
+              - generic [ref=e46]: System
+          - button "Logout" [ref=e48] [cursor=pointer]:
+            - img
+            - generic [ref=e49]: Logout
+        - generic [ref=e50]:
+          - main [ref=e51]:
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - heading "Service" [level=1] [ref=e55]
+                - generic [ref=e56]:
+                  - button "Campaigns" [ref=e57] [cursor=pointer]:
+                    - img [ref=e58]
+                    - text: Campaigns
+                  - button "Agents" [ref=e61] [cursor=pointer]:
+                    - img [ref=e62]
+                    - text: Agents
+                  - button "Insights" [ref=e65] [cursor=pointer]:
+                    - img [ref=e66]
+                    - text: Insights
+                  - button "Calendar" [ref=e68] [cursor=pointer]:
+                    - img [ref=e69]
+                    - text: Calendar
+              - generic [ref=e74]:
+                - generic [ref=e75]:
+                  - heading "Service Campaigns" [level=2] [ref=e76]
+                  - generic [ref=e77]:
+                    - button "Upload CSV" [ref=e78] [cursor=pointer]:
+                      - img
+                      - text: Upload CSV
+                    - button "New Campaign" [ref=e79] [cursor=pointer]
+                - table [ref=e81]:
+                  - rowgroup [ref=e82]:
+                    - row "Campaign Status Channel Recipients Sent Replied Kill Switch Actions" [ref=e83]:
+                      - columnheader "Campaign" [ref=e84]
+                      - columnheader "Status" [ref=e85]
+                      - columnheader "Channel" [ref=e86]
+                      - columnheader "Recipients" [ref=e87]
+                      - columnheader "Sent" [ref=e88]
+                      - columnheader "Replied" [ref=e89]
+                      - columnheader "Kill Switch" [ref=e90]
+                      - columnheader "Actions" [ref=e91]
+                  - rowgroup [ref=e92]:
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e93] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e94]:
+                        - generic [ref=e95]:
+                          - paragraph [ref=e96]: LC-2 Autonomous Test
+                          - paragraph [ref=e97]:
+                            - img [ref=e98]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e101]:
+                        - generic [ref=e104]: active
+                      - cell "SMS" [ref=e105]:
+                        - generic [ref=e106]: SMS
+                      - cell "2" [ref=e107]
+                      - cell "0" [ref=e108]
+                      - cell "0" [ref=e109]
+                      - cell [ref=e110]:
+                        - switch [ref=e112]
+                      - cell [ref=e113]:
+                        - generic [ref=e114]:
+                          - button [ref=e115]:
+                            - img
+                          - button [ref=e116]:
+                            - img
+                          - button [ref=e117]:
+                            - img
+                          - button [ref=e118]:
+                            - img
+                    - row "Service Reminder - February test-recipients.csv paused SMS 14 1 1" [ref=e119] [cursor=pointer]:
+                      - cell "Service Reminder - February test-recipients.csv" [ref=e120]:
+                        - generic [ref=e121]:
+                          - paragraph [ref=e122]: Service Reminder - February
+                          - paragraph [ref=e123]:
+                            - img [ref=e124]
+                            - text: test-recipients.csv
+                      - cell "paused" [ref=e127]:
+                        - generic [ref=e130]: paused
+                      - cell "SMS" [ref=e131]:
+                        - generic [ref=e132]: SMS
+                      - cell "14" [ref=e133]
+                      - cell "1" [ref=e134]
+                      - cell "1" [ref=e135]
+                      - cell [ref=e136]:
+                        - switch [ref=e138]
+                      - cell [ref=e139]:
+                        - generic [ref=e140]:
+                          - button [ref=e141]:
+                            - img
+                          - button [ref=e142]:
+                            - img
+                          - button [ref=e143]:
+                            - img
+                          - button [ref=e144]:
+                            - img
+                    - row "E2E-FLOW3-1773953533436 flow3-test.csv completed SMS 2 0 0" [ref=e145] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1773953533436 flow3-test.csv" [ref=e146]:
+                        - generic [ref=e147]:
+                          - paragraph [ref=e148]: E2E-FLOW3-1773953533436
+                          - paragraph [ref=e149]:
+                            - img [ref=e150]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e153]:
+                        - generic [ref=e156]: completed
+                      - cell "SMS" [ref=e157]:
+                        - generic [ref=e158]: SMS
+                      - cell "2" [ref=e159]
+                      - cell "0" [ref=e160]
+                      - cell "0" [ref=e161]
+                      - cell [ref=e162]:
+                        - switch [checked] [ref=e164]
+                      - cell [ref=e165]:
+                        - generic [ref=e166]:
+                          - button [ref=e167]:
+                            - img
+                          - button [ref=e168]:
+                            - img
+                          - button [ref=e169]:
+                            - img
+                          - button [ref=e170]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1773953541062 completed SMS 0 0 0" [ref=e171] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1773953541062" [ref=e172]:
+                        - paragraph [ref=e174]: E2E-FLOW5-KillSwitch-1773953541062
+                      - cell "completed" [ref=e175]:
+                        - generic [ref=e178]: completed
+                      - cell "SMS" [ref=e179]:
+                        - generic [ref=e180]: SMS
+                      - cell "0" [ref=e181]
+                      - cell "0" [ref=e182]
+                      - cell "0" [ref=e183]
+                      - cell [ref=e184]:
+                        - switch [checked] [ref=e186]
+                      - cell [ref=e187]:
+                        - generic [ref=e188]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e189]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1773953543071 completed SMS 0 0 0" [ref=e190] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1773953543071" [ref=e191]:
+                        - paragraph [ref=e193]: E2E-FLOW6-Resume-1773953543071
+                      - cell "completed" [ref=e194]:
+                        - generic [ref=e197]: completed
+                      - cell "SMS" [ref=e198]:
+                        - generic [ref=e199]: SMS
+                      - cell "0" [ref=e200]
+                      - cell "0" [ref=e201]
+                      - cell "0" [ref=e202]
+                      - cell [ref=e203]:
+                        - switch [checked] [ref=e205]
+                      - cell [ref=e206]:
+                        - generic [ref=e207]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e208]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e209] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e210]:
+                        - generic [ref=e211]:
+                          - paragraph [ref=e212]: LC-2 Autonomous Test
+                          - paragraph [ref=e213]:
+                            - img [ref=e214]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e217]:
+                        - generic [ref=e220]: active
+                      - cell "SMS" [ref=e221]:
+                        - generic [ref=e222]: SMS
+                      - cell "2" [ref=e223]
+                      - cell "0" [ref=e224]
+                      - cell "0" [ref=e225]
+                      - cell [ref=e226]:
+                        - switch [checked] [ref=e228]
+                      - cell [ref=e229]:
+                        - generic [ref=e230]:
+                          - button [ref=e231]:
+                            - img
+                          - button [ref=e232]:
+                            - img
+                          - button [ref=e233]:
+                            - img
+                          - button [ref=e234]:
+                            - img
+                    - row "E2E-FLOW3-1773957134043 flow3-test.csv completed SMS 2 0 0" [ref=e235] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1773957134043 flow3-test.csv" [ref=e236]:
+                        - generic [ref=e237]:
+                          - paragraph [ref=e238]: E2E-FLOW3-1773957134043
+                          - paragraph [ref=e239]:
+                            - img [ref=e240]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e243]:
+                        - generic [ref=e246]: completed
+                      - cell "SMS" [ref=e247]:
+                        - generic [ref=e248]: SMS
+                      - cell "2" [ref=e249]
+                      - cell "0" [ref=e250]
+                      - cell "0" [ref=e251]
+                      - cell [ref=e252]:
+                        - switch [checked] [ref=e254]
+                      - cell [ref=e255]:
+                        - generic [ref=e256]:
+                          - button [ref=e257]:
+                            - img
+                          - button [ref=e258]:
+                            - img
+                          - button [ref=e259]:
+                            - img
+                          - button [ref=e260]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1773957141525 completed SMS 0 0 0" [ref=e261] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1773957141525" [ref=e262]:
+                        - paragraph [ref=e264]: E2E-FLOW5-KillSwitch-1773957141525
+                      - cell "completed" [ref=e265]:
+                        - generic [ref=e268]: completed
+                      - cell "SMS" [ref=e269]:
+                        - generic [ref=e270]: SMS
+                      - cell "0" [ref=e271]
+                      - cell "0" [ref=e272]
+                      - cell "0" [ref=e273]
+                      - cell [ref=e274]:
+                        - switch [checked] [ref=e276]
+                      - cell [ref=e277]:
+                        - generic [ref=e278]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e279]:
+                            - img
+                    - row "Oil Change Reminder oil_change_due_march.csv paused SMS 234 0 0" [ref=e280] [cursor=pointer]:
+                      - cell "Oil Change Reminder oil_change_due_march.csv" [ref=e281]:
+                        - generic [ref=e282]:
+                          - paragraph [ref=e283]: Oil Change Reminder
+                          - paragraph [ref=e284]:
+                            - img [ref=e285]
+                            - text: oil_change_due_march.csv
+                      - cell "paused" [ref=e288]:
+                        - generic [ref=e291]: paused
+                      - cell "SMS" [ref=e292]:
+                        - generic [ref=e293]: SMS
+                      - cell "234" [ref=e294]
+                      - cell "0" [ref=e295]
+                      - cell "0" [ref=e296]
+                      - cell [ref=e297]:
+                        - switch [ref=e299]
+                      - cell [ref=e300]:
+                        - generic [ref=e301]:
+                          - button [ref=e302]:
+                            - img
+                          - button [ref=e303]:
+                            - img
+                          - button [ref=e304]:
+                            - img
+                          - button [ref=e305]:
+                            - img
+                    - row "E2E-FLOW3-1773965411556 flow3-test.csv completed SMS 2 0 0" [ref=e306] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1773965411556 flow3-test.csv" [ref=e307]:
+                        - generic [ref=e308]:
+                          - paragraph [ref=e309]: E2E-FLOW3-1773965411556
+                          - paragraph [ref=e310]:
+                            - img [ref=e311]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e314]:
+                        - generic [ref=e317]: completed
+                      - cell "SMS" [ref=e318]:
+                        - generic [ref=e319]: SMS
+                      - cell "2" [ref=e320]
+                      - cell "0" [ref=e321]
+                      - cell "0" [ref=e322]
+                      - cell [ref=e323]:
+                        - switch [checked] [ref=e325]
+                      - cell [ref=e326]:
+                        - generic [ref=e327]:
+                          - button [ref=e328]:
+                            - img
+                          - button [ref=e329]:
+                            - img
+                          - button [ref=e330]:
+                            - img
+                          - button [ref=e331]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e332] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e333]:
+                        - generic [ref=e334]:
+                          - paragraph [ref=e335]: LC-2 Autonomous Test
+                          - paragraph [ref=e336]:
+                            - img [ref=e337]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e340]:
+                        - generic [ref=e343]: active
+                      - cell "SMS" [ref=e344]:
+                        - generic [ref=e345]: SMS
+                      - cell "2" [ref=e346]
+                      - cell "0" [ref=e347]
+                      - cell "0" [ref=e348]
+                      - cell [ref=e349]:
+                        - switch [checked] [ref=e351]
+                      - cell [ref=e352]:
+                        - generic [ref=e353]:
+                          - button [ref=e354]:
+                            - img
+                          - button [ref=e355]:
+                            - img
+                          - button [ref=e356]:
+                            - img
+                          - button [ref=e357]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1773965422011 completed SMS 0 0 0" [ref=e358] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1773965422011" [ref=e359]:
+                        - paragraph [ref=e361]: E2E-FLOW6-Resume-1773965422011
+                      - cell "completed" [ref=e362]:
+                        - generic [ref=e365]: completed
+                      - cell "SMS" [ref=e366]:
+                        - generic [ref=e367]: SMS
+                      - cell "0" [ref=e368]
+                      - cell "0" [ref=e369]
+                      - cell "0" [ref=e370]
+                      - cell [ref=e371]:
+                        - switch [checked] [ref=e373]
+                      - cell [ref=e374]:
+                        - generic [ref=e375]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e376]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1773965419955 completed SMS 0 0 0" [ref=e377] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1773965419955" [ref=e378]:
+                        - paragraph [ref=e380]: E2E-FLOW5-KillSwitch-1773965419955
+                      - cell "completed" [ref=e381]:
+                        - generic [ref=e384]: completed
+                      - cell "SMS" [ref=e385]:
+                        - generic [ref=e386]: SMS
+                      - cell "0" [ref=e387]
+                      - cell "0" [ref=e388]
+                      - cell "0" [ref=e389]
+                      - cell [ref=e390]:
+                        - switch [checked] [ref=e392]
+                      - cell [ref=e393]:
+                        - generic [ref=e394]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e395]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1773957143534 test-recipients.csv completed SMS 2 0 0" [ref=e396] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1773957143534 test-recipients.csv" [ref=e397]:
+                        - generic [ref=e398]:
+                          - paragraph [ref=e399]: E2E-FLOW6-Resume-1773957143534
+                          - paragraph [ref=e400]:
+                            - img [ref=e401]
+                            - text: test-recipients.csv
+                      - cell "completed" [ref=e404]:
+                        - generic [ref=e407]: completed
+                      - cell "SMS" [ref=e408]:
+                        - generic [ref=e409]: SMS
+                      - cell "2" [ref=e410]
+                      - cell "0" [ref=e411]
+                      - cell "0" [ref=e412]
+                      - cell [ref=e413]:
+                        - switch [checked] [ref=e415]
+                      - cell [ref=e416]:
+                        - generic [ref=e417]:
+                          - button [ref=e418]:
+                            - img
+                          - button [ref=e419]:
+                            - img
+                          - button [ref=e420]:
+                            - img
+                          - button [ref=e421]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e422] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e423]:
+                        - generic [ref=e424]:
+                          - paragraph [ref=e425]: LC-2 Autonomous Test
+                          - paragraph [ref=e426]:
+                            - img [ref=e427]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e430]:
+                        - generic [ref=e433]: active
+                      - cell "SMS" [ref=e434]:
+                        - generic [ref=e435]: SMS
+                      - cell "2" [ref=e436]
+                      - cell "0" [ref=e437]
+                      - cell "0" [ref=e438]
+                      - cell [ref=e439]:
+                        - switch [checked] [ref=e441]
+                      - cell [ref=e442]:
+                        - generic [ref=e443]:
+                          - button [ref=e444]:
+                            - img
+                          - button [ref=e445]:
+                            - img
+                          - button [ref=e446]:
+                            - img
+                          - button [ref=e447]:
+                            - img
+                    - row "E2E-FLOW3-1773966859715 flow3-test.csv completed SMS 2 0 0" [ref=e448] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1773966859715 flow3-test.csv" [ref=e449]:
+                        - generic [ref=e450]:
+                          - paragraph [ref=e451]: E2E-FLOW3-1773966859715
+                          - paragraph [ref=e452]:
+                            - img [ref=e453]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e456]:
+                        - generic [ref=e459]: completed
+                      - cell "SMS" [ref=e460]:
+                        - generic [ref=e461]: SMS
+                      - cell "2" [ref=e462]
+                      - cell "0" [ref=e463]
+                      - cell "0" [ref=e464]
+                      - cell [ref=e465]:
+                        - switch [checked] [ref=e467]
+                      - cell [ref=e468]:
+                        - generic [ref=e469]:
+                          - button [ref=e470]:
+                            - img
+                          - button [ref=e471]:
+                            - img
+                          - button [ref=e472]:
+                            - img
+                          - button [ref=e473]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1773966867979 completed SMS 0 0 0" [ref=e474] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1773966867979" [ref=e475]:
+                        - paragraph [ref=e477]: E2E-FLOW5-KillSwitch-1773966867979
+                      - cell "completed" [ref=e478]:
+                        - generic [ref=e481]: completed
+                      - cell "SMS" [ref=e482]:
+                        - generic [ref=e483]: SMS
+                      - cell "0" [ref=e484]
+                      - cell "0" [ref=e485]
+                      - cell "0" [ref=e486]
+                      - cell [ref=e487]:
+                        - switch [checked] [ref=e489]
+                      - cell [ref=e490]:
+                        - generic [ref=e491]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e492]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1773966869980 completed SMS 0 0 0" [ref=e493] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1773966869980" [ref=e494]:
+                        - paragraph [ref=e496]: E2E-FLOW6-Resume-1773966869980
+                      - cell "completed" [ref=e497]:
+                        - generic [ref=e500]: completed
+                      - cell "SMS" [ref=e501]:
+                        - generic [ref=e502]: SMS
+                      - cell "0" [ref=e503]
+                      - cell "0" [ref=e504]
+                      - cell "0" [ref=e505]
+                      - cell [ref=e506]:
+                        - switch [checked] [ref=e508]
+                      - cell [ref=e509]:
+                        - generic [ref=e510]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e511]:
+                            - img
+                    - row "RI-SMS-3-Real-1773985031363 ri-test.csv completed SMS 1 1 0" [ref=e512] [cursor=pointer]:
+                      - cell "RI-SMS-3-Real-1773985031363 ri-test.csv" [ref=e513]:
+                        - generic [ref=e514]:
+                          - paragraph [ref=e515]: RI-SMS-3-Real-1773985031363
+                          - paragraph [ref=e516]:
+                            - img [ref=e517]
+                            - text: ri-test.csv
+                      - cell "completed" [ref=e520]:
+                        - generic [ref=e523]: completed
+                      - cell "SMS" [ref=e524]:
+                        - generic [ref=e525]: SMS
+                      - cell "1" [ref=e526]
+                      - cell "1" [ref=e527]
+                      - cell "0" [ref=e528]
+                      - cell [ref=e529]:
+                        - switch [checked] [ref=e531]
+                      - cell [ref=e532]:
+                        - generic [ref=e533]:
+                          - button [ref=e534]:
+                            - img
+                          - button [ref=e535]:
+                            - img
+                          - button [ref=e536]:
+                            - img
+                          - button [ref=e537]:
+                            - img
+                    - row "RI-KS-1-1773985059693 completed SMS 0 0 0" [ref=e538] [cursor=pointer]:
+                      - cell "RI-KS-1-1773985059693" [ref=e539]:
+                        - paragraph [ref=e541]: RI-KS-1-1773985059693
+                      - cell "completed" [ref=e542]:
+                        - generic [ref=e545]: completed
+                      - cell "SMS" [ref=e546]:
+                        - generic [ref=e547]: SMS
+                      - cell "0" [ref=e548]
+                      - cell "0" [ref=e549]
+                      - cell "0" [ref=e550]
+                      - cell [ref=e551]:
+                        - switch [checked] [ref=e553]
+                      - cell [ref=e554]:
+                        - generic [ref=e555]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e556]:
+                            - img
+                    - row "RI-KS-2-CommGate-1773985061518 completed SMS 0 0 0" [ref=e557] [cursor=pointer]:
+                      - cell "RI-KS-2-CommGate-1773985061518" [ref=e558]:
+                        - paragraph [ref=e560]: RI-KS-2-CommGate-1773985061518
+                      - cell "completed" [ref=e561]:
+                        - generic [ref=e564]: completed
+                      - cell "SMS" [ref=e565]:
+                        - generic [ref=e566]: SMS
+                      - cell "0" [ref=e567]
+                      - cell "0" [ref=e568]
+                      - cell "0" [ref=e569]
+                      - cell [ref=e570]:
+                        - switch [checked] [ref=e572]
+                      - cell [ref=e573]:
+                        - generic [ref=e574]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e575]:
+                            - img
+                    - row "RI-SMS-1-Real-1773988857110 ri-sms1.csv completed SMS 1 1 0" [ref=e576] [cursor=pointer]:
+                      - cell "RI-SMS-1-Real-1773988857110 ri-sms1.csv" [ref=e577]:
+                        - generic [ref=e578]:
+                          - paragraph [ref=e579]: RI-SMS-1-Real-1773988857110
+                          - paragraph [ref=e580]:
+                            - img [ref=e581]
+                            - text: ri-sms1.csv
+                      - cell "completed" [ref=e584]:
+                        - generic [ref=e587]: completed
+                      - cell "SMS" [ref=e588]:
+                        - generic [ref=e589]: SMS
+                      - cell "1" [ref=e590]
+                      - cell "1" [ref=e591]
+                      - cell "0" [ref=e592]
+                      - cell [ref=e593]:
+                        - switch [checked] [ref=e595]
+                      - cell [ref=e596]:
+                        - generic [ref=e597]:
+                          - button [ref=e598]:
+                            - img
+                          - button [ref=e599]:
+                            - img
+                          - button [ref=e600]:
+                            - img
+                          - button [ref=e601]:
+                            - img
+                    - row "E2E-FLOW3-1773988804171 flow3-test.csv completed SMS 2 0 0" [ref=e602] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1773988804171 flow3-test.csv" [ref=e603]:
+                        - generic [ref=e604]:
+                          - paragraph [ref=e605]: E2E-FLOW3-1773988804171
+                          - paragraph [ref=e606]:
+                            - img [ref=e607]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e610]:
+                        - generic [ref=e613]: completed
+                      - cell "SMS" [ref=e614]:
+                        - generic [ref=e615]: SMS
+                      - cell "2" [ref=e616]
+                      - cell "0" [ref=e617]
+                      - cell "0" [ref=e618]
+                      - cell [ref=e619]:
+                        - switch [checked] [ref=e621]
+                      - cell [ref=e622]:
+                        - generic [ref=e623]:
+                          - button [ref=e624]:
+                            - img
+                          - button [ref=e625]:
+                            - img
+                          - button [ref=e626]:
+                            - img
+                          - button [ref=e627]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1773988812959 completed SMS 0 0 0" [ref=e628] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1773988812959" [ref=e629]:
+                        - paragraph [ref=e631]: E2E-FLOW5-KillSwitch-1773988812959
+                      - cell "completed" [ref=e632]:
+                        - generic [ref=e635]: completed
+                      - cell "SMS" [ref=e636]:
+                        - generic [ref=e637]: SMS
+                      - cell "0" [ref=e638]
+                      - cell "0" [ref=e639]
+                      - cell "0" [ref=e640]
+                      - cell [ref=e641]:
+                        - switch [checked] [ref=e643]
+                      - cell [ref=e644]:
+                        - generic [ref=e645]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e646]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1773988814945 completed SMS 0 0 0" [ref=e647] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1773988814945" [ref=e648]:
+                        - paragraph [ref=e650]: E2E-FLOW6-Resume-1773988814945
+                      - cell "completed" [ref=e651]:
+                        - generic [ref=e654]: completed
+                      - cell "SMS" [ref=e655]:
+                        - generic [ref=e656]: SMS
+                      - cell "0" [ref=e657]
+                      - cell "0" [ref=e658]
+                      - cell "0" [ref=e659]
+                      - cell [ref=e660]:
+                        - switch [checked] [ref=e662]
+                      - cell [ref=e663]:
+                        - generic [ref=e664]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e665]:
+                            - img
+                    - row "RI-KS-1-1773988900298 completed SMS 0 0 0" [ref=e666] [cursor=pointer]:
+                      - cell "RI-KS-1-1773988900298" [ref=e667]:
+                        - paragraph [ref=e669]: RI-KS-1-1773988900298
+                      - cell "completed" [ref=e670]:
+                        - generic [ref=e673]: completed
+                      - cell "SMS" [ref=e674]:
+                        - generic [ref=e675]: SMS
+                      - cell "0" [ref=e676]
+                      - cell "0" [ref=e677]
+                      - cell "0" [ref=e678]
+                      - cell [ref=e679]:
+                        - switch [checked] [ref=e681]
+                      - cell [ref=e682]:
+                        - generic [ref=e683]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e684]:
+                            - img
+                    - row "G-6.3 Email Campaign Test email-recipients.csv draft EMAIL 2 0 0" [ref=e685] [cursor=pointer]:
+                      - cell "G-6.3 Email Campaign Test email-recipients.csv" [ref=e686]:
+                        - generic [ref=e687]:
+                          - paragraph [ref=e688]: G-6.3 Email Campaign Test
+                          - paragraph [ref=e689]:
+                            - img [ref=e690]
+                            - text: email-recipients.csv
+                      - cell "draft" [ref=e693]:
+                        - generic [ref=e696]: draft
+                      - cell "EMAIL" [ref=e697]:
+                        - generic [ref=e698]: EMAIL
+                      - cell "2" [ref=e699]
+                      - cell "0" [ref=e700]
+                      - cell "0" [ref=e701]
+                      - cell [ref=e702]:
+                        - switch [checked] [ref=e704]
+                      - cell [ref=e705]:
+                        - generic [ref=e706]:
+                          - button [ref=e707]:
+                            - img
+                          - button [ref=e708]:
+                            - img
+                          - button [ref=e709]:
+                            - img
+                          - button [ref=e710]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e711] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e712]:
+                        - generic [ref=e713]:
+                          - paragraph [ref=e714]: LC-2 Autonomous Test
+                          - paragraph [ref=e715]:
+                            - img [ref=e716]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e719]:
+                        - generic [ref=e722]: active
+                      - cell "SMS" [ref=e723]:
+                        - generic [ref=e724]: SMS
+                      - cell "2" [ref=e725]
+                      - cell "0" [ref=e726]
+                      - cell "0" [ref=e727]
+                      - cell [ref=e728]:
+                        - switch [checked] [ref=e730]
+                      - cell [ref=e731]:
+                        - generic [ref=e732]:
+                          - button [ref=e733]:
+                            - img
+                          - button [ref=e734]:
+                            - img
+                          - button [ref=e735]:
+                            - img
+                          - button [ref=e736]:
+                            - img
+                    - row "DC-US010-Recall-1773988978659 completed SMS 0 0 0" [ref=e737] [cursor=pointer]:
+                      - cell "DC-US010-Recall-1773988978659" [ref=e738]:
+                        - paragraph [ref=e740]: DC-US010-Recall-1773988978659
+                      - cell "completed" [ref=e741]:
+                        - generic [ref=e744]: completed
+                      - cell "SMS" [ref=e745]:
+                        - generic [ref=e746]: SMS
+                      - cell "0" [ref=e747]
+                      - cell "0" [ref=e748]
+                      - cell "0" [ref=e749]
+                      - cell [ref=e750]:
+                        - switch [checked] [ref=e752]
+                      - cell [ref=e753]:
+                        - generic [ref=e754]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e755]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e756] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e757]:
+                        - paragraph [ref=e759]: S-4 Test Campaign
+                      - cell "draft" [ref=e760]:
+                        - generic [ref=e763]: draft
+                      - cell "SMS" [ref=e764]:
+                        - generic [ref=e765]: SMS
+                      - cell "0" [ref=e766]
+                      - cell "0" [ref=e767]
+                      - cell "0" [ref=e768]
+                      - cell [ref=e769]:
+                        - switch [checked] [ref=e771]
+                      - cell [ref=e772]:
+                        - generic [ref=e773]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e774]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e775] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e776]:
+                        - paragraph [ref=e778]: S-4 Test Campaign
+                      - cell "draft" [ref=e779]:
+                        - generic [ref=e782]: draft
+                      - cell "SMS" [ref=e783]:
+                        - generic [ref=e784]: SMS
+                      - cell "0" [ref=e785]
+                      - cell "0" [ref=e786]
+                      - cell "0" [ref=e787]
+                      - cell [ref=e788]:
+                        - switch [checked] [ref=e790]
+                      - cell [ref=e791]:
+                        - generic [ref=e792]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e793]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e794] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e795]:
+                        - paragraph [ref=e797]: S-4 Test Campaign
+                      - cell "draft" [ref=e798]:
+                        - generic [ref=e801]: draft
+                      - cell "SMS" [ref=e802]:
+                        - generic [ref=e803]: SMS
+                      - cell "0" [ref=e804]
+                      - cell "0" [ref=e805]
+                      - cell "0" [ref=e806]
+                      - cell [ref=e807]:
+                        - switch [checked] [ref=e809]
+                      - cell [ref=e810]:
+                        - generic [ref=e811]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e812]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e813] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e814]:
+                        - paragraph [ref=e816]: S-4 Test Campaign
+                      - cell "draft" [ref=e817]:
+                        - generic [ref=e820]: draft
+                      - cell "SMS" [ref=e821]:
+                        - generic [ref=e822]: SMS
+                      - cell "0" [ref=e823]
+                      - cell "0" [ref=e824]
+                      - cell "0" [ref=e825]
+                      - cell [ref=e826]:
+                        - switch [checked] [ref=e828]
+                      - cell [ref=e829]:
+                        - generic [ref=e830]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e831]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e832] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e833]:
+                        - generic [ref=e834]:
+                          - paragraph [ref=e835]: LC-2 Autonomous Test
+                          - paragraph [ref=e836]:
+                            - img [ref=e837]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e840]:
+                        - generic [ref=e843]: active
+                      - cell "SMS" [ref=e844]:
+                        - generic [ref=e845]: SMS
+                      - cell "2" [ref=e846]
+                      - cell "0" [ref=e847]
+                      - cell "0" [ref=e848]
+                      - cell [ref=e849]:
+                        - switch [checked] [ref=e851]
+                      - cell [ref=e852]:
+                        - generic [ref=e853]:
+                          - button [ref=e854]:
+                            - img
+                          - button [ref=e855]:
+                            - img
+                          - button [ref=e856]:
+                            - img
+                          - button [ref=e857]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e858] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e859]:
+                        - generic [ref=e860]:
+                          - paragraph [ref=e861]: LC-2 Autonomous Test
+                          - paragraph [ref=e862]:
+                            - img [ref=e863]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e866]:
+                        - generic [ref=e869]: active
+                      - cell "SMS" [ref=e870]:
+                        - generic [ref=e871]: SMS
+                      - cell "2" [ref=e872]
+                      - cell "0" [ref=e873]
+                      - cell "0" [ref=e874]
+                      - cell [ref=e875]:
+                        - switch [checked] [ref=e877]
+                      - cell [ref=e878]:
+                        - generic [ref=e879]:
+                          - button [ref=e880]:
+                            - img
+                          - button [ref=e881]:
+                            - img
+                          - button [ref=e882]:
+                            - img
+                          - button [ref=e883]:
+                            - img
+                    - row "RI-KS-1-1774350014458 completed SMS 0 0 0" [ref=e884] [cursor=pointer]:
+                      - cell "RI-KS-1-1774350014458" [ref=e885]:
+                        - paragraph [ref=e887]: RI-KS-1-1774350014458
+                      - cell "completed" [ref=e888]:
+                        - generic [ref=e891]: completed
+                      - cell "SMS" [ref=e892]:
+                        - generic [ref=e893]: SMS
+                      - cell "0" [ref=e894]
+                      - cell "0" [ref=e895]
+                      - cell "0" [ref=e896]
+                      - cell [ref=e897]:
+                        - switch [checked] [ref=e899]
+                      - cell [ref=e900]:
+                        - generic [ref=e901]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e902]:
+                            - img
+                    - row "DC-US010-Recall-1774350030389 completed SMS 0 0 0" [ref=e903] [cursor=pointer]:
+                      - cell "DC-US010-Recall-1774350030389" [ref=e904]:
+                        - paragraph [ref=e906]: DC-US010-Recall-1774350030389
+                      - cell "completed" [ref=e907]:
+                        - generic [ref=e910]: completed
+                      - cell "SMS" [ref=e911]:
+                        - generic [ref=e912]: SMS
+                      - cell "0" [ref=e913]
+                      - cell "0" [ref=e914]
+                      - cell "0" [ref=e915]
+                      - cell [ref=e916]:
+                        - switch [checked] [ref=e918]
+                      - cell [ref=e919]:
+                        - generic [ref=e920]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e921]:
+                            - img
+                    - row "LC-2 Autonomous Test lc2-recipients.csv active SMS 2 0 0" [ref=e922] [cursor=pointer]:
+                      - cell "LC-2 Autonomous Test lc2-recipients.csv" [ref=e923]:
+                        - generic [ref=e924]:
+                          - paragraph [ref=e925]: LC-2 Autonomous Test
+                          - paragraph [ref=e926]:
+                            - img [ref=e927]
+                            - text: lc2-recipients.csv
+                      - cell "active" [ref=e930]:
+                        - generic [ref=e933]: active
+                      - cell "SMS" [ref=e934]:
+                        - generic [ref=e935]: SMS
+                      - cell "2" [ref=e936]
+                      - cell "0" [ref=e937]
+                      - cell "0" [ref=e938]
+                      - cell [ref=e939]:
+                        - switch [checked] [ref=e941]
+                      - cell [ref=e942]:
+                        - generic [ref=e943]:
+                          - button [ref=e944]:
+                            - img
+                          - button [ref=e945]:
+                            - img
+                          - button [ref=e946]:
+                            - img
+                          - button [ref=e947]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e948] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e949]:
+                        - paragraph [ref=e951]: S-4 Test Campaign
+                      - cell "draft" [ref=e952]:
+                        - generic [ref=e955]: draft
+                      - cell "SMS" [ref=e956]:
+                        - generic [ref=e957]: SMS
+                      - cell "0" [ref=e958]
+                      - cell "0" [ref=e959]
+                      - cell "0" [ref=e960]
+                      - cell [ref=e961]:
+                        - switch [checked] [ref=e963]
+                      - cell [ref=e964]:
+                        - generic [ref=e965]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e966]:
+                            - img
+                    - row "E2E-FLOW3-1774349884586 flow3-test.csv completed SMS 2 0 0" [ref=e967] [cursor=pointer]:
+                      - cell "E2E-FLOW3-1774349884586 flow3-test.csv" [ref=e968]:
+                        - generic [ref=e969]:
+                          - paragraph [ref=e970]: E2E-FLOW3-1774349884586
+                          - paragraph [ref=e971]:
+                            - img [ref=e972]
+                            - text: flow3-test.csv
+                      - cell "completed" [ref=e975]:
+                        - generic [ref=e978]: completed
+                      - cell "SMS" [ref=e979]:
+                        - generic [ref=e980]: SMS
+                      - cell "2" [ref=e981]
+                      - cell "0" [ref=e982]
+                      - cell "0" [ref=e983]
+                      - cell [ref=e984]:
+                        - switch [checked] [ref=e986]
+                      - cell [ref=e987]:
+                        - generic [ref=e988]:
+                          - button [ref=e989]:
+                            - img
+                          - button [ref=e990]:
+                            - img
+                          - button [ref=e991]:
+                            - img
+                          - button [ref=e992]:
+                            - img
+                    - row "E2E-FLOW5-KillSwitch-1774349893130 completed SMS 0 0 0" [ref=e993] [cursor=pointer]:
+                      - cell "E2E-FLOW5-KillSwitch-1774349893130" [ref=e994]:
+                        - paragraph [ref=e996]: E2E-FLOW5-KillSwitch-1774349893130
+                      - cell "completed" [ref=e997]:
+                        - generic [ref=e1000]: completed
+                      - cell "SMS" [ref=e1001]:
+                        - generic [ref=e1002]: SMS
+                      - cell "0" [ref=e1003]
+                      - cell "0" [ref=e1004]
+                      - cell "0" [ref=e1005]
+                      - cell [ref=e1006]:
+                        - switch [checked] [ref=e1008]
+                      - cell [ref=e1009]:
+                        - generic [ref=e1010]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1011]:
+                            - img
+                    - row "E2E-FLOW6-Resume-1774349895105 completed SMS 0 0 0" [ref=e1012] [cursor=pointer]:
+                      - cell "E2E-FLOW6-Resume-1774349895105" [ref=e1013]:
+                        - paragraph [ref=e1015]: E2E-FLOW6-Resume-1774349895105
+                      - cell "completed" [ref=e1016]:
+                        - generic [ref=e1019]: completed
+                      - cell "SMS" [ref=e1020]:
+                        - generic [ref=e1021]: SMS
+                      - cell "0" [ref=e1022]
+                      - cell "0" [ref=e1023]
+                      - cell "0" [ref=e1024]
+                      - cell [ref=e1025]:
+                        - switch [checked] [ref=e1027]
+                      - cell [ref=e1028]:
+                        - generic [ref=e1029]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1030]:
+                            - img
+                    - row "S11 Demo Smoke Test active SMS 0 0 0" [ref=e1031] [cursor=pointer]:
+                      - cell "S11 Demo Smoke Test" [ref=e1032]:
+                        - paragraph [ref=e1034]: S11 Demo Smoke Test
+                      - cell "active" [ref=e1035]:
+                        - generic [ref=e1038]: active
+                      - cell "SMS" [ref=e1039]:
+                        - generic [ref=e1040]: SMS
+                      - cell "0" [ref=e1041]
+                      - cell "0" [ref=e1042]
+                      - cell "0" [ref=e1043]
+                      - cell [ref=e1044]:
+                        - switch [checked] [ref=e1046]
+                      - cell [ref=e1047]:
+                        - generic [ref=e1048]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1049]:
+                            - img
+                    - row "S11 test active SMS 0 0 0" [ref=e1050] [cursor=pointer]:
+                      - cell "S11 test" [ref=e1051]:
+                        - paragraph [ref=e1053]: S11 test
+                      - cell "active" [ref=e1054]:
+                        - generic [ref=e1057]: active
+                      - cell "SMS" [ref=e1058]:
+                        - generic [ref=e1059]: SMS
+                      - cell "0" [ref=e1060]
+                      - cell "0" [ref=e1061]
+                      - cell "0" [ref=e1062]
+                      - cell [ref=e1063]:
+                        - switch [checked] [ref=e1065]
+                      - cell [ref=e1066]:
+                        - generic [ref=e1067]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1068]:
+                            - img
+                    - row "S11 Demo Smoke Test active SMS 0 0 0" [ref=e1069] [cursor=pointer]:
+                      - cell "S11 Demo Smoke Test" [ref=e1070]:
+                        - paragraph [ref=e1072]: S11 Demo Smoke Test
+                      - cell "active" [ref=e1073]:
+                        - generic [ref=e1076]: active
+                      - cell "SMS" [ref=e1077]:
+                        - generic [ref=e1078]: SMS
+                      - cell "0" [ref=e1079]
+                      - cell "0" [ref=e1080]
+                      - cell "0" [ref=e1081]
+                      - cell [ref=e1082]:
+                        - switch [checked] [ref=e1084]
+                      - cell [ref=e1085]:
+                        - generic [ref=e1086]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1087]:
+                            - img
+                    - row "RI-SMS-1-Real-1774349968987 ri-sms1.csv completed SMS 1 1 0" [ref=e1088] [cursor=pointer]:
+                      - cell "RI-SMS-1-Real-1774349968987 ri-sms1.csv" [ref=e1089]:
+                        - generic [ref=e1090]:
+                          - paragraph [ref=e1091]: RI-SMS-1-Real-1774349968987
+                          - paragraph [ref=e1092]:
+                            - img [ref=e1093]
+                            - text: ri-sms1.csv
+                      - cell "completed" [ref=e1096]:
+                        - generic [ref=e1099]: completed
+                      - cell "SMS" [ref=e1100]:
+                        - generic [ref=e1101]: SMS
+                      - cell "1" [ref=e1102]
+                      - cell "1" [ref=e1103]
+                      - cell "0" [ref=e1104]
+                      - cell [ref=e1105]:
+                        - switch [checked] [ref=e1107]
+                      - cell [ref=e1108]:
+                        - generic [ref=e1109]:
+                          - button [ref=e1110]:
+                            - img
+                          - button [ref=e1111]:
+                            - img
+                          - button [ref=e1112]:
+                            - img
+                          - button [ref=e1113]:
+                            - img
+                    - row "S-4 Test Campaign draft SMS 0 0 0" [ref=e1114] [cursor=pointer]:
+                      - cell "S-4 Test Campaign" [ref=e1115]:
+                        - paragraph [ref=e1117]: S-4 Test Campaign
+                      - cell "draft" [ref=e1118]:
+                        - generic [ref=e1121]: draft
+                      - cell "SMS" [ref=e1122]:
+                        - generic [ref=e1123]: SMS
+                      - cell "0" [ref=e1124]
+                      - cell "0" [ref=e1125]
+                      - cell "0" [ref=e1126]
+                      - cell [ref=e1127]:
+                        - switch [checked] [ref=e1129]
+                      - cell [ref=e1130]:
+                        - generic [ref=e1131]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1132]:
+                            - img
+                    - row "T017b Test Campaign t017b_test.csv completed SMS 2 2 0" [ref=e1133] [cursor=pointer]:
+                      - cell "T017b Test Campaign t017b_test.csv" [ref=e1134]:
+                        - generic [ref=e1135]:
+                          - paragraph [ref=e1136]: T017b Test Campaign
+                          - paragraph [ref=e1137]:
+                            - img [ref=e1138]
+                            - text: t017b_test.csv
+                      - cell "completed" [ref=e1141]:
+                        - generic [ref=e1144]: completed
+                      - cell "SMS" [ref=e1145]:
+                        - generic [ref=e1146]: SMS
+                      - cell "2" [ref=e1147]
+                      - cell "2" [ref=e1148]
+                      - cell "0" [ref=e1149]
+                      - cell [ref=e1150]:
+                        - switch [checked] [ref=e1152]
+                      - cell [ref=e1153]:
+                        - generic [ref=e1154]:
+                          - button [ref=e1155]:
+                            - img
+                          - button [ref=e1156]:
+                            - img
+                          - button [ref=e1157]:
+                            - img
+                          - button [ref=e1158]:
+                            - img
+                    - row "RI-SMS-1-Real-1774582757694 ri-sms1.csv completed SMS 1 1 0" [ref=e1159] [cursor=pointer]:
+                      - cell "RI-SMS-1-Real-1774582757694 ri-sms1.csv" [ref=e1160]:
+                        - generic [ref=e1161]:
+                          - paragraph [ref=e1162]: RI-SMS-1-Real-1774582757694
+                          - paragraph [ref=e1163]:
+                            - img [ref=e1164]
+                            - text: ri-sms1.csv
+                      - cell "completed" [ref=e1167]:
+                        - generic [ref=e1170]: completed
+                      - cell "SMS" [ref=e1171]:
+                        - generic [ref=e1172]: SMS
+                      - cell "1" [ref=e1173]
+                      - cell "1" [ref=e1174]
+                      - cell "0" [ref=e1175]
+                      - cell [ref=e1176]:
+                        - switch [checked] [ref=e1178]
+                      - cell [ref=e1179]:
+                        - generic [ref=e1180]:
+                          - button [ref=e1181]:
+                            - img
+                          - button [ref=e1182]:
+                            - img
+                          - button [ref=e1183]:
+                            - img
+                          - button [ref=e1184]:
+                            - img
+                    - row "RI-KS-1-1774582804563 completed SMS 0 0 0" [ref=e1185] [cursor=pointer]:
+                      - cell "RI-KS-1-1774582804563" [ref=e1186]:
+                        - paragraph [ref=e1188]: RI-KS-1-1774582804563
+                      - cell "completed" [ref=e1189]:
+                        - generic [ref=e1192]: completed
+                      - cell "SMS" [ref=e1193]:
+                        - generic [ref=e1194]: SMS
+                      - cell "0" [ref=e1195]
+                      - cell "0" [ref=e1196]
+                      - cell "0" [ref=e1197]
+                      - cell [ref=e1198]:
+                        - switch [checked] [ref=e1200]
+                      - cell [ref=e1201]:
+                        - generic [ref=e1202]:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - button [ref=e1203]:
+                            - img
+                - generic [ref=e1205]:
+                  - img [ref=e1206]
+                  - generic [ref=e1209]:
+                    - paragraph [ref=e1210]: Campaign Safety
+                    - paragraph [ref=e1211]: Use the Kill Switch to immediately stop all outbound messages for a campaign. Individual conversations can also be disconnected from campaigns in TeamBox.
+                  - button [ref=e1212] [cursor=pointer]:
+                    - img
+          - button "Open configuration" [ref=e1214] [cursor=pointer]:
+            - img
+  - generic [ref=e1215]:
+    - img
+    - generic [ref=e1217]:
+      - generic [ref=e1218]:
+        - heading "Dashboard & AI Chat" [level=3] [ref=e1219]
+        - button [ref=e1220] [cursor=pointer]:
+          - img
+      - paragraph [ref=e1221]: Your home base. View key metrics, quick actions, and chat with your AI assistant to get answers instantly.
+      - generic [ref=e1222]:
+        - generic [ref=e1223]: 1 of 6
+        - generic [ref=e1224]:
+          - button "Skip" [ref=e1225] [cursor=pointer]
+          - button "Next" [ref=e1226] [cursor=pointer]:
+            - text: Next
+            - img

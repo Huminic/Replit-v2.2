@@ -1,17 +1,18 @@
 Sprint: M-001
 Role: orchestrator
-Date: 2026-03-27T08:45:00Z
-Type: PRE-SPRINT BASELINE COMMIT
-
-This is a baseline commit to clean the worktree before M-001 execution begins.
-No sprint work has been performed yet. Files being committed are pre-existing
-governance documentation updates from the V3 planning session.
+Date: 2026-03-27T12:51:24Z
+Type: SPRINT COMPLETION
 
 Checklist:
 [x] Sprint registered in sprints.json
-[x] Pre-execution report written
-[x] Ghost entry gate dispatched (REJECTED — A2 dirty worktree, A8 mismatch — both fixed)
-[x] Watchdog violations acknowledged
-[x] No application code changes
+[x] Pre-execution report written with declared files
+[x] Ghost entry gate APPROVED (re-run after fixing A2/A8)
+[x] Dev agent dispatched for Phase 1 (harness remediation)
+[x] Ghost verification of Phase 1 — 3 defects found, all fixed
+[x] Phase 2 UI inventory — 30 screenshots captured
+[x] Dev agent dispatched for Phase 3 (gap analysis)
+[x] Ghost exit gate — all 15 B-gates PASS
+[x] Post-sprint report written with AC results table
+[x] No application code modified
 
-RESULT: APPROVED (baseline commit only)
+RESULT: APPROVED

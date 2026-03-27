@@ -1,0 +1,2 @@
+[2026-03-26T06:33:16Z] PRE-COMMIT role=governance sprint=E-013 result=BLOCKED detail="Evidence directory is empty: evidence/E-013"
+2026-03-27T12:52:13Z SCOPE_EXPAND sprint=M-001 role=orchestrator file=decisions.md reason=new_governance_file_created_by_M-001

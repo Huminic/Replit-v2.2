@@ -490,3 +490,88 @@ None. All 3 previously open issues closed by S-0 (commit de65c33).
 **Severity:** Medium
 **Evidence:** Operator directive — ArrowDownRight icon in TopBar is a dev testing tool for quick RBAC role switching without logging in. Must be removed for production. Located in TopBar.tsx lines 389-420.
 **Sprint:** R-next
+
+---
+
+## M-001 Phase 3 Gap Analysis Findings (2026-03-27)
+
+### [FE] I-149: Tour overlay reappears on every page navigation
+**Status:** REMEDIATING
+**Layer:** S7/FE
+**Severity:** Medium
+**Evidence:** M-001 gap analysis — G-11 state enumeration + I-137 (tour skip navigates to /w/{slug}). Tour 6-step overlay triggers on every page load instead of persisting a "tour completed" flag. Related to I-137 but distinct: even when tour is completed normally, it may re-trigger because dismissal state is not persisted (localStorage or user preference). Needs verification of tour completion persistence.
+**Sprint:** G-001
+**AC coverage:** S-7.AC4 (Reset Tour text), S-7.AC15 (TopBar text) — but no AC for tour persistence behavior
+
+### [FE] I-150: TeamBox channel filters include "WhatsApp" and "Web Chat" — not in state enumeration or ACs
+**Status:** INVESTIGATING
+**Layer:** S2/FE
+**Severity:** Low
+**Evidence:** M-001 screenshot 15 — TeamBox filter chips show: All, SMS, Email, Web Chat, WhatsApp, Voice. State enumeration TB-05/06/07 only lists SMS, Email, Voice. ACs S-2.AC4 says "filtered list of that channel only" but doesn't enumerate channels. Need operator clarification: are WhatsApp and Web Chat intended channels?
+**Sprint:** G-002
+
+### [FE] I-151: Settings tile grid shows only 4 tiles — state enumeration claims 7, AC says 8
+**Status:** INVESTIGATING
+**Layer:** S7/FE
+**Severity:** Medium
+**Evidence:** M-001 screenshots 18 (org_admin) and 28 (super_admin) both show 4 tiles: User Management, Organization, Tools & Integrations, Knowledge Base. State enumeration ST-00 claims 7 tile sections. AC S-7.AC1 says "All 8 settings sections render." Possible causes: (a) tiles below fold not captured in screenshot, (b) Notifications (ST-30) and Appearance (ST-31) tiles not implemented, (c) AI Config hidden by RBAC. Need live verification with scroll.
+**Sprint:** G-001
+
+### [FE] I-152: "Discuss with Georgia" FAB has no acceptance criteria
+**Status:** INVESTIGATING
+**Layer:** S3+S4+S5+S6/FE
+**Severity:** Low
+**Evidence:** M-001 gap analysis — G-12 enumerates FAB present on Sales/Service/Marketing/Management. No AC covers this element. No screenshot captures it. Unclear if it functions or is decorative. Need verification: does clicking it open a chat? Which agent is "Georgia"?
+**Sprint:** G-002
+
+### [FE] I-153: Session timeout dialog has no acceptance criteria or test
+**Status:** INVESTIGATING
+**Layer:** S9/FE
+**Severity:** Low
+**Evidence:** M-001 gap analysis — G-13 enumerates a session timeout dialog triggered by inactivity timer. No AC covers this. No test exists. If the timer fires incorrectly or the dialog doesn't appear, users lose unsaved work silently. Low priority but should have at minimum a smoke test.
+**Sprint:** G-002
+
+### [FE] I-154: 63 UI states uncrawled — no visual verification
+**Status:** REMEDIATING
+**Layer:** S1-S10/FE
+**Severity:** High
+**Evidence:** M-001 reconciliation — 63 of 163 enumerated states have no screenshot verification. Critical uncrawled areas: /insights standalone (16 states), widget modes (11 states), /my-work (8 states deferred), /agents standalone (7 states), /settings/org-wizard (8 states), tour overlay (1 state, known buggy). See reconciliation.md for full breakdown.
+**Sprint:** G-003
+
+### [FE] I-155: Marketing Dashboard metrics all showing zero — screenshot confirms I-113
+**Status:** REMEDIATING
+**Layer:** S5/FE
+**Severity:** Medium
+**Evidence:** M-001 screenshot 08 — Campaign Performance: 0%, Campaigns Active: 0, Messages Sent: 0, Replies Received: 0. All four tiles show zero. This is I-113 (hardcoded zeros) confirmed visually. No remediation sprint was assigned for marketing specifically — I-113 references S-4 and S-5 but neither sprint addresses it.
+**Sprint:** Already I-113 — needs sprint assignment
+
+### [FE] I-156: Insights standalone page (/insights) has no screenshot and 16 states uncrawled
+**Status:** REMEDIATING
+**Layer:** S9/FE
+**Severity:** High
+**Evidence:** M-001 reconciliation — /insights is a HIGH priority route with 16 enumerated states (IN-01 through IN-16) including traffic light dashboard, drill-down modals, Reports tabs, Library (34 metric tiles), Hunches, and org switcher. Zero of these states have been visually verified. ACs exist (e.g., S-3.AC4 covers some metric tiles) but are tested in embedded context, not standalone.
+**Sprint:** G-003
+
+### [AU] I-157: API Keys (ST-20) and Webhooks (ST-21) tabs super_admin-only gate not verified
+**Status:** INVESTIGATING
+**Layer:** S7/AU
+**Severity:** Medium
+**Evidence:** M-001 gap analysis — state enumeration marks ST-20 (API Keys) and ST-21 (Webhooks) as "super_admin." No AC verifies this RBAC gate. No screenshot captures these tabs for either role. If accessible to org_admin, it would be a security concern (API key exposure). Need live verification.
+**Sprint:** G-001
+
+### [FE] I-158: Right-side panes (agent config G-14, customer info G-15) have no AC or test
+**Status:** INVESTIGATING
+**Layer:** S2+S3/FE
+**Severity:** Low
+**Evidence:** M-001 gap analysis — G-14 (right pane: agent config, triggered by clicking agent in sidebar) and G-15 (right pane: customer info, triggered by clicking customer in TeamBox) are enumerated but have zero AC coverage and no screenshots. These are secondary UI elements but affect usability.
+**Sprint:** G-002
+
+---
+
+**Last updated:** 2026-03-27 (M-001 Phase 3 — 10 new issues added: I-149 through I-158)
+**CLOSED:** 41 items (40 prior + I-108 false issue)
+**REMEDIATING:** 20 items (15 prior + I-149, I-151 pending, I-154, I-155, I-156)
+**INVESTIGATING:** 8 items (3 prior + I-150, I-152, I-153, I-157, I-158)
+**TEST GAPS:** 3 open (TG-004 opt-out, TG-008 after-hours, TG-010 SSE) — 6 closed
+**TI OPEN:** 1 item (TI-018 — reassigned to I-102, frontend issue confirmed)
+**GOVERNANCE INCIDENTS:** 5 (including S-11 ghost edit)

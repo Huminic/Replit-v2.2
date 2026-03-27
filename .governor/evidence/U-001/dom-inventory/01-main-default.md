@@ -1,0 +1,113 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]: Nexxus Connect™
+      - button "Serra Honda" [ref=e13] [cursor=pointer]:
+        - img
+        - generic [ref=e14]: Serra Honda
+        - img
+      - generic [ref=e15]:
+        - button [ref=e16] [cursor=pointer]:
+          - img
+        - button "50" [ref=e17] [cursor=pointer]:
+          - img
+          - generic [ref=e18]: "50"
+        - button [ref=e19] [cursor=pointer]:
+          - img
+        - button [ref=e20] [cursor=pointer]:
+          - img
+        - button "SHA" [ref=e21] [cursor=pointer]:
+          - generic [ref=e23]: SHA
+          - img
+    - generic [ref=e24]:
+      - complementary [ref=e25]:
+        - button [ref=e27] [cursor=pointer]:
+          - img
+        - navigation [ref=e29]:
+          - button "AI Chat" [ref=e30] [cursor=pointer]:
+            - img
+            - generic [ref=e31]: AI Chat
+          - button "TeamBox" [ref=e33] [cursor=pointer]:
+            - img
+            - generic [ref=e34]: TeamBox
+          - button "Sales" [ref=e35] [cursor=pointer]:
+            - img
+            - generic [ref=e36]: Sales
+          - button "Service" [ref=e37] [cursor=pointer]:
+            - img
+            - generic [ref=e38]: Service
+          - button "Marketing" [ref=e39] [cursor=pointer]:
+            - img
+            - generic [ref=e40]: Marketing
+          - button "Manage" [ref=e41] [cursor=pointer]:
+            - img
+            - generic [ref=e42]: Manage
+        - navigation [ref=e44]:
+          - button "System" [ref=e45] [cursor=pointer]:
+            - img
+            - generic [ref=e46]: System
+        - button "Logout" [ref=e48] [cursor=pointer]:
+          - img
+          - generic [ref=e49]: Logout
+      - main [ref=e51]:
+        - generic [ref=e54]:
+          - generic [ref=e56]:
+            - heading "AI Key Metrics" [level=2] [ref=e58]
+            - generic [ref=e60]:
+              - generic [ref=e61] [cursor=pointer]:
+                - img [ref=e63]
+                - generic [ref=e67]:
+                  - img [ref=e69]
+                  - generic [ref=e71]:
+                    - paragraph [ref=e72]: Active Pipeline
+                    - paragraph [ref=e73]: "109"
+                    - generic [ref=e74]:
+                      - img [ref=e75]
+                      - generic [ref=e78]: live
+              - generic [ref=e79] [cursor=pointer]:
+                - img [ref=e81]
+                - generic [ref=e85]:
+                  - img [ref=e87]
+                  - generic [ref=e91]:
+                    - paragraph [ref=e92]: Appointments Today
+                    - paragraph [ref=e93]: "0"
+                    - generic [ref=e94]:
+                      - img [ref=e95]
+                      - generic [ref=e98]: live
+              - generic [ref=e99] [cursor=pointer]:
+                - img [ref=e101]
+                - generic [ref=e105]:
+                  - img [ref=e107]
+                  - generic [ref=e109]:
+                    - paragraph [ref=e110]: Open Escalations
+                    - paragraph [ref=e111]: "8"
+                    - generic [ref=e112]:
+                      - img [ref=e113]
+                      - generic [ref=e116]: live
+              - generic [ref=e117] [cursor=pointer]:
+                - img [ref=e119]
+                - generic [ref=e123]:
+                  - img [ref=e125]
+                  - generic [ref=e127]:
+                    - paragraph [ref=e128]: Outbound Sent 24h
+                    - paragraph [ref=e129]: "9"
+                    - generic [ref=e130]:
+                      - img [ref=e131]
+                      - generic [ref=e134]: live
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - img [ref=e139]
+              - generic [ref=e141]: Try asking...
+            - generic [ref=e142]:
+              - button "Show KPIs for this month" [ref=e143] [cursor=pointer]
+              - button "Which agents need review?" [ref=e144] [cursor=pointer]
+              - button "What hunches need my attention?" [ref=e145] [cursor=pointer]
+              - button "What are the top escalations right now?" [ref=e146] [cursor=pointer]
+          - generic [ref=e150]:
+            - button [ref=e151] [cursor=pointer]:
+              - img
+            - textbox "Ask me anything about your business" [ref=e152]
+            - button [disabled]:
+              - img
