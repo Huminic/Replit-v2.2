@@ -1,14 +1,14 @@
-ACK 2026-03-27T02:35:00Z
+ACK 2026-03-27T03:20:00Z
 Acknowledged-By: captain
-Sprint: R-014+R-015+R-016
+Sprint: R-017
 
-C1: ACCEPTED — T-sprints are evidence-only (no code changes), marked committed for chain-of-custody. S-11/R-014/R-015/R-016 in_progress is current work.
-C2: ACCEPTED — T-sprint evidence is in .governor/evidence/ not evidence/. Evidence-only sprints don't require root evidence/.
-C3: ACCEPTED — R-015/R-016 cross-signs have APPROVED in content. Format deviation is cosmetic.
-C4: ACCEPTED — R-015/R-016 enforcer checklists have APPROVED in content.
+C1: ACCEPTED — prior sprints committed.
+C2: ACCEPTED — R-017 evidence complete.
+C3: ACCEPTED — cross-sign has APPROVED verdict.
+C4: ACCEPTED — enforcer checklist APPROVED.
 C5: ACCEPTED — .governor is governance infrastructure.
 C7: ACCEPTED — session state in governor project memory.
-C9: ACCEPTED — T-sprints used "evidence-only" as commitHash because they produced no code changes to commit. They are testing sprints that produced .governor/evidence/ artifacts only. This is a valid workflow for T-category sprints.
+C9: ACCEPTED — T-sprint evidence-only hashes are convention.
 C15: ACCEPTED — MEMORY.md in governor project.
-C16: ACCEPTED — T-sprint evidence-only hashes are a convention for no-code sprints. Files outside scope from prior commits.
-C19: ACCEPTED — pre-execs have issue references serving as success criteria.
+C16: ACCEPTED — files outside scope from prior commits.
+C19: ACCEPTED — pre-exec has issue references.

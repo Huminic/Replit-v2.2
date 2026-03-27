@@ -471,31 +471,73 @@ ${params.transcript}
   `;
 }
 
-const vapiWebhookPayloadSchema = z.object({
-  message: z.object({
+// VAPI webhook call object schema (shared between wrapped and flat formats)
+const vapiCallSchema = z.object({
+  id: z.string().optional(),
+  orgId: z.string().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  phoneNumber: z.object({
+    number: z.string().optional(),
+  }).optional(),
+  customer: z.object({
+    number: z.string().optional(),
+    name: z.string().optional(),
+  }).optional(),
+  transcript: z.string().optional(),
+  summary: z.string().optional(),
+  startedAt: z.string().optional(),
+  endedAt: z.string().optional(),
+  assistantId: z.string().optional(),
+  recordingUrl: z.string().optional(),
+  artifact: z.object({
+    transcript: z.string().optional(),
+    messages: z.array(z.object({
+      role: z.string().optional(),
+      message: z.string().optional(),
+      content: z.string().optional(),
+    })).optional(),
+    recordingUrl: z.string().optional(),
+  }).optional(),
+  messages: z.array(z.object({
+    role: z.string().optional(),
+    message: z.string().optional(),
+    content: z.string().optional(),
+  })).optional(),
+});
+
+// Accept BOTH old format (wrapped in `message`) and new flat format
+const vapiWebhookPayloadSchema = z.union([
+  // Old format: { message: { type, call, ... } }
+  z.object({
+    message: z.object({
+      type: z.string(),
+      call: vapiCallSchema.optional(),
+      recordingUrl: z.string().optional(),
+    }),
+  }),
+  // New/flat format: { type, call, ... } (no message wrapper)
+  z.object({
     type: z.string(),
-    call: z.object({
-      id: z.string().optional(),
-      orgId: z.string().optional(),
-      type: z.string().optional(),
-      status: z.string().optional(),
-      phoneNumber: z.object({
-        number: z.string().optional(),
-      }).optional(),
-      customer: z.object({
-        number: z.string().optional(),
-        name: z.string().optional(),
-      }).optional(),
+    call: vapiCallSchema.optional(),
+    recordingUrl: z.string().optional(),
+    // VAPI sometimes sends artifact at top level in flat format
+    artifact: z.object({
       transcript: z.string().optional(),
-      summary: z.string().optional(),
-      startedAt: z.string().optional(),
-      endedAt: z.string().optional(),
-      assistantId: z.string().optional(),
+      messages: z.array(z.object({
+        role: z.string().optional(),
+        message: z.string().optional(),
+        content: z.string().optional(),
+      })).optional(),
       recordingUrl: z.string().optional(),
     }).optional(),
-    recordingUrl: z.string().optional(),
+    messages: z.array(z.object({
+      role: z.string().optional(),
+      message: z.string().optional(),
+      content: z.string().optional(),
+    })).optional(),
   }),
-});
+]);
 
 export function registerWebhookRoutes(app: Express) {
   app.post("/api/webhooks/vapi", async (req, res) => {
@@ -512,14 +554,18 @@ export function registerWebhookRoutes(app: Express) {
 
       const parsed = vapiWebhookPayloadSchema.safeParse(req.body);
       if (!parsed.success) {
-        console.warn("[VAPI Webhook] Invalid payload:", parsed.error.flatten());
+        console.warn("[VAPI Webhook] Invalid payload:", JSON.stringify(parsed.error.flatten()));
+        console.warn("[VAPI Webhook] Raw body keys:", Object.keys(req.body || {}));
         return res.status(400).json({ message: "Invalid webhook payload" });
       }
 
-      const { message } = parsed.data;
+      // Normalize: extract message-like shape from both old and flat formats
+      const data = parsed.data;
+      const message = "message" in data ? data.message : data;
+      const eventType = message.type;
 
-      if (message.type !== "end-of-call-report" && message.type !== "call-ended") {
-        return res.json({ message: "Event type ignored", type: message.type });
+      if (eventType !== "end-of-call-report" && eventType !== "call-ended") {
+        return res.json({ message: "Event type ignored", type: eventType });
       }
 
       const call = message.call;
@@ -530,8 +576,32 @@ export function registerWebhookRoutes(app: Express) {
       const customerName = call.customer?.name || "Unknown Caller";
       const customerPhone = call.customer?.number || call.phoneNumber?.number || null;
       const assistantId = call.assistantId || null;
-      const transcript = call.transcript || "";
-      const summary = call.summary || "";
+
+      // Extract transcript from multiple possible locations in VAPI payload:
+      // 1. call.transcript (old format)
+      // 2. call.artifact.transcript (new format)
+      // 3. call.artifact.messages or call.messages array (structured transcript)
+      // 4. Top-level artifact/messages (flat format)
+      let transcript = call.transcript || "";
+      let summary = call.summary || "";
+
+      // Check artifact.transcript (new VAPI format)
+      const artifact = call.artifact || ("artifact" in data ? (data as any).artifact : null);
+      if (!transcript && artifact?.transcript) {
+        transcript = artifact.transcript;
+      }
+
+      // Check messages array (structured transcript from VAPI)
+      const messagesArray = call.messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
+      if (!transcript && messagesArray && Array.isArray(messagesArray) && messagesArray.length > 0) {
+        transcript = messagesArray
+          .map((m: any) => `${m.role || "unknown"}: ${m.message || m.content || ""}`)
+          .filter((line: string) => line.length > 10)
+          .join("\n");
+      }
+
+      // Check artifact.recordingUrl as fallback
+      const recordingUrl = call.recordingUrl || message.recordingUrl || artifact?.recordingUrl || null;
 
       let organizationId: string | null = null;
       let agentId: string | null = null;
@@ -604,13 +674,20 @@ export function registerWebhookRoutes(app: Express) {
         const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
         const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
 
+        // Resolve lead source name from org settings, falling back to the VIN Solutions
+        // standard name. Dealer 21043 (and most VIN dealers) expect "Dealers WebSite".
+        const orgForVin = await storage.getOrganization(organizationId);
+        const orgSettings = (orgForVin?.settings || {}) as Record<string, any>;
+        const vinLeadSourceName = orgSettings.vinLeadSourceName || "Dealers WebSite";
+
         const prepareBody: Record<string, any> = {
           orgId: organizationId,
           firstName,
           lastName,
           phone: vinPhone,
           leadType: "PHONE",
-          description: `${summary || `Inbound VAPI call from ${customerName}`}\n\nRecording: ${call.recordingUrl || message.recordingUrl || "N/A"}`,
+          leadSourceName: vinLeadSourceName,
+          description: `${summary || `Inbound VAPI call from ${customerName}`}\n\nRecording: ${recordingUrl || "N/A"}`,
         };
         if (vinUserId) prepareBody.userId = vinUserId;
 
@@ -754,7 +831,7 @@ export function registerWebhookRoutes(app: Express) {
           endedReason: call.status || "completed",
           summary: summary || transcript.substring(0, 300),
           transcript: transcript || "",
-          recordingUrl: call.recordingUrl || message.recordingUrl || null,
+          recordingUrl: recordingUrl,
           callId: call.id || "unknown",
           startTime: call.startedAt ? new Date(call.startedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) : "Unknown",
           channel: "voice",
@@ -915,11 +992,17 @@ export function registerWebhookRoutes(app: Express) {
         const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
         const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
 
+        // Resolve lead source name from org settings (same logic as VAPI handler)
+        const orgForTavusVin = await storage.getOrganization(organizationId);
+        const tavusOrgSettings = (orgForTavusVin?.settings || {}) as Record<string, any>;
+        const tavusVinLeadSourceName = tavusOrgSettings.vinLeadSourceName || "Dealers WebSite";
+
         const prepareBody: Record<string, any> = {
           orgId: organizationId,
           firstName,
           lastName,
           leadType: "PHONE",
+          leadSourceName: tavusVinLeadSourceName,
           description: `${summary || `Tavus video session with ${visitorName}`}\n\nSession ID: ${tavusConversationId}`,
         };
         if (vinUserId) prepareBody.userId = vinUserId;

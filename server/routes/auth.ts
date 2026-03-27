@@ -431,11 +431,8 @@ export function registerAuthRoutes(app: Express) {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      await storage.updateUser(found.id, {
-        password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null,
-      } as any);
+      await storage.updateUser(found.id, { password: hashedPassword });
+      await storage.clearResetToken(found.id);
 
       // Invalidate all sessions (force re-login with new password)
       await storage.deleteUserSessions(found.id);
@@ -451,8 +448,8 @@ export function registerAuthRoutes(app: Express) {
 
       console.log(`[AUTH] Password reset completed for user ${found.email}`);
       return res.json({ message: "Password has been reset successfully." });
-    } catch (err) {
-      console.error("[AUTH] Reset password error:", err);
+    } catch (err: any) {
+      console.error("[AUTH] Reset password error:", err?.message || err, err?.stack);
       return res.status(500).json({ message: "Failed to reset password" });
     }
   });

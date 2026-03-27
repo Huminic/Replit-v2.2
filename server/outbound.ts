@@ -216,6 +216,24 @@ function getOrgRateLimit(org: Organization): number {
   return DEFAULT_RATE_LIMIT_MAX;
 }
 
+/**
+ * Check if the current time is within the org's configured business hours.
+ * Uses the org's timezone setting (defaults to America/New_York).
+ * Business hours default to 08:00–21:00 (TCPA safe window).
+ */
+function isWithinBusinessHours(org: Organization): { within: boolean; currentHour: number; start: number; end: number; tz: string } {
+  const settings = (org.settings as Record<string, any>) || {};
+  const tz = settings.timezone || "America/New_York";
+  const start = parseInt(settings.businessHoursStart || "8", 10);
+  const end = parseInt(settings.businessHoursEnd || "21", 10);
+
+  // Get current hour in the org's timezone
+  const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
+  const currentHour = new Date(nowStr).getHours();
+
+  return { within: currentHour >= start && currentHour < end, currentHour, start, end, tz };
+}
+
 async function checkCommGate(
   org: Organization,
   campaign: Campaign | undefined,
@@ -244,6 +262,17 @@ async function checkCommGate(
     return { allowed: false, reason: "Video channel disabled for organization" };
   }
 
+  // TCPA compliance: block outbound SMS and phone outside business hours
+  if (channel === "sms" || channel === "phone") {
+    const bh = isWithinBusinessHours(org);
+    if (!bh.within) {
+      return {
+        allowed: false,
+        reason: `Outside business hours (${bh.currentHour}:00 ${bh.tz}, allowed ${bh.start}:00-${bh.end}:00)`,
+      };
+    }
+  }
+
   if (campaign?.killSwitch) {
     return { allowed: false, reason: "Campaign kill switch is active" };
   }
@@ -252,6 +281,17 @@ async function checkCommGate(
     const conversation = await getConversationForRecipient(org.id, recipient, campaign?.id);
     if (conversation?.campaignDisconnected) {
       return { allowed: false, reason: "Recipient disconnected from campaign" };
+    }
+  }
+
+  // SMS blacklist check — block sends to numbers on the org's blacklist
+  if (channel === "sms" && customerContact) {
+    const blacklisted = await storage.getBlacklistEntry(customerContact, org.id);
+    if (blacklisted) {
+      return {
+        allowed: false,
+        reason: `Recipient blacklisted (reason: ${blacklisted.reason || "opt-out"})`,
+      };
     }
   }
 

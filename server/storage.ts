@@ -186,6 +186,7 @@ export interface IStorage {
   markEscalationSent(conversationId: string): Promise<void>;
 
   findUserByResetToken(token: string): Promise<User | undefined>;
+  clearResetToken(userId: string): Promise<void>;
   countRecentSecurityEvents(action: string, entityId: string, since: Date): Promise<number>;
 
   createScheduledAction(action: InsertScheduledAction): Promise<ScheduledAction>;
@@ -1422,6 +1423,12 @@ export class DatabaseStorage implements IStorage {
   async findUserByResetToken(token: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.resetToken, token));
     return user;
+  }
+
+  async clearResetToken(userId: string): Promise<void> {
+    await db.update(users)
+      .set({ resetToken: sql`NULL`, resetTokenExpiry: sql`NULL`, updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 
   async countRecentSecurityEvents(action: string, entityId: string, since: Date): Promise<number> {

@@ -1,0 +1,16 @@
+ENFORCER CHECKLIST — R-017 (Backend Fixes)
+Timestamp: 2026-03-27T03:40:27Z
+
+[PASS] TypeScript compilation (npx tsc --noEmit): 0 errors
+[PASS] Integration tests: 19/21 passed, 2 pre-existing failures (not regressions)
+[PASS] I-140: Password reset — clearResetToken() with raw SQL NULL, split update operations
+[PASS] I-141: VAPI webhook — z.union schema, transcript from artifact/messages, recordingUrl normalization
+[PASS] I-142: VIN lead source — leadSourceName in prepare body, configurable via org settings
+[PASS] I-143: Business hours — isWithinBusinessHours() in checkCommGate, SMS+phone only, TCPA-safe defaults
+[PASS] I-144: Blacklist — getBlacklistEntry() in checkCommGate, dry runs now report blocked
+[PASS] No infrastructure changes
+[PASS] No env var changes required
+[PASS] No schema migrations required (I-142 uses existing settings JSON)
+[PASS] Changes are backward-compatible
+
+RESULT: APPROVED
