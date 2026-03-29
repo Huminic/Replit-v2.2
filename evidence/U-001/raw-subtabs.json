@@ -1,0 +1,2369 @@
+{
+  "sales-agents": {
+    "url": "/sales",
+    "uniqueElements": 17,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "SalesDashboardAgentsInsightsCalendar[data-radix-scroll-area-",
+        "testId": "sales-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Sales",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-sales-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-sales-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-sales-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-sales-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Sales Agents",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "CarolinevoiceSerra Honda AI Sales Agent. Handles inbound lea",
+        "testId": "agent-card-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Caroline",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-agent-settings-{uuid}",
+        "hidden": "",
+        "count": 4
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Data GuruchatVIN Solutions CRM data expert. Prioritizes CRM ",
+        "testId": "agent-card-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Data Guru",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Sales CoachchatSales coaching, objection handling, follow-up",
+        "testId": "agent-card-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Sales Coach",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Communication WriterchatProfessional email/SMS drafts, follo",
+        "testId": "agent-card-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Communication Writer",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Sales > Agents"
+  },
+  "sales-insights": {
+    "url": "/sales",
+    "uniqueElements": 37,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "SalesDashboardAgentsInsightsCalendar[data-radix-scroll-area-",
+        "testId": "sales-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Sales",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-sales-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-sales-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-sales-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-sales-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-insights-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Reports",
+        "testId": "tab-insights-reports",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Library",
+        "testId": "tab-insights-library",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Hunches",
+        "testId": "tab-insights-hunches",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Immediate Action Required",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads Going Cold20Leads aging 14-21 days without close",
+        "testId": "card-hot-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "New Leads Without Contact9No contact in over 48 hours",
+        "testId": "card-new-leads-no-contact",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Showroom Visitors Not Closed0Open over 7 days",
+        "testId": "card-showroom-visitors",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Watch List",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Stale Leads (>7 days)360Avg Age: 14 days CSV",
+        "testId": "card-stale-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "CSV",
+        "testId": "button-export-stale",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pending Finance00 deals over 5 days old",
+        "testId": "card-pending-finance",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Today's Performance",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pipeline Active214",
+        "testId": "green-metric-gz-0",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversion Rate3.5%",
+        "testId": "green-metric-gz-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "green-metric-gz-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Pipeline Health",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-pipeline-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Pipeline570leads in play",
+        "testId": "pipeline-active",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Freshness ScoreN/A38% under 7 days",
+        "testId": "pipeline-freshness",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads21438% of active",
+        "testId": "pipeline-hot",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Month-End Forecast20-30 vs target (50)",
+        "testId": "pipeline-forecast",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Performance Scorecard",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-scorecard-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Win Rate3.5%",
+        "testId": "scorecard-sc-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Sold20",
+        "testId": "scorecard-sc-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads214",
+        "testId": "scorecard-sc-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "scorecard-sc-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Leads This WeekDaily lead generation trendsMonTueWedThuFriSa",
+        "testId": "chart-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversions by DayThis week's closingsMonTueWedThuFriSatSun0",
+        "testId": "chart-conversions",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Sales > Insights"
+  },
+  "sales-calendar": {
+    "url": "/sales",
+    "uniqueElements": 50,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "SalesDashboardAgentsInsightsCalendar[data-radix-scroll-area-",
+        "testId": "sales-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Sales",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-sales-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-sales-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-sales-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-sales-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "March 2026Sync SourcesNew AppointmentSunMonTueWedThuFriSat12",
+        "testId": "appointment-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-prev-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "March 2026",
+        "testId": "text-calendar-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-next-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sync Sources",
+        "testId": "button-connector-config",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "New Appointment",
+        "testId": "button-new-appointment",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "1",
+        "testId": "calendar-day-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "2",
+        "testId": "calendar-day-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "3",
+        "testId": "calendar-day-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "4",
+        "testId": "calendar-day-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "5",
+        "testId": "calendar-day-5",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "6",
+        "testId": "calendar-day-6",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "7",
+        "testId": "calendar-day-7",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "8",
+        "testId": "calendar-day-8",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "9",
+        "testId": "calendar-day-9",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "10",
+        "testId": "calendar-day-10",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "11",
+        "testId": "calendar-day-11",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "12",
+        "testId": "calendar-day-12",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "13",
+        "testId": "calendar-day-13",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "14",
+        "testId": "calendar-day-14",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "15",
+        "testId": "calendar-day-15",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "16",
+        "testId": "calendar-day-16",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "17",
+        "testId": "calendar-day-17",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "18",
+        "testId": "calendar-day-18",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "19",
+        "testId": "calendar-day-19",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "20",
+        "testId": "calendar-day-20",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "21DC-SCHED-3 Test AppointmentDC-US013 Test Drive Appointment",
+        "testId": "calendar-day-21",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "DC-SCHED-3 Test Appointment",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "DC-US013 Test Drive Appointment",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "22",
+        "testId": "calendar-day-22",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "23Call Appointment \u2014 Email Template TestCall Appointment \u2014 E",
+        "testId": "calendar-day-23",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Call Appointment \u2014 Email Template Test",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Call Appointment \u2014 Email Test Customer",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 3
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "24I-4.4 Source Test",
+        "testId": "calendar-day-24",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "I-4.4 Source Test",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "25I-4.4 Default TestCall Appointment \u2014 Email Test Customer+1",
+        "testId": "calendar-day-25",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "I-4.4 Default Test",
+        "testId": "appointment-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "26",
+        "testId": "calendar-day-26",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "27",
+        "testId": "calendar-day-27",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "28",
+        "testId": "calendar-day-28",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "29",
+        "testId": "calendar-day-29",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "30Call Appointment \u2014 Email Test Customer",
+        "testId": "calendar-day-30",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "31",
+        "testId": "calendar-day-31",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Sales > Calendar"
+  },
+  "service-agents": {
+    "url": "/service",
+    "uniqueElements": 12,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "ServiceCampaignsAgentsInsightsCalendar[data-radix-scroll-are",
+        "testId": "service-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "text": "",
+        "testId": "input-csv-upload",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Service",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Campaigns",
+        "testId": "tab-service-campaigns",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-service-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-service-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-service-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Service Agents",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Nancy GastonvoiceSerra Service AI Agent (Nancy Gaston). Hand",
+        "testId": "agent-card-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Nancy Gaston",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-agent-settings-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Service > Agents"
+  },
+  "service-insights": {
+    "url": "/service",
+    "uniqueElements": 45,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "ServiceCampaignsAgentsInsightsCalendar[data-radix-scroll-are",
+        "testId": "service-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "text": "",
+        "testId": "input-csv-upload",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Service",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Campaigns",
+        "testId": "tab-service-campaigns",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-service-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-service-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-service-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Service Metrics",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Campaigns11",
+        "testId": "metric-tile-svm-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Messages Sent7",
+        "testId": "metric-tile-svm-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Replies Received1",
+        "testId": "metric-tile-svm-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Open Conversations200",
+        "testId": "metric-tile-svm-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Conversations206",
+        "testId": "metric-tile-svm-5",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Reply Rate14%",
+        "testId": "metric-tile-svm-6",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-insights-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Reports",
+        "testId": "tab-insights-reports",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Library",
+        "testId": "tab-insights-library",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Hunches",
+        "testId": "tab-insights-hunches",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Immediate Action Required",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads Going Cold20Leads aging 14-21 days without close",
+        "testId": "card-hot-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "New Leads Without Contact9No contact in over 48 hours",
+        "testId": "card-new-leads-no-contact",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Showroom Visitors Not Closed0Open over 7 days",
+        "testId": "card-showroom-visitors",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Watch List",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Stale Leads (>7 days)360Avg Age: 14 days CSV",
+        "testId": "card-stale-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "CSV",
+        "testId": "button-export-stale",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pending Finance00 deals over 5 days old",
+        "testId": "card-pending-finance",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Today's Performance",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pipeline Active214",
+        "testId": "green-metric-gz-0",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversion Rate3.5%",
+        "testId": "green-metric-gz-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "green-metric-gz-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Pipeline Health",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-pipeline-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Pipeline570leads in play",
+        "testId": "pipeline-active",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Freshness ScoreN/A38% under 7 days",
+        "testId": "pipeline-freshness",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads21438% of active",
+        "testId": "pipeline-hot",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Month-End Forecast20-30 vs target (50)",
+        "testId": "pipeline-forecast",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Performance Scorecard",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-scorecard-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Win Rate3.5%",
+        "testId": "scorecard-sc-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Sold20",
+        "testId": "scorecard-sc-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads214",
+        "testId": "scorecard-sc-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "scorecard-sc-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Leads This WeekDaily lead generation trendsMonTueWedThuFriSa",
+        "testId": "chart-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversions by DayThis week's closingsMonTueWedThuFriSatSun0",
+        "testId": "chart-conversions",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Service > Insights"
+  },
+  "service-calendar": {
+    "url": "/service",
+    "uniqueElements": 45,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "ServiceCampaignsAgentsInsightsCalendar[data-radix-scroll-are",
+        "testId": "service-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "text": "",
+        "testId": "input-csv-upload",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Service",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Campaigns",
+        "testId": "tab-service-campaigns",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-service-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-service-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-service-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "March 2026Sync SourcesNew AppointmentSunMonTueWedThuFriSat12",
+        "testId": "appointment-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-prev-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "March 2026",
+        "testId": "text-calendar-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-next-month",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sync Sources",
+        "testId": "button-connector-config",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "New Appointment",
+        "testId": "button-new-appointment",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "1",
+        "testId": "calendar-day-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "2",
+        "testId": "calendar-day-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "3",
+        "testId": "calendar-day-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "4",
+        "testId": "calendar-day-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "5",
+        "testId": "calendar-day-5",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "6",
+        "testId": "calendar-day-6",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "7",
+        "testId": "calendar-day-7",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "8",
+        "testId": "calendar-day-8",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "9",
+        "testId": "calendar-day-9",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "10",
+        "testId": "calendar-day-10",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "11",
+        "testId": "calendar-day-11",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "12",
+        "testId": "calendar-day-12",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "13",
+        "testId": "calendar-day-13",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "14",
+        "testId": "calendar-day-14",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "15",
+        "testId": "calendar-day-15",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "16",
+        "testId": "calendar-day-16",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "17",
+        "testId": "calendar-day-17",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "18",
+        "testId": "calendar-day-18",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "19",
+        "testId": "calendar-day-19",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "20",
+        "testId": "calendar-day-20",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "21",
+        "testId": "calendar-day-21",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "22",
+        "testId": "calendar-day-22",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "23",
+        "testId": "calendar-day-23",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "24",
+        "testId": "calendar-day-24",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "25",
+        "testId": "calendar-day-25",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "26",
+        "testId": "calendar-day-26",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "27",
+        "testId": "calendar-day-27",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "28",
+        "testId": "calendar-day-28",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "29",
+        "testId": "calendar-day-29",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "30",
+        "testId": "calendar-day-30",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "31",
+        "testId": "calendar-day-31",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Service > Calendar"
+  },
+  "marketing-agents": {
+    "url": "/marketing",
+    "uniqueElements": 28,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "MarketingDashboardAgentsStudioInsights[data-radix-scroll-are",
+        "testId": "marketing-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Marketing",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-marketing-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-marketing-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Studio",
+        "testId": "tab-marketing-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-marketing-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Marketing Agents",
+        "testId": "text-agents-title",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Photo StudioEnhance vehicle photos and generate studio visua",
+        "testId": "agent-card-photo-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Photo Studio",
+        "testId": "text-agent-name-photo-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Enhance vehicle photos and generate studio visuals. Backgrou",
+        "testId": "text-agent-desc-photo-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "0 sessions",
+        "testId": "text-agent-sessions-photo-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Video ProducerTurn photos into cinematic marketing videos. P",
+        "testId": "agent-card-video-producer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Video Producer",
+        "testId": "text-agent-name-video-producer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Turn photos into cinematic marketing videos. Photo-to-video ",
+        "testId": "text-agent-desc-video-producer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "0 sessions",
+        "testId": "text-agent-sessions-video-producer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "CopywriterWrite your ads and captions. Ad copy, headlines, s",
+        "testId": "agent-card-copywriter",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Copywriter",
+        "testId": "text-agent-name-copywriter",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Write your ads and captions. Ad copy, headlines, social capt",
+        "testId": "text-agent-desc-copywriter",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "0 sessions",
+        "testId": "text-agent-sessions-copywriter",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Creative DirectorTell me if this creative is good enough. Ad",
+        "testId": "agent-card-creative-director",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Creative Director",
+        "testId": "text-agent-name-creative-director",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Tell me if this creative is good enough. Ad IQ scoring, effe",
+        "testId": "text-agent-desc-creative-director",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "0 sessions",
+        "testId": "text-agent-sessions-creative-director",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Market IntelShow me what the competition looks like. Competi",
+        "testId": "agent-card-market-intel",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Market Intel",
+        "testId": "text-agent-name-market-intel",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Show me what the competition looks like. Competitor radar, b",
+        "testId": "text-agent-desc-market-intel",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "0 sessions",
+        "testId": "text-agent-sessions-market-intel",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Marketing > Agents"
+  },
+  "marketing-studio": {
+    "url": "/marketing",
+    "uniqueElements": 17,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "MarketingDashboardAgentsStudioInsights[data-radix-scroll-are",
+        "testId": "marketing-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Marketing",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-marketing-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-marketing-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Studio",
+        "testId": "tab-marketing-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-marketing-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "AllImagesVideosCopyScoresVoiceoversRadar",
+        "testId": "studio-filter-pills",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "All",
+        "testId": "studio-filter-all",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Images",
+        "testId": "studio-filter-images",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Videos",
+        "testId": "studio-filter-videos",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Copy",
+        "testId": "studio-filter-copy",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Scores",
+        "testId": "studio-filter-scores",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Voiceovers",
+        "testId": "studio-filter-voiceovers",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Radar",
+        "testId": "studio-filter-radar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "No artifacts yetStart a conversation with any marketing agen",
+        "testId": "empty-state-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "No artifacts yet",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Marketing > Studio"
+  },
+  "marketing-insights": {
+    "url": "/marketing",
+    "uniqueElements": 37,
+    "elements": [
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "MarketingDashboardAgentsStudioInsights[data-radix-scroll-are",
+        "testId": "marketing-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Marketing",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-marketing-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-marketing-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Studio",
+        "testId": "tab-marketing-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-marketing-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-insights-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Reports",
+        "testId": "tab-insights-reports",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Library",
+        "testId": "tab-insights-library",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Hunches",
+        "testId": "tab-insights-hunches",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Immediate Action Required",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads Going Cold20Leads aging 14-21 days without close",
+        "testId": "card-hot-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "New Leads Without Contact9No contact in over 48 hours",
+        "testId": "card-new-leads-no-contact",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Showroom Visitors Not Closed0Open over 7 days",
+        "testId": "card-showroom-visitors",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Watch List",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Stale Leads (>7 days)360Avg Age: 14 days CSV",
+        "testId": "card-stale-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "CSV",
+        "testId": "button-export-stale",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pending Finance00 deals over 5 days old",
+        "testId": "card-pending-finance",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Today's Performance",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Pipeline Active214",
+        "testId": "green-metric-gz-0",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversion Rate3.5%",
+        "testId": "green-metric-gz-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "green-metric-gz-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Pipeline Health",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-pipeline-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Pipeline570leads in play",
+        "testId": "pipeline-active",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Freshness ScoreN/A38% under 7 days",
+        "testId": "pipeline-freshness",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads21438% of active",
+        "testId": "pipeline-hot",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Month-End Forecast20-30 vs target (50)",
+        "testId": "pipeline-forecast",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Performance Scorecard",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "View Details",
+        "testId": "button-scorecard-details",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Win Rate3.5%",
+        "testId": "scorecard-sc-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Sold20",
+        "testId": "scorecard-sc-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Hot Leads214",
+        "testId": "scorecard-sc-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads570",
+        "testId": "scorecard-sc-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Leads This WeekDaily lead generation trendsMonTueWedThuFriSa",
+        "testId": "chart-leads",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversions by DayThis week's closingsMonTueWedThuFriSatSun0",
+        "testId": "chart-conversions",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "tab": "Marketing > Insights"
+  }
+}

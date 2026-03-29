@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-03-26T23:27:00Z",
+  "billingSummary": {
+    "configured": false,
+    "message": "Billing not configured"
+  },
+  "billingPlans": {
+    "plans": [
+      {"name": "Early Adopter Custom", "lookup_key": "early_adopter_custom", "status": "published"},
+      {"name": "Max", "lookup_key": "max", "status": "published"},
+      {"name": "Pro", "lookup_key": "pro", "status": "published"},
+      {"name": "Basic", "lookup_key": "basic", "status": "published"},
+      {"name": "JumpStart", "lookup_key": "jumpstart", "status": "published"},
+      {"name": "Spark", "lookup_key": "spark", "status": "published"}
+    ]
+  }
+}

@@ -9,7 +9,7 @@
   "description": "Fix Service page: fix sub-menu Dashboard label, add service-filtered metrics for Open/Total Conversations, fix hardcoded metric trends, verify campaign E2E flow, verify Nancy Gaston is only agent.",
   "acceptanceCriteria": ["S-4.AC1 through S-4.AC18"],
   "newACs": ["S-4.AC15", "S-4.AC16", "S-4.AC17", "S-4.AC18"],
-  "issues": ["I-106", "I-107", "I-113", "I-115"],
+  "issues": ["I-106", "I-107", "I-113", "I-115", "I-128", "I-129", "I-130", "I-132"],
   "declaredFiles": [
     "client/src/pages/service.tsx",
     "client/src/components/layout/SubMenuManager.tsx",

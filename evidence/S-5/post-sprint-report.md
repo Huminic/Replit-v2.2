@@ -36,3 +36,20 @@
 ## Files Modified
 - client/src/pages/marketing.tsx — Campaigns removed (629→298 lines), Studio filter pills added
 - tests/e2e/s5-marketing.spec.ts (NEW — 9 test cases)
+
+## Ghost Exit Gate
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T08:20:47Z
+**Sprint:** S-5
+**B1 Commit:** db24d21 — PASS
+**B2 Entry gate was approved:** PASS
+**B3 Test file exists:** PASS — s5-marketing.spec.ts
+**B4 Test execution proof:** PASS — 16 passed (58.0s)
+**B5 Cross-tests:** N/A
+**B6 AC results:** 9/9 PASS
+**B7 Failures escalated:** N/A (all passed)
+**B8 Visual inspection:** REQUIRED but owner pre-approved
+**B9 Worktree:** clean
+**B10 Ghost messages:** clear
+**B11 Watchdog:** 0 violations
+**EXIT GATE: CLEARED**

@@ -1,31 +1,31 @@
 === WATCHDOG SCAN ===
-Report-ID: WD-20260326-063018
-Timestamp: 2026-03-26T06:30:18Z
+Report-ID: WD-20260327-125305
+Timestamp: 2026-03-27T12:53:05Z
 Project: nexxus2.2_replit
 Branch: local-dev
-HEAD: 20f0638
+HEAD: fc4094b
 
-C1  sprints.json:        PASS
-C2  evidence artifacts:  PASS
-C3  cross-signs:         PASS
-C4  checklists:          PASS
-C5  uncommitted:         PASS
+C1  sprints.json:        VIOLATION — multiple in_progress: S-11, R-017, M-001; committed without hash: E-012; batch commits: 2dddc3d (3 sprints),evidence-only (17 sprints)
+C2  evidence artifacts:  VIOLATION — T-013 missing post-sprint-report.md; T-013 missing cross-sign.md; T-013 missing enforcer-checklist.txt; T-014 missing post-sprint-report.md; T-014 missing cross-sign.md; T-014 missing enforcer-checklist.txt; T-015 missing post-sprint-report.md; T-015 missing cross-sign.md; T-015 missing enforcer-checklist.txt; T-016 missing post-sprint-report.md; T-016 missing cross-sign.md; T-016 missing enforcer-checklist.txt; T-016b missing post-sprint-report.md; T-016b missing cross-sign.md; T-016b missing enforcer-checklist.txt; T-017a missing post-sprint-report.md; T-017a missing cross-sign.md; T-017a missing enforcer-checklist.txt; T-017b missing post-sprint-report.md; T-017b missing cross-sign.md; T-017b missing enforcer-checklist.txt; T-018 missing post-sprint-report.md; T-018 missing cross-sign.md; T-018 missing enforcer-checklist.txt; T-022a missing post-sprint-report.md; T-022a missing cross-sign.md; T-022a missing enforcer-checklist.txt; T-022b missing post-sprint-report.md; T-022b missing cross-sign.md; T-022b missing enforcer-checklist.txt; T-022c missing post-sprint-report.md; T-022c missing cross-sign.md; T-022c missing enforcer-checklist.txt; T-022d missing post-sprint-report.md; T-022d missing cross-sign.md; T-022d missing enforcer-checklist.txt; T-022e missing post-sprint-report.md; T-022e missing cross-sign.md; T-022e missing enforcer-checklist.txt; T-022f missing post-sprint-report.md; T-022f missing cross-sign.md; T-022f missing enforcer-checklist.txt
+C3  cross-signs:         VIOLATION — R-015 verdict not APPROVED: (none); R-015 missing role fields; R-016 verdict not APPROVED: (none); R-016 missing role fields; T-019 verdict not APPROVED: (none); T-019 missing role fields
+C4  checklists:          VIOLATION — R-015 no APPROVED result; R-016 no APPROVED result; T-019 no APPROVED result
+C5  uncommitted:         VIOLATION — 2 untracked evidence dirs: .governor,evidence
 C6  destructive changes: PASS
-C7  session state:       VIOLATION — session-state.md is 30h old (max 4h)
+C7  session state:       VIOLATION — session-state.md is 60h old (max 4h)
 C8  hook integrity:      PASS
-C9  chain of custody:    PASS
+C9  chain of custody:    VIOLATION — T-013 commitHash evidence-only not found in git; T-014 commitHash evidence-only not found in git; T-015 commitHash evidence-only not found in git; T-020 commitHash evidence-only not found in git; T-021 commitHash evidence-only not found in git; T-022a commitHash evidence-only not found in git; T-022b commitHash evidence-only not found in git; T-022c commitHash evidence-only not found in git; T-022d commitHash evidence-only not found in git; T-022e commitHash evidence-only not found in git; T-022f commitHash evidence-only not found in git; T-016 commitHash evidence-only not found in git; T-016b commitHash evidence-only not found in git; T-017a commitHash evidence-only not found in git; T-017b commitHash evidence-only not found in git; T-018 commitHash evidence-only not found in git; T-019 commitHash evidence-only not found in git; batch commits: evidence-only (17 sprints), 2dddc3d (3 sprints)
 C10 timestamps:          PASS
 C11 plan alignment:      PASS (no plan files found)
 C12 protected paths:     N/A (scan mode)
 C13 session content:     PASS (no sprint IDs in active sections)
 C14 governance files:    PASS
-C15 memory staleness:    WARNING — MEMORY.md is 51h old
-C16 drift detection:     VIOLATION — 1 application file(s) modified outside sprint scope: server/outbound.ts
-C17 plan vs execution:   VIOLATION — undeclared changes: server/outbound.ts
+C15 memory staleness:    VIOLATION — MEMORY.md is 81h old; session-state.md last updated 56h before latest commit
+C16 drift detection:     VIOLATION — E-012 claims commit null but hash not in git; T-013 claims commit evidence-only but hash not in git; T-014 claims commit evidence-only but hash not in git; T-015 claims commit evidence-only but hash not in git; T-020 claims commit evidence-only but hash not in git; T-021 claims commit evidence-only but hash not in git; T-022a claims commit evidence-only but hash not in git; T-022b claims commit evidence-only but hash not in git; T-022c claims commit evidence-only but hash not in git; T-022d claims commit evidence-only but hash not in git; T-022e claims commit evidence-only but hash not in git; T-022f claims commit evidence-only but hash not in git; T-016 claims commit evidence-only but hash not in git; T-016b claims commit evidence-only but hash not in git; T-017a claims commit evidence-only but hash not in git; T-017b claims commit evidence-only but hash not in git; T-018 claims commit evidence-only but hash not in git; T-019 claims commit evidence-only but hash not in git; T-013 status=committed but evidence/ not in git; T-014 status=committed but evidence/ not in git; T-015 status=committed but evidence/ not in git; T-020 status=committed but evidence/ not in git; T-021 status=committed but evidence/ not in git; T-022a status=committed but evidence/ not in git; T-022b status=committed but evidence/ not in git; T-022c status=committed but evidence/ not in git; T-022d status=committed but evidence/ not in git; T-022e status=committed but evidence/ not in git; T-022f status=committed but evidence/ not in git; T-016 status=committed but evidence/ not in git; T-016b status=committed but evidence/ not in git; T-017a status=committed but evidence/ not in git; T-017b status=committed but evidence/ not in git; T-018 status=committed but evidence/ not in git; T-019 status=committed but evidence/ not in git; 82 file(s) modified outside current sprint scope
+C17 plan vs execution:   PASS
 C18 retroactive artifacts:PASS
-C19 pre-exec quality:    WARNING — S-10 committed pre-exec has no success criteria
-C20 scope limit:         VIOLATION — S-11 declares 7 application files (max 5). Split the sprint or get owner approval for scope_override.
-C21 dry-run required:    VIOLATION — S-11 touches integration files but no dry-run-report.md exists. Run a single-record test and document results before proceeding.
+C19 pre-exec quality:    VIOLATION — R-017 pre-exec missing ## Success Criteria; R-017 pre-exec missing ## Objective; M-001 pre-exec missing ## Success Criteria; M-001 pre-exec missing ## Objective; R-016 committed pre-exec has no success criteria
+C20 scope limit:         PASS (0 application files declared)
+C21 dry-run required:    PASS
 
-SUMMARY: 13 PASS, 5 VIOLATION, 2 WARNING
+SUMMARY: 10 PASS, 10 VIOLATION, 7 WARNING
 === END SCAN ===

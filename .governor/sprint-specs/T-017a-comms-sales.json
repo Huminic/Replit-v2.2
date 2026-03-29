@@ -1,0 +1,31 @@
+{
+  "id": "T-017a",
+  "category": "Testing",
+  "name": "Comms Test — Sales Inbound/Outbound",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "BE",
+  "description": "Autonomous sales communication flow testing. Inbound text → Caroline responds. Inbound phone (elliott.ts calls Caroline) → conversation + transcript + VIN lead. Outbound trigger test if mechanism exists. Email notification verification via Resend logs.",
+  "issues": ["I-131"],
+  "acceptanceCriteria": [
+    "T-017a.AC1: Inbound SMS to Caroline number → agent response in conversation",
+    "T-017a.AC2: Elliott calls Caroline (Serra Honda) → call completes, conversation in TeamBox",
+    "T-017a.AC3: VAPI webhook fires → email notification sent (check Resend logs)",
+    "T-017a.AC4: VAPI webhook fires → VIN lead created via vin-safe-mcp",
+    "T-017a.AC5: Conversation transcript available in TeamBox Phone tab",
+    "T-017a.AC6: Take Over: assign human to automated conversation → AI stops responding"
+  ],
+  "declaredFiles": ["tests/e2e/real-integrations.spec.ts", "utilities/elliott-test.ts"],
+  "testFile": "tests/e2e/real-integrations.spec.ts",
+  "method": "elliott.ts for VAPI calls, TextMagic API for SMS, API assertions for verification",
+  "infrastructure": {
+    "elliott": "utilities/elliott-test.ts — assistant c303d993, phone a85a9397",
+    "caroline": "+19012038267 (Serra Honda sales)",
+    "textmagic_outbound": "+18338096836",
+    "textmagic_receive": ["+18339785374", "+18338935694"]
+  },
+  "dependsOn": ["T-016"],
+  "blocks": ["T-018"],
+  "parallelWith": ["T-017b"]
+}

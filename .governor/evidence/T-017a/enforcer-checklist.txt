@@ -1,0 +1,37 @@
+T-017a Enforcer Checklist — Sales Communication Continuity
+Generated: 2026-03-27T02:06:00Z
+
+[PARTIAL] AC1: Inbound SMS → Caroline responds
+  - SMS sent via TextMagic MCP: msg ID 1382588803
+  - TextMagic webhook logged inbound message
+  - No new conversation created (destination is VAPI voice number, not SMS)
+  - Architecture gap: SMS to VAPI numbers not routed to conversations
+
+[PASS] AC2: Elliott calls Caroline
+  - VAPI call ID: 019d2d07-2e5d-7ff1-b8a9-819abbccef6a
+  - Call status: ended (exceeded-max-duration, ~20s)
+  - Cost: $0.0349
+  - Transcript captured by VAPI (2 exchanges)
+  - Webhook created conversation: eb68e060-d7b9-4a66-8425-4ebe86346068
+
+[PASS] AC3: VAPI webhook → email
+  - LeadNotify sent to serra_honda@huminic.ai, duane.wells@huminic.ai
+  - Subject: "Serra Honda Has a New AI Voice Lead!"
+
+[FAIL] AC4: VAPI webhook → VIN lead
+  - VIN lead: false
+  - Error: Lead source "Website" not found at dealer 21043
+  - Available: "Dealers WebSite", "AutoTrader", etc.
+
+[FAIL] AC5: Transcript in TeamBox
+  - Conversation exists but 0 messages
+  - VAPI webhook returned 422: message field Required
+  - Transcript not persisted to conversation messages
+
+[PASS] AC6: Take Over
+  - Assign user → aiPaused=true
+  - Un-assign user → aiPaused=false
+  - Toggle works correctly
+
+SUMMARY: 4/6 PASS, 2/6 FAIL
+REAL COST: $0.0349 (one VAPI phone call)

@@ -1,0 +1,30 @@
+{
+  "id": "T-013",
+  "category": "Testing",
+  "name": "Navigation & UI Verification",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "FE",
+  "description": "Verify all SEC-01 through SEC-08 UI changes are live on dev.huminicdev.com. Click every popout/sub-menu link, confirm correct navigation. Verify visual changes: Reset Tour label, Instant Call Back button, sub-menu alignments, Campaign Safety dismiss, tooltips, chat resume, activity feed, My Work hidden.",
+  "issues": ["I-125"],
+  "acceptanceCriteria": [
+    "T-013.AC1: Every popout/sub-menu link across all 8 sections navigates to correct page/tab (click each, not code review)",
+    "T-013.AC2: TopBar shows 'Reset Tour' (not 'Take a Tour')",
+    "T-013.AC3: TopBar profile dropdown has NO Billing link",
+    "T-013.AC4: My Work is NOT in sidebar navigation",
+    "T-013.AC5: Service sub-menu first item is 'Campaigns' (not 'Dashboard')",
+    "T-013.AC6: Marketing sub-menu has NO 'Campaigns' link",
+    "T-013.AC7: Manage sub-menu has 5 items: Insights, Hunches, System Log, User Chats, Billing",
+    "T-013.AC8: Campaign Safety card has dismiss X button that persists on reload",
+    "T-013.AC9: Campaign action buttons show tooltips on hover",
+    "T-013.AC10: Widget landing page menu shows 'Instant Call Back' (not 'Web Call')",
+    "T-013.AC11: No console errors on any page load (all 8 sections)"
+  ],
+  "declaredFiles": ["tests/e2e/s7-system-profile.spec.ts", "tests/e2e/s1-ai-chat.spec.ts"],
+  "testFile": "tests/e2e/s7-system-profile.spec.ts",
+  "method": "Playwright MCP against dev.huminicdev.com",
+  "dependsOn": ["SEC-08"],
+  "blocks": ["T-016"],
+  "parallelWith": ["T-014", "T-015"]
+}

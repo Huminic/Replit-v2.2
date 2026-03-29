@@ -1,0 +1,28 @@
+{
+  "id": "T-015",
+  "category": "Testing",
+  "name": "RBAC & Multi-Tenant Isolation",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "AU",
+  "description": "Verify role-based access control per page and multi-tenant data isolation. Login as each of 5 orgs × key roles, verify no cross-org data leakage. Verify settings tile visibility per role. Verify management page RBAC redirect.",
+  "issues": [],
+  "acceptanceCriteria": [
+    "T-015.AC1: Serra Honda admin sees ONLY Serra Honda data on all pages",
+    "T-015.AC2: Serra Nissan admin sees ONLY Serra Nissan data on all pages",
+    "T-015.AC3: Tony Serra Ford admin sees ONLY Tony Serra Ford data on all pages",
+    "T-015.AC4: Ford of Columbia admin sees ONLY Ford of Columbia data on all pages",
+    "T-015.AC5: Hyundai of Columbia admin sees ONLY Hyundai of Columbia data on all pages",
+    "T-015.AC6: Partner admin (Cage) sees all 5 dealership data in management",
+    "T-015.AC7: Partner admin does NOT see Huminic data",
+    "T-015.AC8: Settings tiles: super_admin sees 7, partner_admin sees 7 (AI Config read-only), org_admin sees 6",
+    "T-015.AC9: Management page redirects non-management roles to home"
+  ],
+  "declaredFiles": ["tests/e2e/s9-cross-cutting.spec.ts"],
+  "testFile": "tests/e2e/s9-cross-cutting.spec.ts",
+  "method": "Playwright MCP — multi-login cycles against dev.huminicdev.com",
+  "dependsOn": ["SEC-08"],
+  "blocks": ["T-016"],
+  "parallelWith": ["T-013", "T-014"]
+}

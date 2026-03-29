@@ -745,8 +745,8 @@ export default function MainPage() {
                     <div className={cn('flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-foreground/70', metric.iconBg)}>
                       {tileIcons[i]}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground font-medium truncate">{metric.label}</p>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground font-medium leading-tight">{metric.label}</p>
                       <p className="text-2xl font-bold text-foreground mt-0.5 tracking-tight">{metric.value}</p>
                       <div className="flex items-center gap-1.5 mt-1">
                         {metric.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}

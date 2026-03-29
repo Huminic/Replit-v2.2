@@ -1,0 +1,27 @@
+{
+  "id": "T-019",
+  "category": "Testing",
+  "name": "Chat & Agent Usability",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T2",
+  "dimension": "FE",
+  "description": "Verify AI chat quality and agent usability across all pages. Chat resume works. Each department agent responds on-topic. Agent cards show descriptions. Chat history with proper titles. Metric drill-down dialogs.",
+  "issues": [],
+  "acceptanceCriteria": [
+    "T-019.AC1: AI Chat resume: click history item → previous messages load in chat window",
+    "T-019.AC2: AI Chat: ask dealership-specific question → response uses org context",
+    "T-019.AC3: Sales Data Guru: ask about leads → returns real VIN data",
+    "T-019.AC4: Sales Coach: ask coaching question → relevant advice",
+    "T-019.AC5: Communication Writer: request email draft → formatted email response",
+    "T-019.AC6: Service Nancy: ask about campaigns → references campaign scheduling",
+    "T-019.AC7: Marketing agents: each of 5 agents responds with domain-relevant content",
+    "T-019.AC8: Chat history shows 'Chat — X ago' format (not username)",
+    "T-019.AC9: All agent cards across Sales/Service/Marketing show name + description"
+  ],
+  "declaredFiles": ["tests/e2e/s1-ai-chat.spec.ts", "tests/e2e/s3-sales.spec.ts"],
+  "testFile": "tests/e2e/s1-ai-chat.spec.ts",
+  "method": "Playwright MCP + API chat interactions",
+  "dependsOn": ["T-018"],
+  "blocks": ["T-020"]
+}

@@ -1,0 +1,27 @@
+# Visual Verification: Partner Admin (Cage)
+Date: 2026-03-24T11:02:28.906Z
+Console errors: 7
+
+- main: OK
+- sales: OK
+- service: OK — 1 error toast(s)
+- marketing: OK
+- management: OK
+- teambox: OK
+- my-work: BLANK — Page appears empty
+- insights: BLANK — Page appears empty
+- billing: BLANK — Page appears empty
+- settings: BLANK — Page appears empty
+- profile: BLANK — Page appears empty
+- agents: BLANK — Page appears empty
+
+## Console Errors
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at kY (http://localhost:5000/assets/index-C2mo05ku.js:173:4163)
+    at Kt (htt
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)

@@ -1,0 +1,234 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - generic [ref=e8]:
+      - banner [ref=e9]:
+        - generic [ref=e11]: Nexxus Connect™
+        - button "Serra Honda" [ref=e313] [cursor=pointer]:
+          - img
+          - generic [ref=e314]: Serra Honda
+          - img
+        - generic [ref=e14]:
+          - button [ref=e15] [cursor=pointer]:
+            - img
+          - button "50" [ref=e315] [cursor=pointer]:
+            - img
+            - generic [ref=e316]: "50"
+          - button [ref=e17] [cursor=pointer]:
+            - img
+          - button [ref=e18] [cursor=pointer]:
+            - img
+          - button "SHA" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: SHA
+            - img
+      - generic [ref=e22]:
+        - complementary [ref=e23]:
+          - button [ref=e25] [cursor=pointer]:
+            - img
+          - navigation [ref=e27]:
+            - button "AI Chat" [ref=e28] [cursor=pointer]:
+              - img
+              - generic [ref=e29]: AI Chat
+            - button "TeamBox" [ref=e30] [cursor=pointer]:
+              - img
+              - generic [ref=e31]: TeamBox
+            - button "Sales" [ref=e32] [cursor=pointer]:
+              - img
+              - generic [ref=e33]: Sales
+            - button "Service" [ref=e34] [cursor=pointer]:
+              - img
+              - generic [ref=e35]: Service
+            - button "Marketing" [ref=e36] [cursor=pointer]:
+              - img
+              - generic [ref=e37]: Marketing
+            - button "Manage" [ref=e38] [cursor=pointer]:
+              - img
+              - generic [ref=e39]: Manage
+          - navigation [ref=e42]:
+            - button "System" [ref=e43] [cursor=pointer]:
+              - img
+              - generic [ref=e44]: System
+          - button "Logout" [ref=e46] [cursor=pointer]:
+            - img
+            - generic [ref=e47]: Logout
+        - generic [ref=e48]:
+          - main [ref=e49]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading "Management" [level=1] [ref=e53]
+                - generic [ref=e54]:
+                  - button "Insights" [ref=e55] [cursor=pointer]:
+                    - img [ref=e56]
+                    - text: Insights
+                  - button "Hunches" [ref=e58] [cursor=pointer]:
+                    - img [ref=e59]
+                    - text: Hunches
+                  - button "System Log" [ref=e61] [cursor=pointer]:
+                    - img [ref=e62]
+                    - text: System Log
+                  - button "User Chats" [ref=e64] [cursor=pointer]:
+                    - img [ref=e65]
+                    - text: User Chats
+                  - button "Billing" [ref=e67] [cursor=pointer]:
+                    - img [ref=e68]
+                    - text: Billing
+              - generic [ref=e74]:
+                - tablist [ref=e76]:
+                  - tab "Dashboard" [selected] [ref=e77] [cursor=pointer]
+                  - tab "Reports" [ref=e78] [cursor=pointer]
+                  - tab "Library" [ref=e79] [cursor=pointer]
+                  - tab "Hunches" [ref=e80] [cursor=pointer]
+                - tabpanel "Dashboard" [ref=e81]:
+                  - generic [ref=e85]:
+                    - generic [ref=e92]:
+                      - generic [ref=e93]:
+                        - heading "Immediate Action Required" [level=2] [ref=e95]
+                        - generic [ref=e96]: "Last updated: 8:45 AM"
+                      - generic [ref=e97]:
+                        - generic [ref=e99] [cursor=pointer]:
+                          - generic [ref=e100]:
+                            - img [ref=e102]
+                            - generic [ref=e104]:
+                              - paragraph [ref=e105]: Hot Leads Going Cold
+                              - paragraph [ref=e106]: "20"
+                            - img [ref=e107]
+                          - paragraph [ref=e109]: Leads aging 14-21 days without close
+                        - generic [ref=e111] [cursor=pointer]:
+                          - generic [ref=e112]:
+                            - img [ref=e114]
+                            - generic [ref=e117]:
+                              - paragraph [ref=e118]: New Leads Without Contact
+                              - paragraph [ref=e119]: "9"
+                            - img [ref=e120]
+                          - paragraph [ref=e122]: No contact in over 48 hours
+                        - generic [ref=e124] [cursor=pointer]:
+                          - generic [ref=e125]:
+                            - img [ref=e127]
+                            - generic [ref=e131]:
+                              - paragraph [ref=e132]: Showroom Visitors Not Closed
+                              - paragraph [ref=e133]: "0"
+                            - img [ref=e134]
+                          - paragraph [ref=e136]: Open over 7 days
+                    - generic [ref=e137]:
+                      - heading "Watch List" [level=2] [ref=e140]
+                      - generic [ref=e141]:
+                        - generic [ref=e144] [cursor=pointer]:
+                          - img [ref=e146]
+                          - generic [ref=e148]:
+                            - paragraph [ref=e149]: Stale Leads (>7 days)
+                            - paragraph [ref=e150]: "360"
+                            - paragraph [ref=e151]: "Avg Age: 14 days"
+                          - button "CSV" [ref=e152]:
+                            - img
+                            - text: CSV
+                        - generic [ref=e155] [cursor=pointer]:
+                          - img [ref=e157]
+                          - generic [ref=e161]:
+                            - paragraph [ref=e162]: Pending Finance
+                            - paragraph [ref=e163]: "0"
+                            - paragraph [ref=e164]: 0 deals over 5 days old
+                          - img [ref=e165]
+                    - generic [ref=e167]:
+                      - heading "Today's Performance" [level=2] [ref=e170]
+                      - generic [ref=e317]:
+                        - generic [ref=e319] [cursor=pointer]:
+                          - paragraph [ref=e320]: Pipeline Active
+                          - paragraph [ref=e321]: "214"
+                          - img [ref=e323]
+                        - generic [ref=e327] [cursor=pointer]:
+                          - paragraph [ref=e328]: Conversion Rate
+                          - paragraph [ref=e329]: 3.5%
+                          - img [ref=e331]
+                        - generic [ref=e333] [cursor=pointer]:
+                          - paragraph [ref=e334]: Total Leads
+                          - paragraph [ref=e335]: "570"
+                          - img [ref=e337]
+                    - generic [ref=e171]:
+                      - generic [ref=e172]:
+                        - heading "Pipeline Health" [level=2] [ref=e173]
+                        - button "View Details" [ref=e174] [cursor=pointer]:
+                          - text: View Details
+                          - img
+                      - generic [ref=e175]:
+                        - generic [ref=e177]:
+                          - paragraph [ref=e178]: Active Pipeline
+                          - paragraph [ref=e179]: "570"
+                          - paragraph [ref=e180]: leads in play
+                        - generic [ref=e182]:
+                          - paragraph [ref=e183]: Freshness Score
+                          - paragraph [ref=e184]: N/A
+                          - paragraph [ref=e185]: 38% under 7 days
+                        - generic [ref=e187]:
+                          - paragraph [ref=e188]: Hot Leads
+                          - paragraph [ref=e189]: "214"
+                          - paragraph [ref=e190]: 38% of active
+                        - generic [ref=e192]:
+                          - paragraph [ref=e193]: Month-End Forecast
+                          - paragraph [ref=e194]: "20"
+                          - paragraph [ref=e195]: "-30 vs target (50)"
+                    - generic [ref=e196]:
+                      - generic [ref=e197]:
+                        - heading "Performance Scorecard" [level=2] [ref=e198]
+                        - button "View Details" [ref=e199] [cursor=pointer]:
+                          - text: View Details
+                          - img
+                      - generic [ref=e200]:
+                        - generic [ref=e202] [cursor=pointer]:
+                          - paragraph [ref=e203]: Win Rate
+                          - paragraph [ref=e205]: 3.5%
+                          - img [ref=e207]
+                        - generic [ref=e209] [cursor=pointer]:
+                          - paragraph [ref=e210]: Total Sold
+                          - paragraph [ref=e212]: "20"
+                          - img [ref=e338]
+                        - generic [ref=e216] [cursor=pointer]:
+                          - paragraph [ref=e217]: Hot Leads
+                          - paragraph [ref=e219]: "214"
+                          - img [ref=e341]
+                        - generic [ref=e223] [cursor=pointer]:
+                          - paragraph [ref=e224]: Total Leads
+                          - paragraph [ref=e226]: "570"
+                          - img [ref=e344]
+                    - generic [ref=e229]:
+                      - generic [ref=e230]:
+                        - generic [ref=e231]:
+                          - generic [ref=e232]: Leads This Week
+                          - generic [ref=e233]: Daily lead generation trends
+                        - img [ref=e238]:
+                          - generic [ref=e243]:
+                            - generic [ref=e245]: Mon
+                            - generic [ref=e247]: Tue
+                            - generic [ref=e249]: Wed
+                            - generic [ref=e251]: Thu
+                            - generic [ref=e253]: Fri
+                            - generic [ref=e255]: Sat
+                            - generic [ref=e257]: Sun
+                          - generic [ref=e259]:
+                            - generic [ref=e261]: "0"
+                            - generic [ref=e263]: "1"
+                            - generic [ref=e265]: "2"
+                            - generic [ref=e267]: "3"
+                            - generic [ref=e269]: "4"
+                      - generic [ref=e270]:
+                        - generic [ref=e271]:
+                          - generic [ref=e272]: Conversions by Day
+                          - generic [ref=e273]: This week's closings
+                        - img [ref=e278]:
+                          - generic [ref=e283]:
+                            - generic [ref=e285]: Mon
+                            - generic [ref=e287]: Tue
+                            - generic [ref=e289]: Wed
+                            - generic [ref=e291]: Thu
+                            - generic [ref=e293]: Fri
+                            - generic [ref=e295]: Sat
+                            - generic [ref=e297]: Sun
+                          - generic [ref=e299]:
+                            - generic [ref=e301]: "0"
+                            - generic [ref=e303]: "1"
+                            - generic [ref=e305]: "2"
+                            - generic [ref=e307]: "3"
+                            - generic [ref=e309]: "4"
+          - button "Open configuration" [ref=e347] [cursor=pointer]:
+            - img
+  - generic [ref=e312]: "0"

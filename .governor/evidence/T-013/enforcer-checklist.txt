@@ -1,0 +1,20 @@
+T-013 Enforcer Checklist — Navigation & UI Verification
+Date: 2026-03-26T23:30:00Z
+
+AC1  Popout/sub-menu links navigate correctly    PASS
+AC2  TopBar shows "Reset Tour"                   FAIL — shows "Take a Tour"
+AC3  TopBar no Billing link                      FAIL — Billing link present
+AC4  My Work NOT in sidebar                      FAIL — My Work visible
+AC5  Service first item is Campaigns             CONDITIONAL — depends on sub-menu vs tab interpretation
+AC6  Marketing no Campaigns                      PASS
+AC7  Manage has 5 items                          PASS
+AC8  Campaign Safety dismiss persists            BLOCKED — no dismiss button found
+AC9  Campaign action tooltips                    PARTIAL — buttons exist, tooltips unverified
+AC10 Widget "Instant Call Back"                  BLOCKED — route redirects
+AC11 No console errors                           CONDITIONAL — auth/data errors only
+AC12 Mobile viewport                             FAIL — horizontal overflow 540px > 375px
+
+RESULT: REJECTED
+
+Reason: 4 failures, 2 blocked, 3 conditional. Does not meet acceptance threshold.
+Recommend: Fix AC2, AC3, AC4, AC12 defects. Investigate AC8, AC10. Re-test.

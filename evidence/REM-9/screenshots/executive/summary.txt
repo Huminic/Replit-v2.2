@@ -1,0 +1,30 @@
+# Visual Verification: Executive
+Date: 2026-03-24T11:03:38.103Z
+Console errors: 6
+
+- main: OK — 1 error toast(s)
+- sales: OK — 1 error toast(s)
+- service: OK — 1 error toast(s), 1 spinner(s) still active
+- marketing: OK — 1 error toast(s)
+- management: OK — 1 error toast(s)
+- teambox: OK — 1 error toast(s)
+- my-work: OK — 1 error toast(s)
+- insights: OK — 1 error toast(s)
+- billing: OK — 2 error toast(s)
+- settings: BLANK — Page appears empty
+- profile: BLANK — Page appears empty
+- agents: BLANK — Page appears empty
+
+## Console Errors
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at kY (http://localhost:5000/assets/index-C2mo05ku.js:173:4163)
+    at Kt (htt
+- Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the rende
+- Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the rende
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)

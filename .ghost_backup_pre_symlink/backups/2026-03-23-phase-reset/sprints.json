@@ -1,0 +1,1107 @@
+{
+  "version": "4.0",
+  "project": "nexxus2.2_replit",
+  "lastUpdated": "2026-03-23",
+  "totalSprints": 100,
+  "sprints": [
+    {
+      "id": "E-1.0",
+      "name": "Phase 1 Entry Inspection",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "exploratory",
+      "status": "committed",
+      "commitHash": "87b4c12",
+      "canParallelWith": []
+    },
+    {
+      "id": "V-1.1",
+      "name": "Verify Login and Token Flow",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-1.2"
+      ],
+      "commitHash": "c8ce557"
+    },
+    {
+      "id": "V-1.2",
+      "name": "Verify RBAC Enforcement",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-1.1"
+      ],
+      "commitHash": "47744a9"
+    },
+    {
+      "id": "I-1.3",
+      "name": "Fix Durran's Organization Assignment",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-1.4"
+      ],
+      "commitHash": "357d0bd"
+    },
+    {
+      "id": "I-1.4",
+      "name": "Fix Victoria's Additional Org Access",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-1.3"
+      ],
+      "commitHash": "0b5d2f7"
+    },
+    {
+      "id": "V-1.5",
+      "name": "Verify Password Reset Flow",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "03adf44"
+    },
+    {
+      "id": "T-1.EXIT",
+      "name": "Phase 1 Exit Inspection",
+      "phase": 1,
+      "phaseFile": "01-auth-security.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "b73e715"
+    },
+    {
+      "id": "E-2.0",
+      "name": "Phase 2 Entry Inspection",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "71fabea"
+    },
+    {
+      "id": "V-2.1",
+      "name": "Verify VIN Solutions Connectivity",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "b522d29"
+    },
+    {
+      "id": "I-2.2",
+      "name": "Fix Sync Date Mapping",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "315c576"
+    },
+    {
+      "id": "I-2.3",
+      "name": "Fix Warehouse Metrics Calculation",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "1a6f954"
+    },
+    {
+      "id": "I-2.4",
+      "name": "Full Backfill Verification",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "e1941a5"
+    },
+    {
+      "id": "G-2.5",
+      "name": "VIN Lead Config Default",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d2da915"
+    },
+    {
+      "id": "T-2.EXIT",
+      "name": "Phase 2 Exit Inspection",
+      "phase": 2,
+      "phaseFile": "02-data-sync.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d403cf9"
+    },
+    {
+      "id": "E-3.0",
+      "name": "Phase 3 Entry Inspection",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "e6ab493"
+    },
+    {
+      "id": "I-3.1",
+      "name": "Commit Uncommitted CommGate Guard",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "8858239"
+    },
+    {
+      "id": "I-3.2",
+      "name": "Email Notification Template and Recipient Hierarchy",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-3.3"
+      ],
+      "commitHash": "f06a2d5"
+    },
+    {
+      "id": "I-3.3",
+      "name": "SMS Human Takeover Fix",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-3.2"
+      ],
+      "commitHash": "380a68b"
+    },
+    {
+      "id": "I-3.4",
+      "name": "Remove Campaign Hardcoded dryRun",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "0b8efea"
+    },
+    {
+      "id": "I-3.5",
+      "name": "After-Hours Message Queueing",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "eb339a4"
+    },
+    {
+      "id": "I-3.6",
+      "name": "Re-Enable CommGate Per Org",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "319a908"
+    },
+    {
+      "id": "V-3.7",
+      "name": "SMS Inbound Greeting Verification",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "d494001"
+    },
+    {
+      "id": "T-3.EXIT",
+      "name": "Phase 3 Exit Inspection",
+      "phase": 3,
+      "phaseFile": "03-communications.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "bdd85b6"
+    },
+    {
+      "id": "E-4.0",
+      "name": "Phase 4 Entry Inspection",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "0e5dfd5"
+    },
+    {
+      "id": "G-4.1",
+      "name": "Nancy Gaston Service Persona Setup",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "aedd290"
+    },
+    {
+      "id": "I-4.2",
+      "name": "Update VAPI Webhook URLs",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-4.3"
+      ],
+      "commitHash": "5182e60"
+    },
+    {
+      "id": "I-4.3",
+      "name": "Update Tavus Webhook URL",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [
+        "I-4.2"
+      ],
+      "commitHash": "750e2d8"
+    },
+    {
+      "id": "I-4.4",
+      "name": "VAPI End-to-End Call Test (Elliott)",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "3419f89"
+    },
+    {
+      "id": "T-4.EXIT",
+      "name": "Phase 4 Exit Inspection",
+      "phase": 4,
+      "phaseFile": "04-voice-video.md",
+      "type": "testing",
+      "status": "committed",
+      "commitHash": "032149d",
+      "canParallelWith": []
+    },
+    {
+      "id": "E-5.0",
+      "name": "Phase 5 Entry Inspection",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "exploratory",
+      "status": "committed",
+      "commitHash": "127b928",
+      "canParallelWith": [
+        "E-6.0",
+        "E-8.0"
+      ]
+    },
+    {
+      "id": "V-5.1",
+      "name": "Verify Conversation List and Filtering",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-5.2",
+        "V-5.3",
+        "V-5.4"
+      ],
+      "commitHash": "76e08c2"
+    },
+    {
+      "id": "V-5.2",
+      "name": "Verify Conversation Thread and Messaging",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-5.1",
+        "V-5.3",
+        "V-5.4"
+      ],
+      "commitHash": "76e08c2"
+    },
+    {
+      "id": "I-5.3",
+      "name": "Fix Takeover Payload + Assignment Dropdown (Bundled)",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "f1b5e54"
+    },
+    {
+      "id": "T-5.EXIT",
+      "name": "Phase 5 Exit Inspection",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "95d8973"
+    },
+    {
+      "id": "V-5.3",
+      "name": "Verify Human Takeover UI",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "abandoned",
+      "abandonedReason": "Superseded by I-5.3 \u2014 takeover payload was broken, needed fix not verification",
+      "canParallelWith": []
+    },
+    {
+      "id": "V-5.4",
+      "name": "Verify Conversation Assignment",
+      "phase": 5,
+      "phaseFile": "05-teambox.md",
+      "type": "verification",
+      "status": "abandoned",
+      "abandonedReason": "Superseded by I-5.3 \u2014 assignment UI did not exist, needed implementation not verification",
+      "canParallelWith": []
+    },
+    {
+      "id": "E-6.0",
+      "name": "Phase 6 Entry Inspection",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "exploratory",
+      "status": "committed",
+      "commitHash": "127b928",
+      "canParallelWith": [
+        "E-5.0",
+        "E-8.0"
+      ]
+    },
+    {
+      "id": "V-6.1",
+      "name": "Verify Campaign CRUD",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "verification",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "V-6.2",
+      "name": "Verify Campaign Execution (After Phase 3 dryRun Fix)",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "verification",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "G-6.3",
+      "name": "Service Campaign with Email Channel",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "gap",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "G-6.4",
+      "name": "Campaign Reply Routing to AI Agent",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "gap",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "T-6.EXIT",
+      "name": "Phase 6 Exit Inspection",
+      "phase": 6,
+      "phaseFile": "06-campaigns.md",
+      "type": "testing",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "E-7.0",
+      "name": "Phase 7 Entry Inspection",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-9.0",
+        "E-11.0",
+        "E-12.0",
+        "E-13.0"
+      ],
+      "commitHash": "a89b2f9"
+    },
+    {
+      "id": "V-7.1",
+      "name": "Verify Trigger Infrastructure",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-7.2",
+      "name": "Trigger Configuration API",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-7.3",
+      "name": "Trigger Configuration UI",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-7.4",
+      "name": "After-Hours Auto-Response Template",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "T-7.EXIT",
+      "name": "Phase 7 Exit Inspection",
+      "phase": 7,
+      "phaseFile": "07-triggers.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
+    },
+    {
+      "id": "E-8.0",
+      "name": "Phase 8 Entry Inspection",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-5.0",
+        "E-6.0"
+      ],
+      "commitHash": "127b928"
+    },
+    {
+      "id": "V-8.1",
+      "name": "Verify Streaming Chat Quality",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-8.2",
+        "V-8.5"
+      ],
+      "commitHash": "c4bfce7"
+    },
+    {
+      "id": "V-8.2",
+      "name": "Verify Chat Tools (Web Search, VIN Query, Campaign Query)",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-8.1",
+        "V-8.5"
+      ],
+      "commitHash": "c4bfce7"
+    },
+    {
+      "id": "G-8.3",
+      "name": "Agent Prompt Tuning",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "c4bfce7"
+    },
+    {
+      "id": "G-8.4",
+      "name": "Multi-Org Awareness for Chat",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "c4bfce7"
+    },
+    {
+      "id": "V-8.5",
+      "name": "Verify Knowledge Base",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-8.1",
+        "V-8.2"
+      ],
+      "commitHash": "c4bfce7"
+    },
+    {
+      "id": "T-8.EXIT",
+      "name": "Phase 8 Exit Inspection",
+      "phase": 8,
+      "phaseFile": "08-ai-chat-agents.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "95d8973"
+    },
+    {
+      "id": "E-9.0",
+      "name": "Phase 9 Entry Inspection",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-7.0",
+        "E-11.0",
+        "E-12.0",
+        "E-13.0"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-9.1",
+      "name": "Verify In-App Notifications",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-9.2"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-9.2",
+      "name": "Verify Activity Feed",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-9.1"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-9.3",
+      "name": "Verify Email Notification Delivery (After Phase 3 Fix)",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "verification",
+      "status": "blocked",
+      "canParallelWith": []
+    },
+    {
+      "id": "G-9.4",
+      "name": "Escalation Badges",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "T-9.EXIT",
+      "name": "Phase 9 Exit Inspection",
+      "phase": 9,
+      "phaseFile": "09-notifications.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
+    },
+    {
+      "id": "E-10.0",
+      "name": "Phase 10 Entry Inspection",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-14.0"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.1",
+      "name": "Sales Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.2",
+        "V-10.3",
+        "V-10.4"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.2",
+      "name": "Service Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.1",
+        "V-10.3",
+        "V-10.4"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.3",
+      "name": "Marketing Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.1",
+        "V-10.2",
+        "V-10.4"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.4",
+      "name": "Management Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.1",
+        "V-10.2",
+        "V-10.3"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "I-10.5",
+      "name": "Fix Contact Modal",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "issue",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.6",
+      "name": "My Work Page Data Accuracy",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.7",
+        "V-10.8"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.7",
+      "name": "Profile and Settings Page Verification",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.6",
+        "V-10.8"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "V-10.8",
+      "name": "Security and Infrastructure Verification",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-10.6",
+        "V-10.7"
+      ],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "T-10.EXIT",
+      "name": "Phase 10 Exit Inspection",
+      "phase": 10,
+      "phaseFile": "10-department-pages.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "bf7109d"
+    },
+    {
+      "id": "E-11.0",
+      "name": "Phase 11 Entry Inspection",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-7.0",
+        "E-9.0",
+        "E-12.0",
+        "E-13.0"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-11.1",
+      "name": "Insights Page Data Accuracy (After Phase 2)",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-11.2"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-11.2",
+      "name": "Pipeline and Lead Source Accuracy",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-11.1"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-11.3",
+      "name": "Full Metric Traceability Audit",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-11.4",
+      "name": "Dashboard Main Page Metric Accuracy",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "T-11.EXIT",
+      "name": "Phase 11 Exit Inspection",
+      "phase": 11,
+      "phaseFile": "11-insights-metrics.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
+    },
+    {
+      "id": "E-12.0",
+      "name": "Phase 12 Entry Inspection",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-7.0",
+        "E-9.0",
+        "E-11.0",
+        "E-13.0"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-12.1",
+      "name": "Verify Widget JS Embed",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-12.2",
+        "V-12.3"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-12.2",
+      "name": "Verify Landing Pages",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-12.1",
+        "V-12.3"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-12.3",
+      "name": "Verify Widget Form Submission",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-12.1",
+        "V-12.2"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "T-12.EXIT",
+      "name": "Phase 12 Exit Inspection",
+      "phase": 12,
+      "phaseFile": "12-widgets-landing.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
+    },
+    {
+      "id": "E-13.0",
+      "name": "Phase 13 Entry Inspection",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-7.0",
+        "E-9.0",
+        "E-11.0",
+        "E-12.0"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-13.1",
+      "name": "Verify Organization Settings",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-13.2"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "V-13.2",
+      "name": "Verify User Management",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-13.1"
+      ],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-13.3",
+      "name": "VIN Lead Config in Settings",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-13.4",
+      "name": "Business Hours Configuration",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "G-13.5",
+      "name": "SMS Number Configuration Display",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "gap",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "4b0eef2"
+    },
+    {
+      "id": "T-13.EXIT",
+      "name": "Phase 13 Exit Inspection",
+      "phase": 13,
+      "phaseFile": "13-settings-admin.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "9b4514c"
+    },
+    {
+      "id": "E-14.0",
+      "name": "Phase 14 Entry Inspection",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "exploratory",
+      "status": "committed",
+      "canParallelWith": [
+        "E-10.0"
+      ],
+      "commitHash": "e6d1169"
+    },
+    {
+      "id": "V-14.1",
+      "name": "Verify Billing Pages Load",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-14.2"
+      ],
+      "commitHash": "e6d1169"
+    },
+    {
+      "id": "V-14.2",
+      "name": "Verify Usage Event Tracking",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "verification",
+      "status": "committed",
+      "canParallelWith": [
+        "V-14.1"
+      ],
+      "commitHash": "e6d1169"
+    },
+    {
+      "id": "T-14.EXIT",
+      "name": "Phase 14 Exit Inspection",
+      "phase": 14,
+      "phaseFile": "14-billing.md",
+      "type": "testing",
+      "status": "committed",
+      "canParallelWith": [],
+      "commitHash": "e6d1169"
+    },
+    {
+      "id": "E-15.0",
+      "name": "Phase 15 Entry Inspection",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "exploratory",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "L-15.1",
+      "name": "Coolify Container Setup",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "L-15.2",
+      "name": "Caddy Configuration",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "L-15.3",
+      "name": "Production Smoke Test",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "L-15.4",
+      "name": "Production CommGate Activation",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "launch",
+      "status": "planned",
+      "canParallelWith": []
+    },
+    {
+      "id": "T-15.EXIT",
+      "name": "Phase 15 Exit Inspection",
+      "phase": 15,
+      "phaseFile": "15-launch.md",
+      "type": "testing",
+      "status": "planned",
+      "canParallelWith": []
+    }
+  ]
+}

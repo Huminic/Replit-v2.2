@@ -1,0 +1,15 @@
+{
+  "id": "T-021",
+  "category": "Testing",
+  "name": "Accessibility (axe-core)",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "axe-core scan all 8 major pages, document violations",
+  "dependsOn": [],
+  "blocks": [],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s9-cross-cutting.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-021/"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "T-022c",
+  "category": "Testing",
+  "name": "Service Functional Depth",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "Campaign UI, Nancy agent, appointment booking, calendar",
+  "dependsOn": [
+    "T-014"
+  ],
+  "blocks": [
+    "T-017b"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s4-service.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-022c/"
+}

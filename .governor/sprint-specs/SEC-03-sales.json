@@ -9,7 +9,7 @@
   "description": "Fix Sales page: replace hardcoded Recent Activity with API data, fix Conversion Rate change bug, verify Active Pipeline dual-source resolution, verify all 4 agents respond, add VAPI appointment calendar test.",
   "acceptanceCriteria": ["S-3.AC1 through S-3.AC16"],
   "newACs": ["S-3.AC12", "S-3.AC13", "S-3.AC14", "S-3.AC15", "S-3.AC16"],
-  "issues": ["I-112", "I-114"],
+  "issues": ["I-112", "I-114", "I-130"],
   "declaredFiles": [
     "client/src/pages/sales.tsx",
     "client/src/components/layout/SubMenuManager.tsx",

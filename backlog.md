@@ -134,3 +134,8 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-082 | Kill switch is block-and-drop by design — messages silently blocked, not queued for retry. Accepted by operator. | T-018 / operator directive |
 | BL-083 | Walk-in auto-followup trigger (US-005, S-9.AC7) — not implemented, backlogged | T-017b / operator directive |
 | BL-084 | Tasks feature — stub or remove from chat tools and TeamBox, not part of customer criteria | Operator directive |
+| BL-085 | AI Chat Active Pipeline drill-down — vehicle field shows raw VIN API URLs instead of human-readable vehicle names (intentional — syncing contacts too many API calls) | VFY-01 verification |
+| BL-086 | AI Chat Active Pipeline drill-down — many leads display as "AI Lead" or "--" instead of real customer names (expected for anonymous inbound — use firstName + "Lead" pattern) | VFY-01 verification |
+| BL-087 | Add tasks feature back to TeamBox when ready (removed in BL-084) | Operator directive |
+| BL-088 | SMS number-per-agent routing — currently one number per org, first matching agent wins. Need routing by number so sales and service agents get their own inbound SMS streams | FIX-08 / launch gap |
+| BL-089 | TextMagic number assignment for Tony Serra Ford, Ford of Columbia, Hyundai of Columbia — 1 number unassigned (+18338096836), may need to purchase more | FIX-08 |

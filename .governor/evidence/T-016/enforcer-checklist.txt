@@ -1,0 +1,30 @@
+T-016 ENFORCER CHECKLIST
+========================
+Date: 2026-03-27T01:38:00Z
+
+[x] AC1  - VAPI↔DB alignment: 2 matched, 17 VAPI orphans, 1 DB misconfigured agent
+[x] AC2  - Tavus session creation: conversationUrl returned, status active
+[x] AC3  - Video popup fix: new tab opened (tavus.daily.co), no popup block
+[x] AC4  - Instant Call Back: 404 as expected (not built)
+[x] AC5  - CommGate stops outbound: toggle works, effectiveStatus reflects correctly
+[x] AC6  - Channel toggle SMS: toggle works, smsEnabled propagates to status
+[x] AC7  - MCP tm_get_message_price: accessible, returned price $0.049/msg
+[x] AC8  - MCP vapi_list_assistants: returned 19 assistants
+[x] AC9  - TextMagic API version: V2 (rest.textmagic.com/api/v2)
+[x] AC10 - Webhook error handling: 400 returned, error logged to PM2, not silent
+[x] AC11 - Widget CORS: blocks non-whitelisted origins, wildcard on whitelisted
+
+TOGGLES RESTORED:
+[x] outboundEnabled = true (verified via GET /api/outbound/status)
+[x] smsEnabled = true (verified via GET /api/outbound/status)
+
+FINDINGS (non-blocking):
+1. 17 orphaned VAPI assistants on shared key
+2. "Unauthorized Agent" has voice/video but no vapiAssistantId
+3. CORS returns wildcard (*) with credentials=true (spec violation)
+
+MISSING ENDPOINTS:
+- /api/widget/voice-callback (404)
+- /api/outbound/campaigns/execute (404)
+
+VERDICT: PASS — 11/11 ACs verified, all toggles restored

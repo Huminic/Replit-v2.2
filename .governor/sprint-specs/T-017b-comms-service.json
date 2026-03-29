@@ -1,0 +1,48 @@
+{
+  "id": "T-017b",
+  "category": "Testing",
+  "name": "Comms Test \u2014 Service Campaigns",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "BE",
+  "description": "Autonomous service campaign flow testing. Create campaign \u2192 CSV with test phone \u2192 execute \u2192 verify SMS sent. Simulate reply \u2192 Nancy responds \u2192 appointment scheduling. Campaign disconnect. After-hours queue test.",
+  "issues": [
+    "I-131"
+  ],
+  "acceptanceCriteria": [
+    "T-017b.AC1: Campaign create \u2192 CSV \u2192 execute \u2192 outbound_log sent",
+    "T-017b.AC2: Campaign reply \u2192 Nancy responds",
+    "T-017b.AC3: Campaign disconnect stops messages",
+    "T-017b.AC4: After-hours: message queued not sent",
+    "T-017b.AC5: Nancy books appointment \u2192 DB",
+    "T-017b.AC6: Elliott calls Nancy \u2192 call completes",
+    "T-017b.AC7: STOP \u2192 phone blacklisted",
+    "T-017b.AC8: Blacklisted phone \u2192 no messages",
+    "T-017b.AC9: Walk-in followup trigger fires"
+  ],
+  "declaredFiles": [
+    "tests/e2e/live-comms.spec.ts",
+    "utilities/elliott-test.ts"
+  ],
+  "testFile": "tests/e2e/live-comms.spec.ts",
+  "method": "Campaign API + TextMagic for SMS + elliott.ts for voice + API assertions",
+  "infrastructure": {
+    "elliott": "utilities/elliott-test.ts \u2014 can call Nancy via Serra Service number",
+    "nancy": "+19014361271 (Serra Service)",
+    "textmagic_outbound": "+18338096836",
+    "textmagic_receive": [
+      "+18339785374",
+      "+18338935694"
+    ]
+  },
+  "dependsOn": [
+    "T-016"
+  ],
+  "blocks": [
+    "T-018"
+  ],
+  "parallelWith": [
+    "T-017a"
+  ]
+}

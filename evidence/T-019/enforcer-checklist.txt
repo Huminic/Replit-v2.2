@@ -1,0 +1,26 @@
+T-019 ENFORCER CHECKLIST
+========================
+Date: 2026-03-27
+Sprint: T-019 — Chat & Agent Usability + Edge Cases
+
+[x] AC1  - Chat resume: clicking history item loads previous messages
+[x] AC2  - Org context: response mentions "Serra Honda" specifically
+[x] AC3  - Data Guru: vin_query_leads tool invoked, lead data referenced
+[x] AC4  - Sales Coach: negotiation advice with objection handling scripts
+[x] AC5  - Communication Writer: email template with placeholders and CTA
+[x] AC6  - Nancy: query_campaigns tool invoked, recall campaigns identified
+[x] AC7a - Photo Studio: asked for vehicle/color/scene, agent persona correct
+[x] AC7b - Video Producer: asked about selling points/audience/tone
+[x] AC7c - Copywriter: social media post with Serra Honda branding
+[x] AC7d - Creative Director: honest assessment, no brand doc found
+[x] AC7e - Market Intel: web search for Columbia SC competitors, actionable intel
+[x] AC8  - Chat history format: "Chat -- X ago" not username
+[x] AC9  - Agent cards: name + description on /sales, /service, /marketing
+[x] AC10 - Empty string: HTTP 400, no crash
+[x] AC11 - 500+ char: 604 chars processed, full response returned
+[x] AC12 - Spanish: full Spanish response with inventory data
+[x] AC13 - Rapid succession: 3 concurrent messages, 3 complete responses
+[x] AC14 - Filter chips: blue-500 (#3c83f6), NOT light blue (#93c5fd)
+
+RESULT: 14/14 PASS
+ENFORCER SIGN-OFF: APPROVED

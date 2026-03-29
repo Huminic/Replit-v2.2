@@ -1,0 +1,720 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e24]:
+    - banner [ref=e25]:
+      - generic [ref=e27]: Nexxus Connect™
+      - button "Serra Honda" [ref=e29] [cursor=pointer]:
+        - img
+        - generic [ref=e30]: Serra Honda
+        - img
+      - generic [ref=e31]:
+        - button [ref=e32] [cursor=pointer]:
+          - img
+        - button "50" [ref=e33] [cursor=pointer]:
+          - img
+          - generic [ref=e34]: "50"
+        - button [ref=e35] [cursor=pointer]:
+          - img
+        - button [ref=e36] [cursor=pointer]:
+          - img
+        - button "SHA" [ref=e37] [cursor=pointer]:
+          - generic [ref=e39]: SHA
+          - img
+    - generic [ref=e40]:
+      - complementary [ref=e41]:
+        - button [ref=e43] [cursor=pointer]:
+          - img
+        - navigation [ref=e45]:
+          - button "AI Chat" [active] [ref=e46] [cursor=pointer]:
+            - img
+            - generic [ref=e47]: AI Chat
+          - button "TeamBox" [ref=e49] [cursor=pointer]:
+            - img
+            - generic [ref=e50]: TeamBox
+          - button "Sales" [ref=e51] [cursor=pointer]:
+            - img
+            - generic [ref=e52]: Sales
+          - button "Service" [ref=e53] [cursor=pointer]:
+            - img
+            - generic [ref=e54]: Service
+          - button "Marketing" [ref=e55] [cursor=pointer]:
+            - img
+            - generic [ref=e56]: Marketing
+          - button "Manage" [ref=e57] [cursor=pointer]:
+            - img
+            - generic [ref=e58]: Manage
+        - navigation [ref=e60]:
+          - button "System" [ref=e61] [cursor=pointer]:
+            - img
+            - generic [ref=e62]: System
+        - button "Logout" [ref=e64] [cursor=pointer]:
+          - img
+          - generic [ref=e65]: Logout
+      - generic [ref=e172]:
+        - generic [ref=e174]:
+          - generic [ref=e2907]:
+            - img [ref=e2908]
+            - text: Favorites
+          - button [ref=e176] [cursor=pointer]:
+            - img
+        - paragraph [ref=e2910]: Star pages to access them quickly
+        - generic [ref=e2911]:
+          - generic [ref=e2913]:
+            - img [ref=e2914]
+            - text: Chat History
+          - generic [ref=e2919]:
+            - button "New Chat Created about 18 hours ago" [ref=e2920] [cursor=pointer]:
+              - generic [ref=e2921]:
+                - paragraph [ref=e2922]: New Chat
+                - button [ref=e2924]:
+                  - img
+              - paragraph [ref=e2925]: Created about 18 hours ago
+            - button "New Chat Created less than a minute ago" [ref=e2926] [cursor=pointer]:
+              - generic [ref=e2927]:
+                - paragraph [ref=e2928]: New Chat
+                - button [ref=e2930]:
+                  - img
+              - paragraph [ref=e2931]: Created less than a minute ago
+            - button "New Chat Created 5 days ago" [ref=e2932] [cursor=pointer]:
+              - generic [ref=e2933]:
+                - paragraph [ref=e2934]: New Chat
+                - button [ref=e2936]:
+                  - img
+              - paragraph [ref=e2937]: Created 5 days ago
+            - button "New Chat Created 5 days ago" [ref=e2938] [cursor=pointer]:
+              - generic [ref=e2939]:
+                - paragraph [ref=e2940]: New Chat
+                - button [ref=e2942]:
+                  - img
+              - paragraph [ref=e2943]: Created 5 days ago
+            - button "New Chat Created 8 days ago" [ref=e2944] [cursor=pointer]:
+              - generic [ref=e2945]:
+                - paragraph [ref=e2946]: New Chat
+                - button [ref=e2948]:
+                  - img
+              - paragraph [ref=e2949]: Created 8 days ago
+            - button "New Chat Created 8 days ago" [ref=e2950] [cursor=pointer]:
+              - generic [ref=e2951]:
+                - paragraph [ref=e2952]: New Chat
+                - button [ref=e2954]:
+                  - img
+              - paragraph [ref=e2955]: Created 8 days ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2956] [cursor=pointer]:
+              - generic [ref=e2957]:
+                - paragraph [ref=e2958]: Chat — about 17 hours ago
+                - button [ref=e2960]:
+                  - img
+              - paragraph [ref=e2961]: Created about 17 hours ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2962] [cursor=pointer]:
+              - generic [ref=e2963]:
+                - paragraph [ref=e2964]: Chat — about 17 hours ago
+                - button [ref=e2966]:
+                  - img
+              - paragraph [ref=e2967]: Created about 17 hours ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2968] [cursor=pointer]:
+              - generic [ref=e2969]:
+                - paragraph [ref=e2970]: Chat — about 17 hours ago
+                - button [ref=e2972]:
+                  - img
+              - paragraph [ref=e2973]: Created about 17 hours ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2974] [cursor=pointer]:
+              - generic [ref=e2975]:
+                - paragraph [ref=e2976]: Chat — about 17 hours ago
+                - button [ref=e2978]:
+                  - img
+              - paragraph [ref=e2979]: Created about 17 hours ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2980] [cursor=pointer]:
+              - generic [ref=e2981]:
+                - paragraph [ref=e2982]: Chat — about 17 hours ago
+                - button [ref=e2984]:
+                  - img
+              - paragraph [ref=e2985]: Created about 17 hours ago
+            - button "Chat — about 17 hours ago Created about 17 hours ago" [ref=e2986] [cursor=pointer]:
+              - generic [ref=e2987]:
+                - paragraph [ref=e2988]: Chat — about 17 hours ago
+                - button [ref=e2990]:
+                  - img
+              - paragraph [ref=e2991]: Created about 17 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e2992] [cursor=pointer]:
+              - generic [ref=e2993]:
+                - paragraph [ref=e2994]: Chat — about 18 hours ago
+                - button [ref=e2996]:
+                  - img
+              - paragraph [ref=e2997]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e2998] [cursor=pointer]:
+              - generic [ref=e2999]:
+                - paragraph [ref=e3000]: Chat — about 18 hours ago
+                - button [ref=e3002]:
+                  - img
+              - paragraph [ref=e3003]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3004] [cursor=pointer]:
+              - generic [ref=e3005]:
+                - paragraph [ref=e3006]: Chat — about 18 hours ago
+                - button [ref=e3008]:
+                  - img
+              - paragraph [ref=e3009]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3010] [cursor=pointer]:
+              - generic [ref=e3011]:
+                - paragraph [ref=e3012]: Chat — about 18 hours ago
+                - button [ref=e3014]:
+                  - img
+              - paragraph [ref=e3015]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3016] [cursor=pointer]:
+              - generic [ref=e3017]:
+                - paragraph [ref=e3018]: Chat — about 18 hours ago
+                - button [ref=e3020]:
+                  - img
+              - paragraph [ref=e3021]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3022] [cursor=pointer]:
+              - generic [ref=e3023]:
+                - paragraph [ref=e3024]: Chat — about 18 hours ago
+                - button [ref=e3026]:
+                  - img
+              - paragraph [ref=e3027]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3028] [cursor=pointer]:
+              - generic [ref=e3029]:
+                - paragraph [ref=e3030]: Chat — about 18 hours ago
+                - button [ref=e3032]:
+                  - img
+              - paragraph [ref=e3033]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3034] [cursor=pointer]:
+              - generic [ref=e3035]:
+                - paragraph [ref=e3036]: Chat — about 18 hours ago
+                - button [ref=e3038]:
+                  - img
+              - paragraph [ref=e3039]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3040] [cursor=pointer]:
+              - generic [ref=e3041]:
+                - paragraph [ref=e3042]: Chat — about 18 hours ago
+                - button [ref=e3044]:
+                  - img
+              - paragraph [ref=e3045]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3046] [cursor=pointer]:
+              - generic [ref=e3047]:
+                - paragraph [ref=e3048]: Chat — about 18 hours ago
+                - button [ref=e3050]:
+                  - img
+              - paragraph [ref=e3051]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3052] [cursor=pointer]:
+              - generic [ref=e3053]:
+                - paragraph [ref=e3054]: Chat — about 18 hours ago
+                - button [ref=e3056]:
+                  - img
+              - paragraph [ref=e3057]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3058] [cursor=pointer]:
+              - generic [ref=e3059]:
+                - paragraph [ref=e3060]: Chat — about 18 hours ago
+                - button [ref=e3062]:
+                  - img
+              - paragraph [ref=e3063]: Created about 18 hours ago
+            - button "Chat — about 18 hours ago Created about 18 hours ago" [ref=e3064] [cursor=pointer]:
+              - generic [ref=e3065]:
+                - paragraph [ref=e3066]: Chat — about 18 hours ago
+                - button [ref=e3068]:
+                  - img
+              - paragraph [ref=e3069]: Created about 18 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3070] [cursor=pointer]:
+              - generic [ref=e3071]:
+                - paragraph [ref=e3072]: Chat — about 19 hours ago
+                - button [ref=e3074]:
+                  - img
+              - paragraph [ref=e3075]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3076] [cursor=pointer]:
+              - generic [ref=e3077]:
+                - paragraph [ref=e3078]: Chat — about 19 hours ago
+                - button [ref=e3080]:
+                  - img
+              - paragraph [ref=e3081]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3082] [cursor=pointer]:
+              - generic [ref=e3083]:
+                - paragraph [ref=e3084]: Chat — about 19 hours ago
+                - button [ref=e3086]:
+                  - img
+              - paragraph [ref=e3087]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3088] [cursor=pointer]:
+              - generic [ref=e3089]:
+                - paragraph [ref=e3090]: Chat — about 19 hours ago
+                - button [ref=e3092]:
+                  - img
+              - paragraph [ref=e3093]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3094] [cursor=pointer]:
+              - generic [ref=e3095]:
+                - paragraph [ref=e3096]: Chat — about 19 hours ago
+                - button [ref=e3098]:
+                  - img
+              - paragraph [ref=e3099]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3100] [cursor=pointer]:
+              - generic [ref=e3101]:
+                - paragraph [ref=e3102]: Chat — about 19 hours ago
+                - button [ref=e3104]:
+                  - img
+              - paragraph [ref=e3105]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3106] [cursor=pointer]:
+              - generic [ref=e3107]:
+                - paragraph [ref=e3108]: Chat — about 19 hours ago
+                - button [ref=e3110]:
+                  - img
+              - paragraph [ref=e3111]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3112] [cursor=pointer]:
+              - generic [ref=e3113]:
+                - paragraph [ref=e3114]: Chat — about 19 hours ago
+                - button [ref=e3116]:
+                  - img
+              - paragraph [ref=e3117]: Created about 19 hours ago
+            - button "Chat — about 19 hours ago Created about 19 hours ago" [ref=e3118] [cursor=pointer]:
+              - generic [ref=e3119]:
+                - paragraph [ref=e3120]: Chat — about 19 hours ago
+                - button [ref=e3122]:
+                  - img
+              - paragraph [ref=e3123]: Created about 19 hours ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3124] [cursor=pointer]:
+              - generic [ref=e3125]:
+                - paragraph [ref=e3126]: Chat — 1 day ago
+                - button [ref=e3128]:
+                  - img
+              - paragraph [ref=e3129]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3130] [cursor=pointer]:
+              - generic [ref=e3131]:
+                - paragraph [ref=e3132]: Chat — 1 day ago
+                - button [ref=e3134]:
+                  - img
+              - paragraph [ref=e3135]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3136] [cursor=pointer]:
+              - generic [ref=e3137]:
+                - paragraph [ref=e3138]: Chat — 1 day ago
+                - button [ref=e3140]:
+                  - img
+              - paragraph [ref=e3141]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3142] [cursor=pointer]:
+              - generic [ref=e3143]:
+                - paragraph [ref=e3144]: Chat — 1 day ago
+                - button [ref=e3146]:
+                  - img
+              - paragraph [ref=e3147]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3148] [cursor=pointer]:
+              - generic [ref=e3149]:
+                - paragraph [ref=e3150]: Chat — 1 day ago
+                - button [ref=e3152]:
+                  - img
+              - paragraph [ref=e3153]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3154] [cursor=pointer]:
+              - generic [ref=e3155]:
+                - paragraph [ref=e3156]: Chat — 1 day ago
+                - button [ref=e3158]:
+                  - img
+              - paragraph [ref=e3159]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3160] [cursor=pointer]:
+              - generic [ref=e3161]:
+                - paragraph [ref=e3162]: Chat — 1 day ago
+                - button [ref=e3164]:
+                  - img
+              - paragraph [ref=e3165]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3166] [cursor=pointer]:
+              - generic [ref=e3167]:
+                - paragraph [ref=e3168]: Chat — 1 day ago
+                - button [ref=e3170]:
+                  - img
+              - paragraph [ref=e3171]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3172] [cursor=pointer]:
+              - generic [ref=e3173]:
+                - paragraph [ref=e3174]: Chat — 1 day ago
+                - button [ref=e3176]:
+                  - img
+              - paragraph [ref=e3177]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3178] [cursor=pointer]:
+              - generic [ref=e3179]:
+                - paragraph [ref=e3180]: Chat — 1 day ago
+                - button [ref=e3182]:
+                  - img
+              - paragraph [ref=e3183]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3184] [cursor=pointer]:
+              - generic [ref=e3185]:
+                - paragraph [ref=e3186]: Chat — 1 day ago
+                - button [ref=e3188]:
+                  - img
+              - paragraph [ref=e3189]: Created 1 day ago
+            - button "Chat — 1 day ago Created 1 day ago" [ref=e3190] [cursor=pointer]:
+              - generic [ref=e3191]:
+                - paragraph [ref=e3192]: Chat — 1 day ago
+                - button [ref=e3194]:
+                  - img
+              - paragraph [ref=e3195]: Created 1 day ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3196] [cursor=pointer]:
+              - generic [ref=e3197]:
+                - paragraph [ref=e3198]: Chat — 3 days ago
+                - button [ref=e3200]:
+                  - img
+              - paragraph [ref=e3201]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3202] [cursor=pointer]:
+              - generic [ref=e3203]:
+                - paragraph [ref=e3204]: Chat — 3 days ago
+                - button [ref=e3206]:
+                  - img
+              - paragraph [ref=e3207]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3208] [cursor=pointer]:
+              - generic [ref=e3209]:
+                - paragraph [ref=e3210]: Chat — 3 days ago
+                - button [ref=e3212]:
+                  - img
+              - paragraph [ref=e3213]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3214] [cursor=pointer]:
+              - generic [ref=e3215]:
+                - paragraph [ref=e3216]: Chat — 3 days ago
+                - button [ref=e3218]:
+                  - img
+              - paragraph [ref=e3219]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3220] [cursor=pointer]:
+              - generic [ref=e3221]:
+                - paragraph [ref=e3222]: Chat — 3 days ago
+                - button [ref=e3224]:
+                  - img
+              - paragraph [ref=e3225]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3226] [cursor=pointer]:
+              - generic [ref=e3227]:
+                - paragraph [ref=e3228]: Chat — 3 days ago
+                - button [ref=e3230]:
+                  - img
+              - paragraph [ref=e3231]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3232] [cursor=pointer]:
+              - generic [ref=e3233]:
+                - paragraph [ref=e3234]: Chat — 3 days ago
+                - button [ref=e3236]:
+                  - img
+              - paragraph [ref=e3237]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3238] [cursor=pointer]:
+              - generic [ref=e3239]:
+                - paragraph [ref=e3240]: Chat — 3 days ago
+                - button [ref=e3242]:
+                  - img
+              - paragraph [ref=e3243]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3244] [cursor=pointer]:
+              - generic [ref=e3245]:
+                - paragraph [ref=e3246]: Chat — 3 days ago
+                - button [ref=e3248]:
+                  - img
+              - paragraph [ref=e3249]: Created 3 days ago
+            - button "Chat — 3 days ago Created 3 days ago" [ref=e3250] [cursor=pointer]:
+              - generic [ref=e3251]:
+                - paragraph [ref=e3252]: Chat — 3 days ago
+                - button [ref=e3254]:
+                  - img
+              - paragraph [ref=e3255]: Created 3 days ago
+            - button "Chat — 3 days ago Created 7 days ago" [ref=e3256] [cursor=pointer]:
+              - generic [ref=e3257]:
+                - paragraph [ref=e3258]: Chat — 3 days ago
+                - button [ref=e3260]:
+                  - img
+              - paragraph [ref=e3261]: Created 7 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3262] [cursor=pointer]:
+              - generic [ref=e3263]:
+                - paragraph [ref=e3264]: Chat — 4 days ago
+                - button [ref=e3266]:
+                  - img
+              - paragraph [ref=e3267]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3268] [cursor=pointer]:
+              - generic [ref=e3269]:
+                - paragraph [ref=e3270]: Chat — 4 days ago
+                - button [ref=e3272]:
+                  - img
+              - paragraph [ref=e3273]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3274] [cursor=pointer]:
+              - generic [ref=e3275]:
+                - paragraph [ref=e3276]: Chat — 4 days ago
+                - button [ref=e3278]:
+                  - img
+              - paragraph [ref=e3279]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3280] [cursor=pointer]:
+              - generic [ref=e3281]:
+                - paragraph [ref=e3282]: Chat — 4 days ago
+                - button [ref=e3284]:
+                  - img
+              - paragraph [ref=e3285]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3286] [cursor=pointer]:
+              - generic [ref=e3287]:
+                - paragraph [ref=e3288]: Chat — 4 days ago
+                - button [ref=e3290]:
+                  - img
+              - paragraph [ref=e3291]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3292] [cursor=pointer]:
+              - generic [ref=e3293]:
+                - paragraph [ref=e3294]: Chat — 4 days ago
+                - button [ref=e3296]:
+                  - img
+              - paragraph [ref=e3297]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3298] [cursor=pointer]:
+              - generic [ref=e3299]:
+                - paragraph [ref=e3300]: Chat — 4 days ago
+                - button [ref=e3302]:
+                  - img
+              - paragraph [ref=e3303]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3304] [cursor=pointer]:
+              - generic [ref=e3305]:
+                - paragraph [ref=e3306]: Chat — 4 days ago
+                - button [ref=e3308]:
+                  - img
+              - paragraph [ref=e3309]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3310] [cursor=pointer]:
+              - generic [ref=e3311]:
+                - paragraph [ref=e3312]: Chat — 4 days ago
+                - button [ref=e3314]:
+                  - img
+              - paragraph [ref=e3315]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3316] [cursor=pointer]:
+              - generic [ref=e3317]:
+                - paragraph [ref=e3318]: Chat — 4 days ago
+                - button [ref=e3320]:
+                  - img
+              - paragraph [ref=e3321]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3322] [cursor=pointer]:
+              - generic [ref=e3323]:
+                - paragraph [ref=e3324]: Chat — 4 days ago
+                - button [ref=e3326]:
+                  - img
+              - paragraph [ref=e3327]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3328] [cursor=pointer]:
+              - generic [ref=e3329]:
+                - paragraph [ref=e3330]: Chat — 4 days ago
+                - button [ref=e3332]:
+                  - img
+              - paragraph [ref=e3333]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3334] [cursor=pointer]:
+              - generic [ref=e3335]:
+                - paragraph [ref=e3336]: Chat — 4 days ago
+                - button [ref=e3338]:
+                  - img
+              - paragraph [ref=e3339]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3340] [cursor=pointer]:
+              - generic [ref=e3341]:
+                - paragraph [ref=e3342]: Chat — 4 days ago
+                - button [ref=e3344]:
+                  - img
+              - paragraph [ref=e3345]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3346] [cursor=pointer]:
+              - generic [ref=e3347]:
+                - paragraph [ref=e3348]: Chat — 4 days ago
+                - button [ref=e3350]:
+                  - img
+              - paragraph [ref=e3351]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3352] [cursor=pointer]:
+              - generic [ref=e3353]:
+                - paragraph [ref=e3354]: Chat — 4 days ago
+                - button [ref=e3356]:
+                  - img
+              - paragraph [ref=e3357]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3358] [cursor=pointer]:
+              - generic [ref=e3359]:
+                - paragraph [ref=e3360]: Chat — 4 days ago
+                - button [ref=e3362]:
+                  - img
+              - paragraph [ref=e3363]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3364] [cursor=pointer]:
+              - generic [ref=e3365]:
+                - paragraph [ref=e3366]: Chat — 4 days ago
+                - button [ref=e3368]:
+                  - img
+              - paragraph [ref=e3369]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3370] [cursor=pointer]:
+              - generic [ref=e3371]:
+                - paragraph [ref=e3372]: Chat — 4 days ago
+                - button [ref=e3374]:
+                  - img
+              - paragraph [ref=e3375]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3376] [cursor=pointer]:
+              - generic [ref=e3377]:
+                - paragraph [ref=e3378]: Chat — 4 days ago
+                - button [ref=e3380]:
+                  - img
+              - paragraph [ref=e3381]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3382] [cursor=pointer]:
+              - generic [ref=e3383]:
+                - paragraph [ref=e3384]: Chat — 4 days ago
+                - button [ref=e3386]:
+                  - img
+              - paragraph [ref=e3387]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3388] [cursor=pointer]:
+              - generic [ref=e3389]:
+                - paragraph [ref=e3390]: Chat — 4 days ago
+                - button [ref=e3392]:
+                  - img
+              - paragraph [ref=e3393]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3394] [cursor=pointer]:
+              - generic [ref=e3395]:
+                - paragraph [ref=e3396]: Chat — 4 days ago
+                - button [ref=e3398]:
+                  - img
+              - paragraph [ref=e3399]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3400] [cursor=pointer]:
+              - generic [ref=e3401]:
+                - paragraph [ref=e3402]: Chat — 4 days ago
+                - button [ref=e3404]:
+                  - img
+              - paragraph [ref=e3405]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3406] [cursor=pointer]:
+              - generic [ref=e3407]:
+                - paragraph [ref=e3408]: Chat — 4 days ago
+                - button [ref=e3410]:
+                  - img
+              - paragraph [ref=e3411]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3412] [cursor=pointer]:
+              - generic [ref=e3413]:
+                - paragraph [ref=e3414]: Chat — 4 days ago
+                - button [ref=e3416]:
+                  - img
+              - paragraph [ref=e3417]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3418] [cursor=pointer]:
+              - generic [ref=e3419]:
+                - paragraph [ref=e3420]: Chat — 4 days ago
+                - button [ref=e3422]:
+                  - img
+              - paragraph [ref=e3423]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3424] [cursor=pointer]:
+              - generic [ref=e3425]:
+                - paragraph [ref=e3426]: Chat — 4 days ago
+                - button [ref=e3428]:
+                  - img
+              - paragraph [ref=e3429]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3430] [cursor=pointer]:
+              - generic [ref=e3431]:
+                - paragraph [ref=e3432]: Chat — 4 days ago
+                - button [ref=e3434]:
+                  - img
+              - paragraph [ref=e3435]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3436] [cursor=pointer]:
+              - generic [ref=e3437]:
+                - paragraph [ref=e3438]: Chat — 4 days ago
+                - button [ref=e3440]:
+                  - img
+              - paragraph [ref=e3441]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3442] [cursor=pointer]:
+              - generic [ref=e3443]:
+                - paragraph [ref=e3444]: Chat — 4 days ago
+                - button [ref=e3446]:
+                  - img
+              - paragraph [ref=e3447]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3448] [cursor=pointer]:
+              - generic [ref=e3449]:
+                - paragraph [ref=e3450]: Chat — 4 days ago
+                - button [ref=e3452]:
+                  - img
+              - paragraph [ref=e3453]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3454] [cursor=pointer]:
+              - generic [ref=e3455]:
+                - paragraph [ref=e3456]: Chat — 4 days ago
+                - button [ref=e3458]:
+                  - img
+              - paragraph [ref=e3459]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3460] [cursor=pointer]:
+              - generic [ref=e3461]:
+                - paragraph [ref=e3462]: Chat — 4 days ago
+                - button [ref=e3464]:
+                  - img
+              - paragraph [ref=e3465]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3466] [cursor=pointer]:
+              - generic [ref=e3467]:
+                - paragraph [ref=e3468]: Chat — 4 days ago
+                - button [ref=e3470]:
+                  - img
+              - paragraph [ref=e3471]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3472] [cursor=pointer]:
+              - generic [ref=e3473]:
+                - paragraph [ref=e3474]: Chat — 4 days ago
+                - button [ref=e3476]:
+                  - img
+              - paragraph [ref=e3477]: Created 4 days ago
+            - button "Chat — 4 days ago Created 4 days ago" [ref=e3478] [cursor=pointer]:
+              - generic [ref=e3479]:
+                - paragraph [ref=e3480]: Chat — 4 days ago
+                - button [ref=e3482]:
+                  - img
+              - paragraph [ref=e3483]: Created 4 days ago
+            - button "Chat — 5 days ago Created 8 days ago" [ref=e3484] [cursor=pointer]:
+              - generic [ref=e3485]:
+                - paragraph [ref=e3486]: Chat — 5 days ago
+                - button [ref=e3488]:
+                  - img
+              - paragraph [ref=e3489]: Created 8 days ago
+            - button "Chat — 5 days ago Created 5 days ago" [ref=e3490] [cursor=pointer]:
+              - generic [ref=e3491]:
+                - paragraph [ref=e3492]: Chat — 5 days ago
+                - button [ref=e3494]:
+                  - img
+              - paragraph [ref=e3495]: Created 5 days ago
+            - button "Chat — 5 days ago Created 5 days ago" [ref=e3496] [cursor=pointer]:
+              - generic [ref=e3497]:
+                - paragraph [ref=e3498]: Chat — 5 days ago
+                - button [ref=e3500]:
+                  - img
+              - paragraph [ref=e3501]: Created 5 days ago
+            - button "Chat — 5 days ago Created 5 days ago" [ref=e3502] [cursor=pointer]:
+              - generic [ref=e3503]:
+                - paragraph [ref=e3504]: Chat — 5 days ago
+                - button [ref=e3506]:
+                  - img
+              - paragraph [ref=e3507]: Created 5 days ago
+            - button "Chat — 5 days ago Created 6 days ago" [ref=e3508] [cursor=pointer]:
+              - generic [ref=e3509]:
+                - paragraph [ref=e3510]: Chat — 5 days ago
+                - button [ref=e3512]:
+                  - img
+              - paragraph [ref=e3513]: Created 6 days ago
+      - main [ref=e67]:
+        - generic [ref=e3515]:
+          - generic [ref=e3517]:
+            - heading "AI Key Metrics" [level=2] [ref=e3519]
+            - generic [ref=e3521]:
+              - generic [ref=e3522] [cursor=pointer]:
+                - img [ref=e3524]
+                - generic [ref=e3528]:
+                  - img [ref=e3530]
+                  - generic [ref=e3532]:
+                    - paragraph [ref=e3533]: Active Pipeline
+                    - paragraph [ref=e3534]: "108"
+                    - generic [ref=e3535]:
+                      - img [ref=e3536]
+                      - generic [ref=e3539]: live
+              - generic [ref=e3540] [cursor=pointer]:
+                - img [ref=e3542]
+                - generic [ref=e3546]:
+                  - img [ref=e3548]
+                  - generic [ref=e3552]:
+                    - paragraph [ref=e3553]: Appointments Today
+                    - paragraph [ref=e3554]: "0"
+                    - generic [ref=e3555]:
+                      - img [ref=e3556]
+                      - generic [ref=e3559]: live
+              - generic [ref=e3560] [cursor=pointer]:
+                - img [ref=e3562]
+                - generic [ref=e3566]:
+                  - img [ref=e3568]
+                  - generic [ref=e3570]:
+                    - paragraph [ref=e3571]: Open Escalations
+                    - paragraph [ref=e3572]: "8"
+                    - generic [ref=e3573]:
+                      - img [ref=e3574]
+                      - generic [ref=e3577]: live
+              - generic [ref=e3578] [cursor=pointer]:
+                - img [ref=e3580]
+                - generic [ref=e3584]:
+                  - img [ref=e3586]
+                  - generic [ref=e3588]:
+                    - paragraph [ref=e3589]: Outbound Sent 24h
+                    - paragraph [ref=e3590]: "9"
+                    - generic [ref=e3591]:
+                      - img [ref=e3592]
+                      - generic [ref=e3595]: live
+          - generic [ref=e3599]:
+            - generic [ref=e3600]:
+              - img [ref=e3601]
+              - generic [ref=e3603]: Try asking...
+            - generic [ref=e3604]:
+              - button "Compare store performance across locations" [ref=e3605] [cursor=pointer]
+              - button "Give me a dealership performance overview" [ref=e3606] [cursor=pointer]
+              - button "Show me team activity this week" [ref=e3607] [cursor=pointer]
+              - button "Which agents need review?" [ref=e3608] [cursor=pointer]
+          - generic [ref=e3612]:
+            - button [ref=e3613] [cursor=pointer]:
+              - img
+            - textbox "Ask me anything about your business" [ref=e3614]
+            - button [disabled]:
+              - img

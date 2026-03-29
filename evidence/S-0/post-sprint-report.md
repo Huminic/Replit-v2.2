@@ -82,3 +82,20 @@ N/A — no cross-tests for S-0 (foundation sprint)
 - server/outbound.ts (S-0.7 — fromNumber support)
 - tests/e2e/s0-foundation.spec.ts (new)
 - playwright.config.ts (added sprint project)
+
+## Ghost Exit Gate
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T06:36:55Z
+**Sprint:** S-0
+**B1 Commit:** de65c33 — PASS
+**B2 Entry gate was approved:** PASS
+**B3 Test file exists:** PASS — s0-foundation.spec.ts (10,689 bytes)
+**B4 Test execution proof:** PASS — 60 passed, 0 failed (1.9m runtime)
+**B5 Cross-tests:** N/A (first sprint)
+**B6 AC results:** 20/20 PASS
+**B7 Failures escalated:** N/A (all passed)
+**B8 Visual inspection:** not required (S-0 = database only)
+**B9 Worktree:** clean (no application files dirty)
+**B10 Ghost messages:** clear
+**B11 Watchdog:** 0 violations
+**EXIT GATE: CLEARED**

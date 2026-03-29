@@ -1,0 +1,29 @@
+T-016b ENFORCER CHECKLIST
+=========================
+Date: 2026-03-26
+Sprint: T-016b (Comms Pre-Flight)
+
+[x] AC1 — Elliott resolves via VAPI API
+    Result: PASS
+    Assistant ID: c303d993-bf42-4784-a8cb-247477b1cbdd
+    Name: Elliott - Test Assistant
+
+[x] AC2 — TextMagic MCP accessible
+    Result: PASS
+    Price returned: $0.049 (1 part, US)
+    Note: Requires Accept header with text/event-stream
+
+[x] AC3 — Nancy vapiAssistantId present
+    Result: PASS
+    Value: c777f029-8c4c-4a23-98e4-3adfd4112a61
+
+[x] AC4 — Caroline vapiAssistantId present
+    Result: PASS
+    Value: 90a876c0-0f11-4424-abfe-9ac82b264d88
+
+[x] AC5 — elliott-test.ts valid TypeScript
+    Result: PASS (via ts.transpileModule)
+    Note: npx tsx --check incompatible with Node 20
+
+VERDICT: ALL PASS (5/5)
+BLOCKER: NONE

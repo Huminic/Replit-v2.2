@@ -267,7 +267,7 @@ echo "[Gate 1.7/7] Session state content..."
 SESSION_STATE_FILE="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-state.md"
 if [ -f "$SESSION_STATE_FILE" ]; then
   # Check that session state references the current sprint
-  SESSION_SPRINT=$(grep -oE 'S-[0-9]+|QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+' "$SESSION_STATE_FILE" | sort -u | tail -1)
+  SESSION_SPRINT=$(grep -oE '[A-Z]+-[0-9]+' "$SESSION_STATE_FILE" | sort -u | tail -1)
   if [ -n "$SESSION_SPRINT" ]; then
     # Session state should reference the current sprint or the one just before it
     if echo "$SESSION_SPRINT $SPRINT" | python3 -c "
@@ -323,6 +323,66 @@ if [ -f "scripts/watchdog.sh" ]; then
   echo "  $GHOST_RESULT"
 else
   echo "  SKIP (watchdog.sh not found)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
+# GATE 1.9: Execution steps completion
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.9] Execution steps completion..."
+
+if [ -f "sprints.json" ]; then
+  STEPS_RESULT=$(python3 -c "
+import json, sys
+d = json.load(open('sprints.json'))
+sprints = d.get('sprints', [])
+sprint = None
+for s in sprints:
+    if s['id'] == '$SPRINT':
+        sprint = s
+        break
+if sprint is None:
+    print('SKIP:Sprint not found')
+    sys.exit(0)
+steps = sprint.get('executionSteps', [])
+if not steps:
+    print('SKIP:No executionSteps defined')
+    sys.exit(0)
+incomplete = [s for s in steps if s.get('status') != 'completed']
+if incomplete:
+    first = incomplete[0]
+    print(f'BLOCK:Step {first[\"step\"]} ({first[\"action\"]}) not completed. {len(incomplete)} step(s) remaining.')
+    sys.exit(1)
+print(f'OK:All {len(steps)} steps completed')
+" 2>/dev/null)
+  STEPS_EXIT=$?
+  if [ "$STEPS_EXIT" -ne 0 ]; then
+    block "Execution steps incomplete: ${STEPS_RESULT#BLOCK:}"
+  fi
+  echo "  ${STEPS_RESULT#OK:}"
+else
+  echo "  SKIP (no sprints.json)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════
+# GATE 1.10: Exit gate verdict exists
+# ═══════════════════════════════════════════════════════════════════
+echo "[Gate 1.10] Exit gate verdict..."
+
+POST_SPRINT_FILE="${EVIDENCE_DIR}/post-sprint-report.md"
+if [ -f "$POST_SPRINT_FILE" ]; then
+  if grep -q "EXIT GATE: CLEARED" "$POST_SPRINT_FILE" 2>/dev/null; then
+    echo "  PASS (exit gate cleared)"
+  elif grep -q "EXIT GATE: NOT CLEARED" "$POST_SPRINT_FILE" 2>/dev/null; then
+    block "Exit gate NOT CLEARED. Ghost found issues — resolve before committing."
+  else
+    block "No exit gate verdict found in $POST_SPRINT_FILE. Run Ghost exit gate first."
+  fi
+else
+  if [ "$LIGHT_GOVERNANCE" -eq 1 ]; then
+    echo "  SKIP (light governance sprint)"
+  else
+    echo "  SKIP (no post-sprint-report.md — checked by other gates)"
+  fi
 fi
 
 # ═══════════════════════════════════════════════════════════════════

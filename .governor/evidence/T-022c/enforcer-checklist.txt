@@ -1,0 +1,23 @@
+ENFORCER CHECKLIST — T-022c Service Functional Depth
+=====================================================
+Timestamp: 2026-03-27T01:17:00Z
+Agent: Test Agent (Claude Opus 4.6)
+
+[X] AC1  — Service tabs: Campaigns first, no Dashboard tab
+[X] AC2  — New Campaign button visible without scrolling
+[X] AC3  — CSV Upload button prominent (labeled button, not icon)
+[X] AC4  — Campaign detail dialog: name, status, channel, template, recipients, sent, replied
+[X] AC5  — Insights KPI tiles: Active Campaigns=11, Messages Sent=4, Replies=1, Conversations=174, Reply Rate=25%
+[X] AC6  — Agents tab: exactly 1 agent — Nancy Gaston (voice). No others.
+[X] AC7  — API: Nancy Gaston instructions=1272 chars (>100). 1 agent in service dept.
+[X] AC8  — Nancy chat: relevant 5-step recall campaign response with scheduling, compliance, SMS recommendation
+[~] AC9  — Nancy chat: confirmed appointment details but NO DB record created (missing tool integration)
+[X] AC10 — Calendar tab: March 2026 grid visible, Sync Sources + New Appointment buttons, no appointments shown
+
+RESULT: 9 PASS / 1 PARTIAL / 0 FAIL
+OVERALL: PASS (with AC9 gap documented)
+
+ISSUES RAISED:
+- AC9: AI agent lacks appointment creation tool — confirms verbally but does not persist
+- Session instability: SPA auth/refresh failures during route navigation
+- Sidebar navigation race condition: /service URL briefly renders then redirects

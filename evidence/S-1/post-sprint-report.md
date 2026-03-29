@@ -91,3 +91,20 @@ N/A — no cross-tests for S-1.
 **B10 Ghost messages:** clear
 **B11 Watchdog:** 0 violations
 **EXIT GATE: NOT CLEARED — AC7 must be fixed (key exists, test is wrong) and logged in issues.md if genuinely broken. No CONDITIONAL status allowed — PASS or FAIL only.**
+
+## Ghost Exit Gate (Re-review after AC7 fix)
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T07:22:57Z
+**Sprint:** S-1
+**B1 Commit:** e5b186e — PASS (12/12 ACs now)
+**B2 Entry gate was approved:** PASS
+**B3 Test file exists:** PASS — s1-ai-chat.spec.ts
+**B4 Test execution proof:** PASS — 34 passed (1.1m)
+**B5 Cross-tests:** N/A
+**B6 AC results:** 12/12 PASS (AC7 fixed — was CONDITIONAL, now PASS)
+**B7 Failures escalated:** N/A (all passed)
+**B8 Visual inspection:** not required (S-1 = verification only)
+**B9 Worktree:** clean (no application files dirty)
+**B10 Ghost messages:** clear
+**B11 Watchdog:** 0 violations
+**EXIT GATE: CLEARED**

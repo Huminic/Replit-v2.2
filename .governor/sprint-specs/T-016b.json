@@ -1,0 +1,21 @@
+{
+  "id": "T-016b",
+  "category": "Testing",
+  "name": "Comms Pre-Flight",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "Verify elliott can call, TextMagic can price-check, Nancy vapiAssistantId resolves",
+  "dependsOn": [
+    "T-016"
+  ],
+  "blocks": [
+    "T-017a",
+    "T-017b"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "utilities/elliott-test.ts",
+    "tests/e2e/live-comms.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-016b/"
+}

@@ -1,0 +1,42 @@
+T-022e Enforcer Checklist — Settings & Profile Depth
+=====================================================
+Timestamp: 2026-03-27T01:17:00Z
+Agent: Test Agent (Opus 4.6)
+
+ACCEPTANCE CRITERIA STATUS
+--------------------------
+[PASS*] AC1  - Settings tiles visible for super_admin: 8 found (expected 7, see deviation)
+[PASS]  AC2  - No agent cards in settings sub-menu
+[PASS]  AC3  - User created: t022e-test@test.com, org_admin role
+[PASS]  AC4  - User edited: lastName changed to "Updated"
+[PASS]  AC5  - User deactivated: isActive=false
+[PASS]  AC6  - KB file uploaded: t022e-test-kb.txt, status=indexed
+[PASS]  AC7  - KB file deleted: verified absent from list
+[PASS]  AC8  - System prompt: set "Go Serra!" -> chat verified -> restored
+[PASS]  AC9  - Business hours observed: 07:00-22:00 America/New_York
+[PASS]  AC10 - Profile photo uploaded as base64, then removed
+[PASS]  AC11 - Profile edit: lastName changed to "TestEdit" then restored to "Wells"
+[SKIP]  AC12 - Password change skipped (shared admin account risk)
+[PASS]  AC13 - Notifications API returns real data array
+[PASS]  AC14 - Activity log returns 50 entries with real actions
+
+CLEANUP VERIFICATION
+--------------------
+[OK] Test user deactivated (no DELETE endpoint - soft-delete by design)
+[OK] KB file deleted
+[OK] System prompt restored to ""
+[OK] Profile name restored to "Duane K. Wells"
+[OK] Profile photo set to null
+
+DEVIATIONS
+----------
+1. AC1: 8 tiles instead of 7. Billing tile visible for super_admin per SubMenuManager code.
+   Code reference: client/src/components/layout/SubMenuManager.tsx:675
+   roles: ['super_admin', 'partner_admin']
+
+RISKS
+-----
+1. Test user remains in database (deactivated). No hard-delete available.
+2. Test conversation (fb4ee299) created during AC8 chat test remains in system.
+
+VERDICT: PASS (12/13 executed pass, 1 skip documented, 1 deviation documented)

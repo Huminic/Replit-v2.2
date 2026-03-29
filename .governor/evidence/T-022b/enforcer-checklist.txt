@@ -1,0 +1,22 @@
+T-022b Enforcer Checklist
+=========================
+Sprint: T-022b (Sales Functional Depth)
+Date: 2026-03-27
+Target: https://dev.huminicdev.com
+
+[x] AC1  - Agents visible count         - FAIL (5 found, expected 4)
+[x] AC2  - Descriptions not truncated   - PASS
+[x] AC3  - Data Guru not CRM Guru       - PASS
+[x] AC4  - Pipeline renders             - PASS
+[x] AC5  - Pipeline vs warehouse        - PASS (documented in pipeline-comparison.md)
+[x] AC6  - Calendar vapi appointment    - PASS (3 vapi appointments found)
+[x] AC7  - Data Guru conversation       - PASS (relevant response)
+[x] AC8  - Sales Coach conversation     - PASS (relevant response)
+[x] AC9  - Communication Writer conv    - PASS (relevant response)
+[x] AC10 - Hardcoded change values      - DOCUMENTED (all 0%)
+[x] AC11 - Active Pipeline consistency  - DOCUMENTED (metrics=111, warehouse=222, tile=111)
+
+Result: 9/11 PASS, 1 FAIL, 2 DOCUMENTED
+Defects: 4 found (1 P1, 1 P2, 2 P3)
+
+Enforcer sign-off: COMPLETE

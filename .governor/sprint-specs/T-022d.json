@@ -1,0 +1,19 @@
+{
+  "id": "T-022d",
+  "category": "Testing",
+  "name": "Marketing & Studio Depth",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "Studio filters, gallery, 5 creative agents, dashboard tiles",
+  "dependsOn": [
+    "T-014"
+  ],
+  "blocks": [
+    "T-019"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s5-marketing.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-022d/"
+}

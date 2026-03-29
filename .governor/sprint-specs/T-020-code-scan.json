@@ -1,0 +1,26 @@
+{
+  "id": "T-020",
+  "category": "Testing",
+  "name": "Static Code Scan",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T2",
+  "dimension": "BE",
+  "description": "Static analysis scan of entire codebase. Check for hardcoded mock data, missing auth middleware, cross-org queries without org_id filter, unused imports from SEC changes, console.error without user feedback, TODO/FIXME/HACK comments indicating unfinished work.",
+  "issues": [],
+  "acceptanceCriteria": [
+    "T-020.AC1: No hardcoded static arrays used as data source in page components (grep for mock patterns)",
+    "T-020.AC2: All API routes in server/routes/ have auth middleware",
+    "T-020.AC3: All DB queries that return user-visible data filter by org_id",
+    "T-020.AC4: No unused imports in files modified by SEC sprints",
+    "T-020.AC5: Count of TODO/FIXME/HACK comments documented with locations",
+    "T-020.AC6: No production credentials in committed code (grep for API keys, passwords)",
+    "T-020.AC7: All page components have data-testid attributes on key interactive elements"
+  ],
+  "declaredFiles": [],
+  "testFile": null,
+  "method": "Static analysis agents — read-only scan, no code changes",
+  "dependsOn": [],
+  "blocks": [],
+  "parallelWith": ["T-013", "T-014", "T-015"]
+}

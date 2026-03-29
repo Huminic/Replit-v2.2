@@ -1,0 +1,439 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]: Nexxus Connect™
+      - button "Serra Honda" [ref=e13] [cursor=pointer]:
+        - img
+        - generic [ref=e14]: Serra Honda
+        - img
+      - generic [ref=e15]:
+        - button [ref=e16] [cursor=pointer]:
+          - img
+        - button "50" [ref=e17] [cursor=pointer]:
+          - img
+          - generic [ref=e18]: "50"
+        - button [ref=e19] [cursor=pointer]:
+          - img
+        - button [ref=e20] [cursor=pointer]:
+          - img
+        - button "SHA" [ref=e21] [cursor=pointer]:
+          - generic [ref=e23]: SHA
+          - img
+    - generic [ref=e24]:
+      - complementary [ref=e25]:
+        - button [ref=e27] [cursor=pointer]:
+          - img
+        - navigation [ref=e29]:
+          - button "AI Chat" [ref=e30] [cursor=pointer]:
+            - img
+            - generic [ref=e31]: AI Chat
+          - button "TeamBox" [ref=e32] [cursor=pointer]:
+            - img
+            - generic [ref=e33]: TeamBox
+          - button "Sales" [ref=e35] [cursor=pointer]:
+            - img
+            - generic [ref=e36]: Sales
+          - button "Service" [ref=e37] [cursor=pointer]:
+            - img
+            - generic [ref=e38]: Service
+          - button "Marketing" [ref=e39] [cursor=pointer]:
+            - img
+            - generic [ref=e40]: Marketing
+          - button "Manage" [ref=e41] [cursor=pointer]:
+            - img
+            - generic [ref=e42]: Manage
+        - navigation [ref=e44]:
+          - button "System" [ref=e45] [cursor=pointer]:
+            - img
+            - generic [ref=e46]: System
+        - button "Logout" [ref=e48] [cursor=pointer]:
+          - img
+          - generic [ref=e49]: Logout
+      - main [ref=e51]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - heading "TeamBox" [level=1] [ref=e55]
+            - generic [ref=e56]:
+              - button "Conversations" [ref=e57] [cursor=pointer]:
+                - img [ref=e58]
+                - text: Conversations
+              - button "Phone" [ref=e60] [cursor=pointer]:
+                - img [ref=e61]
+                - text: Phone
+              - button "Video" [ref=e63] [cursor=pointer]:
+                - img [ref=e64]
+                - text: Video
+            - generic [ref=e67]:
+              - button "All" [ref=e68] [cursor=pointer]
+              - button "SMS" [ref=e69] [cursor=pointer]
+              - button "Email" [ref=e70] [cursor=pointer]
+              - button "Web Chat" [ref=e71] [cursor=pointer]
+              - button "WhatsApp" [ref=e72] [cursor=pointer]
+              - button "Voice" [ref=e73] [cursor=pointer]
+          - generic [ref=e74]:
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]:
+                  - img [ref=e78]
+                  - generic [ref=e80]: All Items
+                - generic [ref=e81]: "24"
+              - generic [ref=e85]:
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low about 4 hours" [ref=e86] [cursor=pointer]:
+                  - generic [ref=e87]:
+                    - img [ref=e89]
+                    - generic [ref=e92]:
+                      - generic [ref=e93]:
+                        - generic [ref=e94]: S-1 test task — verify creation
+                        - img [ref=e95]
+                      - paragraph [ref=e97]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e98]:
+                        - generic [ref=e99]: Task
+                        - generic [ref=e100]: Low
+                        - generic [ref=e102]:
+                          - img [ref=e103]
+                          - text: about 4 hours
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low about 5 hours" [ref=e106] [cursor=pointer]:
+                  - generic [ref=e107]:
+                    - img [ref=e109]
+                    - generic [ref=e112]:
+                      - generic [ref=e113]:
+                        - generic [ref=e114]: S-1 test task — verify creation
+                        - img [ref=e115]
+                      - paragraph [ref=e117]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e118]:
+                        - generic [ref=e119]: Task
+                        - generic [ref=e120]: Low
+                        - generic [ref=e122]:
+                          - img [ref=e123]
+                          - text: about 5 hours
+                - 'button "Unsent SMS — blocked Outbound sms to 14126546500 was blocked. Reason: Outside business hours (3:00 America/New_York, allowed 7:00-22:00) Unsent Message Medium about 5 hours" [ref=e126] [cursor=pointer]':
+                  - generic [ref=e127]:
+                    - img [ref=e129]
+                    - generic [ref=e134]:
+                      - generic [ref=e135]:
+                        - generic [ref=e136]: Unsent SMS — blocked
+                        - img [ref=e137]
+                      - paragraph [ref=e139]: "Outbound sms to 14126546500 was blocked. Reason: Outside business hours (3:00 America/New_York, allowed 7:00-22:00)"
+                      - generic [ref=e140]:
+                        - generic [ref=e141]: Unsent Message
+                        - generic [ref=e142]: Medium
+                        - generic [ref=e144]:
+                          - img [ref=e145]
+                          - text: about 5 hours
+                - 'button "VIN Lead Prepare Failed vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]} Escalation Critical 1 day" [ref=e148] [cursor=pointer]':
+                  - generic [ref=e149]:
+                    - img [ref=e151]
+                    - generic [ref=e153]:
+                      - generic [ref=e154]:
+                        - generic [ref=e155]: VIN Lead Prepare Failed
+                        - img [ref=e156]
+                      - paragraph [ref=e158]: "vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]}"
+                      - generic [ref=e159]:
+                        - generic [ref=e160]: Escalation
+                        - generic [ref=e161]: Critical
+                        - generic [ref=e163]:
+                          - img [ref=e164]
+                          - text: 1 day
+                - 'button "VIN Lead Prepare Failed vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]} Escalation Critical 1 day" [ref=e167] [cursor=pointer]':
+                  - generic [ref=e168]:
+                    - img [ref=e170]
+                    - generic [ref=e172]:
+                      - generic [ref=e173]:
+                        - generic [ref=e174]: VIN Lead Prepare Failed
+                        - img [ref=e175]
+                      - paragraph [ref=e177]: "vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]}"
+                      - generic [ref=e178]:
+                        - generic [ref=e179]: Escalation
+                        - generic [ref=e180]: Critical
+                        - generic [ref=e182]:
+                          - img [ref=e183]
+                          - text: 1 day
+                - 'button "Unsent SMS — blocked Outbound sms to +14126546500 was blocked. Reason: Organization outbound communications disabled Unsent Message Medium 1 day" [ref=e186] [cursor=pointer]':
+                  - generic [ref=e187]:
+                    - img [ref=e189]
+                    - generic [ref=e194]:
+                      - generic [ref=e195]:
+                        - generic [ref=e196]: Unsent SMS — blocked
+                        - img [ref=e197]
+                      - paragraph [ref=e199]: "Outbound sms to +14126546500 was blocked. Reason: Organization outbound communications disabled"
+                      - generic [ref=e200]:
+                        - generic [ref=e201]: Unsent Message
+                        - generic [ref=e202]: Medium
+                        - generic [ref=e204]:
+                          - img [ref=e205]
+                          - text: 1 day
+                - 'button "VIN Lead Prepare Failed vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]} Escalation Critical 1 day" [ref=e208] [cursor=pointer]':
+                  - generic [ref=e209]:
+                    - img [ref=e211]
+                    - generic [ref=e213]:
+                      - generic [ref=e214]:
+                        - generic [ref=e215]: VIN Lead Prepare Failed
+                        - img [ref=e216]
+                      - paragraph [ref=e218]: "vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]}"
+                      - generic [ref=e219]:
+                        - generic [ref=e220]: Escalation
+                        - generic [ref=e221]: Critical
+                        - generic [ref=e223]:
+                          - img [ref=e224]
+                          - text: 1 day
+                - 'button "VIN Lead Prepare Failed vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]} Escalation Critical 1 day" [ref=e227] [cursor=pointer]':
+                  - generic [ref=e228]:
+                    - img [ref=e230]
+                    - generic [ref=e232]:
+                      - generic [ref=e233]:
+                        - generic [ref=e234]: VIN Lead Prepare Failed
+                        - img [ref=e235]
+                      - paragraph [ref=e237]: "vin_safe_prepare_lead returned: {\"status\":\"FAILED\",\"step\":\"resolve_lead_source\",\"error\":\"Lead source \\\"Website\\\" not found at dealer 21043\",\"availableSources\":[\"Am Too Lazy To Ask\",\"Annual CU Car Sale\",\"AutoTrader\",\"Capital One\",\"CarFAX\",\"Cargurus\",\"Cars.com\",\"Dealers WebSite\",\"Email\",\"Face Book\"]}"
+                      - generic [ref=e238]:
+                        - generic [ref=e239]: Escalation
+                        - generic [ref=e240]: Critical
+                        - generic [ref=e242]:
+                          - img [ref=e243]
+                          - text: 1 day
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 2 days" [ref=e246] [cursor=pointer]:
+                  - generic [ref=e247]:
+                    - img [ref=e249]
+                    - generic [ref=e252]:
+                      - generic [ref=e253]:
+                        - generic [ref=e254]: S-1 test task — verify creation
+                        - img [ref=e255]
+                      - paragraph [ref=e257]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e258]:
+                        - generic [ref=e259]: Task
+                        - generic [ref=e260]: Low
+                        - generic [ref=e262]:
+                          - img [ref=e263]
+                          - text: 2 days
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 4 days" [ref=e266] [cursor=pointer]:
+                  - generic [ref=e267]:
+                    - img [ref=e269]
+                    - generic [ref=e272]:
+                      - generic [ref=e273]:
+                        - generic [ref=e274]: S-1 test task — verify creation
+                        - img [ref=e275]
+                      - paragraph [ref=e277]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e278]:
+                        - generic [ref=e279]: Task
+                        - generic [ref=e280]: Low
+                        - generic [ref=e282]:
+                          - img [ref=e283]
+                          - text: 4 days
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 4 days" [ref=e286] [cursor=pointer]:
+                  - generic [ref=e287]:
+                    - img [ref=e289]
+                    - generic [ref=e292]:
+                      - generic [ref=e293]:
+                        - generic [ref=e294]: S-1 test task — verify creation
+                        - img [ref=e295]
+                      - paragraph [ref=e297]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e298]:
+                        - generic [ref=e299]: Task
+                        - generic [ref=e300]: Low
+                        - generic [ref=e302]:
+                          - img [ref=e303]
+                          - text: 4 days
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 4 days" [ref=e306] [cursor=pointer]:
+                  - generic [ref=e307]:
+                    - img [ref=e309]
+                    - generic [ref=e312]:
+                      - generic [ref=e313]:
+                        - generic [ref=e314]: S-1 test task — verify creation
+                        - img [ref=e315]
+                      - paragraph [ref=e317]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e318]:
+                        - generic [ref=e319]: Task
+                        - generic [ref=e320]: Low
+                        - generic [ref=e322]:
+                          - img [ref=e323]
+                          - text: 4 days
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 4 days" [ref=e326] [cursor=pointer]:
+                  - generic [ref=e327]:
+                    - img [ref=e329]
+                    - generic [ref=e332]:
+                      - generic [ref=e333]:
+                        - generic [ref=e334]: S-1 test task — verify creation
+                        - img [ref=e335]
+                      - paragraph [ref=e337]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e338]:
+                        - generic [ref=e339]: Task
+                        - generic [ref=e340]: Low
+                        - generic [ref=e342]:
+                          - img [ref=e343]
+                          - text: 4 days
+                - button "S-1 test task — verify creation Created by s1-ai-chat.spec.ts Task Low 4 days" [ref=e346] [cursor=pointer]:
+                  - generic [ref=e347]:
+                    - img [ref=e349]
+                    - generic [ref=e352]:
+                      - generic [ref=e353]:
+                        - generic [ref=e354]: S-1 test task — verify creation
+                        - img [ref=e355]
+                      - paragraph [ref=e357]: Created by s1-ai-chat.spec.ts
+                      - generic [ref=e358]:
+                        - generic [ref=e359]: Task
+                        - generic [ref=e360]: Low
+                        - generic [ref=e362]:
+                          - img [ref=e363]
+                          - text: 4 days
+                - button "S-1 test task Created by S-1 verification Task Low 4 days" [ref=e366] [cursor=pointer]:
+                  - generic [ref=e367]:
+                    - img [ref=e369]
+                    - generic [ref=e372]:
+                      - generic [ref=e373]:
+                        - generic [ref=e374]: S-1 test task
+                        - img [ref=e375]
+                      - paragraph [ref=e377]: Created by S-1 verification
+                      - generic [ref=e378]:
+                        - generic [ref=e379]: Task
+                        - generic [ref=e380]: Low
+                        - generic [ref=e382]:
+                          - img [ref=e383]
+                          - text: 4 days
+                - 'button "VIN Contact Creation Failed (Step 1) Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: vin_solutions API error: VIN API error: 400 \"Not a valid Phone Number: +15559999999.\" Escalation Critical 8 days" [ref=e386] [cursor=pointer]':
+                  - generic [ref=e387]:
+                    - img [ref=e389]
+                    - generic [ref=e391]:
+                      - generic [ref=e392]:
+                        - generic [ref=e393]: VIN Contact Creation Failed (Step 1)
+                        - img [ref=e394]
+                      - paragraph [ref=e396]: "Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: vin_solutions API error: VIN API error: 400 \"Not a valid Phone Number: +15559999999.\""
+                      - generic [ref=e397]:
+                        - generic [ref=e398]: Escalation
+                        - generic [ref=e399]: Critical
+                        - generic [ref=e401]:
+                          - img [ref=e402]
+                          - text: 8 days
+                - 'button "VIN Contact Creation Failed (Step 1) Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: VIN integration not found: f4c56901-89ab-4497-9bfb-69e6495a4839 Escalation Critical 9 days" [ref=e405] [cursor=pointer]':
+                  - generic [ref=e406]:
+                    - img [ref=e408]
+                    - generic [ref=e410]:
+                      - generic [ref=e411]:
+                        - generic [ref=e412]: VIN Contact Creation Failed (Step 1)
+                        - img [ref=e413]
+                      - paragraph [ref=e415]: "Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: VIN integration not found: f4c56901-89ab-4497-9bfb-69e6495a4839"
+                      - generic [ref=e416]:
+                        - generic [ref=e417]: Escalation
+                        - generic [ref=e418]: Critical
+                        - generic [ref=e420]:
+                          - img [ref=e421]
+                          - text: 9 days
+                - 'button "VIN Contact Creation Failed (Step 1) Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: column \"type\" does not exist Escalation Critical 9 days" [ref=e424] [cursor=pointer]':
+                  - generic [ref=e425]:
+                    - img [ref=e427]
+                    - generic [ref=e429]:
+                      - generic [ref=e430]:
+                        - generic [ref=e431]: VIN Contact Creation Failed (Step 1)
+                        - img [ref=e432]
+                      - paragraph [ref=e434]: "Failed to create VIN Solutions contact for VAPI call. Caller: Test Caller (+15559999999) Error: column \"type\" does not exist"
+                      - generic [ref=e435]:
+                        - generic [ref=e436]: Escalation
+                        - generic [ref=e437]: Critical
+                        - generic [ref=e439]:
+                          - img [ref=e440]
+                          - text: 9 days
+                - button "Prepare weekly team standup notes Compile key metrics and action items for Monday standup meeting. Task Low 9 days" [ref=e443] [cursor=pointer]:
+                  - generic [ref=e444]:
+                    - img [ref=e446]
+                    - generic [ref=e449]:
+                      - generic [ref=e450]:
+                        - generic [ref=e451]: Prepare weekly team standup notes
+                        - img [ref=e452]
+                      - paragraph [ref=e454]: Compile key metrics and action items for Monday standup meeting.
+                      - generic [ref=e455]:
+                        - generic [ref=e456]: Task
+                        - generic [ref=e457]: Low
+                        - generic [ref=e459]:
+                          - img [ref=e460]
+                          - text: 9 days
+                - button "Update CRM contact records Sync VinSolutions contact data with Nexxus records. 24 records need manual review. Task Medium 9 days" [ref=e463] [cursor=pointer]:
+                  - generic [ref=e464]:
+                    - img [ref=e466]
+                    - generic [ref=e469]:
+                      - generic [ref=e470]:
+                        - generic [ref=e471]: Update CRM contact records
+                        - img [ref=e472]
+                      - paragraph [ref=e474]: Sync VinSolutions contact data with Nexxus records. 24 records need manual review.
+                      - generic [ref=e475]:
+                        - generic [ref=e476]: Task
+                        - generic [ref=e477]: Medium
+                        - generic [ref=e479]:
+                          - img [ref=e480]
+                          - text: 9 days
+                - button "Respond to service inquiry - Joshua T. Customer has questions about special pricing on service campaign. Task High 9 days" [ref=e483] [cursor=pointer]:
+                  - generic [ref=e484]:
+                    - img [ref=e486]
+                    - generic [ref=e489]:
+                      - generic [ref=e490]:
+                        - generic [ref=e491]: Respond to service inquiry - Joshua T.
+                        - img [ref=e492]
+                      - paragraph [ref=e494]: Customer has questions about special pricing on service campaign.
+                      - generic [ref=e495]:
+                        - generic [ref=e496]: Task
+                        - generic [ref=e497]: High
+                        - generic [ref=e499]:
+                          - img [ref=e500]
+                          - text: 9 days
+                - button "Review lead qualification criteria Update lead scoring model based on Q1 conversion data. Focus on BAD_DUPLICATE reduction. Task Low 9 days" [ref=e503] [cursor=pointer]:
+                  - generic [ref=e504]:
+                    - img [ref=e506]
+                    - generic [ref=e509]:
+                      - generic [ref=e510]:
+                        - generic [ref=e511]: Review lead qualification criteria
+                        - img [ref=e512]
+                      - paragraph [ref=e514]: Update lead scoring model based on Q1 conversion data. Focus on BAD_DUPLICATE reduction.
+                      - generic [ref=e515]:
+                        - generic [ref=e516]: Task
+                        - generic [ref=e517]: Low
+                        - generic [ref=e519]:
+                          - img [ref=e520]
+                          - text: 9 days
+                - button "Complete sales report for February Monthly sales performance report including lead conversion rates and pipeline analysis. Task Medium 9 days" [ref=e523] [cursor=pointer]:
+                  - generic [ref=e524]:
+                    - img [ref=e526]
+                    - generic [ref=e529]:
+                      - generic [ref=e530]:
+                        - generic [ref=e531]: Complete sales report for February
+                        - img [ref=e532]
+                      - paragraph [ref=e534]: Monthly sales performance report including lead conversion rates and pipeline analysis.
+                      - generic [ref=e535]:
+                        - generic [ref=e536]: Task
+                        - generic [ref=e537]: Medium
+                        - generic [ref=e539]:
+                          - img [ref=e540]
+                          - text: 9 days
+                - button "Follow up with Michael Clark Customer asked about trade-in value for 2026 Camry. Need to send KBB estimate and schedule test drive. Task High 9 days" [ref=e543] [cursor=pointer]:
+                  - generic [ref=e544]:
+                    - img [ref=e546]
+                    - generic [ref=e549]:
+                      - generic [ref=e550]:
+                        - generic [ref=e551]: Follow up with Michael Clark
+                        - img [ref=e552]
+                      - paragraph [ref=e554]: Customer asked about trade-in value for 2026 Camry. Need to send KBB estimate and schedule test drive.
+                      - generic [ref=e555]:
+                        - generic [ref=e556]: Task
+                        - generic [ref=e557]: High
+                        - generic [ref=e559]:
+                          - img [ref=e560]
+                          - text: 9 days
+            - generic [ref=e565]:
+              - generic [ref=e566]:
+                - generic [ref=e568]:
+                  - img [ref=e570]
+                  - generic [ref=e573]:
+                    - heading "S-1 test task — verify creation" [level=3] [ref=e574]
+                    - generic [ref=e575]:
+                      - generic [ref=e576]: Task
+                      - generic [ref=e577]: Low
+                - button "Start" [ref=e580] [cursor=pointer]
+              - generic [ref=e584]:
+                - generic [ref=e585]:
+                  - heading "Description" [level=4] [ref=e586]
+                  - paragraph [ref=e587]: Created by s1-ai-chat.spec.ts
+                - generic [ref=e588]:
+                  - generic [ref=e589]:
+                    - paragraph [ref=e590]: Status
+                    - generic [ref=e591]: todo
+                  - generic [ref=e592]:
+                    - paragraph [ref=e593]: Created
+                    - paragraph [ref=e594]: about 4 hours ago

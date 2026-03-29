@@ -1,0 +1,19 @@
+{
+  "id": "T-022a",
+  "category": "Testing",
+  "name": "AI Chat Functional Depth",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "Streaming perf, favorites, delete, multi-turn, task creation, edge cases",
+  "dependsOn": [
+    "T-013"
+  ],
+  "blocks": [
+    "T-019"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s1-ai-chat.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-022a/"
+}

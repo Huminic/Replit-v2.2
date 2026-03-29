@@ -1,0 +1,28 @@
+T-022d ENFORCER CHECKLIST
+Generated: 2026-03-27T01:20:00Z
+
+[x] AC1  — Marketing page: 4 tabs verified (Dashboard, Agents, Studio, Insights)
+[x] AC2  — No campaign-specific query keys in marketing.tsx (grep confirmed)
+[x] AC3  — Studio: 7 filter pills verified (All, Images, Videos, Copy, Scores, Voiceovers, Radar)
+[~] AC4  — Images filter: code logic correct, no data to visually verify (empty gallery)
+[!] AC5  — StudioGallery: empty state shown, zero artifacts on test account
+[x] AC6  — Agents: 5 cards with names and descriptions verified
+[x] AC7  — Dashboard tiles match GET /api/metrics/dashboard response
+[ ] AC8  — Photo Studio chat: BLOCKED (Playwright session instability)
+[ ] AC9  — Copywriter chat: BLOCKED (Playwright session instability)
+[ ] AC10 — Video Producer chat: BLOCKED (Playwright session instability)
+[ ] AC11 — Market Intel chat: BLOCKED (Playwright session instability)
+
+LEGEND: [x]=PASS [~]=CONDITIONAL [!]=FAIL [ ]=BLOCKED/NOT TESTED
+
+PASS: 5/11
+CONDITIONAL: 1/11
+FAIL: 1/11
+BLOCKED: 4/11
+
+BLOCKER: Playwright browser experiences intermittent net::ERR_FAILED on API auth endpoints,
+causing session loss during navigation. Agent chat testing requires stable multi-step
+browser interactions that cannot be maintained in this environment.
+
+RECOMMENDATION: Retest AC8-11 with stable browser session or manual testing.
+Populate test account with marketing artifacts to validate AC4/AC5 fully.

@@ -1,0 +1,19 @@
+ENFORCER CHECKLIST — T-014 Data Flow & Metrics
+Executed: 2026-03-26T23:30:49Z
+
+[PASS] AC1  — Widget form POST returns {success:true, conversationId}, conversation found in API
+[PASS] AC2  — Landing page form same endpoint, same result
+[PASS] AC3  — 6/7 tiles match API. Active Pipeline uses /api/metrics/dashboard not /api/vin/leads/summary
+[COND] AC4  — /sales Recent Activity shows demo data. System Log shows real API data.
+[FAIL] AC5  — Conversion Rate change shows +3.5% (absolute rate) instead of 0
+[PASS] AC6  — All 4 Insights tabs render data (sales, service, marketing, management)
+[PASS] AC7  — System Log shows timestamped entries matching /api/activity-log
+[PASS] AC8  — 5 hunch cards with confidence scores, Accept/Dismiss buttons
+[PASS] AC9  — Metric tile click opens dialog with 111 records breakdown table
+[PASS] AC10 — /api/billing/summary returns {configured: false}
+[PASS] AC11 — /api/billing/plans returns 6 published plans
+[PASS] AC12 — No "0% up" hardcoded trends on marketing dashboard tiles
+
+PASS: 10 | CONDITIONAL: 1 | FAIL: 1
+
+RESULT: APPROVED

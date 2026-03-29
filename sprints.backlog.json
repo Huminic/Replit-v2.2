@@ -1,0 +1,2611 @@
+{
+  "description": "Backlog archive \u2014 all sprints moved from sprints.json during cleanup 2026-03-27. sprints.json holds active work only. Revisit to close out or convert to issues.",
+  "date": "2026-03-27",
+  "totalSprints": 48,
+  "sprints": [
+    {
+      "id": "S-0",
+      "name": "Foundation",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "de65c33",
+      "description": "Database corrections, agent renames/creation, VIN fix, warehouse refresh, build fix. No UI changes.",
+      "resolves": [
+        "I-086",
+        "I-090",
+        "I-101",
+        "TI-017"
+      ],
+      "dependsOn": [],
+      "blocks": [
+        "S-1",
+        "S-2",
+        "S-3",
+        "S-4",
+        "S-5",
+        "S-6",
+        "S-7",
+        "S-8",
+        "S-9"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "S-0.AC0",
+          "criterion": "duane.wells@huminic.ai organization_id = Huminic (not Tony Serra Ford)",
+          "component": "S-0.0",
+          "test": "s0-foundation: query users WHERE email=duane.wells@huminic.ai, assert org name = Huminic",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC1",
+          "criterion": "All 5 orgs have ALL 5 CommGate flags true: outbound_enabled, sms_enabled, phone_enabled, email_enabled, video_enabled",
+          "component": "S-0.1",
+          "test": "s0-foundation: query organizations table for all 5 boolean flags",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC2",
+          "criterion": "All 5 orgs have email_enabled=true",
+          "component": "S-0.1",
+          "test": "s0-foundation: query organizations table",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC3",
+          "criterion": "Agent \"Nancy Gaston\" exists for service dept in all stores with vapiAssistantId",
+          "component": "S-0.2",
+          "test": "s0-foundation: GET /api/agents?department=service per org",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-0.AC4",
+          "criterion": "Agent \"Data Guru\" exists for sales dept in all stores",
+          "component": "S-0.2",
+          "test": "s0-foundation: GET /api/agents?department=sales per org",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-0.AC5",
+          "criterion": "No agent named \"Carol\", \"Service Agent\", or \"CRM Guru\" exists",
+          "component": "S-0.2",
+          "test": "s0-foundation: negative query",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC6",
+          "criterion": "\"Sales Coach\" agent exists in all 5 stores",
+          "component": "S-0.3",
+          "test": "s0-foundation: GET /api/agents?department=sales per org",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-0.AC7",
+          "criterion": "\"Communication Writer\" agent exists in all 5 stores",
+          "component": "S-0.3",
+          "test": "s0-foundation: GET /api/agents?department=sales per org",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-0.AC8",
+          "criterion": "5 marketing agents exist in all 5 stores (Photo Studio, Video Producer, Copywriter, Market Intel, Creative Director)",
+          "component": "S-0.3",
+          "test": "s0-foundation: GET /api/agents?department=marketing per org",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-0.AC9",
+          "criterion": "seed.ts matches database agent records (no drift)",
+          "component": "S-0.2, S-0.3",
+          "test": "Diff seed.ts agent list vs DB query",
+          "evidence": "Diff output"
+        },
+        {
+          "id": "S-0.AC9b",
+          "criterion": "All 7 new agent types have non-empty instructions (length > 100 chars)",
+          "component": "S-0.3b",
+          "test": "s0-foundation: query agents WHERE name IN (...), assert instructions IS NOT NULL",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC10",
+          "criterion": "VIN lead creation succeeds via vin-safe-mcp (port 4003) for at least 2 stores (Serra Honda + one Columbia store)",
+          "component": "S-0.4",
+          "test": "s0-foundation: POST webhook payload for 2 different orgs, verify vin-safe-mcp REST API used, both steps succeed for each",
+          "evidence": "Log + API proof"
+        },
+        {
+          "id": "S-0.AC11",
+          "criterion": "warehouse_metrics has non-zero rows for all 5 orgs",
+          "component": "S-0.5",
+          "test": "s0-foundation: query warehouse_metrics GROUP BY org_id",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC12",
+          "criterion": "warehouse_leads has rows with valid dates for all 5 orgs",
+          "component": "S-0.5",
+          "test": "s0-foundation: query warehouse_leads WHERE created_at IS NOT NULL",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC13",
+          "criterion": "npm run build completes without errors",
+          "component": "S-0.6",
+          "test": "Build output",
+          "evidence": "Terminal output"
+        },
+        {
+          "id": "S-0.AC14",
+          "criterion": "Sync job runs without date parsing errors",
+          "component": "S-0.6",
+          "test": "pm2 logs after sync trigger",
+          "evidence": "Log output"
+        },
+        {
+          "id": "S-0.AC15",
+          "criterion": "Agent instructions in DB match agent-instructions.json after template variable replacement (diff check)",
+          "component": "S-0.3b",
+          "test": "s0-foundation: load agent-instructions.json, replace {{dealershipName}} with org name, query DB, diff each agent instructions field",
+          "evidence": "Diff output"
+        },
+        {
+          "id": "S-0.AC16",
+          "criterion": "integrations table has sms_campaign_number column",
+          "component": "S-0.7",
+          "test": "s0-foundation: query integrations table schema, assert column exists",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC17",
+          "criterion": "If owner provides TextMagic number: integrations.sms_campaign_number set for that org. If not yet provided: column is NULL (acceptable).",
+          "component": "S-0.7",
+          "test": "s0-foundation: query integrations, verify sms_campaign_number column exists. If value set, verify it is a valid phone number format.",
+          "evidence": "Query output"
+        },
+        {
+          "id": "S-0.AC18",
+          "criterion": "Campaign SMS uses org sms_campaign_number as FROM when set, falls back to TextMagic default when NULL",
+          "component": "S-0.7",
+          "test": "s0-foundation: if sms_campaign_number configured, verify outbound log shows correct from number. If NULL, verify send still works via default.",
+          "evidence": "Log proof"
+        }
+      ],
+      "testFiles": [
+        "s0-foundation.spec.ts"
+      ],
+      "filesModified": [
+        "server/seed.ts",
+        "server/routes/webhooks.ts",
+        "server/outbound.ts",
+        "server/routes/campaigns.ts",
+        "server/routes/sms.ts",
+        "shared/schema.ts"
+      ],
+      "uiPermissions": "NONE \u2014 no UI changes in this sprint",
+      "components": [
+        {
+          "id": "S-0.0",
+          "type": "DT",
+          "description": "Fix duane.wells@huminic.ai org assignment from Tony Serra Ford to Huminic (super_admin home org). Update seed.ts if needed."
+        },
+        {
+          "id": "S-0.1",
+          "type": "DT",
+          "description": "Re-enable CommGate for 4 remaining orgs",
+          "resolves": "I-101"
+        },
+        {
+          "id": "S-0.2",
+          "type": "DT",
+          "description": "Rename agents: Carol\u2192Nancy Gaston, Service Agent\u2192Nancy Gaston, CRM Guru\u2192Data Guru. All stores. Update seed.ts."
+        },
+        {
+          "id": "S-0.3",
+          "type": "DT",
+          "description": "Create 7 new chat agents for ALL 5 stores (35 records): Sales Coach, Communication Writer, Photo Studio, Video Producer, Copywriter, Market Intel, Creative Director. Update seed.ts."
+        },
+        {
+          "id": "S-0.3b",
+          "type": "DT",
+          "description": "Write instructions for all 7 new agent types (Sales Coach, Communication Writer, Photo Studio, Video Producer, Copywriter, Market Intel, Creative Director). Each must have instructions length > 100 chars."
+        },
+        {
+          "id": "S-0.4",
+          "type": "BE/FIX",
+          "description": "Fix VIN lead insert \u2014 rewrite webhooks.ts to use vin-safe-mcp REST API on port 4003 instead of central MCP port 4002. New flow: vin_safe_prepare_lead \u2192 vin_safe_execute_lead.",
+          "resolves": "I-086"
+        },
+        {
+          "id": "S-0.5",
+          "type": "DT/FIX",
+          "description": "Trigger warehouse metrics refresh for all 5 dealers. Verify warehouse_metrics and warehouse_leads populated.",
+          "resolves": "I-090"
+        },
+        {
+          "id": "S-0.6",
+          "type": "IN",
+          "description": "Rebuild compiled output \u2014 sync.ts date fix not in build. npm run build.",
+          "resolves": "TI-017"
+        },
+        {
+          "id": "S-0.7",
+          "type": "BE/DT",
+          "description": "Add per-org SMS campaign number: sms_campaign_number column in integrations (separate from VAPI assigned_phone), fromNumber param in sendSms(), campaign execution passes org number. Owner provides TextMagic number(s) \u2014 do NOT assume VAPI numbers."
+        }
+      ]
+    },
+    {
+      "id": "S-1",
+      "name": "AI Chat (Home)",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "e5b186e",
+      "description": "Verify main page layout, chat quality, streaming, tools, favorites, chat history. No structural changes needed.",
+      "resolves": [],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-1.AC1",
+          "criterion": "Main page loads for all 7 roles without console errors",
+          "component": "S-1.1",
+          "test": "s1-ai-chat: navigate /, capture console, assert no errors (per role)",
+          "evidence": "Screenshot + console log"
+        },
+        {
+          "id": "S-1.AC2",
+          "criterion": "Metric tiles render with numeric values (not blank/spinner)",
+          "component": "S-1.1",
+          "test": "s1-ai-chat: assert tile elements contain /\\d+/",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-1.AC3",
+          "criterion": "Chat input visible and responsive",
+          "component": "S-1.1",
+          "test": "s1-ai-chat: assert chat input exists, type text, verify it appears",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-1.AC4",
+          "criterion": "Streaming renders tokens progressively (first token < 8s \u2014 Claude API with tool resolution takes 3-7s)",
+          "component": "S-1.2",
+          "test": "s1-ai-chat: POST /api/chat/stream, measure time to first SSE data event, assert < 8000ms",
+          "evidence": "Timing measurement"
+        },
+        {
+          "id": "S-1.AC5",
+          "criterion": "Thinking indicators visible during AI processing",
+          "component": "S-1.2",
+          "test": "s1-ai-chat: send message, screenshot during processing showing spinner/dots",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-1.AC6",
+          "criterion": "VIN data query returns real data for org with leads",
+          "component": "S-1.3",
+          "test": "s1-ai-chat: ask \"leads from last 7 days\", assert response contains lead names/counts",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-1.AC7",
+          "criterion": "Web search returns results",
+          "component": "S-1.3",
+          "test": "s1-ai-chat: ask weather question, assert response contains weather data",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-1.AC8",
+          "criterion": "Task creation via chat works",
+          "component": "S-1.3",
+          "test": "s1-ai-chat: ask \"create task to follow up with X\", verify task in DB",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-1.AC9",
+          "criterion": "Multi-turn conversation maintains context",
+          "component": "S-1.2",
+          "test": "s1-ai-chat: send question, then follow-up referencing answer, assert coherent response",
+          "evidence": "Conversation log"
+        },
+        {
+          "id": "S-1.AC10",
+          "criterion": "Conversational tone (not report-formatted)",
+          "component": "S-1.2",
+          "test": "s1-ai-chat: assert response does NOT start with \"## \" or contain markdown tables",
+          "evidence": "Response analysis"
+        },
+        {
+          "id": "S-1.AC11",
+          "criterion": "Chat History tab lists previous conversations",
+          "component": "S-1.4",
+          "test": "s1-ai-chat: navigate to Chat History, assert conversation items visible",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-1.AC12",
+          "criterion": "Favorites add/remove/persist works",
+          "component": "S-1.4",
+          "test": "s1-ai-chat: add favorite, navigate away, return, assert still favorited",
+          "evidence": "Screenshot sequence"
+        }
+      ],
+      "testFiles": [
+        "s1-ai-chat.spec.ts",
+        "domain-02-dashboard.spec.ts",
+        "domain-03-chat.spec.ts"
+      ],
+      "filesModified": [],
+      "uiPermissions": "NONE \u2014 verification only",
+      "components": [
+        {
+          "id": "S-1.1",
+          "type": "TEST",
+          "description": "Verify main page loads for all 7 roles without console errors"
+        },
+        {
+          "id": "S-1.2",
+          "type": "TEST",
+          "description": "Chat quality: 5-query test per agent type. Streaming timing. Conversational tone."
+        },
+        {
+          "id": "S-1.3",
+          "type": "TEST",
+          "description": "Chat tools: VIN query, web search, campaign query, task creation, document upload"
+        },
+        {
+          "id": "S-1.4",
+          "type": "TEST",
+          "description": "Favorites and Chat History: list conversations, click to load, add/remove favorites"
+        }
+      ]
+    },
+    {
+      "id": "S-2",
+      "name": "TeamBox",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "a661e2e",
+      "description": "Rebuild popout (SMS/Email/Phone/Video/Tasks), add top menu bar, Phone/Video tabs with VAPI/Tavus logs, restyle filters, test channel flows.",
+      "resolves": [
+        "TG-004",
+        "TG-010"
+      ],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-2.AC1",
+          "criterion": "Top horizontal menu bar present",
+          "component": "S-2.1",
+          "test": "s2-teambox: assert menu bar element exists at top of TeamBox page",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC2",
+          "criterion": "Popout contains exactly: SMS, Email, Phone, Video, Tasks",
+          "component": "S-2.2",
+          "test": "s2-teambox: open popout, assert 5 items with exact labels",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC3",
+          "criterion": "\"Conversations\" NOT in popout",
+          "component": "S-2.2",
+          "test": "s2-teambox: open popout, assert no element with text \"Conversations\"",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-2.AC4",
+          "criterion": "Each popout item opens filtered list of that channel only",
+          "component": "S-2.2",
+          "test": "s2-teambox: click SMS \u2192 assert all visible conversations have channel=sms; repeat for each",
+          "evidence": "Screenshot per channel"
+        },
+        {
+          "id": "S-2.AC5",
+          "criterion": "Phone tab shows VAPI call logs for current store",
+          "component": "S-2.3",
+          "test": "s2-teambox: click Phone, assert table with date/caller/assistant/duration columns",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC6",
+          "criterion": "Phone tab has transcript links that work",
+          "component": "S-2.3",
+          "test": "s2-teambox: click transcript link, assert transcript content loads",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC7",
+          "criterion": "Video tab shows Tavus session logs for current store",
+          "component": "S-2.4",
+          "test": "s2-teambox: click Video, assert table with date/visitor/persona columns",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC8",
+          "criterion": "Video tab has transcript/recording links",
+          "component": "S-2.4",
+          "test": "s2-teambox: click link, assert content loads",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-2.AC9",
+          "criterion": "Filter chips are NOT light blue",
+          "component": "S-2.5",
+          "test": "s2-teambox: assert filter chip background-color is NOT #93c5fd or similar light blue",
+          "evidence": "CSS assertion"
+        },
+        {
+          "id": "S-2.AC10",
+          "criterion": "Manual message: select \u2192 type \u2192 send \u2192 appears in thread",
+          "component": "S-2.7",
+          "test": "s2-teambox: click conversation, type in input, click send, assert new message in thread",
+          "evidence": "Screenshot sequence"
+        },
+        {
+          "id": "S-2.AC11",
+          "criterion": "Manual message delivered to recipient (outbound_log)",
+          "component": "S-2.7",
+          "test": "s2-teambox: after send, query outbound_log for message with status=sent",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-2.AC12",
+          "criterion": "STOP/opt-out: \"STOP\" adds phone to blacklist",
+          "component": "S-2.8",
+          "test": "s2-teambox: simulate STOP inbound, query sms_blacklist for phone",
+          "evidence": "API + query proof"
+        },
+        {
+          "id": "S-2.AC13",
+          "criterion": "STOP/opt-out: no further messages sent to blacklisted phone",
+          "component": "S-2.8",
+          "test": "s2-teambox: attempt send to blacklisted phone, assert blocked",
+          "evidence": "API proof"
+        },
+        {
+          "id": "S-2.AC14",
+          "criterion": "Near-real-time: new message appears within 10 seconds via polling (refetchInterval: 5000ms)",
+          "component": "S-2.9",
+          "test": "s2-teambox: have browser open on TeamBox, POST message via API, assert it appears within 10s without navigation",
+          "evidence": "Screenshot timing"
+        },
+        {
+          "id": "S-2.AC15",
+          "criterion": "Human takeover: assign user \u2192 AI stops auto-responding",
+          "component": "S-2.10",
+          "test": "s2-teambox: PATCH conversation assignedTo, send inbound, assert no AI response",
+          "evidence": "API proof"
+        },
+        {
+          "id": "S-2.AC16",
+          "criterion": "Human takeover: un-assign \u2192 AI resumes",
+          "component": "S-2.10",
+          "test": "s2-teambox: PATCH conversation assignedTo=null, send inbound, assert AI responds",
+          "evidence": "API proof"
+        },
+        {
+          "id": "S-2.AC17",
+          "criterion": "API supports channel-based conversation filtering: ?channel=sms returns only SMS, ?channel=email only email, etc.",
+          "component": "S-2.6",
+          "test": "s2-teambox: GET /api/conversations?channel=sms, assert all results have channel=sms; repeat for email, voice, video",
+          "evidence": "API response per channel"
+        }
+      ],
+      "testFiles": [
+        "s2-teambox.spec.ts",
+        "domain-05-teambox.spec.ts",
+        "e2e-flows.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/teambox.tsx",
+        "client/src/components/layout/SubMenuManager.tsx"
+      ],
+      "uiPermissions": "DECLARED: Popout menu items changed to SMS/Email/Phone/Video/Tasks. Top menu bar added. Filter chip colors changed. Conversations removed from popout.",
+      "components": [
+        {
+          "id": "S-2.1",
+          "type": "UI/FE",
+          "description": "Add top horizontal menu bar matching department pages"
+        },
+        {
+          "id": "S-2.2",
+          "type": "UI/FE",
+          "description": "Rebuild popout: SMS, Email, Phone, Video, Tasks. Remove Conversations."
+        },
+        {
+          "id": "S-2.3",
+          "type": "FE",
+          "description": "Phone tab: VAPI call logs with transcript links, store-scoped"
+        },
+        {
+          "id": "S-2.4",
+          "type": "FE",
+          "description": "Video tab: Tavus session logs with transcript links, store-scoped"
+        },
+        {
+          "id": "S-2.5",
+          "type": "UI",
+          "description": "Restyle filter chips \u2014 replace light blue"
+        },
+        {
+          "id": "S-2.6",
+          "type": "BE",
+          "description": "Verify channel-based conversation filtering API"
+        },
+        {
+          "id": "S-2.7",
+          "type": "TEST",
+          "description": "Manual message send: select \u2192 type \u2192 send \u2192 delivered"
+        },
+        {
+          "id": "S-2.8",
+          "type": "TEST",
+          "description": "STOP/opt-out handling",
+          "resolves": "TG-004"
+        },
+        {
+          "id": "S-2.9",
+          "type": "TEST",
+          "description": "Real-time updates via SSE/WebSocket",
+          "resolves": "TG-010"
+        },
+        {
+          "id": "S-2.10",
+          "type": "TEST",
+          "description": "Human takeover: assign pauses AI, un-assign resumes"
+        }
+      ]
+    },
+    {
+      "id": "S-3",
+      "name": "Sales",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "0622918",
+      "description": "Verify 4 agent cards, Data Guru rename display, tile-by-tile data accuracy, pipeline, calendar integration, agent quality.",
+      "resolves": [
+        "I-105",
+        "TG-002"
+      ],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-3.AC1",
+          "criterion": "4 agents visible on Agents tab: Caroline, Data Guru, Sales Coach, Communication Writer",
+          "component": "S-3.2",
+          "test": "s3-sales: navigate /sales \u2192 Agents tab, assert 4 cards with exact names",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-3.AC2",
+          "criterion": "Agent card descriptions NOT truncated (full text visible)",
+          "component": "S-3.1",
+          "test": "s3-sales: for each card, assert description element has no text-overflow:ellipsis clipping",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-3.AC3",
+          "criterion": "\"Data Guru\" displayed (not \"CRM Guru\") anywhere on page",
+          "component": "S-3.2",
+          "test": "s3-sales: full page text search for \"CRM Guru\" returns zero matches",
+          "evidence": "Text assertion"
+        },
+        {
+          "id": "S-3.AC4",
+          "criterion": "Every Dashboard KPI tile value matches its API source",
+          "component": "S-3.4",
+          "test": "s3-sales: for each tile, read DOM value, GET API endpoint, compare",
+          "evidence": "Documented table"
+        },
+        {
+          "id": "S-3.AC5",
+          "criterion": "/api/vin/leads/summary returns non-zero newLeads",
+          "component": "S-3.4",
+          "test": "s3-sales: GET endpoint, assert newLeads > 0",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-3.AC6",
+          "criterion": "Pipeline data renders on Dashboard",
+          "component": "S-3.5",
+          "test": "s3-sales: assert pipeline section visible with status breakdown",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-3.AC7",
+          "criterion": "Pipeline breakdown matches warehouse_leads query",
+          "component": "S-3.5",
+          "test": "s3-sales: compare DOM values to direct DB query",
+          "evidence": "Query + DOM comparison"
+        },
+        {
+          "id": "S-3.AC8",
+          "criterion": "Calendar shows appointment with source=\"vapi\"",
+          "component": "S-3.3",
+          "test": "s3-sales: navigate Calendar tab, assert appointment from voice call visible",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-3.AC9",
+          "criterion": "Data Guru returns real VIN data when asked",
+          "component": "S-3.6",
+          "test": "s3-sales: chat with Data Guru, ask for leads, assert response contains lead data",
+          "evidence": "Conversation log"
+        },
+        {
+          "id": "S-3.AC10",
+          "criterion": "Sales Coach provides coaching advice",
+          "component": "S-3.6",
+          "test": "s3-sales: chat with Sales Coach, ask coaching question, assert relevant response",
+          "evidence": "Conversation log"
+        },
+        {
+          "id": "S-3.AC11",
+          "criterion": "Communication Writer produces email draft",
+          "component": "S-3.6",
+          "test": "s3-sales: chat with Writer, ask for draft, assert response is formatted email",
+          "evidence": "Conversation log"
+        }
+      ],
+      "testFiles": [
+        "s3-sales.spec.ts",
+        "domain-06-departments.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/sales.tsx"
+      ],
+      "uiPermissions": "DECLARED: Agent card description display may be expanded. No tab or menu changes.",
+      "components": [
+        {
+          "id": "S-3.1",
+          "type": "UI",
+          "description": "Verify agent cards show full description (not truncated)"
+        },
+        {
+          "id": "S-3.2",
+          "type": "FE",
+          "description": "Verify 4 sales agents on Agents tab: Caroline, Data Guru, Sales Coach, Communication Writer"
+        },
+        {
+          "id": "S-3.3",
+          "type": "BE",
+          "description": "Verify VAPI webhook appointments populate Calendar tab"
+        },
+        {
+          "id": "S-3.4",
+          "type": "TEST",
+          "description": "Tile-by-tile data accuracy: DOM value vs API value for every KPI tile",
+          "resolves": "I-105"
+        },
+        {
+          "id": "S-3.5",
+          "type": "TEST",
+          "description": "Pipeline review: data renders, matches warehouse_leads",
+          "resolves": "TG-002"
+        },
+        {
+          "id": "S-3.6",
+          "type": "TEST",
+          "description": "Agent quality: Data Guru, Sales Coach, Communication Writer each demonstrate purpose"
+        }
+      ]
+    },
+    {
+      "id": "S-4",
+      "name": "Service",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "08d524b",
+      "description": "Restructure tabs (Campaigns first, remove Dashboard), enhance campaign CRUD/detail, move KPIs to Insights, Nancy Gaston instructions, campaign e2e, recall flow, after-hours.",
+      "resolves": [
+        "I-106",
+        "TG-003",
+        "TG-008"
+      ],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-4.AC1",
+          "criterion": "Campaigns tab is in position 1 (first tab)",
+          "component": "S-4.1",
+          "test": "s4-service: assert first tab element has text \"Campaigns\"",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC2",
+          "criterion": "No \"Dashboard\" tab exists on service page",
+          "component": "S-4.1",
+          "test": "s4-service: assert no tab element with text \"Dashboard\"",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-4.AC3",
+          "criterion": "\"New Campaign\" button visible without scrolling",
+          "component": "S-4.2",
+          "test": "s4-service: assert button is in viewport on page load",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC4",
+          "criterion": "CSV Upload button prominent (not just icon per row)",
+          "component": "S-4.2",
+          "test": "s4-service: assert dedicated upload button visible in header area",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC5",
+          "criterion": "Campaign detail dialog: click row \u2192 shows all fields",
+          "component": "S-4.3",
+          "test": "s4-service: click campaign row, assert dialog with name/status/channel/template/recipients/sent/replied/CSV/history",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC6",
+          "criterion": "Insights tab shows KPI tiles (moved from old Dashboard)",
+          "component": "S-4.4",
+          "test": "s4-service: click Insights tab, assert metric tiles visible with values",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC7",
+          "criterion": "Only Nancy Gaston visible on Agents tab",
+          "component": "S-4.5",
+          "test": "s4-service: click Agents tab, assert exactly 1 agent card with name \"Nancy Gaston\"",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-4.AC8",
+          "criterion": "Nancy Gaston has non-empty instructions in DB",
+          "component": "S-4.6",
+          "test": "s4-service: query agents WHERE name='Nancy Gaston', assert instructions IS NOT NULL AND length > 100",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-4.AC9",
+          "criterion": "IRREVERSIBLE: Campaign create -> CSV upload (owner phone ONLY) -> execute (dryRun=false, owner approval required) -> SMS delivered",
+          "component": "S-4.8",
+          "test": "s4-service: full e2e flow with TEST recipients only (owner phone), verify outbound_log entries with status=sent. STOP and ask owner before dryRun=false.",
+          "evidence": "Log proof"
+        },
+        {
+          "id": "S-4.AC10",
+          "criterion": "Customer reply creates TeamBox conversation with campaignId set",
+          "component": "S-4.8",
+          "test": "s4-service: simulate inbound reply, query conversations WHERE campaign_id IS NOT NULL",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-4.AC11",
+          "criterion": "Recall campaign: Nancy responds to recall question intelligently",
+          "component": "S-4.9",
+          "test": "s4-service: chat with Nancy about recall, assert response references campaigns/scheduling",
+          "evidence": "Conversation log"
+        },
+        {
+          "id": "S-4.AC12",
+          "criterion": "Nancy books appointment when asked",
+          "component": "S-4.10",
+          "test": "s4-service: ask Nancy to schedule service, verify appointment created in DB",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-4.AC13",
+          "criterion": "After-hours: message queued when business_hours_end is before current time",
+          "component": "S-4.11",
+          "test": "s4-service: temporarily set org business_hours_end to 1hr before now, send message, assert queued not sent, restore original value",
+          "evidence": "Log proof"
+        },
+        {
+          "id": "S-4.AC14",
+          "criterion": "After-hours: queued message releases at 7 AM",
+          "component": "S-4.11",
+          "test": "s4-service: verify scheduled release mechanism exists",
+          "evidence": "Code/config proof"
+        },
+        {
+          "id": "S-4.AC15",
+          "criterion": "Service Insights tab: every KPI tile value matches its API source",
+          "component": "S-4.7",
+          "test": "s4-service: click Insights tab, for each tile read DOM value, call API, compare. Document tile-by-tile table.",
+          "evidence": "Documented table"
+        }
+      ],
+      "testFiles": [
+        "s4-service.spec.ts",
+        "domain-04-campaigns.spec.ts",
+        "domain-06-departments.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/service.tsx"
+      ],
+      "uiPermissions": "DECLARED: Tabs reordered to Campaigns|Agents|Insights|Calendar. Dashboard tab REMOVED. CSV Upload button made prominent. Campaign detail dialog added.",
+      "components": [
+        {
+          "id": "S-4.1",
+          "type": "UI/FE",
+          "description": "Restructure tabs: Campaigns pos 1, remove Dashboard"
+        },
+        {
+          "id": "S-4.2",
+          "type": "FE",
+          "description": "Campaigns tab: full CRUD with prominent New Campaign + CSV Upload buttons"
+        },
+        {
+          "id": "S-4.3",
+          "type": "FE",
+          "description": "Campaign detail dialog on row click"
+        },
+        {
+          "id": "S-4.4",
+          "type": "FE",
+          "description": "Insights tab: KPI tiles from old Dashboard, expanded detail modal"
+        },
+        {
+          "id": "S-4.5",
+          "type": "FE",
+          "description": "Agents tab: only Nancy Gaston, full description"
+        },
+        {
+          "id": "S-4.6",
+          "type": "DT",
+          "description": "Write Nancy Gaston agent instructions: campaigns, recalls, scheduling, service knowledge",
+          "resolves": "I-106"
+        },
+        {
+          "id": "S-4.7",
+          "type": "TEST",
+          "description": "Service data accuracy: Insights tiles match API"
+        },
+        {
+          "id": "S-4.8",
+          "type": "TEST",
+          "description": "Campaign e2e: create \u2192 CSV \u2192 execute \u2192 SMS \u2192 reply in TeamBox"
+        },
+        {
+          "id": "S-4.9",
+          "type": "TEST",
+          "description": "Recall notification flow: campaign \u2192 reply \u2192 Nancy responds \u2192 appointment",
+          "resolves": "TG-003"
+        },
+        {
+          "id": "S-4.10",
+          "type": "TEST",
+          "description": "Nancy Gaston agent quality: recalls, scheduling, multi-turn"
+        },
+        {
+          "id": "S-4.11",
+          "type": "TEST",
+          "description": "After-hours: message queued at 10 PM, releases at 7 AM",
+          "resolves": "TG-008"
+        }
+      ]
+    },
+    {
+      "id": "S-5",
+      "name": "Marketing",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "db24d21",
+      "description": "Remove Campaigns entirely, verify tabs, add Studio filters, verify 5 agent cards, agent quality tests.",
+      "resolves": [],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-5.AC1",
+          "criterion": "No \"Campaigns\" tab on marketing page",
+          "component": "S-5.1",
+          "test": "s5-marketing: assert no tab with text \"Campaigns\"",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-5.AC2",
+          "criterion": "No campaign data fetching in marketing.tsx",
+          "component": "S-5.1",
+          "test": "Code review: grep marketing.tsx for campaign query keys",
+          "evidence": "Code diff"
+        },
+        {
+          "id": "S-5.AC3",
+          "criterion": "Tabs are: Dashboard, Agents, Studio, Insights",
+          "component": "S-5.2",
+          "test": "s5-marketing: assert 4 tabs with exact labels",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-5.AC4",
+          "criterion": "Studio has category filter pills (All, Images, Videos, Copy, Scores, Voiceovers, Radar)",
+          "component": "S-5.3",
+          "test": "s5-marketing: click Studio tab, assert 7 filter pills visible",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-5.AC5",
+          "criterion": "Studio filters work: clicking \"Images\" shows only image artifacts",
+          "component": "S-5.3",
+          "test": "s5-marketing: click Images pill, assert all visible artifacts are type=image",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-5.AC6",
+          "criterion": "All 5 marketing agent cards visible with descriptions",
+          "component": "S-5.4",
+          "test": "s5-marketing: click Agents tab, assert 5 cards with exact names + descriptions",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-5.AC7",
+          "criterion": "Dashboard tiles match API values",
+          "component": "S-5.5",
+          "test": "s5-marketing: tile-by-tile comparison",
+          "evidence": "Documented table"
+        },
+        {
+          "id": "S-5.AC8",
+          "criterion": "Photo Studio produces image artifact",
+          "component": "S-5.6",
+          "test": "s5-marketing: chat, request image, assert artifact returned",
+          "evidence": "Conversation log"
+        },
+        {
+          "id": "S-5.AC9",
+          "criterion": "Copywriter produces ad copy with categories",
+          "component": "S-5.6",
+          "test": "s5-marketing: chat, request copy, assert structured response",
+          "evidence": "Conversation log"
+        }
+      ],
+      "testFiles": [
+        "s5-marketing.spec.ts",
+        "domain-06-departments.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/marketing.tsx"
+      ],
+      "uiPermissions": "DECLARED: Campaigns tab REMOVED. Studio category filter pills added.",
+      "components": [
+        {
+          "id": "S-5.1",
+          "type": "UI/FE",
+          "description": "Remove Campaigns tab entirely from marketing.tsx"
+        },
+        {
+          "id": "S-5.2",
+          "type": "UI/FE",
+          "description": "Verify tabs: Dashboard, Agents, Studio, Insights"
+        },
+        {
+          "id": "S-5.3",
+          "type": "FE",
+          "description": "Studio: add category filter pills"
+        },
+        {
+          "id": "S-5.4",
+          "type": "FE",
+          "description": "Verify 5 marketing agent cards with descriptions"
+        },
+        {
+          "id": "S-5.5",
+          "type": "TEST",
+          "description": "Marketing data accuracy: tiles match API, no campaign data"
+        },
+        {
+          "id": "S-5.6",
+          "type": "TEST",
+          "description": "Agent quality: each of 5 agents demonstrates purpose"
+        }
+      ]
+    },
+    {
+      "id": "S-6",
+      "name": "Manage",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "f9de6da",
+      "description": "Remove Dashboard tab AND ROI tab, add Billing tab (from Profile), verify Insights/Hunches/User Chats/System Log, multi-store oversight test.",
+      "resolves": [
+        "TG-006"
+      ],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-6.AC1",
+          "criterion": "No \"Dashboard\" tab and no \"ROI\" tab on Manage page",
+          "component": "S-6.1",
+          "test": "s6-manage: assert no tab with text \"Dashboard\" and no tab with text \"ROI\"",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-6.AC2",
+          "criterion": "Billing tab present on Manage page",
+          "component": "S-6.2",
+          "test": "s6-manage: assert tab with text \"Billing\" exists",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-6.AC3",
+          "criterion": "Billing NOT in Profile page",
+          "component": "S-6.2",
+          "test": "s6-manage: navigate /profile, assert no \"Billing\" link/section",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-6.AC4",
+          "criterion": "Insights tab renders with real data (not empty/mock)",
+          "component": "S-6.3",
+          "test": "s6-manage: click Insights, assert metric content with numbers",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-6.AC5",
+          "criterion": "User Chats tab lists staff AI conversations",
+          "component": "S-6.4",
+          "test": "s6-manage: click User Chats, assert conversation list with user names",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-6.AC6",
+          "criterion": "User Chats filter by user works",
+          "component": "S-6.4",
+          "test": "s6-manage: select user filter, assert list updates",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-6.AC7",
+          "criterion": "Partner admin (Cage) sees all 5 dealerships",
+          "component": "S-6.5",
+          "test": "s6-manage: login as Cage partner admin, verify 5 stores visible",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-6.AC8",
+          "criterion": "Partner admin does NOT see Huminic data",
+          "component": "S-6.5",
+          "test": "s6-manage: assert no \"Huminic\" text in data areas",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-6.AC9",
+          "criterion": "System Log shows real activity entries",
+          "component": "S-6.6",
+          "test": "s6-manage: click System Log, assert entries with timestamps",
+          "evidence": "Screenshot"
+        }
+      ],
+      "testFiles": [
+        "s6-manage.spec.ts",
+        "domain-06-departments.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/management.tsx",
+        "client/src/pages/profile.tsx"
+      ],
+      "uiPermissions": "DECLARED: Dashboard tab REMOVED. ROI tab REMOVED. Billing tab ADDED to Manage. Billing REMOVED from Profile.",
+      "components": [
+        {
+          "id": "S-6.1",
+          "type": "UI/FE",
+          "description": "Remove Dashboard tab AND ROI tab from management.tsx"
+        },
+        {
+          "id": "S-6.2",
+          "type": "FE",
+          "description": "Add Billing tab to Manage, remove Billing from Profile"
+        },
+        {
+          "id": "S-6.3",
+          "type": "FE",
+          "description": "Insights tab: reuse InsightsPage component"
+        },
+        {
+          "id": "S-6.4",
+          "type": "FE/BE",
+          "description": "User Chats: list staff AI conversations with filter"
+        },
+        {
+          "id": "S-6.5",
+          "type": "TEST",
+          "description": "Multi-store oversight: partner admin sees 5 stores, not Huminic",
+          "resolves": "TG-006"
+        },
+        {
+          "id": "S-6.6",
+          "type": "TEST",
+          "description": "Data accuracy: Insights, User Chats, System Log show real data"
+        }
+      ]
+    },
+    {
+      "id": "S-7",
+      "name": "System + Profile + Top Icons",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "4090f15",
+      "description": "Verify 8 settings sections, rename Take Tour\u2192Reset Tour, remove Billing from Profile, landing page opens new window, Activity vs Notifications.",
+      "resolves": [],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-7.AC1",
+          "criterion": "All 8 settings sections render",
+          "component": "S-7.1",
+          "test": "s7-system-profile: navigate /settings, assert 8 tile/section elements",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-7.AC2",
+          "criterion": "No agents in settings page popout",
+          "component": "S-7.1",
+          "test": "s7-system-profile: open popout, assert no agent cards/links",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-7.AC3",
+          "criterion": "CommGate toggle works in Organization settings",
+          "component": "S-7.1",
+          "test": "s7-system-profile: click Organization, toggle switch, verify API call",
+          "evidence": "Screenshot + API proof"
+        },
+        {
+          "id": "S-7.AC4",
+          "criterion": "\"Reset Tour\" button text displayed (not \"Take Tour\")",
+          "component": "S-7.2",
+          "test": "s7-system-profile: navigate profile/preferences, assert button text",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-7.AC5",
+          "criterion": "No Billing link/section in Profile page",
+          "component": "S-7.3",
+          "test": "s7-system-profile: full text search of profile for \"Billing\"",
+          "evidence": "Screenshot (negative)"
+        },
+        {
+          "id": "S-7.AC6",
+          "criterion": "Landing page icon opens new browser window",
+          "component": "S-7.4",
+          "test": "s7-system-profile: click landing page icon, assert new window/tab opened",
+          "evidence": "Browser behavior proof"
+        },
+        {
+          "id": "S-7.AC7",
+          "criterion": "Activity Feed vs Notifications investigation documented",
+          "component": "S-7.5",
+          "test": "Investigation report comparing data sources",
+          "evidence": "Document"
+        }
+      ],
+      "testFiles": [
+        "s7-system-profile.spec.ts",
+        "domain-09-settings.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/settings.tsx",
+        "client/src/pages/profile.tsx",
+        "client/src/components/layout/AppLayout.tsx"
+      ],
+      "uiPermissions": "DECLARED: Take Tour renamed to Reset Tour. Billing link removed from Profile. Landing page icon target changed to new window.",
+      "components": [
+        {
+          "id": "S-7.1",
+          "type": "FE",
+          "description": "Verify all 8 settings sections, no agents, CommGate toggle works"
+        },
+        {
+          "id": "S-7.2",
+          "type": "UI/FE",
+          "description": "Rename Take Tour \u2192 Reset Tour in Profile"
+        },
+        {
+          "id": "S-7.3",
+          "type": "FE",
+          "description": "Remove Billing from Profile (moved to Manage in S-6)"
+        },
+        {
+          "id": "S-7.4",
+          "type": "FE",
+          "description": "Landing page icon opens new browser window"
+        },
+        {
+          "id": "S-7.5",
+          "type": "TEST",
+          "description": "Investigate Activity Feed vs Notifications data overlap"
+        }
+      ]
+    },
+    {
+      "id": "S-8",
+      "name": "Landing Page / Widgets",
+      "phase": "cleanup",
+      "status": "committed",
+      "commitHash": "6cece97",
+      "description": "Video widget opens in parent window, store name on landing page, widget scheduling, form submission, dealer widget verification.",
+      "resolves": [
+        "TG-005"
+      ],
+      "dependsOn": [
+        "S-0"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-8.AC1",
+          "criterion": "Video widget opens in PARENT browser window, not inside iframe",
+          "component": "S-8.1",
+          "test": "s8-landing-widgets: grep widget code for window.open or window.parent.postMessage with correct target. Runtime iframe test unreliable \u2014 accept code assertion.",
+          "evidence": "Code-review proof (verify window.open target in source) + manual owner spot-check"
+        },
+        {
+          "id": "S-8.AC2",
+          "criterion": "Store name visible at top-left of landing page for each dealer",
+          "component": "S-8.2",
+          "test": "s8-landing-widgets: navigate /p/{slug} x5, assert org name in header",
+          "evidence": "Screenshot x5"
+        },
+        {
+          "id": "S-8.AC3",
+          "criterion": "Widget appointment booking creates appointment in DB",
+          "component": "S-8.3",
+          "test": "s8-landing-widgets: book via widget, query appointments table",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-8.AC4",
+          "criterion": "Widget appointment appears in store calendar",
+          "component": "S-8.3",
+          "test": "s8-landing-widgets: after booking, navigate to Calendar tab, assert visible",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-8.AC5",
+          "criterion": "Widget form submission creates conversation in TeamBox",
+          "component": "S-8.4",
+          "test": "s8-landing-widgets: POST /api/widget/contact, query conversations table",
+          "evidence": "API + query proof"
+        },
+        {
+          "id": "S-8.AC6",
+          "criterion": "All 5 dealer widget JS files serve valid JavaScript",
+          "component": "S-8.5",
+          "test": "s8-landing-widgets: GET /widget/dealer/{slug}.js x5, assert 200 + application/javascript",
+          "evidence": "API response x5"
+        },
+        {
+          "id": "S-8.AC7",
+          "criterion": "Widget JS contains correct dealer name",
+          "component": "S-8.5",
+          "test": "s8-landing-widgets: parse JS content, assert dealer name string present",
+          "evidence": "Content assertion"
+        }
+      ],
+      "testFiles": [
+        "s8-landing-widgets.spec.ts",
+        "domain-11-integrations.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/widget-landing.tsx",
+        "server/routes/public.ts"
+      ],
+      "uiPermissions": "DECLARED: Video widget launch target changed to parent window. Store name added to landing page header.",
+      "components": [
+        {
+          "id": "S-8.1",
+          "type": "FE",
+          "description": "Video widget opens in parent browser window, not inside iframe"
+        },
+        {
+          "id": "S-8.2",
+          "type": "FE",
+          "description": "Store name displayed at top-left of landing page"
+        },
+        {
+          "id": "S-8.3",
+          "type": "TEST",
+          "description": "Widget scheduling: appointment via widget, appears in calendar",
+          "resolves": "TG-005"
+        },
+        {
+          "id": "S-8.4",
+          "type": "TEST",
+          "description": "Widget form submission creates TeamBox conversation"
+        },
+        {
+          "id": "S-8.5",
+          "type": "TEST",
+          "description": "All 5 dealer widget JS files serve valid JS with correct dealer name"
+        }
+      ]
+    },
+    {
+      "id": "S-9",
+      "name": "Cross-Cutting",
+      "phase": "testing",
+      "status": "committed",
+      "commitHash": "8ebe396",
+      "description": "VAPI assistant audit, weekend call replay, multi-tenant isolation, walk-in followup, accessibility, test infra fixes.",
+      "resolves": [
+        "I-103",
+        "I-104",
+        "TG-001",
+        "TG-009",
+        "TI-010",
+        "TI-015",
+        "TI-016"
+      ],
+      "dependsOn": [
+        "S-0",
+        "S-1",
+        "S-2",
+        "S-3",
+        "S-4",
+        "S-5",
+        "S-6",
+        "S-7",
+        "S-8"
+      ],
+      "blocks": [
+        "S-10"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "S-9.AC1",
+          "criterion": "All VAPI assistants have matching DB agent records",
+          "component": "S-9.1",
+          "test": "s9-cross-cutting: compare VAPI API list vs agents table",
+          "evidence": "Audit report"
+        },
+        {
+          "id": "S-9.AC2",
+          "criterion": "No \"Could not resolve organization from assistantId\" in logs after fix",
+          "component": "S-9.1",
+          "test": "s9-cross-cutting: grep pm2 logs for error message, assert zero matches",
+          "evidence": "Log proof"
+        },
+        {
+          "id": "S-9.AC3",
+          "criterion": "9 weekend calls replayed \u2014 emails sent to correct recipients",
+          "component": "S-9.2",
+          "test": "s9-cross-cutting: check outbound_log for 9 entries with correct to_email",
+          "evidence": "Query proof"
+        },
+        {
+          "id": "S-9.AC4",
+          "criterion": "9 weekend calls replayed \u2014 VIN leads created",
+          "component": "S-9.2",
+          "test": "s9-cross-cutting: verify VIN contact + lead per call",
+          "evidence": "API proof"
+        },
+        {
+          "id": "S-9.AC5",
+          "criterion": "No cross-org data visible: Serra Honda admin sees ONLY Serra Honda data",
+          "component": "S-9.3",
+          "test": "s9-cross-cutting: login, navigate all pages, grep for other org names",
+          "evidence": "Screenshot + text search"
+        },
+        {
+          "id": "S-9.AC6",
+          "criterion": "No cross-org data visible: repeated for each of 5 orgs",
+          "component": "S-9.3",
+          "test": "s9-cross-cutting: 5 login cycles x all pages",
+          "evidence": "Screenshot set"
+        },
+        {
+          "id": "S-9.AC7",
+          "criterion": "Walk-in followup trigger fires",
+          "component": "S-9.4",
+          "test": "s9-cross-cutting: create scheduled action, assert processed",
+          "evidence": "API proof"
+        },
+        {
+          "id": "S-9.AC8",
+          "criterion": "Accessibility: axe-core scan on all major pages produces report",
+          "component": "S-9.5",
+          "test": "s9-cross-cutting: axe-core integration, documented results",
+          "evidence": "axe report"
+        },
+        {
+          "id": "S-9.AC9",
+          "criterion": "live-comms.spec.ts: all 14 tests pass",
+          "component": "S-9.6",
+          "test": "Run live-comms tests, assert 14/14 pass",
+          "evidence": "Test output"
+        },
+        {
+          "id": "S-9.AC10",
+          "criterion": "RI-TAVUS-2 passes",
+          "component": "S-9.7",
+          "test": "Run real-integrations RI-TAVUS-2, assert pass",
+          "evidence": "Test output"
+        }
+      ],
+      "testFiles": [
+        "s9-cross-cutting.spec.ts",
+        "live-comms.spec.ts",
+        "real-integrations.spec.ts",
+        "deep-coverage.spec.ts"
+      ],
+      "filesModified": [
+        "tests/e2e/live-comms.spec.ts",
+        "tests/e2e/real-integrations.spec.ts"
+      ],
+      "uiPermissions": "NONE \u2014 testing and backend fixes only",
+      "components": [
+        {
+          "id": "S-9.1",
+          "type": "BE",
+          "description": "Audit VAPI assistants vs DB agent records, fix mismatches",
+          "resolves": "I-103"
+        },
+        {
+          "id": "S-9.2",
+          "type": "BE",
+          "description": "Replay weekend calls through webhook (IRREVERSIBLE \u2014 owner approval required). VERIFY outbound_log first \u2014 if already replayed, mark PRE-COMPLETED. Do NOT create duplicate leads.",
+          "resolves": "I-104"
+        },
+        {
+          "id": "S-9.3",
+          "type": "TEST",
+          "description": "Multi-tenant isolation: per-org login, grep for other org data on all pages",
+          "resolves": "TG-009"
+        },
+        {
+          "id": "S-9.4",
+          "type": "TEST",
+          "description": "Walk-in auto-followup trigger",
+          "resolves": "TG-001"
+        },
+        {
+          "id": "S-9.5",
+          "type": "TEST",
+          "description": "Accessibility: axe-core scan on all pages",
+          "resolves": "TI-010"
+        },
+        {
+          "id": "S-9.6",
+          "type": "FIX",
+          "description": "Fix live-comms.spec.ts MCP SSE response parsing (7 tests)",
+          "resolves": "TI-015"
+        },
+        {
+          "id": "S-9.7",
+          "type": "FIX",
+          "description": "Fix RI-TAVUS-2 test scoping \u2014 single org vs all 5",
+          "resolves": "TI-016"
+        }
+      ]
+    },
+    {
+      "id": "S-10",
+      "name": "Launch",
+      "phase": "launch",
+      "status": "committed",
+      "commitHash": "3beb615",
+      "description": "CI/CD pipeline (GitHub Actions \u2192 Coolify), production smoke test, full regression, owner walkthrough, stakeholder demo, go-live sign-off.",
+      "resolves": [],
+      "dependsOn": [
+        "S-9"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-10.AC1",
+          "criterion": "GitHub Actions workflow exists and triggers on push to main",
+          "component": "S-10.1",
+          "test": "Push commit to main, verify Actions run starts",
+          "evidence": "CI screenshot"
+        },
+        {
+          "id": "S-10.AC2",
+          "criterion": "CI pipeline: install \u2192 build \u2192 test steps all pass",
+          "component": "S-10.1",
+          "test": "GitHub Actions log shows green checkmarks",
+          "evidence": "CI output"
+        },
+        {
+          "id": "S-10.AC3",
+          "criterion": "Coolify redeploys within 5 minutes of push",
+          "component": "S-10.2",
+          "test": "Push \u2192 verify Coolify deployment log",
+          "evidence": "Deployment log"
+        },
+        {
+          "id": "S-10.AC4",
+          "criterion": "Production smoke: login works on live.huminic.app",
+          "component": "S-10.3",
+          "test": "s10-launch: login against production URL",
+          "evidence": "Screenshot"
+        },
+        {
+          "id": "S-10.AC5",
+          "criterion": "Production smoke: all pages load without errors",
+          "component": "S-10.3",
+          "test": "s10-launch: navigate all pages, assert no console errors",
+          "evidence": "Screenshot set"
+        },
+        {
+          "id": "S-10.AC6",
+          "criterion": "Production smoke: test SMS delivers",
+          "component": "S-10.3",
+          "test": "s10-launch: send SMS via production, verify delivery",
+          "evidence": "Log proof"
+        },
+        {
+          "id": "S-10.AC7",
+          "criterion": "Full regression: all sprint test suites pass against production",
+          "component": "S-10.4",
+          "test": "Run full Playwright suite against live URL",
+          "evidence": "Test output"
+        },
+        {
+          "id": "S-10.AC8",
+          "criterion": "Owner walkthrough: every page confirmed working",
+          "component": "S-10.5",
+          "test": "Owner walks through, provides sign-off",
+          "evidence": "Written sign-off"
+        },
+        {
+          "id": "S-10.AC9",
+          "criterion": "Stakeholder demo completed successfully",
+          "component": "S-10.6",
+          "test": "Demo executed using org_admin role, stakeholder confirms",
+          "evidence": "Demo record"
+        },
+        {
+          "id": "S-10.AC10",
+          "criterion": "All issues.md items status=CLOSED",
+          "component": "S-10.7",
+          "test": "Review issues.md, assert 0 REMEDIATING",
+          "evidence": "File proof"
+        },
+        {
+          "id": "S-10.AC11",
+          "criterion": "All TG test gaps have passing tests",
+          "component": "S-10.7",
+          "test": "Run all TG-referenced tests, assert pass",
+          "evidence": "Test output"
+        }
+      ],
+      "testFiles": [
+        "s10-launch.spec.ts",
+        "domain-12-infrastructure.spec.ts",
+        "usability-audit.spec.ts"
+      ],
+      "filesModified": [
+        ".github/workflows/deploy.yml"
+      ],
+      "uiPermissions": "NONE \u2014 infrastructure and verification only",
+      "components": [
+        {
+          "id": "S-10.1",
+          "type": "IN",
+          "description": "Create GitHub Actions deploy workflow: push to main \u2192 build \u2192 test \u2192 deploy"
+        },
+        {
+          "id": "S-10.2",
+          "type": "IN",
+          "description": "Configure Coolify webhook/API, GitHub Secrets"
+        },
+        {
+          "id": "S-10.3",
+          "type": "TEST",
+          "description": "Production smoke test against live.huminic.app"
+        },
+        {
+          "id": "S-10.4",
+          "type": "TEST",
+          "description": "Full regression: complete test suite against production"
+        },
+        {
+          "id": "S-10.5",
+          "type": "TEST",
+          "description": "Owner walkthrough: every page, every flow confirmed"
+        },
+        {
+          "id": "S-10.6",
+          "type": "TEST",
+          "description": "Stakeholder demo using org_admin role"
+        },
+        {
+          "id": "S-10.7",
+          "type": "TEST",
+          "description": "Go live: all issues CLOSED, all tests pass, sign-off"
+        }
+      ]
+    },
+    {
+      "id": "S-11",
+      "name": "Demo Hotfix",
+      "phase": "remediation",
+      "status": "in_progress",
+      "commitHash": null,
+      "description": "12 demo-critical bugs from owner walkthrough. TeamBox navigation, chat history, takeover, phone/video tabs, transcripts, Tavus scoping, pipeline contact, metrics cleanup, campaign E2E, Nancy label, login org, channel filters.",
+      "resolves": [
+        "BUG-1",
+        "BUG-2",
+        "BUG-3",
+        "BUG-4",
+        "BUG-5",
+        "BUG-6",
+        "BUG-7",
+        "BUG-8",
+        "BUG-9",
+        "BUG-10",
+        "BUG-11",
+        "BUG-12",
+        "BUG-13",
+        "BUG-14"
+      ],
+      "dependsOn": [
+        "S-10"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "S-11.AC1",
+          "criterion": "TeamBox popout SMS/Email/Phone/Video/Tasks links navigate and filter correctly",
+          "component": "teambox",
+          "test": "Click each popout link \u2014 URL changes \u2014 conversation list filters",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC2",
+          "criterion": "Chat history bubbles render when conversation is selected",
+          "component": "teambox",
+          "test": "Click a conversation with messages \u2014 messages render in chat area",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC3",
+          "criterion": "Take Over button appears on automated conversations and switches to human mode",
+          "component": "teambox",
+          "test": "Select automated conversation \u2014 click Take Over \u2014 status changes, reply box active",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC4",
+          "criterion": "Phone tab shows caller numbers, has pagination, transcript opens in modal with audio link",
+          "component": "teambox",
+          "test": "Open Phone tab \u2014 verify columns, pagination, click Transcript \u2014 modal with full text + audio",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC5",
+          "criterion": "Tavus video tab only shows conversations for current org personas",
+          "component": "vendorProxy",
+          "test": "Login as Serra Honda admin \u2014 Video tab \u2014 only Serra Honda persona conversations visible",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-11.AC6",
+          "criterion": "Pipeline Show Contact displays actual contact info, not raw URL",
+          "component": "sales",
+          "test": "Click Show Contact on pipeline row \u2014 name, phone, email displayed",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC7",
+          "criterion": "Home page escalations do not contain VIN Lead test artifacts",
+          "component": "main",
+          "test": "Check Open Escalations \u2014 zero VIN Lead test entries",
+          "evidence": "query output"
+        },
+        {
+          "id": "S-11.AC8",
+          "criterion": "Nancy Gaston shows as chat agent, not video",
+          "component": "service",
+          "test": "Service \u2014 Agents \u2014 Nancy shows chat label",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC9",
+          "criterion": "duane.wells@huminic.ai starts in Huminic org on login",
+          "component": "auth",
+          "test": "Login as duane.wells \u2014 org name shows Huminic, not Serra Honda",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC10",
+          "criterion": "TeamBox top menu bar has channel filter buttons (SMS/Email/Voice/Video)",
+          "component": "teambox",
+          "test": "Open TeamBox \u2014 channel buttons visible in top bar \u2014 click SMS \u2014 filters",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC11",
+          "criterion": "Reply in TeamBox sends with actual user name, not hardcoded Agent",
+          "component": "teambox",
+          "test": "Send reply \u2014 message shows sender as logged-in user name",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC12",
+          "criterion": "Service campaign can be executed and SMS is sent (E2E smoke test)",
+          "component": "service",
+          "test": "Execute campaign \u2014 verify outbound_log entry created \u2014 TextMagic API called",
+          "evidence": "API response"
+        },
+        {
+          "id": "S-11.AC13",
+          "criterion": "Landing pages show actual dealership name, not Demo Organization",
+          "component": "widget-landing",
+          "test": "Navigate to /landing/serra-honda \u2014 page shows Serra Honda, not Demo Organization",
+          "evidence": "screenshot"
+        },
+        {
+          "id": "S-11.AC14",
+          "criterion": "Widget video opens in a new browser window, not inside the widget",
+          "component": "widget-landing",
+          "test": "Click video button in widget \u2014 new browser window opens with Tavus session",
+          "evidence": "screenshot"
+        }
+      ],
+      "testFiles": [
+        "tests/e2e/s11-demo-hotfix.spec.ts"
+      ],
+      "filesModified": [
+        "client/src/pages/teambox.tsx",
+        "client/src/pages/service.tsx",
+        "client/src/pages/sales.tsx",
+        "client/src/pages/widget-landing.tsx",
+        "server/vendorProxy.ts"
+      ],
+      "uiPermissions": "FULL",
+      "components": [
+        "teambox",
+        "service",
+        "sales",
+        "main",
+        "auth",
+        "vendorProxy",
+        "widget-landing"
+      ]
+    },
+    {
+      "id": "E-012",
+      "name": "Six-Layer Verification",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Exploratory sprint \u2014 full application inventory and six-layer verification. Produced codebase inventory, UI inventory, FE/BE/DT verification, test coverage matrix.",
+      "dependsOn": [
+        "S-11"
+      ],
+      "blocks": [
+        "E-013"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "E-013",
+      "name": "Full Preparation for Section Sprints",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "commitHash": "45e98ff",
+      "description": "10 section audits against operator manifest. 48 new ACs, ghost gates, dev constraints, test reconciliation, 10 section sprint specs.",
+      "dependsOn": [
+        "E-012"
+      ],
+      "blocks": [
+        "SEC-01",
+        "SEC-02",
+        "SEC-03",
+        "SEC-04",
+        "SEC-05",
+        "SEC-06",
+        "SEC-07",
+        "SEC-08"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "SEC-07",
+      "name": "System / Profile / Top Icons",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-117 Reset Tour, I-118 remove Billing link, I-120 AI Config RBAC, I-127 hide My Work",
+      "dependsOn": [
+        "E-013"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/components/layout/TopBar.tsx",
+        "client/src/pages/settings.tsx",
+        "client/src/components/layout/Sidebar.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "6a0b41b"
+    },
+    {
+      "id": "SEC-01",
+      "name": "AI Chat (Home)",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-126: Chat history title + resume fix",
+      "dependsOn": [
+        "SEC-07"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/main.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ],
+      "commitHash": "7a32baa"
+    },
+    {
+      "id": "SEC-03",
+      "name": "Sales",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-112 activity feed, I-114 conversion rate, I-130 agent favorites",
+      "dependsOn": [
+        "SEC-01"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/sales.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "dea6421"
+    },
+    {
+      "id": "SEC-04",
+      "name": "Service",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-106/107 rate limit, I-113 metric trends, I-115 sub-menu, I-128 Campaign Safety dismiss, I-129 tooltips, I-130 agent favorites, I-132 multi-channel campaigns",
+      "dependsOn": [
+        "SEC-03"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/service.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s4-service.spec.ts"
+      ],
+      "commitHash": "c86491f"
+    },
+    {
+      "id": "SEC-05",
+      "name": "Marketing",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-102 Photo Studio, I-113 metric trends, I-115 sub-menu, I-124 duplicate agents, I-130 favorites",
+      "dependsOn": [
+        "SEC-04"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/marketing.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s5-marketing.spec.ts"
+      ],
+      "commitHash": "9556313"
+    },
+    {
+      "id": "SEC-06",
+      "name": "Manage",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-105 billing, I-115 sub-menu, I-116 User Chats",
+      "dependsOn": [
+        "SEC-05"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/management.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s6-manage.spec.ts"
+      ],
+      "commitHash": "5454d7a"
+    },
+    {
+      "id": "SEC-02",
+      "name": "TeamBox",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verification sprint",
+      "dependsOn": [
+        "SEC-06"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/teambox.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s2-teambox.spec.ts"
+      ],
+      "commitHash": "df3d321"
+    },
+    {
+      "id": "SEC-08",
+      "name": "Landing/Widgets",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-119 Instant Call Back, I-121 video popup, I-122 deploy",
+      "dependsOn": [
+        "SEC-02"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/pages/widget-landing.tsx",
+        "client/src/lib/widget-types.ts",
+        "tests/e2e/s8-landing-widgets.spec.ts"
+      ],
+      "commitHash": "03ab563"
+    },
+    {
+      "id": "T-013",
+      "name": "Navigation, UI & Mobile",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify all navigation links, SEC UI fixes live, mobile viewport",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-014",
+      "name": "Data Flow, Metrics & Billing Baseline",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify data tiles, form\u2192TeamBox, billing API baseline",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-015",
+      "name": "RBAC, Isolation & Auth Flows",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "5-org isolation, role access, org switcher, password reset",
+      "dependsOn": [
+        "SEC-08"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s9-cross-cutting.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-020",
+      "name": "Static Code Scan",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Auth middleware audit, org_id filter check, hardcoded data scan",
+      "dependsOn": [],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-021",
+      "name": "Accessibility (axe-core)",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "axe-core scan all 8 major pages, document violations",
+      "dependsOn": [],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s9-cross-cutting.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022a",
+      "name": "AI Chat Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Streaming perf, favorites, delete, multi-turn, task creation, edge cases",
+      "dependsOn": [
+        "T-013"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022b",
+      "name": "Sales Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Agents, pipeline vs warehouse, calendar, agent conversations",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022c",
+      "name": "Service Functional Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Campaign UI, Nancy agent, appointment booking, calendar",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-017b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s4-service.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022d",
+      "name": "Marketing & Studio Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Studio filters, gallery, 5 creative agents, dashboard tiles",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s5-marketing.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022e",
+      "name": "Settings & Profile Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "User CRUD, KB upload, system prompt, photo, password + cleanup",
+      "dependsOn": [
+        "T-015"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s7-system-profile.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-022f",
+      "name": "Landing & Widget Depth",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "5 dealer pages, embed code, widget JS, appointments, cross-origin",
+      "dependsOn": [
+        "T-014"
+      ],
+      "blocks": [
+        "T-016"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s8-landing-widgets.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-016",
+      "name": "Integration Verification",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "VAPI, Tavus, CommGate, MCP, webhooks, embed cross-origin",
+      "dependsOn": [
+        "T-013",
+        "T-014",
+        "T-015",
+        "T-022f"
+      ],
+      "blocks": [
+        "T-016b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/real-integrations.spec.ts",
+        "tests/e2e/live-comms.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-016b",
+      "name": "Comms Pre-Flight",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Verify elliott can call, TextMagic can price-check, Nancy vapiAssistantId resolves",
+      "dependsOn": [
+        "T-016"
+      ],
+      "blocks": [
+        "T-017a",
+        "T-017b"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "utilities/elliott-test.ts",
+        "tests/e2e/live-comms.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-017a",
+      "name": "Comms \u2014 Sales Inbound/Outbound",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Elliott\u2192Caroline, SMS inbound, VAPI webhook\u2192email\u2192VIN lead, takeover",
+      "dependsOn": [
+        "T-016b"
+      ],
+      "blocks": [
+        "T-018"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/real-integrations.spec.ts",
+        "utilities/elliott-test.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-017b",
+      "name": "Comms \u2014 Service Campaigns & Compliance",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "Campaign E2E, STOP/opt-out, after-hours queue, Elliott\u2192Nancy, walk-in trigger",
+      "dependsOn": [
+        "T-016b",
+        "T-022c"
+      ],
+      "blocks": [
+        "T-018"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/live-comms.spec.ts",
+        "utilities/elliott-test.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-018",
+      "name": "TeamBox Unified Inbox E2E",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "All channels visible, realtime, kill switch queue, transcripts, filters",
+      "dependsOn": [
+        "T-017a",
+        "T-017b"
+      ],
+      "blocks": [
+        "T-019"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s2-teambox.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "T-019",
+      "name": "Chat & Agent Usability + Edge Cases",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "All agents domain-tested, edge cases, streaming perf, agent cards",
+      "dependsOn": [
+        "T-018"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "tests/e2e/s1-ai-chat.spec.ts"
+      ],
+      "commitHash": "evidence-only"
+    },
+    {
+      "id": "R-014",
+      "name": "Landing Page & Widget Fixes",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-134 route race, I-135 CORS cross-origin",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/App.tsx",
+        "client/src/pages/widget-landing.tsx",
+        "server/index.ts",
+        "tests/e2e/s8-landing-widgets.spec.ts"
+      ],
+      "commitHash": "2dddc3d"
+    },
+    {
+      "id": "R-015",
+      "name": "Navigation & UI Cleanup",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-136 Sales nav, I-137 Tour, I-147 TeamBox tabs, I-148 Role Switcher removal",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "client/src/components/layout/Sidebar.tsx",
+        "client/src/components/layout/TopBar.tsx",
+        "client/src/pages/teambox.tsx",
+        "tests/e2e/s2-teambox.spec.ts"
+      ],
+      "commitHash": "2dddc3d"
+    },
+    {
+      "id": "R-016",
+      "name": "Data Cleanup",
+      "phase": "qa_resolve_loop",
+      "status": "committed",
+      "description": "I-138 Unauthorized Agent, I-139 CRM Guru, Tasks stub",
+      "dependsOn": [
+        "T-019"
+      ],
+      "blocks": [
+        "R-017"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "server/seed.ts",
+        "server/routes/chat.ts",
+        "tests/e2e/s3-sales.spec.ts"
+      ],
+      "commitHash": "2dddc3d"
+    },
+    {
+      "id": "R-017",
+      "name": "Backend Fixes",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "description": "I-140 password reset, I-141 webhook 422, I-142 VIN source, I-143 TCPA, I-144 blacklist",
+      "dependsOn": [
+        "R-014",
+        "R-015",
+        "R-016"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": [
+        "server/routes/webhooks.ts",
+        "server/outbound.ts",
+        "server/routes/auth.ts",
+        "tests/e2e/real-integrations.spec.ts",
+        "server/storage.ts"
+      ]
+    },
+    {
+      "id": "T-023",
+      "name": "Operator Walkthrough + Interactive Comms Test",
+      "phase": "qa_resolve_loop",
+      "status": "planned",
+      "description": "Operator walks every page with Captain monitoring. Interactive comms test using operator real email/phone. Captain monitors agent responses in real-time. Final tighten-up before launch.",
+      "dependsOn": [
+        "R-017"
+      ],
+      "blocks": [
+        "L-001"
+      ],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "L-001",
+      "name": "Launch Prep",
+      "phase": "launch_prep",
+      "status": "parked",
+      "description": "Push to main, CI/CD, Coolify deploy, production smoke, owner sign-off",
+      "dependsOn": [
+        "T-023"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [],
+      "declaredFiles": []
+    },
+    {
+      "id": "G-001",
+      "category": "Gap Remediation",
+      "name": "Settings + Tour + RBAC Gaps",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Fix tour persistence bug, verify settings tile grid count, verify RBAC gates for API Keys/Webhooks/AI Config",
+      "outcome": "Tour overlay shows only once per user session and persists dismissal to localStorage. Settings grid shows correct tile count per role. API Keys and Webhooks confirmed super_admin-only.",
+      "dependsOn": [
+        "M-001"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-001.AC1",
+          "criterion": "Tour overlay does not reappear after completion or dismissal",
+          "component": "G-11",
+          "test": "Complete tour \u2192 navigate away \u2192 return \u2192 tour does NOT show",
+          "evidence": "Screenshot sequence",
+          "issueRef": "I-149"
+        },
+        {
+          "id": "G-001.AC2",
+          "criterion": "Tour dismissal persists across page navigations",
+          "component": "G-11",
+          "test": "Dismiss tour \u2192 navigate 3 pages \u2192 assert tour does not reappear",
+          "evidence": "Screenshot sequence",
+          "issueRef": "I-149"
+        },
+        {
+          "id": "G-001.AC3",
+          "criterion": "Settings grid shows correct tile count per role: super_admin sees 7 (includes AI Config), org_admin sees 6 (no AI Config)",
+          "component": "ST-00",
+          "test": "Login as each role \u2192 /settings/system \u2192 count visible tiles with scroll",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-151"
+        },
+        {
+          "id": "G-001.AC4",
+          "criterion": "API Keys tab (ST-20) only visible to super_admin, not org_admin or partner_admin",
+          "component": "ST-20",
+          "test": "Login as org_admin \u2192 navigate to Tools \u2192 Integrations \u2192 assert no API Keys sub-tab",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-157"
+        },
+        {
+          "id": "G-001.AC5",
+          "criterion": "Webhooks tab (ST-21) only visible to super_admin",
+          "component": "ST-21",
+          "test": "Login as org_admin \u2192 navigate to Tools \u2192 Integrations \u2192 assert no Webhooks sub-tab",
+          "evidence": "Screenshot per role",
+          "issueRef": "I-157"
+        },
+        {
+          "id": "G-001.AC6",
+          "criterion": "AI Config tile visibility matches I-120 resolution \u2014 consistent between tile grid and sub-menu",
+          "component": "ST-27",
+          "test": "Login as partner_admin \u2192 /settings/system \u2192 assert AI Config tile visible OR sub-menu link removed",
+          "evidence": "Screenshot",
+          "issueRef": "I-120"
+        }
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2"
+        ],
+        "featureDims": [
+          "FE",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3"
+        ]
+      },
+      "declaredFiles": [
+        "client/src/components/tour/",
+        "client/src/pages/settings.tsx",
+        "client/src/components/layout/SubMenuManager.tsx",
+        "tests/e2e/s7-system-profile.spec.ts"
+      ]
+    },
+    {
+      "id": "G-002",
+      "category": "Gap Remediation",
+      "name": "Uncovered UI Elements Investigation",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Investigate and document UI elements with no AC coverage: TeamBox channel filters (WhatsApp/Web Chat), Georgia FAB, session timeout, right panes",
+      "outcome": "Each uncovered UI element has a documented status: intentional, decorative, or needs AC. Operator decisions recorded in decisions.md.",
+      "dependsOn": [
+        "M-001"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-002.AC1",
+          "criterion": "TeamBox channel filter list verified: confirm which channels are real vs placeholder",
+          "component": "TB-05 through TB-07",
+          "test": "Click each channel filter \u2192 assert it returns matching conversations OR shows empty state",
+          "evidence": "Screenshot per filter",
+          "issueRef": "I-150"
+        },
+        {
+          "id": "G-002.AC2",
+          "criterion": "Georgia FAB documented: what it does, which agent it connects to, whether it functions",
+          "component": "G-12",
+          "test": "Click FAB on Sales page \u2192 assert chat opens or document non-functional",
+          "evidence": "Screenshot + investigation report",
+          "issueRef": "I-152"
+        },
+        {
+          "id": "G-002.AC3",
+          "criterion": "Session timeout dialog behavior documented",
+          "component": "G-13",
+          "test": "Identify inactivity timer duration \u2192 wait \u2192 capture dialog or confirm no dialog exists",
+          "evidence": "Code review + manual test",
+          "issueRef": "I-153"
+        },
+        {
+          "id": "G-002.AC4",
+          "criterion": "Right panes (G-14/G-15) documented: do they render, what data do they show",
+          "component": "G-14, G-15",
+          "test": "Click agent in sidebar \u2192 assert right pane opens with config. Click customer in TeamBox \u2192 assert info pane.",
+          "evidence": "Screenshot",
+          "issueRef": "I-158"
+        }
+      ],
+      "dimensions": {
+        "layers": [
+          "S1"
+        ],
+        "featureDims": [
+          "FE"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "declaredFiles": [
+        "client/src/components/",
+        "client/src/pages/teambox.tsx",
+        "tests/e2e/m001-gap-coverage.spec.ts"
+      ]
+    },
+    {
+      "id": "G-003",
+      "category": "Gap Remediation",
+      "name": "Uncrawled State Visual Verification",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "causedBy": "M-001 gap analysis",
+      "description": "Crawl and screenshot the 63 uncrawled UI states from U-001 reconciliation. Priority: /insights standalone, widget modes, /agents, global overlays, settings sub-pages.",
+      "outcome": "All 163 enumerated states have at least one screenshot or documented reason for exclusion. Reconciliation updated with findings.",
+      "dependsOn": [
+        "M-001",
+        "G-001"
+      ],
+      "blocks": [],
+      "acceptanceCriteria": [
+        {
+          "id": "G-003.AC1",
+          "criterion": "/insights standalone all 16 states crawled with screenshots",
+          "component": "IN-01 through IN-16",
+          "test": "Navigate /insights \u2192 each tab \u2192 each drill-down \u2192 capture",
+          "evidence": "16 screenshots in evidence/G-003/",
+          "issueRef": "I-156"
+        },
+        {
+          "id": "G-003.AC2",
+          "criterion": "Widget landing page modes crawled: chat, video, voice, form states",
+          "component": "WL-02 through WL-12",
+          "test": "Navigate /p/{slug} \u2192 trigger each mode \u2192 capture",
+          "evidence": "11 screenshots in evidence/G-003/",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC3",
+          "criterion": "/agents standalone page crawled with all 7 states",
+          "component": "AG-01 through AG-07",
+          "test": "Navigate /agents \u2192 select agent \u2192 CRUD dialogs \u2192 capture",
+          "evidence": "7 screenshots in evidence/G-003/",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC4",
+          "criterion": "Settings Notifications (ST-30) and Appearance (ST-31) crawled or confirmed non-existent",
+          "component": "ST-30, ST-31",
+          "test": "Navigate to Notifications/Appearance tiles \u2192 capture or document absence",
+          "evidence": "Screenshots or non-existence report",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC5",
+          "criterion": "Tour overlay (G-11) crawled showing 6-step sequence",
+          "component": "G-11",
+          "test": "Trigger tour \u2192 capture each step",
+          "evidence": "6 screenshots",
+          "issueRef": "I-154"
+        },
+        {
+          "id": "G-003.AC6",
+          "criterion": "Reconciliation document updated with findings from all newly crawled states",
+          "component": "N/A",
+          "test": "reconciliation.md updated with match/mismatch per crawled state",
+          "evidence": "Updated reconciliation.md",
+          "issueRef": "I-154"
+        }
+      ],
+      "dimensions": {
+        "layers": [
+          "S1"
+        ],
+        "featureDims": [
+          "FE"
+        ],
+        "testLevels": [
+          "T3"
+        ]
+      },
+      "declaredFiles": [
+        "tests/e2e/m001-gap-coverage.spec.ts",
+        ".governor/evidence/U-001/reconciliation.md",
+        ".governor/evidence/G-003/"
+      ]
+    }
+  ]
+}

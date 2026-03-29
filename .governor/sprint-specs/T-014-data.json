@@ -1,0 +1,28 @@
+{
+  "id": "T-014",
+  "category": "Testing",
+  "name": "Data Flow & Metrics Verification",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "DT",
+  "description": "Verify data flows end-to-end: form submissions reach TeamBox, metric tiles match API responses, activity feeds show real data, Insights render across sections, Hunches generate, System Log has entries.",
+  "issues": ["I-123"],
+  "acceptanceCriteria": [
+    "T-014.AC1: Widget contact form POST → conversation appears in TeamBox within 30s",
+    "T-014.AC2: Landing page contact form POST → conversation appears in TeamBox within 30s",
+    "T-014.AC3: Sales Dashboard metric tiles match /api/vin/leads/summary values",
+    "T-014.AC4: Sales Recent Activity feed shows entries from /api/activity-log (not hardcoded)",
+    "T-014.AC5: Sales Conversion Rate change field is 0 (not absolute rate)",
+    "T-014.AC6: Insights page renders data on Sales, Service, Marketing, Manage tabs",
+    "T-014.AC7: System Log shows timestamped activity entries from /api/activity-log",
+    "T-014.AC8: Hunches generate button produces hunch card with accept/dismiss actions",
+    "T-014.AC9: AI Chat metric tiles drill-down shows breakdown data matching /api/metrics/pipeline/details"
+  ],
+  "declaredFiles": ["tests/e2e/s3-sales.spec.ts", "tests/e2e/s8-landing-widgets.spec.ts"],
+  "testFile": "tests/e2e/s3-sales.spec.ts",
+  "method": "Playwright MCP + API assertions against dev.huminicdev.com",
+  "dependsOn": ["SEC-08"],
+  "blocks": ["T-016"],
+  "parallelWith": ["T-013", "T-015"]
+}

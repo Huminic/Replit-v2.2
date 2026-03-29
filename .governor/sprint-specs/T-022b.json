@@ -1,0 +1,19 @@
+{
+  "id": "T-022b",
+  "category": "Testing",
+  "name": "Sales Functional Depth",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "Agents, pipeline vs warehouse, calendar, agent conversations",
+  "dependsOn": [
+    "T-014"
+  ],
+  "blocks": [
+    "T-019"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s3-sales.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-022b/"
+}

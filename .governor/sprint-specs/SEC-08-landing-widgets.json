@@ -6,10 +6,10 @@
   "phase": "qa_resolve_loop",
   "status": "queued",
   "priority": "T1",
-  "description": "Verify Landing Pages and Widgets: confirm video new window, store name top-left, contact form submission, web chat AI responses, web call behavior (needs operator clarification on outbound vs browser call), widget embed code, ?mode=video auto-launch.",
+  "description": "Fix and verify Landing Pages and Widgets. I-119: Change Web Call to 'Instant Call Back' — visitor enters phone number, system triggers outbound VAPI call to that number. I-121: Fix video popup blocked by browser (window.open in async callback). I-122: Deploy changes. Verify video new window, store name top-left, contact form, web chat.",
   "acceptanceCriteria": ["S-8.AC1 through S-8.AC14"],
   "newACs": ["S-8.AC8", "S-8.AC9", "S-8.AC10", "S-8.AC11", "S-8.AC12", "S-8.AC13", "S-8.AC14"],
-  "issues": ["I-119"],
+  "issues": ["I-119", "I-121", "I-122"],
   "declaredFiles": [
     "client/src/pages/widget-landing.tsx",
     "client/src/lib/widget-types.ts",

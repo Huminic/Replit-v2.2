@@ -1,0 +1,27 @@
+{
+  "id": "T-016",
+  "category": "Testing",
+  "name": "Integration Verification",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "priority": "T1",
+  "dimension": "IN",
+  "description": "Verify third-party integrations: VAPI assistants match DB, Tavus session creation, CommGate toggle stops outbound, channel toggles per channel, video popup fix works, Instant Call Back POST. Uses existing real-integrations.spec.ts and live-comms.spec.ts.",
+  "issues": [],
+  "acceptanceCriteria": [
+    "T-016.AC1: VAPI assistant list matches DB agent records (S-9.AC1)",
+    "T-016.AC2: Tavus video session creation returns conversationUrl (RI-TAVUS-2)",
+    "T-016.AC3: Video widget opens in new window (popup fix verified in browser)",
+    "T-016.AC4: Instant Call Back POST to /api/widget/voice-callback (expect 404 — backend not built, document)",
+    "T-016.AC5: CommGate toggle OFF stops outbound (campaign execute returns blocked)",
+    "T-016.AC6: Channel toggle SMS OFF → SMS send blocked; ON → allowed",
+    "T-016.AC7: MCP tm_send_message tool accessible via central-mcp",
+    "T-016.AC8: MCP vapi_list_assistants returns dealer assistants",
+    "T-016.AC9: TextMagic API version confirmed (V1 or V2)"
+  ],
+  "declaredFiles": ["tests/e2e/real-integrations.spec.ts", "tests/e2e/live-comms.spec.ts"],
+  "testFile": "tests/e2e/real-integrations.spec.ts",
+  "method": "API calls + MCP tool calls + Playwright MCP for browser verification",
+  "dependsOn": ["T-013", "T-014", "T-015"],
+  "blocks": ["T-017a", "T-017b"]
+}

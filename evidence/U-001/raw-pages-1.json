@@ -1,0 +1,2361 @@
+{
+  "/": {
+    "url": "/",
+    "totalRaw": 27,
+    "uniqueElements": 27,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-submenu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "AI Key Metrics",
+        "testId": "text-ai-key-metrics-title",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Pipeline108live",
+        "testId": "metric-tile-0",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Appointments Today0live",
+        "testId": "metric-tile-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Open Escalations8live",
+        "testId": "metric-tile-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Outbound Sent 24h9live",
+        "testId": "metric-tile-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Which agents need review?",
+        "testId": "main-suggestion-0",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "What are the top escalations right now?",
+        "testId": "main-suggestion-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Compare store performance across locations",
+        "testId": "main-suggestion-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Give me a dealership performance overview",
+        "testId": "main-suggestion-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-main-chat-add",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "text": "",
+        "testId": "input-main-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-main-send",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Main (AI Chat)"
+  },
+  "/teambox": {
+    "url": "/teambox",
+    "totalRaw": 261,
+    "uniqueElements": 56,
+    "dataItemsSkipped": 206,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-submenu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "TeamBoxConversationsPhoneVideoAllSMSEmailWeb ChatWhatsAppVoi",
+        "testId": "teambox-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "TeamBoxConversationsPhoneVideoAllSMSEmailWeb ChatWhatsAppVoi",
+        "testId": "teambox-top-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "TeamBox",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Conversations",
+        "testId": "tab-teambox-conversations",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Phone",
+        "testId": "tab-teambox-phone",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Video",
+        "testId": "tab-teambox-video",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "AllSMSEmailWeb ChatWhatsAppVoice",
+        "testId": "channel-filter-bar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "All",
+        "testId": "channel-chip-all",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SMS",
+        "testId": "channel-chip-sms",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Email",
+        "testId": "channel-chip-email",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Web Chat",
+        "testId": "channel-chip-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "WhatsApp",
+        "testId": "channel-chip-whatsapp",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Voice",
+        "testId": "channel-chip-voice",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Conversations",
+        "testId": "tab-conversations",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Tasks21",
+        "testId": "tab-tasks",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Workflows",
+        "testId": "tab-workflows",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "input",
+        "type": "input",
+        "text": "",
+        "testId": "input-teambox-search",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "All206",
+        "testId": "filter-status-all",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Open200",
+        "testId": "filter-status-open",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Assigned to me1",
+        "testId": "filter-status-assigned",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Participating1",
+        "testId": "filter-status-participating",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Automated1",
+        "testId": "filter-status-automated",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Scheduled1",
+        "testId": "filter-status-scheduled",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Followup1",
+        "testId": "filter-status-followup",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Pending1",
+        "testId": "filter-status-pending",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "All",
+        "testId": "filter-channel-all",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SMS",
+        "testId": "filter-channel-sms",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Email",
+        "testId": "filter-channel-email",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Web Chat",
+        "testId": "filter-channel-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "WhatsApp",
+        "testId": "filter-channel-whatsapp",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Voice",
+        "testId": "filter-channel-voice",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "206",
+        "testId": "badge-list-count",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TCTest Customer",
+        "testId": "conversation-item-{uuid}",
+        "hidden": "",
+        "note": "(repeated x22 - data items)"
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Test Customer",
+        "testId": "text-conversation-customer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "text": "",
+        "testId": "input-reply",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-send-reply",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Test Customer",
+        "testId": "text-customer-name",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Unassigned",
+        "testId": "select-assign-to",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Call",
+        "testId": "button-call-customer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Email",
+        "testId": "button-email-customer",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SMS",
+        "testId": "button-sms-customer",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "TeamBox"
+  },
+  "/sales": {
+    "url": "/sales",
+    "totalRaw": 55,
+    "uniqueElements": 53,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-submenu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "SalesDashboardAgentsInsightsCalendar[data-radix-scroll-area-",
+        "testId": "sales-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Sales",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-sales-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-sales-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-sales-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-sales-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Sales Dashboard",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "WarehouseSynced 21h ago",
+        "testId": "sync-status-indicator",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Warehouse",
+        "testId": "badge-vinsolutions-live",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "Synced 21h ago",
+        "testId": "text-sync-age",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Total Leads (30d)5700%vs last 30d",
+        "testId": "metric-tile-sm-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "570",
+        "testId": "metric-value-sm-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "New Leads90%vs last 30d",
+        "testId": "metric-tile-sm-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "9",
+        "testId": "metric-value-sm-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Active Pipeline1080%vs last 30d",
+        "testId": "metric-tile-sm-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "108",
+        "testId": "metric-value-sm-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Waiting on Response780%vs last 30d",
+        "testId": "metric-tile-sm-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "78",
+        "testId": "metric-value-sm-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Appointments Set00%vs last 30d",
+        "testId": "metric-tile-sm-5",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "0",
+        "testId": "metric-value-sm-5",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Sold200%vs last 30d",
+        "testId": "metric-tile-sm-6",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "20",
+        "testId": "metric-value-sm-6",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Conversion Rate3.5%0%vs last 30d",
+        "testId": "metric-tile-sm-7",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "3.5%",
+        "testId": "metric-value-sm-7",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "1Carolinevoice",
+        "testId": "top-agent-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "2Data Guruchat",
+        "testId": "top-agent-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "3Sales Coachchat",
+        "testId": "top-agent-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "4Communication Writerchat",
+        "testId": "top-agent-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Escalation Email Sentabout 16 hours agoCampaign Resumedabout",
+        "testId": "recent-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Escalation Email Sentabout 16 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Resumedabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Createdabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 2
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Vapi Call Receivedabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 2
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Sms Inbound Receivedabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Completedabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Executedabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Activeabout 17 hours ago",
+        "testId": "activity-item-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Sales"
+  },
+  "/service": {
+    "url": "/service",
+    "totalRaw": 328,
+    "uniqueElements": 70,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-submenu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "ServiceCampaignsAgentsInsightsCalendar[data-radix-scroll-are",
+        "testId": "service-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "text": "",
+        "testId": "input-csv-upload",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Service",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Campaigns",
+        "testId": "tab-service-campaigns",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-service-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-service-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Calendar",
+        "testId": "tab-service-calendar",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Service Campaigns",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Upload CSV",
+        "testId": "button-upload-csv",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "New Campaign",
+        "testId": "button-new-campaign",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "LC-2 Autonomous Testlc2-recipients.csvactiveSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 8
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "switch-killswitch-{uuid}",
+        "hidden": "",
+        "count": 50
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-start-campaign-{uuid}",
+        "hidden": "",
+        "count": 50
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-schedule-campaign-{uuid}",
+        "hidden": "",
+        "count": 50
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-dryrun-campaign-{uuid}",
+        "hidden": "",
+        "count": 50
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-upload-csv-{uuid}",
+        "hidden": "",
+        "count": 50
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "Service Reminder - Februarytest-recipients.csvpausedSMS1411",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1773953533436flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1773953541062completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1773953543071completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1773957134043flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1773957141525completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "Oil Change Reminderoil_change_due_march.csvpausedSMS23400",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1773965411556flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1773965422011completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1773965419955completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1773957143534test-recipients.csvcompletedSM",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1773966859715flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1773966867979completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1773966869980completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-SMS-3-Real-1773985031363ri-test.csvcompletedSMS110",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-KS-1-1773985059693completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-KS-2-CommGate-1773985061518completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-SMS-1-Real-1773988857110ri-sms1.csvcompletedSMS110",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1773988804171flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1773988812959completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1773988814945completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-KS-1-1773988900298completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "G-6.3 Email Campaign Testemail-recipients.csvdraftEMAIL200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "DC-US010-Recall-1773988978659completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "S-4 Test CampaigndraftSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 6
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-KS-1-1774350014458completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "DC-US010-Recall-1774350030389completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW3-1774349884586flow3-test.csvcompletedSMS200",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW5-KillSwitch-1774349893130completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "E2E-FLOW6-Resume-1774349895105completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "S11 Demo Smoke TestactiveSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 2
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "S11 testactiveSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-SMS-1-Real-1774349968987ri-sms1.csvcompletedSMS110",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "T017b Test Campaignt017b_test.csvcompletedSMS220",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-SMS-1-Real-1774582757694ri-sms1.csvcompletedSMS110",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "tr",
+        "type": "tr",
+        "text": "RI-KS-1-1774582804563completedSMS000",
+        "testId": "campaign-row-{uuid}",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign SafetyUse the Kill Switch to immediately stop all o",
+        "testId": "card-campaign-safety",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-dismiss-campaign-safety",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Service"
+  },
+  "/marketing": {
+    "url": "/marketing",
+    "totalRaw": 27,
+    "uniqueElements": 27,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-submenu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "MarketingDashboardAgentsStudioInsights[data-radix-scroll-are",
+        "testId": "marketing-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "Marketing",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Dashboard",
+        "testId": "tab-marketing-dashboard",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Agents",
+        "testId": "tab-marketing-agents",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Studio",
+        "testId": "tab-marketing-studio",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Insights",
+        "testId": "tab-marketing-insights",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h2",
+        "type": "h2",
+        "text": "Marketing Dashboard",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaign Performance0%",
+        "testId": "metric-tile-mm-1",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Campaigns Active0",
+        "testId": "metric-tile-mm-2",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Messages Sent0",
+        "testId": "metric-tile-mm-3",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Replies Received0",
+        "testId": "metric-tile-mm-4",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Marketing"
+  },
+  "/manage": {
+    "url": "/manage",
+    "totalRaw": 25,
+    "uniqueElements": 25,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "404 Page Not Found",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Go to Home",
+        "testId": "button-go-home",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-open-right-pane",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Dashboard & AI ChatYour home base. View key metrics, quick a",
+        "testId": "product-tour-overlay",
+        "hidden": "hidden",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Dashboard & AI ChatYour home base. View key metrics, quick a",
+        "testId": "tour-tooltip",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Dashboard & AI Chat",
+        "testId": "tour-step-title",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-tour-close",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "p",
+        "type": "p",
+        "text": "Your home base. View key metrics, quick actions, and chat wi",
+        "testId": "tour-step-description",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "span",
+        "type": "span",
+        "text": "1 of 6",
+        "testId": "tour-step-counter",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Skip",
+        "testId": "button-tour-skip",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Next",
+        "testId": "button-tour-next",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Manage"
+  },
+  "/settings": {
+    "url": "/settings",
+    "totalRaw": 29,
+    "uniqueElements": 29,
+    "dataItemsSkipped": 0,
+    "elements": [
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Serra Honda",
+        "testId": "button-org-switcher",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-public-page",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "50",
+        "testId": "button-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-activity-feed",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-theme-toggle",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "SHA",
+        "testId": "button-profile-menu",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "AI Chat",
+        "testId": "sidebar-item-ai-chat",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "TeamBox",
+        "testId": "sidebar-item-teambox",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Sales",
+        "testId": "sidebar-item-sales",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Service",
+        "testId": "sidebar-item-service",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Marketing",
+        "testId": "sidebar-item-marketing",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Manage",
+        "testId": "sidebar-item-management",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "System",
+        "testId": "sidebar-item-system",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Logout",
+        "testId": "button-logout",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h1",
+        "type": "h1",
+        "text": "System Settings",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "Menu",
+        "testId": "dropdown-mobile-nav",
+        "hidden": "hidden",
+        "count": 1
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "text": "",
+        "testId": "button-toggle-favorite",
+        "hidden": "hidden",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "User ManagementManage users, roles, and permissions",
+        "testId": "settings-tile-users",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "User Management",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "OrganizationCompany profile and branding",
+        "testId": "settings-tile-organization",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Organization",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Tools & IntegrationsConfigure tools, widgets, and landing pa",
+        "testId": "settings-tile-tools",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Tools & Integrations",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "Knowledge BaseUpload and manage AI training data",
+        "testId": "settings-tile-knowledge",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Knowledge Base",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "NotificationsAlert preferences and delivery channels",
+        "testId": "settings-tile-notifications",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Notifications",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "div",
+        "type": "div",
+        "text": "AppearanceTheme, layout, and display preferences",
+        "testId": "settings-tile-appearance",
+        "hidden": "",
+        "count": 1
+      },
+      {
+        "tag": "h3",
+        "type": "h3",
+        "text": "Appearance",
+        "testId": "",
+        "hidden": "",
+        "count": 1
+      }
+    ],
+    "name": "Settings/System"
+  }
+}

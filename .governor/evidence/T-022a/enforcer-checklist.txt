@@ -1,0 +1,23 @@
+T-022a ENFORCER CHECKLIST — AI Chat Functional Depth
+Timestamp: 2026-03-27T01:20:00Z
+
+[PASS] AC1  — Streaming < 8s: First token at 2919ms (Date.now measurement)
+[PASS] AC2  — Thinking indicators: Spinner + "Thinking..." status detected during processing
+[PASS] AC3  — VIN data: "20 leads for the last 7 days", VinSolutions CRM queried
+[PASS] AC4  — Web search: "Searching the web..." triggered, weather context returned
+[FAIL] AC5  — Task creation: AI refuses ("not able to create tasks"), count unchanged at 16
+[PASS] AC6  — Multi-turn: 3rd message references 86 leads / pipeline from 1st message
+[PASS] AC7  — Conversational tone: No ## headers, no markdown tables
+[PASS] AC8  — Favorites: API round-trip POST/GET/DELETE confirmed
+[PASS] AC9  — Delete: DELETE /api/conversations/:id returns 200, count 80->79
+[PASS] AC10 — Scroll: 79 AI chat conversations (>= 20), ScrollArea in SubMenuManager
+[PASS] AC11a — Empty input: Returns error message, no crash
+[PASS] AC11b — 500-char: Full streamed response
+[PASS] AC11c — Spanish: Full Spanish response
+[PASS] AC11d — Rapid: 3 concurrent messages all complete
+[PASS] AC12 — Multi-role: 3 roles login successfully, errors are non-fatal
+
+SCORE: 11/12 PASS, 1/12 FAIL
+FAILURE: AC5 — task creation tool not wired to AI chat (feature gap, not regression)
+
+RESULT: APPROVED

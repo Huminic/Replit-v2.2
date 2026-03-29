@@ -1,0 +1,22 @@
+T-022f Enforcer Checklist — Landing & Widget Depth
+===================================================
+Date: 2026-03-27T01:20:00Z
+
+[PASS] AC1  - 5 dealer API endpoints return correct names (API verified)
+[DEFECT] AC1  - /p/{slug} client route broken by auth redirect race
+[PASS] AC2  - Widget menu shows 4 options (Web Chat, Instant Call Back, Contact Form, Two-Way Video)
+[PASS] AC3  - Widget chat returns AI response mentioning Serra Honda
+[PASS] AC4  - Contact form submits successfully, appears in TeamBox
+[N/A]  AC5  - Appointment booking not available via widget
+[PASS] AC6  - Calendar view loads at /sales?tab=calendar
+[PASS] AC7  - ?mode=video shows fullscreen video UI with connecting state
+[PASS] AC8  - All 5 widget JS endpoints return HTTP 200
+[PASS] AC9  - All 5 widget JS files contain dealer name string
+[DEFECT] AC10 - CORS blocks cross-origin requests from external domains
+[PASS] AC11 - Invalid slug returns 404 / "Page Not Found"
+
+Defects:
+  DEF-1 [HIGH]   /p/{slug} route race condition (ProtectedRoute catch-all)
+  DEF-2 [MEDIUM] Widget JS CORS whitelist blocks external embedding
+
+Verdict: APPROVED WITH DEFECTS (8 pass, 1 partial, 1 n/a, 2 defects)

@@ -1,0 +1,19 @@
+{
+  "id": "T-022f",
+  "category": "Testing",
+  "name": "Landing & Widget Depth",
+  "phase": "qa_resolve_loop",
+  "status": "planned",
+  "description": "5 dealer pages, embed code, widget JS, appointments, cross-origin",
+  "dependsOn": [
+    "T-014"
+  ],
+  "blocks": [
+    "T-016"
+  ],
+  "acceptanceCriteria": [],
+  "declaredFiles": [
+    "tests/e2e/s8-landing-widgets.spec.ts"
+  ],
+  "evidence": ".governor/evidence/T-022f/"
+}

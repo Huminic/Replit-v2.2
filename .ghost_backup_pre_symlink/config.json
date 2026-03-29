@@ -1,0 +1,24 @@
+{
+  "project_slug": "nexxus",
+  "project_path": "/home/ubuntu/Claude-store/nexxus2.2_replit",
+  "deploy_url": "https://dev.huminicdev.com",
+  "production_url": "https://live.huminic.app",
+  "test_command": "npx playwright test",
+  "protected_paths": ["server/", "client/src/", "shared/"],
+  "governance_files": [
+    "CLAUDE.md",
+    "enforcement_harness.json",
+    "harness.md",
+    "scripts/pre-commit.sh",
+    "scripts/watchdog.sh",
+    "scripts/check-file-scope.sh",
+    "scripts/enforcer-checklist.sh",
+    "scripts/commit.sh",
+    "scripts/workflow-audit.sh"
+  ],
+  "adjacent_projects": {
+    "central-mcp": "/home/ubuntu/Claude-store/central-mcp",
+    "vin-safe-mcp": "/home/ubuntu/Claude-store/vin-safe-mcp"
+  },
+  "sprint_id_pattern": "QA-S[0-9]+|FIX-S[0-9]+|P[0-9]+-S[0-9]+|T-[0-9]+|REM-[0-9]+|I-[0-9]+|ALN-[0-9]+|AUDIT-[0-9]+|DEPLOY-[0-9]+|LAUNCH-S[0-9]+|EMG-[0-9]+|GHOST-[A-Z]+-[0-9]+|VIN-[0-9]+|E2E-[0-9]+|DB-[0-9]+|ORG-[0-9]+|AC-[0-9]+|R-[0-9]+|HASH-FIX-[0-9]+|SEC"
+}

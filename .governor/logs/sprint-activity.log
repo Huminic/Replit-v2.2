@@ -543,3 +543,13 @@ The test in domain-03-chat.spec.ts is correct — it expects creation to fail (4
 [2026-03-27T03:37:22Z] R-017 I-144: Added SMS blacklist check to checkCommGate(). Before allowing send, checks storage.getBlacklistEntry() for recipient phone. Single query per recipient (not N+1 — already per-recipient in processOutboundSend). Dry runs now correctly report blacklisted numbers as blocked.
 [2026-03-27T03:41:40Z] R-017: Sprint complete. All 5 issues fixed. Build: PASS. Tests: 19/21 (2 pre-existing). Evidence written to .governor/evidence/R-017/. Cross-sign: APPROVED.
 [2026-03-27T03:43:18Z] EXIT GATE R-017: CLEARED — Ghost verified 5 issues (I-140 through I-144), 4 files changed, build clean, 1 scope deviation (storage.ts, non-blocking). All code claims confirmed against actual files.
+[2026-03-27T04:14:30Z] RETEST-REMEDIATION: Verification agent completed retest of R-014 through R-017 fixes on dev.huminicdev.com
+  R-014 I-134 Landing page route: PASS
+  R-014 I-135 CORS widget endpoint: PASS
+  R-015 I-148 Role switcher removed: PASS
+  R-016 I-139 Data Guru name: PASS
+  R-017 I-141 Webhook transcript: DEPLOYED, NEEDS LIVE TEST
+  R-017 I-143 Business hours TCPA: PASS
+  R-017 I-144 Blacklist in CommGate: PASS
+  Evidence: .governor/evidence/retest-remediation/
+  Report: .governor/evidence/retest-remediation/post-sprint-report.md

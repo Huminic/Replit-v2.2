@@ -1,0 +1,1053 @@
+- generic:
+  - generic:
+    - list
+    - generic:
+      - banner:
+        - generic:
+          - generic: Nexxus Connect™
+        - generic:
+          - button:
+            - img
+            - generic: Serra Honda
+            - img
+        - generic:
+          - button:
+            - img
+          - button:
+            - img
+            - generic: "50"
+          - button:
+            - img
+          - button:
+            - img
+          - button:
+            - generic:
+              - generic: SHA
+            - img
+      - generic:
+        - complementary:
+          - generic:
+            - button:
+              - img
+          - generic:
+            - navigation:
+              - button:
+                - img
+                - generic: AI Chat
+              - button:
+                - img
+                - generic: TeamBox
+              - button:
+                - img
+                - generic: Sales
+              - button:
+                - img
+                - generic: Service
+              - button:
+                - img
+                - generic: Marketing
+              - button:
+                - img
+                - generic: Manage
+          - generic:
+            - navigation:
+              - button:
+                - img
+                - generic: System
+          - generic:
+            - button:
+              - img
+              - generic: Logout
+        - generic:
+          - main:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: AI Key Metrics
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - img
+                              - generic:
+                                - paragraph: Active Pipeline
+                                - paragraph: "99"
+                                - generic:
+                                  - img
+                                  - generic: live
+                          - generic:
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - img
+                              - generic:
+                                - paragraph: Appointments Today
+                                - paragraph: "0"
+                                - generic:
+                                  - img
+                                  - generic: live
+                          - generic:
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - img
+                              - generic:
+                                - paragraph: Open Escalations
+                                - paragraph: "9"
+                                - generic:
+                                  - img
+                                  - generic: live
+                          - generic:
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - img
+                              - generic:
+                                - paragraph: Outbound Sent 24h
+                                - paragraph: "0"
+                                - generic:
+                                  - img
+                                  - generic: live
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: Try asking...
+                      - generic:
+                        - button: Compare store performance across locations
+                        - button: What are the top escalations right now?
+                        - button: Show me team activity this week
+                        - button: How are we tracking against targets?
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - button:
+                            - img
+                          - textbox:
+                            - /placeholder: Ask me anything about your business
+                          - button [disabled]:
+                            - img
+  - dialog "Active Pipeline" [ref=e170]:
+    - generic [ref=e171]:
+      - heading "Active Pipeline" [level=2] [ref=e172]:
+        - img [ref=e173]
+        - text: Active Pipeline
+      - paragraph [ref=e176]: Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses
+    - generic [ref=e177]:
+      - generic [ref=e178]:
+        - generic [ref=e179]: "99"
+        - generic [ref=e180]: live
+        - generic [ref=e181]: 99 records
+      - table [ref=e184]:
+        - rowgroup [ref=e185]:
+          - row "Name Status Vehicle Lead ID" [ref=e186]:
+            - columnheader "Name" [ref=e187]
+            - columnheader "Status" [ref=e188]
+            - columnheader "Vehicle" [ref=e189]
+            - columnheader "Lead ID" [ref=e190]
+            - columnheader [ref=e191]
+        - rowgroup [ref=e192]:
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230940-0 1987230940 View Contact" [ref=e193]:
+            - cell "AI Lead" [ref=e194]
+            - cell "ACTIVE_NEW_LEAD" [ref=e195]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230940-0" [ref=e196]
+            - cell "1987230940" [ref=e197]
+            - cell "View Contact" [ref=e198]:
+              - button "View Contact" [ref=e199] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Diana Wain ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1985208533-0 1985208533 View Contact" [ref=e200]:
+            - cell "Diana Wain" [ref=e201]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e202]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985208533-0" [ref=e203]
+            - cell "1985208533" [ref=e204]
+            - cell "View Contact" [ref=e205]:
+              - button "View Contact" [ref=e206] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988464528-0 1988464528 View Contact" [ref=e207]:
+            - cell "AI Lead" [ref=e208]
+            - cell "ACTIVE_NEW_LEAD" [ref=e209]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988464528-0" [ref=e210]
+            - cell "1988464528" [ref=e211]
+            - cell "View Contact" [ref=e212]:
+              - button "View Contact" [ref=e213] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Madison Grice ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984831379-0 1984831379 View Contact" [ref=e214]:
+            - cell "Madison Grice" [ref=e215]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e216]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984831379-0" [ref=e217]
+            - cell "1984831379" [ref=e218]
+            - cell "View Contact" [ref=e219]:
+              - button "View Contact" [ref=e220] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Eric Catalan ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1985509151-0 1985509151 View Contact" [ref=e221]:
+            - cell "Eric Catalan" [ref=e222]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e223]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985509151-0" [ref=e224]
+            - cell "1985509151" [ref=e225]
+            - cell "View Contact" [ref=e226]:
+              - button "View Contact" [ref=e227] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Obi Barr ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984014204-0 1984014204 View Contact" [ref=e228]:
+            - cell "Obi Barr" [ref=e229]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e230]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984014204-0" [ref=e231]
+            - cell "1984014204" [ref=e232]
+            - cell "View Contact" [ref=e233]:
+              - button "View Contact" [ref=e234] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Kristian Burns ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984031070-0 1984031070 View Contact" [ref=e235]:
+            - cell "Kristian Burns" [ref=e236]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e237]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984031070-0" [ref=e238]
+            - cell "1984031070" [ref=e239]
+            - cell "View Contact" [ref=e240]:
+              - button "View Contact" [ref=e241] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Anquesha Smith ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984371403-0 1984371403 View Contact" [ref=e242]:
+            - cell "Anquesha Smith" [ref=e243]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e244]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984371403-0" [ref=e245]
+            - cell "1984371403" [ref=e246]
+            - cell "View Contact" [ref=e247]:
+              - button "View Contact" [ref=e248] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Clifton Henderson ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984056248-0 1984056248 View Contact" [ref=e249]:
+            - cell "Clifton Henderson" [ref=e250]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e251]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984056248-0" [ref=e252]
+            - cell "1984056248" [ref=e253]
+            - cell "View Contact" [ref=e254]:
+              - button "View Contact" [ref=e255] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Dasha Cumbie ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230919-0 1987230919 View Contact" [ref=e256]:
+            - cell "Dasha Cumbie" [ref=e257]
+            - cell "ACTIVE_NEW_LEAD" [ref=e258]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230919-0" [ref=e259]
+            - cell "1987230919" [ref=e260]
+            - cell "View Contact" [ref=e261]:
+              - button "View Contact" [ref=e262] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Duane Wells ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230809-0 1987230809 View Contact" [ref=e263]:
+            - cell "Duane Wells" [ref=e264]
+            - cell "ACTIVE_NEW_LEAD" [ref=e265]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230809-0" [ref=e266]
+            - cell "1987230809" [ref=e267]
+            - cell "View Contact" [ref=e268]:
+              - button "View Contact" [ref=e269] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Laura Centers ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987921550-0 1987921550 View Contact" [ref=e270]:
+            - cell "Laura Centers" [ref=e271]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e272]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987921550-0" [ref=e273]
+            - cell "1987921550" [ref=e274]
+            - cell "View Contact" [ref=e275]:
+              - button "View Contact" [ref=e276] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Michael Mccord ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988074372-0 1988074372 View Contact" [ref=e277]:
+            - cell "Michael Mccord" [ref=e278]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e279]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988074372-0" [ref=e280]
+            - cell "1988074372" [ref=e281]
+            - cell "View Contact" [ref=e282]:
+              - button "View Contact" [ref=e283] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230851-0 1987230851 View Contact" [ref=e284]:
+            - cell "AI Lead" [ref=e285]
+            - cell "ACTIVE_NEW_LEAD" [ref=e286]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230851-0" [ref=e287]
+            - cell "1987230851" [ref=e288]
+            - cell "View Contact" [ref=e289]:
+              - button "View Contact" [ref=e290] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230836-0 1987230836 View Contact" [ref=e291]:
+            - cell "AI Lead" [ref=e292]
+            - cell "ACTIVE_NEW_LEAD" [ref=e293]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230836-0" [ref=e294]
+            - cell "1987230836" [ref=e295]
+            - cell "View Contact" [ref=e296]:
+              - button "View Contact" [ref=e297] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "C.J. Saager ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987963943-0 1987963943 View Contact" [ref=e298]:
+            - cell "C.J. Saager" [ref=e299]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e300]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987963943-0" [ref=e301]
+            - cell "1987963943" [ref=e302]
+            - cell "View Contact" [ref=e303]:
+              - button "View Contact" [ref=e304] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Donnie Kitchens ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988426605-0 1988426605 View Contact" [ref=e305]:
+            - cell "Donnie Kitchens" [ref=e306]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e307]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988426605-0" [ref=e308]
+            - cell "1988426605" [ref=e309]
+            - cell "View Contact" [ref=e310]:
+              - button "View Contact" [ref=e311] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230890-0 1987230890 View Contact" [ref=e312]:
+            - cell "AI Lead" [ref=e313]
+            - cell "ACTIVE_NEW_LEAD" [ref=e314]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230890-0" [ref=e315]
+            - cell "1987230890" [ref=e316]
+            - cell "View Contact" [ref=e317]:
+              - button "View Contact" [ref=e318] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Renay Elmore ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988128279-0 1988128279 View Contact" [ref=e319]:
+            - cell "Renay Elmore" [ref=e320]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e321]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988128279-0" [ref=e322]
+            - cell "1988128279" [ref=e323]
+            - cell "View Contact" [ref=e324]:
+              - button "View Contact" [ref=e325] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230908-0 1987230908 View Contact" [ref=e326]:
+            - cell "AI Lead" [ref=e327]
+            - cell "ACTIVE_NEW_LEAD" [ref=e328]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230908-0" [ref=e329]
+            - cell "1987230908" [ref=e330]
+            - cell "View Contact" [ref=e331]:
+              - button "View Contact" [ref=e332] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "AI Lead ACTIVE_NEW_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987230865-0 1987230865 View Contact" [ref=e333]:
+            - cell "AI Lead" [ref=e334]
+            - cell "ACTIVE_NEW_LEAD" [ref=e335]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987230865-0" [ref=e336]
+            - cell "1987230865" [ref=e337]
+            - cell "View Contact" [ref=e338]:
+              - button "View Contact" [ref=e339] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Michael Mccord ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988035693-0 1988035693 View Contact" [ref=e340]:
+            - cell "Michael Mccord" [ref=e341]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e342]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988035693-0" [ref=e343]
+            - cell "1988035693" [ref=e344]
+            - cell "View Contact" [ref=e345]:
+              - button "View Contact" [ref=e346] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Jess Vick ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986911652-0 1986911652 View Contact" [ref=e347]:
+            - cell "Jess Vick" [ref=e348]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e349]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986911652-0" [ref=e350]
+            - cell "1986911652" [ref=e351]
+            - cell "View Contact" [ref=e352]:
+              - button "View Contact" [ref=e353] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Janice Glass ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987793875-0 1987793875 View Contact" [ref=e354]:
+            - cell "Janice Glass" [ref=e355]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e356]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987793875-0" [ref=e357]
+            - cell "1987793875" [ref=e358]
+            - cell "View Contact" [ref=e359]:
+              - button "View Contact" [ref=e360] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Dinah Smith ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987746967-0 1987746967 View Contact" [ref=e361]:
+            - cell "Dinah Smith" [ref=e362]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e363]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987746967-0" [ref=e364]
+            - cell "1987746967" [ref=e365]
+            - cell "View Contact" [ref=e366]:
+              - button "View Contact" [ref=e367] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Lonnie Miles ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986560317-0 1986560317 View Contact" [ref=e368]:
+            - cell "Lonnie Miles" [ref=e369]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e370]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986560317-0" [ref=e371]
+            - cell "1986560317" [ref=e372]
+            - cell "View Contact" [ref=e373]:
+              - button "View Contact" [ref=e374] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Connie Johnson ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986748576-0 1986748576 View Contact" [ref=e375]:
+            - cell "Connie Johnson" [ref=e376]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e377]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986748576-0" [ref=e378]
+            - cell "1986748576" [ref=e379]
+            - cell "View Contact" [ref=e380]:
+              - button "View Contact" [ref=e381] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "R C Daniel ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986353897-0 1986353897 View Contact" [ref=e382]:
+            - cell "R C Daniel" [ref=e383]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e384]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986353897-0" [ref=e385]
+            - cell "1986353897" [ref=e386]
+            - cell "View Contact" [ref=e387]:
+              - button "View Contact" [ref=e388] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Ashley Pasquinelli ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986476530-0 1986476530 View Contact" [ref=e389]:
+            - cell "Ashley Pasquinelli" [ref=e390]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e391]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986476530-0" [ref=e392]
+            - cell "1986476530" [ref=e393]
+            - cell "View Contact" [ref=e394]:
+              - button "View Contact" [ref=e395] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Braden Macon ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988403229-0 1988403229 View Contact" [ref=e396]:
+            - cell "Braden Macon" [ref=e397]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e398]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988403229-0" [ref=e399]
+            - cell "1988403229" [ref=e400]
+            - cell "View Contact" [ref=e401]:
+              - button "View Contact" [ref=e402] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "Cameron Thomason ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986270270-0 1986270270 View Contact" [ref=e403]:
+            - cell "Cameron Thomason" [ref=e404]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e405]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986270270-0" [ref=e406]
+            - cell "1986270270" [ref=e407]
+            - cell "View Contact" [ref=e408]:
+              - button "View Contact" [ref=e409] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987113394-0 1987113394 View Contact" [ref=e410]:
+            - cell "—" [ref=e411]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e412]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987113394-0" [ref=e413]
+            - cell "1987113394" [ref=e414]
+            - cell "View Contact" [ref=e415]:
+              - button "View Contact" [ref=e416] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987147824-0 1987147824 View Contact" [ref=e417]:
+            - cell "—" [ref=e418]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e419]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987147824-0" [ref=e420]
+            - cell "1987147824" [ref=e421]
+            - cell "View Contact" [ref=e422]:
+              - button "View Contact" [ref=e423] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987244824-0 1987244824 View Contact" [ref=e424]:
+            - cell "—" [ref=e425]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e426]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987244824-0" [ref=e427]
+            - cell "1987244824" [ref=e428]
+            - cell "View Contact" [ref=e429]:
+              - button "View Contact" [ref=e430] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987248440-0 1987248440 View Contact" [ref=e431]:
+            - cell "—" [ref=e432]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e433]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987248440-0" [ref=e434]
+            - cell "1987248440" [ref=e435]
+            - cell "View Contact" [ref=e436]:
+              - button "View Contact" [ref=e437] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987396791-0 1987396791 View Contact" [ref=e438]:
+            - cell "—" [ref=e439]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e440]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987396791-0" [ref=e441]
+            - cell "1987396791" [ref=e442]
+            - cell "View Contact" [ref=e443]:
+              - button "View Contact" [ref=e444] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987411290-0 1987411290 View Contact" [ref=e445]:
+            - cell "—" [ref=e446]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e447]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987411290-0" [ref=e448]
+            - cell "1987411290" [ref=e449]
+            - cell "View Contact" [ref=e450]:
+              - button "View Contact" [ref=e451] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987614588-0 1987614588 View Contact" [ref=e452]:
+            - cell "—" [ref=e453]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e454]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987614588-0" [ref=e455]
+            - cell "1987614588" [ref=e456]
+            - cell "View Contact" [ref=e457]:
+              - button "View Contact" [ref=e458] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987617699-0 1987617699 View Contact" [ref=e459]:
+            - cell "—" [ref=e460]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e461]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987617699-0" [ref=e462]
+            - cell "1987617699" [ref=e463]
+            - cell "View Contact" [ref=e464]:
+              - button "View Contact" [ref=e465] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987623739-0 1987623739 View Contact" [ref=e466]:
+            - cell "—" [ref=e467]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e468]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987623739-0" [ref=e469]
+            - cell "1987623739" [ref=e470]
+            - cell "View Contact" [ref=e471]:
+              - button "View Contact" [ref=e472] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987686424-0 1987686424 View Contact" [ref=e473]:
+            - cell "—" [ref=e474]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e475]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987686424-0" [ref=e476]
+            - cell "1987686424" [ref=e477]
+            - cell "View Contact" [ref=e478]:
+              - button "View Contact" [ref=e479] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987686471-0 1987686471 View Contact" [ref=e480]:
+            - cell "—" [ref=e481]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e482]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987686471-0" [ref=e483]
+            - cell "1987686471" [ref=e484]
+            - cell "View Contact" [ref=e485]:
+              - button "View Contact" [ref=e486] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987688138-0 1987688138 View Contact" [ref=e487]:
+            - cell "—" [ref=e488]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e489]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987688138-0" [ref=e490]
+            - cell "1987688138" [ref=e491]
+            - cell "View Contact" [ref=e492]:
+              - button "View Contact" [ref=e493] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987729082-0 1987729082 View Contact" [ref=e494]:
+            - cell "—" [ref=e495]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e496]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987729082-0" [ref=e497]
+            - cell "1987729082" [ref=e498]
+            - cell "View Contact" [ref=e499]:
+              - button "View Contact" [ref=e500] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987750737-0 1987750737 View Contact" [ref=e501]:
+            - cell "—" [ref=e502]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e503]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987750737-0" [ref=e504]
+            - cell "1987750737" [ref=e505]
+            - cell "View Contact" [ref=e506]:
+              - button "View Contact" [ref=e507] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987782952-0 1987782952 View Contact" [ref=e508]:
+            - cell "—" [ref=e509]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e510]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987782952-0" [ref=e511]
+            - cell "1987782952" [ref=e512]
+            - cell "View Contact" [ref=e513]:
+              - button "View Contact" [ref=e514] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987797750-0 1987797750 View Contact" [ref=e515]:
+            - cell "—" [ref=e516]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e517]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987797750-0" [ref=e518]
+            - cell "1987797750" [ref=e519]
+            - cell "View Contact" [ref=e520]:
+              - button "View Contact" [ref=e521] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1987810279-0 1987810279 View Contact" [ref=e522]:
+            - cell "—" [ref=e523]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e524]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987810279-0" [ref=e525]
+            - cell "1987810279" [ref=e526]
+            - cell "View Contact" [ref=e527]:
+              - button "View Contact" [ref=e528] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988002387-0 1988002387 View Contact" [ref=e529]:
+            - cell "—" [ref=e530]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e531]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988002387-0" [ref=e532]
+            - cell "1988002387" [ref=e533]
+            - cell "View Contact" [ref=e534]:
+              - button "View Contact" [ref=e535] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988092038-0 1988092038 View Contact" [ref=e536]:
+            - cell "—" [ref=e537]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e538]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988092038-0" [ref=e539]
+            - cell "1988092038" [ref=e540]
+            - cell "View Contact" [ref=e541]:
+              - button "View Contact" [ref=e542] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988156459-0 1988156459 View Contact" [ref=e543]:
+            - cell "—" [ref=e544]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e545]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988156459-0" [ref=e546]
+            - cell "1988156459" [ref=e547]
+            - cell "View Contact" [ref=e548]:
+              - button "View Contact" [ref=e549] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988156792-0 1988156792 View Contact" [ref=e550]:
+            - cell "—" [ref=e551]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e552]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988156792-0" [ref=e553]
+            - cell "1988156792" [ref=e554]
+            - cell "View Contact" [ref=e555]:
+              - button "View Contact" [ref=e556] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988212092-0 1988212092 View Contact" [ref=e557]:
+            - cell "—" [ref=e558]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e559]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988212092-0" [ref=e560]
+            - cell "1988212092" [ref=e561]
+            - cell "View Contact" [ref=e562]:
+              - button "View Contact" [ref=e563] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988223718-0 1988223718 View Contact" [ref=e564]:
+            - cell "—" [ref=e565]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e566]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988223718-0" [ref=e567]
+            - cell "1988223718" [ref=e568]
+            - cell "View Contact" [ref=e569]:
+              - button "View Contact" [ref=e570] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988246512-0 1988246512 View Contact" [ref=e571]:
+            - cell "—" [ref=e572]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e573]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988246512-0" [ref=e574]
+            - cell "1988246512" [ref=e575]
+            - cell "View Contact" [ref=e576]:
+              - button "View Contact" [ref=e577] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988253812-0 1988253812 View Contact" [ref=e578]:
+            - cell "—" [ref=e579]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e580]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988253812-0" [ref=e581]
+            - cell "1988253812" [ref=e582]
+            - cell "View Contact" [ref=e583]:
+              - button "View Contact" [ref=e584] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988293598-0 1988293598 View Contact" [ref=e585]:
+            - cell "—" [ref=e586]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e587]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988293598-0" [ref=e588]
+            - cell "1988293598" [ref=e589]
+            - cell "View Contact" [ref=e590]:
+              - button "View Contact" [ref=e591] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988298080-0 1988298080 View Contact" [ref=e592]:
+            - cell "—" [ref=e593]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e594]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988298080-0" [ref=e595]
+            - cell "1988298080" [ref=e596]
+            - cell "View Contact" [ref=e597]:
+              - button "View Contact" [ref=e598] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988355029-0 1988355029 View Contact" [ref=e599]:
+            - cell "—" [ref=e600]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e601]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988355029-0" [ref=e602]
+            - cell "1988355029" [ref=e603]
+            - cell "View Contact" [ref=e604]:
+              - button "View Contact" [ref=e605] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1988396398-0 1988396398 View Contact" [ref=e606]:
+            - cell "—" [ref=e607]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e608]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988396398-0" [ref=e609]
+            - cell "1988396398" [ref=e610]
+            - cell "View Contact" [ref=e611]:
+              - button "View Contact" [ref=e612] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1987892119-0 1987892119 View Contact" [ref=e613]:
+            - cell "—" [ref=e614]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e615]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1987892119-0" [ref=e616]
+            - cell "1987892119" [ref=e617]
+            - cell "View Contact" [ref=e618]:
+              - button "View Contact" [ref=e619] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1988042251-0 1988042251 View Contact" [ref=e620]:
+            - cell "—" [ref=e621]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e622]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1988042251-0" [ref=e623]
+            - cell "1988042251" [ref=e624]
+            - cell "View Contact" [ref=e625]:
+              - button "View Contact" [ref=e626] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1983678115-0 1983678115 View Contact" [ref=e627]:
+            - cell "—" [ref=e628]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e629]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983678115-0" [ref=e630]
+            - cell "1983678115" [ref=e631]
+            - cell "View Contact" [ref=e632]:
+              - button "View Contact" [ref=e633] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983797186-0 1983797186 View Contact" [ref=e634]:
+            - cell "—" [ref=e635]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e636]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983797186-0" [ref=e637]
+            - cell "1983797186" [ref=e638]
+            - cell "View Contact" [ref=e639]:
+              - button "View Contact" [ref=e640] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983800094-0 1983800094 View Contact" [ref=e641]:
+            - cell "—" [ref=e642]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e643]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983800094-0" [ref=e644]
+            - cell "1983800094" [ref=e645]
+            - cell "View Contact" [ref=e646]:
+              - button "View Contact" [ref=e647] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983841599-0 1983841599 View Contact" [ref=e648]:
+            - cell "—" [ref=e649]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e650]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983841599-0" [ref=e651]
+            - cell "1983841599" [ref=e652]
+            - cell "View Contact" [ref=e653]:
+              - button "View Contact" [ref=e654] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1983870928-0 1983870928 View Contact" [ref=e655]:
+            - cell "—" [ref=e656]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e657]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983870928-0" [ref=e658]
+            - cell "1983870928" [ref=e659]
+            - cell "View Contact" [ref=e660]:
+              - button "View Contact" [ref=e661] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983913624-0 1983913624 View Contact" [ref=e662]:
+            - cell "—" [ref=e663]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e664]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983913624-0" [ref=e665]
+            - cell "1983913624" [ref=e666]
+            - cell "View Contact" [ref=e667]:
+              - button "View Contact" [ref=e668] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983941290-0 1983941290 View Contact" [ref=e669]:
+            - cell "—" [ref=e670]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e671]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983941290-0" [ref=e672]
+            - cell "1983941290" [ref=e673]
+            - cell "View Contact" [ref=e674]:
+              - button "View Contact" [ref=e675] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1983951317-0 1983951317 View Contact" [ref=e676]:
+            - cell "—" [ref=e677]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e678]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983951317-0" [ref=e679]
+            - cell "1983951317" [ref=e680]
+            - cell "View Contact" [ref=e681]:
+              - button "View Contact" [ref=e682] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1983951952-0 1983951952 View Contact" [ref=e683]:
+            - cell "—" [ref=e684]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e685]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983951952-0" [ref=e686]
+            - cell "1983951952" [ref=e687]
+            - cell "View Contact" [ref=e688]:
+              - button "View Contact" [ref=e689] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1983998739-0 1983998739 View Contact" [ref=e690]:
+            - cell "—" [ref=e691]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e692]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1983998739-0" [ref=e693]
+            - cell "1983998739" [ref=e694]
+            - cell "View Contact" [ref=e695]:
+              - button "View Contact" [ref=e696] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1984143758-0 1984143758 View Contact" [ref=e697]:
+            - cell "—" [ref=e698]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e699]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984143758-0" [ref=e700]
+            - cell "1984143758" [ref=e701]
+            - cell "View Contact" [ref=e702]:
+              - button "View Contact" [ref=e703] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1984213846-0 1984213846 View Contact" [ref=e704]:
+            - cell "—" [ref=e705]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e706]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984213846-0" [ref=e707]
+            - cell "1984213846" [ref=e708]
+            - cell "View Contact" [ref=e709]:
+              - button "View Contact" [ref=e710] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1984359234-0 1984359234 View Contact" [ref=e711]:
+            - cell "—" [ref=e712]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e713]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984359234-0" [ref=e714]
+            - cell "1984359234" [ref=e715]
+            - cell "View Contact" [ref=e716]:
+              - button "View Contact" [ref=e717] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1984483610-0 1984483610 View Contact" [ref=e718]:
+            - cell "—" [ref=e719]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e720]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984483610-0" [ref=e721]
+            - cell "1984483610" [ref=e722]
+            - cell "View Contact" [ref=e723]:
+              - button "View Contact" [ref=e724] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1984516902-0 1984516902 View Contact" [ref=e725]:
+            - cell "—" [ref=e726]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e727]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984516902-0" [ref=e728]
+            - cell "1984516902" [ref=e729]
+            - cell "View Contact" [ref=e730]:
+              - button "View Contact" [ref=e731] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1984806250-0 1984806250 View Contact" [ref=e732]:
+            - cell "—" [ref=e733]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e734]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1984806250-0" [ref=e735]
+            - cell "1984806250" [ref=e736]
+            - cell "View Contact" [ref=e737]:
+              - button "View Contact" [ref=e738] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985073435-0 1985073435 View Contact" [ref=e739]:
+            - cell "—" [ref=e740]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e741]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985073435-0" [ref=e742]
+            - cell "1985073435" [ref=e743]
+            - cell "View Contact" [ref=e744]:
+              - button "View Contact" [ref=e745] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985076072-0 1985076072 View Contact" [ref=e746]:
+            - cell "—" [ref=e747]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e748]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985076072-0" [ref=e749]
+            - cell "1985076072" [ref=e750]
+            - cell "View Contact" [ref=e751]:
+              - button "View Contact" [ref=e752] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985190419-0 1985190419 View Contact" [ref=e753]:
+            - cell "—" [ref=e754]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e755]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985190419-0" [ref=e756]
+            - cell "1985190419" [ref=e757]
+            - cell "View Contact" [ref=e758]:
+              - button "View Contact" [ref=e759] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985243320-0 1985243320 View Contact" [ref=e760]:
+            - cell "—" [ref=e761]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e762]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985243320-0" [ref=e763]
+            - cell "1985243320" [ref=e764]
+            - cell "View Contact" [ref=e765]:
+              - button "View Contact" [ref=e766] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985505968-0 1985505968 View Contact" [ref=e767]:
+            - cell "—" [ref=e768]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e769]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985505968-0" [ref=e770]
+            - cell "1985505968" [ref=e771]
+            - cell "View Contact" [ref=e772]:
+              - button "View Contact" [ref=e773] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1985708306-0 1985708306 View Contact" [ref=e774]:
+            - cell "—" [ref=e775]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e776]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1985708306-0" [ref=e777]
+            - cell "1985708306" [ref=e778]
+            - cell "View Contact" [ref=e779]:
+              - button "View Contact" [ref=e780] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986164849-0 1986164849 View Contact" [ref=e781]:
+            - cell "—" [ref=e782]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e783]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986164849-0" [ref=e784]
+            - cell "1986164849" [ref=e785]
+            - cell "View Contact" [ref=e786]:
+              - button "View Contact" [ref=e787] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986254153-0 1986254153 View Contact" [ref=e788]:
+            - cell "—" [ref=e789]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e790]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986254153-0" [ref=e791]
+            - cell "1986254153" [ref=e792]
+            - cell "View Contact" [ref=e793]:
+              - button "View Contact" [ref=e794] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986270305-0 1986270305 View Contact" [ref=e795]:
+            - cell "—" [ref=e796]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e797]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986270305-0" [ref=e798]
+            - cell "1986270305" [ref=e799]
+            - cell "View Contact" [ref=e800]:
+              - button "View Contact" [ref=e801] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986335798-0 1986335798 View Contact" [ref=e802]:
+            - cell "—" [ref=e803]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e804]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986335798-0" [ref=e805]
+            - cell "1986335798" [ref=e806]
+            - cell "View Contact" [ref=e807]:
+              - button "View Contact" [ref=e808] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986358776-0 1986358776 View Contact" [ref=e809]:
+            - cell "—" [ref=e810]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e811]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986358776-0" [ref=e812]
+            - cell "1986358776" [ref=e813]
+            - cell "View Contact" [ref=e814]:
+              - button "View Contact" [ref=e815] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986362525-0 1986362525 View Contact" [ref=e816]:
+            - cell "—" [ref=e817]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e818]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986362525-0" [ref=e819]
+            - cell "1986362525" [ref=e820]
+            - cell "View Contact" [ref=e821]:
+              - button "View Contact" [ref=e822] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986382730-0 1986382730 View Contact" [ref=e823]:
+            - cell "—" [ref=e824]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e825]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986382730-0" [ref=e826]
+            - cell "1986382730" [ref=e827]
+            - cell "View Contact" [ref=e828]:
+              - button "View Contact" [ref=e829] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986476125-0 1986476125 View Contact" [ref=e830]:
+            - cell "—" [ref=e831]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e832]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986476125-0" [ref=e833]
+            - cell "1986476125" [ref=e834]
+            - cell "View Contact" [ref=e835]:
+              - button "View Contact" [ref=e836] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986694181-0 1986694181 View Contact" [ref=e837]:
+            - cell "—" [ref=e838]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e839]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986694181-0" [ref=e840]
+            - cell "1986694181" [ref=e841]
+            - cell "View Contact" [ref=e842]:
+              - button "View Contact" [ref=e843] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986739592-0 1986739592 View Contact" [ref=e844]:
+            - cell "—" [ref=e845]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e846]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986739592-0" [ref=e847]
+            - cell "1986739592" [ref=e848]
+            - cell "View Contact" [ref=e849]:
+              - button "View Contact" [ref=e850] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986794104-0 1986794104 View Contact" [ref=e851]:
+            - cell "—" [ref=e852]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e853]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986794104-0" [ref=e854]
+            - cell "1986794104" [ref=e855]
+            - cell "View Contact" [ref=e856]:
+              - button "View Contact" [ref=e857] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986811860-0 1986811860 View Contact" [ref=e858]:
+            - cell "—" [ref=e859]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e860]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986811860-0" [ref=e861]
+            - cell "1986811860" [ref=e862]
+            - cell "View Contact" [ref=e863]:
+              - button "View Contact" [ref=e864] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986858128-0 1986858128 View Contact" [ref=e865]:
+            - cell "—" [ref=e866]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e867]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986858128-0" [ref=e868]
+            - cell "1986858128" [ref=e869]
+            - cell "View Contact" [ref=e870]:
+              - button "View Contact" [ref=e871] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_ACTIVE_LEAD https://api.vinsolutions.com/vehicles/interest/id/1986865450-0 1986865450 View Contact" [ref=e872]:
+            - cell "—" [ref=e873]
+            - cell "ACTIVE_ACTIVE_LEAD" [ref=e874]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986865450-0" [ref=e875]
+            - cell "1986865450" [ref=e876]
+            - cell "View Contact" [ref=e877]:
+              - button "View Contact" [ref=e878] [cursor=pointer]:
+                - img
+                - text: View Contact
+          - row "— ACTIVE_WAITING_FOR_PROSPECT_RESPONSE https://api.vinsolutions.com/vehicles/interest/id/1986544475-0 1986544475 View Contact" [ref=e879]:
+            - cell "—" [ref=e880]
+            - cell "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE" [ref=e881]
+            - cell "https://api.vinsolutions.com/vehicles/interest/id/1986544475-0" [ref=e882]
+            - cell "1986544475" [ref=e883]
+            - cell "View Contact" [ref=e884]:
+              - button "View Contact" [ref=e885] [cursor=pointer]:
+                - img
+                - text: View Contact
+    - button "Close" [active] [ref=e886] [cursor=pointer]:
+      - img [ref=e887]
+      - generic [ref=e890]: Close

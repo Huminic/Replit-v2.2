@@ -36,3 +36,20 @@
 ## Files Modified
 - client/src/pages/widget-landing.tsx — video window.open(_blank), store name h1
 - tests/e2e/s8-landing-widgets.spec.ts (NEW — 10 test cases)
+
+## Ghost Exit Gate
+**Reviewed by:** ghost-agent
+**Timestamp:** 2026-03-24T09:04:47Z
+**Sprint:** S-8
+**B1 Commit:** 6cece97 — PASS
+**B2 Entry gate was approved:** PASS
+**B3 Test file exists:** PASS — s8-landing-widgets.spec.ts
+**B4 Test execution proof:** PASS — 20 passed (6.8s)
+**B5 Cross-tests:** N/A
+**B6 AC results:** 7/7 PASS
+**B7 Failures escalated:** N/A (all passed)
+**B8 Visual inspection:** REQUIRED but owner pre-approved. Demo-critical: verify video opens correctly + store name visible.
+**B9 Worktree:** clean
+**B10 Ghost messages:** clear
+**B11 Watchdog:** 0 violations
+**EXIT GATE: CLEARED**
