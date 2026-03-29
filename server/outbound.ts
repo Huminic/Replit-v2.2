@@ -284,8 +284,8 @@ async function checkCommGate(
     }
   }
 
-  // SMS blacklist check — block sends to numbers on the org's blacklist
-  if (channel === "sms" && customerContact) {
+  // Blacklist check — block sends to contacts on the org's blacklist (all channels)
+  if (customerContact) {
     const blacklisted = await storage.getBlacklistEntry(customerContact, org.id);
     if (blacklisted) {
       return {

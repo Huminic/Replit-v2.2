@@ -9,8 +9,6 @@
  *  - Activity Feed: Recent system-wide activity in dropdown (stays in header, NOT in sidebar)
  *  - Theme Toggle: Light/dark mode via ThemeContext
  *  - Profile Menu: User avatar dropdown with profile/preferences/billing links + logout
- *  - Role Switcher: DEV TOOL — allows switching RBAC role for testing. Shows all 8 roles.
- *    Will be removed or restricted in production.
  *
  * Data sources:
  *  - AppContext: currentUser, notifications, organizations, currentRole, switchOrganization
@@ -66,7 +64,7 @@ import { formatDistanceToNow } from 'date-fns';
 /**
  * @component TopBar
  * @description Top navigation bar. Fixed height h-14. Contains logo, org switcher, globe (public page link),
- * notifications, activity feed, theme toggle, profile menu, and role switcher (dev tool).
+ * notifications, activity feed, theme toggle, and profile menu.
  *
  * @designConstraints
  *   - Logo: Text-only "Nexxus Connect™" — NO icon (locked design decision)
@@ -76,8 +74,6 @@ import { formatDistanceToNow } from 'date-fns';
  *   - Notifications: Bell icon with unread count badge, scrollable dropdown
  *   - Theme toggle: Light/dark mode via ThemeContext
  *   - Profile menu: User avatar dropdown with links to profile/preferences/billing
- *   - Role switcher: DEV TOOL — allows switching RBAC role for testing. Shows all 8 roles.
- *     Will be removed or restricted in production.
  *
  * @locked Logo format (text-only), activity feed location
  * @see AppContext.tsx — provides currentUser, notifications, organizations state

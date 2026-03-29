@@ -131,7 +131,7 @@
 
 | ID | Issue | Status | Effort |
 |----|-------|--------|--------|
-| I-102 | Photo Studio agent — FAL proxy code exists, known FE integration issue flagged in code comment | NEEDS LIVE TEST | E |
+| I-102 | Photo Studio agent — image generation returns 501 from /api/openai-proxy. Was working in prior testing runs. FAL proxy code exists. Needs investigation post-deploy. | OPEN | M |
 
 ---
 

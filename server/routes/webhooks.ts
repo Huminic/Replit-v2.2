@@ -620,8 +620,24 @@ export function registerWebhookRoutes(app: Express) {
       }
 
       if (!organizationId) {
-        console.error("[VAPI Webhook] Could not resolve organization from assistantId — rejecting. No fallback to arbitrary org.");
-        return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID." });
+        // Fallback: try to find an org with an active voice agent and assign the call there
+        console.warn(`[VAPI Webhook] Could not resolve organization from assistantId "${assistantId}" — attempting fallback lookup.`);
+        const allOrgs = assistantId ? [] : await storage.getOrganizations(); // already fetched above if assistantId was set
+        const fallbackOrgs = assistantId ? await storage.getOrganizations() : allOrgs;
+        for (const org of fallbackOrgs) {
+          const orgAgents = await storage.getAgents(org.id);
+          const voiceAgent = orgAgents.find(a => a.channels?.includes("voice") && a.status === "active");
+          if (voiceAgent) {
+            organizationId = org.id;
+            // Don't assign agentId — we can't confirm which agent handled the call
+            console.warn(`[VAPI Webhook] Fallback: assigning call to org "${org.name}" (${org.id}), agentId left null.`);
+            break;
+          }
+        }
+        if (!organizationId) {
+          console.error("[VAPI Webhook] Fallback failed — no org with an active voice agent found. Rejecting.");
+          return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID." });
+        }
       }
 
       const conversation = await storage.createConversation({

@@ -117,6 +117,59 @@ export function registerPublicRoutes(app: Express) {
     }
   });
 
+  app.post("/api/widget/voice-callback", async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });
+    try {
+      const { slug, phoneNumber } = req.body;
+      if (!phoneNumber) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+
+      const org = slug ? await resolveOrgBySlug(slug) : null;
+      if (!org) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      const agents = await storage.getAgents(org.id);
+      const voiceAgent = agents.find(a => a.vapiAssistantId && a.channels?.includes("voice") && a.status === "active");
+      if (!voiceAgent?.vapiAssistantId) {
+        return res.status(400).json({ message: "No voice agent configured for this organization" });
+      }
+
+      const customerNumber = phoneNumber.replace(/[^0-9+]/g, "");
+      const formattedNumber = customerNumber.startsWith("+") ? customerNumber : `+1${customerNumber}`;
+
+      const settings = (org.settings || {}) as Record<string, any>;
+      const callArgs: Record<string, unknown> = {
+        assistantId: voiceAgent.vapiAssistantId,
+        customerNumber: formattedNumber,
+      };
+      if (settings.vapiPhoneNumberId) {
+        callArgs.phoneNumberId = settings.vapiPhoneNumberId;
+      }
+
+      const result = await callMCP("vapi_create_call", callArgs);
+      console.log(`[Widget Callback] Outbound call initiated to ${formattedNumber} for ${org.name}, callId: ${result.id}`);
+
+      const conversation = await storage.createConversation({
+        customerName: null,
+        customerEmail: null,
+        customerPhone: formattedNumber,
+        channel: "voice",
+        status: "open",
+        organizationId: org.id,
+        unreadCount: 1,
+        lastMessageAt: new Date(),
+      });
+
+      return res.json({ success: true, callId: result.id, conversationId: conversation.id });
+    } catch (err: any) {
+      console.error("Widget voice-callback error:", err?.message || err);
+      return res.status(500).json({ message: "Failed to initiate callback" });
+    }
+  });
+
   app.get("/api/widget/voice-config/:slug", async (req, res) => {
     const ip = req.ip || req.socket.remoteAddress || "unknown";
     if (!checkPublicRate(ip)) return res.status(429).json({ message: "Too many requests" });

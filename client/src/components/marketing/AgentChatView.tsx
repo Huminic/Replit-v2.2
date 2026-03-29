@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Send, Plus, Sparkles, X, Image, Video, FileText, BarChart2, MapPin, Volume2, Download, ExternalLink, ChevronDown, ChevronUp, Play, Copy, Check, ChevronRight, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getAccessToken } from '@/lib/tokenStore';
+import { getAccessToken, isTokenExpiringSoon, setAccessToken } from '@/lib/tokenStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -401,19 +401,55 @@ export default function AgentChatView({ agentId, sessionId: initialSessionId, ar
         return { role: m.role as 'user' | 'assistant', content };
       });
 
-      const token = getAccessToken();
-      const res = await fetch('/api/openai-proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [systemMsg, ...historyMsgs],
-          tools: openaiTools.length > 0 ? openaiTools : undefined,
-        }),
-      });
+      // Pre-flight token refresh if expiring soon (I-172 fix)
+      if (isTokenExpiringSoon()) {
+        try {
+          const refreshRes = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            setAccessToken(refreshData.accessToken, refreshData.expiresIn);
+          }
+        } catch { /* refresh failed — try with current token anyway */ }
+      }
+
+      let token = getAccessToken();
+      const makeProxyRequest = async (authToken: string | null) => {
+        return fetch('/api/openai-proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [systemMsg, ...historyMsgs],
+            tools: openaiTools.length > 0 ? openaiTools : undefined,
+          }),
+        });
+      };
+
+      let res = await makeProxyRequest(token);
+
+      // Retry once on 401 with fresh token
+      if (res.status === 401) {
+        try {
+          const refreshRes = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            setAccessToken(refreshData.accessToken, refreshData.expiresIn);
+            token = refreshData.accessToken;
+            res = await makeProxyRequest(token);
+          }
+        } catch { /* retry refresh failed */ }
+      }
 
       if (!res.ok) {
         throw new Error(`API error: ${res.status}`);

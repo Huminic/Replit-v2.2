@@ -6,10 +6,10 @@ export const allGrantableSections: SectionPermission[] = ['ai-chat', 'teambox', 
 
 export const defaultSectionsByRole: Record<UserRole, SectionPermission[]> = {
   super_admin: ['ai-chat', 'teambox', 'sales', 'service', 'marketing', 'management'],
-  partner_admin: ['ai-chat', 'teambox', 'sales', 'service', 'marketing', 'management'],
-  org_admin: ['ai-chat', 'teambox', 'sales', 'service', 'marketing', 'management'],
-  executive: ['ai-chat', 'teambox', 'sales', 'service', 'marketing', 'management'],
-  sales_manager: ['ai-chat', 'teambox', 'sales', 'management'],
+  partner_admin: ['ai-chat', 'teambox', 'sales', 'service', 'marketing'],
+  org_admin: ['ai-chat', 'teambox', 'sales', 'service', 'marketing'],
+  executive: ['ai-chat', 'teambox', 'sales', 'service', 'marketing'],
+  sales_manager: ['ai-chat', 'teambox', 'sales'],
   sales: ['ai-chat', 'teambox', 'sales'],
   service: ['ai-chat', 'teambox', 'service'],
   marketing: ['ai-chat', 'teambox', 'marketing'],
@@ -24,7 +24,7 @@ export const canSwitchOrgs = (role: UserRole): boolean => {
 };
 
 export const canAccessManagement = (role: UserRole): boolean => {
-  return role === 'super_admin' || role === 'partner_admin' || role === 'org_admin' || role === 'executive';
+  return role === 'super_admin';
 };
 
 export const canAccessSection = (role: UserRole, section: string, userPermissions?: SectionPermission[]): boolean => {

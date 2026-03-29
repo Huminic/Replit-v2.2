@@ -22,7 +22,7 @@
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, TrendingUp, TrendingDown, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// Select removed — channel picker now uses checkboxes (I-132)
 import { useApp } from '@/contexts/AppContext';
 import { useUILayout } from '@/contexts/UILayoutContext';
 import { getAgentStatusColor } from '@/lib/agent-utils';
@@ -52,8 +52,6 @@ interface ServiceMetricTile {
   id: string;
   label: string;
   value: string;
-  change?: number;
-  trend?: 'up' | 'down' | 'neutral';
   icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -103,23 +101,13 @@ export default function ServicePage() {
   });
 
   const serviceStats = metrics?.campaignStats?.byDepartment?.service;
-  /**
-   * Known limitation (I-113): All service metric tiles have hardcoded `change: 0, trend: 'up'`.
-   * The backend computeChange() function is sales-specific and does not produce
-   * change/trend data for service department metrics. This requires a backend enhancement
-   * to compute period-over-period deltas for service KPIs before the frontend can display them.
-   *
-   * Additionally, svm-4 (Open Conversations) and svm-5 (Total Conversations) show org-wide
-   * counts, not service-department-filtered counts. The /api/metrics/dashboard endpoint does
-   * not currently break down conversation counts by department.
-   */
   const serviceMetrics: ServiceMetricTile[] = [
-    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), change: 0, trend: 'up' as const, icon: Megaphone },
-    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
-    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), change: 0, trend: 'up' as const, icon: MessageSquare },
-    { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), change: 0, trend: 'up' as const, icon: CalendarCheck }, // org-wide, not service-filtered — see comment above
-    { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), change: 0, trend: 'up' as const, icon: ThumbsDown }, // org-wide, not service-filtered — see comment above
-    { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, change: 0, trend: 'up' as const, icon: DollarSign },
+    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), icon: Megaphone },
+    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), icon: MessageSquare },
+    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: MessageSquare },
+    { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), icon: CalendarCheck },
+    { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), icon: ThumbsDown },
+    { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, icon: DollarSign },
   ];
 
   const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
@@ -135,21 +123,32 @@ export default function ServicePage() {
   const [selectedCampaign, setSelectedCampaign] = useState<APICampaign | null>(null);
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState('');
-  const [newCampaignChannel, setNewCampaignChannel] = useState('sms');
+  const [newCampaignChannels, setNewCampaignChannels] = useState<string[]>(['sms']);
   const [newCampaignTemplate, setNewCampaignTemplate] = useState('');
 
   const createCampaignMutation = useMutation({
-    mutationFn: async (data: { name: string; department: string; channel: string; messageTemplate: string }) => {
-      const res = await apiRequest('POST', '/api/campaigns', data);
-      return res.json();
+    mutationFn: async (data: { name: string; department: string; channels: string[]; messageTemplate: string }) => {
+      const results = [];
+      for (const channel of data.channels) {
+        const campaignName = data.channels.length > 1 ? `${data.name} (${channel.toUpperCase()})` : data.name;
+        const res = await apiRequest('POST', '/api/campaigns', {
+          name: campaignName,
+          department: data.department,
+          channel,
+          messageTemplate: data.messageTemplate,
+        });
+        results.push(await res.json());
+      }
+      return results;
     },
-    onSuccess: () => {
+    onSuccess: (results) => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns?department=service'] });
       queryClient.invalidateQueries({ queryKey: ['/api/metrics/dashboard'] });
-      toast({ title: "Campaign Created", description: "Your new service campaign has been created." });
+      const count = results.length;
+      toast({ title: "Campaign Created", description: count > 1 ? `${count} campaigns created (one per channel).` : "Your new service campaign has been created." });
       setNewCampaignOpen(false);
       setNewCampaignName('');
-      setNewCampaignChannel('sms');
+      setNewCampaignChannels(['sms']);
       setNewCampaignTemplate('');
     },
     onError: (err: Error) => {
@@ -541,16 +540,31 @@ export default function ServicePage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="campaign-channel">Channel</Label>
-              <Select value={newCampaignChannel} onValueChange={setNewCampaignChannel}>
-                <SelectTrigger data-testid="select-campaign-channel">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sms">SMS</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Channels</Label>
+              <div className="flex flex-col gap-2" data-testid="campaign-channel-checkboxes">
+                {[
+                  { id: 'sms', label: 'SMS' },
+                  { id: 'email', label: 'Email' },
+                  { id: 'phone', label: 'Phone Call' },
+                ].map(ch => (
+                  <label key={ch.id} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newCampaignChannels.includes(ch.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewCampaignChannels(prev => [...prev, ch.id]);
+                        } else {
+                          setNewCampaignChannels(prev => prev.filter(c => c !== ch.id));
+                        }
+                      }}
+                      className="rounded border-border"
+                      data-testid={`checkbox-channel-${ch.id}`}
+                    />
+                    <span className="text-sm">{ch.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="campaign-template">Message Template</Label>
@@ -569,12 +583,12 @@ export default function ServicePage() {
               Cancel
             </Button>
             <Button
-              onClick={() => createCampaignMutation.mutate({ name: newCampaignName, department: 'service', channel: newCampaignChannel, messageTemplate: newCampaignTemplate })}
-              disabled={!newCampaignName.trim() || createCampaignMutation.isPending}
+              onClick={() => createCampaignMutation.mutate({ name: newCampaignName, department: 'service', channels: newCampaignChannels, messageTemplate: newCampaignTemplate })}
+              disabled={!newCampaignName.trim() || newCampaignChannels.length === 0 || createCampaignMutation.isPending}
               data-testid="button-submit-campaign"
             >
               {createCampaignMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Create Campaign
+              {newCampaignChannels.length > 1 ? `Create ${newCampaignChannels.length} Campaigns` : 'Create Campaign'}
             </Button>
           </DialogFooter>
         </DialogContent>

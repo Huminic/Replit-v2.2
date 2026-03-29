@@ -139,3 +139,8 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-087 | Add tasks feature back to TeamBox when ready (removed in BL-084) | Operator directive |
 | BL-088 | SMS number-per-agent routing — currently one number per org, first matching agent wins. Need routing by number so sales and service agents get their own inbound SMS streams | FIX-08 / launch gap |
 | BL-089 | TextMagic number assignment for Tony Serra Ford, Ford of Columbia, Hyundai of Columbia — 1 number unassigned (+18338096836), may need to purchase more | FIX-08 |
+| BL-090 | Resend function for errored outgoing campaign messages (kill switch is block-and-drop by design) | Operator directive |
+| BL-091 | WhatsApp channel support — filter chip removed from TeamBox, add back when channel is implemented | S3 / Operator directive |
+| BL-092 | "Send to CRM" button — manual VIN lead creation from TeamBox conversations (I-174) | S3 / Operator directive |
+| BL-093 | Management page — hidden from all roles except super_admin. Revisit: User Chats feature (I-116), Hunch transitions (I-169), and role access when ready. | S9 / Operator directive |
+| BL-094 | Agent favorites + sub-menu bar on Sales/Service/Marketing agent tabs (I-130) | S10 / Operator directive |

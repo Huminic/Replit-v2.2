@@ -79,8 +79,6 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'sms', label: 'SMS' },
   { id: 'email', label: 'Email' },
-  { id: 'chat', label: 'Web Chat' },
-  { id: 'whatsapp', label: 'WhatsApp' },
   { id: 'voice', label: 'Voice' },
 ];
 

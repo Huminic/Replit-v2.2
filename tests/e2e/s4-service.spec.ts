@@ -298,23 +298,26 @@ test("I-129: campaign action buttons have tooltips", async () => {
 // ==========================================
 // I-113: Service metric trends documented
 // ==========================================
-test("I-113: service metric trend limitation documented", async () => {
+test("I-113: service metrics no longer have fake change/trend values", async () => {
   const fs = await import("fs");
   const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
-  expect(code).toContain("I-113");
-  expect(code).toContain("computeChange");
-  console.log("  I-113 documentation comment present");
+  expect(code).not.toContain("change: 0, trend: 'up'");
+  console.log("  I-113 fixed: no hardcoded change/trend in service metrics");
 });
 
 // ==========================================
-// I-132: Multi-channel campaign documented
+// I-132: Multi-channel campaign support
 // ==========================================
-test("I-132: multi-channel campaign documented as future work", async () => {
+test("I-132: campaign creation supports multi-channel via checkboxes", async () => {
   const fs = await import("fs");
   const code = fs.readFileSync("client/src/pages/service.tsx", "utf-8");
-  expect(code).toContain("I-132");
-  expect(code).toContain("multi-channel");
-  console.log("  I-132 multi-channel documentation comment present");
+  expect(code).toContain("newCampaignChannels");
+  expect(code).toContain("type=\"checkbox\"");
+  expect(code).toContain("checkbox-channel-");
+  expect(code).toContain("{ id: 'sms', label: 'SMS' }");
+  expect(code).toContain("{ id: 'email', label: 'Email' }");
+  expect(code).toContain("{ id: 'phone', label: 'Phone Call' }");
+  console.log("  I-132 fixed: multi-channel checkboxes present");
 });
 
 // ==========================================

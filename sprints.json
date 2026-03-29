@@ -776,7 +776,7 @@
       "category": "Remediation",
       "name": "Backend / Comms Integrity",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Messages behave correctly under all states. Trust anchor established.",
@@ -849,7 +849,7 @@
       "category": "Remediation",
       "name": "Widget / Entry Points",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Fully working inbound funnel. Every interaction creates a valid conversation.",
@@ -920,7 +920,7 @@
       "category": "Remediation",
       "name": "AI Chat \u2014 History + Data Grounding",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Conversations persist correctly. AI responses align with real data.",
@@ -991,7 +991,7 @@
       "category": "Remediation",
       "name": "TeamBox \u2014 Channels + CRM Action",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "TeamBox becomes actionable, not just visible.",
@@ -1060,16 +1060,17 @@
     {
       "id": "S4",
       "category": "Remediation",
-      "name": "Service \u2014 Metrics + Campaign Engine",
+      "name": "Service \u2014 Metrics Cleanup + Multi-Channel Campaigns",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
-      "outcome": "Metrics become real. Campaigns support multiple channels.",
+      "outcome": "Service metrics stop lying. Campaigns support multiple channels via separate-campaign-per-channel pattern.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S4.AC-I-113: Service metric trends hardcoded to zero \u2014 wire real data",
-        "S4.AC-I-132: Campaign multi-channel support (HIGH)"
+        "S4.AC-4A: Remove misleading change/trend display from service metric tiles (I-113) \u2014 no fake 0% up",
+        "S4.AC-4B: Campaign creation UI supports multi-channel selection \u2014 checkboxes instead of single dropdown (I-132)",
+        "S4.AC-4C: Multi-channel submit creates one campaign per selected channel with same recipients and template"
       ],
       "entryGates": [
         "A1: Previous sprint committed or first in sequence",
@@ -1126,14 +1127,15 @@
           "status": "pending",
           "timestamp": null
         }
-      ]
+      ],
+      "mutationNote": "Definition changed during execution. Original ACs were generic (I-113, I-132 references only). Rewritten to specific ACs after operator discussion: remove fake trends, multi-channel checkboxes. Original definition not preserved. Operator approved the specific scope verbally before execution."
     },
     {
       "id": "S5",
       "category": "Remediation",
       "name": "Marketing \u2014 AI + Metrics",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "AI agents respond correctly. Dashboard reflects reality.",
@@ -1204,7 +1206,7 @@
       "category": "Remediation",
       "name": "Insights \u2014 Drill-Downs + Reports + Library",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Insights are usable and trustworthy.",
@@ -1275,7 +1277,7 @@
       "category": "Remediation",
       "name": "Auth \u2014 Password Reset + FE States",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "No broken login flows. No silent failures.",
@@ -1346,7 +1348,7 @@
       "category": "Remediation",
       "name": "Settings \u2014 Cleanup + Verification",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Clean, predictable admin surface.",
@@ -1419,14 +1421,15 @@
       "category": "Remediation",
       "name": "Management \u2014 Feature Completion",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
-      "outcome": "No placeholder features.",
+      "outcome": "Management page restricted to super_admin only. I-116 and I-169 backlogged.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S9.AC-I-116: User Chats placeholder \u2014 full feature build (HIGH)",
-        "S9.AC-I-169: Hunch status transitions \u2014 3 of 8 states have UI"
+        "S9.AC1: Management nav item hidden from all roles except super_admin",
+        "S9.AC2: Direct navigation to /management redirects non-super_admin users",
+        "S9.AC3: No residual references cause errors for non-super_admin users"
       ],
       "entryGates": [
         "A1: Previous sprint committed or first in sequence",
@@ -1483,14 +1486,15 @@
           "status": "pending",
           "timestamp": null
         }
-      ]
+      ],
+      "mutationNote": "Scope reduced during execution. Original ACs: build User Chats (I-116) + fix Hunch transitions (I-169). Operator directive changed scope to: hide Management from all roles except super_admin, backlog I-116 and I-169. Original definition overwritten. Operator approved the new scope explicitly."
     },
     {
       "id": "S10",
       "category": "Remediation",
       "name": "Agents \u2014 Validation + Polish",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
       "causedBy": "gap",
       "outcome": "Agent system feels complete, not experimental.",
