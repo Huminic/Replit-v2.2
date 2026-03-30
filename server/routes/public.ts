@@ -153,8 +153,8 @@ export function registerPublicRoutes(app: Express) {
       console.log(`[Widget Callback] Outbound call initiated to ${formattedNumber} for ${org.name}, callId: ${result.id}`);
 
       const conversation = await storage.createConversation({
-        customerName: null,
-        customerEmail: null,
+        customerName: "Callback Request",
+        customerEmail: "",
         customerPhone: formattedNumber,
         channel: "voice",
         status: "open",
