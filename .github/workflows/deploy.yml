@@ -46,7 +46,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run tests
-        run: npx playwright test tests/e2e/domain-12-infrastructure.spec.ts --reporter=list
+        run: BASE_URL=https://live.huminic.app npx playwright test tests/e2e/domain-12-infrastructure.spec.ts --reporter=list
         continue-on-error: false
 
   deploy:
