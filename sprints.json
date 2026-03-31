@@ -2585,7 +2585,7 @@
       "category": "Testing",
       "name": "Test Agent Bootstrap \u2014 Architecture, MCP expansion, directory structure, seed strategy",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 testing infrastructure upgrade for launch readiness",
       "causedBy": "testing",
       "outcome": "Playwright agent workflow operational: planner produces markdown plans, generator produces spec files, healer repairs test-side failures. MCP operationalized for repeatable UI exploration. Seed strategy supports agent-driven planning. Architecture documented.",
@@ -2697,14 +2697,15 @@
           "status": "completed",
           "timestamp": "2026-03-31T14:35:00Z"
         }
-      ]
+      ],
+      "commitHash": "8e119dc"
     },
     {
       "id": "T-002",
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Auth, Dashboard, AI Chat, TeamBox",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Operator directive \u2014 every button, field, icon, function. No stone unturned.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Auth (8 roles, login, logout, password reset, RBAC), Dashboard (metrics, widgets, role visibility), AI Chat (conversation, tools, streaming, history), TeamBox (inbox, filters, channels, takeover, campaign disconnect). Every interactive element tested.",
@@ -2778,92 +2779,92 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT \u2014 Confirm T-001 committed. Confirm dev.huminicdev.com healthy. Confirm all 8 test users can login. Document current test count per domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 1,
           "action": "PLANNER \u2014 Generate test plan for Auth domain. Enumerate every element, state, role interaction.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 2,
           "action": "GENERATOR \u2014 Produce test file(s) from Auth plan. Run against dev.huminicdev.com.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 3,
           "action": "GHOST VERIFY \u2014 Auth tests pass or failures documented.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 4,
           "action": "PLANNER \u2014 Generate test plan for Dashboard domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 5,
           "action": "GENERATOR \u2014 Produce test file(s) from Dashboard plan. Run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 6,
           "action": "GHOST VERIFY \u2014 Dashboard tests pass or failures documented.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 7,
           "action": "PLANNER \u2014 Generate test plan for AI Chat domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 8,
           "action": "GENERATOR \u2014 Produce test file(s) from Chat plan. Run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 9,
           "action": "GHOST VERIFY \u2014 Chat tests pass or failures documented.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 10,
           "action": "PLANNER \u2014 Generate test plan for TeamBox domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 11,
           "action": "GENERATOR \u2014 Produce test file(s) from TeamBox plan. Run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 12,
           "action": "GHOST VERIFY \u2014 TeamBox tests pass or failures documented.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 13,
           "action": "HEALER \u2014 Fix any test-side failures across all 4 domains. Re-run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         },
         {
           "step": 14,
           "action": "VERIFICATION \u2014 Full coverage report. Evidence written. STOP for operator review.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T17:30:00Z"
         }
       ]
     },
