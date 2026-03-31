@@ -1,0 +1,11 @@
+[2026-03-31T21:36:52Z] agent-launch | role=orchestrator | task="T-004 Exhaustive Coverage" | scope=tests/agents/,tests/e2e/domain-07-insights.spec.ts,tests/e2e/domain-08-billing.spec.ts,tests/e2e/domain-09-settings.spec.ts,evidence/T-004/,sprints.json,issues.md
+[2026-03-31T21:36:52Z] step-0 | role=orchestrator | task="Pre-flight: T-003 committed (520dd07)" | result=PASS
+[2026-03-31T21:40:00Z] step-1 | role=dev | task="4 planners parallel: settings(143), billing(69), insights(84), mgmt(51)" | result=COMPLETE
+[2026-03-31T22:00:00Z] step-2 | role=dev | task="4 generators parallel: settings(36), billing(35), insights(55), mgmt(21)" | result=COMPLETE
+[2026-03-31T22:25:00Z] step-3 | role=ghost | task="Ghost verify all 4 domains — 147/147 passed" | result=PASS
+[2026-03-31T22:27:00Z] step-4 | role=dev | task="Healer — no failures" | result=SKIP
+[2026-03-31T22:30:00Z] step-5 | role=orchestrator | task="Evidence written" | result=COMPLETE
+[2026-03-31T22:52:00Z] CAPTAIN TOOL=Bash step=? sprint=T-004
+[2026-03-31T22:52:29Z] CAPTAIN TOOL=Edit step=? sprint=T-004
+[2026-03-31T22:52:39Z] CAPTAIN TOOL=Bash step=? sprint=T-004
+[2026-03-31T22:52:53Z] PRE-COMMIT role=orchestrator sprint=T-004 result=PASS detail="All 7 gates passed"

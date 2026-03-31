@@ -165,6 +165,14 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 ---
 
+## TeamBox UI
+
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-202 | TeamBox conversation detail shows "No messages yet" when conversation is selected. Reported on test-generated conversations (Unread Reset Test, etc.) which may have been created via API without messages. **Needs verification:** does this also affect real customer conversations with actual messages? If messages exist in DB but don't render, this is a message-loading bug in the conversation detail panel. If only empty test shells, the issue is test cleanup. Also: T-002 agent tests left ~15 orphan test conversations visible in production TeamBox — needs cleanup query. | FE, BE | NEEDS LIVE TEST | M |
+
+---
+
 ## Cross-Cutting
 
 | ID | Issue | Dim | Status | Effort |

@@ -2874,7 +2874,7 @@
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Sales, Service, Marketing, Departments",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 every button, field, icon, function.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Sales (pipeline, KPIs, agents, calendar, insights), Service (campaigns, scheduling, agents), Marketing (dashboard, 5 agents, creative studio, campaigns), Department switching (tab navigation, role visibility, data isolation).",
@@ -2966,14 +2966,15 @@
           "status": "completed",
           "timestamp": "2026-03-31T19:15:00Z"
         }
-      ]
+      ],
+      "commitHash": "520dd07"
     },
     {
       "id": "T-004",
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Settings, Billing, Insights, Management",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Operator directive \u2014 every button, field, icon, function.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Settings (users, org config, integrations, knowledge, widgets, AI config \u2014 42+ interaction states), Billing (plan, usage, invoices, entitlements), Insights (dashboard, drill-downs, reports, library \u2014 27+ states), Management (hunches, activity log, user chats).",
@@ -3044,38 +3045,38 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT \u2014 Confirm T-003 committed. Confirm dev healthy.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         },
         {
           "step": 1,
           "action": "PLANNER \u2014 Generate test plans for Settings, Billing, Insights, Management.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         },
         {
           "step": 2,
           "action": "GENERATOR \u2014 Produce test files. Run against dev.huminicdev.com.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         },
         {
           "step": 3,
           "action": "GHOST VERIFY \u2014 Tests pass or failures documented per domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         },
         {
           "step": 4,
           "action": "HEALER \u2014 Fix test-side failures. Re-run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         },
         {
           "step": 5,
           "action": "VERIFICATION \u2014 Coverage report. Evidence written. STOP for operator review.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T22:30:00Z"
         }
       ]
     },
