@@ -1,9 +1,9 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260331-174500
-Timestamp: 2026-03-31T17:45:00Z
-Sprint: T-002
+Acknowledged: WD-20260331-191500
+Timestamp: 2026-03-31T19:15:00Z
+Sprint: T-003
 Role: orchestrator
-Context: T-002 commit — exhaustive coverage for Auth, Dashboard, Chat, TeamBox. 169 agent tests passing.
+Context: T-003 commit — exhaustive coverage for Sales, Service, Marketing, Departments. 148 agent tests (147 pass, 1 flaky).
 
 Known violations — historical debt:
 - C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints. T-001 now has hash.
