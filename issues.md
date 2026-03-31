@@ -1,19 +1,29 @@
 # Nexxus Connect v2.2 — Issues
 
-**Last verified:** 2026-03-29 (post-reconciliation E2E: 288 passed, 13 failed, deep comms test, UI walkthrough)
-**Method:** Code verification + full E2E suite + autonomous comms test + UI walkthrough
+**Last verified:** 2026-03-31 (API E2E: 44/46 passed against dev.huminicdev.com, post-build)
+**Method:** Code verification + E2E suite + VAPI/VIN audit + infrastructure audit
+**Target:** https://dev.huminicdev.com (PM2 on localhost:5000, Supabase DB)
 
 ## Statuses
-- **OPEN** — Confirmed in code, needs fix
+- **OPEN** — Confirmed, needs fix
+- **IN SPRINT (id)** — Assigned to a sprint, work pending or in progress
 - **NEEDS LIVE TEST** — Can't confirm from code alone, needs browser/API test
 - **NEEDS INPUT** — Requires operator product decision
-- **NEEDS SPEC** — Requires design before implementation
-- **CLOSED** — Fixed in code (see Closed section at bottom)
+- **DISABLED** — Feature intentionally turned off, needs re-enable plan
+- **BACKLOGGED (BL-nnn)** — Deferred, tracked in backlog.md
+- **CLOSED (sprint-id)** — Fixed and verified
 
 ## Effort
 - **E** = Easy (<30 min)
 - **M** = Medium (1-3 hrs)
 - **H** = Hard (4+ hrs)
+
+## Dimensions
+- **FE** = Frontend (UI, pages, forms, client logic)
+- **BE** = Backend (APIs, business rules, services, integrations)
+- **DT** = Data (schema, database, migrations)
+- **AU** = Auth/Security (login, permissions, security controls)
+- **IN** = Infrastructure (deploys, environments, monitoring, testing)
 
 ---
 
@@ -25,17 +35,17 @@ No open issues. I-126 and I-139 verified working in S2.
 
 ## TeamBox (/teambox)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-174 | "Send to CRM" button — manual VIN lead creation from conversations (form + SMS channels) | BACKLOGGED (BL-092) | H |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-174 | "Send to CRM" button — manual VIN lead creation from conversations (form + SMS channels) | BE, FE | BACKLOGGED (BL-092) | H |
 
 ---
 
 ## Sales (/sales)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-130 | Agent pages need favorites and sub-menu bar (Sales, Service, Marketing) | BACKLOGGED (BL-094) | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-130 | Agent pages need favorites and sub-menu bar (Sales, Service, Marketing) | FE | BACKLOGGED (BL-094) | M |
 
 ---
 
@@ -47,117 +57,119 @@ No open issues. I-113 and I-132 resolved in S4.
 
 ## Marketing (/marketing)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-155 | Dashboard metrics showing zero — confirmed real data (no active marketing campaigns) | CLOSED | — |
+No open issues. I-155 closed — confirmed real data (no active marketing campaigns).
 
 ---
 
 ## Management (/management)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-116 | User Chats tab is "coming soon" placeholder — full feature build | BACKLOGGED (BL-093) | H |
-| I-169 | Hunch status transitions — only 3 of 8 states have UI buttons | BACKLOGGED (BL-093) | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-116 | User Chats tab is "coming soon" placeholder — full feature build | FE, BE | BACKLOGGED (BL-093) | H |
+| I-169 | Hunch status transitions — only 3 of 8 states have UI buttons | FE | BACKLOGGED (BL-093) | M |
 
 ---
 
 ## Settings (/settings)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-164 | 42 interaction states across 5 sub-sections — verified working in S8 walkthrough | CLOSED | — |
+No open issues. I-164 verified working in S8 walkthrough.
 
 ---
 
 ## Auth (/login, /forgot-password, /reset-password)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-140 | Password reset — no code bug found, needs live test of email delivery + token flow | NEEDS LIVE TEST | M |
-| I-165 | Forgot/reset password FE — 11 states untested (pages exist, backend confirmed) | NEEDS LIVE TEST | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-140 | Password reset — no code bug found, needs live test of email delivery + token flow | BE, FE | NEEDS LIVE TEST | M |
+| I-165 | Forgot/reset password FE — 11 states untested (pages exist, backend confirmed) | FE | NEEDS LIVE TEST | M |
 
 ---
 
 ## Widget / Landing (/w/, /p/)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-168 | Widget interaction mode states — 13/14 verified in S1, voice callback 404 until deploy | NEEDS DEPLOY | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-168 | Widget interaction mode states — 13/14 verified in S1, voice callback 404 until deploy | FE, BE | NEEDS LIVE TEST | M |
 
 ---
 
 ## Insights (/insights)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-156 | Insights standalone page — exists but never visually verified | NEEDS LIVE TEST | M |
-| I-163 | 27 drill-down/Reports/Library states untested | NEEDS LIVE TEST | H |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-156 | Insights standalone page — exists but never visually verified | FE | NEEDS LIVE TEST | M |
+| I-163 | 27 drill-down/Reports/Library states untested | FE | NEEDS LIVE TEST | H |
 
 ---
 
 ## Billing (/settings/billing)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-105 | FlexPrice integration — all endpoints return `{configured: false}`. Needs billingCustomerId per org. | OPEN | M |
-| I-171 | 26 billing UI states with no functional coverage | NEEDS LIVE TEST | H |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-105 | FlexPrice integration — all endpoints return `{configured: false}`. Needs billingCustomerId per org. | BE, IN | OPEN | M |
+| I-171 | 26 billing UI states with no functional coverage | FE | NEEDS LIVE TEST | H |
 
 ---
 
 ## Org Wizard (/settings/org-wizard)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-166 | 11 wizard states untested (page exists, super_admin gated) | NEEDS LIVE TEST | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-166 | 11 wizard states untested (page exists, super_admin gated) | FE | NEEDS LIVE TEST | M |
 
 ---
 
 ## Agents (/agents)
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-102 | Photo Studio agent — image generation returns 501 from /api/openai-proxy. Was working in prior testing runs. FAL proxy code exists. Needs investigation post-deploy. | OPEN | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-102 | Photo Studio agent — image generation returns 501 from /api/openai-proxy. FAL proxy migrated to MCP in S-17 but not live-tested. | BE | NEEDS LIVE TEST | M |
 
 ---
 
 ## Backend / Comms
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-175 | SMS race condition — concurrent webhooks from same phone create duplicate conversations (no mutex/locking on getConversationByPhone) | OPEN | M |
-| I-176 | VAPI transcripts not stored in conversation messages — call completes, email fires, but transcript missing from TeamBox conversation | OPEN | M |
-| I-177 | Duplicate voice conversations created for same VAPI call | OPEN | M |
-| I-178 | RBAC: Sales user sees System in sidebar (should be hidden) | OPEN | E |
-| I-179 | RBAC: Executive doesn't see Manage in sidebar (S9 restricted to super_admin — test expects executive access, test needs update) | OPEN | E |
-| I-180 | RBAC: Sales user can create agents via API (returns 200, should return 403) | OPEN | E |
-| I-181 | RBAC: Sales/Marketing/Service users can navigate to billing page (should be blocked) | OPEN | E |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-194 | **VAPI→VIN lead creation DISABLED.** Lead source name mismatch causes silent failure on 3 of 5 dealers. Code sends `"Dealers WebSite"` via `vin_safe_prepare_lead` but Hyundai of Columbia (13399), Ford of Columbia (13398), and Serra Nissan (21044) use different source names. Code reads `orgSettings.vinLeadSourceName` with bad fallback (webhooks.ts:737). 5 real customer leads since Mar 28 not sent to VIN Solutions. **Fix:** Set correct `vinLeadSourceName` per org, re-enable `if(false)` guard. **Backfill:** Use lead insertion script for unsent leads. Query: `SELECT * FROM activity_log WHERE action='vapi_call_received' AND metadata->>'vinLeadCreated'='false' AND created_at > '2026-03-24'`. | BE | DISABLED | M |
+
+---
+
+## Campaigns
+
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-193 | No CSV template download button on create campaign screen — users have no reference for expected column format | FE | OPEN | E |
 
 ---
 
 ## Infrastructure / Testing
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-103 | 6 always-true assertions in s11-demo-hotfix.spec.ts | OPEN | E |
-| I-104 | 103 stub tests in observability/ — delete | OPEN | E |
-| I-110 | 2 test files hardcode production URL without env var fallback | OPEN | E |
-| I-182 | Test 2.1: dashboard 404 on static resource (favicon or similar) — page works, asset missing | OPEN | E |
-| I-183 | Test 4.10: campaign reply webhook doesn't find conversation — timing or routing issue | OPEN | M |
-| I-184 | Test 6.4/6.5: Management page tests expect org_admin access — needs update for S9 RBAC change (super_admin only) | OPEN | E |
-| I-185 | Test 9.3: "Restart Tour" button not found by test locator — selector mismatch with actual button text | OPEN | E |
-| I-186 | Test 10.3: Appointment schema uses different field name than test expects for date | OPEN | E |
-| I-187 | Test RI-VAPI-1: Transcript not available within 60s wait window — VAPI webhook timing | OPEN | M |
-| I-188 | Test RI-VIN-1: Warehouse leads query returns 0 rows with vin_created_at dates | OPEN | M |
-| I-189 | Test S9-TRIGGER-1: Walk-in followup agent endpoint auth — test uses wrong auth context | OPEN | E |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-182 | Test 2.1: dashboard 404 on static resource (favicon or similar) — page works, asset missing | IN | OPEN | E |
+| I-183 | Test 4.10: campaign reply webhook — conversation not found within retry window. Timing issue after S-12 SMS mutex. Test-side fix: increase retry count or wait interval. | IN | OPEN | M |
+| I-195 | Test 5.9: SMS webhook response shape mismatch — test asserts `body.success` but endpoint returns `{ received: true }`. Test-side fix: assert `status < 500` and poll conversations. | IN | OPEN | E |
+| I-184 | Test 6.4/6.5: Management page tests expect org_admin access — needs update for S9 RBAC change (super_admin only) | IN | OPEN | E |
+| I-185 | Test 9.3: "Restart Tour" button not found by test locator — selector mismatch with actual button text | IN | OPEN | E |
+| I-186 | Test 10.3: Appointment schema uses different field name than test expects for date | IN | OPEN | E |
+| I-187 | Test RI-VAPI-1: Transcript not available within 60s wait window — VAPI webhook timing | IN | OPEN | M |
+| I-188 | Test RI-VIN-1: Warehouse leads query returns 0 rows with vin_created_at dates | IN | OPEN | M |
+| I-189 | Test S9-TRIGGER-1: Walk-in followup agent endpoint auth — test uses wrong auth context | IN | BACKLOGGED (BL-095) | E |
+| I-196 | 2 orphan test files (g004-gap-coverage.spec.ts, m001-gap-coverage.spec.ts) not matched by any Playwright project | IN | OPEN | E |
+| I-197 | 8 sprint test files (s0-s8) hardcode `dev.huminicdev.com` instead of using `process.env.BASE_URL` | IN | OPEN | E |
+| I-198 | Dead test helpers: tests/helpers/api.ts and tests/helpers/factory.ts — zero imports from any active test | IN | OPEN | E |
+| I-199 | verify-all.ts hardcodes FQDN and uses own login logic instead of shared helpers | IN | OPEN | E |
+| I-200 | No production environment — live.huminic.app and dev.huminicdev.com both serve same PM2 process, same DB. GitHub Actions has zero secrets, Coolify webhook goes nowhere. Dockerfile/docker-compose.yml exist but were never deployed. | IN | OPEN | H |
+| I-201 | Daily delta VIN Solutions lead sync not running — sync_log shows only metrics_refresh entries, no delta or full sync in last 7 days | BE | OPEN | M |
 
 ---
 
 ## Cross-Cutting
 
-| ID | Issue | Status | Effort |
-|----|-------|--------|--------|
-| I-125 | All popout/sub-menu links need functional verification (click-through test) | NEEDS LIVE TEST | M |
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-125 | All popout/sub-menu links need functional verification (click-through test) | FE | NEEDS LIVE TEST | M |
 
 ---
 
@@ -165,22 +177,22 @@ No open issues. I-113 and I-132 resolved in S4.
 
 | Status | Count |
 |--------|-------|
-| OPEN | 25 |
-| NEEDS LIVE TEST / DEPLOY | 10 |
+| OPEN | 16 |
+| DISABLED | 1 |
+| NEEDS LIVE TEST | 9 |
 | BACKLOGGED | 5 |
-| CLOSED (this session) | 16 |
-| **Total active (non-backlogged)** | **35** |
+| **Total active (non-backlogged)** | **26** |
 
 ---
 
 ## Test Coverage Gaps
 
-| ID | Gap | Status |
-|----|-----|--------|
-| TG-004 | Opt-out/STOP handling — no test | OPEN |
-| TG-008 | After-hours behavior — no time-based test | OPEN |
-| TG-010 | TeamBox real-time updates — no SSE/WebSocket test | OPEN |
-| TI-018 | Photo Studio image generation — see I-102 | OPEN |
+| ID | Gap | Dim | Status |
+|----|-----|-----|--------|
+| TG-004 | Opt-out/STOP handling — no test | BE | OPEN |
+| TG-008 | After-hours behavior — no time-based test | BE | OPEN |
+| TG-010 | TeamBox real-time updates — no SSE/WebSocket test | FE, BE | OPEN |
+| TI-018 | Photo Studio image generation — see I-102 | BE | OPEN |
 
 ---
 
@@ -193,6 +205,26 @@ No open issues. I-113 and I-132 resolved in S4.
 | 2026-03-20 | REM-9 | Orchestrator edited server/sync.ts directly instead of delegating |
 | 2026-03-20 | — | CommGate check deployed without commit, sprint, or harness approval |
 | 2026-03-24 | S-11 | Ghost agent edited sprints.json governance file directly |
+
+---
+
+## CLOSED (S-11 through S-18, executed 2026-03-29, uncommitted)
+
+| ID | Issue | Dim | How resolved |
+|----|-------|-----|-------------|
+| I-175 | SMS race condition — duplicate conversations from concurrent webhooks | BE | S-12 — conversation mutex lock in sms.ts |
+| I-176 | VAPI transcripts not stored in conversation messages | BE | S-12 — 4-format transcript extraction in webhooks.ts |
+| I-177 | Duplicate voice conversations created for same VAPI call | BE | S-12 — processedVapiCalls dedup map in webhooks.ts |
+| I-178 | RBAC: Sales user sees System in sidebar | AU, FE | S-11 — sidebar visibility fix |
+| I-179 | RBAC: Executive doesn't see Manage in sidebar | AU, FE | S-11 — sidebar visibility fix |
+| I-180 | RBAC: Sales user can create agents via API | AU, BE | S-11 — requireRole gate on POST /api/agents |
+| I-181 | RBAC: Sales/Marketing/Service can navigate to billing page | AU, FE | S-11 — billing route blocking |
+| I-190 | campaign_recipients schema has no vehicle columns | DT | S-18 — vin, vehicle_model, vehicle_year columns added |
+| I-191 | substituteTemplate() only supports 4 merge fields | BE | S-18 — {{vehicleYear}}, {{vehicleModel}}, {{vin}} added |
+| I-192 | Campaign reply conversation has no vehicle context | BE | S-18 — system message injection on campaign reply in sms.ts |
+| I-103 | 6 always-true assertions in s11-demo-hotfix.spec.ts | IN | S-13 — assertions fixed |
+| I-104 | 103 stub tests in observability/ — delete | IN | S-13 — directory deleted |
+| I-110 | 2 test files hardcode production URL without env var fallback | IN | S-13 — BASE_URL pattern applied |
 
 ---
 
@@ -213,7 +245,9 @@ No open issues. I-113 and I-132 resolved in S4.
 | I-148 | Role Switcher stale comments | S8 — removed from TopBar.tsx |
 | I-149 | Tour per-page behavior | Operator confirmed: working as intended |
 | I-150 | WhatsApp/Web Chat filters | S3 — removed, backlogged (BL-091) |
+| I-155 | Marketing dashboard metrics showing zero | Confirmed real data — no active campaigns |
 | I-157 | API Keys super_admin gate | Operator confirmed: correct RBAC level |
+| I-164 | 42 settings interaction states | S8 — verified working |
 | I-172 | AgentChatView token refresh | S5 — pre-flight refresh + 401 retry added |
 
 ---

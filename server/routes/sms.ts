@@ -7,6 +7,23 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const publicRateLimits = new Map<string, { count: number; resetAt: number }>();
 
+// Mutex map to prevent duplicate conversation creation from concurrent webhooks (I-175)
+const conversationLocks = new Map<string, Promise<void>>();
+async function withConversationLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  while (conversationLocks.has(key)) {
+    await conversationLocks.get(key);
+  }
+  let resolve: () => void;
+  const lock = new Promise<void>(r => { resolve = r; });
+  conversationLocks.set(key, lock);
+  try {
+    return await fn();
+  } finally {
+    conversationLocks.delete(key);
+    resolve!();
+  }
+}
+
 const checkPublicRate = (ip: string, limit = 60, windowMs = 60000): boolean => {
   const now = Date.now();
   const entry = publicRateLimits.get(ip);
@@ -214,14 +231,17 @@ export function registerSmsRoutes(app: Express) {
         console.error(`[TextMagic Webhook] After-hours check failed:`, hoursErr.message);
       }
 
-      let conversation = await storage.getConversationByPhone(normalizedPhone, "sms", organizationId);
+      const lockKey = `sms:${normalizedPhone}:${organizationId}`;
+      const { conversation, isNew } = await withConversationLock(lockKey, async () => {
+        let conv = await storage.getConversationByPhone(normalizedPhone, "sms", organizationId);
 
-      if (conversation) {
-        await storage.updateConversation(conversation.id, {
-          lastMessageAt: timestamp,
-          unreadCount: (conversation.unreadCount || 0) + 1,
-        });
-      } else {
+        if (conv) {
+          await storage.updateConversation(conv.id, {
+            lastMessageAt: timestamp,
+            unreadCount: (conv.unreadCount || 0) + 1,
+          });
+          return { conversation: conv, isNew: false };
+        }
 
         let sourceConversationId: string | null = null;
         let linkedCampaignId: string | null = null;
@@ -244,7 +264,7 @@ export function registerSmsRoutes(app: Express) {
           console.warn("[TextMagic Webhook] Could not resolve outbound context:", lookupErr);
         }
 
-        conversation = await storage.createConversation({
+        conv = await storage.createConversation({
           customerName: normalizedPhone,
           customerPhone: normalizedPhone,
           channel: "sms",
@@ -260,9 +280,33 @@ export function registerSmsRoutes(app: Express) {
           try {
             const campaign = await storage.getCampaign(linkedCampaignId);
             console.log(`[TextMagic Webhook] SMS reply labeled — campaign: "${campaign?.name || linkedCampaignId}", sourceConversationId: ${sourceConversationId || "none"}`);
+
+            // Inject vehicle context from campaign recipient into conversation (I-192)
+            const recipients = await storage.getRecipients(linkedCampaignId);
+            const matchedRecipient = recipients.find(r =>
+              r.phone && normalizedPhone.includes(r.phone.replace(/\D/g, ""))
+            );
+            if (matchedRecipient?.vehicleYear || matchedRecipient?.vehicleModel || matchedRecipient?.vin) {
+              const vehicleInfo = [
+                matchedRecipient.vehicleYear,
+                matchedRecipient.vehicleModel,
+              ].filter(Boolean).join(" ");
+              const vinInfo = matchedRecipient.vin ? ` (VIN: ${matchedRecipient.vin})` : "";
+              await storage.createMessage({
+                conversationId: conv.id,
+                role: "system",
+                content: `Campaign context: This customer was contacted about their ${vehicleInfo}${vinInfo}. Campaign: "${campaign?.name || "Unknown"}"`,
+                senderName: "System",
+              });
+              console.log(`[TextMagic Webhook] Vehicle context injected — ${vehicleInfo}${vinInfo}`);
+            }
           } catch {}
         }
 
+        return { conversation: conv, isNew: true };
+      });
+
+      if (isNew) {
         (async () => {
           try {
             const org = await storage.getOrganization(organizationId);

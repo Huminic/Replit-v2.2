@@ -55,8 +55,8 @@ test.describe("Domain 9: Settings", () => {
     await preferencesTab.click();
     await page.waitForTimeout(500);
 
-    // Look for the restart tour button
-    const tourButton = page.locator('[data-testid="button-restart-tour"]');
+    // Look for the reset tour button
+    const tourButton = page.locator('[data-testid="button-reset-tour"]');
     const tourExists = await tourButton.first().isVisible().catch(() => false);
 
     expect(tourExists).toBe(true);

@@ -19,7 +19,7 @@ import { test, expect } from '@playwright/test';
  * - Dead /manage route — no issue yet, discovered during cross-reference
  */
 
-const BASE_URL = 'https://dev.huminicdev.com';
+const BASE_URL = process.env.BASE_URL || 'https://dev.huminicdev.com';
 
 const ORG_ADMIN = {
   email: 'serra_honda@huminic.ai',

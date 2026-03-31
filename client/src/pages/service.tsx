@@ -22,7 +22,7 @@
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -340,6 +340,15 @@ export default function ServicePage() {
               Communications Paused
             </Badge>
           )}
+          <a
+            href="/campaign-template.csv"
+            download="campaign-template.csv"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="link-download-csv-template"
+          >
+            <Download className="h-3.5 w-3.5" />
+            CSV Template
+          </a>
           <Button size="sm" variant="outline" data-testid="button-upload-csv" onClick={() => { setCsvUploadCampaignId('bulk'); csvInputRef.current?.click(); }}>
             <Upload className="h-4 w-4 mr-1.5" />
             Upload CSV

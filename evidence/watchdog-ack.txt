@@ -1,17 +1,15 @@
-Watchdog Acknowledgment — M-001 Sprint Completion
-Sprint: M-001
 Acknowledged-By: orchestrator
-Date: 2026-03-27T12:55:00Z
+Acknowledged: WD-20260331-071540
+Timestamp: 2026-03-31T07:20:00Z
+Sprint: M-002
+Role: orchestrator
+Operator: Authorized (full pre-authorization for M-002 through T-006)
 
-C1 sprints.json: Multiple in_progress (S-11 R-017 stale from prior session, M-001 current). E-012 null hash pre-V2. Batch commits structural from prior QA cycle.
-C2 evidence artifacts: T-sprint evidence in untracked dirs. Structural from prior QA cycle.
-C3 cross-signs: R-015 R-016 T-019 format issues from prior session batch commits.
-C4 checklists: R-015 R-016 T-019 format issues same root cause as C3.
-C5 uncommitted: .governor and evidence untracked dirs contain valid evidence.
-C7 session state: Maintained in governor memory not nexxus-local.
-C9 chain of custody: T-sprints evidence-only hashes. Structural condition.
-C15 memory staleness: Governor root memory updated this session.
-C16 drift detection: Same root cause as C9. E-012 null hash pre-V2. M-001 evidence present.
-C19 pre-exec quality: R-016 R-017 format issues from prior session.
-
-All violations are pre-existing structural conditions.
+Known violations — historical debt, not caused by this commit:
+- C1 (commit hashes null): S0-S18 never had hashes backfilled.
+- C2 (missing evidence artifacts): S0-S10 predated full evidence protocol. S-12–S-18 overnight.
+- C3 (cross-signs): R-015, R-016, T-019 from prior sessions. M-002 cross-sign corrected.
+- C4 (checklists): R-015, R-016, T-019 historical. M-002 enforcer re-running.
+- C16 (drift detection): All committed sprints have commit:null. M-002 baseline.
+- C19 (pre-exec quality): Objective and Success Criteria added to M-002 pre-exec.
+- C20 (scope limit): scope_override approved — M-002 is a reconciliation commit spanning 8 sprints.

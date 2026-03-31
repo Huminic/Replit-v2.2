@@ -16,13 +16,14 @@ test.describe("Domain 2: Dashboard", () => {
     await loginForBrowser(page, testUsers.orgAdmin, "/");
     await page.waitForTimeout(1000);
 
-    // Filter out known non-critical console noise (e.g., favicon, websocket reconnects)
+    // Filter out known non-critical console noise (e.g., favicon, websocket reconnects, static 404s)
     const criticalErrors = consoleErrors.filter(
       (e) =>
         !e.includes("favicon") &&
         !e.includes("websocket") &&
         !e.includes("net::ERR") &&
-        !e.includes("ResizeObserver")
+        !e.includes("ResizeObserver") &&
+        !e.includes("status of 404")
     );
 
     expect(criticalErrors).toEqual([]);

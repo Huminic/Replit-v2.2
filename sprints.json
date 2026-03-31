@@ -1,8 +1,8 @@
 {
-  "version": "7.0",
-  "description": "Rebuilt from verified state. V1 sprints archived. R-018 through R-023 superseded by S0-S10.",
-  "date": "2026-03-29",
-  "totalSprints": 19,
+  "version": "8.0",
+  "description": "V8: S-11 through S-18 reconciled (committed). Sprint naming aligned to GOVERNOR_REFERENCE.md §5 (prefix=origin, dimensions=scope). S- prefix retired. New testing initiative: M-002, M-003, T-001 through T-006.",
+  "date": "2026-03-31",
+  "totalSprints": 35,
   "workOrder": [
     "U-001",
     "G-004",
@@ -22,51 +22,67 @@
     "S7",
     "S8",
     "S9",
-    "S10"
+    "S10",
+    "S-11",
+    "S-12",
+    "S-13",
+    "S-14",
+    "S-15",
+    "S-16",
+    "S-17",
+    "S-18",
+    "M-002",
+    "M-003",
+    "T-001",
+    "T-002",
+    "T-003",
+    "T-004",
+    "T-005",
+    "T-006"
   ],
   "sprints": [
     {
       "id": "U-001",
       "category": "UI Inventory",
-      "name": "Ground Truth UI Inventory \u2014 Parallel DOM Crawl + Screenshot Verification",
+      "name": "Ground Truth UI Inventory — Parallel DOM Crawl + Screenshot Verification",
       "phase": "qa_resolve_loop",
       "status": "committed",
-      "source": "plan.md \u2014 QA Resolve Loop step 1",
+      "source": "plan.md — QA Resolve Loop step 1",
       "causedBy": "gap",
       "outcome": "Two independent inventories (Playwright DOM crawl + screenshot visual analysis) produced in parallel, then diffed against each other. Mismatches flagged. Coverage calculated.",
       "codebaseArea": [
         ".governor/evidence/U-001/"
       ],
       "acceptanceCriteria": [
-        "U-001.B1: State enumeration lists every route, tab, modal, conditional view, permission gate, empty state \u2014 minimum 150 states",
-        "U-001.B2: Playwright MCP DOM crawl inventory \u2014 every page visited, elements extracted (buttons, inputs, tiles, cards, tabs, links, toggles) with data-testid and text content",
-        "U-001.B3: Screenshot inventory \u2014 minimum 25 screenshots across all major routes, both org_admin and super_admin perspectives",
+        "U-001.B1: State enumeration lists every route, tab, modal, conditional view, permission gate, empty state — minimum 150 states",
+        "U-001.B2: Playwright MCP DOM crawl inventory — every page visited, elements extracted (buttons, inputs, tiles, cards, tabs, links, toggles) with data-testid and text content",
+        "U-001.B3: Screenshot inventory — minimum 25 screenshots across all major routes, both org_admin and super_admin perspectives",
         "U-001.B4: Each screenshot has independent visual analysis describing what is visible (produced WITHOUT seeing DOM crawl results)",
-        "U-001.B5: Reconciliation document diffs DOM inventory against screenshot visual analysis \u2014 every mismatch listed with page, what DOM says, what screenshot shows",
+        "U-001.B5: Reconciliation document diffs DOM inventory against screenshot visual analysis — every mismatch listed with page, what DOM says, what screenshot shows",
         "U-001.B6: Prior 17 screenshots from E-012 incorporated into screenshot inventory",
-        "U-001.B7: Coverage percentage calculated \u2014 crawled states vs total enumerated states",
+        "U-001.B7: Coverage percentage calculated — crawled states vs total enumerated states",
         "U-001.B8: Post-sprint report documents all mismatches found and their significance"
       ],
       "entryGates": [
-        "A1: Previous sprint committed or parked \u2014 SKIP (first sprint after harness rebuild)",
+        "A1: Previous sprint committed or parked — SKIP (first sprint after harness rebuild)",
         "A2: Worktree clean (no application files modified)",
         "A3: Session state references U-001",
         "A4: Pre-execution report exists in evidence/U-001/",
         "A5: Pre-exec has ## Objective describing the inventory scope",
         "A6: Pre-exec has ## Test Plan listing Playwright navigation commands",
-        "A7: Pre-exec has ## Declared Files (evidence files only \u2014 no app code changes)",
+        "A7: Pre-exec has ## Declared Files (evidence files only — no app code changes)",
         "A8: Ghost messages clear"
       ],
       "exitGates": [
-        "B1: state-enumeration.md exists with >= 150 states \u2014 wc -l evidence/U-001/state-enumeration.md",
-        "B2: DOM inventory exists \u2014 test -f evidence/U-001/dom-inventory.md && wc -l evidence/U-001/dom-inventory.md",
-        "B3: Screenshots directory has >= 25 PNG files \u2014 ls evidence/U-001/screenshots/*.png | wc -l",
-        "B4: Visual analysis exists as separate document \u2014 test -f evidence/U-001/visual-analysis.md",
-        "B5: Reconciliation diffs DOM vs screenshots \u2014 grep -c MISMATCH evidence/U-001/reconciliation.md",
-        "B6: Prior screenshots present \u2014 ls evidence/U-001/screenshots/ | head -17",
-        "B7: Coverage % documented \u2014 grep -i coverage evidence/U-001/reconciliation.md",
+        "B1: state-enumeration.md exists with >= 150 states — wc -l evidence/U-001/state-enumeration.md",
+        "B2: DOM inventory exists — test -f evidence/U-001/dom-inventory.md && wc -l evidence/U-001/dom-inventory.md",
+        "B3: Screenshots directory has >= 25 PNG files — ls evidence/U-001/screenshots/*.png | wc -l",
+        "B4: Visual analysis exists as separate document — test -f evidence/U-001/visual-analysis.md",
+        "B5: Reconciliation diffs DOM vs screenshots — grep -c MISMATCH evidence/U-001/reconciliation.md",
+        "B6: Prior screenshots present — ls evidence/U-001/screenshots/ | head -17",
+        "B7: Coverage % documented — grep -i coverage evidence/U-001/reconciliation.md",
         "B8: Post-sprint report exists with mismatch summary",
-        "B9: Entry gate was approved \u2014 grep \"ENTRY GATE: APPROVED\" evidence/U-001/pre-execution-report.md",
+        "B9: Entry gate was approved — grep \"ENTRY GATE: APPROVED\" evidence/U-001/pre-execution-report.md",
         "B10: Worktree clean",
         "B11: Ghost messages clear"
       ],
@@ -81,7 +97,7 @@
           "T3"
         ]
       },
-      "wholeProductFit": "First step in QA Resolve Loop \u2014 establishes ground truth before any testing or remediation",
+      "wholeProductFit": "First step in QA Resolve Loop — establishes ground truth before any testing or remediation",
       "parallelizable": false,
       "declaredFiles": [
         "evidence/U-001/state-enumeration.md",
@@ -97,59 +113,59 @@
       "executionSteps": [
         {
           "step": 1,
-          "action": "Ghost entry gate \u2014 run A-gates from this sprint",
+          "action": "Ghost entry gate — run A-gates from this sprint",
           "status": "completed",
           "timestamp": "2026-03-27T20:26:23Z",
           "verdict": "APPROVED"
         },
         {
           "step": 2,
-          "action": "Dev Phase 1 \u2014 state enumeration (list every route, tab, modal, conditional view, permission gate, empty state)",
+          "action": "Dev Phase 1 — state enumeration (list every route, tab, modal, conditional view, permission gate, empty state)",
           "status": "completed",
           "timestamp": "2026-03-27T20:31:00Z"
         },
         {
           "step": 3,
-          "action": "Ghost verify Phase 1 \u2014 state-enumeration.md exists, >= 150 states, organized by route",
+          "action": "Ghost verify Phase 1 — state-enumeration.md exists, >= 150 states, organized by route",
           "status": "completed",
           "timestamp": "2026-03-27T20:35:00Z",
           "verdict": "PASS"
         },
         {
           "step": 4,
-          "action": "Dev Phase 2A + 2B PARALLEL \u2014 (A) Playwright MCP DOM crawl: visit every enumerated state, extract all elements to dom-inventory.md. (B) Screenshot capture: take screenshot of every major state, write independent visual analysis to visual-analysis.md WITHOUT seeing DOM results",
+          "action": "Dev Phase 2A + 2B PARALLEL — (A) Playwright MCP DOM crawl: visit every enumerated state, extract all elements to dom-inventory.md. (B) Screenshot capture: take screenshot of every major state, write independent visual analysis to visual-analysis.md WITHOUT seeing DOM results",
           "status": "completed",
           "timestamp": "2026-03-27T21:05:00Z"
         },
         {
           "step": 5,
-          "action": "Ghost verify Phase 2 \u2014 dom-inventory.md exists with element counts per page, screenshots >= 25, visual-analysis.md exists and does NOT reference dom-inventory",
+          "action": "Ghost verify Phase 2 — dom-inventory.md exists with element counts per page, screenshots >= 25, visual-analysis.md exists and does NOT reference dom-inventory",
           "status": "completed",
           "timestamp": "2026-03-27T21:10:00Z",
           "verdict": "PASS"
         },
         {
           "step": 6,
-          "action": "Dev Phase 3 \u2014 reconciliation: diff DOM inventory against visual analysis, flag every mismatch (element in DOM but not visible, visible but not in DOM, count differences), calculate coverage %",
+          "action": "Dev Phase 3 — reconciliation: diff DOM inventory against visual analysis, flag every mismatch (element in DOM but not visible, visible but not in DOM, count differences), calculate coverage %",
           "status": "completed",
           "timestamp": "2026-03-27T21:15:00Z"
         },
         {
           "step": 7,
-          "action": "Ghost verify Phase 3 \u2014 reconciliation.md exists, lists specific mismatches with page references, coverage % present",
+          "action": "Ghost verify Phase 3 — reconciliation.md exists, lists specific mismatches with page references, coverage % present",
           "status": "completed",
           "timestamp": "2026-03-27T21:20:00Z",
           "verdict": "PASS"
         },
         {
           "step": 8,
-          "action": "Dev Phase 4 \u2014 diff against prior execution (commit 48bdd43) state-enumeration and reconciliation",
+          "action": "Dev Phase 4 — diff against prior execution (commit 48bdd43) state-enumeration and reconciliation",
           "status": "completed",
           "timestamp": "2026-03-27T21:25:00Z"
         },
         {
           "step": 9,
-          "action": "Ghost exit gate \u2014 run all B-gates from this sprint",
+          "action": "Ghost exit gate — run all B-gates from this sprint",
           "status": "completed",
           "timestamp": "2026-03-27T21:30:00Z",
           "verdict": "CLEARED"
@@ -159,10 +175,10 @@
     {
       "id": "G-004",
       "category": "Gap Remediation",
-      "name": "Gap Analysis \u2014 Cross-Reference Inventory vs ACs + Define Remediation Sprints",
+      "name": "Gap Analysis — Cross-Reference Inventory vs ACs + Define Remediation Sprints",
       "phase": "qa_resolve_loop",
       "status": "committed",
-      "source": "plan.md \u2014 QA Resolve Loop step after U-001",
+      "source": "plan.md — QA Resolve Loop step after U-001",
       "causedBy": "gap",
       "outcome": "Every gap between what exists in the app and what is tested is identified, domain-tagged, and organized into remediation sprints with ACs.",
       "codebaseArea": [
@@ -174,28 +190,28 @@
         "G-004.B1: Cross-reference document comparing U-001 inventory against existing ACs (P-1 through S-10, SEC series, T series)",
         "G-004.B2: New issues appended to issues.md, each domain-tagged (FE/BE/DT/AU/IN) with severity",
         "G-004.B3: Remediation sprint definitions added to sprints.json with described ACs, gates, and executionSteps",
-        "G-004.B4: Test file created covering critical gaps \u2014 minimum 5 test cases",
+        "G-004.B4: Test file created covering critical gaps — minimum 5 test cases",
         "G-004.B5: Each new issue references the U-001 evidence that revealed the gap",
-        "G-004.B6: Diff against prior gap analysis (commit 48bdd43 issues I-149 through I-158) \u2014 document differences",
+        "G-004.B6: Diff against prior gap analysis (commit 48bdd43 issues I-149 through I-158) — document differences",
         "G-004.B7: Post-sprint report with issues summary and remediation sprint summary"
       ],
       "entryGates": [
-        "A1: U-001 exit gate cleared \u2014 grep 'EXIT GATE: CLEARED' evidence/U-001/post-sprint-report.md",
+        "A1: U-001 exit gate cleared — grep 'EXIT GATE: CLEARED' evidence/U-001/post-sprint-report.md",
         "A2: Worktree clean",
         "A3: Session state references G-004",
         "A4: Pre-execution report exists in evidence/G-004/",
         "A5: Pre-exec has ## Objective",
         "A6: Pre-exec has ## Declared Files",
-        "A7: U-001 evidence exists and is non-empty \u2014 test -d evidence/U-001 && ls evidence/U-001/*.md",
+        "A7: U-001 evidence exists and is non-empty — test -d evidence/U-001 && ls evidence/U-001/*.md",
         "A8: Ghost messages clear"
       ],
       "exitGates": [
-        "B1: Cross-reference document exists \u2014 test -f evidence/G-004/cross-reference.md",
-        "B2: issues.md has new domain-tagged entries \u2014 grep 'FE\\|BE\\|DT\\|AU\\|IN' issues.md | tail -20",
-        "B3: sprints.json has new remediation sprints with described ACs \u2014 python3 check",
-        "B4: Test file exists with >= 5 test cases \u2014 grep -c 'test(' tests/e2e/g004-*.spec.ts",
-        "B5: Each new issue references U-001 evidence \u2014 grep 'U-001' issues.md",
-        "B6: Diff document exists \u2014 test -f evidence/G-004/diff-vs-48bdd43.md",
+        "B1: Cross-reference document exists — test -f evidence/G-004/cross-reference.md",
+        "B2: issues.md has new domain-tagged entries — grep 'FE\\|BE\\|DT\\|AU\\|IN' issues.md | tail -20",
+        "B3: sprints.json has new remediation sprints with described ACs — python3 check",
+        "B4: Test file exists with >= 5 test cases — grep -c 'test(' tests/e2e/g004-*.spec.ts",
+        "B5: Each new issue references U-001 evidence — grep 'U-001' issues.md",
+        "B6: Diff document exists — test -f evidence/G-004/diff-vs-48bdd43.md",
         "B7: Post-sprint report exists with summaries",
         "B8: Entry gate was approved",
         "B9: Worktree clean",
@@ -235,53 +251,53 @@
       "executionSteps": [
         {
           "step": 1,
-          "action": "Ghost entry gate \u2014 run A-gates (including U-001 exit gate check)",
+          "action": "Ghost entry gate — run A-gates (including U-001 exit gate check)",
           "status": "completed",
           "timestamp": "2026-03-27T21:55:53Z",
           "verdict": "APPROVED"
         },
         {
           "step": 2,
-          "action": "Dev Phase 1 \u2014 cross-reference U-001 inventory against existing ACs, identify gaps",
+          "action": "Dev Phase 1 — cross-reference U-001 inventory against existing ACs, identify gaps",
           "status": "completed",
           "timestamp": "2026-03-27T22:00:00Z"
         },
         {
           "step": 3,
-          "action": "Ghost verify Phase 1 \u2014 cross-reference.md exists, references U-001 evidence",
+          "action": "Ghost verify Phase 1 — cross-reference.md exists, references U-001 evidence",
           "status": "completed",
           "timestamp": "2026-03-27T22:05:00Z",
           "verdict": "PASS"
         },
         {
           "step": 4,
-          "action": "Dev Phase 2 \u2014 write new issues to issues.md (domain-tagged), define remediation sprints in sprints.json",
+          "action": "Dev Phase 2 — write new issues to issues.md (domain-tagged), define remediation sprints in sprints.json",
           "status": "completed",
           "timestamp": "2026-03-27T22:15:00Z"
         },
         {
           "step": 5,
-          "action": "Ghost verify Phase 2 \u2014 new issues domain-tagged, new sprints have described ACs and gates",
+          "action": "Ghost verify Phase 2 — new issues domain-tagged, new sprints have described ACs and gates",
           "status": "completed",
           "timestamp": "2026-03-27T22:20:00Z",
           "verdict": "PASS"
         },
         {
           "step": 6,
-          "action": "Dev Phase 3 \u2014 write test file for critical gaps, diff against prior execution (48bdd43)",
+          "action": "Dev Phase 3 — write test file for critical gaps, diff against prior execution (48bdd43)",
           "status": "completed",
           "timestamp": "2026-03-27T22:30:00Z"
         },
         {
           "step": 7,
-          "action": "Ghost verify Phase 3 \u2014 test file has >= 5 tests, diff document exists",
+          "action": "Ghost verify Phase 3 — test file has >= 5 tests, diff document exists",
           "status": "completed",
           "timestamp": "2026-03-27T22:35:00Z",
           "verdict": "PASS"
         },
         {
           "step": 8,
-          "action": "Ghost exit gate \u2014 run all B-gates from this sprint",
+          "action": "Ghost exit gate — run all B-gates from this sprint",
           "status": "completed",
           "timestamp": "2026-03-27T22:40:00Z",
           "verdict": "CLEARED"
@@ -291,7 +307,7 @@
     {
       "id": "FIX-01",
       "category": "Remediation",
-      "name": "AI Chat \u2014 Fix metric label truncation (I-160)",
+      "name": "AI Chat — Fix metric label truncation (I-160)",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "I-160 (G-004 cross-reference, MISMATCH-001)",
@@ -302,8 +318,8 @@
       ],
       "acceptanceCriteria": [
         "FIX-01.AC1: The truncate CSS class is removed or replaced on the metric label element (main.tsx line 749)",
-        "FIX-01.AC2: All four metric labels render fully visible at 1280px viewport width \u2014 screenshot evidence",
-        "FIX-01.AC3: Labels do not overflow or break layout at 1024px viewport width \u2014 screenshot evidence"
+        "FIX-01.AC2: All four metric labels render fully visible at 1280px viewport width — screenshot evidence",
+        "FIX-01.AC3: Labels do not overflow or break layout at 1024px viewport width — screenshot evidence"
       ],
       "entryGates": [
         "A1: G-004 exit gate cleared",
@@ -326,7 +342,7 @@
           "T1"
         ]
       },
-      "wholeProductFit": "Dashboard readability \u2014 first thing every user sees on login",
+      "wholeProductFit": "Dashboard readability — first thing every user sees on login",
       "parallelizable": false,
       "dependsOn": [
         "G-004"
@@ -342,31 +358,31 @@
       "executionSteps": [
         {
           "step": 1,
-          "action": "Ghost entry gate \u2014 verify A-gates",
+          "action": "Ghost entry gate — verify A-gates",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 2,
-          "action": "Dev \u2014 remove truncate class from metric label, verify all 4 labels render fully",
+          "action": "Dev — remove truncate class from metric label, verify all 4 labels render fully",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Ghost verify \u2014 screenshot evidence confirms labels visible at 1280px and 1024px",
+          "action": "Ghost verify — screenshot evidence confirms labels visible at 1280px and 1024px",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 4,
-          "action": "Dev \u2014 smoke test: npx playwright test tests/e2e/s1-ai-chat.spec.ts",
+          "action": "Dev — smoke test: npx playwright test tests/e2e/s1-ai-chat.spec.ts",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 5,
-          "action": "Ghost exit gate \u2014 verify B-gates, smoke test passed, screenshots exist",
+          "action": "Ghost exit gate — verify B-gates, smoke test passed, screenshots exist",
           "status": "pending",
           "timestamp": null
         }
@@ -375,7 +391,7 @@
     {
       "id": "VFY-01",
       "category": "Remediation",
-      "name": "AI Chat \u2014 Verify metric drill-downs and contact detail (I-161)",
+      "name": "AI Chat — Verify metric drill-downs and contact detail (I-161)",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "I-161 (G-004 cross-reference)",
@@ -385,8 +401,8 @@
         "evidence/VFY-01/"
       ],
       "acceptanceCriteria": [
-        "VFY-01.AC1: Click each of the 4 metric tiles \u2014 document whether detail dialog opens, shows data table, or fails. Screenshot each. (ST-063 through ST-073)",
-        "VFY-01.AC2: From Active Pipeline drill-down, click a lead row \u2014 document whether contact detail view loads, shows CRM data, or errors. (ST-074 through ST-077)",
+        "VFY-01.AC1: Click each of the 4 metric tiles — document whether detail dialog opens, shows data table, or fails. Screenshot each. (ST-063 through ST-073)",
+        "VFY-01.AC2: From Active Pipeline drill-down, click a lead row — document whether contact detail view loads, shows CRM data, or errors. (ST-074 through ST-077)",
         "VFY-01.AC3: Each state gets a WORKING/BROKEN verdict with screenshot evidence"
       ],
       "entryGates": [
@@ -410,7 +426,7 @@
           "T3"
         ]
       },
-      "wholeProductFit": "Dashboard drill-downs \u2014 primary demo flow, first page after login",
+      "wholeProductFit": "Dashboard drill-downs — primary demo flow, first page after login",
       "parallelizable": false,
       "dependsOn": [
         "G-004"
@@ -424,31 +440,31 @@
       "executionSteps": [
         {
           "step": 1,
-          "action": "Ghost entry gate \u2014 verify A-gates",
+          "action": "Ghost entry gate — verify A-gates",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 2,
-          "action": "Dev \u2014 use Playwright to click each metric tile, screenshot drill-down dialogs, test contact detail view, document WORKING/BROKEN per state",
+          "action": "Dev — use Playwright to click each metric tile, screenshot drill-down dialogs, test contact detail view, document WORKING/BROKEN per state",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Ghost verify \u2014 evidence is complete, every state has verdict and screenshot",
+          "action": "Ghost verify — evidence is complete, every state has verdict and screenshot",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 4,
-          "action": "Dev \u2014 smoke test: npx playwright test tests/e2e/s1-ai-chat.spec.ts",
+          "action": "Dev — smoke test: npx playwright test tests/e2e/s1-ai-chat.spec.ts",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 5,
-          "action": "Ghost exit gate \u2014 verify B-gates",
+          "action": "Ghost exit gate — verify B-gates",
           "status": "pending",
           "timestamp": null
         }
@@ -457,7 +473,7 @@
     {
       "id": "VFY-02",
       "category": "Remediation",
-      "name": "Sales \u2014 Verify metric drill-downs and contact detail (I-161)",
+      "name": "Sales — Verify metric drill-downs and contact detail (I-161)",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "I-161 (G-004 cross-reference)",
@@ -467,8 +483,8 @@
         "evidence/VFY-02/"
       ],
       "acceptanceCriteria": [
-        "VFY-02.AC1: Click each of the 7 Sales metric tiles \u2014 document whether detail dialog opens, shows data or empty state. Screenshot each. (ST-119 through ST-127)",
-        "VFY-02.AC2: From Active Pipeline drill-down, click a lead row \u2014 document whether contact detail view loads. (ST-128 through ST-129)",
+        "VFY-02.AC1: Click each of the 7 Sales metric tiles — document whether detail dialog opens, shows data or empty state. Screenshot each. (ST-119 through ST-127)",
+        "VFY-02.AC2: From Active Pipeline drill-down, click a lead row — document whether contact detail view loads. (ST-128 through ST-129)",
         "VFY-02.AC3: Each state gets a WORKING/BROKEN verdict with screenshot evidence"
       ],
       "entryGates": [
@@ -492,7 +508,7 @@
           "T3"
         ]
       },
-      "wholeProductFit": "Sales dashboard drill-downs \u2014 core demo flow for dealership managers",
+      "wholeProductFit": "Sales dashboard drill-downs — core demo flow for dealership managers",
       "parallelizable": false,
       "dependsOn": [
         "G-004"
@@ -506,31 +522,31 @@
       "executionSteps": [
         {
           "step": 1,
-          "action": "Ghost entry gate \u2014 verify A-gates",
+          "action": "Ghost entry gate — verify A-gates",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 2,
-          "action": "Dev \u2014 use Playwright to click each Sales metric tile, screenshot drill-down dialogs, test contact detail, document WORKING/BROKEN per state",
+          "action": "Dev — use Playwright to click each Sales metric tile, screenshot drill-down dialogs, test contact detail, document WORKING/BROKEN per state",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Ghost verify \u2014 evidence is complete, every state has verdict and screenshot",
+          "action": "Ghost verify — evidence is complete, every state has verdict and screenshot",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 4,
-          "action": "Dev \u2014 smoke test: npx playwright test tests/e2e/s3-sales.spec.ts",
+          "action": "Dev — smoke test: npx playwright test tests/e2e/s3-sales.spec.ts",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 5,
-          "action": "Ghost exit gate \u2014 verify B-gates",
+          "action": "Ghost exit gate — verify B-gates",
           "status": "pending",
           "timestamp": null
         }
@@ -539,7 +555,7 @@
     {
       "id": "VFY-03",
       "category": "Remediation",
-      "name": "TeamBox \u2014 Verify task view states (I-162)",
+      "name": "TeamBox — Verify task view states (I-162)",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "I-162 (G-004 cross-reference)",
@@ -549,9 +565,9 @@
         "evidence/VFY-03/"
       ],
       "acceptanceCriteria": [
-        "VFY-03.AC1: Switch to Tasks view in TeamBox \u2014 document whether task list renders, shows loading/empty states. Screenshot. (ST-093 through ST-095)",
-        "VFY-03.AC2: Select a task \u2014 document whether detail panel shows with status update buttons. Screenshot. (ST-096)",
-        "VFY-03.AC3: Test task type filter sidebar \u2014 document whether filter changes the list. Screenshot. (ST-097)"
+        "VFY-03.AC1: Switch to Tasks view in TeamBox — document whether task list renders, shows loading/empty states. Screenshot. (ST-093 through ST-095)",
+        "VFY-03.AC2: Select a task — document whether detail panel shows with status update buttons. Screenshot. (ST-096)",
+        "VFY-03.AC3: Test task type filter sidebar — document whether filter changes the list. Screenshot. (ST-097)"
       ],
       "entryGates": [
         "A1: G-004 exit gate cleared",
@@ -574,7 +590,7 @@
           "T3"
         ]
       },
-      "wholeProductFit": "TeamBox task management \u2014 operational workflow for dealership staff",
+      "wholeProductFit": "TeamBox task management — operational workflow for dealership staff",
       "parallelizable": false,
       "dependsOn": [
         "G-004"
@@ -594,7 +610,7 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 Playwright verify task view states ST-093 through ST-097",
+          "action": "Dev — Playwright verify task view states ST-093 through ST-097",
           "status": "pending",
           "timestamp": null
         },
@@ -606,7 +622,7 @@
         },
         {
           "step": 4,
-          "action": "Dev \u2014 smoke test: s2-teambox.spec.ts",
+          "action": "Dev — smoke test: s2-teambox.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -621,7 +637,7 @@
     {
       "id": "VFY-04",
       "category": "Remediation",
-      "name": "Marketing \u2014 Verify AgentChatView states (I-170)",
+      "name": "Marketing — Verify AgentChatView states (I-170)",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "I-170 (G-004 cross-reference)",
@@ -631,8 +647,8 @@
         "evidence/VFY-04/"
       ],
       "acceptanceCriteria": [
-        "VFY-04.AC1: Select a marketing agent \u2014 document whether AgentChatView loads with message thread. Screenshot. (ST-167, ST-168)",
-        "VFY-04.AC2: Send a message \u2014 document whether streaming, response, and artifact preview work. Screenshot. (ST-169, ST-170)",
+        "VFY-04.AC1: Select a marketing agent — document whether AgentChatView loads with message thread. Screenshot. (ST-167, ST-168)",
+        "VFY-04.AC2: Send a message — document whether streaming, response, and artifact preview work. Screenshot. (ST-169, ST-170)",
         "VFY-04.AC3: Test artifact full-screen and sharing if available. Screenshot. (ST-171, ST-172)"
       ],
       "entryGates": [
@@ -656,7 +672,7 @@
           "T3"
         ]
       },
-      "wholeProductFit": "Marketing agent chat \u2014 AI agent interaction demo flow",
+      "wholeProductFit": "Marketing agent chat — AI agent interaction demo flow",
       "parallelizable": false,
       "dependsOn": [
         "G-004"
@@ -676,7 +692,7 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 Playwright verify AgentChatView states ST-167 through ST-172",
+          "action": "Dev — Playwright verify AgentChatView states ST-167 through ST-172",
           "status": "pending",
           "timestamp": null
         },
@@ -688,7 +704,7 @@
         },
         {
           "step": 4,
-          "action": "Dev \u2014 smoke test: s5-marketing.spec.ts",
+          "action": "Dev — smoke test: s5-marketing.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -782,8 +798,8 @@
       "outcome": "Messages behave correctly under all states. Trust anchor established.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S0.AC-I-141: VAPI webhook 422 \u2014 transcripts not stored",
-        "S0.AC-I-144: Blacklist only enforced for SMS \u2014 phone/email bypass",
+        "S0.AC-I-141: VAPI webhook 422 — transcripts not stored",
+        "S0.AC-I-144: Blacklist only enforced for SMS — phone/email bypass",
         "S0.AC-RETEST: SMS takeover re-test with Caroline SMS enabled",
         "S0.AC-CAMPAIGN: Campaign send pipeline verification under real conditions"
       ],
@@ -826,13 +842,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: e2e-flows.spec.ts + real-integrations.spec.ts",
+          "action": "Dev — smoke test: e2e-flows.spec.ts + real-integrations.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -897,13 +913,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s8-landing-widgets.spec.ts",
+          "action": "Dev — smoke test: s8-landing-widgets.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -918,7 +934,7 @@
     {
       "id": "S2",
       "category": "Remediation",
-      "name": "AI Chat \u2014 History + Data Grounding",
+      "name": "AI Chat — History + Data Grounding",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -927,7 +943,7 @@
       "codebaseArea": [],
       "acceptanceCriteria": [
         "S2.AC-I-126: Chat history resume and display",
-        "S2.AC-I-139: Data Guru CRM grounding \u2014 prevent hallucination"
+        "S2.AC-I-139: Data Guru CRM grounding — prevent hallucination"
       ],
       "entryGates": [
         "A1: Previous sprint committed or first in sequence",
@@ -968,13 +984,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s1-ai-chat.spec.ts",
+          "action": "Dev — smoke test: s1-ai-chat.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -989,7 +1005,7 @@
     {
       "id": "S3",
       "category": "Remediation",
-      "name": "TeamBox \u2014 Channels + CRM Action",
+      "name": "TeamBox — Channels + CRM Action",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -997,8 +1013,8 @@
       "outcome": "TeamBox becomes actionable, not just visible.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S3.AC-I-150: Channel filter cleanup (WhatsApp/Web Chat decision \u2014 NEEDS INPUT)",
-        "S3.AC-I-174: Send to CRM button \u2014 manual VIN lead creation (NEEDS SPEC, HIGH)"
+        "S3.AC-I-150: Channel filter cleanup (WhatsApp/Web Chat decision — NEEDS INPUT)",
+        "S3.AC-I-174: Send to CRM button — manual VIN lead creation (NEEDS SPEC, HIGH)"
       ],
       "entryGates": [
         "A1: Previous sprint committed or first in sequence",
@@ -1039,13 +1055,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s2-teambox.spec.ts",
+          "action": "Dev — smoke test: s2-teambox.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1060,7 +1076,7 @@
     {
       "id": "S4",
       "category": "Remediation",
-      "name": "Service \u2014 Metrics Cleanup + Multi-Channel Campaigns",
+      "name": "Service — Metrics Cleanup + Multi-Channel Campaigns",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1068,8 +1084,8 @@
       "outcome": "Service metrics stop lying. Campaigns support multiple channels via separate-campaign-per-channel pattern.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S4.AC-4A: Remove misleading change/trend display from service metric tiles (I-113) \u2014 no fake 0% up",
-        "S4.AC-4B: Campaign creation UI supports multi-channel selection \u2014 checkboxes instead of single dropdown (I-132)",
+        "S4.AC-4A: Remove misleading change/trend display from service metric tiles (I-113) — no fake 0% up",
+        "S4.AC-4B: Campaign creation UI supports multi-channel selection — checkboxes instead of single dropdown (I-132)",
         "S4.AC-4C: Multi-channel submit creates one campaign per selected channel with same recipients and template"
       ],
       "entryGates": [
@@ -1111,13 +1127,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s4-service.spec.ts",
+          "action": "Dev — smoke test: s4-service.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1133,7 +1149,7 @@
     {
       "id": "S5",
       "category": "Remediation",
-      "name": "Marketing \u2014 AI + Metrics",
+      "name": "Marketing — AI + Metrics",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1141,8 +1157,8 @@
       "outcome": "AI agents respond correctly. Dashboard reflects reality.",
       "codebaseArea": [],
       "acceptanceCriteria": [
-        "S5.AC-I-172: AgentChatView openai-proxy 401 \u2014 token refresh fix",
-        "S5.AC-I-155: Dashboard metrics showing zero \u2014 verify real API data"
+        "S5.AC-I-172: AgentChatView openai-proxy 401 — token refresh fix",
+        "S5.AC-I-155: Dashboard metrics showing zero — verify real API data"
       ],
       "entryGates": [
         "A1: Previous sprint committed or first in sequence",
@@ -1183,13 +1199,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s5-marketing.spec.ts",
+          "action": "Dev — smoke test: s5-marketing.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1204,7 +1220,7 @@
     {
       "id": "S6",
       "category": "Remediation",
-      "name": "Insights \u2014 Drill-Downs + Reports + Library",
+      "name": "Insights — Drill-Downs + Reports + Library",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1254,13 +1270,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: domain-07-insights.spec.ts",
+          "action": "Dev — smoke test: domain-07-insights.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1275,7 +1291,7 @@
     {
       "id": "S7",
       "category": "Remediation",
-      "name": "Auth \u2014 Password Reset + FE States",
+      "name": "Auth — Password Reset + FE States",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1325,13 +1341,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: domain-01-auth.spec.ts",
+          "action": "Dev — smoke test: domain-01-auth.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1346,7 +1362,7 @@
     {
       "id": "S8",
       "category": "Remediation",
-      "name": "Settings \u2014 Cleanup + Verification",
+      "name": "Settings — Cleanup + Verification",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1398,13 +1414,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s7-system-profile.spec.ts + domain-09-settings.spec.ts",
+          "action": "Dev — smoke test: s7-system-profile.spec.ts + domain-09-settings.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1419,7 +1435,7 @@
     {
       "id": "S9",
       "category": "Remediation",
-      "name": "Management \u2014 Feature Completion",
+      "name": "Management — Feature Completion",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1470,13 +1486,13 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: s6-manage.spec.ts",
+          "action": "Dev — smoke test: s6-manage.spec.ts",
           "status": "pending",
           "timestamp": null
         },
@@ -1492,7 +1508,7 @@
     {
       "id": "S10",
       "category": "Remediation",
-      "name": "Agents \u2014 Validation + Polish",
+      "name": "Agents — Validation + Polish",
       "phase": "qa_resolve_loop",
       "status": "committed",
       "source": "PLAN.md Sprint Plan (2026-03-29)",
@@ -1543,19 +1559,1770 @@
         },
         {
           "step": 2,
-          "action": "Dev \u2014 implement fixes and verify",
+          "action": "Dev — implement fixes and verify",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 3,
-          "action": "Dev \u2014 smoke test: domain-06-departments.spec.ts",
+          "action": "Dev — smoke test: domain-06-departments.spec.ts",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 4,
           "action": "Ghost exit gate",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-11",
+      "category": "Bug Fix",
+      "name": "RBAC Enforcement — Sidebar Visibility + API Authorization",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Backend / Comms section",
+      "causedBy": "bug",
+      "outcome": "RBAC properly enforced: Sales users cannot see System sidebar item, cannot create agents via API, cannot navigate to billing. Executive users see Manage in sidebar.",
+      "codebaseArea": [
+        "client/src/components/",
+        "server/routes/"
+      ],
+      "acceptanceCriteria": [
+        "S-11.AC1: Sales role sidebar does NOT show System menu item",
+        "S-11.AC2: Executive role sidebar DOES show Manage menu item",
+        "S-11.AC3: POST /api/agents returns 403 for Sales role (not 200)",
+        "S-11.AC4: /settings/billing route blocked for Sales/Marketing/Service roles",
+        "S-11.AC5: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: Worktree clean — git status --short shows no unexpected modifications",
+        "A2: Session state references S-11",
+        "A3: sprints.json contains S-11 with status proposed or in_progress",
+        "A4: PLAN.md is the active plan",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 4 RBAC issues verified fixed in code",
+        "B2: Smoke test s9-cross-cutting.spec.ts passes",
+        "B3: No files outside declared scope modified",
+        "B4: No governance files (PLAN.md, sprints.json schema, session-state.md) altered without acknowledgement",
+        "B5: Evidence written to evidence/S-11/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "BE",
+          "FE"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "RBAC is trust infrastructure — broken permissions undermine the entire multi-tenant model",
+      "parallelizable": false,
+      "declaredFiles": [
+        "client/src/components/Sidebar.tsx",
+        "client/src/components/layout/",
+        "server/routes/agents.ts",
+        "server/middleware/",
+        "evidence/S-11/"
+      ],
+      "issues": [
+        "I-178",
+        "I-179",
+        "I-180",
+        "I-181"
+      ],
+      "smokeTest": "s9-cross-cutting.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-11/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-11, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-11 — RBAC Enforcement. Scope: Fix 4 RBAC issues: sidebar visibility for Sales (System hidden) and Executive (Manage shown), API auth for agent creation, billing route blocking. Issues: I-178, I-179, I-180, I-181. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-178, I-179, I-180, I-181]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: s9-cross-cutting.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-12",
+      "category": "Bug Fix",
+      "name": "Voice/Comms Pipeline — Race Conditions + Transcript Storage",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Backend / Comms section",
+      "causedBy": "bug",
+      "outcome": "SMS webhooks use locking to prevent duplicate conversations. VAPI transcripts stored in conversation messages. No duplicate voice conversations per call.",
+      "codebaseArea": [
+        "server/routes/sms.ts",
+        "server/routes/vapi.ts",
+        "server/routes/conversations.ts"
+      ],
+      "acceptanceCriteria": [
+        "S-12.AC1: Concurrent SMS webhooks from same phone do NOT create duplicate conversations (mutex or atomic upsert)",
+        "S-12.AC2: VAPI call completion stores transcript in conversation messages",
+        "S-12.AC3: Single VAPI call does NOT create duplicate voice conversations",
+        "S-12.AC4: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: S-11 committed or parked",
+        "A2: Worktree clean",
+        "A3: Session state references S-12",
+        "A4: sprints.json contains S-12",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 3 comms issues verified fixed in code",
+        "B2: Smoke test s0-foundation.spec.ts passes",
+        "B3: No files outside declared scope modified",
+        "B4: No governance files altered without acknowledgement",
+        "B5: Evidence written to evidence/S-12/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S2"
+        ],
+        "featureDims": [
+          "BE"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Comms pipeline is the nervous system — race conditions create data corruption and broken conversations",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-11"
+      ],
+      "declaredFiles": [
+        "server/routes/sms.ts",
+        "server/routes/vapi.ts",
+        "server/routes/conversations.ts",
+        "evidence/S-12/"
+      ],
+      "issues": [
+        "I-175",
+        "I-176",
+        "I-177"
+      ],
+      "smokeTest": "s0-foundation.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-12/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-12, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-12 — Voice/Comms Pipeline. Scope: Fix 3 comms bugs: SMS race condition (duplicate conversations), VAPI transcript not stored, duplicate voice conversations per call. Issues: I-175, I-176, I-177. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-175, I-176, I-177]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: s0-foundation.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-13",
+      "category": "Test Infrastructure",
+      "name": "Test Hygiene — Delete Stubs, Fix Assertions, Fix URLs",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Infrastructure / Testing section",
+      "causedBy": "tech_debt",
+      "outcome": "No always-true assertions. No stub tests. No hardcoded production URLs. Dashboard static resource 404 resolved.",
+      "codebaseArea": [
+        "tests/",
+        "client/public/"
+      ],
+      "acceptanceCriteria": [
+        "S-13.AC1: 6 always-true assertions in s11-demo-hotfix.spec.ts replaced with real assertions or tests deleted",
+        "S-13.AC2: 103 stub tests in observability/ deleted",
+        "S-13.AC3: 2 test files use env var for URL instead of hardcoded production URL",
+        "S-13.AC4: Dashboard 404 on static resource resolved (missing asset added or reference removed)",
+        "S-13.AC5: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: S-12 committed or parked",
+        "A2: Worktree clean",
+        "A3: Session state references S-13",
+        "A4: sprints.json contains S-13",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 4 test hygiene issues verified fixed",
+        "B2: Smoke test domain-12-infrastructure.spec.ts passes",
+        "B3: No app code files modified (tests and static assets only)",
+        "B4: No governance files altered without acknowledgement",
+        "B5: Evidence written to evidence/S-13/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1"
+        ],
+        "featureDims": [
+          "DT"
+        ],
+        "testLevels": [
+          "T1"
+        ]
+      },
+      "wholeProductFit": "Fake tests erode trust in the test suite — cleaning them restores signal integrity",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-12"
+      ],
+      "declaredFiles": [
+        "tests/e2e/s11-demo-hotfix.spec.ts",
+        "tests/e2e/observability/",
+        "tests/e2e/domain-02-dashboard.spec.ts",
+        "client/public/",
+        "evidence/S-13/"
+      ],
+      "issues": [
+        "I-103",
+        "I-104",
+        "I-110",
+        "I-182"
+      ],
+      "smokeTest": "domain-12-infrastructure.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-13/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-13, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-13 — Test Hygiene. Scope: Fix 4 test infrastructure issues: remove always-true assertions, delete 103 stub tests, fix hardcoded prod URLs, resolve dashboard 404. Issues: I-103, I-104, I-110, I-182. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-103, I-104, I-110, I-182]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: domain-12-infrastructure.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-14",
+      "category": "Test Infrastructure",
+      "name": "Test Alignment: RBAC + UI — Selector and Expectation Fixes",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Infrastructure / Testing section",
+      "causedBy": "test_drift",
+      "outcome": "Management tests updated for super_admin. Tour button selector matches actual text. Appointment schema field name aligned. All 3 tests pass.",
+      "codebaseArea": [
+        "tests/"
+      ],
+      "acceptanceCriteria": [
+        "S-14.AC1: Test 6.4/6.5 updated to expect super_admin access (not org_admin)",
+        "S-14.AC2: Test 9.3 selector matches actual 'Restart Tour' button text",
+        "S-14.AC3: Test 10.3 uses correct field name for appointment date",
+        "S-14.AC4: All 3 fixed tests pass"
+      ],
+      "entryGates": [
+        "A1: S-13 committed or parked",
+        "A2: Worktree clean",
+        "A3: Session state references S-14",
+        "A4: sprints.json contains S-14",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 3 test alignment issues verified fixed",
+        "B2: Smoke test s6-manage.spec.ts + s9-cross-cutting.spec.ts pass",
+        "B3: No app code files modified (test files only)",
+        "B4: No governance files altered without acknowledgement",
+        "B5: Evidence written to evidence/S-14/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1"
+        ],
+        "featureDims": [
+          "DT"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Tests that fail due to drift mask real regressions — aligning them restores test credibility",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-13"
+      ],
+      "declaredFiles": [
+        "tests/e2e/s6-manage.spec.ts",
+        "tests/e2e/s9-cross-cutting.spec.ts",
+        "tests/e2e/domain-06-departments.spec.ts",
+        "evidence/S-14/"
+      ],
+      "issues": [
+        "I-184",
+        "I-185",
+        "I-186"
+      ],
+      "smokeTest": "s6-manage.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-14/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-14, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-14 — Test Alignment: RBAC + UI. Scope: Fix 3 test expectation issues: management page role check, tour button selector, appointment date field name. Issues: I-184, I-185, I-186. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-184, I-185, I-186]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: s6-manage.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-15",
+      "category": "Test Infrastructure",
+      "name": "Test Alignment: Comms — Timing, Routing, and Query Fixes",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Infrastructure / Testing section",
+      "causedBy": "test_drift",
+      "outcome": "Campaign reply test finds conversation. VAPI transcript test has adequate wait/retry. VIN warehouse query uses correct date field.",
+      "codebaseArea": [
+        "tests/"
+      ],
+      "acceptanceCriteria": [
+        "S-15.AC1: Test 4.10 campaign reply webhook correctly finds or creates conversation",
+        "S-15.AC2: Test RI-VAPI-1 handles transcript timing (longer wait or polling)",
+        "S-15.AC3: Test RI-VIN-1 warehouse query uses correct date field for vin_created_at",
+        "S-15.AC4: All 3 fixed tests pass"
+      ],
+      "entryGates": [
+        "A1: S-14 committed or parked",
+        "A2: Worktree clean",
+        "A3: Session state references S-15",
+        "A4: sprints.json contains S-15",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 3 comms test issues verified fixed",
+        "B2: Smoke test real-integrations.spec.ts passes",
+        "B3: No app code files modified (test files only)",
+        "B4: No governance files altered without acknowledgement",
+        "B5: Evidence written to evidence/S-15/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1"
+        ],
+        "featureDims": [
+          "DT"
+        ],
+        "testLevels": [
+          "T3"
+        ]
+      },
+      "wholeProductFit": "Comms tests guard the revenue pipeline — false failures hide real issues",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-14"
+      ],
+      "declaredFiles": [
+        "tests/e2e/domain-04-campaigns.spec.ts",
+        "tests/e2e/real-integrations.spec.ts",
+        "evidence/S-15/"
+      ],
+      "issues": [
+        "I-183",
+        "I-187",
+        "I-188"
+      ],
+      "smokeTest": "real-integrations.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-15/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-15, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-15 — Test Alignment: Comms. Scope: Fix 3 comms test issues: campaign reply webhook routing, VAPI transcript timing, VIN warehouse date query. Issues: I-183, I-187, I-188. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-183, I-187, I-188]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: real-integrations.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-16",
+      "category": "Bug Fix",
+      "name": "Photo Studio — FAL Proxy 501 Investigation + Fix",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Agents section",
+      "causedBy": "bug",
+      "outcome": "Photo Studio agent image generation returns successful response instead of 501. FAL proxy route correctly forwards requests.",
+      "codebaseArea": [
+        "server/routes/",
+        "client/src/"
+      ],
+      "acceptanceCriteria": [
+        "S-16.AC1: /api/openai-proxy image generation endpoint returns 200 (not 501)",
+        "S-16.AC2: FAL proxy code correctly handles Photo Studio requests",
+        "S-16.AC3: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: S-15 committed or parked",
+        "A2: Worktree clean",
+        "A3: Session state references S-16",
+        "A4: sprints.json contains S-16",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: Photo Studio issue verified fixed in code",
+        "B2: Smoke test domain-06-departments.spec.ts passes",
+        "B3: No files outside declared scope modified",
+        "B4: No governance files altered without acknowledgement",
+        "B5: Evidence written to evidence/S-16/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "BE",
+          "FE"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Photo Studio is a visible agent feature — 501 errors make the agent system look broken",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-15"
+      ],
+      "declaredFiles": [
+        "server/routes/openai-proxy.ts",
+        "server/routes/agents.ts",
+        "evidence/S-16/"
+      ],
+      "issues": [
+        "I-102"
+      ],
+      "smokeTest": "domain-06-departments.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-16/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-16, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-16 — Photo Studio Fix. Scope: Investigate and fix Photo Studio 501 from /api/openai-proxy — FAL proxy code exists but returns error. Issues: I-102. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-102]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: domain-06-departments.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-17",
+      "category": "Refactor",
+      "name": "FAL Proxy → MCP Migration — Route Through Central-MCP",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "I-102 investigation + BL-062 (route API keys through MCP)",
+      "causedBy": "architecture",
+      "outcome": "All FAL API calls route through central-mcp via callMCP(). FAL_KEY removed from nexxus .env. Single API key in central-mcp config. Eliminates direct FAL dependency and key duplication.",
+      "codebaseArea": [
+        "server/routes/proxy.ts",
+        "client/src/lib/tool-executor.ts"
+      ],
+      "acceptanceCriteria": [
+        "S-17.AC1: /api/fal-proxy calls callMCP('fal_submit') instead of direct fetch to queue.fal.run",
+        "S-17.AC2: /api/fal-proxy/status calls callMCP('fal_get_status') instead of direct fetch",
+        "S-17.AC3: /api/fal-proxy/result calls callMCP('fal_get_result') instead of direct fetch",
+        "S-17.AC4: FAL_KEY no longer required in nexxus .env (central-mcp holds the key)",
+        "S-17.AC5: Frontend tool-executor.ts unchanged (still calls /api/fal-proxy endpoints)",
+        "S-17.AC6: TypeScript compilation passes",
+        "S-17.AC7: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: Worktree clean — git status --short shows no unexpected modifications",
+        "A2: Session state references S-17",
+        "A3: sprints.json contains S-17 with status proposed or in_progress",
+        "A4: PLAN.md is the active plan",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: All 3 FAL proxy endpoints use callMCP() instead of direct fetch",
+        "B2: FAL_KEY check removed from proxy endpoints",
+        "B3: Smoke test passes",
+        "B4: No files outside declared scope modified",
+        "B5: No governance files altered without acknowledgement",
+        "B6: Evidence written to evidence/S-17/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S2"
+        ],
+        "featureDims": [
+          "BE"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Centralizes vendor API keys in MCP — eliminates key duplication and aligns with BL-062 architecture goal",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-16"
+      ],
+      "declaredFiles": [
+        "server/routes/proxy.ts",
+        "evidence/S-17/"
+      ],
+      "issues": [
+        "I-102"
+      ],
+      "smokeTest": "domain-06-departments.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-17/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-17, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-17 — FAL Proxy → MCP Migration. Scope: Convert 3 FAL proxy endpoints to use callMCP() instead of direct FAL API calls. Issues: I-102. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For /api/fal-proxy, /api/fal-proxy/status, /api/fal-proxy/result: (1) Show current direct-fetch code. (2) Replace with callMCP('fal_submit'/'fal_get_status'/'fal_get_result'). (3) Show diff. (4) Remove FAL_KEY checks (MCP handles auth).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: domain-06-departments.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "S-18",
+      "category": "Feature",
+      "name": "Campaign Vehicle Personalization — Merge Fields, Storage, Context, Template Download",
+      "phase": "stabilize",
+      "status": "committed",
+      "source": "issues.md — Campaigns section, operator recall campaign requirement",
+      "causedBy": "feature_gap",
+      "outcome": "Campaigns can include per-recipient vehicle data (VIN, Model, Year) in message templates. Reply conversations carry vehicle context for agent awareness. CSV template downloadable from campaign creation screen.",
+      "codebaseArea": [
+        "shared/schema.ts",
+        "server/routes/campaigns.ts",
+        "server/outbound.ts",
+        "server/routes/sms.ts",
+        "client/src/"
+      ],
+      "acceptanceCriteria": [
+        "S-18.AC1: campaign_recipients table has metadata JSONB column (or explicit vin, vehicleModel, vehicleYear columns)",
+        "S-18.AC2: CSV upload parses and stores VIN, Model, Year into recipient record",
+        "S-18.AC3: substituteTemplate() supports {{vehicleYear}}, {{vehicleModel}}, {{vin}} merge fields",
+        "S-18.AC4: Campaign message can include 'your {{vehicleYear}} {{vehicleModel}}' and it resolves per-recipient",
+        "S-18.AC5: When campaign recipient replies via SMS, the conversation includes vehicle context (metadata or first message annotation)",
+        "S-18.AC6: Create campaign screen has a 'Download CSV Template' link that downloads a .csv with all expected column headers",
+        "S-18.AC7: TypeScript compilation passes",
+        "S-18.AC8: Smoke test passes with no regressions"
+      ],
+      "entryGates": [
+        "A1: Worktree clean — git status --short shows no unexpected modifications",
+        "A2: Session state references S-18",
+        "A3: sprints.json contains S-18 with status proposed or in_progress",
+        "A4: PLAN.md is the active plan",
+        "A5: Pre-flight passed — all checks green"
+      ],
+      "exitGates": [
+        "B1: Schema migration adds vehicle storage to campaign_recipients",
+        "B2: CSV upload stores vehicle data",
+        "B3: Template substitution resolves vehicle merge fields",
+        "B4: Reply conversation carries vehicle context",
+        "B5: CSV template download works from campaign creation screen",
+        "B6: Smoke test passes",
+        "B7: No files outside declared scope modified",
+        "B8: No governance files altered without acknowledgement",
+        "B9: Evidence written to evidence/S-18/"
+      ],
+      "dimensions": {
+        "layers": [
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "BE",
+          "FE",
+          "DT"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Enables vehicle-specific recall campaigns — the first real production campaign use case. Without this, messages are generic and agents have no reply context.",
+      "parallelizable": false,
+      "dependsOn": [
+        "S-17"
+      ],
+      "declaredFiles": [
+        "shared/schema.ts",
+        "server/routes/campaigns.ts",
+        "server/outbound.ts",
+        "server/routes/sms.ts",
+        "client/src/components/campaigns/",
+        "client/src/pages/",
+        "evidence/S-18/"
+      ],
+      "issues": [
+        "I-190",
+        "I-191",
+        "I-192",
+        "I-193"
+      ],
+      "smokeTest": "domain-04-campaigns.spec.ts",
+      "commit": null,
+      "evidence": "evidence/S-18/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — (1) Run git status --short, confirm only expected files modified, STOP if unexpected. (2) Confirm PLAN.md is active plan, sprints.json contains S-18, session-state.md reflects current branch. If ANY check fails → STOP and ask.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "ACKNOWLEDGEMENT — List harness rules. State sprint: S-18 — Campaign Vehicle Personalization. Scope: Add vehicle storage to recipients, merge fields to templates, vehicle context to reply conversations, CSV template download. Issues: I-190, I-191, I-192, I-193. List expected outcomes. Proceed if pre-flight passed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "EXECUTION — For each issue in [I-190, I-191, I-192, I-193]: (1) Show current state of relevant code. (2) Apply minimal change to resolve. (3) Show diff before vs after. (4) Map change to issue ID. Do NOT proceed to next issue until current is verified.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Prove: sprint followed rules, no unrelated files modified, no new errors. Run smoke test: domain-04-campaigns.spec.ts. Show: verification steps, output, list of files touched (must match declaredFiles).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GLOBAL INTEGRITY CHECK — Show: all files modified across all fixes. Confirm no files outside planned scope touched. Confirm no schema/governance files altered. Confirm PLAN.md, issues.md, session-state.md unchanged unless operator acknowledged.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CLEANUP — Check plan alignment: What does PLAN.md say is current phase? Which files are permitted? What was last change completed? Update session-state.md with results. STOP — sprint complete.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "M-002",
+      "category": "Maintenance",
+      "name": "Reconciliation — Commit S-11 through S-18 + session work",
+      "phase": "stabilize",
+      "status": "in_progress",
+      "source": "Session audit 2026-03-31 — uncommitted work from overnight run + current session fixes",
+      "causedBy": "change",
+      "outcome": "All S-11 through S-18 work plus current session changes (I-194 disable, test updates, playwright config, issues.md, GOVERNOR_REFERENCE.md) committed as a single reconciliation commit. Clean worktree.",
+      "codebaseArea": [
+        "server/",
+        "shared/",
+        "tests/",
+        "client/",
+        "evidence/"
+      ],
+      "acceptanceCriteria": [
+        "M-002.AC1: git status --short returns 0 modified files after commit",
+        "M-002.AC2: sprints.json shows S-11 through S-18 as committed",
+        "M-002.AC3: issues.md has Dim column on all open issues and correct closed entries",
+        "M-002.AC4: Build deployed to PM2 matches committed source"
+      ],
+      "dimensions": {
+        "layers": [
+          "S4",
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T1"
+        ]
+      },
+      "wholeProductFit": "Establishes clean baseline for testing initiative. No testing sprint can start from a dirty worktree.",
+      "parallelizable": false,
+      "dependsOn": [],
+      "declaredFiles": [
+        "sprints.json",
+        "issues.md",
+        "backlog.md",
+        "evidence/"
+      ],
+      "issues": [],
+      "entryGates": [
+        "A1: All S-11 through S-18 work verified in code (confirmed 2026-03-31)",
+        "A2: Build deployed and healthy on dev.huminicdev.com",
+        "A3: API E2E passed 44/46 (2 known test-side bugs)"
+      ],
+      "exitGates": [
+        "B1: Single commit with full manifest of changes",
+        "B2: git status clean",
+        "B3: PM2 process healthy"
+      ],
+      "commit": null,
+      "evidence": "evidence/M-002/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Verify worktree matches session-state.md. Confirm build is deployed. Confirm 44/46 API tests pass.",
+          "status": "completed",
+          "timestamp": "2026-03-31T07:13:13.575Z"
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION — Stage all files, create single reconciliation commit with full manifest.",
+          "status": "completed",
+          "timestamp": "2026-03-31T07:13:13.575Z"
+        },
+        {
+          "step": 2,
+          "action": "VERIFICATION — git status clean, PM2 healthy, no regressions.",
+          "status": "completed",
+          "timestamp": "2026-03-31T07:13:13.575Z"
+        }
+      ]
+    },
+    {
+      "id": "M-003",
+      "category": "Maintenance",
+      "name": "Test Infrastructure Cleanup — Stale files, dead helpers, hardcoded URLs",
+      "phase": "stabilize",
+      "status": "proposed",
+      "source": [
+        "I-196",
+        "I-197",
+        "I-198",
+        "I-199"
+      ],
+      "causedBy": "issue",
+      "outcome": "Test suite is clean: no orphan specs, no dead helpers, no hardcoded URLs, all files matched by a Playwright project. verify-all.ts uses shared helpers and BASE_URL.",
+      "codebaseArea": [
+        "tests/",
+        "playwright.config.ts"
+      ],
+      "acceptanceCriteria": [
+        "M-003.AC1: g004-gap-coverage.spec.ts and m001-gap-coverage.spec.ts are either added to a Playwright project or moved to deprecated/",
+        "M-003.AC2: tests/helpers/api.ts and tests/helpers/factory.ts deleted",
+        "M-003.AC3: s0 through s8 spec files use process.env.BASE_URL pattern, not hardcoded URLs",
+        "M-003.AC4: verify-all.ts uses process.env.BASE_URL and shared auth helpers",
+        "M-003.AC5: npx playwright test --list shows no orphan files",
+        "M-003.AC6: All tests that ran before still run (no regressions)"
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T1"
+        ]
+      },
+      "wholeProductFit": "Clean test infrastructure is prerequisite for agent-generated tests. Orphans and hardcoded URLs cause false failures and block automation.",
+      "parallelizable": false,
+      "dependsOn": [
+        "M-002"
+      ],
+      "declaredFiles": [
+        "tests/",
+        "playwright.config.ts"
+      ],
+      "issues": [
+        "I-196",
+        "I-197",
+        "I-198",
+        "I-199"
+      ],
+      "entryGates": [
+        "A1: M-002 committed — clean worktree",
+        "A2: Current test count documented (baseline)"
+      ],
+      "exitGates": [
+        "B1: Zero orphan spec files",
+        "B2: Zero dead helper files",
+        "B3: Zero hardcoded URLs in test files",
+        "B4: Full test list matches or exceeds baseline count"
+      ],
+      "commit": null,
+      "evidence": "evidence/M-003/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Run npx playwright test --list, capture baseline count. Verify M-002 committed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION — Delete dead helpers. Fix orphan specs (add to config or deprecate). Fix hardcoded URLs in s0-s8. Update verify-all.ts.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY — Run npx playwright test --list, confirm count matches or exceeds baseline. Confirm no orphans.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION — Run API project, confirm 44+ pass. Commit.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-001",
+      "category": "Testing",
+      "name": "Test Agent Bootstrap — Architecture, MCP expansion, directory structure, seed strategy",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — testing infrastructure upgrade for launch readiness",
+      "causedBy": "testing",
+      "outcome": "Playwright agent workflow operational: planner produces markdown plans, generator produces spec files, healer repairs test-side failures. MCP operationalized for repeatable UI exploration. Seed strategy supports agent-driven planning. Architecture documented.",
+      "codebaseArea": [
+        "tests/",
+        "playwright.config.ts",
+        "tests/e2e/helpers/",
+        "tests/agents/"
+      ],
+      "acceptanceCriteria": [
+        "T-001.AC1: tests/agents/ directory exists with plans/, generated/, healer/ subdirectories",
+        "T-001.AC2: Planner can produce a markdown test plan for a given UI domain",
+        "T-001.AC3: Generator can produce a Playwright spec file from a plan",
+        "T-001.AC4: Healer can repair a failing test (locator, wait, assertion — not app code)",
+        "T-001.AC5: MCP exploration workflow documented with repeatable scripts/conventions",
+        "T-001.AC6: Seed strategy reviewed and improved for agent-driven workflows",
+        "T-001.AC7: Architecture doc produced: how MCP + agents + hand-authored tests coexist",
+        "T-001.AC8: At least one example plan + generated test for a high-value UI domain",
+        "T-001.AC9: Existing hand-authored tests unmodified and still passing"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S6"
+        ],
+        "featureDims": [
+          "IN",
+          "FE"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Agent-driven testing enables exhaustive coverage that manual test writing cannot achieve at this scale. Foundation sprint for T-002 through T-006.",
+      "parallelizable": false,
+      "dependsOn": [
+        "M-003"
+      ],
+      "declaredFiles": [
+        "tests/agents/",
+        "tests/e2e/helpers/",
+        "tests/e2e/seed.spec.ts",
+        "playwright.config.ts",
+        "evidence/T-001/"
+      ],
+      "issues": [],
+      "entryGates": [
+        "A1: M-003 committed — clean test infrastructure",
+        "A2: Playwright version confirmed (1.58.2)",
+        "A3: MCP helper exists at tests/e2e/helpers/mcp.ts"
+      ],
+      "exitGates": [
+        "B1: Agent directory structure exists and is usable",
+        "B2: Example plan + generated test demonstrate the workflow end-to-end",
+        "B3: Existing tests still pass (no regressions)",
+        "B4: Architecture doc is reviewed by operator"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-001/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm Playwright version, confirm M-003 committed, confirm MCP helper exists. Document current test count.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION Phase 1 — Create directory structure, agent conventions, architecture doc.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY Phase 1 — Directory exists, architecture doc complete, no files outside scope.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "EXECUTION Phase 2 — Build planner/generator/healer workflow. Produce example plan for Dashboard domain. Generate example test from plan.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GHOST VERIFY Phase 2 — Example plan exists, example test exists, example test runs (pass or meaningful fail).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "EXECUTION Phase 3 — Review and improve seed strategy. Operationalize MCP exploration workflow.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 6,
+          "action": "GHOST VERIFY Phase 3 — Seed spec reviewed, MCP workflow documented, existing tests still pass.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 7,
+          "action": "VERIFICATION — Full test list, confirm no regressions. Evidence written. STOP for operator review.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-002",
+      "category": "Testing",
+      "name": "Exhaustive Coverage — Auth, Dashboard, AI Chat, TeamBox",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — every button, field, icon, function. No stone unturned.",
+      "causedBy": "testing",
+      "outcome": "Complete test coverage for Auth (8 roles, login, logout, password reset, RBAC), Dashboard (metrics, widgets, role visibility), AI Chat (conversation, tools, streaming, history), TeamBox (inbox, filters, channels, takeover, campaign disconnect). Every interactive element tested.",
+      "codebaseArea": [
+        "tests/e2e/domain-01-auth.spec.ts",
+        "tests/e2e/domain-02-dashboard.spec.ts",
+        "tests/e2e/domain-03-chat.spec.ts",
+        "tests/e2e/domain-05-teambox.spec.ts",
+        "tests/agents/"
+      ],
+      "acceptanceCriteria": [
+        "T-002.AC1: Auth — all 8 roles can login. JWT rotation works. Password reset flow tested end-to-end. RBAC enforcement verified per role (sidebar visibility, API gates, route blocking).",
+        "T-002.AC2: Dashboard — every KPI tile renders for each role that can see it. Quick actions work. Activity feed loads. Role-based widget visibility correct.",
+        "T-002.AC3: AI Chat — conversation create, message send, streaming response, tool use (web search, VIN query, campaign query), conversation history, resume from prior session.",
+        "T-002.AC4: TeamBox — conversation list loads per role. Channel filter (SMS, email, voice, video). Status filter. Agent filter. Takeover button works. Campaign disconnect works. Message send in thread. Unread counts.",
+        "T-002.AC5: Agent-generated plans produced for each domain",
+        "T-002.AC6: Agent-generated tests produced and passing",
+        "T-002.AC7: All tests run against https://dev.huminicdev.com"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3",
+          "S5"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Auth + Dashboard + Chat + TeamBox are the core user paths. If these fail, the product is unusable. Highest traffic, highest risk.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-001"
+      ],
+      "declaredFiles": [
+        "tests/e2e/domain-01-auth.spec.ts",
+        "tests/e2e/domain-02-dashboard.spec.ts",
+        "tests/e2e/domain-03-chat.spec.ts",
+        "tests/e2e/domain-05-teambox.spec.ts",
+        "tests/agents/plans/",
+        "tests/agents/generated/",
+        "evidence/T-002/"
+      ],
+      "issues": [
+        "I-183",
+        "I-195"
+      ],
+      "entryGates": [
+        "A1: T-001 committed — agent infrastructure operational",
+        "A2: dev.huminicdev.com healthy",
+        "A3: Test user accounts functional for all 8 roles"
+      ],
+      "exitGates": [
+        "B1: Plans exist for all 4 domains",
+        "B2: Generated tests exist and run",
+        "B3: Coverage report shows every interactive element covered",
+        "B4: All tests pass or failures documented with issue IDs",
+        "B5: Evidence written to evidence/T-002/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-002/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm T-001 committed. Confirm dev.huminicdev.com healthy. Confirm all 8 test users can login. Document current test count per domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "PLANNER — Generate test plan for Auth domain. Enumerate every element, state, role interaction.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GENERATOR — Produce test file(s) from Auth plan. Run against dev.huminicdev.com.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "GHOST VERIFY — Auth tests pass or failures documented.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "PLANNER — Generate test plan for Dashboard domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "GENERATOR — Produce test file(s) from Dashboard plan. Run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 6,
+          "action": "GHOST VERIFY — Dashboard tests pass or failures documented.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 7,
+          "action": "PLANNER — Generate test plan for AI Chat domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 8,
+          "action": "GENERATOR — Produce test file(s) from Chat plan. Run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 9,
+          "action": "GHOST VERIFY — Chat tests pass or failures documented.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 10,
+          "action": "PLANNER — Generate test plan for TeamBox domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 11,
+          "action": "GENERATOR — Produce test file(s) from TeamBox plan. Run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 12,
+          "action": "GHOST VERIFY — TeamBox tests pass or failures documented.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 13,
+          "action": "HEALER — Fix any test-side failures across all 4 domains. Re-run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 14,
+          "action": "VERIFICATION — Full coverage report. Evidence written. STOP for operator review.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-003",
+      "category": "Testing",
+      "name": "Exhaustive Coverage — Sales, Service, Marketing, Departments",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — every button, field, icon, function.",
+      "causedBy": "testing",
+      "outcome": "Complete test coverage for Sales (pipeline, KPIs, agents, calendar, insights), Service (campaigns, scheduling, agents), Marketing (dashboard, 5 agents, creative studio, campaigns), Department switching (tab navigation, role visibility, data isolation).",
+      "codebaseArea": [
+        "tests/e2e/domain-06-departments.spec.ts",
+        "tests/agents/"
+      ],
+      "acceptanceCriteria": [
+        "T-003.AC1: Sales — KPI tiles (7), pipeline drill-downs, agent list, calendar, insights tab, activity feed. Per-role visibility.",
+        "T-003.AC2: Service — campaigns tab, agents tab, scheduling calendar, campaign detail. Per-role visibility.",
+        "T-003.AC3: Marketing — dashboard metrics, 5 agent cards (Photo Studio, Voiceover, Copywriting, Video Score, Radar), creative studio gallery, campaigns. Per-role visibility.",
+        "T-003.AC4: Department switching — Sales/Service/Marketing tabs navigate correctly, data refreshes per department, no cross-department data leakage.",
+        "T-003.AC5: Agent-generated plans and tests for each domain",
+        "T-003.AC6: All tests run against https://dev.huminicdev.com"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Department dashboards are the primary workspace for dealership staff. Sales, Service, and Marketing each have dedicated workflows that must work independently and correctly per role.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-002"
+      ],
+      "declaredFiles": [
+        "tests/e2e/domain-06-departments.spec.ts",
+        "tests/agents/plans/",
+        "tests/agents/generated/",
+        "evidence/T-003/"
+      ],
+      "issues": [],
+      "entryGates": [
+        "A1: T-002 committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: Plans exist for all 4 domains",
+        "B2: Generated tests run and pass or failures documented",
+        "B3: Evidence written to evidence/T-003/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-003/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm T-002 committed. Confirm dev healthy.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "PLANNER — Generate test plans for Sales, Service, Marketing, Department switching.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GENERATOR — Produce test files from plans. Run against dev.huminicdev.com.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "GHOST VERIFY — Tests pass or failures documented per domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "HEALER — Fix test-side failures. Re-run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "VERIFICATION — Coverage report. Evidence written. STOP for operator review.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-004",
+      "category": "Testing",
+      "name": "Exhaustive Coverage — Settings, Billing, Insights, Management",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — every button, field, icon, function.",
+      "causedBy": "testing",
+      "outcome": "Complete test coverage for Settings (users, org config, integrations, knowledge, widgets, AI config — 42+ interaction states), Billing (plan, usage, invoices, entitlements), Insights (dashboard, drill-downs, reports, library — 27+ states), Management (hunches, activity log, user chats).",
+      "codebaseArea": [
+        "tests/e2e/domain-07-insights.spec.ts",
+        "tests/e2e/domain-08-billing.spec.ts",
+        "tests/e2e/domain-09-settings.spec.ts",
+        "tests/agents/"
+      ],
+      "acceptanceCriteria": [
+        "T-004.AC1: Settings — all 5+ sub-sections tested. User CRUD, org config save, integration tiles, knowledge upload, widget management, AI config. Role-gated tiles (org_admin vs super_admin).",
+        "T-004.AC2: Billing — plan display, usage meters, invoice list, entitlement checks. FlexPrice integration state documented (I-105).",
+        "T-004.AC3: Insights — standalone page renders, drill-downs navigate, reports tab, library tab, metric detail. 27+ states covered.",
+        "T-004.AC4: Management — hunches list, accept/dismiss, activity log scroll, system log. Super_admin gated.",
+        "T-004.AC5: Agent-generated plans and tests for each domain",
+        "T-004.AC6: All tests run against https://dev.huminicdev.com"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Admin and config surfaces — if Settings breaks, no org can configure. If Billing breaks, no usage tracking. If Insights breaks, no analytics. These are trust-critical for org admins and partners.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-003"
+      ],
+      "declaredFiles": [
+        "tests/e2e/domain-07-insights.spec.ts",
+        "tests/e2e/domain-08-billing.spec.ts",
+        "tests/e2e/domain-09-settings.spec.ts",
+        "tests/agents/plans/",
+        "tests/agents/generated/",
+        "evidence/T-004/"
+      ],
+      "issues": [
+        "I-105",
+        "I-171",
+        "I-156",
+        "I-163",
+        "I-166"
+      ],
+      "entryGates": [
+        "A1: T-003 committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: Plans exist for all 4 domains",
+        "B2: Generated tests run and pass or failures documented",
+        "B3: Known limitations documented (FlexPrice, etc.)",
+        "B4: Evidence written to evidence/T-004/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-004/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm T-003 committed. Confirm dev healthy.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "PLANNER — Generate test plans for Settings, Billing, Insights, Management.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GENERATOR — Produce test files. Run against dev.huminicdev.com.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "GHOST VERIFY — Tests pass or failures documented per domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "HEALER — Fix test-side failures. Re-run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "VERIFICATION — Coverage report. Evidence written. STOP for operator review.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-005",
+      "category": "Testing",
+      "name": "Exhaustive Coverage — Integrations, Widgets, Landing Pages, Infrastructure",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — every button, field, icon, function.",
+      "causedBy": "testing",
+      "outcome": "Complete test coverage for Integrations (VAPI, Tavus, TextMagic, Resend, VIN Solutions, FAL — all MCP paths), Widgets (chat, video, voice callback, form — per dealer landing page), Landing Pages (5 dealer pages, widget rendering, public routes), Infrastructure (health, security headers, rate limiting, cookies, entitlements).",
+      "codebaseArea": [
+        "tests/e2e/domain-11-integrations.spec.ts",
+        "tests/e2e/domain-12-infrastructure.spec.ts",
+        "tests/agents/"
+      ],
+      "acceptanceCriteria": [
+        "T-005.AC1: Integrations — every MCP call path tested (VAPI create call, TextMagic send, Resend send, VIN query/prepare/execute, Tavus conversation, FAL submit/status/result). Webhook handlers tested for all providers.",
+        "T-005.AC2: Widgets — all 4 widget types (chat, video, voice callback, form) tested on at least 1 dealer landing page. Widget menu renders. Interactions produce expected results (conversation created, form submitted).",
+        "T-005.AC3: Landing Pages — all 5 dealer pages load (Serra Honda, Serra Nissan, Tony Serra Ford, Ford of Columbia, Hyundai of Columbia). Correct dealer name, correct widgets, correct branding.",
+        "T-005.AC4: Infrastructure — health endpoint, security headers, rate limiting, httpOnly cookies, entitlement fail-closed, orgId conversation filtering.",
+        "T-005.AC5: Agent-generated plans and tests for each domain",
+        "T-005.AC6: All tests run against https://dev.huminicdev.com"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3",
+          "S6"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "IN"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "External-facing surfaces. Widgets and landing pages are what customers see. Integrations are the data pipeline. Infrastructure is the foundation. All must work.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-004"
+      ],
+      "declaredFiles": [
+        "tests/e2e/domain-11-integrations.spec.ts",
+        "tests/e2e/domain-12-infrastructure.spec.ts",
+        "tests/agents/plans/",
+        "tests/agents/generated/",
+        "evidence/T-005/"
+      ],
+      "issues": [
+        "I-168",
+        "I-102"
+      ],
+      "entryGates": [
+        "A1: T-004 committed",
+        "A2: dev.huminicdev.com healthy",
+        "A3: MCP services (central-mcp, vin-safe-mcp) healthy"
+      ],
+      "exitGates": [
+        "B1: Plans exist for all 4 domains",
+        "B2: Generated tests run and pass or failures documented",
+        "B3: All 5 dealer landing pages verified",
+        "B4: Evidence written to evidence/T-005/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-005/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm T-004 committed. Confirm dev healthy. Confirm MCP services healthy.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "PLANNER — Generate test plans for Integrations, Widgets, Landing Pages, Infrastructure.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GENERATOR — Produce test files. Run against dev.huminicdev.com.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "GHOST VERIFY — Tests pass or failures documented per domain.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "HEALER — Fix test-side failures. Re-run.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "VERIFICATION — Coverage report. Evidence written. STOP for operator review.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-006",
+      "category": "Testing",
+      "name": "Cross-Cutting — Role matrix, edge cases, non-Playwright checks, final pass",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "Operator directive — everything that can go wrong, everything that needs to work.",
+      "causedBy": "testing",
+      "outcome": "Complete cross-cutting verification: 8-role access matrix across all pages, edge case scan of codebase (error handling, boundary conditions, race conditions), non-Playwright script checks (enforcer, watchdog, pre-commit), and final regression pass of entire suite. Full coverage report produced.",
+      "codebaseArea": [
+        "tests/",
+        "scripts/",
+        "enforcer/"
+      ],
+      "acceptanceCriteria": [
+        "T-006.AC1: Role matrix — every page tested with every role that should see it AND every role that should NOT. 8 roles x 12+ pages = 96+ access checks.",
+        "T-006.AC2: Edge cases — codebase scanned for: unhandled errors, missing validation, race conditions, empty state handling, boundary values, null/undefined paths. Each finding either tested or documented.",
+        "T-006.AC3: Non-Playwright checks — enforcer gates run clean, watchdog script runs clean, pre-commit hook passes, build succeeds.",
+        "T-006.AC4: Final regression — full Playwright suite (all projects) run against dev.huminicdev.com. Results documented.",
+        "T-006.AC5: Coverage summary produced — total tests, pass/fail per domain, known issues, test gaps remaining.",
+        "T-006.AC6: Every known issue in issues.md has been tested or documented as untestable with reason."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "DT",
+          "AU",
+          "IN"
+        ],
+        "testLevels": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "The horizontal pass that catches what domain-specific testing missed. Role matrix ensures RBAC works everywhere. Edge cases catch the long tail. Non-Playwright checks verify governance tooling. Final regression proves the whole system.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-005"
+      ],
+      "declaredFiles": [
+        "tests/",
+        "evidence/T-006/"
+      ],
+      "issues": [
+        "I-125",
+        "I-182",
+        "I-184",
+        "I-185",
+        "I-186",
+        "I-187",
+        "I-188"
+      ],
+      "entryGates": [
+        "A1: T-005 committed",
+        "A2: dev.huminicdev.com healthy",
+        "A3: All domain coverage sprints (T-002 through T-005) evidence reviewed"
+      ],
+      "exitGates": [
+        "B1: Role matrix complete — 96+ access checks documented",
+        "B2: Edge case scan complete — findings tested or documented",
+        "B3: Non-Playwright checks pass",
+        "B4: Full regression results documented",
+        "B5: Final coverage summary produced",
+        "B6: Operator confirms test coverage is sufficient for launch"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-006/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Confirm T-005 committed. Confirm dev healthy. Collect all prior evidence.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION Phase 1 — Role matrix: test every page with every role. Document access results.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY Phase 1 — Role matrix complete, 96+ checks documented.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "EXECUTION Phase 2 — Edge case scan: read codebase for error handling gaps, boundary conditions, race conditions. Produce test or document finding.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GHOST VERIFY Phase 2 — Edge case findings documented with test or reason.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "EXECUTION Phase 3 — Non-Playwright checks: enforcer gates, watchdog, pre-commit, build.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 6,
+          "action": "GHOST VERIFY Phase 3 — All checks pass.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 7,
+          "action": "EXECUTION Phase 4 — Full regression: run ALL Playwright projects against dev.huminicdev.com. Document results.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 8,
+          "action": "GHOST VERIFY Phase 4 — Results match or exceed prior baselines.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 9,
+          "action": "FINAL — Produce coverage summary. Cross-reference against issues.md. STOP for operator confirmation.",
           "status": "pending",
           "timestamp": null
         }

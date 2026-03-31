@@ -433,10 +433,8 @@ test.describe("Webhook Idempotency", () => {
     );
 
     console.log(`Duplicate webhook test: ${matches.length} conversations created`);
-    if (matches.length > 1) {
-      console.log("FINDING: Duplicate conversations created for same VAPI call ID — no idempotency check");
-    }
-    // Ideally should be 1, but documenting current behavior
+    // S-12 (I-177): VAPI dedup mutex should prevent duplicate conversations
+    expect(matches.length).toBeLessThanOrEqual(1);
   });
 
   test("DC-IDEM-2 Malformed webhook payloads don't crash server", async ({ request }) => {

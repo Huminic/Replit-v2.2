@@ -354,7 +354,7 @@ export function registerUserRoutes(app: Express) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Nexxus Connect <onboarding@resend.dev>",
+              from: "Nexxus Connect <no-reply@huminic.app>",
               to: email,
               subject: `You've been invited to ${org?.name || "Nexxus Connect"}`,
               html: `<h2>Welcome to ${escapeHtml(org?.name || "Nexxus Connect")}!</h2>

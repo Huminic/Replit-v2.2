@@ -48,10 +48,10 @@ test.describe("Domain 6: Department Pages", () => {
     await page.close();
   });
 
-  test("6.4 Management page loads with executive overview", async ({ browser }) => {
+  test("6.4 Management page loads with super_admin overview", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginForBrowser(page, testUsers.executive, "/management");
+    await loginForBrowser(page, testUsers.superAdmin, "/management");
     await page.waitForTimeout(1000);
 
     expect(page.url()).toContain("management");
@@ -67,7 +67,7 @@ test.describe("Domain 6: Department Pages", () => {
   test("6.5 Demand Score tile visible on Management", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
-    await loginForBrowser(page, testUsers.executive, "/management");
+    await loginForBrowser(page, testUsers.superAdmin, "/management");
     await page.waitForTimeout(1000);
 
     // Look for Demand Score tile

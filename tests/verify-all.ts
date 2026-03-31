@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE = 'https://dev.huminicdev.com';
+const BASE = process.env.BASE_URL || 'https://dev.huminicdev.com';
 const results: { test: string; status: string; detail: string }[] = [];
 
 function log(test: string, status: 'PASS' | 'FAIL' | 'INFO', detail: string) {

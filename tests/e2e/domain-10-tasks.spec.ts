@@ -78,7 +78,7 @@ test.describe("Domain 10: Tasks & Appointments", () => {
     if (Array.isArray(body)) {
       // Each appointment should have date/time fields
       for (const appt of body.slice(0, 5)) {
-        const hasDate = appt.date || appt.startDate || appt.start || appt.scheduledAt || appt.start_time;
+        const hasDate = appt.startTime || appt.date || appt.startDate || appt.start || appt.scheduledAt;
         expect(hasDate).toBeTruthy();
       }
     } else {

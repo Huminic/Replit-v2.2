@@ -41,30 +41,30 @@ export const testUsers: Record<string, AuthUser> = {
     role: "org_admin",
     orgName: "Serra Honda",
   },
-  // Role aliases — all map to Serra Honda org_admin (DB determines actual role)
+  // Role-specific test accounts — must use actual seeded role accounts, not org_admin aliases
   executive: {
-    email: "serra_honda@huminic.ai",
+    email: "executive_staff@huminic.ai",
     password: TEST_PASSWORD,
-    role: "org_admin",
-    orgName: "Serra Honda",
+    role: "executive",
+    orgName: "Huminic",
   },
   sales: {
-    email: "serra_honda@huminic.ai",
+    email: "sales_staff@huminic.ai",
     password: TEST_PASSWORD,
-    role: "org_admin",
-    orgName: "Serra Honda",
+    role: "sales",
+    orgName: "Huminic",
   },
   service: {
-    email: "serra_honda@huminic.ai",
+    email: "service_staff@huminic.ai",
     password: TEST_PASSWORD,
-    role: "org_admin",
-    orgName: "Serra Honda",
+    role: "service",
+    orgName: "Huminic",
   },
   marketing: {
-    email: "serra_honda@huminic.ai",
+    email: "marketing_staff@huminic.ai",
     password: TEST_PASSWORD,
-    role: "org_admin",
-    orgName: "Serra Honda",
+    role: "marketing",
+    orgName: "Huminic",
   },
   // Per-dealer org admin accounts
   serraNissan: {

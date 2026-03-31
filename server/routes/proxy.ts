@@ -2,53 +2,42 @@ import type { Express } from "express";
 import { authenticateToken } from "../auth";
 import { storage } from "../storage";
 import { billingService } from "../services/billingService";
+import { callMCP } from "../vendorProxy";
+
+// Extract model and requestId from a fal.run URL (e.g. https://queue.fal.run/fal-ai/flux/dev/requests/abc123/status)
+function parseFalUrl(url: string): { model: string; requestId: string } | null {
+  try {
+    const parsed = new URL(url);
+    const parts = parsed.pathname.replace(/^\//, '').split('/requests/');
+    if (parts.length === 2) {
+      const model = parts[0];
+      const requestId = parts[1].replace(/\/(status|result)$/, '');
+      return { model, requestId };
+    }
+  } catch {}
+  return null;
+}
 
 export function registerProxyRoutes(app: Express) {
   app.post("/api/fal-proxy", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const falKey = process.env.FAL_KEY;
-      if (!falKey) {
-        return res.status(503).json({ message: "FAL_KEY is not configured" });
-      }
-
       const { endpoint, input } = req.body;
       if (!endpoint) {
         return res.status(400).json({ message: "endpoint is required" });
       }
 
+      // Extract model ID from endpoint (strip URL prefix if present)
+      let model = endpoint;
       if (endpoint.startsWith("https://")) {
         try {
           const parsed = new URL(endpoint);
-          if (!parsed.hostname.endsWith('.fal.run') && !parsed.hostname.endsWith('.fal.ai')) {
-            return res.status(400).json({ message: "endpoint must be a fal.ai domain" });
-          }
+          model = parsed.pathname.replace(/^\//, '');
         } catch { return res.status(400).json({ message: "Invalid endpoint URL" }); }
       }
 
-      const falUrl = endpoint.startsWith("https://")
-        ? endpoint
-        : `https://queue.fal.run/${endpoint}`;
-
-      const falResponse = await fetch(falUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Key ${falKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(input || {}),
-      });
-
-      if (!falResponse.ok) {
-        const errText = await falResponse.text();
-        return res.status(falResponse.status).json({
-          message: "fal.ai request failed",
-          error: errText,
-        });
-      }
-
-      const data = await falResponse.json();
+      const data = await callMCP("fal_submit", { model, input: input || {} });
 
       if (req.user?.organizationId) {
         const endpointLower = (endpoint || '').toLowerCase();
@@ -70,39 +59,25 @@ export function registerProxyRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const falKey = process.env.FAL_KEY;
-      if (!falKey) {
-        return res.status(503).json({ message: "FAL_KEY is not configured" });
+      const { requestId, endpoint, statusUrl: directStatusUrl } = req.body;
+
+      let model = endpoint;
+      let reqId = requestId;
+
+      // If directStatusUrl provided, extract model and requestId from it
+      if (directStatusUrl && (!model || !reqId)) {
+        const parsed = parseFalUrl(directStatusUrl);
+        if (parsed) {
+          model = model || parsed.model;
+          reqId = reqId || parsed.requestId;
+        }
       }
 
-      const { requestId, endpoint, statusUrl: directStatusUrl } = req.body;
-      if (!directStatusUrl && (!requestId || !endpoint)) {
+      if (!model || !reqId) {
         return res.status(400).json({ message: "requestId and endpoint are required, or provide statusUrl" });
       }
 
-      if (directStatusUrl) {
-        try {
-          const parsed = new URL(directStatusUrl);
-          if (!parsed.hostname.endsWith('.fal.run')) {
-            return res.status(400).json({ message: "statusUrl must be a fal.run domain" });
-          }
-        } catch { return res.status(400).json({ message: "Invalid statusUrl" }); }
-      }
-
-      const statusUrl = directStatusUrl || `https://queue.fal.run/${endpoint}/requests/${requestId}/status`;
-      const falResponse = await fetch(statusUrl, {
-        headers: {
-          Authorization: `Key ${falKey}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!falResponse.ok) {
-        const errText = await falResponse.text();
-        return res.status(falResponse.status).json({ message: "fal.ai status check failed", error: errText });
-      }
-
-      const data = await falResponse.json();
+      const data = await callMCP("fal_get_status", { model, requestId: reqId });
       return res.json(data);
     } catch (err: any) {
       console.error("[fal-proxy/status] Error:", err);
@@ -114,39 +89,25 @@ export function registerProxyRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      const falKey = process.env.FAL_KEY;
-      if (!falKey) {
-        return res.status(503).json({ message: "FAL_KEY is not configured" });
+      const { requestId, endpoint, responseUrl: directResponseUrl } = req.body;
+
+      let model = endpoint;
+      let reqId = requestId;
+
+      // If directResponseUrl provided, extract model and requestId from it
+      if (directResponseUrl && (!model || !reqId)) {
+        const parsed = parseFalUrl(directResponseUrl);
+        if (parsed) {
+          model = model || parsed.model;
+          reqId = reqId || parsed.requestId;
+        }
       }
 
-      const { requestId, endpoint, responseUrl: directResponseUrl } = req.body;
-      if (!directResponseUrl && (!requestId || !endpoint)) {
+      if (!model || !reqId) {
         return res.status(400).json({ message: "requestId and endpoint are required, or provide responseUrl" });
       }
 
-      if (directResponseUrl) {
-        try {
-          const parsed = new URL(directResponseUrl);
-          if (!parsed.hostname.endsWith('.fal.run')) {
-            return res.status(400).json({ message: "responseUrl must be a fal.run domain" });
-          }
-        } catch { return res.status(400).json({ message: "Invalid responseUrl" }); }
-      }
-
-      const resultUrl = directResponseUrl || `https://queue.fal.run/${endpoint}/requests/${requestId}`;
-      const falResponse = await fetch(resultUrl, {
-        headers: {
-          Authorization: `Key ${falKey}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!falResponse.ok) {
-        const errText = await falResponse.text();
-        return res.status(falResponse.status).json({ message: "fal.ai result fetch failed", error: errText });
-      }
-
-      const data = await falResponse.json();
+      const data = await callMCP("fal_get_result", { model, requestId: reqId });
       return res.json(data);
     } catch (err: any) {
       console.error("[fal-proxy/result] Error:", err);

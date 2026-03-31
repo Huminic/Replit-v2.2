@@ -99,7 +99,7 @@ test.describe("Domain 4: Campaigns", () => {
     const campaignId = campaigns[0].id;
 
     // Create a CSV buffer with required fields
-    const csvContent = "firstName,lastName,phone,email\nJohn,Doe,5551234567,john@test.com\nJane,Smith,5559876543,jane@test.com";
+    const csvContent = "firstName,lastName,phone,email,vin,model,model year\nJohn,Doe,5551234567,john@test.com,1HGCG5655WA041265,Accord,2024\nJane,Smith,5559876543,jane@test.com,3GPKHURMXRS508589,Prologue,2025";
     const boundary = "----E2ETestBoundary";
     const body = [
       `--${boundary}`,
@@ -120,6 +120,30 @@ test.describe("Domain 4: Campaigns", () => {
 
     // Should accept the upload or return a validation error (not 500)
     expect(uploadRes.status()).toBeLessThan(500);
+
+    // Verify vehicle columns were mapped (S-18: I-190)
+    if (uploadRes.ok()) {
+      const uploadResult = await uploadRes.json();
+      const matched = uploadResult.columnsMatched || [];
+      expect(matched).toContain("VIN");
+      expect(matched).toContain("Model");
+      expect(matched).toContain("Model Year");
+
+      // Verify recipients have vehicle data
+      const recipRes = await request.get(`/api/campaigns/${campaignId}/recipients`, {
+        headers: authHeader(token),
+      });
+      if (recipRes.ok()) {
+        const recipients = await recipRes.json();
+        const recipList = Array.isArray(recipients) ? recipients : recipients.data ?? [];
+        if (recipList.length > 0) {
+          const first = recipList[0];
+          expect(first.vin).toBeTruthy();
+          expect(first.vehicleModel).toBeTruthy();
+          expect(first.vehicleYear).toBeTruthy();
+        }
+      }
+    }
   });
 
   test("4.3 Campaign execution sends SMS via MCP", async ({ request }) => {
@@ -397,22 +421,22 @@ test.describe("Domain 4: Campaigns", () => {
     // Webhook should accept the payload (not crash)
     expect(webhookRes.status()).toBeLessThan(500);
 
-    // Give the AI agent time to process (fire-and-forget async)
-    await new Promise(r => setTimeout(r, 5000));
-
-    // Check conversations for the test phone number
-    const convRes = await request.get("/api/conversations", {
-      headers: authHeader(auth.token),
-    });
-    expect(convRes.ok()).toBe(true);
-    const conversations = await convRes.json();
-    const convList = Array.isArray(conversations) ? conversations : conversations.conversations ?? conversations.data ?? [];
-
-    // Find the conversation created by our webhook
+    // Retry loop — webhook processing is async, conversation may not appear immediately
     const normalizedTest = testPhone.replace(/[^0-9+]/g, "");
-    const matchingConv = convList.find((c: any) =>
-      c.customerPhone?.includes(normalizedTest) || c.customerName?.includes(normalizedTest)
-    );
+    let matchingConv: any = undefined;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      await new Promise(r => setTimeout(r, 3000));
+      const convRes = await request.get("/api/conversations", {
+        headers: authHeader(auth.token),
+      });
+      if (!convRes.ok()) continue;
+      const conversations = await convRes.json();
+      const convList = Array.isArray(conversations) ? conversations : conversations.conversations ?? conversations.data ?? [];
+      matchingConv = convList.find((c: any) =>
+        c.customerPhone?.includes(normalizedTest) || c.customerName?.includes(normalizedTest)
+      );
+      if (matchingConv) break;
+    }
 
     // Conversation should exist (webhook creates it)
     expect(matchingConv).toBeDefined();
@@ -440,6 +464,83 @@ test.describe("Domain 4: Campaigns", () => {
           type: "note",
           description: "Webhook processed, conversation created. Agent response not generated (outbound may be disabled in test env).",
         });
+      }
+
+      // S-12/S-18 (I-192): If this conversation came from a campaign with vehicle data,
+      // a system message with vehicle context should have been injected
+      if (matchingConv.campaignId) {
+        const vehicleCtxMsg = msgList.find((m: any) =>
+          m.role === "system" && m.content?.toLowerCase().includes("campaign context")
+        );
+        if (vehicleCtxMsg) {
+          expect(vehicleCtxMsg.content).toMatch(/campaign context/i);
+        } else {
+          test.info().annotations.push({
+            type: "note",
+            description: "No vehicle context message — conversation may not be linked to a campaign with vehicle data.",
+          });
+        }
+      }
+    }
+  });
+
+  // S-18 (I-191): Vehicle merge fields in message templates
+  test("4.11 Message template substitutes vehicle merge fields", async ({ request }) => {
+    const auth = await login(request, testUsers.orgAdmin);
+
+    // Create a campaign with vehicle merge fields in the template
+    const createRes = await request.post("/api/campaigns", {
+      headers: authHeader(auth.token),
+      data: {
+        name: "Vehicle Merge Test",
+        department: "service",
+        channel: "sms",
+        status: "draft",
+        messageTemplate: "Hi {{firstName}}, your {{vehicleYear}} {{vehicleModel}} (VIN: {{vin}}) is due for service at {{dealershipName}}.",
+      },
+    });
+
+    if (!createRes.ok()) {
+      test.info().annotations.push({ type: "note", description: `Campaign creation returned ${createRes.status()}` });
+      return;
+    }
+
+    const campaign = await createRes.json();
+
+    // Upload CSV with vehicle data
+    const csvContent = "firstName,lastName,phone,email,vin,model,model year\nTest,Driver,5550001111,test@test.com,WBAPH5C55BA123456,328i,2023";
+    const boundary = "----MergeFieldTestBound";
+    const body = [
+      `--${boundary}`,
+      'Content-Disposition: form-data; name="file"; filename="merge-test.csv"',
+      "Content-Type: text/csv",
+      "",
+      csvContent,
+      `--${boundary}--`,
+    ].join("\r\n");
+
+    const uploadRes = await request.post(`/api/campaigns/${campaign.id}/upload-csv`, {
+      headers: {
+        ...authHeader(auth.token),
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+      },
+      data: Buffer.from(body),
+    });
+    expect(uploadRes.status()).toBeLessThan(500);
+
+    // Verify recipient stored vehicle fields
+    if (uploadRes.ok()) {
+      const recipRes = await request.get(`/api/campaigns/${campaign.id}/recipients`, {
+        headers: authHeader(auth.token),
+      });
+      if (recipRes.ok()) {
+        const recipients = await recipRes.json();
+        const recipList = Array.isArray(recipients) ? recipients : recipients.data ?? [];
+        if (recipList.length > 0) {
+          expect(recipList[0].vin).toBe("WBAPH5C55BA123456");
+          expect(recipList[0].vehicleModel).toBe("328i");
+          expect(recipList[0].vehicleYear).toBe("2023");
+        }
       }
     }
   });

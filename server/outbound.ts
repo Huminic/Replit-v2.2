@@ -494,7 +494,10 @@ function substituteTemplate(template: string, recipient: CampaignRecipient, deal
     .replace(/\{\{customerName\}\}/g, customerName)
     .replace(/\{\{firstName\}\}/g, recipient.firstName || "valued customer")
     .replace(/\{\{lastName\}\}/g, recipient.lastName || "")
-    .replace(/\{\{dealershipName\}\}/g, dealershipName || "our dealership");
+    .replace(/\{\{dealershipName\}\}/g, dealershipName || "our dealership")
+    .replace(/\{\{vehicleYear\}\}/g, recipient.vehicleYear || "")
+    .replace(/\{\{vehicleModel\}\}/g, recipient.vehicleModel || "")
+    .replace(/\{\{vin\}\}/g, recipient.vin || "");
 }
 
 export async function startCampaignExecution(

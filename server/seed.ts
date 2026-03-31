@@ -820,6 +820,7 @@ async function seedHuminicUsers() {
     { email: "org_admin@huminic.ai", firstName: "Org", lastName: "Admin", role: "org_admin", password: seedPassword },
     { email: "sales_staff@huminic.ai", firstName: "Sales", lastName: "Staff", role: "sales", password: seedPassword },
     { email: "marketing_staff@huminic.ai", firstName: "Marketing", lastName: "Staff", role: "marketing", password: seedPassword },
+    { email: "service_staff@huminic.ai", firstName: "Service", lastName: "Staff", role: "service", password: seedPassword },
     { email: "executive_staff@huminic.ai", firstName: "Executive", lastName: "Staff", role: "executive", password: seedPassword },
   ];
 

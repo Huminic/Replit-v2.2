@@ -144,3 +144,4 @@ Not blocking launch. Consolidated from prior issues and QA findings.
 | BL-092 | "Send to CRM" button — manual VIN lead creation from TeamBox conversations (I-174) | S3 / Operator directive |
 | BL-093 | Management page — hidden from all roles except super_admin. Revisit: User Chats feature (I-116), Hunch transitions (I-169), and role access when ready. | S9 / Operator directive |
 | BL-094 | Agent favorites + sub-menu bar on Sales/Service/Marketing agent tabs (I-130) | S10 / Operator directive |
+| BL-095 | Walk-in followup agent endpoint auth test (I-189) — deferred, walk-in feature not in scope | Operator directive |

@@ -4,6 +4,7 @@ dotenv.config();
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testIgnore: /deprecated\//,
   timeout: 60_000,
   retries: 0,
   use: {

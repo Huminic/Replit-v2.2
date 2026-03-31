@@ -539,6 +539,16 @@ const vapiWebhookPayloadSchema = z.union([
   }),
 ]);
 
+// Track processed VAPI call IDs to prevent duplicate conversations (I-177)
+const processedVapiCalls = new Map<string, { conversationId: string; timestamp: number }>();
+// Clean up old entries every 10 minutes
+setInterval(() => {
+  const cutoff = Date.now() - 30 * 60 * 1000;
+  for (const [key, val] of processedVapiCalls) {
+    if (val.timestamp < cutoff) processedVapiCalls.delete(key);
+  }
+}, 10 * 60 * 1000);
+
 export function registerWebhookRoutes(app: Express) {
   app.post("/api/webhooks/vapi", async (req, res) => {
     try {
@@ -573,6 +583,7 @@ export function registerWebhookRoutes(app: Express) {
         return res.status(400).json({ message: "Missing call data in payload" });
       }
 
+      const vapiCallId = call.id || null;
       const customerName = call.customer?.name || "Unknown Caller";
       const customerPhone = call.customer?.number || call.phoneNumber?.number || null;
       const assistantId = call.assistantId || null;
@@ -640,6 +651,30 @@ export function registerWebhookRoutes(app: Express) {
         }
       }
 
+      // Dedup: if we already processed this VAPI call, update transcript if available instead of creating duplicate (I-177, I-176)
+      if (vapiCallId && processedVapiCalls.has(vapiCallId)) {
+        const existing = processedVapiCalls.get(vapiCallId)!;
+        // If this event has a transcript and the previous one may not have stored it, add it now (I-176)
+        if (transcript || summary) {
+          const messageContent = summary
+            ? `**Call Summary:**\n${summary}\n\n**Transcript:**\n${transcript}`
+            : transcript;
+          const existingMessages = await storage.getMessages(existing.conversationId);
+          const hasTranscript = existingMessages.some(m => m.senderName === "VAPI");
+          if (!hasTranscript) {
+            await storage.createMessage({
+              conversationId: existing.conversationId,
+              role: "system",
+              content: messageContent,
+              senderName: "VAPI",
+            });
+            console.log(`[VAPI Webhook] Added transcript to existing conversation ${existing.conversationId} from duplicate event`);
+          }
+        }
+        console.log(`[VAPI Webhook] Duplicate call ID ${vapiCallId} — skipping conversation creation`);
+        return res.json({ success: true, conversationId: existing.conversationId, deduplicated: true });
+      }
+
       const conversation = await storage.createConversation({
         customerName,
         customerPhone,
@@ -650,6 +685,11 @@ export function registerWebhookRoutes(app: Express) {
         unreadCount: 1,
         lastMessageAt: new Date(),
       });
+
+      // Track this call to prevent duplicates
+      if (vapiCallId) {
+        processedVapiCalls.set(vapiCallId, { conversationId: conversation.id, timestamp: Date.now() });
+      }
 
       if (transcript || summary) {
         const messageContent = summary
@@ -676,6 +716,16 @@ export function registerWebhookRoutes(app: Express) {
         summaryLength: summary.length,
       };
 
+      // ══════════════════════════════════════════════════════════════════
+      // DISABLED: VIN lead creation (I-194)
+      // Lead source name mismatch: code sends "Dealers WebSite" but Columbia
+      // stores (13398, 13399) and Serra Nissan (21044) use different source
+      // names in VIN Solutions (e.g. "Dealer .Com (Our Website)").
+      // 3/5 dealers are failing silently. Disabled until per-dealer lead
+      // source names are configured in org settings (vinLeadSourceName).
+      // Re-enable by removing the if(false) guard below.
+      // ══════════════════════════════════════════════════════════════════
+      /* DISABLED: VIN lead creation (I-194) — uncomment to re-enable
       try {
         // VIN lead creation via vin-safe-mcp REST API (port 4003)
         // Per-dealer userId and leadSourceName resolved from integrations table
@@ -782,6 +832,7 @@ export function registerWebhookRoutes(app: Express) {
           metadata: { error: vinErr.message, customerName, customerPhone },
         }).catch(() => {});
       }
+      END DISABLED VIN lead creation (I-194) */
 
       const users = await storage.getUsers(organizationId);
       const adminUsers = users.filter(u => u.role && u.role.level <= 3);

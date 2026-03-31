@@ -455,8 +455,11 @@ export function registerCampaignRoutes(app: Express) {
       const lastNameIdx = matchedColumns["Last Name"] ?? -1;
       const phoneIdx = matchedColumns["Home Phone"] ?? matchedColumns["Work Phone"] ?? -1;
       const emailIdx = matchedColumns["Email Address"] ?? -1;
+      const vinIdx = matchedColumns["VIN"] ?? -1;
+      const modelIdx = matchedColumns["Model"] ?? -1;
+      const yearIdx = matchedColumns["Model Year"] ?? -1;
 
-      const recipients: Array<{ campaignId: string; firstName: string | null; lastName: string | null; phone: string | null; email: string | null }> = [];
+      const recipients: Array<{ campaignId: string; firstName: string | null; lastName: string | null; phone: string | null; email: string | null; vin: string | null; vehicleModel: string | null; vehicleYear: string | null }> = [];
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(",").map(c => c.trim().replace(/['"]/g, ""));
         recipients.push({
@@ -465,6 +468,9 @@ export function registerCampaignRoutes(app: Express) {
           lastName: lastNameIdx >= 0 ? (cols[lastNameIdx] || null) : null,
           phone: phoneIdx >= 0 ? (cols[phoneIdx] || null) : null,
           email: emailIdx >= 0 ? (cols[emailIdx] || null) : null,
+          vin: vinIdx >= 0 ? (cols[vinIdx] || null) : null,
+          vehicleModel: modelIdx >= 0 ? (cols[modelIdx] || null) : null,
+          vehicleYear: yearIdx >= 0 ? (cols[yearIdx] || null) : null,
         });
       }
 
