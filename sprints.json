@@ -2974,7 +2974,7 @@
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Settings, Billing, Insights, Management",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 every button, field, icon, function.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Settings (users, org config, integrations, knowledge, widgets, AI config \u2014 42+ interaction states), Billing (plan, usage, invoices, entitlements), Insights (dashboard, drill-downs, reports, library \u2014 27+ states), Management (hunches, activity log, user chats).",
@@ -3078,14 +3078,15 @@
           "status": "completed",
           "timestamp": "2026-03-31T22:30:00Z"
         }
-      ]
+      ],
+      "commitHash": "d6bb67f"
     },
     {
       "id": "T-005",
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Integrations, Widgets, Landing Pages, Infrastructure",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Operator directive \u2014 every button, field, icon, function.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Integrations (VAPI, Tavus, TextMagic, Resend, VIN Solutions, FAL \u2014 all MCP paths), Widgets (chat, video, voice callback, form \u2014 per dealer landing page), Landing Pages (5 dealer pages, widget rendering, public routes), Infrastructure (health, security headers, rate limiting, cookies, entitlements).",
@@ -3154,38 +3155,38 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT \u2014 Confirm T-004 committed. Confirm dev healthy. Confirm MCP services healthy.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         },
         {
           "step": 1,
           "action": "PLANNER \u2014 Generate test plans for Integrations, Widgets, Landing Pages, Infrastructure.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         },
         {
           "step": 2,
           "action": "GENERATOR \u2014 Produce test files. Run against dev.huminicdev.com.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         },
         {
           "step": 3,
           "action": "GHOST VERIFY \u2014 Tests pass or failures documented per domain.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         },
         {
           "step": 4,
           "action": "HEALER \u2014 Fix test-side failures. Re-run.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         },
         {
           "step": 5,
           "action": "VERIFICATION \u2014 Coverage report. Evidence written. STOP for operator review.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T23:45:00Z"
         }
       ]
     },

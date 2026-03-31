@@ -1,0 +1,18 @@
+[2026-03-31T23:06:07Z] agent-launch | role=orchestrator | task="T-005 Exhaustive Coverage" | scope=tests/agents/,tests/e2e/domain-11-integrations.spec.ts,tests/e2e/domain-12-infrastructure.spec.ts,evidence/T-005/,sprints.json
+[2026-03-31T23:06:07Z] step-0 | role=orchestrator | task="Pre-flight: T-004 committed (d6bb67f)" | result=PASS
+[2026-03-31T23:10:00Z] step-1 | role=dev | task="4 planners parallel: integrations(67), widgets(57), landing(46), infra(46)" | result=COMPLETE
+[2026-03-31T23:20:00Z] step-2 | role=dev | task="4 generators parallel: integrations(40), widgets(43), landing(32), infra(33)" | result=COMPLETE
+[2026-03-31T23:40:00Z] step-3 | role=ghost | task="Ghost verify" | result=PASS
+[2026-03-31T23:42:00Z] step-4 | role=dev | task="Healer — no failures" | result=SKIP
+[2026-03-31T23:45:00Z] step-5 | role=orchestrator | task="Evidence written" | result=COMPLETE
+[2026-03-31T23:21:47Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:22:06Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:22:09Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:22:12Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:22:14Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:22:54Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:23:33Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:24:12Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:24:26Z] CAPTAIN TOOL=Edit step=? sprint=T-005
+[2026-03-31T23:24:39Z] CAPTAIN TOOL=Bash step=? sprint=T-005
+[2026-03-31T23:24:52Z] PRE-COMMIT role=orchestrator sprint=T-005 result=PASS detail="All 7 gates passed"
