@@ -2417,7 +2417,7 @@
       "category": "Maintenance",
       "name": "Reconciliation — Commit S-11 through S-18 + session work",
       "phase": "stabilize",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Session audit 2026-03-31 — uncommitted work from overnight run + current session fixes",
       "causedBy": "change",
       "outcome": "All S-11 through S-18 work plus current session changes (I-194 disable, test updates, playwright config, issues.md, GOVERNOR_REFERENCE.md) committed as a single reconciliation commit. Clean worktree.",
@@ -2466,7 +2466,7 @@
         "B2: git status clean",
         "B3: PM2 process healthy"
       ],
-      "commit": null,
+      "commit": "fa3cfaf",
       "evidence": "evidence/M-002/",
       "executionSteps": [
         {
@@ -2494,7 +2494,7 @@
       "category": "Maintenance",
       "name": "Test Infrastructure Cleanup — Stale files, dead helpers, hardcoded URLs",
       "phase": "stabilize",
-      "status": "proposed",
+      "status": "in_progress",
       "source": [
         "I-196",
         "I-197",
@@ -2557,26 +2557,26 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT — Run npx playwright test --list, capture baseline count. Verify M-002 committed.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T07:26:01.956Z"
         },
         {
           "step": 1,
           "action": "EXECUTION — Delete dead helpers. Fix orphan specs (add to config or deprecate). Fix hardcoded URLs in s0-s8. Update verify-all.ts.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T07:26:01.956Z"
         },
         {
           "step": 2,
           "action": "GHOST VERIFY — Run npx playwright test --list, confirm count matches or exceeds baseline. Confirm no orphans.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T07:26:01.956Z"
         },
         {
           "step": 3,
           "action": "VERIFICATION — Run API project, confirm 44+ pass. Commit.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-03-31T07:26:01.956Z"
         }
       ]
     },

@@ -92,6 +92,15 @@ export default defineConfig({
       },
       timeout: 120_000,
     },
+    {
+      name: "gap-coverage",
+      testMatch: /[gm]\d+-.*\.spec\.ts/,
+      use: {
+        baseURL: process.env.BASE_URL || "http://localhost:5000",
+        viewport: { width: 1280, height: 720 },
+      },
+      timeout: 60_000,
+    },
   ],
   reporter: [
     ["list"],
