@@ -1,3 +1,6 @@
 [2026-03-31T07:00:00Z] agent-launch | role=orchestrator | task="M-002 Reconciliation" | scope=server/,shared/,client/,tests/,docs/,evidence/,sprints.json,issues.md,backlog.md,playwright.config.ts
 [2026-03-31T07:22:00Z] commit-attempt | role=orchestrator | sprint=M-002 | files=56
 [2026-03-31T07:23:05Z] PRE-COMMIT role=orchestrator sprint=M-002 result=PASS detail="All 7 gates passed"
+[2026-03-31T07:38:02Z] PRE-COMMIT role=governance sprint=M-002 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-03-31T07:38:32Z] PRE-COMMIT role=governance sprint=M-002 result=BLOCKED detail="Governance file 'sprints.json' staged by role 'governance'. Only orchestrator may modify."
+[2026-03-31T07:38:56Z] PRE-COMMIT role=governance sprint=M-002 result=PASS detail="All 7 gates passed"

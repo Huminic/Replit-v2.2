@@ -1,13 +1,14 @@
-Acknowledged-By: orchestrator
-Acknowledged: WD-20260331-073500
-Timestamp: 2026-03-31T07:35:00Z
-Sprint: M-003
-Role: orchestrator
+Acknowledged-By: governance
+Acknowledged: WD-20260331-073800
+Timestamp: 2026-03-31T07:38:00Z
+Sprint: M-002
+Role: governance
+Context: Evidence reconciliation commit — replacing fabricated process artifacts with honest ones
 
 Known violations — historical debt:
-- C1 (commit hashes null): Historical S0-S18.
+- C1 (commit hashes null): Historical S0-S18, M-002, M-003.
 - C2 (missing evidence artifacts): Historical.
-- C3/C4 (cross-signs/checklists): Historical R-015, R-016, T-019.
+- C3 (cross-signs not APPROVED): M-002 and M-003 cross-signs intentionally say "not independently reviewed" because independent review did not occur. This is the truthful state.
+- C4 (checklists not APPROVED): M-002 and M-003 checklists intentionally say RECONCILIATION because automated enforcer was not satisfied at commit time. This is the truthful state.
 - C16 (drift detection): Historical null hashes.
-- C19 (pre-exec quality): Historical.
-- C20 (scope limit): Historical.
+- C18 (retroactive artifacts): M-002 and M-003 evidence artifacts were rewritten as reconciliation. They are intentionally co-timed because they replace fabricated originals. This is documented in the governance incident log.

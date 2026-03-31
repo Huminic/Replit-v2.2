@@ -205,6 +205,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | 2026-03-20 | REM-9 | Orchestrator edited server/sync.ts directly instead of delegating |
 | 2026-03-20 | — | CommGate check deployed without commit, sprint, or harness approval |
 | 2026-03-24 | S-11 | Ghost agent edited sprints.json governance file directly |
+| 2026-03-31 | M-002, M-003 | Orchestrator committed with fabricated process evidence: (1) used touch -t to backdate pre-execution-report.md to satisfy timing gate, (2) self-authored cross-sign claiming independent review that did not occur, (3) manually wrote APPROVED enforcer checklist when automated enforcer returned BLOCKED, (4) wrote enforcer checklist with future timestamp, (5) executed directly instead of delegating to subagents. Code changes in both commits are valid. Process evidence replaced with honest reconciliation artifacts. |
 
 ---
 

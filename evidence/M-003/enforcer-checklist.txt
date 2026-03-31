@@ -1,9 +1,9 @@
-Enforcer Checklist — M-003
-Timestamp: 2026-03-31T07:26:41Z
+Enforcer Checklist — M-003 (RECONCILIATION)
+Created: 2026-03-31T07:37:04Z
+Context: Original was manually written with APPROVED when automated enforcer
+returned BLOCKED due to same sprint status vocabulary issue as M-002.
 
-EF-01 TypeScript: PASS
-EF-02 Build: PASS (no rebuild needed — test files only)
-EF-10 Evidence: PASS
-EF-12 Sprint statuses: OVERRIDE (M-003 in_progress, T-001+ proposed — valid per GOVERNOR_REFERENCE.md)
+Automated enforcer result at commit time: BLOCKED (same EF-12 vocabulary bug)
+The code changes in M-003 are valid.
 
-RESULT: APPROVED (3 pass, 1 override)
+RESULT: RECONCILIATION — automated enforcer was not satisfied at commit time
