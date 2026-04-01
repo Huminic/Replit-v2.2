@@ -3086,7 +3086,7 @@
       "category": "Testing",
       "name": "Exhaustive Coverage \u2014 Integrations, Widgets, Landing Pages, Infrastructure",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 every button, field, icon, function.",
       "causedBy": "testing",
       "outcome": "Complete test coverage for Integrations (VAPI, Tavus, TextMagic, Resend, VIN Solutions, FAL \u2014 all MCP paths), Widgets (chat, video, voice callback, form \u2014 per dealer landing page), Landing Pages (5 dealer pages, widget rendering, public routes), Infrastructure (health, security headers, rate limiting, cookies, entitlements).",
@@ -3188,14 +3188,15 @@
           "status": "completed",
           "timestamp": "2026-03-31T23:45:00Z"
         }
-      ]
+      ],
+      "commitHash": "2adda7e"
     },
     {
       "id": "T-006",
       "category": "Testing",
       "name": "Cross-Cutting \u2014 Role matrix, edge cases, non-Playwright checks, final pass",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Operator directive \u2014 everything that can go wrong, everything that needs to work.",
       "causedBy": "testing",
       "outcome": "Complete cross-cutting verification: 8-role access matrix across all pages, edge case scan of codebase (error handling, boundary conditions, race conditions), non-Playwright script checks (enforcer, watchdog, pre-commit), and final regression pass of entire suite. Full coverage report produced.",
@@ -3273,62 +3274,62 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT \u2014 Confirm T-005 committed. Confirm dev healthy. Collect all prior evidence.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 1,
           "action": "EXECUTION Phase 1 \u2014 Role matrix: test every page with every role. Document access results.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 2,
           "action": "GHOST VERIFY Phase 1 \u2014 Role matrix complete, 96+ checks documented.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 3,
           "action": "EXECUTION Phase 2 \u2014 Edge case scan: read codebase for error handling gaps, boundary conditions, race conditions. Produce test or document finding.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 4,
           "action": "GHOST VERIFY Phase 2 \u2014 Edge case findings documented with test or reason.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 5,
           "action": "EXECUTION Phase 3 \u2014 Non-Playwright checks: enforcer gates, watchdog, pre-commit, build.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 6,
           "action": "GHOST VERIFY Phase 3 \u2014 All checks pass.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 7,
           "action": "EXECUTION Phase 4 \u2014 Full regression: run ALL Playwright projects against dev.huminicdev.com. Document results.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 8,
           "action": "GHOST VERIFY Phase 4 \u2014 Results match or exceed prior baselines.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         },
         {
           "step": 9,
           "action": "FINAL \u2014 Produce coverage summary. Cross-reference against issues.md. STOP for operator confirmation.",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T00:00:00Z"
         }
       ]
     }

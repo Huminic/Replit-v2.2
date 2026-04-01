@@ -1,9 +1,9 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260331-234500
-Timestamp: 2026-03-31T23:45:00Z
-Sprint: T-005
+Acknowledged: WD-20260401-000000
+Timestamp: 2026-04-01T00:00:00Z
+Sprint: T-006
 Role: orchestrator
-Context: T-005 commit — exhaustive coverage for Integrations, Widgets, Landing Pages, Infrastructure. 148 agent tests (145 pass, 3 skipped).
+Context: T-006 commit — cross-cutting final pass. Role matrix (171), edge cases (41), non-Playwright checks, regression. Grand total: 1,241 tests.
 
 Known violations — historical debt:
 - C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints. T-001 now has hash.

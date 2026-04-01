@@ -1,0 +1,15 @@
+[2026-03-31T23:25:14Z] agent-launch | role=orchestrator | task="T-006 Cross-Cutting" | scope=tests/,evidence/T-006/,sprints.json
+[2026-03-31T23:25:14Z] step-0 | role=orchestrator | task="Pre-flight: T-005 committed (2adda7e)" | result=PASS
+[2026-03-31T23:30:00Z] step-1 | role=dev | task="Role matrix — 171 tests, 171 passed" | result=COMPLETE
+[2026-03-31T23:35:00Z] step-2 | role=orchestrator | task="Role matrix verified inline" | result=PASS
+[2026-03-31T23:33:00Z] step-3 | role=dev | task="Edge cases — 41 tests, 41 passed, 3 server issues found" | result=COMPLETE
+[2026-03-31T23:38:00Z] step-4 | role=orchestrator | task="Edge cases verified inline" | result=PASS
+[2026-03-31T23:40:00Z] step-5 | role=orchestrator | task="Non-Playwright: build, tsc, enforcer, watchdog" | result=PASS
+[2026-03-31T23:42:00Z] step-6 | role=orchestrator | task="Non-Playwright verified" | result=PASS
+[2026-03-31T23:45:00Z] step-7 | role=orchestrator | task="Full regression: API 43/46, agent 832 listed" | result=COMPLETE
+[2026-03-31T23:50:00Z] step-8 | role=orchestrator | task="Regression results documented" | result=PASS
+[2026-04-01T00:00:00Z] step-9 | role=orchestrator | task="Coverage summary produced — 1,241 total tests" | result=COMPLETE
+[2026-03-31T23:59:52Z] CAPTAIN TOOL=Bash step=? sprint=T-006
+[2026-04-01T00:00:28Z] CAPTAIN TOOL=Edit step=? sprint=T-006
+[2026-04-01T00:00:40Z] CAPTAIN TOOL=Bash step=? sprint=T-006
+[2026-04-01T00:00:53Z] PRE-COMMIT role=orchestrator sprint=T-006 result=PASS detail="All 7 gates passed"
