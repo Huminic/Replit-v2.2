@@ -29,12 +29,12 @@ Testing initiative (T-001–T-007) finished. 16 domain plans, 1,305 test cases d
 ## Wave 7 — MVP Critical Flow Fixes <-- YOU ARE HERE
 **Status:** In Progress
 
-Fix code blockers and write E2E tests proving the 9 launch-critical flows work for real users. T-010a (VIN pipeline restoration), then T-010b/c/d in parallel (core app, inbound flows, outbound + data).
+Fix code blockers, widget CORS, and write E2E tests proving the 9 launch-critical flows work. T-010a (VIN pipeline + widget CORS + code fixes), then T-010b/c/d in parallel (browser E2E with mocked external services), then T-010e (live data verification with operator present).
 
-## Wave 8 — MVP Environment & Launch
+## Wave 8 — Production Environment & Launch
 **Status:** Not Started
 
-Build production environment with separate database. Deploy. Verify all 9 flows on production. (T-011)
+Build production environment with separate database. Deploy. Verify all 9 flows on production. (T-011 — parked, needs dedicated planning session.)
 
 ## Wave 9 — MVP User Testing
 **Status:** Not Started

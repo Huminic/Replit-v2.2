@@ -90,6 +90,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-168 | Widget interaction mode states — 13/14 verified in S1, voice callback 404 until deploy | FE, BE | NEEDS LIVE TEST | M |
+| I-214 | **FIXED (T-010a).** Widget CORS: added middleware after Helmet to override CORP→cross-origin, COOP→unsafe-none, CSP frame-ancestors→* for /widget/*, /api/widget/*, /w/*, /p/* routes. Cache max-age bumped to 86400 per Dealer.com requirements. Verified: `curl -I` confirms correct headers on live. | FE, BE, IN | CLOSED (T-010a) | E |
 
 ---
 
@@ -131,7 +132,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
-| I-194 | **VAPI→VIN lead creation DISABLED.** Lead source name mismatch causes silent failure on 3 of 5 dealers. Code sends `"Dealers WebSite"` via `vin_safe_prepare_lead` but Hyundai of Columbia (13399), Ford of Columbia (13398), and Serra Nissan (21044) use different source names. Code reads `orgSettings.vinLeadSourceName` with bad fallback (webhooks.ts:737). 5 real customer leads since Mar 28 not sent to VIN Solutions. **Fix:** Set correct `vinLeadSourceName` per org, re-enable `if(false)` guard. **Backfill:** Use lead insertion script for unsent leads. Query: `SELECT * FROM activity_log WHERE action='vapi_call_received' AND metadata->>'vinLeadCreated'='false' AND created_at > '2026-03-24'`. | BE | DISABLED | M |
+| I-194 | **FIXED (T-010a).** VAPI→VIN re-enabled with per-dealer vinLeadSourceName configured in org.settings. Safety guards added: 555-number rejection, transcript-required check, "Unknown Caller" → AI/Lead naming. Tavus path also fixed (was live without guards). Backfill assessed: 1 ringing-only call in 24h, no transcript, not pushable. Dealer source names: Serra Honda/Nissan/Ford="Dealers WebSite", Hyundai of Columbia="Dealer .Com (Our Website)", Ford of Columbia="Dealer Website". | BE | CLOSED (T-010a) | M |
 
 ---
 
@@ -161,7 +162,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | I-198 | Dead test helpers: tests/helpers/api.ts and tests/helpers/factory.ts — zero imports from any active test | IN | OPEN | E |
 | I-199 | verify-all.ts hardcodes FQDN and uses own login logic instead of shared helpers | IN | OPEN | E |
 | I-200 | No production environment — live.huminic.app and dev.huminicdev.com both serve same PM2 process, same DB. GitHub Actions has zero secrets, Coolify webhook goes nowhere. Dockerfile/docker-compose.yml exist but were never deployed. | IN | OPEN | H |
-| I-201 | Daily delta VIN Solutions lead sync not running — sync_log shows only metrics_refresh entries, no delta or full sync in last 7 days | BE | OPEN | M |
+| I-201 | **Investigated (T-010a).** Delta sync scheduler runs but has never succeeded. Only 2 log entries: both failed backfills for Huminic org (no VIN integration). Delta fires at 2 AM ET via setInterval with no retry on failure. Non-VIN orgs fail silently. No evidence delta has run for VIN-enabled dealers. Scheduler confirmed running post-restart. **Needs:** skip non-VIN orgs gracefully, add monitoring/alerting, verify next 2 AM run succeeds. | BE | OPEN | M |
 
 ---
 
@@ -169,7 +170,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
-| I-202 | TeamBox conversation detail shows "No messages yet" when conversation is selected. Reported on test-generated conversations (Unread Reset Test, etc.) which may have been created via API without messages. **Needs verification:** does this also affect real customer conversations with actual messages? If messages exist in DB but don't render, this is a message-loading bug in the conversation detail panel. If only empty test shells, the issue is test cleanup. Also: T-002 agent tests left ~15 orphan test conversations visible in production TeamBox — needs cleanup query. | FE, BE | NEEDS LIVE TEST | M |
+| I-202 | **Root cause: data issue, not code bug.** "No messages yet" displays correctly for conversations with 0 messages. Investigated T-010a: 5 orphan ai-chat conversations (test staff from Mar 31) + voice conversations from ringing-only VAPI events have no stored messages. Real conversations with messages display correctly. **Fix:** clean up orphan test conversations — no code change needed. | FE | CLOSED (T-010a) | E |
 
 ---
 
@@ -185,12 +186,12 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 | Status | Count |
 |--------|-------|
-| OPEN | 16 |
-| DISABLED | 1 |
-| NEEDS LIVE TEST | 9 |
+| OPEN | 15 |
+| CLOSED (T-010a) | 3 |
+| NEEDS LIVE TEST | 8 |
 | BACKLOGGED | 5 |
 | BEHAVIORAL GAPS (T-007) | 11 |
-| **Total active (non-backlogged)** | **37** |
+| **Total active (non-backlogged)** | **34** |
 
 ---
 

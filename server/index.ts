@@ -98,6 +98,23 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
+// Override Helmet's restrictive headers for widget routes (I-214).
+// Widgets must load cross-origin on dealer sites (e.g. serrahonda.net loading
+// live.huminic.app/widget/dealer/serra-honda.js). Helmet sets CORP=same-origin
+// and COOP=same-origin by default, which blocks cross-origin script loads and
+// iframe embeds. This middleware runs after Helmet to override those headers
+// only on widget paths.
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/widget') || req.path.startsWith('/widget') || req.path.startsWith('/w/') || req.path.startsWith('/p/')) {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+    res.removeHeader('X-Frame-Options');
+    // Override CSP for widget routes — allow embedding from any origin
+    res.setHeader('Content-Security-Policy', "default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors *;");
+  }
+  next();
+});
+
 // Request ID middleware
 app.use((req, _res, next) => {
   const requestId = crypto.randomUUID();

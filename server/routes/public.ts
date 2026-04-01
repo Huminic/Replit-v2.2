@@ -493,7 +493,7 @@ fetch(H+"/api/widget/video-session",{method:"POST",headers:{"Content-Type":"appl
 })();`;
     res.setHeader("Content-Type", "application/javascript");
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cache-Control", "public, max-age=60");
+    res.setHeader("Cache-Control", "public, max-age=86400");
     res.setHeader("Vary", "Accept");
     res.send(js);
   });

@@ -716,32 +716,31 @@ export function registerWebhookRoutes(app: Express) {
         summaryLength: summary.length,
       };
 
-      // ══════════════════════════════════════════════════════════════════
-      // DISABLED: VIN lead creation (I-194)
-      // Lead source name mismatch: code sends "Dealers WebSite" but Columbia
-      // stores (13398, 13399) and Serra Nissan (21044) use different source
-      // names in VIN Solutions (e.g. "Dealer .Com (Our Website)").
-      // 3/5 dealers are failing silently. Disabled until per-dealer lead
-      // source names are configured in org settings (vinLeadSourceName).
-      // Re-enable by removing the if(false) guard below.
-      // ══════════════════════════════════════════════════════════════════
-      /* DISABLED: VIN lead creation (I-194) — uncomment to re-enable
+      // VIN lead creation — re-enabled (I-194 fix, T-010a)
+      // Per-dealer vinLeadSourceName configured in org.settings.
+      // Safety: reject test phone numbers (555-prefix) and require transcript.
+      const vinPhone = customerPhone ? customerPhone.replace(/\D/g, "").replace(/^1(\d{10})$/, "$1") : undefined;
+      const isTestPhone = vinPhone && (vinPhone.startsWith("555") || vinPhone.startsWith("5550"));
+      const hasTranscript = !!(transcript && transcript.trim().length > 0);
+
+      if (!isTestPhone && vinPhone && hasTranscript) {
       try {
         // VIN lead creation via vin-safe-mcp REST API (port 4003)
         // Per-dealer userId and leadSourceName resolved from integrations table
         const integration = await storage.getIntegrations(organizationId, { provider: "vinsolutions" });
         const vinUserId = integration?.[0]?.defaultVinUserId || null;
 
-        const nameParts = customerName.split(" ");
+        // Use "AI" / "Lead" when caller name is unknown or generic
+        const isUnknownName = !customerName || customerName === "Unknown Caller" || customerName.trim() === "";
+        const nameParts = isUnknownName ? ["AI", "Lead"] : customerName.split(" ");
         const firstName = nameParts[0] || "AI";
-        const lastName = nameParts.slice(1).join(" ") || "LEAD";
-        const vinPhone = customerPhone ? customerPhone.replace(/\D/g, "").replace(/^1(\d{10})$/, "$1") : undefined;
+        const lastName = nameParts.slice(1).join(" ") || "Lead";
 
         const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
         const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
 
-        // Resolve lead source name from org settings, falling back to the VIN Solutions
-        // standard name. Dealer 21043 (and most VIN dealers) expect "Dealers WebSite".
+        // Resolve lead source name from org settings (configured per-dealer in T-010a).
+        // Fallback to "Dealers WebSite" which is correct for Serra Honda, Serra Nissan, Tony Serra Ford.
         const orgForVin = await storage.getOrganization(organizationId);
         const orgSettings = (orgForVin?.settings || {}) as Record<string, any>;
         const vinLeadSourceName = orgSettings.vinLeadSourceName || "Dealers WebSite";
@@ -832,7 +831,12 @@ export function registerWebhookRoutes(app: Express) {
           metadata: { error: vinErr.message, customerName, customerPhone },
         }).catch(() => {});
       }
-      END DISABLED VIN lead creation (I-194) */
+      } else {
+        // Skip VIN lead creation: test phone, missing phone, or no transcript
+        if (isTestPhone) console.log(`[VAPI→VIN] Skipped: test phone number ${vinPhone}`);
+        else if (!vinPhone) console.log(`[VAPI→VIN] Skipped: no phone number`);
+        else if (!hasTranscript) console.log(`[VAPI→VIN] Skipped: no transcript (ringing-only or failed call)`);
+      }
 
       const users = await storage.getUsers(organizationId);
       const adminUsers = users.filter(u => u.role && u.role.level <= 3);
@@ -1047,14 +1051,19 @@ export function registerWebhookRoutes(app: Express) {
       }
 
       let vinLeadCreated = false;
+      // Safety: same guards as VAPI path (T-010a)
+      const hasTavusTranscript = !!(summary && summary.trim().length > 0);
+      if (hasTavusTranscript) {
       try {
         // VIN lead creation via vin-safe-mcp REST API (port 4003)
         const integration = await storage.getIntegrations(organizationId, { provider: "vinsolutions" });
         const vinUserId = integration?.[0]?.defaultVinUserId || null;
 
-        const nameParts = visitorName.split(" ");
+        // Use "AI" / "Lead" when visitor name is unknown or generic
+        const isUnknownVisitor = !visitorName || visitorName === "Unknown" || visitorName.trim() === "";
+        const nameParts = isUnknownVisitor ? ["AI", "Lead"] : visitorName.split(" ");
         const firstName = nameParts[0] || "AI";
-        const lastName = nameParts.slice(1).join(" ") || "LEAD";
+        const lastName = nameParts.slice(1).join(" ") || "Lead";
 
         const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
         const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
@@ -1132,6 +1141,9 @@ export function registerWebhookRoutes(app: Express) {
           tags: ["escalation", "vin-integration", "tavus", "auto-generated"],
           metadata: JSON.stringify({ trigger_id: `tavus-vin-${Date.now()}`, error: vinErr.message, conversation_id: conversation.id }),
         });
+      }
+      } else {
+        console.log(`[Tavus→VIN] Skipped: no transcript/summary for video session`);
       }
 
       const users = await storage.getUsers(organizationId);

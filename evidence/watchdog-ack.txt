@@ -1,9 +1,9 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260401-030000
-Timestamp: 2026-04-01T03:00:00Z
-Sprint: T-007
+Acknowledged: WD-20260401-073000
+Timestamp: 2026-04-01T07:30:00Z
+Sprint: T-010a
 Role: orchestrator
-Context: MVP sprint planning — T-010a/b/c/d + T-011 defined. PLAN.md updated to Wave 7 (MVP Critical Flow Fixes).
+Context: T-010a completed — VIN pipeline re-enabled, widget CORS fixed, I-202/I-201 investigated. Ghost APPROVED.
 
 Known violations — historical debt:
 - C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints. T-001 now has hash.
@@ -12,7 +12,8 @@ Known violations — historical debt:
 - C4 (checklists): M-002/M-003 reconciliation. T-001 and T-002 enforcer checklists APPROVED.
 - C7 (session state stale): Will update after commit.
 - C10 (timestamp anomalies): Historical — pre-harness evidence was bulk-generated.
-- C14 (governance file changed): scripts/enforcer-checklist.sh committed in T-001 (8e119dc). No new governance changes.
-- C16 (drift detection): Historical null hashes. Pre-existing uncommitted governance changes (core values) not part of T-002.
-- C15 (memory staleness): MEMORY.md is in governor project, not nexxus. session-state.md will be updated after commit.
+- C14 (governance file changed): scripts/enforcer-checklist.sh committed in T-001 (8e119dc). Governance prompts have core values prepended (uncommitted in governor repo, deferred per operator).
+- C16 (drift detection): Historical null hashes. Governance prompt changes are core values prepend, deferred.
+- C15 (memory staleness): MEMORY.md is in governor project, not nexxus. session-state.md updated.
 - C18 (M-003 retroactive): Documented reconciliation — intentional.
+- C19 (pre-exec quality): Fixed — added ## Objective and ## Success Criteria sections to T-010a pre-execution-report.md.
