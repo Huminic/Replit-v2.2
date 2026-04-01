@@ -2,7 +2,7 @@
   "version": "8.0",
   "description": "V8: S-11 through S-18 reconciled (committed). Sprint naming aligned to GOVERNOR_REFERENCE.md \u00a75 (prefix=origin, dimensions=scope). S- prefix retired. New testing initiative: M-002, M-003, T-001 through T-006.",
   "date": "2026-03-31",
-  "totalSprints": 38,
+  "totalSprints": 43,
   "workOrder": [
     "U-001",
     "G-004",
@@ -3613,6 +3613,437 @@
         {
           "step": 3,
           "action": "VERIFICATION \u2014 Evidence written. Final coverage reassessment.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-010a",
+      "category": "Testing",
+      "name": "VIN Pipeline Restoration + Code Fixes",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "MVP Critical Flow Gap Analysis \u2014 code fixes required before E2E testing",
+      "causedBy": "testing",
+      "outcome": "VAPI\u2192VIN lead creation re-enabled with correct per-dealer lead source names. I-202 TeamBox message display investigated and resolved. I-201 delta sync status confirmed. All code fixes verified.",
+      "codebaseArea": [
+        "server/routes/webhooks.ts",
+        "server/",
+        "client/pages/teambox.tsx"
+      ],
+      "acceptanceCriteria": [
+        "T-010a.AC1: Per-dealer vinLeadSourceName configured for all 5 dealers",
+        "T-010a.AC2: VAPI\u2192VIN code re-enabled (I-194 closed)",
+        "T-010a.AC3: I-202 investigated \u2014 root cause identified and fixed or documented",
+        "T-010a.AC4: I-201 delta sync status confirmed \u2014 running or documented why not",
+        "T-010a.AC5: Build passes, existing tests not regressed"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2"
+        ],
+        "featureDims": [
+          "BE",
+          "DT"
+        ],
+        "testLevels": [
+          "T2"
+        ]
+      },
+      "wholeProductFit": "Unblocks VIN lead pipeline for voice and video calls. Prerequisite for T-010b/c/d.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-007"
+      ],
+      "declaredFiles": [
+        "server/routes/webhooks.ts",
+        "server/",
+        "client/pages/teambox.tsx",
+        "evidence/T-010a/",
+        "issues.md"
+      ],
+      "issues": [
+        "I-194",
+        "I-201",
+        "I-202"
+      ],
+      "entryGates": [
+        "A1: T-007 committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: VAPI\u2192VIN re-enabled and tested",
+        "B2: I-202 resolved or documented",
+        "B3: Build passes"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-010a/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm state, inspect worktree, no drift",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "FIX I-194 \u2014 Configure vinLeadSourceName per dealer, re-enable VAPI\u2192VIN code",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "INVESTIGATE I-202 \u2014 TeamBox message display bug",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "CHECK I-201 \u2014 Delta sync status",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GHOST VERIFY \u2014 Build passes, code changes correct",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-010b",
+      "category": "Testing",
+      "name": "Core App E2E \u2014 Auth, Chat, TeamBox Browser Tests",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "MVP Critical Flow Gap Analysis \u2014 browser E2E gaps",
+      "causedBy": "testing",
+      "outcome": "Browser-level E2E tests for login\u2192dashboard, chat send\u2192stream\u2192display, TeamBox click\u2192view\u2192reply. Tests that would fail if a real user hit these flows and they were broken.",
+      "codebaseArea": [
+        "tests/agents/generated/"
+      ],
+      "acceptanceCriteria": [
+        "T-010b.AC1: Browser test \u2014 login form submit \u2192 dashboard loads with user data",
+        "T-010b.AC2: Browser test \u2014 chat send message \u2192 streaming response renders \u2192 message visible",
+        "T-010b.AC3: Browser test \u2014 TeamBox click conversation \u2192 messages display \u2192 send reply \u2192 reply appears",
+        "T-010b.AC4: Each test would FAIL if behavior broke"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2"
+        ],
+        "featureDims": [
+          "FE",
+          "BE"
+        ],
+        "testLevels": [
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Proves the 3 core app surfaces work for real users in a real browser.",
+      "parallelizable": true,
+      "dependsOn": [
+        "T-010a"
+      ],
+      "declaredFiles": [
+        "tests/agents/generated/",
+        "evidence/T-010b/"
+      ],
+      "issues": [
+        "I-203",
+        "I-204"
+      ],
+      "entryGates": [
+        "A1: T-010a committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: All browser E2E tests pass",
+        "B2: Evidence in evidence/T-010b/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-010b/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm T-010a committed",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Write browser E2E tests for auth, chat, teambox",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY \u2014 Tests are deep, not shallow",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION \u2014 Evidence written",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-010c",
+      "category": "Testing",
+      "name": "Inbound Flows E2E \u2014 Widgets, Landing, VAPI\u2192VIN, Tavus\u2192VIN",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "MVP Critical Flow Gap Analysis \u2014 inbound flow gaps",
+      "causedBy": "testing",
+      "outcome": "E2E tests proving: widget form creates conversation, voice callback works, video widget starts session, VAPI webhook creates VIN lead, Tavus webhook creates VIN lead. The full inbound funnel verified.",
+      "codebaseArea": [
+        "tests/agents/generated/",
+        "tests/e2e/"
+      ],
+      "acceptanceCriteria": [
+        "T-010c.AC1: Browser test \u2014 landing page form submit \u2192 conversation created in TeamBox",
+        "T-010c.AC2: Browser test \u2014 voice callback widget \u2192 request placed",
+        "T-010c.AC3: Browser test \u2014 video widget \u2192 Tavus session starts",
+        "T-010c.AC4: E2E test \u2014 VAPI webhook \u2192 conversation + VIN lead created",
+        "T-010c.AC5: E2E test \u2014 Tavus webhook \u2192 conversation + VIN lead created"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "IN"
+        ],
+        "testLevels": [
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "Proves the entire inbound lead funnel works \u2014 from customer interaction to CRM insertion.",
+      "parallelizable": true,
+      "dependsOn": [
+        "T-010a"
+      ],
+      "declaredFiles": [
+        "tests/agents/generated/",
+        "tests/e2e/",
+        "evidence/T-010c/"
+      ],
+      "issues": [
+        "I-194",
+        "I-168"
+      ],
+      "entryGates": [
+        "A1: T-010a committed (VIN pipeline re-enabled)",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: All inbound flow tests pass or failures documented",
+        "B2: Evidence in evidence/T-010c/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-010c/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm T-010a committed, VIN pipeline active",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Write widget/landing browser E2E + VAPI/Tavus\u2192VIN tests",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY \u2014 Inbound funnel proven end-to-end",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION \u2014 Evidence written",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-010d",
+      "category": "Testing",
+      "name": "Outbound + Data E2E \u2014 Campaigns, KPI Consistency, Sync",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "MVP Critical Flow Gap Analysis \u2014 outbound and data gaps",
+      "causedBy": "testing",
+      "outcome": "E2E tests proving: campaign execution delivers messages, KPI numbers match across pages, delta sync running. The outbound pipeline and data integrity verified.",
+      "codebaseArea": [
+        "tests/agents/generated/",
+        "tests/e2e/"
+      ],
+      "acceptanceCriteria": [
+        "T-010d.AC1: E2E test \u2014 campaign execute \u2192 messages actually sent (verify delivery log or MCP response)",
+        "T-010d.AC2: E2E test \u2014 campaign merge fields substituted correctly in sent messages",
+        "T-010d.AC3: Data test \u2014 same KPI shows same number on dashboard, /sales, and /insights",
+        "T-010d.AC4: Data test \u2014 delta sync status confirmed running or documented",
+        "T-010d.AC5: Each test would FAIL if behavior broke"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "DT"
+        ],
+        "testLevels": [
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "Proves campaigns deliver and data is trustworthy.",
+      "parallelizable": true,
+      "dependsOn": [
+        "T-010a"
+      ],
+      "declaredFiles": [
+        "tests/agents/generated/",
+        "tests/e2e/",
+        "evidence/T-010d/"
+      ],
+      "issues": [
+        "I-201",
+        "I-205",
+        "I-212"
+      ],
+      "entryGates": [
+        "A1: T-010a committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: Campaign delivery verified",
+        "B2: KPI consistency verified",
+        "B3: Evidence in evidence/T-010d/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-010d/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm T-010a committed",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Write campaign delivery + data consistency tests",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY \u2014 Outbound and data integrity proven",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION \u2014 Evidence written",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-011",
+      "category": "Infrastructure",
+      "name": "MVP Environment & Launch",
+      "phase": "deploy",
+      "status": "proposed",
+      "source": "MVP launch readiness \u2014 production environment required",
+      "causedBy": "infrastructure",
+      "outcome": "Production environment built with separate database. All 9 MVP critical flows verified on production. App ready for user testing.",
+      "codebaseArea": [
+        "server/",
+        "docker/",
+        ".github/"
+      ],
+      "acceptanceCriteria": [
+        "T-011.AC1: Production environment running on separate domain",
+        "T-011.AC2: Production database separated from dev",
+        "T-011.AC3: All 9 MVP flows verified on production",
+        "T-011.AC4: MCP services accessible from production",
+        "T-011.AC5: Deployment pipeline functional"
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T5"
+        ]
+      },
+      "wholeProductFit": "Without a production environment, there is no launch.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-010b",
+        "T-010c",
+        "T-010d"
+      ],
+      "declaredFiles": [
+        "evidence/T-011/"
+      ],
+      "issues": [
+        "I-200"
+      ],
+      "entryGates": [
+        "A1: T-010b/c/d committed",
+        "A2: All 9 flows passing on dev"
+      ],
+      "exitGates": [
+        "B1: Production environment live",
+        "B2: All 9 flows verified on production"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-011/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 All T-010 sprints committed",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Build production environment, separate DB, deploy",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "VERIFICATION \u2014 All 9 flows verified on production",
           "status": "pending",
           "timestamp": null
         }

@@ -1,9 +1,9 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260401-020000
-Timestamp: 2026-04-01T02:00:00Z
+Acknowledged: WD-20260401-030000
+Timestamp: 2026-04-01T03:00:00Z
 Sprint: T-007
 Role: orchestrator
-Context: T-007 commit — behavioral gap analysis. 11 issues (I-203–I-213) recorded. Coverage: 60% deep, 25% shallow, 15% missing.
+Context: MVP sprint planning — T-010a/b/c/d + T-011 defined. PLAN.md updated to Wave 7 (MVP Critical Flow Fixes).
 
 Known violations — historical debt:
 - C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints. T-001 now has hash.

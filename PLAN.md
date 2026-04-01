@@ -19,34 +19,39 @@
 ## Wave 5 — Testing Coverage
 **Status:** Complete
 
-All testing coverage gaps identified and closed. 832 agent-generated tests + 409 hand-authored tests = 1,241 total. 16 domain plans documenting 1,305 test cases. Behavioral gap analysis (T-007) assessed real coverage: ~60% deep, ~25% shallow, ~15% missing. 11 behavioral gaps recorded (I-203 through I-213).
+832 agent-generated tests + 409 hand-authored = 1,241 total. Behavioral gap analysis (T-007): ~60% deep, ~25% shallow, ~15% missing. 11 behavioral gaps recorded (I-203–I-213).
 
-## Wave 6 — Reliable Test Execution <-- YOU ARE HERE
+## Wave 6 — Reliable Test Execution
+**Status:** Complete
+
+Testing initiative (T-001–T-007) finished. 16 domain plans, 1,305 test cases documented, 9 MVP critical flows identified.
+
+## Wave 7 — MVP Critical Flow Fixes <-- YOU ARE HERE
 **Status:** In Progress
 
-All areas within testing criteria tested and a final list of issues and bugs identified and prioritized. T-008 (Critical Behavior Stabilization) and T-009 (Coverage Hardening) defined.
+Fix code blockers and write E2E tests proving the 9 launch-critical flows work for real users. T-010a (VIN pipeline restoration), then T-010b/c/d in parallel (core app, inbound flows, outbound + data).
 
-## Wave 7 — Software Hardening for Launch
+## Wave 8 — MVP Environment & Launch
 **Status:** Not Started
 
-All areas preventing primary functions within the software, communication flows, messaging and campaigns all working.
+Build production environment with separate database. Deploy. Verify all 9 flows on production. (T-011)
 
-## Wave 8 — Live Environment Preparation
-**Status:** Not Started
-
-Building the live environment with separate database considerations and API MCP access.
-
-## Wave 9 — Test Launch and User Testing
+## Wave 9 — MVP User Testing
 **Status:** Not Started
 
 Push app to live environment and get feedback from user testing.
 
-## Wave 10 — Final Hardening
+## Wave 10 — Post-MVP Hardening
 **Status:** Not Started
 
-Final issues fixed, security scan and app ready for launch with final round of verification and testing.
+Remaining behavioral gaps (T-008, T-009), non-critical issues, coverage hardening.
 
-## Wave 11 — Launch
+## Wave 11 — Software Hardening for Final Launch
+**Status:** Not Started
+
+All areas preventing primary functions resolved. Security scan. Final verification.
+
+## Wave 12 — Final Launch
 **Status:** Not Started
 
 Launch app and verify all functions are working properly.
