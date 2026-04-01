@@ -3832,7 +3832,7 @@
       "category": "Testing",
       "name": "Inbound Flows E2E — Widgets, Landing, VAPI→VIN, Tavus→VIN",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "MVP Critical Flow Gap Analysis — inbound flow gaps",
       "causedBy": "testing",
       "outcome": "Inbound flow browser E2E tests pass with mocked external services. Webhook tests simulate payloads. Cleanup script removes test data.",
@@ -3886,7 +3886,7 @@
         "B1: All inbound flow tests pass or failures documented",
         "B2: Evidence in evidence/T-010c/"
       ],
-      "commit": null,
+      "commit": "62fef87",
       "evidence": "evidence/T-010c/",
       "executionSteps": [
         {
