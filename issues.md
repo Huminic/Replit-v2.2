@@ -189,11 +189,12 @@ No open issues. I-164 verified working in S8 walkthrough.
 | DISABLED | 1 |
 | NEEDS LIVE TEST | 9 |
 | BACKLOGGED | 5 |
-| **Total active (non-backlogged)** | **26** |
+| BEHAVIORAL GAPS (T-007) | 11 |
+| **Total active (non-backlogged)** | **37** |
 
 ---
 
-## Test Coverage Gaps
+## Test Coverage Gaps (pre-T-007)
 
 | ID | Gap | Dim | Status |
 |----|-----|-----|--------|
@@ -201,6 +202,38 @@ No open issues. I-164 verified working in S8 walkthrough.
 | TG-008 | After-hours behavior — no time-based test | BE | OPEN |
 | TG-010 | TeamBox real-time updates — no SSE/WebSocket test | FE, BE | OPEN |
 | TI-018 | Photo Studio image generation — see I-102 | BE | OPEN |
+
+---
+
+## Behavioral Gap Analysis (T-007, 2026-04-01)
+
+Gaps found by reading actual test code at behavior level. Each gap represents something a real user could hit that no current test would catch. Tests would falsely pass while the behavior is broken.
+
+### Critical — Would affect users immediately
+
+| ID | Gap | Domain | Dim | Why it matters | Tests falsely pass? |
+|----|-----|--------|-----|----------------|---------------------|
+| I-203 | **No test for message streaming delivery to UI.** Chat agent tests verify the SSE endpoint accepts requests (status < 500) but never check that streamed tokens actually render in the browser. A broken streaming parser would pass all tests. | Chat | FE, BE | Users send a message and see nothing — the core product experience. | Yes — endpoint returns 200 but UI could show blank. |
+| I-204 | **No test for session timeout warning or auto-logout.** Auth tests explicitly SKIP session timeout (TC-AUTH-102-108) because it requires 30min idle. Users would get silently logged out with no warning dialog. Feature exists (I-153 confirmed fixed) but is untested. | Auth | FE | User loses unsaved work after 30min idle with no warning. | Yes — login/logout tests pass but timeout path untested. |
+| I-205 | **No test for campaign execution workflow.** Service tests verify campaign table renders and CRUD API works, but no test starts a campaign, schedules it, executes it, and verifies messages are sent. Campaign could fail silently mid-execution. | Service | BE, FE | Dealer creates campaign → nothing happens. Core revenue feature. | Yes — CRUD passes but execution path untested. |
+| I-206 | **No test for conversation takeover sequence.** TeamBox tests verify the PATCH endpoint for assigning agents, but no test covers the full workflow: AI is responding → human clicks takeover → AI stops → human replies → customer sees human response. The stateful transition is untested. | TeamBox | FE, BE | Agent takeover fails mid-conversation. Customer gets confused responses. | Partially — API PATCH works but UI workflow untested. |
+| I-207 | **No test for API error recovery or network failure.** Dashboard, Sales, Service, Marketing tests all assume API calls succeed. No test intercepts a failed API call and verifies the UI shows an error state, retry button, or cached data. Tests would pass while users see blank pages on flaky connections. | All | FE | Any API hiccup → blank screen, no error message, no retry. | Yes — happy path passes, error path untested. |
+
+### Important — Would affect specific workflows
+
+| ID | Gap | Domain | Dim | Why it matters | Tests falsely pass? |
+|----|-----|--------|-----|----------------|---------------------|
+| I-208 | **No test for settings changes persisting across sessions.** Settings tests verify UI elements exist and toggles click, but no test changes a setting, reloads the page, and confirms the change stuck. Appearance theme toggle is tested within a session but not across reload. Org config save is API-tested but not verified in UI after reload. | Settings | FE, BE | Admin changes timezone/logo/config → appears saved → reverts on reload. | Yes — toggle test passes within session. |
+| I-209 | **No test for webhook retry or failure recovery.** Integration tests verify webhooks accept valid payloads (200) and reject invalid ones (400/401). No test covers what happens when the webhook handler itself fails mid-processing (DB write fails, MCP call times out). No retry logic is tested. | Integrations | BE | VAPI call comes in, webhook crashes after creating conversation but before storing transcript. Data partially written. | Yes — happy path passes, partial failure untested. |
+| I-210 | **No test for multi-step sales pipeline progression.** Sales tests verify KPI tiles render and API returns lead counts, but no test creates a lead, moves it through stages (New → Contacted → Qualified → Proposal → Closed), and verifies metrics update. The pipeline could be display-only with broken state transitions. | Sales | BE, FE | Sales rep marks deal as "Closed Won" → pipeline metrics don't update. | Yes — read-only API tests pass, state mutation untested. |
+| I-211 | **No test for concurrent write conflicts.** Edge case tests verify parallel reads succeed, but no test covers two users editing the same conversation, appointment, or contact simultaneously. The app uses no optimistic locking. First-write-wins or last-write-wins behavior is undefined and untested. | All | BE | Two agents claim same lead → one's notes overwritten silently. | Yes — single-user CRUD passes, multi-user conflict untested. |
+| I-212 | **No test for data correctness beyond schema.** Dashboard and Sales tests verify API responses have correct field names and types (totalLeads is a number), but no test verifies the NUMBER IS CORRECT. Pipeline metrics could return stale cached values, double-counted leads, or zero for active dealers. | Dashboard, Sales | BE, DT | KPIs show wrong numbers. Dealer sees "0 leads" when they have 50. | Yes — schema validation passes, value correctness untested. |
+
+### Nice-to-have — Edge cases with lower probability
+
+| ID | Gap | Domain | Dim | Why it matters | Tests falsely pass? |
+|----|-----|--------|-----|----------------|---------------------|
+| I-213 | **No test for widget embed in third-party sites.** Widget tests verify /w/{id} loads directly, but no test embeds the widget iframe/script in an external page and verifies it renders correctly with cross-origin restrictions. CORS is tested at the header level but not the actual embed experience. | Widgets | FE, IN | Widget works on dev.huminicdev.com but breaks when embedded on dealer's actual website. | Yes — direct load passes, cross-origin embed untested. |
 
 ---
 

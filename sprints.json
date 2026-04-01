@@ -2,7 +2,7 @@
   "version": "8.0",
   "description": "V8: S-11 through S-18 reconciled (committed). Sprint naming aligned to GOVERNOR_REFERENCE.md \u00a75 (prefix=origin, dimensions=scope). S- prefix retired. New testing initiative: M-002, M-003, T-001 through T-006.",
   "date": "2026-03-31",
-  "totalSprints": 35,
+  "totalSprints": 36,
   "workOrder": [
     "U-001",
     "G-004",
@@ -3196,7 +3196,7 @@
       "category": "Testing",
       "name": "Cross-Cutting \u2014 Role matrix, edge cases, non-Playwright checks, final pass",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 everything that can go wrong, everything that needs to work.",
       "causedBy": "testing",
       "outcome": "Complete cross-cutting verification: 8-role access matrix across all pages, edge case scan of codebase (error handling, boundary conditions, race conditions), non-Playwright script checks (enforcer, watchdog, pre-commit), and final regression pass of entire suite. Full coverage report produced.",
@@ -3330,6 +3330,108 @@
           "action": "FINAL \u2014 Produce coverage summary. Cross-reference against issues.md. STOP for operator confirmation.",
           "status": "completed",
           "timestamp": "2026-04-01T00:00:00Z"
+        }
+      ],
+      "commitHash": "bc61f24"
+    },
+    {
+      "id": "T-007",
+      "category": "Testing",
+      "name": "Behavioral Gap Analysis",
+      "phase": "qa_resolve_loop",
+      "status": "in_progress",
+      "source": "Operator directive \u2014 governance-compliant behavioral gap analysis",
+      "causedBy": "testing",
+      "outcome": "Truthful, evidence-based picture of what would break if a real user used the system. Every gap recorded in issues.md. No fabricated coverage claims.",
+      "codebaseArea": [
+        "tests/agents/",
+        "tests/e2e/"
+      ],
+      "acceptanceCriteria": [
+        "T-007.AC1: Every domain analyzed at behavior level \u2014 not just ID matching",
+        "T-007.AC2: Gaps categorized as truly-covered, shallow, or missing-entirely",
+        "T-007.AC3: Every real gap recorded in issues.md with unique ID",
+        "T-007.AC4: Top 15 gaps ranked by real-user severity",
+        "T-007.AC5: Honest statement of what is confidently covered vs at risk",
+        "T-007.AC6: No application code modified, no tests written, no drift"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "DT",
+          "AU",
+          "IN"
+        ],
+        "testLevels": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "Without honest gap analysis, coverage numbers create false confidence. This sprint produces truth.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-006"
+      ],
+      "declaredFiles": [
+        "evidence/T-007/",
+        "issues.md"
+      ],
+      "issues": [],
+      "entryGates": [
+        "A1: MEMORY.md read \u2014 current state confirmed",
+        "A2: Worktree inspected \u2014 no unauthorized drift",
+        "A3: T-001 through T-006 committed"
+      ],
+      "exitGates": [
+        "B1: All domains analyzed at behavior level",
+        "B2: Gaps recorded in issues.md",
+        "B3: No drift introduced",
+        "B4: Coverage summary is evidence-based, not assumed"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-007/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Read MEMORY.md, inspect worktree, confirm no drift",
+          "status": "completed",
+          "timestamp": "2026-04-01T02:00:00Z"
+        },
+        {
+          "step": 1,
+          "action": "ANALYSIS \u2014 Read all 19 agent spec files at behavior level. Categorize each test as deep/shallow/existence-only.",
+          "status": "completed",
+          "timestamp": "2026-04-01T02:00:00Z"
+        },
+        {
+          "step": 2,
+          "action": "GAP IDENTIFICATION \u2014 For each domain identify: missing end-to-end workflows, shallow coverage, untested error paths, missing UI interactions.",
+          "status": "completed",
+          "timestamp": "2026-04-01T02:00:00Z"
+        },
+        {
+          "step": 3,
+          "action": "ISSUES \u2014 Record every real gap in issues.md with unique IDs.",
+          "status": "completed",
+          "timestamp": "2026-04-01T02:00:00Z"
+        },
+        {
+          "step": 4,
+          "action": "SUMMARY \u2014 Top 15 gaps, domain coverage summary, confident vs at-risk statement.",
+          "status": "completed",
+          "timestamp": "2026-04-01T02:00:00Z"
         }
       ]
     }
