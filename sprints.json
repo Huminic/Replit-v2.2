@@ -3628,7 +3628,7 @@
       "category": "Testing",
       "name": "VIN Pipeline Restoration + Code Fixes + Widget CORS",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "MVP Critical Flow Gap Analysis — code fixes required before E2E testing",
       "causedBy": "testing",
       "outcome": "VAPI→VIN lead creation re-enabled with correct per-dealer lead source names. I-202 TeamBox message display investigated and resolved. I-201 delta sync status confirmed. All code fixes verified.",
@@ -3692,7 +3692,7 @@
         "B3: Build passes",
         "B4: Lead backfill verified — correct dealer, correct source name, operator approved each lead"
       ],
-      "commit": null,
+      "commit": "29eb290",
       "evidence": "evidence/T-010a/",
       "executionSteps": [
         {
@@ -3744,7 +3744,7 @@
       "category": "Testing",
       "name": "Core App E2E — Auth, Chat, TeamBox Browser Tests",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "MVP Critical Flow Gap Analysis — browser E2E gaps",
       "causedBy": "testing",
       "outcome": "Core app browser E2E tests pass with mocked external services. Cleanup script removes test data after run.",
@@ -3798,32 +3798,32 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT — Confirm T-010a committed",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 1,
           "action": "EXECUTION — Write browser E2E tests for auth, chat, teambox",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 2,
           "action": "GHOST VERIFY — Tests are deep, not shallow",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 3,
           "action": "CLEANUP — Run test data cleanup script, verify no orphan data remains",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 4,
           "action": "VERIFICATION — Evidence written",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         }
       ]
     },
@@ -3832,7 +3832,7 @@
       "category": "Testing",
       "name": "Inbound Flows E2E — Widgets, Landing, VAPI→VIN, Tavus→VIN",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "MVP Critical Flow Gap Analysis — inbound flow gaps",
       "causedBy": "testing",
       "outcome": "Inbound flow browser E2E tests pass with mocked external services. Webhook tests simulate payloads. Cleanup script removes test data.",
@@ -3892,32 +3892,32 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT — Confirm T-010a committed, VIN pipeline active",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 1,
           "action": "EXECUTION — Write widget/landing browser E2E + VAPI/Tavus→VIN tests",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 2,
           "action": "GHOST VERIFY — Inbound funnel proven end-to-end",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 3,
           "action": "CLEANUP — Run test data cleanup script, verify no orphan data remains",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 4,
           "action": "VERIFICATION — Evidence written",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         }
       ]
     },
@@ -3926,7 +3926,7 @@
       "category": "Testing",
       "name": "Outbound + Data E2E — Campaigns, KPI Consistency, Sync",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "MVP Critical Flow Gap Analysis — outbound and data gaps",
       "causedBy": "testing",
       "outcome": "Outbound and data E2E tests pass with mocked external services. Campaign tests use CommGate (outboundEnabled=false) for safety. Cleanup script removes test data.",
@@ -3988,32 +3988,32 @@
         {
           "step": 0,
           "action": "PRE-FLIGHT — Confirm T-010a committed",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 1,
           "action": "EXECUTION — Write campaign delivery + data consistency tests",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 2,
           "action": "GHOST VERIFY — Outbound and data integrity proven",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 3,
           "action": "CLEANUP — Run test data cleanup script, verify no orphan data remains",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         },
         {
           "step": 4,
           "action": "VERIFICATION — Evidence written",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-01T07:53:14Z"
         }
       ]
     },

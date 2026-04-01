@@ -1,0 +1,16 @@
+[2026-04-01T07:53:05Z] agent-launch | role=orchestrator | task="T-010b E2E Tests" | scope=tests/e2e/t010b-core-app.spec.ts,playwright.config.ts,evidence/T-010b/
+[2026-04-01T07:53:21Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:53:58Z] CAPTAIN TOOL=Write step=? sprint=T-010b
+[2026-04-01T07:54:10Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:54:20Z] PRE-COMMIT role=orchestrator sprint=T-010b result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-04-01T07:54:30Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:54:37Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:54:58Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:55:08Z] CAPTAIN TOOL=Edit step=? sprint=T-010b
+[2026-04-01T07:55:19Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T07:55:29Z] PRE-COMMIT role=orchestrator sprint=T-010b result=BLOCKED detail="Pre-exec and post-sprint written -131s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
+[2026-04-01T07:55:37Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T08:00:55Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T08:01:02Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T08:01:11Z] CAPTAIN TOOL=Bash step=? sprint=T-010b
+[2026-04-01T08:01:45Z] PRE-COMMIT role=orchestrator sprint=T-010b result=PASS detail="All 7 gates passed"

@@ -94,7 +94,7 @@ export default defineConfig({
     },
     {
       name: "gap-coverage",
-      testMatch: /[gm]\d+-.*\.spec\.ts/,
+      testMatch: /[gmt]\d+\w*-.*\.spec\.ts/,
       use: {
         baseURL: process.env.BASE_URL || "http://localhost:5000",
         viewport: { width: 1280, height: 720 },
