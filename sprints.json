@@ -2,7 +2,7 @@
   "version": "8.0",
   "description": "V8: S-11 through S-18 reconciled (committed). Sprint naming aligned to GOVERNOR_REFERENCE.md \u00a75 (prefix=origin, dimensions=scope). S- prefix retired. New testing initiative: M-002, M-003, T-001 through T-006.",
   "date": "2026-03-31",
-  "totalSprints": 36,
+  "totalSprints": 38,
   "workOrder": [
     "U-001",
     "G-004",
@@ -3339,7 +3339,7 @@
       "category": "Testing",
       "name": "Behavioral Gap Analysis",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Operator directive \u2014 governance-compliant behavioral gap analysis",
       "causedBy": "testing",
       "outcome": "Truthful, evidence-based picture of what would break if a real user used the system. Every gap recorded in issues.md. No fabricated coverage claims.",
@@ -3432,6 +3432,189 @@
           "action": "SUMMARY \u2014 Top 15 gaps, domain coverage summary, confident vs at-risk statement.",
           "status": "completed",
           "timestamp": "2026-04-01T02:00:00Z"
+        }
+      ],
+      "commitHash": "31e4589"
+    },
+    {
+      "id": "T-008",
+      "category": "Testing",
+      "name": "Critical Behavior Stabilization",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "T-007 behavioral gap analysis \u2014 user-facing behavior gaps",
+      "causedBy": "testing",
+      "outcome": "The 5 highest-risk user-facing behaviors are tested at depth: message streaming renders in UI, session timeout warns before logout, campaign execution completes end-to-end, conversation takeover transitions correctly, API failures show error states. A real user hitting these paths would be protected by tests.",
+      "codebaseArea": [
+        "tests/agents/generated/",
+        "tests/e2e/"
+      ],
+      "acceptanceCriteria": [
+        "T-008.AC1: Chat streaming \u2014 test sends message AND verifies tokens render in browser (not just status 200)",
+        "T-008.AC2: Session timeout \u2014 test verifies warning dialog appears before auto-logout (or documents why infeasible with clear workaround)",
+        "T-008.AC3: Campaign execution \u2014 test creates campaign, triggers execution, verifies messages queued/sent",
+        "T-008.AC4: Conversation takeover \u2014 test covers AI responding \u2192 human takeover \u2192 AI stops \u2192 human replies",
+        "T-008.AC5: API error recovery \u2014 test intercepts failed API call, verifies UI shows error state or retry"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE"
+        ],
+        "testLevels": [
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "These are the 5 behaviors where a real user would hit a wall. Fixing test coverage here prevents the highest-probability failures.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-007"
+      ],
+      "declaredFiles": [
+        "tests/agents/generated/",
+        "evidence/T-008/"
+      ],
+      "issues": [
+        "I-203",
+        "I-204",
+        "I-205",
+        "I-206",
+        "I-207"
+      ],
+      "entryGates": [
+        "A1: T-007 committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: All 5 behaviors tested at user-facing depth",
+        "B2: Each test would FAIL if the behavior broke",
+        "B3: Evidence in evidence/T-008/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-008/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm T-007 committed. Confirm dev healthy.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Build tests for I-203 (streaming), I-204 (session timeout), I-205 (campaign execution), I-206 (takeover), I-207 (error recovery).",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY \u2014 Each test would fail if behavior broke. Not shallow.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION \u2014 Evidence written.",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "T-009",
+      "category": "Testing",
+      "name": "Coverage Hardening",
+      "phase": "qa_resolve_loop",
+      "status": "proposed",
+      "source": "T-007 behavioral gap analysis \u2014 follow-up coverage gaps",
+      "causedBy": "testing",
+      "outcome": "Remaining behavioral gaps hardened: settings persist across reload, webhook retry on failure, sales pipeline progression, concurrent write handling, data value correctness, widget cross-origin embed. Coverage moves from ~60% deep to ~80% deep.",
+      "codebaseArea": [
+        "tests/agents/generated/",
+        "tests/e2e/"
+      ],
+      "acceptanceCriteria": [
+        "T-009.AC1: Settings persistence \u2014 change setting, reload, verify it stuck",
+        "T-009.AC2: Webhook retry \u2014 simulate mid-processing failure, verify recovery or clean error",
+        "T-009.AC3: Pipeline progression \u2014 create lead, move through stages, verify metrics update",
+        "T-009.AC4: Concurrent writes \u2014 two users edit same record, verify no silent data loss",
+        "T-009.AC5: Data correctness \u2014 verify KPI numbers match actual DB counts (not just schema)",
+        "T-009.AC6: Widget embed \u2014 verify widget renders in cross-origin iframe context"
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3",
+          "S4"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "DT"
+        ],
+        "testLevels": [
+          "T3",
+          "T4",
+          "T5"
+        ]
+      },
+      "wholeProductFit": "Hardens the remaining gaps after critical behaviors are stabilized. Moves from good to confident.",
+      "parallelizable": false,
+      "dependsOn": [
+        "T-008"
+      ],
+      "declaredFiles": [
+        "tests/agents/generated/",
+        "evidence/T-009/"
+      ],
+      "issues": [
+        "I-208",
+        "I-209",
+        "I-210",
+        "I-211",
+        "I-212",
+        "I-213"
+      ],
+      "entryGates": [
+        "A1: T-008 committed",
+        "A2: dev.huminicdev.com healthy"
+      ],
+      "exitGates": [
+        "B1: All 6 coverage areas hardened with deep tests",
+        "B2: Evidence in evidence/T-009/"
+      ],
+      "commit": null,
+      "evidence": "evidence/T-009/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT \u2014 Confirm T-008 committed.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "EXECUTION \u2014 Build tests for I-208 through I-213.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "GHOST VERIFY \u2014 Each test is deep, not shallow.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "VERIFICATION \u2014 Evidence written. Final coverage reassessment.",
+          "status": "pending",
+          "timestamp": null
         }
       ]
     }

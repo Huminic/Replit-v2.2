@@ -1,4 +1,4 @@
-[2026-04-01T01:44:11Z] agent-launch | role=orchestrator | task="T-007 Behavioral Gap Analysis" | scope=evidence/T-007/,issues.md
+[2026-04-01T01:44:11Z] agent-launch | role=orchestrator | task="T-007 Behavioral Gap Analysis" | scope=evidence/T-007/,issues.md,PLAN.md,sprints.json
 [2026-04-01T01:44:11Z] step-0 | role=orchestrator | task="Pre-flight: MEMORY.md, worktree, no drift" | result=PASS
 [2026-04-01T01:50:00Z] step-1 | role=analyst | task="Read all 19 agent specs + 12 domain specs at behavior level" | result=COMPLETE
 [2026-04-01T01:55:00Z] step-2 | role=analyst | task="Gap identification per domain" | result=COMPLETE
@@ -8,3 +8,9 @@
 [2026-04-01T02:21:05Z] CAPTAIN TOOL=Edit step=? sprint=T-007
 [2026-04-01T02:21:16Z] CAPTAIN TOOL=Bash step=? sprint=T-007
 [2026-04-01T02:21:30Z] PRE-COMMIT role=orchestrator sprint=T-007 result=PASS detail="All 7 gates passed"
+[2026-04-01T02:22:04Z] CAPTAIN TOOL=Bash step=? sprint=T-007
+[2026-04-01T02:53:31Z] PRE-COMMIT role=governance sprint=T-007 result=BLOCKED detail="Staged files outside governance scope."
+[2026-04-01T02:53:46Z] PRE-COMMIT role=orchestrator sprint=T-007 result=BLOCKED detail="Enforcer checklist is stale (modified 1961s ago, max 1800s). Re-run the generator."
+[2026-04-01T02:54:23Z] PRE-COMMIT role=orchestrator sprint=T-007 result=BLOCKED detail="Enforcer checklist has BLOCKED result. Fix failures and re-run."
+[2026-04-01T02:55:18Z] PRE-COMMIT role=orchestrator sprint=T-007 result=BLOCKED detail="Cross-sign is stale (modified 3798s ago, max 1800s). Re-run the generator."
+[2026-04-01T02:55:54Z] PRE-COMMIT role=orchestrator sprint=T-007 result=PASS detail="All 7 gates passed"
