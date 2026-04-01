@@ -3744,7 +3744,7 @@
       "category": "Testing",
       "name": "Core App E2E — Auth, Chat, TeamBox Browser Tests",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "MVP Critical Flow Gap Analysis — browser E2E gaps",
       "causedBy": "testing",
       "outcome": "Core app browser E2E tests pass with mocked external services. Cleanup script removes test data after run.",
@@ -3792,7 +3792,7 @@
         "B1: All browser E2E tests pass",
         "B2: Evidence in evidence/T-010b/"
       ],
-      "commit": null,
+      "commit": "7e4fed9",
       "evidence": "evidence/T-010b/",
       "executionSteps": [
         {
