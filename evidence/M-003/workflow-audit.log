@@ -3,3 +3,6 @@
 [2026-03-31T07:26:11Z] PRE-COMMIT role=orchestrator sprint=M-003 result=BLOCKED detail="Pre-exec and post-sprint written 61s apart (minimum 300s / 5 minutes). Write the pre-exec FIRST, do the work, THEN write the post-sprint."
 [2026-03-31T07:26:30Z] PRE-COMMIT role=orchestrator sprint=M-003 result=BLOCKED detail="Enforcer checklist has a future timestamp. Clock manipulation detected."
 [2026-03-31T07:26:55Z] PRE-COMMIT role=orchestrator sprint=M-003 result=PASS detail="All 7 gates passed"
+[2026-04-02T07:22:38Z] PRE-COMMIT role=captain sprint=M-003 result=BLOCKED detail="Invalid COMMIT_ROLE='captain'. Valid: frontend backend test integration scribe enforcer architect orchestrator governance"
+[2026-04-02T07:22:52Z] PRE-COMMIT role=governance sprint=M-003 result=BLOCKED detail="Watchdog gate: Ack is 276 minutes old (max 60). Re-acknowledge."
+[2026-04-02T07:23:46Z] PRE-COMMIT role=governance sprint=M-003 result=PASS detail="All 7 gates passed"

@@ -3,24 +3,20 @@
 # Fires before every Bash, Edit, Write, Agent call
 #
 # Enforces:
-#   1. Session state freshness (blocks if >4 hours stale)
+#   1. Context freshness (advisory — warns if >4 hours stale)
 #   2. Sprint sequence (reads executionSteps from sprints.json, blocks if Ghost gate pending)
 #   3. Ghost messages (blocks if unacknowledged BLOCK directives)
 #   4. Audit logging (writes every tool call to workflow-audit.log)
 
 APP_DIR="/home/ubuntu/Claude-store/nexxus2.2_replit"
 MEMORY_DIR="$HOME/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory"
-SESSION_STATE="$MEMORY_DIR/session-state.md"
+CONTEXT_FILE="$MEMORY_DIR/context.md"
 SPRINTS_FILE="$APP_DIR/sprints.json"
 GHOST_MESSAGES="$APP_DIR/.governor/ghost/ghost_messages.json"
 MAX_STALE_SECONDS=14400  # 4 hours
 
-# Read tool input from stdin to check if we're updating session state
+# Read tool input from stdin
 STDIN_DATA=$(cat)
-IS_SESSION_UPDATE=0
-if echo "$STDIN_DATA" | grep -q "session-state.md" 2>/dev/null; then
-  IS_SESSION_UPDATE=1
-fi
 
 # Detect if this is a read-only operation (don't block reads)
 IS_READ_ONLY=0
@@ -32,36 +28,21 @@ esac
 echo "--- CONTEXT CHECK (automated hook) ---"
 
 # ═══════════════════════════════════════════════════════════════════
-# 1. Session state existence and freshness
+# 1. Context freshness (advisory — warns but does not block)
 # ═══════════════════════════════════════════════════════════════════
-if [ -f "$SESSION_STATE" ]; then
-  TASK=$(grep "Working On:\|Current:" "$SESSION_STATE" 2>/dev/null | head -1 | sed 's/.*: *//')
-  echo "Session: task='$TASK'"
-
+if [ -f "$CONTEXT_FILE" ]; then
   NOW_EPOCH=$(date +%s)
-  FILE_MTIME=$(stat -c %Y "$SESSION_STATE" 2>/dev/null || echo 0)
+  FILE_MTIME=$(stat -c %Y "$CONTEXT_FILE" 2>/dev/null || echo 0)
   AGE_SECONDS=$(( NOW_EPOCH - FILE_MTIME ))
   AGE_HOURS=$(( AGE_SECONDS / 3600 ))
 
   if [ "$AGE_SECONDS" -gt "$MAX_STALE_SECONDS" ]; then
-    if [ "$IS_SESSION_UPDATE" -eq 1 ]; then
-      echo "Session stale (${AGE_HOURS}h) but updating session-state.md — ALLOWED"
-    else
-      echo "BLOCKED: session-state.md is ${AGE_HOURS}h old (max $(( MAX_STALE_SECONDS / 3600 ))h). Update it before proceeding." >&2
-      echo "--- END CONTEXT CHECK ---"
-      exit 2
-    fi
+    echo "WARNING: context.md is ${AGE_HOURS}h old (threshold $(( MAX_STALE_SECONDS / 3600 ))h). Consider running /refresh-context."
   else
-    echo "Session freshness: ${AGE_HOURS}h old (OK)"
+    echo "Context freshness: ${AGE_HOURS}h old (OK)"
   fi
 else
-  if [ "$IS_SESSION_UPDATE" -eq 1 ]; then
-    echo "Session state missing but creating it — ALLOWED"
-  else
-    echo "BLOCKED: session-state.md does not exist. Create it before proceeding." >&2
-    echo "--- END CONTEXT CHECK ---"
-    exit 2
-  fi
+  echo "WARNING: context.md not found. Project may not be configured yet."
 fi
 
 # ═══════════════════════════════════════════════════════════════════
@@ -127,7 +108,7 @@ print(f'SPRINT:{sid}|STEP:{step_num}|ACTION:{action}|GHOST:{is_ghost}')
       STEP_NUM=$(echo "$SPRINT_INFO" | grep -oP 'STEP:\K[^|]+')
       ACTION=$(echo "$SPRINT_INFO" | grep -oP 'ACTION:\K[^|]+')
       echo "Sprint: $SPRINT_ID — Step $STEP_NUM: $ACTION (GHOST GATE)"
-      if [ "$IS_READ_ONLY" -eq 0 ] && [ "$IS_SESSION_UPDATE" -eq 0 ]; then
+      if [ "$IS_READ_ONLY" -eq 0 ]; then
         # Check if phase verification file exists for this step
         PHASE_FILE="$APP_DIR/evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md"
         if [ -f "$PHASE_FILE" ] && grep -q "PHASE VERIFIED" "$PHASE_FILE" 2>/dev/null; then
@@ -167,7 +148,7 @@ except:
     print('no')
 " 2>/dev/null)
         if [ "$PREV_IS_GHOST" = "yes" ] && [ ! -f "$PREV_PHASE_FILE" ]; then
-          if [ "$IS_READ_ONLY" -eq 0 ] && [ "$IS_SESSION_UPDATE" -eq 0 ]; then
+          if [ "$IS_READ_ONLY" -eq 0 ]; then
             echo "BLOCKED: Previous step $PREV_STEP was a Ghost gate but no phase-${PREV_STEP}-verification.md found." >&2
             echo "Dispatch Ghost to verify step $PREV_STEP before continuing." >&2
             echo "--- END CONTEXT CHECK ---"
