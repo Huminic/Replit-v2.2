@@ -307,6 +307,12 @@ async function seedProductionDatabase() {
 }
 
 export async function seedDatabase() {
+  if (process.env.SKIP_DEMO_SEED === 'true') {
+    console.log("SKIP_DEMO_SEED=true — skipping demo data seed, running production seed only.");
+    await seedProductionDatabase();
+    return;
+  }
+
   if (process.env.NODE_ENV === 'production') {
     await seedProductionDatabase();
     return;

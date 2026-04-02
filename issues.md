@@ -189,6 +189,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-125 | All popout/sub-menu links need functional verification (click-through test) | FE | NEEDS LIVE TEST | M |
+| I-225 | **Pre-commit hook Gate 1.9 blocks on ALL executionSteps, including infrastructure steps.** Hook requires every step to be `completed` before committing, but hybrid sprints (like I-001) have infrastructure steps (Coolify, Caddy, DNS) that happen AFTER the code commit. Creates circular dependency: code can't be pushed until committed, can't be committed until infra steps done, infra steps need the code pushed. **Fix:** Add `type` field to executionSteps (`code` vs `infrastructure`). Gate 1.9 should only gate on `type: "code"` steps. Infrastructure steps are operator-executed outside git. Found during I-001. | GOV | OPEN (next M-series) | E |
 
 ---
 

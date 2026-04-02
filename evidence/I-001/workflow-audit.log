@@ -1,0 +1,8 @@
+[2026-04-02T16:41:18Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Watchdog gate: Ack is 557 minutes old (max 60). Re-acknowledge."
+[2026-04-02T16:48:35Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Pre-execution report has a Declared Files section but no file paths listed."
+[2026-04-02T16:49:10Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Enforcer checklist not found: evidence/I-001/enforcer-checklist.txt. Run: ./scripts/enforcer-checklist.sh I-001"
+[2026-04-02T16:30:00Z] agent-launch role=builder sprint=I-001 scope=Dockerfile,server/seed.ts,issues.md
+[2026-04-02T16:51:29Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Cross-sign not found: evidence/I-001/cross-sign.md. A different role must review and create it."
+[2026-04-02T16:52:41Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Cross-sign implementing role (**orchestrator) does not match COMMIT_ROLE (orchestrator)."
+[2026-04-02T16:53:06Z] PRE-COMMIT role=orchestrator sprint=I-001 result=BLOCKED detail="Cross-sign reviewer role 'qa' is not valid. Valid: frontend backend test integration scribe enforcer architect orchestrator governance"
+[2026-04-02T16:53:30Z] PRE-COMMIT role=orchestrator sprint=I-001 result=PASS detail="All 7 gates passed"

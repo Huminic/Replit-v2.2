@@ -14,7 +14,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 RUN npm ci --omit=dev
+RUN npm install -g pm2
 
 EXPOSE 5000
 ENV NODE_ENV=production
-CMD ["node", "dist/index.cjs"]
+CMD ["pm2-runtime", "dist/index.cjs"]

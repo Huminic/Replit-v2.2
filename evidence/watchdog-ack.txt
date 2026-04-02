@@ -1,20 +1,17 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260401-080000
-Timestamp: 2026-04-01T08:00:00Z
-Sprint: A-001
+Acknowledged: WD-20260402-164125
+Timestamp: 2026-04-02T16:42:00Z
+Sprint: I-001
 Role: orchestrator
-Context: T-010b/c/d E2E browser tests. 13/13 passing. Ghost verified. Committing sequentially.
+Context: I-001 production cutover sprint. Code changes: Dockerfile (pm2-runtime), seed.ts (SKIP_DEMO_SEED). Two files only.
 
-Known violations — historical debt:
+Known violations — historical debt (unchanged from prior acks):
 - C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints.
 - C2 (missing evidence artifacts): Historical. Pre-harness sprints did not produce full evidence.
 - C3 (cross-signs): M-002/M-003 reconciliation. Historical.
 - C4 (checklists): M-002/M-003 reconciliation. Historical.
-- C7 (session state stale): Will update after commit.
+- C7 (session state stale): Two-file memory protocol — session-state.md replaced by context.md + session-output.md.
 - C10 (timestamp anomalies): Historical — pre-harness evidence was bulk-generated.
-- C14 (governance file changed): scripts/enforcer-checklist.sh committed in T-001 (8e119dc). Governance prompts have core values prepended (deferred).
-- C16 (drift detection): Historical null hashes. Governance prompt changes deferred.
-- C15 (memory staleness): MEMORY.md is in governor project, not nexxus.
-- C18 (M-003 retroactive): Documented reconciliation — intentional.
-- C17 (plan vs execution): Fixed — ## Declared Files added to T-010b/c/d pre-exec reports.
-- C19 (pre-exec quality): Fixed — ## Declared Files added, Success Criteria converted to bullet format for all T-010b/c/d pre-exec reports.
+- C14 (governance file changed): CLAUDE.md has unstaged changes from M-002 memory protocol addition.
+- C15 (memory staleness): MEMORY.md is deprecated under two-file protocol.
+- C16 (drift detection): Historical null hashes. Pre-harness sprints.
