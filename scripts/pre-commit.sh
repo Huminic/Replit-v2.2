@@ -175,11 +175,11 @@ if current_idx == 0:
     print('OK:First sprint, no predecessor')
     sys.exit(0)
 prev = sprints[current_idx - 1]
-if prev['status'] in ('committed', 'parked'):
-    label = 'committed' if prev['status'] == 'committed' else 'parked'
+if prev['status'] in ('committed', 'parked', 'retired'):
+    label = prev['status']
     print(f'OK:Previous {prev[\"id\"]} {label} ({prev.get(\"commitHash\",\"?\")})')
 else:
-    print(f'BLOCK:Previous sprint {prev[\"id\"]} status is \"{prev[\"status\"]}\", not \"committed\" or \"parked\"')
+    print(f'BLOCK:Previous sprint {prev[\"id\"]} status is \"{prev[\"status\"]}\", not \"committed\", \"parked\", or \"retired\"')
     sys.exit(1)
 " 2>/dev/null)
   CHAIN_EXIT=$?

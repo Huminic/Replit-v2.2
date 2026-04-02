@@ -2,7 +2,7 @@
   "version": "9.0",
   "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked.",
   "date": "2026-04-01",
-  "totalSprints": 44,
+  "totalSprints": 48,
   "workOrder": [
     "U-001",
     "G-004",
@@ -43,7 +43,11 @@
     "T-010b",
     "T-010c",
     "T-010d",
-    "T-010e"
+    "T-010e",
+    "A-001",
+    "I-001",
+    "I-002",
+    "I-003"
   ],
   "sprints": [
     {
@@ -3926,7 +3930,7 @@
       "category": "Testing",
       "name": "Outbound + Data E2E — Campaigns, KPI Consistency, Sync",
       "phase": "qa_resolve_loop",
-      "status": "in_progress",
+      "status": "committed",
       "source": "MVP Critical Flow Gap Analysis — outbound and data gaps",
       "causedBy": "testing",
       "outcome": "Outbound and data E2E tests pass with mocked external services. Campaign tests use CommGate (outboundEnabled=false) for safety. Cleanup script removes test data.",
@@ -3982,7 +3986,7 @@
         "B2: KPI consistency verified",
         "B3: Evidence in evidence/T-010d/"
       ],
-      "commit": null,
+      "commit": "42828fe",
       "evidence": "evidence/T-010d/",
       "executionSteps": [
         {
@@ -4020,23 +4024,27 @@
     {
       "id": "T-011",
       "category": "Infrastructure",
-      "name": "MVP Environment & Launch",
+      "name": "Production Environment — Coolify + Supabase + Caddy + Launch",
       "phase": "deploy",
-      "status": "parked",
+      "status": "retired",
       "source": "MVP launch readiness — production environment required",
       "causedBy": "infrastructure",
-      "outcome": "PARKED — Production deployment needs dedicated planning session. Not in current sprint run.",
+      "outcome": "RETIRED — overloaded, wrong DB assumption. Replaced by I-001 (production cutover), I-002 (staging + CI/CD), I-003 (schema governance + monitoring).",
       "codebaseArea": [
-        "server/",
-        "docker/",
-        ".github/"
+        "Dockerfile",
+        ".github/",
+        "server/seed.ts",
+        "evidence/T-011/"
       ],
       "acceptanceCriteria": [
-        "T-011.AC1: Production environment running on separate domain",
-        "T-011.AC2: Production database separated from dev",
-        "T-011.AC3: All 9 MVP flows verified on production",
-        "T-011.AC4: MCP services accessible from production",
-        "T-011.AC5: Deployment pipeline functional"
+        "T-011.AC1: New Supabase project created with separate DB. Migrations (0000-0003) applied. Connection string verified.",
+        "T-011.AC2: Docker image built with pm2-runtime entrypoint. Runs locally and passes health check.",
+        "T-011.AC3: Coolify application created for nexxus via MCP/API. Production .env configured in Coolify.",
+        "T-011.AC4: Container deployed via Coolify. Health check passes on container port.",
+        "T-011.AC5: Sysadmin repoints live.huminic.app Caddy entry to Coolify container. dev.huminicdev.com stays on PM2.",
+        "T-011.AC6: GitHub Actions secrets set (COOLIFY_WEBHOOK_URL, COOLIFY_API_TOKEN, APP_BASE_URL). Deploy webhook verified round-trip.",
+        "T-011.AC7: Seed script handles production boot (demo data skipped or cleaned).",
+        "T-011.AC8: All 9 MVP flows verified on live.huminic.app pointing to production DB (operator present for VIN verification)."
       ],
       "dimensions": {
         "layers": [
@@ -4057,37 +4065,91 @@
         "T-010d"
       ],
       "declaredFiles": [
+        "Dockerfile",
+        "ecosystem.config.cjs",
+        ".github/workflows/deploy.yml",
+        ".env.example",
+        "server/seed.ts",
         "evidence/T-011/"
       ],
       "issues": [
-        "I-200"
+        "I-200",
+        "I-215",
+        "I-216",
+        "I-217",
+        "I-218",
+        "I-219",
+        "I-220",
+        "I-222"
       ],
       "entryGates": [
-        "A1: T-010b/c/d committed",
-        "A2: All 9 flows passing on dev"
+        "A1: T-010a/b/c/d committed",
+        "A2: All 13 E2E tests passing on dev",
+        "A3: Supabase MCP access verified",
+        "A4: Coolify MCP access verified",
+        "A5: GitHub admin access verified"
       ],
       "exitGates": [
-        "B1: Production environment live",
-        "B2: All 9 flows verified on production"
+        "B1: live.huminic.app serves production container with separate DB",
+        "B2: dev.huminicdev.com unchanged (still PM2 localhost:5000)",
+        "B3: GitHub Actions deploy webhook triggers Coolify successfully",
+        "B4: All 9 MVP flows pass on production",
+        "B5: Operator verifies VIN lead routing on production"
       ],
       "commit": null,
       "evidence": "evidence/T-011/",
       "executionSteps": [
         {
           "step": 0,
-          "action": "PRE-FLIGHT — All T-010 sprints committed",
+          "action": "PRE-FLIGHT — Verify T-010a/b/c/d committed, MCP access (Supabase, Coolify), GitHub admin access, dev healthy",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 1,
-          "action": "EXECUTION — Build production environment, separate DB, deploy",
+          "action": "SUPABASE — Create new project via management API. Run 4 migrations. Verify schema. Get production connection string and API keys.",
           "status": "pending",
           "timestamp": null
         },
         {
           "step": 2,
-          "action": "VERIFICATION — All 9 flows verified on production",
+          "action": "DOCKER — Update Dockerfile entrypoint to pm2-runtime. Build image locally. Verify container starts and /api/health returns 200.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "SEED — Add SKIP_DEMO_SEED flag to seed.ts. Production .env sets SKIP_DEMO_SEED=true. Verify clean boot with no demo data.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "COOLIFY — Create nexxus application via MCP/API. Configure production .env vars (new DB URL, JWT_SECRET, API keys, SKIP_DEMO_SEED=true). Deploy container.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "CADDY — Use sysadmin tools to repoint live.huminic.app to Coolify container port. Verify dev.huminicdev.com still serves PM2.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 6,
+          "action": "GITHUB — Set secrets via gh CLI (COOLIFY_WEBHOOK_URL, COOLIFY_API_TOKEN, APP_BASE_URL). Trigger test deploy. Verify webhook round-trip.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 7,
+          "action": "VERIFY — All 9 MVP flows on live.huminic.app. Operator present for VIN single-record verification per dealer.",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 8,
+          "action": "GHOST VERIFY — Production environment confirmed separate from dev. All gates pass.",
           "status": "pending",
           "timestamp": null
         }
@@ -4098,10 +4160,10 @@
       "category": "Testing",
       "name": "Live Data Verification — Real Services, Operator Present",
       "phase": "qa_resolve_loop",
-      "status": "proposed",
+      "status": "retired",
       "source": "Operator directive — re-run critical flows with live data after mocked tests pass",
       "causedBy": "testing",
-      "outcome": "All 9 MVP critical flows verified with real external services. Operator present for live run.",
+      "outcome": "RETIRED — environment premise invalid. dev.huminicdev.com is production-adjacent, not a safe dev environment. Live verification folded into I-001 step W7.",
       "codebaseArea": [
         "tests/"
       ],
@@ -4206,6 +4268,415 @@
         {
           "step": 8,
           "action": "GHOST VERIFY — Evidence written, all flows proven",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "A-001",
+      "category": "Architecture",
+      "name": "MVP Launch Architecture — Decisions + Operating Model",
+      "phase": "deploy",
+      "status": "in_progress",
+      "source": "Architect review — environment model, operating lifecycle, sprint restructure",
+      "causedBy": "architecture",
+      "outcome": "Binding architecture decisions, governance artifacts, successor execution sprint definitions.",
+      "codebaseArea": [
+        "GOVERNOR_REFERENCE.md",
+        "PLAN.md",
+        "issues.md",
+        "sprints.json"
+      ],
+      "acceptanceCriteria": [
+        "A-001.AC1: Environment Architecture section in GOVERNOR_REFERENCE.md with 5 required properties",
+        "A-001.AC2: Post-Launch Change Lifecycle section with code/schema/config/data rules",
+        "A-001.AC3: Migration Governance section with approval/backup/rollback",
+        "A-001.AC4: Configuration Classification table (7+ categories)",
+        "A-001.AC5: T-010e retired",
+        "A-001.AC6: Successor execution sprints fully defined with Sprint Definition Format",
+        "A-001.AC7: I-215-I-224 reassigned to successor sprints",
+        "A-001.AC8: PLAN.md Wave 8 updated",
+        "A-001.AC9: Decision register with all decisions documented"
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T5"
+        ]
+      },
+      "parallelizable": false,
+      "dependsOn": [
+        "T-010d"
+      ],
+      "declaredFiles": [
+        "GOVERNOR_REFERENCE.md",
+        "PLAN.md",
+        "issues.md",
+        "sprints.json",
+        "evidence/A-001/"
+      ],
+      "issues": [
+        "I-200",
+        "I-215",
+        "I-216",
+        "I-217",
+        "I-218",
+        "I-219",
+        "I-220",
+        "I-221",
+        "I-222",
+        "I-223",
+        "I-224"
+      ],
+      "entryGates": [
+        "A1: T-010a/b/c/d committed",
+        "A2: Infrastructure investigation complete",
+        "A3: Architect review received and analyzed",
+        "A4: Sprint/Post-Sprint formats in GOVERNOR_REFERENCE.md",
+        "A5: Sysadmin Caddy repoint capability verified (W1)"
+      ],
+      "exitGates": [
+        "B1: GOVERNOR_REFERENCE.md contains all 4 new sections",
+        "B2: Decision register complete — no TBD entries",
+        "B3: Successor sprints individually scoped with Sprint Definition Format",
+        "B4: No orphan issues",
+        "B5: Operator approved architecture decisions and sprint package"
+      ],
+      "commit": null,
+      "evidence": "evidence/A-001/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT — Verify entry gates",
+          "status": "completed",
+          "timestamp": "2026-04-02T00:00:00Z"
+        },
+        {
+          "step": 1,
+          "action": "W1 — Capability verification (sysadmin, Coolify app creation, Supabase project creation, migration path)",
+          "status": "completed",
+          "timestamp": "2026-04-02T02:00:00Z"
+        },
+        {
+          "step": 2,
+          "action": "W2-W5 — Write governance sections (Environment Architecture, Change Lifecycle, Migration Governance, Config Classification)",
+          "status": "completed",
+          "timestamp": "2026-04-02T02:30:00Z"
+        },
+        {
+          "step": 3,
+          "action": "W6 — Create decision register",
+          "status": "completed",
+          "timestamp": "2026-04-02T02:30:00Z"
+        },
+        {
+          "step": 4,
+          "action": "W7-W9 — Retire T-010e, define successor sprints, reassign issues, update PLAN.md",
+          "status": "completed",
+          "timestamp": "2026-04-02T02:45:00Z"
+        },
+        {
+          "step": 5,
+          "action": "GHOST VERIFY — All ACs met, no TBD entries, sprints individually scoped",
+          "status": "completed",
+          "timestamp": "2026-04-02T03:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "I-001",
+      "category": "Infrastructure",
+      "name": "Production Cutover — Coolify Container + Caddy Repoint",
+      "phase": "deploy",
+      "status": "proposed",
+      "source": "A-001 architecture sprint — successor to T-011",
+      "causedBy": "infrastructure",
+      "outcome": "Production runs in Coolify-managed container. live.huminic.app repointed via sysadmin. 9 MVP flows verified.",
+      "codebaseArea": [
+        "Dockerfile",
+        "server/seed.ts"
+      ],
+      "acceptanceCriteria": [
+        "I-001.AC1: Dockerfile uses pm2-runtime. Image builds and passes health check.",
+        "I-001.AC2: SKIP_DEMO_SEED=true prevents demo data on fresh boot.",
+        "I-001.AC3: Coolify application exists with production env vars.",
+        "I-001.AC4: Container deployed, health check passes.",
+        "I-001.AC5: Caddy repointed: live→container, dev→PM2.",
+        "I-001.AC6: Both domains serve different processes (verified).",
+        "I-001.AC7: All 9 MVP flows verified on production."
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T5"
+        ]
+      },
+      "parallelizable": false,
+      "dependsOn": [
+        "A-001"
+      ],
+      "declaredFiles": [
+        "Dockerfile",
+        "server/seed.ts",
+        "evidence/I-001/"
+      ],
+      "issues": [
+        "I-200",
+        "I-215",
+        "I-217",
+        "I-220",
+        "I-222",
+        "I-201"
+      ],
+      "entryGates": [
+        "A1: A-001 committed",
+        "A2: Coolify API access verified",
+        "A3: Sysadmin Caddy access confirmed"
+      ],
+      "exitGates": [
+        "B1: live.huminic.app serves container",
+        "B2: dev.huminicdev.com unchanged",
+        "B3: All 9 flows pass",
+        "B4: Rollback path documented"
+      ],
+      "commit": null,
+      "evidence": "evidence/I-001/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "Update Dockerfile + seed.ts",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "Build and test Docker image locally",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "Create Coolify app, configure env vars, deploy",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "Sysadmin repoint Caddy",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "Verify both domains, 9 flows, VIN per dealer",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 6,
+          "action": "GHOST VERIFY",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "I-002",
+      "category": "Infrastructure",
+      "name": "Staging Isolation + CI/CD Pipeline",
+      "phase": "deploy",
+      "status": "proposed",
+      "source": "A-001 architecture sprint — successor to T-011",
+      "causedBy": "infrastructure",
+      "outcome": "Staging has separate DB with outbound disabled. GitHub Actions deploys production via Coolify webhook.",
+      "codebaseArea": [
+        ".github/workflows/deploy.yml",
+        ".env"
+      ],
+      "acceptanceCriteria": [
+        "I-002.AC1: Staging Supabase project exists, schema applied.",
+        "I-002.AC2: dev.huminicdev.com serves from staging DB (different data).",
+        "I-002.AC3: Staging outbound disabled.",
+        "I-002.AC4: GitHub Secrets configured.",
+        "I-002.AC5: Push to main triggers Coolify redeploy end-to-end.",
+        "I-002.AC6: deploy.yml fails on webhook error (no silent swallowing)."
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T5"
+        ]
+      },
+      "parallelizable": false,
+      "dependsOn": [
+        "I-001"
+      ],
+      "declaredFiles": [
+        ".github/workflows/deploy.yml",
+        "evidence/I-002/"
+      ],
+      "issues": [
+        "I-216",
+        "I-218",
+        "I-219"
+      ],
+      "entryGates": [
+        "A1: I-001 committed",
+        "A2: Supabase management API access verified"
+      ],
+      "exitGates": [
+        "B1: Staging DB separate from production",
+        "B2: CI/CD works end-to-end",
+        "B3: No silent failures in deploy.yml"
+      ],
+      "commit": null,
+      "evidence": "evidence/I-002/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "Create staging Supabase project, apply schema",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "Update PM2 .env to staging DB, restart, verify",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "Set GitHub Secrets, fix deploy.yml, test webhook",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "GHOST VERIFY",
+          "status": "pending",
+          "timestamp": null
+        }
+      ]
+    },
+    {
+      "id": "I-003",
+      "category": "Infrastructure",
+      "name": "Schema Governance + Monitoring Baseline",
+      "phase": "deploy",
+      "status": "proposed",
+      "source": "A-001 architecture sprint — successor to T-011",
+      "causedBy": "infrastructure",
+      "outcome": "Backup script, schema push script, rollback procedure, health monitoring, migration runbook.",
+      "codebaseArea": [
+        "scripts/",
+        "docs/"
+      ],
+      "acceptanceCriteria": [
+        "I-003.AC1: Backup script produces valid pg_dump from production.",
+        "I-003.AC2: Schema push script has mandatory backup-before-push.",
+        "I-003.AC3: Rollback procedure documented and tested on staging.",
+        "I-003.AC4: Health monitoring active for production.",
+        "I-003.AC5: Migration runbook exists."
+      ],
+      "dimensions": {
+        "layers": [
+          "S6"
+        ],
+        "featureDims": [
+          "IN"
+        ],
+        "testLevels": [
+          "T5"
+        ]
+      },
+      "parallelizable": false,
+      "dependsOn": [
+        "I-002"
+      ],
+      "declaredFiles": [
+        "scripts/db-backup.sh",
+        "scripts/db-push-production.sh",
+        "docs/migration-runbook.md",
+        "evidence/I-003/"
+      ],
+      "issues": [
+        "I-223",
+        "I-224"
+      ],
+      "entryGates": [
+        "A1: I-002 committed",
+        "A2: Both environments operational"
+      ],
+      "exitGates": [
+        "B1: Backup tested",
+        "B2: Rollback tested on staging",
+        "B3: Monitoring active",
+        "B4: Runbook complete"
+      ],
+      "commit": null,
+      "evidence": "evidence/I-003/",
+      "executionSteps": [
+        {
+          "step": 0,
+          "action": "PRE-FLIGHT",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 1,
+          "action": "Create backup + push scripts",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 2,
+          "action": "Test backup, test rollback on staging",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 3,
+          "action": "Set up health monitoring",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 4,
+          "action": "Write migration runbook",
+          "status": "pending",
+          "timestamp": null
+        },
+        {
+          "step": 5,
+          "action": "GHOST VERIFY",
           "status": "pending",
           "timestamp": null
         }

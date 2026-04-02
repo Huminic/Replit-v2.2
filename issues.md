@@ -107,8 +107,8 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
-| I-105 | FlexPrice integration — all endpoints return `{configured: false}`. Needs billingCustomerId per org. | BE, IN | OPEN | M |
-| I-171 | 26 billing UI states with no functional coverage | FE | NEEDS LIVE TEST | H |
+| I-105 | **FlexPrice is dead — replace with Lago (post-MVP).** FlexPrice returns `{configured: false}` on all endpoints. No longer the billing provider. Lago is running locally via Coolify (6 Docker containers). **Scrub:** remove FlexPrice from `server/services/billingService.ts`, `server/index.ts`, `client/src/pages/management.tsx`, `.env`/`.env.example`, 81 files total. **Build:** Lago connector, wire billing UI to Lago API. Not blocking MVP launch. | BE, FE, IN | BACKLOGGED (BL-096) | H |
+| I-171 | 26 billing UI states with no functional coverage — wired to dead FlexPrice, will need rewire to Lago (I-105) | FE | BACKLOGGED (BL-096) | H |
 
 ---
 
@@ -161,8 +161,18 @@ No open issues. I-164 verified working in S8 walkthrough.
 | I-197 | 8 sprint test files (s0-s8) hardcode `dev.huminicdev.com` instead of using `process.env.BASE_URL` | IN | OPEN | E |
 | I-198 | Dead test helpers: tests/helpers/api.ts and tests/helpers/factory.ts — zero imports from any active test | IN | OPEN | E |
 | I-199 | verify-all.ts hardcodes FQDN and uses own login logic instead of shared helpers | IN | OPEN | E |
-| I-200 | No production environment — live.huminic.app and dev.huminicdev.com both serve same PM2 process, same DB. GitHub Actions has zero secrets, Coolify webhook goes nowhere. Dockerfile/docker-compose.yml exist but were never deployed. | IN | OPEN | H |
-| I-201 | **Investigated (T-010a).** Delta sync scheduler runs but has never succeeded. Only 2 log entries: both failed backfills for Huminic org (no VIN integration). Delta fires at 2 AM ET via setInterval with no retry on failure. Non-VIN orgs fail silently. No evidence delta has run for VIN-enabled dealers. Scheduler confirmed running post-restart. **Needs:** skip non-VIN orgs gracefully, add monitoring/alerting, verify next 2 AM run succeeds. | BE | OPEN | M |
+| I-200 | **No production environment — comprehensive investigation (T-010a session).** live.huminic.app and dev.huminicdev.com both hit the same PM2 process (localhost:5000), same .env, same Supabase DB. See I-215 through I-224 for the full breakdown. | IN | IN SPRINT (I-001) | H |
+| I-215 | **Coolify application never created for nexxus.** Coolify is running (v4.0.0-beta.464) with working API token (`central-mcp` token). MCP connector exists on port 4002 with full CRUD allowlisted. But the `applications` table is empty for nexxus — no app was ever registered. The deploy.yml webhook fires into the void. **Fix:** Create Coolify application for nexxus, configure GitHub source, set build/deploy settings. | IN | IN SPRINT (I-001) | M |
+| I-216 | **GitHub Actions deploy.yml fires a dead webhook.** deploy.yml calls `${{ secrets.COOLIFY_WEBHOOK_URL }}` with `${{ secrets.COOLIFY_API_TOKEN }}` after build+test. Failure is silently eaten: `\|\| echo "Coolify webhook sent (may be async)"`. Since no Coolify app exists (I-215), the webhook has no target. **Fix:** After Coolify app is created, configure webhook URL in GitHub Secrets. Verify round-trip. | IN | IN SPRINT (I-002) | M |
+| I-217 | **Dockerfile never built.** Multi-stage Dockerfile exists and is well-written (Node 20-alpine, builder→runner). `.dockerignore` exists. `docker-compose.yml` exists. But zero Docker images for nexxus on the server (`docker images \| grep nexxus` = empty). Container has never been built or run. **Fix:** Build image, verify it runs, configure Coolify to use it. Add `pm2-runtime` as entrypoint instead of bare `node`. | IN | IN SPRINT (I-001) | M |
+| I-218 | **No separate production database.** Single Supabase instance (`aws-0-us-west-2.pooler.supabase.com`) serves both dev and live. Test data (527 orphan conversations, seed demo data) co-mingled with real customer data. **Fix:** Create separate Supabase project for STAGING (production DB stays as-is per D-001). Apply schema via drizzle-kit push (migration files are stale per W1 finding). Configure staging .env with OUTBOUND_LIVE_ENABLED=false. | IN, DT | IN SPRINT (I-002) | H |
+| I-219 | **No production .env file.** Single .env file with `NODE_ENV=development` (overridden by PM2 config). Contains dev API keys shared between both domains. **Fix:** Create `.env.production` with: separate JWT_SECRET, separate ADMIN credentials, production DATABASE_URL, and evaluate which API keys need separate production accounts (Resend, TextMagic, Supabase at minimum). | IN | IN SPRINT (I-002) | M |
+| I-220 | **Caddy routes both domains to same port — repoint via sysadmin.** `live.huminic.app` → localhost:5000 and `dev.huminicdev.com` → localhost:5000 in Caddy config. No environment separation. **Fix:** After Coolify deploys the production container on its own port, use sysadmin tools (not direct Caddyfile edit) to repoint `live.huminic.app` to the Coolify container port. `dev.huminicdev.com` stays on PM2 localhost:5000. Caddy config is auto-generated — all changes go through `~/Claude-store/sysadmin/` per infrastructure governance. | IN | IN SPRINT (I-001) | M |
+| I-221 | **Coolify Traefik proxy is in "exited" state.** Coolify has its own Traefik proxy for routing, but it's not running. This may need to be started for Coolify-managed deployments to get domain routing, or we use Caddy for routing and Coolify only for container management. **Investigate:** determine if Traefik needs to be running or if Caddy handles all routing. | IN | CLOSED (A-001) — Traefik stays off per D-006. Caddy is sole proxy. | M |
+| I-222 | **Seed script auto-runs demo data on boot.** `server/seed.ts` creates Serra Honda demo org, test users with hardcoded passwords (`NexxusTest2026`), sample widgets. Runs automatically via `seedDatabase()` in `server/index.ts`. Production first boot will have demo data visible to real users. **Decision needed:** Add `SKIP_DEMO_SEED=true` env flag, or clean up after first boot, or accept demo data. | BE, IN | IN SPRINT (I-001) | E |
+| I-223 | **No database migration automation.** 4 Drizzle migration files exist in `migrations/` but the deploy pipeline has no migration step. Migrations run implicitly via Drizzle on app start (or don't — needs verification). No rollback scripts exist (Drizzle migrations are one-way). **Fix:** Add explicit migration step to deploy pipeline. Create rollback SQL for critical migrations. Test migration against clean DB. | DT, IN | IN SPRINT (I-003) | M |
+| I-224 | **No monitoring, alerting, or rollback for production.** Zero error tracking (no Sentry/etc), no uptime monitoring, no sync failure alerts (I-201 failures are invisible). No documented rollback procedure. Single PM2 process = restart = downtime. **Fix:** Add health check monitoring, error tracking, and document rollback procedure (at minimum: `pm2 deploy revert` or Docker image rollback via Coolify). | IN | IN SPRINT (I-003) | H |
+| I-201 | **Investigated (T-010a). Verify in container (I-001).** Delta sync scheduler runs but has never succeeded. Only 2 log entries: both failed backfills for Huminic org (no VIN integration). Delta fires at 2 AM ET via setInterval with no retry on failure. Non-VIN orgs fail silently. **Must verify delta sync works inside Coolify container** — scheduler depends on MCP connectivity and setInterval persistence. | BE | IN SPRINT (I-001) | M |
 
 ---
 
@@ -187,11 +197,15 @@ No open issues. I-164 verified working in S8 walkthrough.
 | Status | Count |
 |--------|-------|
 | OPEN | 15 |
+| IN SPRINT (I-001) | 5 |
+| IN SPRINT (I-002) | 3 |
+| IN SPRINT (I-003) | 2 |
+| CLOSED (A-001) | 1 |
 | CLOSED (T-010a) | 3 |
 | NEEDS LIVE TEST | 8 |
 | BACKLOGGED | 5 |
 | BEHAVIORAL GAPS (T-007) | 11 |
-| **Total active (non-backlogged)** | **34** |
+| **Total active (non-backlogged)** | **45** |
 
 ---
 

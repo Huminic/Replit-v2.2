@@ -31,10 +31,15 @@ Testing initiative (T-001–T-007) finished. 16 domain plans, 1,305 test cases d
 
 Fix code blockers, widget CORS, and write E2E tests proving the 9 launch-critical flows work. T-010a (VIN pipeline + widget CORS + code fixes), then T-010b/c/d in parallel (browser E2E with mocked external services), then T-010e (live data verification with operator present).
 
-## Wave 8 — Production Environment & Launch
+## Wave 8 — Production Cutover & Environment Separation
 **Status:** Not Started
 
-Build production environment with separate database. Deploy. Verify all 9 flows on production. (T-011 — parked, needs dedicated planning session.)
+Three sequential sprints replacing retired T-011:
+- **I-001:** Production cutover — Coolify container + Caddy repoint. Current DB stays as production. live.huminic.app → container.
+- **I-002:** Staging isolation — new Supabase project for staging, PM2 stays on dev.huminicdev.com, CI/CD pipeline wired.
+- **I-003:** Schema governance + monitoring — backup scripts, rollback procedure, health monitoring, migration runbook.
+
+Architecture decisions documented in A-001 decision register (evidence/A-001/decision-register.md) and GOVERNOR_REFERENCE.md §12-15.
 
 ## Wave 9 — MVP User Testing
 **Status:** Not Started

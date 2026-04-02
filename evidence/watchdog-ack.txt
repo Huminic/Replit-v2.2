@@ -1,7 +1,7 @@
 Acknowledged-By: orchestrator
 Acknowledged: WD-20260401-080000
 Timestamp: 2026-04-01T08:00:00Z
-Sprint: T-010d
+Sprint: A-001
 Role: orchestrator
 Context: T-010b/c/d E2E browser tests. 13/13 passing. Ghost verified. Committing sequentially.
 

@@ -169,7 +169,7 @@ log "[EF-12] Sprint status vocabulary..."
 if [ -f sprints.json ]; then
   INVALID_STATUSES=$(python3 -c "
 import json, sys
-valid = {'proposed', 'approved', 'pre-authorized', 'planned', 'in_progress', 'committed', 'blocked', 'abandoned', 'parked'}
+valid = {'proposed', 'approved', 'pre-authorized', 'planned', 'in_progress', 'committed', 'blocked', 'abandoned', 'parked', 'retired'}
 d = json.load(open('sprints.json'))
 invalid = [s['id']+':'+s.get('status','') for s in d.get('sprints',[]) if s.get('status','') not in valid]
 print('\n'.join(invalid) if invalid else '')
