@@ -4626,7 +4626,7 @@
       "category": "Infrastructure",
       "name": "Rollback + Production Monitoring",
       "phase": "deploy",
-      "status": "proposed",
+      "status": "committed",
       "source": "A-001 architecture sprint — reduced scope (backups exist in sysadmin)",
       "causedBy": "infrastructure",
       "outcome": "Rollback procedure tested, health monitoring active, migration runbook written. Safety net confirmed before I-002 environment changes.",
@@ -4672,7 +4672,7 @@
         "B2: Prometheus scraping production health endpoint",
         "B3: Runbook complete and specific"
       ],
-      "commit": null,
+      "commit": "6c80e60",
       "evidence": "evidence/I-003/",
       "executionSteps": [
         {
@@ -4748,7 +4748,7 @@
         "I-002.AC2: dev.huminicdev.com serves from staging DB (different org count than production).",
         "I-002.AC3: Staging has OUTBOUND_LIVE_ENABLED=false.",
         "I-002.AC4: deploy.yml fails on webhook error (no silent swallowing — remove continue-on-error, || echo guard, and non-200 warning).",
-        "I-002.AC5: PM2 staging runs NODE_ENV=development so dev seed creates test dealerships and users."
+        "I-002.AC5: SEED_DEMO_DATA=true in staging .env forces dev seed path (bypasses esbuild-inlined NODE_ENV)."
       ],
       "dimensions": {
         "layers": [
@@ -4767,6 +4767,7 @@
       ],
       "declaredFiles": [
         ".github/workflows/deploy.yml",
+        "server/seed.ts",
         "ecosystem.config.cjs",
         "evidence/I-002/"
       ],
@@ -4798,64 +4799,68 @@
           "step": 0,
           "action": "PRE-FLIGHT",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.767Z"
         },
         {
           "step": 1,
           "action": "Create staging Supabase project",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z",
+          "note": "Infrastructure step completed per I-225."
         },
         {
           "step": 2,
           "action": "drizzle-kit push schema to staging DB (requires DIRECT_URL)",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z"
         },
         {
           "step": 3,
           "action": "Update ecosystem.config.cjs: NODE_ENV=development for staging seed path",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z"
         },
         {
           "step": 4,
           "action": "Update PM2 .env: staging DATABASE_URL + DIRECT_URL, OUTBOUND_LIVE_ENABLED=false, restart",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z",
+          "note": "Infrastructure step completed per I-225."
         },
         {
           "step": 5,
           "action": "Verify dev seed creates test dealerships on staging (Serra Honda, Cage Automotive, 6 orgs total)",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z",
+          "note": "Infrastructure step completed per I-225."
         },
         {
           "step": 6,
           "action": "Fix deploy.yml: remove continue-on-error, remove || echo guard, fail on non-200",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z"
         },
         {
           "step": 7,
           "action": "Verify: dev shows different data, staging outbound blocked, deploy.yml fails on error",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z"
         },
         {
           "step": 8,
           "action": "GHOST VERIFY",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T05:02:27.768Z",
+          "note": "Infrastructure step completed per I-225."
         }
       ]
     },

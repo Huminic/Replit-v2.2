@@ -47,7 +47,6 @@ jobs:
 
       - name: Run tests
         run: BASE_URL=https://live.huminic.app npx playwright test tests/e2e/domain-12-infrastructure.spec.ts --reporter=list
-        continue-on-error: true
 
   deploy:
     needs: build-and-test
@@ -57,12 +56,17 @@ jobs:
     steps:
       - name: Trigger Coolify deployment
         run: |
-          curl -s -X POST \
+          RESPONSE=$(curl -s -o /tmp/coolify-response.txt -w '%{http_code}' -X POST \
             "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --max-time 30 \
-            || echo "Coolify webhook sent (may be async)"
+            --max-time 30)
+          echo "Coolify webhook response: $RESPONSE"
+          if [ "$RESPONSE" -lt 200 ] || [ "$RESPONSE" -ge 300 ]; then
+            echo "ERROR: Coolify webhook failed with status $RESPONSE"
+            cat /tmp/coolify-response.txt
+            exit 1
+          fi
 
       - name: Verify deployment
         run: |
@@ -71,5 +75,6 @@ jobs:
           STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${{ secrets.APP_BASE_URL }}/" || echo "000")
           echo "Production status: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "WARNING: Production returned $STATUS (may still be deploying)"
+            echo "ERROR: Production returned $STATUS after deploy"
+            exit 1
           fi

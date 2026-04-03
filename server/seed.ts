@@ -313,7 +313,9 @@ export async function seedDatabase() {
     return;
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.SEED_DEMO_DATA === 'true') {
+    console.log("SEED_DEMO_DATA=true — forcing demo data seed path for staging.");
+  } else if (process.env.NODE_ENV === 'production') {
     await seedProductionDatabase();
     return;
   }
