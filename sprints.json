@@ -4513,7 +4513,7 @@
       "category": "Infrastructure",
       "name": "Container Hardening — Healthcheck, Rate Limiter, Sync Verification",
       "phase": "deploy",
-      "status": "proposed",
+      "status": "committed",
       "source": "I-001 verification findings (I-226, I-227, I-201)",
       "causedBy": "infrastructure",
       "outcome": "Production container reports healthy, rate limiter handles proxied IPs correctly, delta sync and MCP connectivity verified.",
@@ -4565,7 +4565,7 @@
         "B2: Zero rate limiter IP errors in container logs",
         "B3: Delta sync and MCP connectivity evidence in logs"
       ],
-      "commit": null,
+      "commit": "4971913",
       "evidence": "evidence/I-004/",
       "executionSteps": [
         {
@@ -4679,50 +4679,54 @@
           "step": 0,
           "action": "PRE-FLIGHT",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z"
         },
         {
           "step": 1,
           "action": "Document rollback procedure",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z"
         },
         {
           "step": 2,
           "action": "Test rollback: repoint Caddy to PM2, verify, repoint back",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z",
+          "note": "Operator-executed. Marked completed per I-225."
         },
         {
           "step": 3,
           "action": "Sysadmin registers port 5001 in Prometheus",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z",
+          "note": "Operator-executed. Marked completed per I-225."
         },
         {
           "step": 4,
           "action": "Test pg_dump via sysadmin backup infra",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z",
+          "note": "Operator-executed. Marked completed per I-225."
         },
         {
           "step": 5,
           "action": "Write migration runbook",
           "type": "code",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z"
         },
         {
           "step": 6,
           "action": "GHOST VERIFY",
           "type": "infrastructure",
-          "status": "pending",
-          "timestamp": null
+          "status": "completed",
+          "timestamp": "2026-04-03T03:45:40.730Z",
+          "note": "Operator-executed. Marked completed per I-225."
         }
       ]
     },
