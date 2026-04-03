@@ -20,6 +20,10 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many attempts, please try again later' },
+  keyGenerator: (req) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return ip.replace(/:\d+$/, '');
+  },
 });
 
 function escapeHtml(str: string): string {

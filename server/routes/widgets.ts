@@ -5,7 +5,17 @@ import { storage } from "../storage";
 import { insertWidgetSchema, updateWidgetSchema } from "@shared/schema";
 import { requireEntitlement } from "../middleware/entitlementCheck";
 
-const widgetLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false, message: { error: 'Rate limit exceeded' } });
+const widgetLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Rate limit exceeded' },
+  keyGenerator: (req) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return ip.replace(/:\d+$/, '');
+  },
+});
 
 export function registerWidgetRoutes(app: Express) {
   // CORS preflight for cross-origin widget calls

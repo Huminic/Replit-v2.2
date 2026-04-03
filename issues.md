@@ -189,6 +189,8 @@ No open issues. I-164 verified working in S8 walkthrough.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-125 | All popout/sub-menu links need functional verification (click-through test) | FE | NEEDS LIVE TEST | M |
+| I-226 | **Container Docker healthcheck misconfigured.** Alpine image doesn't have `curl` installed. Healthcheck fails (`/bin/sh: curl: not found`), container reports "unhealthy" despite app working. Fix: add `RUN apk add --no-cache curl` to Dockerfile runner stage, or switch healthcheck to `wget --spider http://localhost:5000/api/health`. Found during I-001 verification. | IN | OPEN | E |
+| I-227 | **Rate limiter IP parsing warning.** Container logs `ERR_ERL_INVALID_IP_ADDRESS` for IPs with port appended (e.g. `150.136.6.207:54874`). Caddy's `X-Forwarded-For` passes IP:port. Fix: custom `keyGenerator` in rate limiter to strip port, or adjust Caddy header. Non-blocking — rate limiting works, just logs warnings. Found during I-001 verification. | BE | OPEN | E |
 | I-225 | **Pre-commit hook Gate 1.9 blocks on ALL executionSteps, including infrastructure steps.** Hook requires every step to be `completed` before committing, but hybrid sprints (like I-001) have infrastructure steps (Coolify, Caddy, DNS) that happen AFTER the code commit. Creates circular dependency: code can't be pushed until committed, can't be committed until infra steps done, infra steps need the code pushed. **Fix:** Add `type` field to executionSteps (`code` vs `infrastructure`). Gate 1.9 should only gate on `type: "code"` steps. Infrastructure steps are operator-executed outside git. Found during I-001. | GOV | OPEN (next M-series) | E |
 
 ---

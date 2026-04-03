@@ -1,17 +1,18 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260402-164125
-Timestamp: 2026-04-02T16:42:00Z
-Sprint: I-001
+Acknowledged: WD-20260403-005641
+Timestamp: 2026-04-03T00:57:00Z
+Sprint: I-004
 Role: orchestrator
-Context: I-001 production cutover sprint. Code changes: Dockerfile (pm2-runtime), seed.ts (SKIP_DEMO_SEED). Two files only.
+Context: I-004 container hardening sprint. Code changes: Dockerfile (curl), server/index.ts + 3 route files (keyGenerator). Sprint registration updates.
 
 Known violations — historical debt (unchanged from prior acks):
-- C1 (commit hashes null): Historical S0-S18, M-002, M-003. Pre-harness sprints.
+- C1 (commit hashes null): Historical S0-S18, pre-harness sprints.
 - C2 (missing evidence artifacts): Historical. Pre-harness sprints did not produce full evidence.
 - C3 (cross-signs): M-002/M-003 reconciliation. Historical.
 - C4 (checklists): M-002/M-003 reconciliation. Historical.
-- C7 (session state stale): Two-file memory protocol — session-state.md replaced by context.md + session-output.md.
+- C7 (context freshness): context.md built at session start, may be >8h old. Clears on next session.
+- C8 (hook integrity): scripts/pre-commit.sh and scripts/watchdog.sh were updated by operator (memory protocol fixes). .git/hooks/pre-commit is a stale copy. Operator will sync hooks.
 - C10 (timestamp anomalies): Historical — pre-harness evidence was bulk-generated.
-- C14 (governance file changed): CLAUDE.md has unstaged changes from M-002 memory protocol addition.
-- C15 (memory staleness): MEMORY.md is deprecated under two-file protocol.
+- C14 (governance file changed): CLAUDE.md, scripts/pre-commit.sh, scripts/watchdog.sh have unstaged operator changes (memory protocol fixes, not sprint code).
+- C15 (memory staleness): context.md may be older than last commit. Clears on next session.
 - C16 (drift detection): Historical null hashes. Pre-harness sprints.

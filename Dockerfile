@@ -15,6 +15,7 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 RUN npm ci --omit=dev
 RUN npm install -g pm2
+RUN apk add --no-cache curl
 
 EXPOSE 5000
 ENV NODE_ENV=production
