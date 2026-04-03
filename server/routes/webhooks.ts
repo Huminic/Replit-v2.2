@@ -292,6 +292,8 @@ function generateLeadEmailHTML(params: {
   callType?: string;
   duration: string;
   endedReason?: string;
+  /** VIN Solutions insertion status */
+  vinStatus?: string;
   summary: string;
   transcript?: string;
   recordingUrl?: string | null;
@@ -368,6 +370,14 @@ function generateLeadEmailHTML(params: {
                 <tr>
                   <td style="padding: 8px 0; font-size: 14px; color: #666;">Ended Reason:</td>
                   <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.endedReason}</td>
+                </tr>`;
+  }
+
+  if (params.vinStatus) {
+    detailRows += `
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666;">VIN Solutions:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">${params.vinStatus}</td>
                 </tr>`;
   }
 
@@ -871,8 +881,8 @@ export function registerWebhookRoutes(app: Express) {
 
       console.log(`[VAPI Webhook] Created conversation ${conversation.id} from call ${call.id || "unknown"}, VIN lead: ${vinLeadCreated}`);
 
-      // Send email notification to admins (non-blocking)
-      {
+      // Send email notification to admins — only if transcript exists (I-230: no notification for ringing-only calls)
+      if (hasTranscript) {
         const org = await storage.getOrganization(organizationId);
         const orgName = org?.name || "Dealership";
         let callDurationStr = "Unknown";
@@ -893,6 +903,19 @@ export function registerWebhookRoutes(app: Express) {
           } catch {}
         }
 
+        let vinStatusText = "";
+        if (vinLeadCreated) {
+          vinStatusText = "\u2705 Lead created in VIN Solutions";
+        } else if (!hasTranscript) {
+          vinStatusText = "\u26A0\uFE0F Not inserted — no transcript (ringing-only or failed call)";
+        } else if (isTestPhone) {
+          vinStatusText = "\u26A0\uFE0F Not inserted — test phone number";
+        } else if (!vinPhone) {
+          vinStatusText = "\u26A0\uFE0F Not inserted — no phone number captured";
+        } else {
+          vinStatusText = "\u274C Not inserted — VIN integration error (check logs)";
+        }
+
         const emailHtml = generateLeadEmailHTML({
           orgName,
           assistantName,
@@ -900,6 +923,7 @@ export function registerWebhookRoutes(app: Express) {
           callType: call.type || "inbound",
           duration: callDurationStr,
           endedReason: call.status || "completed",
+          vinStatus: vinStatusText,
           summary: summary || transcript.substring(0, 300),
           transcript: transcript || "",
           recordingUrl: recordingUrl,
@@ -911,12 +935,15 @@ export function registerWebhookRoutes(app: Express) {
         const idempotencyKey = `vapi-${call.id || conversation.id}`;
         sendLeadNotificationEmail(
           organizationId,
-          `${orgName} Has a New AI Voice Lead!`,
+          `\u{1F3AF} ${orgName} Has a New AI Voice Lead!`,
           emailHtml,
           idempotencyKey
         ).catch((err) => {
           console.error("[VAPI Webhook] Email notification failed (non-blocking):", err.message);
         });
+      }
+      if (!hasTranscript) {
+        console.log(`[VAPI Webhook] Skipped email notification — no transcript (ringing-only or failed call)`);
       }
 
       if (transcript && transcript.length > 0) {
@@ -1198,7 +1225,7 @@ export function registerWebhookRoutes(app: Express) {
         const idempotencyKey = `tavus-${tavusConversationId}`;
         sendLeadNotificationEmail(
           organizationId,
-          `${orgName} Has a New Video Session Lead!`,
+          `\u{1F3AF} ${orgName} Has a New Video Session Lead!`,
           emailHtml,
           idempotencyKey
         ).catch((err) => {
