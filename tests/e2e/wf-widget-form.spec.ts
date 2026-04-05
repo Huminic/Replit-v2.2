@@ -21,8 +21,8 @@
 import { test, expect } from 'playwright/test';
 import { login, loginForBrowser, authHeader, testUsers } from './helpers/auth';
 
-const BASE = process.env.BASE_URL || 'https://dev.huminicdev.com';
-const LANDING = `${BASE}/p/serra-honda`;
+// BASE_URL is set in playwright.config.ts — use relative paths
+const LANDING = '/p/serra-honda';
 
 test.describe.serial('Widget Form Workflow', () => {
   let token: string;
@@ -214,7 +214,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const phone = '+15559000001';
     const message = 'API direct test submission';
 
-    const res = await request.post(`${BASE}/api/widget/contact`, {
+    const res = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name, email, phone, message },
     });
@@ -226,7 +226,7 @@ test.describe.serial('Widget Form Workflow', () => {
     formConversationId = body.conversationId;
 
     // Verify the conversation via authenticated API
-    const convRes = await request.get(`${BASE}/api/conversations/${formConversationId}`, {
+    const convRes = await request.get(`/api/conversations/${formConversationId}`, {
       headers: authHeader(token),
     });
     expect(convRes.ok()).toBe(true);
@@ -248,7 +248,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const message = 'Inquiry about service department hours';
 
     // Create a form submission
-    const res = await request.post(`${BASE}/api/widget/contact`, {
+    const res = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name, email, phone, message },
     });
@@ -257,7 +257,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const convId = body.conversationId;
 
     // Fetch messages
-    const msgRes = await request.get(`${BASE}/api/conversations/${convId}/messages`, {
+    const msgRes = await request.get(`/api/conversations/${convId}/messages`, {
       headers: authHeader(token),
     });
     expect(msgRes.ok()).toBe(true);
@@ -280,21 +280,21 @@ test.describe.serial('Widget Form Workflow', () => {
 
   test('10. API: Missing required fields returns 400', async ({ request }) => {
     // Missing name
-    const res1 = await request.post(`${BASE}/api/widget/contact`, {
+    const res1 = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', email: 'missing@example.com', message: 'No name provided' },
     });
     expect(res1.status(), 'Missing name should return 400').toBe(400);
 
     // Missing email
-    const res2 = await request.post(`${BASE}/api/widget/contact`, {
+    const res2 = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name: 'No Email', message: 'No email provided' },
     });
     expect(res2.status(), 'Missing email should return 400').toBe(400);
 
     // Missing message
-    const res3 = await request.post(`${BASE}/api/widget/contact`, {
+    const res3 = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name: 'No Message', email: 'nomsg@example.com' },
     });
@@ -304,7 +304,7 @@ test.describe.serial('Widget Form Workflow', () => {
   });
 
   test('11. API: Unknown slug returns 404', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/contact`, {
+    const res = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'nonexistent-dealer-xyz', name: 'Test', email: 't@t.com', message: 'test' },
     });
@@ -317,7 +317,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const name = `SMS-Test-${ts}`;
     const phone = '+15559001234';
 
-    const res = await request.post(`${BASE}/api/widget/contact`, {
+    const res = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name, email: `smstest-${ts}@example.com`, phone, message: 'Testing SMS dispatch' },
     });
@@ -326,7 +326,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const convId = body.conversationId;
 
     // Verify conversation exists and is healthy — no error from SMS path
-    const convRes = await request.get(`${BASE}/api/conversations/${convId}`, {
+    const convRes = await request.get(`/api/conversations/${convId}`, {
       headers: authHeader(token),
     });
     expect(convRes.ok()).toBe(true);
@@ -339,7 +339,7 @@ test.describe.serial('Widget Form Workflow', () => {
 
   test('13. API: Rate limiting accepts normal submission rate', async ({ request }) => {
     for (let i = 0; i < 3; i++) {
-      const res = await request.post(`${BASE}/api/widget/contact`, {
+      const res = await request.post(`/api/widget/contact`, {
         headers: { 'Content-Type': 'application/json' },
         data: {
           slug: 'serra-honda',
@@ -354,7 +354,7 @@ test.describe.serial('Widget Form Workflow', () => {
   });
 
   test('14. API: Channel filter returns only form conversations', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/conversations?channel=form`, {
+    const res = await request.get(`/api/conversations?channel=form`, {
       headers: authHeader(token),
     });
     expect(res.ok()).toBe(true);
@@ -379,7 +379,7 @@ test.describe.serial('Widget Form Workflow', () => {
     const email = `teambox-form-${ts}@example.com`;
     const phone = '+15559009999';
 
-    const formRes = await request.post(`${BASE}/api/widget/contact`, {
+    const formRes = await request.post(`/api/widget/contact`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', name, email, phone, message: 'TeamBox verification test' },
     });
@@ -411,7 +411,7 @@ test.describe.serial('Widget Form Workflow', () => {
     await expect(page.getByText('Contact Form Submission').first()).toBeVisible({ timeout: 10000 });
 
     // Verify via API that this conversation is channel=form and status=open
-    const verifyRes = await page.request.get(`${BASE}/api/conversations/${convId}`, {
+    const verifyRes = await page.request.get(`/api/conversations/${convId}`, {
       headers: authHeader(session.token),
     });
     expect(verifyRes.ok()).toBe(true);
@@ -422,7 +422,7 @@ test.describe.serial('Widget Form Workflow', () => {
     console.log(`  VERIFIED: Form conversation visible in TeamBox — id=${convId}, name=${name}`);
 
     // Perform takeover via API (matching takeover test pattern)
-    const takeoverRes = await page.request.patch(`${BASE}/api/conversations/${convId}`, {
+    const takeoverRes = await page.request.patch(`/api/conversations/${convId}`, {
       headers: { ...authHeader(session.token), 'Content-Type': 'application/json' },
       data: { status: 'open', assignedTo: session.userId },
     });
@@ -441,7 +441,7 @@ test.describe.serial('Widget Form Workflow', () => {
 
     const replyContent = `Thanks for reaching out! We will contact you shortly. [${ts}]`;
 
-    const msgRes = await request.post(`${BASE}/api/conversations/${formConversationId}/messages`, {
+    const msgRes = await request.post(`/api/conversations/${formConversationId}/messages`, {
       headers,
       data: {
         role: 'agent',
@@ -456,7 +456,7 @@ test.describe.serial('Widget Form Workflow', () => {
     expect(msg.content).toBe(replyContent);
 
     // Verify reply appears in thread
-    const threadRes = await request.get(`${BASE}/api/conversations/${formConversationId}/messages`, {
+    const threadRes = await request.get(`/api/conversations/${formConversationId}/messages`, {
       headers: authHeader(token),
     });
     expect(threadRes.ok()).toBe(true);
@@ -475,7 +475,7 @@ test.describe.serial('Widget Form Workflow', () => {
   test.afterAll(async ({ request }) => {
     if (formConversationId) {
       try {
-        await request.patch(`${BASE}/api/conversations/${formConversationId}`, {
+        await request.patch(`/api/conversations/${formConversationId}`, {
           headers,
           data: { assignedTo: null, status: 'open' },
         });

@@ -20,7 +20,7 @@
 import { test, expect } from 'playwright/test';
 import { loginForBrowser, login, authHeader, testUsers } from './helpers/auth';
 
-const BASE = process.env.BASE_URL || 'https://dev.huminicdev.com';
+// BASE_URL is set in playwright.config.ts — use relative paths
 
 test.describe.serial('TeamBox Workflow (AC10)', () => {
   /** API auth for verification calls. */
@@ -54,7 +54,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
     const setupHeaders = { ...authHeader(setupToken), 'Content-Type': 'application/json' };
 
     // Resolve a real VAPI assistant ID from the org's agents
-    const agentsRes = await request.get(`${BASE}/api/agents`, {
+    const agentsRes = await request.get(`/api/agents`, {
       headers: authHeader(setupToken),
     });
     let assistantId = 'test-assistant-teambox-seed';
@@ -73,7 +73,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
       webhookHeaders['x-vapi-secret'] = process.env.VAPI_WEBHOOK_SECRET;
     }
 
-    const webhookRes = await request.post(`${BASE}/api/webhooks/vapi`, {
+    const webhookRes = await request.post(`/api/webhooks/vapi`, {
       headers: webhookHeaders,
       data: {
         type: 'end-of-call-report',
@@ -104,7 +104,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
       console.log(`  [beforeAll] VAPI webhook returned ${webhookRes.status()} — trying TextMagic fallback`);
       // Fallback: create via TextMagic webhook
       const rand = Math.floor(100000000 + Math.random() * 900000000);
-      const tmRes = await request.post(`${BASE}/api/webhooks/textmagic`, {
+      const tmRes = await request.post(`/api/webhooks/textmagic`, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         form: {
           sender: `+1${rand}`,
@@ -122,7 +122,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
     // Ensure the seeded conversation is in 'automated' status for takeover tests
     if (seededConvId) {
-      await request.patch(`${BASE}/api/conversations/${seededConvId}`, {
+      await request.patch(`/api/conversations/${seededConvId}`, {
         headers: setupHeaders,
         data: { status: 'automated' },
       });
@@ -184,7 +184,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
     } else {
       // Fallback: verify conversations exist via API
       console.log('  Falling back to API verification for conversation list');
-      const apiRes = await page.request.get(`${BASE}/api/conversations`, {
+      const apiRes = await page.request.get(`/api/conversations`, {
         headers: authHeader(token),
       });
       expect(apiRes.ok(), 'Conversations API should be accessible').toBe(true);
@@ -247,7 +247,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
       // Create via webhook
       const rand = Math.floor(100000000 + Math.random() * 900000000);
-      const webhookRes = await page.request.post(`${BASE}/api/webhooks/textmagic`, {
+      const webhookRes = await page.request.post(`/api/webhooks/textmagic`, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         form: {
           sender: `+1${rand}`,
@@ -258,7 +258,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
       });
       const wbBody = await webhookRes.json();
       if (wbBody.conversationId) {
-        await page.request.patch(`${BASE}/api/conversations/${wbBody.conversationId}`, {
+        await page.request.patch(`/api/conversations/${wbBody.conversationId}`, {
           headers,
           data: { status: 'automated' },
         });
@@ -315,7 +315,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
     // Ensure we have a conversation in automated status
     if (seededConvId) {
-      await page.request.patch(`${BASE}/api/conversations/${seededConvId}`, {
+      await page.request.patch(`/api/conversations/${seededConvId}`, {
         headers,
         data: { status: 'automated' },
       });
@@ -347,7 +347,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
         // Verify status changed via API
         if (selectedConvId) {
-          const res = await page.request.get(`${BASE}/api/conversations/${selectedConvId}`, {
+          const res = await page.request.get(`/api/conversations/${selectedConvId}`, {
             headers: authHeader(token),
           });
           const conv = await res.json();
@@ -363,7 +363,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
         // No Take Over button — perform takeover via API and verify
         console.log('  Take Over button not available in UI — performing via API');
         if (selectedConvId) {
-          await page.request.patch(`${BASE}/api/conversations/${selectedConvId}`, {
+          await page.request.patch(`/api/conversations/${selectedConvId}`, {
             headers,
             data: { status: 'open', assignedTo: userId },
           });
@@ -373,7 +373,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
     } else {
       console.log('  No automated conversations in list — performing takeover via API');
       if (seededConvId) {
-        await page.request.patch(`${BASE}/api/conversations/${seededConvId}`, {
+        await page.request.patch(`/api/conversations/${seededConvId}`, {
           headers,
           data: { status: 'open', assignedTo: userId },
         });
@@ -430,7 +430,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
     // Verify the message appears in the thread via API
     if (selectedConvId) {
-      const threadRes = await page.request.get(`${BASE}/api/conversations/${selectedConvId}/messages`, {
+      const threadRes = await page.request.get(`/api/conversations/${selectedConvId}/messages`, {
         headers: authHeader(token),
       });
       expect(threadRes.ok()).toBe(true);
@@ -468,7 +468,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
         expect(itemText, 'Conversation list item should have content').toBeTruthy();
       } else {
         // Conversation may have moved due to filter — verify via API
-        const res = await page.request.get(`${BASE}/api/conversations/${selectedConvId}`, {
+        const res = await page.request.get(`/api/conversations/${selectedConvId}`, {
           headers: authHeader(token),
         });
         expect(res.ok()).toBe(true);
@@ -493,7 +493,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
 
     // Release via API to ensure clean state
     if (selectedConvId) {
-      const releaseRes = await page.request.patch(`${BASE}/api/conversations/${selectedConvId}`, {
+      const releaseRes = await page.request.patch(`/api/conversations/${selectedConvId}`, {
         headers,
         data: { assignedTo: null, status: 'open' },
       });
@@ -554,7 +554,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
     // Release the selected conversation
     if (selectedConvId && cleanupHeaders) {
       try {
-        await request.patch(`${BASE}/api/conversations/${selectedConvId}`, {
+        await request.patch(`/api/conversations/${selectedConvId}`, {
           headers: cleanupHeaders,
           data: { assignedTo: null, status: 'open' },
         });
@@ -568,7 +568,7 @@ test.describe.serial('TeamBox Workflow (AC10)', () => {
     if (seededConvId) {
       try {
         const auth = await login(request, testUsers.orgAdmin);
-        await request.delete(`${BASE}/api/conversations/${seededConvId}`, {
+        await request.delete(`/api/conversations/${seededConvId}`, {
           headers: authHeader(auth.token),
         });
         console.log(`  Cleanup: seeded conversation ${seededConvId} deleted`);
