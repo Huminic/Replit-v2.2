@@ -5,7 +5,7 @@
  * conversation in TeamBox -> salesperson takeover available.
  *
  * API-only tests — no browser/page needed.
- * Real API calls against dev.huminicdev.com (or localhost:5000).
+ * Real API calls against the configured BASE_URL.
  *
  * The AI Sales Agent should respond differently than the Service Agent —
  * sales inquiries trigger sales-oriented AI behavior (pricing, inventory, test drives)

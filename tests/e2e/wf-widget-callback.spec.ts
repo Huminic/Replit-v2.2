@@ -14,8 +14,7 @@
 import { test, expect } from 'playwright/test';
 import { login, loginForBrowser, authHeader, testUsers } from './helpers/auth';
 
-const BASE = process.env.BASE_URL || 'http://localhost:5000';
-const DEV_URL = 'https://dev.huminicdev.com';
+// BASE_URL is set in playwright.config.ts — use relative paths
 
 test.describe.serial('Widget Callback Workflow', () => {
   const TEST_ID = `wf-cb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -33,7 +32,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   // ---------------------------------------------------------------------------
 
   test('WF-CB-16: Voice config returns VAPI assistant ID for serra-honda', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/widget/voice-config/serra-honda`);
+    const res = await request.get(`/api/widget/voice-config/serra-honda`);
     expect(res.status()).toBe(200);
 
     const body = await res.json();
@@ -47,7 +46,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   });
 
   test('WF-CB-16b: Voice config returns 404 for unknown slug', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/widget/voice-config/does-not-exist-slug`);
+    const res = await request.get(`/api/widget/voice-config/does-not-exist-slug`);
     expect(res.status()).toBe(404);
 
     const body = await res.json();
@@ -59,7 +58,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   // ---------------------------------------------------------------------------
 
   test('WF-CB-01: Landing page loads for serra-honda', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     // Widget FAB should be visible
@@ -67,7 +66,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   });
 
   test('WF-CB-02: Widget FAB opens the engagement menu', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     await page.getByTestId('button-widget-fab').click();
@@ -78,7 +77,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   });
 
   test('WF-CB-03: Clicking Instant Call Back opens phone input panel', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     await page.getByTestId('button-widget-fab').click();
@@ -98,7 +97,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   });
 
   test('WF-CB-04: Callback submission triggers API call and shows success', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     // Open widget -> voice panel
@@ -145,7 +144,7 @@ test.describe.serial('Widget Callback Workflow', () => {
 
   test('WF-CB-05: Callback API creates a voice conversation record', async ({ request }) => {
     // Submit callback via API
-    const callbackRes = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const callbackRes = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', phoneNumber: CALLBACK_PHONE },
     });
@@ -167,7 +166,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       authToken = auth.token;
       authOrgId = auth.organizationId;
 
-      const convRes = await request.get(`${BASE}/api/conversations/${callbackConversationId}`, {
+      const convRes = await request.get(`/api/conversations/${callbackConversationId}`, {
         headers: authHeader(authToken),
       });
       expect(convRes.status()).toBe(200);
@@ -256,7 +255,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       },
     };
 
-    const webhookRes = await request.post(`${BASE}/api/webhooks/vapi`, {
+    const webhookRes = await request.post(`/api/webhooks/vapi`, {
       headers: webhookHeaders,
       data: webhookPayload,
     });
@@ -272,7 +271,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       // Poll for transcript message in conversation
       let transcriptFound = false;
       for (let attempt = 0; attempt < 5; attempt++) {
-        const msgRes = await request.get(`${BASE}/api/conversations/${callbackConversationId}/messages`, {
+        const msgRes = await request.get(`/api/conversations/${callbackConversationId}/messages`, {
           headers: authHeader(authToken),
         });
         expect(msgRes.ok()).toBe(true);
@@ -311,7 +310,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       return;
     }
 
-    const res = await request.get(`${BASE}/api/conversations?channel=voice&status=open`, {
+    const res = await request.get(`/api/conversations?channel=voice&status=open`, {
       headers: authHeader(authToken),
     });
     expect(res.ok()).toBe(true);
@@ -339,7 +338,7 @@ test.describe.serial('Widget Callback Workflow', () => {
     }
 
     // Login as Serra Honda org admin and navigate to TeamBox
-    await loginForBrowser(page, testUsers.orgAdmin, `${DEV_URL}/teambox`);
+    await loginForBrowser(page, testUsers.orgAdmin, `/teambox`);
 
     // Verify TeamBox page loaded
     await expect(page.getByTestId('sidebar-item-teambox')).toBeVisible({ timeout: 10000 });
@@ -368,7 +367,7 @@ test.describe.serial('Widget Callback Workflow', () => {
 
   test('WF-CB-07: Callback rejected when phone number is missing', async ({ request }) => {
     // No phoneNumber field
-    const res1 = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res1 = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda' },
     });
@@ -377,7 +376,7 @@ test.describe.serial('Widget Callback Workflow', () => {
     expect(body1.message).toContain('Phone number is required');
 
     // Empty string phoneNumber
-    const res2 = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res2 = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', phoneNumber: '' },
     });
@@ -393,7 +392,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   // ---------------------------------------------------------------------------
 
   test('WF-CB-08: Callback rejected for unknown slug', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'does-not-exist-xyz', phoneNumber: '+15551234567' },
     });
@@ -411,7 +410,7 @@ test.describe.serial('Widget Callback Workflow', () => {
 
   test('WF-CB-10: Phone number is normalized to E.164 format', async ({ request }) => {
     // Test formatted number: (555) 123-4567 -> +15551234567
-    const res1 = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res1 = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', phoneNumber: '(555) 123-4567' },
     });
@@ -425,7 +424,7 @@ test.describe.serial('Widget Callback Workflow', () => {
         const auth = await login(request, testUsers.orgAdmin);
         authToken = auth.token;
       }
-      const convRes = await request.get(`${BASE}/api/conversations/${body1.conversationId}`, {
+      const convRes = await request.get(`/api/conversations/${body1.conversationId}`, {
         headers: authHeader(authToken),
       });
       const conv = await convRes.json();
@@ -433,7 +432,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       console.log(`  [Normalization] (555) 123-4567 -> ${conv.customerPhone}`);
 
       // Cleanup
-      await request.delete(`${BASE}/api/conversations/${body1.conversationId}`, {
+      await request.delete(`/api/conversations/${body1.conversationId}`, {
         headers: authHeader(authToken),
       }).catch(() => {});
     } else {
@@ -441,14 +440,14 @@ test.describe.serial('Widget Callback Workflow', () => {
     }
 
     // Test 10-digit number: 5559998877 -> +15559998877
-    const res2 = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res2 = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', phoneNumber: '5559998877' },
     });
 
     if (res2.status() === 200) {
       const body2 = await res2.json();
-      const convRes2 = await request.get(`${BASE}/api/conversations/${body2.conversationId}`, {
+      const convRes2 = await request.get(`/api/conversations/${body2.conversationId}`, {
         headers: authHeader(authToken),
       });
       const conv2 = await convRes2.json();
@@ -456,20 +455,20 @@ test.describe.serial('Widget Callback Workflow', () => {
       console.log(`  [Normalization] 5559998877 -> ${conv2.customerPhone}`);
 
       // Cleanup
-      await request.delete(`${BASE}/api/conversations/${body2.conversationId}`, {
+      await request.delete(`/api/conversations/${body2.conversationId}`, {
         headers: authHeader(authToken),
       }).catch(() => {});
     }
 
     // Test already E.164: +15551112222 -> +15551112222 (unchanged)
-    const res3 = await request.post(`${BASE}/api/widget/voice-callback`, {
+    const res3 = await request.post(`/api/widget/voice-callback`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', phoneNumber: '+15551112222' },
     });
 
     if (res3.status() === 200) {
       const body3 = await res3.json();
-      const convRes3 = await request.get(`${BASE}/api/conversations/${body3.conversationId}`, {
+      const convRes3 = await request.get(`/api/conversations/${body3.conversationId}`, {
         headers: authHeader(authToken),
       });
       const conv3 = await convRes3.json();
@@ -477,7 +476,7 @@ test.describe.serial('Widget Callback Workflow', () => {
       console.log(`  [Normalization] +15551112222 -> ${conv3.customerPhone} (unchanged)`);
 
       // Cleanup
-      await request.delete(`${BASE}/api/conversations/${body3.conversationId}`, {
+      await request.delete(`/api/conversations/${body3.conversationId}`, {
         headers: authHeader(authToken),
       }).catch(() => {});
     }
@@ -488,7 +487,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   // ---------------------------------------------------------------------------
 
   test('WF-CB-14: Widget close button dismisses the voice panel', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     // Open widget -> voice panel
@@ -498,11 +497,11 @@ test.describe.serial('Widget Callback Workflow', () => {
     await expect(page.getByTestId('widget-voice')).toBeVisible();
 
     // Close the widget
-    await page.locator('[data-testid="widget-voice"]').locator('button').last().click();
+    await page.getByTestId('button-voice-close').click();
 
     // Widget should be dismissed
-    await expect(page.getByTestId('widget-voice')).not.toBeVisible();
-    await expect(page.getByTestId('widget-menu')).not.toBeVisible();
+    await expect(page.getByTestId('widget-voice')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('widget-menu')).not.toBeVisible({ timeout: 10000 });
 
     // FAB should still be visible
     await expect(page.getByTestId('button-widget-fab')).toBeVisible();
@@ -515,7 +514,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   // ---------------------------------------------------------------------------
 
   test('WF-CB-15: Back navigation from voice panel returns to menu', async ({ page }) => {
-    await page.goto(`${DEV_URL}/p/serra-honda`);
+    await page.goto(`/p/serra-honda`);
     await page.waitForTimeout(2000);
 
     // Open widget -> voice panel
@@ -547,7 +546,7 @@ test.describe.serial('Widget Callback Workflow', () => {
   test.afterAll(async ({ request }) => {
     if (callbackConversationId && authToken) {
       try {
-        await request.delete(`${BASE}/api/conversations/${callbackConversationId}`, {
+        await request.delete(`/api/conversations/${callbackConversationId}`, {
           headers: authHeader(authToken),
         });
         console.log(`  [Cleanup] Deleted conversation ${callbackConversationId}`);

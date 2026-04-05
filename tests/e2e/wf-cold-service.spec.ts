@@ -5,7 +5,7 @@
  * conversation in TeamBox -> advisor takeover available.
  *
  * API-only tests — no browser/page needed.
- * Real API calls against dev.huminicdev.com (or localhost:5000).
+ * Real API calls against the configured BASE_URL.
  */
 import { test, expect } from "playwright/test";
 import { login, authHeader, testUsers } from "./helpers/auth";

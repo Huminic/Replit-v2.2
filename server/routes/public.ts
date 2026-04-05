@@ -459,8 +459,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   app.get("/widget/dealer/:slug.js", async (req, res) => {
     const slug = req.params.slug;
-    const org = await resolveOrgBySlug(slug);
-    if (!org) return res.status(404).send("// dealer not found");
+    let org = await resolveOrgBySlug(slug);
+    if (!org) {
+      const redirect = await storage.getSlugRedirect(slug);
+      if (redirect) {
+        org = await resolveOrgBySlug(redirect.newSlug);
+      }
+      if (!org) return res.status(404).send("// dealer not found");
+    }
     const proto = req.get("x-forwarded-proto") || req.protocol;
     const host = (process.env.APP_BASE_URL || `${proto}://${req.get("host")}`).replace(/\/+$/, '');
     const color = "#6366f1";

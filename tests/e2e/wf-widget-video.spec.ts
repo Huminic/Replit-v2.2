@@ -19,14 +19,14 @@
 import { test, expect } from 'playwright/test';
 import { login, loginForBrowser, authHeader, testUsers } from './helpers/auth';
 
-const BASE = process.env.BASE_URL || 'https://dev.huminicdev.com';
+// BASE_URL is set in playwright.config.ts — use relative paths
 
 // ---------------------------------------------------------------------------
 // Section 1: Public API Preconditions
 // ---------------------------------------------------------------------------
 test.describe.serial('1. Widget Video — Public API Preconditions', () => {
   test('1.1 Landing page API returns org data for serra-honda', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/public/landing/serra-honda`);
+    const res = await request.get(`/api/public/landing/serra-honda`);
     expect(res.status(), `Landing API should return 200, got ${res.status()}`).toBe(200);
 
     const body = await res.json();
@@ -37,7 +37,7 @@ test.describe.serial('1. Widget Video — Public API Preconditions', () => {
   });
 
   test('1.2 Voice-config API returns tavusPersonaId for serra-honda', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/widget/voice-config/serra-honda`);
+    const res = await request.get(`/api/widget/voice-config/serra-honda`);
     expect(res.status(), `Voice-config should return 200, got ${res.status()}`).toBe(200);
 
     const body = await res.json();
@@ -48,7 +48,7 @@ test.describe.serial('1. Widget Video — Public API Preconditions', () => {
   });
 
   test('1.3 Voice-config API returns 404 for unknown slug', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/widget/voice-config/does-not-exist-xyz`);
+    const res = await request.get(`/api/widget/voice-config/does-not-exist-xyz`);
     expect(res.status()).toBe(404);
 
     const body = await res.json();
@@ -61,7 +61,7 @@ test.describe.serial('1. Widget Video — Public API Preconditions', () => {
     const slugs = ['serra-honda', 'serra-nissan', 'tony-serra-ford', 'hyundai-of-columbia', 'ford-of-columbia'];
 
     for (const slug of slugs) {
-      const res = await request.get(`${BASE}/widget/dealer/${slug}.js`);
+      const res = await request.get(`/widget/dealer/${slug}.js`);
       expect(res.status(), `Widget JS for ${slug} should return 200`).toBe(200);
 
       const contentType = res.headers()['content-type'] || '';
@@ -80,7 +80,7 @@ test.describe.serial('1. Widget Video — Public API Preconditions', () => {
 // ---------------------------------------------------------------------------
 test.describe.serial('2. Widget Video — POST /api/widget/video-session', () => {
   test('2.1 Video session created successfully with valid slug', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/video-session`, {
+    const res = await request.post(`/api/widget/video-session`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'serra-honda', visitorName: 'Test Visitor WF-VIDEO' },
     });
@@ -94,7 +94,7 @@ test.describe.serial('2. Widget Video — POST /api/widget/video-session', () =>
   });
 
   test('2.2 Video session rejected for org with no Tavus persona', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/video-session`, {
+    const res = await request.post(`/api/widget/video-session`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'demo', visitorName: 'Test' },
     });
@@ -107,7 +107,7 @@ test.describe.serial('2. Widget Video — POST /api/widget/video-session', () =>
   });
 
   test('2.3 Video session rejected when slug and widgetCode are both absent', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/video-session`, {
+    const res = await request.post(`/api/widget/video-session`, {
       headers: { 'Content-Type': 'application/json' },
       data: {},
     });
@@ -120,7 +120,7 @@ test.describe.serial('2. Widget Video — POST /api/widget/video-session', () =>
   });
 
   test('2.4 Video session rejected when slug is unknown', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/widget/video-session`, {
+    const res = await request.post(`/api/widget/video-session`, {
       headers: { 'Content-Type': 'application/json' },
       data: { slug: 'nonexistent-org-xyz' },
     });
@@ -168,7 +168,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
     authOrgId = auth.organizationId;
 
     // Find a real tavusPersonaId from the org's agents
-    const agentsRes = await request.get(`${BASE}/api/agents`, {
+    const agentsRes = await request.get(`/api/agents`, {
       headers: authHeader(authToken),
     });
     expect(agentsRes.ok()).toBe(true);
@@ -197,7 +197,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
       summary: SUMMARY,
     };
 
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: payload,
     });
@@ -223,7 +223,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
       return;
     }
 
-    const res = await request.get(`${BASE}/api/conversations/${createdConversationId}`, {
+    const res = await request.get(`/api/conversations/${createdConversationId}`, {
       headers: authHeader(authToken),
     });
     expect(res.status()).toBe(200);
@@ -247,7 +247,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
 
     let messages: any[] = [];
     for (let attempt = 0; attempt < 5; attempt++) {
-      const res = await request.get(`${BASE}/api/conversations/${createdConversationId}/messages`, {
+      const res = await request.get(`/api/conversations/${createdConversationId}/messages`, {
         headers: authHeader(authToken),
       });
       expect(res.ok()).toBe(true);
@@ -284,7 +284,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
     let vinAttempted = false;
 
     // Check activity logs
-    const activityRes = await request.get(`${BASE}/api/activity-log`, {
+    const activityRes = await request.get(`/api/activity-log`, {
       headers: authHeader(authToken),
     });
 
@@ -302,7 +302,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
     }
 
     // Check escalation tasks
-    const tasksRes = await request.get(`${BASE}/api/tasks`, {
+    const tasksRes = await request.get(`/api/tasks`, {
       headers: authHeader(authToken),
     });
     if (tasksRes.ok()) {
@@ -338,7 +338,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
       return;
     }
 
-    const res = await request.get(`${BASE}/api/conversations?channel=video&status=open`, {
+    const res = await request.get(`/api/conversations?channel=video&status=open`, {
       headers: authHeader(authToken),
     });
     expect(res.ok()).toBe(true);
@@ -363,7 +363,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
 
     let notificationFound = false;
     for (let attempt = 0; attempt < 5; attempt++) {
-      const res = await request.get(`${BASE}/api/notifications`, {
+      const res = await request.get(`/api/notifications`, {
         headers: authHeader(authToken),
       });
 
@@ -397,7 +397,7 @@ test.describe.serial('3. Widget Video — Tavus Webhook Pipeline', () => {
     if (createdConversationId) {
       try {
         const auth = await login(request, testUsers.orgAdmin);
-        await request.delete(`${BASE}/api/conversations/${createdConversationId}`, {
+        await request.delete(`/api/conversations/${createdConversationId}`, {
           headers: authHeader(auth.token),
         });
         console.log(`  [Cleanup] Deleted conversation ${createdConversationId}`);
@@ -419,7 +419,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
     const auth = await login(request, testUsers.orgAdmin);
     authToken = auth.token;
 
-    const agentsRes = await request.get(`${BASE}/api/agents`, {
+    const agentsRes = await request.get(`/api/agents`, {
       headers: authHeader(authToken),
     });
     if (agentsRes.ok()) {
@@ -435,7 +435,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
       webhookHeaders['x-tavus-secret'] = process.env.TAVUS_WEBHOOK_SECRET;
     }
 
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: {
         event: 'conversation.end',
@@ -458,7 +458,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
       webhookHeaders['x-tavus-secret'] = process.env.TAVUS_WEBHOOK_SECRET;
     }
 
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: {
         event: 'conversation.end',
@@ -480,7 +480,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
       webhookHeaders['x-tavus-secret'] = process.env.TAVUS_WEBHOOK_SECRET;
     }
 
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: {
         event: 'conversation.started',
@@ -498,7 +498,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
 
   test('4.4 Webhook rejected when secret header is missing (if configured)', async ({ request }) => {
     // Test with no secret header to detect whether the server enforces it
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: { 'Content-Type': 'application/json' },
       data: {
         event: 'conversation.end',
@@ -535,7 +535,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
       webhookHeaders['x-tavus-secret'] = process.env.TAVUS_WEBHOOK_SECRET;
     }
 
-    const res = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: {
         event: 'conversation.end',
@@ -552,7 +552,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
 
     if (res.status() === 200 && body.conversationId) {
       // Check activity log for vinLeadCreated=false
-      const activityRes = await request.get(`${BASE}/api/activity-log`, {
+      const activityRes = await request.get(`/api/activity-log`, {
         headers: authHeader(authToken),
       });
       if (activityRes.ok()) {
@@ -572,7 +572,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
 
       // Cleanup
       try {
-        await request.delete(`${BASE}/api/conversations/${body.conversationId}`, {
+        await request.delete(`/api/conversations/${body.conversationId}`, {
           headers: authHeader(authToken),
         });
         console.log(`  [4.5] Cleanup: deleted conversation ${body.conversationId}`);
@@ -607,7 +607,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
     };
 
     // First request
-    const res1 = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res1 = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: payload,
     });
@@ -622,7 +622,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
     const firstConvId = body1.conversationId;
 
     // Second request with same conversation_id
-    const res2 = await request.post(`${BASE}/api/webhooks/tavus`, {
+    const res2 = await request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: payload,
     });
@@ -634,7 +634,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
       console.log(`  [4.6] No deduplication: second request created new conversation ${body2.conversationId}`);
       // Cleanup the second conversation
       try {
-        await request.delete(`${BASE}/api/conversations/${body2.conversationId}`, {
+        await request.delete(`/api/conversations/${body2.conversationId}`, {
           headers: authHeader(authToken),
         });
       } catch {
@@ -646,7 +646,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
 
     // Cleanup first conversation
     try {
-      await request.delete(`${BASE}/api/conversations/${firstConvId}`, {
+      await request.delete(`/api/conversations/${firstConvId}`, {
         headers: authHeader(authToken),
       });
       console.log(`  [4.6] Cleanup: deleted conversation ${firstConvId}`);
@@ -663,7 +663,7 @@ test.describe.serial('4. Widget Video — Tavus Webhook Rejection Cases', () => 
 // ---------------------------------------------------------------------------
 test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   test('5.1 Landing page loads and displays widget FAB for serra-honda', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Widget FAB should be visible
@@ -673,7 +673,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.2 Widget FAB opens menu with video option', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Click FAB
@@ -692,7 +692,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.3 Clicking video option transitions widget to connecting state', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Open menu
@@ -731,7 +731,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.4 Close button collapses the widget menu', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Open menu
@@ -752,7 +752,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.5 Fullscreen video mode renders correctly via ?mode=video', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     // Check for fullscreen video elements
@@ -780,7 +780,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.6 End call button navigates back to landing page', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     const endCall = page.getByTestId('button-end-call');
@@ -813,7 +813,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.7 Mic toggle button cycles muted and unmuted state', async ({ page }) => {
-    await page.goto(`${BASE}/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/serra-honda?mode=video`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     const toggleMic = page.getByTestId('button-toggle-mic');
@@ -847,7 +847,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
 
   test('5.8 Fallback button in error state navigates back', async ({ page }) => {
     // Use demo org which should have no Tavus persona -> forces error
-    await page.goto(`${BASE}/p/demo?mode=video`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/demo?mode=video`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(10000);
 
     const fallback = page.getByTestId('button-video-fallback');
@@ -871,7 +871,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
   });
 
   test('5.9 Unknown slug shows 404 page', async ({ page }) => {
-    await page.goto(`${BASE}/p/does-not-exist-xyz`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/p/does-not-exist-xyz`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Look for 404 indicators
@@ -899,7 +899,7 @@ test.describe.serial('5. Widget Video — Browser UI (Landing Page)', () => {
 // ---------------------------------------------------------------------------
 test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)', () => {
   test('6.1 Admin logs in and TeamBox renders with Video tab', async ({ page }) => {
-    await loginForBrowser(page, testUsers.orgAdmin, `${BASE}/teambox`);
+    await loginForBrowser(page, testUsers.orgAdmin, `/teambox`);
 
     // TeamBox should have loaded — verify Video tab is present
     await expect(page.getByTestId('tab-teambox-video')).toBeVisible({ timeout: 10000 });
@@ -908,7 +908,7 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
   });
 
   test('6.2 TeamBox Video tab shows Tavus sessions content', async ({ page }) => {
-    await loginForBrowser(page, testUsers.orgAdmin, `${BASE}/teambox`);
+    await loginForBrowser(page, testUsers.orgAdmin, `/teambox`);
 
     // Click Video tab
     await page.getByTestId('tab-teambox-video').click({ timeout: 10000 });
@@ -936,7 +936,7 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
   });
 
   test('6.3 Channel chip video filters conversation list', async ({ page }) => {
-    await loginForBrowser(page, testUsers.orgAdmin, `${BASE}/teambox`);
+    await loginForBrowser(page, testUsers.orgAdmin, `/teambox`);
 
     // Ensure conversations tab is active
     const convTab = page.getByTestId('tab-teambox-conversations');
@@ -967,10 +967,10 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
     const visitorName = `TB-Verify-${testId}`;
 
     // Authenticate for API calls
-    const auth = await loginForBrowser(page, testUsers.orgAdmin, `${BASE}/teambox`);
+    const auth = await loginForBrowser(page, testUsers.orgAdmin, `/teambox`);
 
     // Resolve persona ID
-    const agentsRes = await page.request.get(`${BASE}/api/agents`, {
+    const agentsRes = await page.request.get(`/api/agents`, {
       headers: authHeader(auth.token),
     });
     let personaId: string | null = null;
@@ -992,7 +992,7 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
       webhookHeaders['x-tavus-secret'] = process.env.TAVUS_WEBHOOK_SECRET;
     }
 
-    const webhookRes = await page.request.post(`${BASE}/api/webhooks/tavus`, {
+    const webhookRes = await page.request.post(`/api/webhooks/tavus`, {
       headers: webhookHeaders,
       data: {
         event: 'conversation.end',
@@ -1016,7 +1016,7 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
     console.log(`  [6.4] Webhook created conversation: ${createdConvId}`);
 
     // Step 2: Navigate to TeamBox and look for the conversation
-    await page.goto(`${BASE}/teambox`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/teambox`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     // Click Video tab or video chip to filter
@@ -1073,7 +1073,7 @@ test.describe.serial('6. Widget Video — TeamBox Admin Verification (Browser)',
 
     // Cleanup
     try {
-      await page.request.delete(`${BASE}/api/conversations/${createdConvId}`, {
+      await page.request.delete(`/api/conversations/${createdConvId}`, {
         headers: authHeader(auth.token),
       });
       console.log(`  [6.4] Cleanup: deleted conversation ${createdConvId}`);

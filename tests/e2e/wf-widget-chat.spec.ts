@@ -7,7 +7,7 @@ import { login, loginForBrowser, authHeader, testUsers } from './helpers/auth';
 test.describe.serial('Widget Chat Workflow', () => {
   test('WF-WIDGET-CHAT end-to-end', async ({ page, request }) => {
     // 1. Navigate to Serra Honda landing page
-    await page.goto('https://dev.huminicdev.com/p/serra-honda', { timeout: 30000 });
+    await page.goto('/p/serra-honda', { timeout: 30000 });
 
     // Wait for page to fully load
     await page.waitForLoadState('networkidle');
@@ -55,7 +55,7 @@ test.describe.serial('Widget Chat Workflow', () => {
     // The conversations endpoint requires an Authorization header (Bearer token),
     // which browser cookies alone do not provide. Use the API login helper.
     const auth = await login(request, testUsers.orgAdmin);
-    const chatConvsRes = await request.get('https://dev.huminicdev.com/api/conversations?channel=chat', {
+    const chatConvsRes = await request.get('/api/conversations?channel=chat', {
       headers: authHeader(auth.token),
     });
     expect(chatConvsRes.ok(), 'Chat conversations API should succeed').toBe(true);

@@ -647,7 +647,7 @@ export default function WidgetLandingPage() {
               <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs">←</button>
               <p className="font-semibold text-xs">Instant Call Back</p>
             </div>
-            <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white">
+            <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white" data-testid="button-voice-close">
               <X className="h-4 w-4" />
             </button>
           </div>

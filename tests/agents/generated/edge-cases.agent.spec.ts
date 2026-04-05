@@ -419,18 +419,30 @@ test.describe("Edge Cases — XSS and Injection Safety", () => {
       test.skip();
       return;
     }
-    const res = await request.patch(`/api/organizations/${orgs[0].id}/slug`, {
-      headers: authHeader(token),
-      data: { slug: '<script>alert(1)</script>' },
-    });
-    if (res.status() === 200) {
-      const body = await res.json();
-      // Slug should be sanitized (only lowercase alphanumeric and hyphens)
-      expect(body.slug || "").not.toContain("<");
-      expect(body.slug || "").not.toContain(">");
+    // Save the original slug so we can restore it after the test
+    const originalSlug = orgs[0].slug;
+    try {
+      const res = await request.patch(`/api/organizations/${orgs[0].id}/slug`, {
+        headers: authHeader(token),
+        data: { slug: '<script>alert(1)</script>' },
+      });
+      if (res.status() === 200) {
+        const body = await res.json();
+        // Slug should be sanitized (only lowercase alphanumeric and hyphens)
+        expect(body.slug || "").not.toContain("<");
+        expect(body.slug || "").not.toContain(">");
+      }
+      // Also accept 400/409 as valid responses
+      expect([200, 400, 409]).toContain(res.status());
+    } finally {
+      // Restore the original slug to prevent corruption
+      if (originalSlug) {
+        await request.patch(`/api/organizations/${orgs[0].id}/slug`, {
+          headers: authHeader(token),
+          data: { slug: originalSlug },
+        });
+      }
     }
-    // Also accept 400/409 as valid responses
-    expect([200, 400, 409]).toContain(res.status());
   });
 });
 
