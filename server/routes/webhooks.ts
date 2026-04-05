@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { storage } from "../storage";
 import { billingService } from "../services/billingService";
-import { callMCP } from "../vendorProxy";
+import { callMCP, resolveNexxusOrgId, warmIntegrationCache } from "../vendorProxy";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -755,8 +755,12 @@ export function registerWebhookRoutes(app: Express) {
         const orgSettings = (orgForVin?.settings || {}) as Record<string, any>;
         const vinLeadSourceName = orgSettings.vinLeadSourceName || "Dealers WebSite";
 
+        // Resolve local org UUID to nexxus_org_id for vin-safe-mcp
+        await warmIntegrationCache(organizationId);
+        const nexxusOrgId = resolveNexxusOrgId(organizationId);
+
         const prepareBody: Record<string, any> = {
-          orgId: organizationId,
+          orgId: nexxusOrgId,
           firstName,
           lastName,
           phone: vinPhone,
@@ -1100,8 +1104,12 @@ export function registerWebhookRoutes(app: Express) {
         const tavusOrgSettings = (orgForTavusVin?.settings || {}) as Record<string, any>;
         const tavusVinLeadSourceName = tavusOrgSettings.vinLeadSourceName || "Dealers WebSite";
 
+        // Resolve local org UUID to nexxus_org_id for vin-safe-mcp
+        await warmIntegrationCache(organizationId);
+        const tavusNexxusOrgId = resolveNexxusOrgId(organizationId);
+
         const prepareBody: Record<string, any> = {
-          orgId: organizationId,
+          orgId: tavusNexxusOrgId,
           firstName,
           lastName,
           leadType: "PHONE",

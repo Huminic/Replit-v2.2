@@ -644,11 +644,11 @@ export async function seedDatabase() {
   await storage.createMessage({ conversationId: conv8.id, role: "customer", content: "I received the wrong promotional offer.", senderName: "Stephanie Thompson" });
 
   const integrationData = [
-    { orgId: serraHonda.id, provider: "vinsolutions", dealerId: "21043", dealerName: "Serra Honda of Sylacauga", integrationId: null, nexxusOrgId: "3795b8f6-aca7-45fc-b77e-fc671b85a9f3" },
-    { orgId: serraNissan.id, provider: "vinsolutions", dealerId: "21044", dealerName: "Serra Nissan of Sylacauga", integrationId: "f3f7e600-7d48-4c4e-9607-d737a271e57c", nexxusOrgId: "7f868569-62e5-4d49-9378-2e25d6a69321" },
-    { orgId: tonySerraFord.id, provider: "vinsolutions", dealerId: "21047", dealerName: "Tony Serra Ford", integrationId: "6b430786-b1b1-45ef-ae17-bd33e0cb3735", nexxusOrgId: "8751c73d-4570-4b8d-bd40-fa4f1e48024d" },
-    { orgId: hyundaiOfColumbia.id, provider: "vinsolutions", dealerId: "13399", dealerName: "Hyundai of Columbia", integrationId: null, nexxusOrgId: "a1b2c3d4-e5f6-4789-abcd-ef0123456789" },
-    { orgId: fordOfColumbia.id, provider: "vinsolutions", dealerId: "13398", dealerName: "Ford of Columbia", integrationId: null, nexxusOrgId: "b2c3d4e5-f6a7-4890-bcde-f01234567890" },
+    { orgId: serraHonda.id, provider: "vinsolutions", dealerId: "21043", dealerName: "Serra Honda of Sylacauga", integrationId: null, nexxusOrgId: serraHonda.id },
+    { orgId: serraNissan.id, provider: "vinsolutions", dealerId: "21044", dealerName: "Serra Nissan of Sylacauga", integrationId: "f3f7e600-7d48-4c4e-9607-d737a271e57c", nexxusOrgId: serraNissan.id },
+    { orgId: tonySerraFord.id, provider: "vinsolutions", dealerId: "21047", dealerName: "Tony Serra Ford", integrationId: "6b430786-b1b1-45ef-ae17-bd33e0cb3735", nexxusOrgId: tonySerraFord.id },
+    { orgId: hyundaiOfColumbia.id, provider: "vinsolutions", dealerId: "13399", dealerName: "Hyundai of Columbia", integrationId: null, nexxusOrgId: hyundaiOfColumbia.id },
+    { orgId: fordOfColumbia.id, provider: "vinsolutions", dealerId: "13398", dealerName: "Ford of Columbia", integrationId: null, nexxusOrgId: fordOfColumbia.id },
   ];
 
   for (const i of integrationData) {

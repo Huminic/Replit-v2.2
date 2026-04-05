@@ -159,7 +159,13 @@ export function registerPublicRoutes(app: Express) {
         callArgs.phoneNumberId = settings.vapiPhoneNumberId;
       }
 
-      const result = await callMCP("vapi_create_call", callArgs);
+      let result: any;
+      try {
+        result = await callMCP("vapi_create_call", callArgs);
+      } catch (vapiErr: any) {
+        console.error(`[Widget Callback] VAPI call failed for ${formattedNumber} at ${org.name}:`, vapiErr?.message || vapiErr);
+        return res.status(503).json({ error: "Voice callback service temporarily unavailable", details: vapiErr?.message || "Unknown VAPI error" });
+      }
       console.log(`[Widget Callback] Outbound call initiated to ${formattedNumber} for ${org.name}, callId: ${result.id}`);
 
       const conversation = await storage.createConversation({
