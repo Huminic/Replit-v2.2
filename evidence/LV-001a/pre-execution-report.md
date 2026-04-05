@@ -63,6 +63,8 @@ Browser tests use the Playwright MCP agent pipeline:
 - playwright.config.ts (add workflow project)
 - evidence/LV-001a/
 - issues.md
+- server/index.ts (Helmet noSniff fix — Caddy duplicate header, I-232)
+- tests/e2e/domain-12-infrastructure.spec.ts (skip rate limit test in CI, I-232)
 
 ## UI Changes
 

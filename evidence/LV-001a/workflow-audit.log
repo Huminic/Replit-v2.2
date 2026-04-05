@@ -469,3 +469,9 @@
 [2026-04-05T04:46:40Z] TOOL= step=? sprint=LV-001a
 [2026-04-05T04:47:34Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=BLOCKED detail="Cross-sign is stale (modified 135152s ago, max 1800s). Re-run the generator."
 [2026-04-05T04:48:14Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=PASS detail="All 7 gates passed"
+[2026-04-05T06:04:53Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=BLOCKED detail="Watchdog gate: Ack is 76 minutes old (max 60). Re-acknowledge."
+[2026-04-05T06:06:08Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=BLOCKED detail="Staged files not declared in pre-execution report: server/index.ts. Update ## Declared Files section."
+[2026-04-05T06:06:36Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=BLOCKED detail="Enforcer checklist is stale (modified 4682s ago, max 1800s). Re-run the generator."
+[2026-04-05T06:07:51Z] agent-launch role=orchestrator sprint=LV-001a scope=server/index.ts,tests/e2e/domain-12-infrastructure.spec.ts
+[2026-04-05T06:08:40Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=BLOCKED detail="Cross-sign is stale (modified 4806s ago, max 1800s). Re-run the generator."
+[2026-04-05T06:09:16Z] PRE-COMMIT role=orchestrator sprint=LV-001a result=PASS detail="All 7 gates passed"
