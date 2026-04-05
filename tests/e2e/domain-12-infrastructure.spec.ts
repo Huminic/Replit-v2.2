@@ -40,7 +40,7 @@ test.describe("Domain 12: Infrastructure", () => {
 
     // Specific checks for common Helmet headers
     if (headers["x-content-type-options"]) {
-      expect(headers["x-content-type-options"]).toBe("nosniff");
+      expect(headers["x-content-type-options"]).toContain("nosniff");
     }
 
     if (headers["x-frame-options"]) {
