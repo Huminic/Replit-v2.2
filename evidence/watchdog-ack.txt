@@ -1,18 +1,18 @@
 Acknowledged-By: orchestrator
-Acknowledged: WD-20260403-151503
-Timestamp: 2026-04-03T15:15:30Z
+Acknowledged: WD-20260405-044240
+Timestamp: 2026-04-05T04:43:00Z
 Sprint: LV-001a
 Role: orchestrator
-Context: LV-001a MVP launch validation. I-229 email fix (subject emoji + VIN status), I-230 no-transcript guard.
+Context: LV-001a sprint completion — committing 13 workflow E2E tests + remediation fixes.
 
 Known violations — historical debt:
 - C1 (commit hashes null): Historical pre-harness sprints.
-- C2 (missing evidence artifacts): Historical pre-harness sprints.
-- C3 (cross-signs): M-002/M-003 reconciliation.
-- C4 (checklists): M-002/M-003 reconciliation.
+- C2 (missing evidence artifacts): Historical pre-harness sprints. LV-001a evidence present.
+- C3 (cross-signs): M-002/M-003 reconciliation, R-015/R-016/T-019 historical.
+- C4 (checklists): Same as C3.
 - C7 (context freshness): context.md stale, clears on next session.
-- C8 (hook integrity): scripts modified by operator.
+- C8 (hook integrity): scripts modified by operator, functional gate still enforces.
 - C10 (timestamp anomalies): Historical bulk-generated evidence.
-- C14 (governance files): Operator changes to CLAUDE.md, scripts.
+- C14 (governance files): Operator changes to CLAUDE.md, scripts — separate commit.
 - C15 (memory staleness): context.md older than last commit.
 - C16 (drift detection): Historical null hashes.

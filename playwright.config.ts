@@ -101,6 +101,15 @@ export default defineConfig({
       },
       timeout: 60_000,
     },
+    {
+      name: "workflow",
+      testMatch: /wf-.*\.spec\.ts/,
+      timeout: 120_000,
+      retries: 1,
+      use: {
+        viewport: { width: 1280, height: 720 },
+      },
+    },
   ],
   reporter: [
     ["list"],
