@@ -97,6 +97,9 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false,
   noSniff: false,
+  frameguard: false,
+  xssFilter: false,
+  referrerPolicy: false,
 }));
 
 // Override Helmet's restrictive headers for widget routes (I-214).
