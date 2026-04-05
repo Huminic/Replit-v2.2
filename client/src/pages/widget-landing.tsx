@@ -644,7 +644,7 @@ export default function WidgetLandingPage() {
         <div className="bg-white rounded-2xl shadow-2xl w-80 h-[300px] flex flex-col overflow-hidden border border-gray-100" data-testid="widget-voice">
           <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: WIDGET_TEAL }}>
             <div className="flex items-center gap-2">
-              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs">←</button>
+              <button onClick={() => setWidgetMode('menu')} className="text-white/70 hover:text-white text-xs" data-testid="button-voice-back">←</button>
               <p className="font-semibold text-xs">Instant Call Back</p>
             </div>
             <button onClick={() => setWidgetMode('closed')} className="text-white/70 hover:text-white" data-testid="button-voice-close">

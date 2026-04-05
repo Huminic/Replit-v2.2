@@ -524,7 +524,7 @@ test.describe.serial('Widget Callback Workflow', () => {
     await expect(page.getByTestId('widget-voice')).toBeVisible();
 
     // Click back button
-    await page.getByTestId('button-back-menu').click();
+    await page.getByTestId('button-voice-back').click();
 
     // Should return to menu
     await expect(page.getByTestId('widget-menu')).toBeVisible();
