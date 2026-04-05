@@ -96,10 +96,6 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
-  noSniff: false,
-  frameguard: false,
-  xssFilter: false,
-  referrerPolicy: false,
 }));
 
 // Override Helmet's restrictive headers for widget routes (I-214).
@@ -113,6 +109,9 @@ app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
     res.removeHeader('X-Frame-Options');
+    res.removeHeader('X-Content-Type-Options');
+    res.removeHeader('X-XSS-Protection');
+    res.removeHeader('Referrer-Policy');
     // Override CSP for widget routes — allow embedding from any origin
     res.setHeader('Content-Security-Policy', "default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors *;");
   }

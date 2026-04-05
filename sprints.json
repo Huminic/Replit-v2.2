@@ -4926,7 +4926,9 @@
         "tests/e2e/wf-takeover.spec.ts",
         "server/routes/webhooks.ts",
         "evidence/LV-001a/",
-        "issues.md"
+        "issues.md",
+        "tests/e2e/wf-widget-embed.spec.ts",
+        "server/index.ts"
       ],
       "issues": [
         "I-229",
