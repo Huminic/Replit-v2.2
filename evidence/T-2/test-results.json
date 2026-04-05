@@ -21,7 +21,9 @@
         "id": "seed",
         "name": "seed",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/seed\\.spec\\.ts/"
         ],
@@ -35,7 +37,9 @@
         "id": "api",
         "name": "api",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/domain-(04|05|10|11|12).*\\.spec\\.ts/"
         ],
@@ -49,7 +53,9 @@
         "id": "browser",
         "name": "browser",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/domain-(01|02|03|06|07|08|09).*\\.spec\\.ts/"
         ],
@@ -63,7 +69,9 @@
         "id": "catalog",
         "name": "catalog",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/usability-audit\\.spec\\.ts/"
         ],
@@ -77,7 +85,9 @@
         "id": "comms",
         "name": "comms",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/live-comms\\.spec\\.ts/"
         ],
@@ -91,7 +101,9 @@
         "id": "e2e",
         "name": "e2e",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/e2e-flows\\.spec\\.ts/"
         ],
@@ -105,7 +117,9 @@
         "id": "real-integrations",
         "name": "real-integrations",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/real-integrations\\.spec\\.ts/"
         ],
@@ -119,7 +133,9 @@
         "id": "deep-coverage",
         "name": "deep-coverage",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/deep-coverage\\.spec\\.ts/"
         ],
@@ -133,7 +149,9 @@
         "id": "generated",
         "name": "generated",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/generated-coverage\\.spec\\.ts/"
         ],
@@ -147,11 +165,61 @@
         "id": "visual",
         "name": "visual",
         "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
-        "testIgnore": [],
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
         "testMatch": [
           "/visual-components\\.spec\\.ts/"
         ],
         "timeout": 180000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "sprint",
+        "name": "sprint",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
+        "testMatch": [
+          "/s\\d+-.*\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "gap-coverage",
+        "name": "gap-coverage",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
+        "testMatch": [
+          "/[gmt]\\d+\\w*-.*\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "workflow",
+        "name": "workflow",
+        "testDir": "/home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e",
+        "testIgnore": [
+          "/deprecated\\//"
+        ],
+        "testMatch": [
+          "/wf-.*\\.spec\\.ts/"
+        ],
+        "timeout": 120000
       }
     ],
     "quiet": false,
@@ -180,18 +248,2975 @@
     "workers": 2,
     "webServer": null
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
-      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      "title": "wf-campaign.spec.ts",
+      "file": "wf-campaign.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: Campaign lifecycle E2E",
+          "file": "wf-campaign.spec.ts",
+          "line": 29,
+          "column": 15,
+          "specs": [
+            {
+              "title": "1. Create test campaign",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-a926fed9a7a0c6522f07",
+              "file": "wf-campaign.spec.ts",
+              "line": 55,
+              "column": 3
+            },
+            {
+              "title": "2. Add recipients via CSV upload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-124888d68e4c9423cb34",
+              "file": "wf-campaign.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "3. Execute campaign",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-5293a842e87eaaf76758",
+              "file": "wf-campaign.spec.ts",
+              "line": 144,
+              "column": 3
+            },
+            {
+              "title": "4. Verify campaign status after execution",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-6ff582fe8b97290c5749",
+              "file": "wf-campaign.spec.ts",
+              "line": 175,
+              "column": 3
+            },
+            {
+              "title": "5. Poll for execution results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-527f0eab15c0cbac1af1",
+              "file": "wf-campaign.spec.ts",
+              "line": 228,
+              "column": 3
+            },
+            {
+              "title": "6. Simulate customer reply via inbound SMS webhook",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-a969df5cfa00357fd09e",
+              "file": "wf-campaign.spec.ts",
+              "line": 284,
+              "column": 3
+            },
+            {
+              "title": "7. Verify reply created a conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-19e5d94fec4270da782c",
+              "file": "wf-campaign.spec.ts",
+              "line": 321,
+              "column": 3
+            },
+            {
+              "title": "8. Verify AI agent handling of reply",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-06998641b7545a3afb3d",
+              "file": "wf-campaign.spec.ts",
+              "line": 376,
+              "column": 3
+            },
+            {
+              "title": "9. Verify conversation appears in TeamBox",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-7c54a0d127aa977242cd",
+              "file": "wf-campaign.spec.ts",
+              "line": 458,
+              "column": 3
+            },
+            {
+              "title": "10. Verify human takeover availability",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d216f58185decd54b0dc-465d1ade511f193dfb19",
+              "file": "wf-campaign.spec.ts",
+              "line": 520,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-cold-sales.spec.ts",
+      "file": "wf-cold-sales.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: Cold Inbound SMS — Sales Department",
+          "file": "wf-cold-sales.spec.ts",
+          "line": 25,
+          "column": 6,
+          "specs": [
+            {
+              "title": "WF-SALES-1: Inbound SMS webhook creates conversation for sales inquiry",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f80a2d1ed95c819e087-0d2bb3b91e63a283db86",
+              "file": "wf-cold-sales.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "WF-SALES-2: Conversation exists with correct channel and open status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f80a2d1ed95c819e087-3d5dbf904c399653a098",
+              "file": "wf-cold-sales.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "WF-SALES-3: AI Sales Agent auto-responded to sales inquiry",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f80a2d1ed95c819e087-e3c193c7d5ed0886cb86",
+              "file": "wf-cold-sales.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "WF-SALES-4: Conversation appears in TeamBox SMS list for org",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f80a2d1ed95c819e087-c0f916961db94567f47e",
+              "file": "wf-cold-sales.spec.ts",
+              "line": 138,
+              "column": 3
+            },
+            {
+              "title": "WF-SALES-5: Salesperson takeover pauses AI and allows human response",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f80a2d1ed95c819e087-10441c215b0c139a4944",
+              "file": "wf-cold-sales.spec.ts",
+              "line": 175,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-cold-service.spec.ts",
+      "file": "wf-cold-service.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: Cold Inbound SMS — Service Department",
+          "file": "wf-cold-service.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "WF-SVC-1: Inbound SMS webhook creates conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "79f3a0a8c29048871e84-224179d1483fe473be7e",
+              "file": "wf-cold-service.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "WF-SVC-2: Conversation exists with correct channel and status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "79f3a0a8c29048871e84-1ee1b671ecaaa933c05c",
+              "file": "wf-cold-service.spec.ts",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "WF-SVC-3: AI agent auto-responded with agent message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "79f3a0a8c29048871e84-96f2644513d2526a7b71",
+              "file": "wf-cold-service.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "WF-SVC-4: Conversation appears in TeamBox conversation list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "79f3a0a8c29048871e84-913555bbdfb726b41252",
+              "file": "wf-cold-service.spec.ts",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "WF-SVC-5: Human takeover capability exists",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "79f3a0a8c29048871e84-e9f115c0aa695b3a8c3f",
+              "file": "wf-cold-service.spec.ts",
+              "line": 168,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-takeover.spec.ts",
+      "file": "wf-takeover.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Human Takeover Workflow",
+          "file": "wf-takeover.spec.ts",
+          "line": 24,
+          "column": 15,
+          "specs": [
+            {
+              "title": "1. Find automated conversation in TeamBox",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-fdafb79067cd1eac1529",
+              "file": "wf-takeover.spec.ts",
+              "line": 130,
+              "column": 3
+            },
+            {
+              "title": "2. Take Over button is visible for automated conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-774f8f8381f1e5bc8a64",
+              "file": "wf-takeover.spec.ts",
+              "line": 167,
+              "column": 3
+            },
+            {
+              "title": "3. Perform human takeover",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-29999444daf5d7e88877",
+              "file": "wf-takeover.spec.ts",
+              "line": 188,
+              "column": 3
+            },
+            {
+              "title": "4. Send human agent message after takeover",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-e996bbc4786c1f76a179",
+              "file": "wf-takeover.spec.ts",
+              "line": 222,
+              "column": 3
+            },
+            {
+              "title": "5. Release conversation — select Unassigned to resume AI",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-717ddfb0785cc5667ff8",
+              "file": "wf-takeover.spec.ts",
+              "line": 261,
+              "column": 3
+            },
+            {
+              "title": "6. Take Over button is NOT visible for non-automated (Open) conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d383dc6f0d775c0da3ea-c49304642d5d37d88ef5",
+              "file": "wf-takeover.spec.ts",
+              "line": 293,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-tavus-inbound.spec.ts",
+      "file": "wf-tavus-inbound.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: Tavus Inbound Video E2E",
+          "file": "wf-tavus-inbound.spec.ts",
+          "line": 13,
+          "column": 15,
+          "specs": [
+            {
+              "title": "setup: authenticate and resolve persona ID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-45a3a3ad244ad670dac3",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "1. POST Tavus conversation.end webhook creates conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-38e47e3c64185f27f2f2",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "2. Verify conversation exists in DB via API",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-9092b70f50f0519326f3",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 93,
+              "column": 3
+            },
+            {
+              "title": "3. Verify transcript was stored as a message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-6375d132ee8fcf0e866e",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 119,
+              "column": 3
+            },
+            {
+              "title": "4. Verify VIN lead creation was attempted (metadata check)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-26711558e43dd433d38c",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 161,
+              "column": 3
+            },
+            {
+              "title": "5. Verify conversation appears in TeamBox (conversations list)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-967ccf342452a96dede2",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 219,
+              "column": 3
+            },
+            {
+              "title": "6. Verify notification was created for admin users",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8991ebf55e5452b5163d-2406c3b81931a8ec65fc",
+              "file": "wf-tavus-inbound.spec.ts",
+              "line": 243,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-teambox.spec.ts",
+      "file": "wf-teambox.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "TeamBox Workflow (AC10)",
+          "file": "wf-teambox.spec.ts",
+          "line": 25,
+          "column": 15,
+          "specs": [
+            {
+              "title": "1. Login and navigate to TeamBox",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-f4187294d2c4178008fd",
+              "file": "wf-teambox.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "2. Conversation list is populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-43f92c629ec1fed8b6e1",
+              "file": "wf-teambox.spec.ts",
+              "line": 151,
+              "column": 3
+            },
+            {
+              "title": "3. Filter conversations by SMS channel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-bf02b2cbd06d015c025b",
+              "file": "wf-teambox.spec.ts",
+              "line": 198,
+              "column": 3
+            },
+            {
+              "title": "4. Filter conversations by Automated status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-230515b4b8606b534aa7",
+              "file": "wf-teambox.spec.ts",
+              "line": 222,
+              "column": 3
+            },
+            {
+              "title": "5. Select conversation and view thread",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-fe2f511e39cf89c8fe9f",
+              "file": "wf-teambox.spec.ts",
+              "line": 274,
+              "column": 3
+            },
+            {
+              "title": "6. Take over automated conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-53dea5f058a68b6a706b",
+              "file": "wf-teambox.spec.ts",
+              "line": 301,
+              "column": 3
+            },
+            {
+              "title": "7. Send reply message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-9277e1ecd527bdea786b",
+              "file": "wf-teambox.spec.ts",
+              "line": 396,
+              "column": 3
+            },
+            {
+              "title": "8. Thread updated in conversation list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-ed32d19850a47b39c3c3",
+              "file": "wf-teambox.spec.ts",
+              "line": 443,
+              "column": 3
+            },
+            {
+              "title": "9. Release conversation to Unassigned",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-9b2bb68c9fed534dd308",
+              "file": "wf-teambox.spec.ts",
+              "line": 472,
+              "column": 3
+            },
+            {
+              "title": "10. Phone and Video tabs are accessible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "561d531d48d959fd1739-d19126e5f762c9aed2ad",
+              "file": "wf-teambox.spec.ts",
+              "line": 504,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-vapi-inbound.spec.ts",
+      "file": "wf-vapi-inbound.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: VAPI Inbound Call E2E",
+          "file": "wf-vapi-inbound.spec.ts",
+          "line": 13,
+          "column": 15,
+          "specs": [
+            {
+              "title": "setup: authenticate and resolve assistant ID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-1fde99361f1bf2bc6202",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "1. POST VAPI end-of-call webhook creates conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-d33bee54ba1e04ab85f4",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "2. Verify conversation exists in DB via API",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-27f8cfb003dac72c01c9",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "3. Verify transcript was stored as a message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-b29c83a72f2dc8b8beb3",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "4. Verify VIN lead creation was attempted (metadata check)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-d94338f866e1c6e43e5e",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 162,
+              "column": 3
+            },
+            {
+              "title": "5. Verify conversation appears in TeamBox (conversations list)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-72d9c262e7ab57ef0304",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 224,
+              "column": 3
+            },
+            {
+              "title": "6. Verify deduplication -- same call ID returns existing conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6578cf69913b3de862a2-04d312ef6ac63da4cdc7",
+              "file": "wf-vapi-inbound.spec.ts",
+              "line": 249,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-vin-lead.spec.ts",
+      "file": "wf-vin-lead.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: Conversation → VIN Lead Creation",
+          "file": "wf-vin-lead.spec.ts",
+          "line": 31,
+          "column": 6,
+          "specs": [
+            {
+              "title": "WF-VIN-LEAD-1 VIN Safe MCP health check is reachable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-edc96bd525e029442156",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-2 VAPI webhook creates conversation with transcript",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-5b750b65dd53039e327b",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-3 vin_get_dealer_id resolves Serra Honda org to dealer ID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-0bd0ed7ed712f9026a5c",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-4 vin_list_users shows users at dealer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-4b8bcdd4924d8d692bcf",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 152,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-5 vin_list_lead_sources returns sources for dealer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-13be00bc5aeca750338f",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 174,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-6 vin_safe_prepare_lead returns preview with correct dealer, user, source",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-c1692245ab31fbd5451a",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 199,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-7 Full pipeline: prepare → execute → verify lead creation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-a657e99c22424a52045b",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 250,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-8 Webhook-created conversation tracks VIN lead status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-23fbb1ac87f4d6733bbb",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 348,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-LEAD-9 Notification created for VIN lead events",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fb922d1795260fde3ea-2c87a03e372ca95928cd",
+              "file": "wf-vin-lead.spec.ts",
+              "line": 384,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-vin-trigger.spec.ts",
+      "file": "wf-vin-trigger.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workflow: VIN Lead → Trigger → Outbound → TeamBox",
+          "file": "wf-vin-trigger.spec.ts",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "WF-VIN-TRIGGER-1 Agent trigger configuration exists and is valid",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-c7e393b78dcea27793a3",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-2 Delta sync can be triggered manually and returns results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-86db48602eac8f3e7d22",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-3 Warehouse leads exist with dates after sync",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-c0b29f8f725dc6c630d4",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 149,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-4 Sync logs track delta sync execution history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-01a92f2db9c056a9b8d7",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 200,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-5 Trigger validation: reject invalid trigger types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-f141ab6e779a16e2269c",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 221,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-6 Outbound logs show trigger-generated messages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-af9ee48c74ca1a8b759b",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 283,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-7 Notifications include trigger alerts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-375c625105a746c37a2d",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 335,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-8 Conversations in TeamBox include trigger-originated entries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-05b9b890a9874eebd020",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 377,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-9 Scheduled actions table tracks pending trigger actions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-0fb9f37c72c882810e58",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 426,
+              "column": 3
+            },
+            {
+              "title": "WF-VIN-TRIGGER-10 Multi-store trigger isolation: triggers respect org boundaries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20c296fb13258b7876b-dcbf1c999ad8246de444",
+              "file": "wf-vin-trigger.spec.ts",
+              "line": 458,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-widget-callback.spec.ts",
+      "file": "wf-widget-callback.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Widget Callback Workflow",
+          "file": "wf-widget-callback.spec.ts",
+          "line": 20,
+          "column": 15,
+          "specs": [
+            {
+              "title": "WF-CB-16: Voice config returns VAPI assistant ID for serra-honda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-59fe9a1eeacdab6fb25a",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-16b: Voice config returns 404 for unknown slug",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-d4dad0fda805b06a39f5",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 49,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-01: Landing page loads for serra-honda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-92de202e17baf7995ff6",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-02: Widget FAB opens the engagement menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-2ce43b90329d7603d048",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-03: Clicking Instant Call Back opens phone input panel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-8e20020cb615cb8cacf5",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 80,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-04: Callback submission triggers API call and shows success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-25ab3dbe778a877504d8",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-05: Callback API creates a voice conversation record",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-11b846e873f6cb2144c4",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 146,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-19: VAPI webhook stores transcript for callback-initiated call",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-48f0056470ed45e6be41",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 202,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-06: Created conversation appears in admin TeamBox voice queue",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-c303c30223e7239f1c06",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 296,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-06b: Admin sees voice conversation in TeamBox browser",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-aa54c928bb4183091a6c",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 323,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-07: Callback rejected when phone number is missing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-9adb6e43997005aa5c6e",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 358,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-08: Callback rejected for unknown slug",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-07166eaa8e0423c8a2b7",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 384,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-10: Phone number is normalized to E.164 format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-e10f99e431d63586aabf",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 401,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-14: Widget close button dismisses the voice panel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-8b643975f298a7c7b531",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 479,
+              "column": 3
+            },
+            {
+              "title": "WF-CB-15: Back navigation from voice panel returns to menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6d7d6ac8c4351121bb92-d460ad900602bd7c0d33",
+              "file": "wf-widget-callback.spec.ts",
+              "line": 506,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-widget-chat.spec.ts",
+      "file": "wf-widget-chat.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Widget Chat Workflow",
+          "file": "wf-widget-chat.spec.ts",
+          "line": 6,
+          "column": 15,
+          "specs": [
+            {
+              "title": "WF-WIDGET-CHAT end-to-end",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "816c22c294e9ee0ea3ce-0171c11cd667af1d88a3",
+              "file": "wf-widget-chat.spec.ts",
+              "line": 7,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-widget-form.spec.ts",
+      "file": "wf-widget-form.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Widget Form Workflow",
+          "file": "wf-widget-form.spec.ts",
+          "line": 27,
+          "column": 15,
+          "specs": [
+            {
+              "title": "1. Widget FAB opens menu, form option visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-8c73335a84c299c6a798",
+              "file": "wf-widget-form.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "2. Form fill and successful submission",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-14f0b1d372c7c42fc0ab",
+              "file": "wf-widget-form.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "3. Submit without phone (phone is optional)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-c34e572792c755b34a7d",
+              "file": "wf-widget-form.spec.ts",
+              "line": 94,
+              "column": 3
+            },
+            {
+              "title": "4. Submit button disabled when required fields empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-ed792b38f105ecacb656",
+              "file": "wf-widget-form.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "5. Send another message resets the form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-b50ffd70cbcbfa094a81",
+              "file": "wf-widget-form.spec.ts",
+              "line": 149,
+              "column": 3
+            },
+            {
+              "title": "6. Back button returns to menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-4304eb157740d4fdcc88",
+              "file": "wf-widget-form.spec.ts",
+              "line": 176,
+              "column": 3
+            },
+            {
+              "title": "7. Close button dismisses the widget",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-bd8ad2d4bb7bbd0ffcb9",
+              "file": "wf-widget-form.spec.ts",
+              "line": 190,
+              "column": 3
+            },
+            {
+              "title": "8. API: POST /api/widget/contact creates conversation with channel=form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-b8136414247b7acdba4e",
+              "file": "wf-widget-form.spec.ts",
+              "line": 211,
+              "column": 3
+            },
+            {
+              "title": "9. API: Conversation has the form submission message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-5a615dce1b42aad7d0bd",
+              "file": "wf-widget-form.spec.ts",
+              "line": 244,
+              "column": 3
+            },
+            {
+              "title": "10. API: Missing required fields returns 400",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-6267327a9397ca43b78e",
+              "file": "wf-widget-form.spec.ts",
+              "line": 281,
+              "column": 3
+            },
+            {
+              "title": "11. API: Unknown slug returns 404",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-cd9c77483a5ec60df14b",
+              "file": "wf-widget-form.spec.ts",
+              "line": 306,
+              "column": 3
+            },
+            {
+              "title": "12. API: Auto-SMS logged when OUTBOUND_LIVE_ENABLED=false",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-9b41cd917d542d161ebc",
+              "file": "wf-widget-form.spec.ts",
+              "line": 316,
+              "column": 3
+            },
+            {
+              "title": "13. API: Rate limiting accepts normal submission rate",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-d9d54faf444c3b42e10c",
+              "file": "wf-widget-form.spec.ts",
+              "line": 340,
+              "column": 3
+            },
+            {
+              "title": "14. API: Channel filter returns only form conversations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-56b6eb4d7c114efb2cb6",
+              "file": "wf-widget-form.spec.ts",
+              "line": 356,
+              "column": 3
+            },
+            {
+              "title": "15. TeamBox: form conversation visible and takeover works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-b7acb61d606d4c45963f",
+              "file": "wf-widget-form.spec.ts",
+              "line": 376,
+              "column": 3
+            },
+            {
+              "title": "16. TeamBox: admin can reply to form conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b7d05f507e20ec42f814-643b960a793722a2ff6e",
+              "file": "wf-widget-form.spec.ts",
+              "line": 438,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "wf-widget-video.spec.ts",
+      "file": "wf-widget-video.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "1. Widget Video — Public API Preconditions",
+          "file": "wf-widget-video.spec.ts",
+          "line": 27,
+          "column": 15,
+          "specs": [
+            {
+              "title": "1.1 Landing page API returns org data for serra-honda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-fe51582dfa47598c484c",
+              "file": "wf-widget-video.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "1.2 Voice-config API returns tavusPersonaId for serra-honda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-4e056798e85140a6fbc1",
+              "file": "wf-widget-video.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "1.3 Voice-config API returns 404 for unknown slug",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-6f52a0a49d5cdc15c4bf",
+              "file": "wf-widget-video.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "1.4 Widget JS is served for all five dealer slugs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-e583835330006bbf9ec9",
+              "file": "wf-widget-video.spec.ts",
+              "line": 60,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "2. Widget Video — POST /api/widget/video-session",
+          "file": "wf-widget-video.spec.ts",
+          "line": 81,
+          "column": 15,
+          "specs": [
+            {
+              "title": "2.1 Video session created successfully with valid slug",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-31f313af431879d3ce52",
+              "file": "wf-widget-video.spec.ts",
+              "line": 82,
+              "column": 3
+            },
+            {
+              "title": "2.2 Video session rejected for org with no Tavus persona",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-a653f08205c70dfcbded",
+              "file": "wf-widget-video.spec.ts",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "2.3 Video session rejected when slug and widgetCode are both absent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-7c4fea53712aa989cc14",
+              "file": "wf-widget-video.spec.ts",
+              "line": 109,
+              "column": 3
+            },
+            {
+              "title": "2.4 Video session rejected when slug is unknown",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-7dfc9dbf149b918a5613",
+              "file": "wf-widget-video.spec.ts",
+              "line": 122,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "3. Widget Video — Tavus Webhook Pipeline",
+          "file": "wf-widget-video.spec.ts",
+          "line": 139,
+          "column": 15,
+          "specs": [
+            {
+              "title": "3.1 Setup: authenticate and resolve persona ID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-c9121f0bcc063052b531",
+              "file": "wf-widget-video.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "3.2 Tavus conversation.end webhook creates a conversation record",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-52d4efa026dbc7e335a7",
+              "file": "wf-widget-video.spec.ts",
+              "line": 185,
+              "column": 3
+            },
+            {
+              "title": "3.3 Conversation exists in DB with channel=video and status=open",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-2350ffd440bca7e053e2",
+              "file": "wf-widget-video.spec.ts",
+              "line": 219,
+              "column": 3
+            },
+            {
+              "title": "3.4 Transcript stored as system message with senderName Tavus",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-c9dcabd9e56c2cceb648",
+              "file": "wf-widget-video.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "3.5 VIN lead pathway exercised (activity log or escalation task)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-c2f541a1b842236b8c16",
+              "file": "wf-widget-video.spec.ts",
+              "line": 277,
+              "column": 3
+            },
+            {
+              "title": "3.6 Conversation visible in TeamBox via channel=video filter",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-efc76021554bdb6579d4",
+              "file": "wf-widget-video.spec.ts",
+              "line": 334,
+              "column": 3
+            },
+            {
+              "title": "3.7 Admin notification created for the video conversation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-f6537534e12dbe4899db",
+              "file": "wf-widget-video.spec.ts",
+              "line": 357,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "4. Widget Video — Tavus Webhook Rejection Cases",
+          "file": "wf-widget-video.spec.ts",
+          "line": 414,
+          "column": 15,
+          "specs": [
+            {
+              "title": "4.1 Webhook rejected when persona_id matches no org agent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-6f2350ab136b7dda0a47",
+              "file": "wf-widget-video.spec.ts",
+              "line": 432,
+              "column": 3
+            },
+            {
+              "title": "4.2 Webhook rejected when conversation_id is missing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-5549400233d3ba6b4405",
+              "file": "wf-widget-video.spec.ts",
+              "line": 455,
+              "column": 3
+            },
+            {
+              "title": "4.3 Webhook with unrecognized event type is acknowledged without processing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-2e640ccb65a52853a4d9",
+              "file": "wf-widget-video.spec.ts",
+              "line": 477,
+              "column": 3
+            },
+            {
+              "title": "4.4 Webhook rejected when secret header is missing (if configured)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-b002b5fd8207a6f22f2a",
+              "file": "wf-widget-video.spec.ts",
+              "line": 499,
+              "column": 3
+            },
+            {
+              "title": "4.5 VIN lead skipped when payload has no summary and no transcript",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-9e2e17b6aebdf2ce49a6",
+              "file": "wf-widget-video.spec.ts",
+              "line": 525,
+              "column": 3
+            },
+            {
+              "title": "4.6 Duplicate Tavus conversation_id deduplication check",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-0d4fa72db518ded56dec",
+              "file": "wf-widget-video.spec.ts",
+              "line": 587,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "5. Widget Video — Browser UI (Landing Page)",
+          "file": "wf-widget-video.spec.ts",
+          "line": 664,
+          "column": 15,
+          "specs": [
+            {
+              "title": "5.1 Landing page loads and displays widget FAB for serra-honda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-7637a22170904393beee",
+              "file": "wf-widget-video.spec.ts",
+              "line": 665,
+              "column": 3
+            },
+            {
+              "title": "5.2 Widget FAB opens menu with video option",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-36a734b8231e71981436",
+              "file": "wf-widget-video.spec.ts",
+              "line": 675,
+              "column": 3
+            },
+            {
+              "title": "5.3 Clicking video option transitions widget to connecting state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-a0105bbab2156ec07bdd",
+              "file": "wf-widget-video.spec.ts",
+              "line": 694,
+              "column": 3
+            },
+            {
+              "title": "5.4 Close button collapses the widget menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-1ff0a1c6e6de14e77003",
+              "file": "wf-widget-video.spec.ts",
+              "line": 733,
+              "column": 3
+            },
+            {
+              "title": "5.5 Fullscreen video mode renders correctly via ?mode=video",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-c61be7b73e4c9a24006f",
+              "file": "wf-widget-video.spec.ts",
+              "line": 754,
+              "column": 3
+            },
+            {
+              "title": "5.6 End call button navigates back to landing page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-e2d86d2d5c71b3483869",
+              "file": "wf-widget-video.spec.ts",
+              "line": 782,
+              "column": 3
+            },
+            {
+              "title": "5.7 Mic toggle button cycles muted and unmuted state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-6b2ae0394b0c629f063d",
+              "file": "wf-widget-video.spec.ts",
+              "line": 815,
+              "column": 3
+            },
+            {
+              "title": "5.8 Fallback button in error state navigates back",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-bc2c030f6216387e1c03",
+              "file": "wf-widget-video.spec.ts",
+              "line": 848,
+              "column": 3
+            },
+            {
+              "title": "5.9 Unknown slug shows 404 page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-6b8b1cec07cb9fdba75e",
+              "file": "wf-widget-video.spec.ts",
+              "line": 873,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "6. Widget Video — TeamBox Admin Verification (Browser)",
+          "file": "wf-widget-video.spec.ts",
+          "line": 900,
+          "column": 15,
+          "specs": [
+            {
+              "title": "6.1 Admin logs in and TeamBox renders with Video tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-ac7d58bd74280c5017d2",
+              "file": "wf-widget-video.spec.ts",
+              "line": 901,
+              "column": 3
+            },
+            {
+              "title": "6.2 TeamBox Video tab shows Tavus sessions content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-407c29484055967ca36d",
+              "file": "wf-widget-video.spec.ts",
+              "line": 910,
+              "column": 3
+            },
+            {
+              "title": "6.3 Channel chip video filters conversation list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-96c8e6a5bb3d7832d5cf",
+              "file": "wf-widget-video.spec.ts",
+              "line": 938,
+              "column": 3
+            },
+            {
+              "title": "6.4 Video conversation from webhook appears in TeamBox with transcript",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "workflow",
+                  "projectName": "workflow",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cd7cb340b511db24cc8e-5a9d7a93701c27333096",
+              "file": "wf-widget-video.spec.ts",
+              "line": 964,
+              "column": 3
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2026-03-23T14:17:22.102Z",
-    "duration": 14.117999999999938,
+    "startTime": "2026-04-04T19:50:28.235Z",
+    "duration": 254.846,
     "expected": 0,
-    "skipped": 0,
+    "skipped": 135,
     "unexpected": 0,
     "flaky": 0
   }

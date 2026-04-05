@@ -65,10 +65,26 @@ Browser tests use the Playwright MCP agent pipeline:
 - issues.md
 - server/index.ts (Helmet noSniff fix — Caddy duplicate header, I-232)
 - tests/e2e/domain-12-infrastructure.spec.ts (skip rate limit test in CI, I-232)
+- client/src/pages/widget-landing.tsx (data-testid for voice-close button)
+- tests/e2e/wf-widget-embed.spec.ts (embed widget test)
+- tests/agents/generated/edge-cases.agent.spec.ts (XSS slug restore fix)
+- client/src/components/CreditBalanceIndicator.tsx (DELETED — dead code, I-242)
+- client/src/components/UsageMeterBar.tsx (DELETED — dead code, I-242)
+- client/src/hooks/useFirstLogin.ts (DELETED — dead code, I-242)
+- scripts/pre-commit.sh (governance update)
+- scripts/watchdog.sh (governance update)
+- CLAUDE.md (governance update)
+- safety-gate/README.md (safety gate docs)
+- tests/e2e/deprecated/ (18 deprecated test files moved, I-242)
+- tests/agents/plans/ (test plan files)
+- tests/e2e/wf-takeover.plan.md (test plan)
+- tests/e2e/wf-widget-callback.plan.md (test plan)
+- tests/e2e/wf-widget-form.plan.md (test plan)
+- tests/e2e/wf-widget-video.plan.md (test plan)
 
 ## UI Changes
 
-NONE. uiPermissions: "NONE".
+data-testid="button-voice-close" added to widget-landing.tsx close button (no visual change). uiPermissions: "NONE" — attribute-only, no UI modification.
 
 ## Acceptance Criteria (from sprints.json)
 

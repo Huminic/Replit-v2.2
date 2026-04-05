@@ -31,6 +31,10 @@ function validateEnvironment() {
 
 validateEnvironment();
 
+if (!process.env.VAPI_WEBHOOK_SECRET) console.warn('WARNING: VAPI_WEBHOOK_SECRET not set — webhooks will accept all requests');
+if (!process.env.TEXTMAGIC_WEBHOOK_SECRET) console.warn('WARNING: TEXTMAGIC_WEBHOOK_SECRET not set — webhooks will accept all requests');
+if (!process.env.TAVUS_WEBHOOK_SECRET) console.warn('WARNING: TAVUS_WEBHOOK_SECRET not set — webhooks will accept all requests');
+
 const app = express();
 app.set('trust proxy', 1);
 const httpServer = createServer(app);

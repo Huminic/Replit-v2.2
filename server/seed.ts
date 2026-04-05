@@ -5,7 +5,7 @@ import { billingService } from "./services/billingService";
 
 const SALT_ROUNDS = 10;
 
-const seedPassword = process.env.SEED_DEFAULT_PASSWORD || (process.env.NODE_ENV === 'development' ? 'password123' : crypto.randomUUID());
+const seedPassword = process.env.SEED_DEFAULT_PASSWORD || crypto.randomUUID();
 if (!process.env.SEED_DEFAULT_PASSWORD && process.env.NODE_ENV === 'production') {
   console.log("Generated seed admin password: [REDACTED — set SEED_DEFAULT_PASSWORD env var]");
 }

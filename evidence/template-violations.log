@@ -1,0 +1,11 @@
+[2026-04-02T20:07:45Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/I-001/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-02T20:08:12Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/I-001/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-03T05:05:08Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/I-002/post-sprint-report.md template=post-sprint
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header

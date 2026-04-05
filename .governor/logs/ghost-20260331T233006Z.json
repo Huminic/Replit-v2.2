@@ -1,0 +1,24 @@
+{
+  "reportId": "GHOST-ghost-20260331T233006Z",
+  "status": "violation",
+  "phase": "qa_resolve_loop",
+  "activeSprint": null,
+  "checks": {
+    "app-state.json": true,
+    "active-phase.json": true,
+    "lifecycle-state.json": true,
+    "role-registry.json": true,
+    "phase_consistent": true,
+    "active_sprint_spec_exists": true,
+    "active_sprint_evidence_exists": true,
+    "bus_dirs_present": false
+  },
+  "violations": [
+    {
+      "code": "BUS_DIRS_MISSING",
+      "severity": "major",
+      "message": "One or more core bus directories missing"
+    }
+  ],
+  "nextAction": "HALO_REVIEW"
+}

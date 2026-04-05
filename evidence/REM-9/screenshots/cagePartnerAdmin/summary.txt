@@ -1,27 +1,30 @@
 # Visual Verification: Partner Admin (Cage)
-Date: 2026-03-24T11:02:28.906Z
-Console errors: 7
+Date: 2026-04-02T07:59:40.162Z
+Console errors: 4
 
-- main: OK
-- sales: OK
-- service: OK — 1 error toast(s)
-- marketing: OK
-- management: OK
-- teambox: OK
-- my-work: BLANK — Page appears empty
-- insights: BLANK — Page appears empty
-- billing: BLANK — Page appears empty
-- settings: BLANK — Page appears empty
-- profile: BLANK — Page appears empty
-- agents: BLANK — Page appears empty
+- main: OK — 1 error toast(s)
+- sales: OK — 1 error toast(s)
+- service: OK — 2 error toast(s), 1 spinner(s) still active
+- marketing: OK — 1 error toast(s)
+- management: OK — 1 error toast(s)
+- teambox: OK — 1 error toast(s)
+- my-work: OK — 1 error toast(s)
+- insights: OK — 1 error toast(s)
+- billing: OK — 2 error toast(s)
+- settings: OK — 1 error toast(s)
+- profile: OK — 1 error toast(s)
+- agents: OK — 1 error toast(s)
 
 ## Console Errors
 - Failed to create main chat conversation: TypeError: Failed to fetch
-    at kY (http://localhost:5000/assets/index-C2mo05ku.js:173:4163)
-    at Kt (htt
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 404 (Not Found)
+    at TB (http://localhost:5000/assets/index-Bi3maqZz.js:8:98049)
+    at dt (http
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at TB (http://localhost:5000/assets/index-Bi3maqZz.js:8:98049)
+    at dt (http
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at TB (http://localhost:5000/assets/index-Bi3maqZz.js:8:98049)
+    at dt (http
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at TB (http://localhost:5000/assets/index-Bi3maqZz.js:8:98049)
+    at dt (http

@@ -1,8 +1,8 @@
 # Visual Verification: Org Admin
-Date: 2026-03-24T11:03:01.896Z
-Console errors: 12
+Date: 2026-04-02T08:00:15.563Z
+Console errors: 9
 
-- main: BLANK — Page appears empty
+- main: OK
 - sales: OK
 - service: OK
 - marketing: OK
@@ -11,18 +11,17 @@ Console errors: 12
 - my-work: OK
 - insights: OK
 - billing: OK
-- settings: OK
-- profile: OK
-- agents: OK
+- settings: OK — 1 error toast(s)
+- profile: OK — 1 error toast(s)
+- agents: OK — 1 error toast(s)
 
 ## Console Errors
-- Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 401 (Unauthorized)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)

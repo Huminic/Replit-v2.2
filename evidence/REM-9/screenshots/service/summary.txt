@@ -1,28 +1,29 @@
 # Visual Verification: Service
-Date: 2026-03-24T11:04:47.466Z
-Console errors: 10
+Date: 2026-04-02T08:02:42.000Z
+Console errors: 9
 
 - main: OK — 1 error toast(s)
 - sales: OK — 1 error toast(s)
-- service: OK — 1 error toast(s), 1 spinner(s) still active
+- service: OK — 2 error toast(s), 1 spinner(s) still active
 - marketing: OK — 1 error toast(s)
-- management: OK
-- teambox: OK
-- my-work: OK
-- insights: OK
-- billing: OK
-- settings: OK
-- profile: OK
-- agents: OK
+- management: BLANK — Page appears empty
+- teambox: BLANK — Page appears empty
+- my-work: BLANK — Page appears empty
+- insights: BLANK — Page appears empty
+- billing: BLANK — Page appears empty
+- settings: BLANK — Page appears empty
+- profile: BLANK — Page appears empty
+- agents: BLANK — Page appears empty
 
 ## Console Errors
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at AY (http://localhost:5000/assets/index-DEiKgfxD.js:173:4163)
+    at Gt (htt
 - Failed to load resource: the server responded with a status of 404 (Not Found)
-- Query error: 404: {"message":"Conversation not found"}
-- Failed to load resource: the server responded with a status of 401 (Unauthorized)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)
+- Failed to load resource: the server responded with a status of 404 (Not Found)

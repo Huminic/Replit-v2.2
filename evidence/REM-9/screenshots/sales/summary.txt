@@ -1,28 +1,30 @@
 # Visual Verification: Sales
-Date: 2026-03-24T11:04:10.582Z
-Console errors: 12
+Date: 2026-04-02T08:01:20.494Z
+Console errors: 13
 
-- main: BLANK — Page appears empty
-- sales: BLANK — Page appears empty
-- service: BLANK — Page appears empty
+- main: OK
+- sales: OK
+- service: OK
 - marketing: OK
 - management: OK
 - teambox: OK
-- my-work: OK
-- insights: OK
-- billing: OK
-- settings: OK
-- profile: OK
-- agents: OK
+- my-work: BLANK — Page appears empty
+- insights: BLANK — Page appears empty
+- billing: BLANK — Page appears empty
+- settings: BLANK — Page appears empty
+- profile: BLANK — Page appears empty
+- agents: BLANK — Page appears empty
 
 ## Console Errors
+- Failed to create main chat conversation: TypeError: Failed to fetch
+    at TB (http://localhost:5000/assets/index-Bi3maqZz.js:8:98049)
+    at dt (http
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+- Failed to load resource: the server responded with a status of 429 (Too Many Requests)
 - Failed to load resource: the server responded with a status of 404 (Not Found)
 - Failed to load resource: the server responded with a status of 404 (Not Found)
 - Failed to load resource: the server responded with a status of 404 (Not Found)
-- Failed to load resource: the server responded with a status of 401 (Unauthorized)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)
-- Failed to load resource: the server responded with a status of 400 (Bad Request)

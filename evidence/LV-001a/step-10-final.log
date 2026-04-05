@@ -1,0 +1,186 @@
+=== LIVE FINAL Sun Apr  5 13:15:46 UTC 2026 ===
+=== wf-widget-video.spec.ts ===
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+Running 34 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+  [1.1] Landing data: {"id":"f4c56901-89ab-4497-9bfb-69e6495a4839","name":"Serra Honda","slug":"serra-honda","personaName":"Caroline"}
+  ✓   1 [workflow] › tests/e2e/wf-widget-video.spec.ts:28:3 › 1. Widget Video — Public API Preconditions › 1.1 Landing page API returns org data for serra-honda (186ms)
+  [1.2] tavusPersonaId=p9eb007721f4, vapiAssistantId=90a876c0-0f11-4424-abfe-9ac82b264d88, orgName=Serra Honda
+  ✓   2 [workflow] › tests/e2e/wf-widget-video.spec.ts:39:3 › 1. Widget Video — Public API Preconditions › 1.2 Voice-config API returns tavusPersonaId for serra-honda (304ms)
+  [1.3] 404 message: Organization not found
+  ✓   3 [workflow] › tests/e2e/wf-widget-video.spec.ts:50:3 › 1. Widget Video — Public API Preconditions › 1.3 Voice-config API returns 404 for unknown slug (115ms)
+  [1.4] serra-honda: 1051 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] serra-nissan: 1053 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] tony-serra-ford: 1059 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] hyundai-of-columbia: 1067 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] ford-of-columbia: 1061 bytes, content-type=application/javascript; charset=utf-8
+  ✓   4 [workflow] › tests/e2e/wf-widget-video.spec.ts:60:3 › 1. Widget Video — Public API Preconditions › 1.4 Widget JS is served for all five dealer slugs (685ms)
+  [2.1] Status: 200, Body: {"conversationId":"c81a1fb56bdaf472","conversationUrl":"https://tavus.daily.co/c81a1fb56bdaf472","status":"active"}
+  ✓   5 [workflow] › tests/e2e/wf-widget-video.spec.ts:82:3 › 2. Widget Video — POST /api/widget/video-session › 2.1 Video session created successfully with valid slug (2.8s)
+  [2.2] Status: 404, message: Organization not found
+  ✓   6 [workflow] › tests/e2e/wf-widget-video.spec.ts:96:3 › 2. Widget Video — POST /api/widget/video-session › 2.2 Video session rejected for org with no Tavus persona (105ms)
+  [2.3] Status: 400, message: widgetCode or slug is required
+  ✓   7 [workflow] › tests/e2e/wf-widget-video.spec.ts:109:3 › 2. Widget Video — POST /api/widget/video-session › 2.3 Video session rejected when slug and widgetCode are both absent (15ms)
+  [2.4] Status: 404, message: Organization not found
+  ✓   8 [workflow] › tests/e2e/wf-widget-video.spec.ts:122:3 › 2. Widget Video — POST /api/widget/video-session › 2.4 Video session rejected when slug is unknown (101ms)
+  [3.1] Org: f4c56901-89ab-4497-9bfb-69e6495a4839, personaId: p9eb007721f4
+  ✓   9 [workflow] › tests/e2e/wf-widget-video.spec.ts:165:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.1 Setup: authenticate and resolve persona ID (981ms)
+  [3.2] Status: 200, Body: {"message":"Webhook processed successfully","conversationId":"195c4ed0-8ebc-410e-aa50-93e234ff21d3","vinLeadCreated":false}
+  [3.2] Conversation created: 195c4ed0-8ebc-410e-aa50-93e234ff21d3
+  ✓  10 [workflow] › tests/e2e/wf-widget-video.spec.ts:185:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.2 Tavus conversation.end webhook creates a conversation record (1.6s)
+  [3.3] Conversation 195c4ed0-8ebc-410e-aa50-93e234ff21d3: channel=video, customer=Video Visitor, status=open
+  ✓  11 [workflow] › tests/e2e/wf-widget-video.spec.ts:219:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.3 Conversation exists in DB with channel=video and status=open (382ms)
+  [3.4] Transcript message stored: **Video Call Summary:**
+Visitor WF-Vid-wf-vid-1775394949144-t6vizj interested in trading 2022 CR-V for 2026 CR-V Touring...
+  ✓  12 [workflow] › tests/e2e/wf-widget-video.spec.ts:241:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.4 Transcript stored as system message with senderName Tavus (457ms)
+  [3.5] Activity log found: vinLeadCreated=false, personaId=p9eb007721f4
+  [3.5] Escalation task found: "VIN Lead Creation Failed — Tavus Video" -- VIN was attempted but failed
+  [3.5] VIN lead creation pathway exercised (attempted=true)
+  ✓  13 [workflow] › tests/e2e/wf-widget-video.spec.ts:277:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.5 VIN lead pathway exercised (activity log or escalation task) (988ms)
+  [3.6] Conversation 195c4ed0-8ebc-410e-aa50-93e234ff21d3 visible in video list (1 total open video conversations)
+  ✓  14 [workflow] › tests/e2e/wf-widget-video.spec.ts:334:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.6 Conversation visible in TeamBox via channel=video filter (366ms)
+  [3.7] Notification found: "Video Conversation Completed" -- Video conversation with Video Visitor has been completed and added to TeamBox.
+  [3.7] Notification check complete
+  [Cleanup] Deleted conversation 195c4ed0-8ebc-410e-aa50-93e234ff21d3
+  ✓  15 [workflow] › tests/e2e/wf-widget-video.spec.ts:357:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.7 Admin notification created for the video conversation (366ms)
+  [4.1] Status: 400, message: Unable to resolve organization from persona. Webhook rejected to prevent tenant data leak.
+  ✓  16 [workflow] › tests/e2e/wf-widget-video.spec.ts:432:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.1 Webhook rejected when persona_id matches no org agent (1.1s)
+  [4.2] Status: 400, message: Missing or invalid conversation_id
+  ✓  17 [workflow] › tests/e2e/wf-widget-video.spec.ts:455:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.2 Webhook rejected when conversation_id is missing (15ms)
+  [4.3] Status: 200, message: Event type ignored
+  ✓  18 [workflow] › tests/e2e/wf-widget-video.spec.ts:477:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.3 Webhook with unrecognized event type is acknowledged without processing (16ms)
+  [4.4] Secret enforced: Invalid webhook secret
+  ✓  19 [workflow] › tests/e2e/wf-widget-video.spec.ts:499:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.4 Webhook rejected when secret header is missing (if configured) (19ms)
+  [4.5] Status: 200, Body: {"message":"Webhook processed successfully","conversationId":"6c03f5fd-a5d4-426e-9608-1f3c40c158d0","vinLeadCreated":false}
+  [4.5] VIN skipped confirmed: vinLeadCreated=false
+  [4.5] Cleanup: deleted conversation 6c03f5fd-a5d4-426e-9608-1f3c40c158d0
+  ✓  20 [workflow] › tests/e2e/wf-widget-video.spec.ts:525:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.5 VIN lead skipped when payload has no summary and no transcript (1.7s)
+  [4.6] No deduplication: second request created new conversation 5a68c11f-4714-40c3-97f4-6a951e743d9d
+  [4.6] Cleanup: deleted conversation 66621aa1-2f56-4415-8640-4f8b9bb88004
+  ✓  21 [workflow] › tests/e2e/wf-widget-video.spec.ts:587:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.6 Duplicate Tavus conversation_id deduplication check (3.3s)
+  [5.1] Landing page loaded, widget FAB visible
+  ✓  22 [workflow] › tests/e2e/wf-widget-video.spec.ts:665:3 › 5. Widget Video — Browser UI (Landing Page) › 5.1 Landing page loads and displays widget FAB for serra-honda (2.7s)
+  [5.2] Widget menu opened with video option visible
+  ✓  23 [workflow] › tests/e2e/wf-widget-video.spec.ts:675:3 › 5. Widget Video — Browser UI (Landing Page) › 5.2 Widget FAB opens menu with video option (2.7s)
+  [5.3] Video opened in new window: about:blank
+  ✓  24 [workflow] › tests/e2e/wf-widget-video.spec.ts:694:3 › 5. Widget Video — Browser UI (Landing Page) › 5.3 Clicking video option transitions widget to connecting state (2.9s)
+  [5.4] Widget closed, FAB still visible, page unchanged
+  ✓  25 [workflow] › tests/e2e/wf-widget-video.spec.ts:733:3 › 5. Widget Video — Browser UI (Landing Page) › 5.4 Close button collapses the widget menu (2.9s)
+  [5.5] Fullscreen video mode rendered with mic toggle and end call buttons
+  ✓  26 [workflow] › tests/e2e/wf-widget-video.spec.ts:754:3 › 5. Widget Video — Browser UI (Landing Page) › 5.5 Fullscreen video mode renders correctly via ?mode=video (3.7s)
+  [5.6] End call navigated back to landing page
+  ✓  27 [workflow] › tests/e2e/wf-widget-video.spec.ts:782:3 › 5. Widget Video — Browser UI (Landing Page) › 5.6 End call button navigates back to landing page (5.7s)
+  [5.7] Mic toggle: initial="w-12 h-12 rounded-full flex items-center justify-c", after1="w-12 h-12 rounded-full flex items-center justify-c", after2="w-12 h-12 rounded-full flex items-center justify-c"
+  [5.7] Class changed on toggle: true
+  ✓  28 [workflow] › tests/e2e/wf-widget-video.spec.ts:815:3 › 5. Widget Video — Browser UI (Landing Page) › 5.7 Mic toggle button cycles muted and unmuted state (4.7s)
+  [5.8] Fallback button navigated from error state back to landing page
+  ✓  29 [workflow] › tests/e2e/wf-widget-video.spec.ts:848:3 › 5. Widget Video — Browser UI (Landing Page) › 5.8 Fallback button in error state navigates back (12.7s)
+  [5.9] 404 page displayed correctly
+  [5.9] Widget FAB not present on unknown slug page
+  ✓  30 [workflow] › tests/e2e/wf-widget-video.spec.ts:873:3 › 5. Widget Video — Browser UI (Landing Page) › 5.9 Unknown slug shows 404 page (2.5s)
+  [6.1] TeamBox Video tab confirmed visible
+  ✓  31 [workflow] › tests/e2e/wf-widget-video.spec.ts:901:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.1 Admin logs in and TeamBox renders with Video tab (3.5s)
+  [6.2] Video tab content: table=false, noSessions=true
+  ✓  32 [workflow] › tests/e2e/wf-widget-video.spec.ts:910:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.2 TeamBox Video tab shows Tavus sessions content (5.4s)
+  [6.3] Channel chip video not found -- may use different filter UI
+  ✓  33 [workflow] › tests/e2e/wf-widget-video.spec.ts:938:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.3 Channel chip video filters conversation list (4.7s)
+  [6.4] Webhook created conversation: b11e49db-2935-498c-8de8-1d995a0b35d0
+  [6.4] Conversation not found in TeamBox list within polling window
+  [6.4] Cleanup: deleted conversation b11e49db-2935-498c-8de8-1d995a0b35d0
+  ✓  34 [workflow] › tests/e2e/wf-widget-video.spec.ts:964:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.4 Video conversation from webhook appears in TeamBox with transcript (32.6s)
+
+  34 passed (1.8m)
+EXIT=0
+=== wf-widget-chat.spec.ts ===
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+
+Running 1 test using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  VERIFIED via API: 126 chat conversations found, latest id=98c4c2fb-9854-41ce-9ef3-15fe28009515
+  ✓  1 [workflow] › tests/e2e/wf-widget-chat.spec.ts:8:3 › Widget Chat Workflow › WF-WIDGET-CHAT end-to-end (13.4s)
+
+  1 passed (14.8s)
+EXIT=0
+=== wf-widget-callback.spec.ts ===
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+Running 15 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+  [VoiceConfig] vapiAssistantId=90a876c0-0f11-4424-abfe-9ac82b264d88, tavusPersonaId=p9eb007721f4
+  ✓   1 [workflow] › tests/e2e/wf-widget-callback.spec.ts:34:3 › Widget Callback Workflow › WF-CB-16: Voice config returns VAPI assistant ID for serra-honda (356ms)
+  ✓   2 [workflow] › tests/e2e/wf-widget-callback.spec.ts:48:3 › Widget Callback Workflow › WF-CB-16b: Voice config returns 404 for unknown slug (111ms)
+  ✓   3 [workflow] › tests/e2e/wf-widget-callback.spec.ts:60:3 › Widget Callback Workflow › WF-CB-01: Landing page loads for serra-honda (2.6s)
+  ✓   4 [workflow] › tests/e2e/wf-widget-callback.spec.ts:68:3 › Widget Callback Workflow › WF-CB-02: Widget FAB opens the engagement menu (3.0s)
+  ✓   5 [workflow] › tests/e2e/wf-widget-callback.spec.ts:79:3 › Widget Callback Workflow › WF-CB-03: Clicking Instant Call Back opens phone input panel (3.5s)
+  [Browser] Callback returned 503 — voice agent may not be configured or VAPI unavailable
+  ✓   6 [workflow] › tests/e2e/wf-widget-callback.spec.ts:99:3 › Widget Callback Workflow › WF-CB-04: Callback submission triggers API call and shows success (4.1s)
+  [API] Callback returned 503 (service unavailable): Voice callback service temporarily unavailable
+  [API] VAPI service not reachable — conversation-dependent tests will be skipped
+  ✓   7 [workflow] › tests/e2e/wf-widget-callback.spec.ts:145:3 › Widget Callback Workflow › WF-CB-05: Callback API creates a voice conversation record (411ms)
+  [Skip] No conversation created — voice agent not configured
+  -   8 [workflow] › tests/e2e/wf-widget-callback.spec.ts:212:3 › Widget Callback Workflow › WF-CB-19: VAPI webhook stores transcript for callback-initiated call
+  [Skip] No conversation created — voice agent not configured
+  -   9 [workflow] › tests/e2e/wf-widget-callback.spec.ts:306:3 › Widget Callback Workflow › WF-CB-06: Created conversation appears in admin TeamBox voice queue
+  [Skip] No conversation created — voice agent not configured
+  -  10 [workflow] › tests/e2e/wf-widget-callback.spec.ts:333:3 › Widget Callback Workflow › WF-CB-06b: Admin sees voice conversation in TeamBox browser
+  [Validation] Missing phone number correctly rejected with 400
+  ✓  11 [workflow] › tests/e2e/wf-widget-callback.spec.ts:368:3 › Widget Callback Workflow › WF-CB-07: Callback rejected when phone number is missing (65ms)
+  [Validation] Unknown slug correctly rejected with 404
+  ✓  12 [workflow] › tests/e2e/wf-widget-callback.spec.ts:394:3 › Widget Callback Workflow › WF-CB-08: Callback rejected for unknown slug (111ms)
+  [Normalization] Callback returned 503 — normalization verified at code level
+  ✓  13 [workflow] › tests/e2e/wf-widget-callback.spec.ts:411:3 › Widget Callback Workflow › WF-CB-10: Phone number is normalized to E.164 format (965ms)
+  [Browser] Widget close button correctly dismisses voice panel
+  ✓  14 [workflow] › tests/e2e/wf-widget-callback.spec.ts:489:3 › Widget Callback Workflow › WF-CB-14: Widget close button dismisses the voice panel (3.1s)
+  [Browser] Back button correctly returns to widget menu
+  ✓  15 [workflow] › tests/e2e/wf-widget-callback.spec.ts:516:3 › Widget Callback Workflow › WF-CB-15: Back navigation from voice panel returns to menu (3.3s)
+
+  3 skipped
+  12 passed (24.0s)
+EXIT=0
+=== wf-widget-embed.spec.ts ===
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+Running 33 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+  ✓   1 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › serra-honda — returns 200/302 with correct content-type (282ms)
+  ✓   2 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › serra-honda — access-control-allow-origin is * (118ms)
+  ✓   3 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › serra-honda — cross-origin-resource-policy is cross-origin (128ms)
+  ✓   4 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › serra-honda — no x-frame-options blocking (115ms)
+  ✓   5 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › serra-honda — CSP frame-ancestors * if present (105ms)
+  ✓   6 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › serra-honda — cache-control includes public (112ms)
+  ✓   7 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › serra-nissan — returns 200/302 with correct content-type (111ms)
+  ✓   8 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › serra-nissan — access-control-allow-origin is * (118ms)
+  ✓   9 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › serra-nissan — cross-origin-resource-policy is cross-origin (111ms)
+  ✓  10 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › serra-nissan — no x-frame-options blocking (107ms)
+  ✓  11 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › serra-nissan — CSP frame-ancestors * if present (113ms)
+  ✓  12 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › serra-nissan — cache-control includes public (110ms)
+  ✓  13 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — returns 200/302 with correct content-type (290ms)
+  ✓  14 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — access-control-allow-origin is * (282ms)
+  ✓  15 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — cross-origin-resource-policy is cross-origin (285ms)
+  ✓  16 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — no x-frame-options blocking (278ms)
+  ✓  17 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — CSP frame-ancestors * if present (278ms)
+  ✓  18 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — cache-control includes public (291ms)
+  ✓  19 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — returns 200/302 with correct content-type (105ms)
+  ✓  20 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — access-control-allow-origin is * (104ms)
+  ✓  21 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — cross-origin-resource-policy is cross-origin (110ms)
+  ✓  22 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — no x-frame-options blocking (110ms)
+  ✓  23 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — CSP frame-ancestors * if present (113ms)
+  ✓  24 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — cache-control includes public (107ms)
+  ✓  25 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — returns 200/302 with correct content-type (126ms)
+  ✓  26 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — access-control-allow-origin is * (104ms)
+  ✓  27 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — cross-origin-resource-policy is cross-origin (101ms)
+  ✓  28 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — no x-frame-options blocking (101ms)
+  ✓  29 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — CSP frame-ancestors * if present (99ms)
+  ✓  30 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — cache-control includes public (100ms)
+  ✓  31 [workflow] › tests/e2e/wf-widget-embed.spec.ts:81:3 › Widget Cross-Origin Embedding Headers › generic widget — /widget/nexxus-widget.js returns 200 with JS (14ms)
+  ✓  32 [workflow] › tests/e2e/wf-widget-embed.spec.ts:96:3 › Widget Cross-Origin Embedding Headers › widget API CORS preflight — OPTIONS /api/widget/video-session (15ms)
+  ✓  33 [workflow] › tests/e2e/wf-widget-embed.spec.ts:113:3 › Widget Cross-Origin Embedding Headers › non-widget route /api/health retains security headers (19ms)
+
+  33 passed (6.8s)
+EXIT=0
+=== COMPLETE Sun Apr  5 13:18:24 UTC 2026 ===

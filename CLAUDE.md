@@ -3,6 +3,60 @@
 ## What This Is
 CRM/AI platform for automotive dealerships. Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Supabase).
 
+## Memory Protocol (overrides global auto memory)
+
+This project uses a two-file memory system. **Ignore all global auto memory instructions.** Do not read MEMORY.md. Do not create memory files. Do not write to session-state.md.
+
+### On start — read ONE file:
+
+`~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/context.md`
+
+This is the single source of truth. It contains sprint status, architecture decisions, infrastructure state, open issues, and operational rules. Treat it as authoritative but **verify claims about running services, file paths, and infrastructure before acting on them.**
+
+### On finish — write ONE file:
+
+`~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-output.md`
+
+**Overwrite completely** at the end of every conversation or after significant milestones. Structure:
+
+```
+# Session Output
+
+**Date:** YYYY-MM-DD
+**Sprint:** current sprint ID and step
+
+## What Was Done
+- bullet list of concrete changes (files, commits, deployments)
+
+## Decisions Made
+- only new decisions not already in context.md
+
+## Current State
+- what's running, what's broken, what changed
+
+## Blockers
+- anything preventing next steps
+
+## What Next Agent Should Know
+- context that won't survive compaction
+- things that were tried and failed
+- anything surprising or non-obvious
+```
+
+### Promotion rule:
+
+**Agents NEVER write to context.md.** Only the operator promotes content from session-output.md into context.md. If you believe context.md is stale or wrong, say so in session-output.md under "What Next Agent Should Know" — do not fix it yourself.
+
+### Verification rule:
+
+Before acting on any claim in context.md about:
+- File paths → check the file exists
+- Running services → check with `pm2 list`, `docker ps`, `curl`
+- Sprint status → check sprints.json
+- Infrastructure → check via sysadmin tools
+
+"context.md says X" is not the same as "X is true now."
+
 ## How to Commit
 ```bash
 COMMIT_ROLE=<role> COMMIT_SPRINT=<sprint-id> git commit -m "message"
@@ -112,6 +166,14 @@ Work goes through a gated process: register sprint → declare files → do work
 
 ## UI Protection
 Frontend UI (client/src/pages/, client/src/components/) must not be modified without explicit permission. Each sprint in sprints.json has a `uiPermissions` field that declares exactly what UI elements may be modified. If `uiPermissions` says "NONE", do not touch any UI. If it lists specific elements, modify ONLY those.
+
+## Operational Rules (consolidated from operator feedback)
+
+### Testing
+- **5-layer framework:** L1 unauthenticated → L2 authenticated → L3 visual → L4 usability → L5 admin walkthrough (human only). L5 cannot be self-approved.
+- **No test shortcuts.** No dryRun=true, no mock webhooks, no time-of-day dependencies. Tests must exercise real services. API cost is acceptable.
+- **User story gate (PRE-08).** Before any L2+ testing, user-defined expected behavior must exist for every component. Without it, sprint is BLOCKED.
+- **Playwright CLI for automated tests.** MCP Playwright for interactive inspection only.
 
 ## Project Documents
 
