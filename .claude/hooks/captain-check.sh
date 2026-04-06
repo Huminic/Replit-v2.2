@@ -6,6 +6,11 @@
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 
+# Sub-agents skip captain enforcement — this hook governs the orchestrator only
+if [ -n "${CLAUDE_AGENT_DEPTH:-}" ] && [ "${CLAUDE_AGENT_DEPTH:-0}" -gt 0 ]; then
+  exit 0
+fi
+
 # Read-only tools — always allowed
 case "$TOOL_NAME" in
   Read|Glob|Grep) exit 0 ;;
@@ -33,7 +38,70 @@ except:
 " 2>/dev/null)
 
 if [ "$HAS_ACTIVE" != "yes" ]; then
-  # No active sprint — allow everything
+  # --- No active sprint: PLANNING MODE ---
+  # Allow reads, agent dispatch (already handled above), governance writes, git reads.
+  # Block app code writes and execution commands.
+
+  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+
+  # Edit/Write — only governance files allowed
+  if [ "$TOOL_NAME" = "Edit" ] || [ "$TOOL_NAME" = "Write" ]; then
+    case "$FILE_PATH" in
+      */sprints.json|*/PLAN.md|*/plan.md|*/issues.md) exit 0 ;;
+      */evidence/*|*/.governor/*) exit 0 ;;
+      *session-output.md|*context.md) exit 0 ;;
+      */.claude/*) exit 0 ;;
+      */CLAUDE.md|*/harness.md) exit 0 ;;
+    esac
+    # Block writes to app code — no sprint authorizes it
+    echo "PLANNING MODE: No active sprint. Cannot write to app files." >&2
+    echo "Only governance files (sprints.json, PLAN.md, issues.md, evidence/, .governor/, .claude/) are writable." >&2
+    echo "File: $FILE_PATH | Tool: $TOOL_NAME" >&2
+    exit 2
+  fi
+
+  # Bash — allow git reads and read-only commands, block execution
+  if [ "$TOOL_NAME" = "Bash" ]; then
+    FIRST_CMD=$(echo "$COMMAND" | grep -oP '^\s*\K\S+' | head -1)
+    case "$FIRST_CMD" in
+      git)
+        # Allow git read commands and branch creation
+        if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan|add|commit)'; then
+          exit 0
+        fi
+        echo "PLANNING MODE: Git write command blocked. No active sprint." >&2
+        echo "Allowed: status, log, diff, branch, show, checkout -b, add, commit" >&2
+        echo "Command: $COMMAND" >&2
+        exit 2
+        ;;
+      ls|cat|head|tail|grep|find|wc|stat|date|pwd|echo|test|curl|python3|which|file|md5sum|diff|readlink|jq|true|false)
+        exit 0
+        ;;
+      mkdir|cp|mv|touch)
+        # Only governance dirs
+        if echo "$COMMAND" | grep -qP '(server/|client/|shared/|tests/)'; then
+          echo "PLANNING MODE: File operation on app code blocked. No active sprint." >&2
+          echo "Command: $COMMAND" >&2
+          exit 2
+        fi
+        exit 0
+        ;;
+      npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)
+        echo "PLANNING MODE: Execution command blocked. No active sprint." >&2
+        echo "Start a sprint before running execution commands." >&2
+        echo "Command: $COMMAND" >&2
+        exit 2
+        ;;
+      *)
+        echo "PLANNING MODE: Unrecognized command '$FIRST_CMD' blocked. No active sprint." >&2
+        echo "Command: $COMMAND" >&2
+        exit 2
+        ;;
+    esac
+  fi
+
+  # Any other tool — allow in planning mode
   exit 0
 fi
 
@@ -73,7 +141,7 @@ if [ "$TOOL_NAME" = "Bash" ]; then
   case "$FIRST_CMD" in
     git)
       # Allow git read commands, block git write commands
-      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list)'; then
+      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan)'; then
         exit 0
       fi
       echo "CAPTAIN VIOLATION: Git write command blocked during active sprint. Delegate to sub-agent." >&2
@@ -83,14 +151,14 @@ if [ "$TOOL_NAME" = "Bash" ]; then
     ls|cat|head|tail|grep|find|wc|stat|date|pwd|echo|test|curl|python3|which|file|md5sum|diff|readlink|jq|true|false)
       exit 0
       ;;
-    npx|npm|node|pm2|docker|bash)
+    npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)
       echo "CAPTAIN VIOLATION: Execution command blocked during active sprint. Delegate to sub-agent." >&2
       echo "Command: $COMMAND" >&2
       exit 2
       ;;
     cd)
       # cd is fine, but check what follows after && or ;
-      if echo "$COMMAND" | grep -qP '(&&|;)\s*(npx|npm|node|pm2|docker|bash)\b'; then
+      if echo "$COMMAND" | grep -qP '(&&|;)\s*(npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)\b'; then
         echo "CAPTAIN VIOLATION: Execution command blocked during active sprint. Delegate to sub-agent." >&2
         echo "Command: $COMMAND" >&2
         exit 2
@@ -107,9 +175,10 @@ if [ "$TOOL_NAME" = "Bash" ]; then
       exit 0
       ;;
     *)
-      # Unknown command during active sprint — allow but warn
-      echo "CAPTAIN WARNING: Unrecognized command '$FIRST_CMD' during active sprint. Consider delegating." >&2
-      exit 0
+      # Default-deny: unrecognized commands blocked during active sprint
+      echo "CAPTAIN VIOLATION: Unrecognized command '$FIRST_CMD' blocked during active sprint. Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
       ;;
   esac
 fi

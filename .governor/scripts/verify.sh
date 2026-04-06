@@ -45,18 +45,8 @@ if active_sprint:
     if not ev.exists():
         violations.append({'code': 'MISSING_ACTIVE_EVIDENCE', 'severity': 'major', 'message': f'Missing evidence dir for active sprint {active_sprint}'})
 
-# basic queue age check
-queue_violations = []
-for q in (root / 'bus').glob('*-to-*'):
-    for msg in q.glob('*.json'):
-        age_hours = (Path(msg).stat().st_mtime)
-        # placeholder age check presence only; real age inspected by stall script
-        pass
-checks['bus_dirs_present'] = all((root / 'bus' / name).exists() for name in [
-    'captain-to-halo', 'halo-to-captain', 'halo-to-dev', 'dev-to-halo', 'ghost-to-halo'
-])
-if not checks['bus_dirs_present']:
-    violations.append({'code': 'BUS_DIRS_MISSING', 'severity': 'major', 'message': 'One or more core bus directories missing'})
+# bus check removed — bus pattern superseded by file-based communication (ghost_messages.json)
+# See GOVERNOR_REFERENCE.md: ".governor/bus/ — REMOVED"
 status = 'pass' if not violations else 'violation'
 report = {
     'reportId': f'GHOST-{Path("$REPORT").stem}',

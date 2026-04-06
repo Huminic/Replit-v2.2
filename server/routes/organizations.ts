@@ -160,12 +160,33 @@ export function registerOrganizationRoutes(app: Express) {
   app.get("/api/organizations", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      if (req.user.roleLevel > 2) {
-        const org = await storage.getOrganization(req.user.organizationId);
-        return res.json(org ? [{ id: org.id, name: org.name, slug: org.slug }] : []);
+
+      // Level 1 (super_admin): all orgs
+      if (req.user.roleLevel === 1) {
+        const allOrgs = await storage.getOrganizations();
+        return res.json(allOrgs.map(o => ({ id: o.id, name: o.name, slug: o.slug })));
       }
-      const allOrgs = await storage.getOrganizations();
-      return res.json(allOrgs.map(o => ({ id: o.id, name: o.name, slug: o.slug })));
+
+      // Level 2 (partner_admin): partner group orgs only
+      if (req.user.roleLevel === 2) {
+        const allOrgs = await storage.getOrganizations();
+        let groupParentId = req.user.organizationId;
+        const children = allOrgs.filter(o => o.partnerId === groupParentId);
+        if (children.length === 0) {
+          const userOrg = allOrgs.find(o => o.id === req.user!.organizationId);
+          if (userOrg?.partnerId) {
+            groupParentId = userOrg.partnerId;
+          }
+        }
+        const filtered = allOrgs
+          .filter(o => o.id === groupParentId || o.partnerId === groupParentId)
+          .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
+        return res.json(filtered);
+      }
+
+      // Level 3+ (org_admin and below): own org only
+      const org = await storage.getOrganization(req.user.organizationId);
+      return res.json(org ? [{ id: org.id, name: org.name, slug: org.slug }] : []);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch organizations" });
     }

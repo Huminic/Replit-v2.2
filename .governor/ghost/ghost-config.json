@@ -3,7 +3,20 @@
   "app_root": "/home/ubuntu/Claude-store/nexxus2.2_replit",
   "deploy_url": "https://live.huminic.app",
   "test_command": "npx playwright test",
-  "protected_paths": ["server/", "client/src/", "shared/", ".governor/"],
-  "governance_files": [".governor/", "CLAUDE.md", "SPEC.md", "ACCEPTANCE.md", "PLAN.md", "sprints.json"],
-  "sprint_id_pattern": "^[PRGIEMDTL]-\\d{3}$"
+  "protected_paths": [
+    "server/",
+    "client/src/",
+    "shared/",
+    ".governor/"
+  ],
+  "governance_files": [
+    ".governor/",
+    "CLAUDE.md",
+    "SPEC.md",
+    "ACCEPTANCE.md",
+    "PLAN.md",
+    "sprints.json"
+  ],
+  "sprint_id_pattern": "^([PRGIEMDTL]-\\d{3}|PE-[A-Z]+(-[A-Z]+)*-\\d{2})$",
+  "sprintIdPattern": "^([PRGIEMDTL]-\\d{3}|PE-[A-Z]+(-[A-Z]+)*-\\d{2}|REM-PE-\\d{3}|DATA-CLEANUP-\\d{2}|LV-\\d{3}[a-z]?)$"
 }

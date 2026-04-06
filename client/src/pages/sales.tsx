@@ -121,6 +121,8 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
 
 /** Maps sales metric labels to pipeline detail API keys where available */
 const salesMetricApiKeys: Record<string, string> = {
+  'Total Leads (30d)': 'total_leads',
+  'New Leads': 'new_leads',
   'Active Pipeline': 'active_pipeline',
   'Appointments Set': 'appointments_today',
 };

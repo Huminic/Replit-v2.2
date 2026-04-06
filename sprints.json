@@ -6213,7 +6213,7 @@
       "category": "Remediation",
       "name": "Integration Pipeline Repairs \u2014 VAPI transcripts, org filtering, Tavus, VIN lead creation, caller number",
       "phase": "remediation",
-      "status": "in_progress",
+      "status": "committed",
       "source": "Production Evals \u2014 5 integration pipeline bugs",
       "outcome": "VAPI transcripts appear in conversation threads. Org filtering works. Tavus sessions display. VIN lead creation succeeds. Caller number populated.",
       "acceptanceCriteria": [
@@ -6289,7 +6289,7 @@
           "verdict": "CLEARED"
         }
       ],
-      "commit": null,
+      "commit": "1ccaef0",
       "evidence": "evidence/REM-PE-003/"
     },
     {
@@ -6297,7 +6297,7 @@
       "category": "Remediation",
       "name": "Metrics & Trend Calculations \u2014 Trend percentages, outbound drill-down, loss patterns, freshness, appointments",
       "phase": "remediation",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Production Evals \u2014 8 metrics/trend bugs",
       "outcome": "Trend percentages calculated correctly. Outbound drill-down works. Loss patterns display. Freshness score accurate. Appointment counts match.",
       "acceptanceCriteria": [
@@ -6322,6 +6322,9 @@
       ],
       "declaredFiles": [
         "server/routes/metrics.ts",
+        "server/vendorProxy.ts",
+        "server/storage.ts",
+        "server/routes/insights.ts",
         "client/src/pages/insights.tsx",
         "evidence/REM-PE-004/",
         "issues.md"
@@ -6381,7 +6384,7 @@
       "category": "Remediation",
       "name": "Org Access & Settings \u2014 Org dropdown filtering, 403 errors, TextMagic phone, VIN dropdown",
       "phase": "remediation",
-      "status": "proposed",
+      "status": "committed",
       "source": "Production Evals \u2014 4 org access/settings bugs",
       "outcome": "Org dropdown filters correctly by user access. No spurious 403 errors. TextMagic phone displays. VIN dropdown handles missing data gracefully.",
       "acceptanceCriteria": [
@@ -6419,44 +6422,44 @@
           "step": 1,
           "action": "Pre-execution report",
           "type": "governance",
-          "status": "pending",
-          "timestamp": null,
-          "verdict": null
+          "status": "completed",
+          "timestamp": "2026-04-06T15:00:00Z",
+          "verdict": "APPROVED"
         },
         {
           "step": 2,
           "action": "Ghost entry gate",
           "type": "governance",
-          "status": "pending",
-          "timestamp": null,
-          "verdict": null
+          "status": "completed",
+          "timestamp": "2026-04-06T15:05:00Z",
+          "verdict": "ENTRY GATE: APPROVED"
         },
         {
           "step": 3,
           "action": "Implement and test",
           "type": "code",
-          "status": "pending",
-          "timestamp": null,
-          "verdict": null
+          "status": "completed",
+          "timestamp": "2026-04-06T15:30:00Z",
+          "verdict": "4/4 ACs PASS"
         },
         {
           "step": 4,
           "action": "Post-sprint report",
           "type": "governance",
-          "status": "pending",
-          "timestamp": null,
-          "verdict": null
+          "status": "completed",
+          "timestamp": "2026-04-06T15:40:00Z",
+          "verdict": "APPROVED"
         },
         {
           "step": 5,
           "action": "Ghost exit gate",
           "type": "governance",
-          "status": "pending",
-          "timestamp": null,
-          "verdict": null
+          "status": "completed",
+          "timestamp": "2026-04-06T15:42:00Z",
+          "verdict": "EXIT GATE: CLEARED"
         }
       ],
-      "commit": null,
+      "commit": "pending",
       "evidence": "evidence/REM-PE-005/"
     },
     {
@@ -6464,7 +6467,7 @@
       "category": "Remediation",
       "name": "UI Polish \u2014 Tiles re-expand, campaign pagination, billing tile, sales drill-downs, campaign detail",
       "phase": "remediation",
-      "status": "proposed",
+      "status": "in_progress",
       "source": "Production Evals \u2014 5 UI polish bugs",
       "outcome": "Dashboard tiles re-expand after collapse. Campaign pagination works. Billing tile renders. Sales drill-downs navigate correctly. Campaign detail page loads.",
       "acceptanceCriteria": [

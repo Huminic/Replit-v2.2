@@ -1,0 +1,1295 @@
+=== FINAL LIVE SUITE Sun Apr  5 16:49:56 UTC 2026 ===
+
+=== wf-vapi-inbound.spec.ts ===
+START: 16:49:56
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+Running 7 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+  ✘  1 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:39:3 › Workflow: VAPI Inbound Call E2E › setup: authenticate and resolve assistant ID (224ms)
+  -  2 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:56:3 › Workflow: VAPI Inbound Call E2E › 1. POST VAPI end-of-call webhook creates conversation
+  -  3 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:105:3 › Workflow: VAPI Inbound Call E2E › 2. Verify conversation exists in DB via API
+  -  4 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:127:3 › Workflow: VAPI Inbound Call E2E › 3. Verify transcript was stored as a message
+  -  5 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:162:3 › Workflow: VAPI Inbound Call E2E › 4. Verify VIN lead creation was attempted (metadata check)
+  -  6 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:224:3 › Workflow: VAPI Inbound Call E2E › 5. Verify conversation appears in TeamBox (conversations list)
+  -  7 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:249:3 › Workflow: VAPI Inbound Call E2E › 6. Verify deduplication -- same call ID returns existing conversation
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  ✘  8 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:39:3 › Workflow: VAPI Inbound Call E2E › setup: authenticate and resolve assistant ID (retry #1) (355ms)
+  -  9 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:56:3 › Workflow: VAPI Inbound Call E2E › 1. POST VAPI end-of-call webhook creates conversation (retry #1)
+  -  10 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:105:3 › Workflow: VAPI Inbound Call E2E › 2. Verify conversation exists in DB via API (retry #1)
+  -  11 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:127:3 › Workflow: VAPI Inbound Call E2E › 3. Verify transcript was stored as a message (retry #1)
+  -  12 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:162:3 › Workflow: VAPI Inbound Call E2E › 4. Verify VIN lead creation was attempted (metadata check) (retry #1)
+  -  13 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:224:3 › Workflow: VAPI Inbound Call E2E › 5. Verify conversation appears in TeamBox (conversations list) (retry #1)
+  -  14 [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:249:3 › Workflow: VAPI Inbound Call E2E › 6. Verify deduplication -- same call ID returns existing conversation (retry #1)
+
+
+  1) [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:39:3 › Workflow: VAPI Inbound Call E2E › setup: authenticate and resolve assistant ID 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      46 |       headers: authHeader(authToken),
+      47 |     });
+    > 48 |     expect(agentsRes.ok()).toBe(true);
+         |                            ^
+      49 |     const agents = await agentsRes.json();
+      50 |     const voiceAgent = agents.find((a: any) => a.vapiAssistantId);
+      51 |     assistantId = voiceAgent?.vapiAssistantId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vapi-inbound.spec.ts:48:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vapi-inbound-Workflow-V-d73cb-te-and-resolve-assistant-ID-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vapi-inbound-Workflow-V-d73cb-te-and-resolve-assistant-ID-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      46 |       headers: authHeader(authToken),
+      47 |     });
+    > 48 |     expect(agentsRes.ok()).toBe(true);
+         |                            ^
+      49 |     const agents = await agentsRes.json();
+      50 |     const voiceAgent = agents.find((a: any) => a.vapiAssistantId);
+      51 |     assistantId = voiceAgent?.vapiAssistantId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vapi-inbound.spec.ts:48:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vapi-inbound-Workflow-V-d73cb-te-and-resolve-assistant-ID-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vapi-inbound-Workflow-V-d73cb-te-and-resolve-assistant-ID-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-vapi-inbound.spec.ts:39:3 › Workflow: VAPI Inbound Call E2E › setup: authenticate and resolve assistant ID 
+  6 did not run
+END: 16:50:02 EXIT=1
+
+=== wf-tavus-inbound.spec.ts ===
+START: 16:50:02
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+Running 7 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+  ✘  1 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:39:3 › Workflow: Tavus Inbound Video E2E › setup: authenticate and resolve persona ID (203ms)
+  -  2 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:56:3 › Workflow: Tavus Inbound Video E2E › 1. POST Tavus conversation.end webhook creates conversation
+  -  3 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:93:3 › Workflow: Tavus Inbound Video E2E › 2. Verify conversation exists in DB via API
+  -  4 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:119:3 › Workflow: Tavus Inbound Video E2E › 3. Verify transcript was stored as a message
+  -  5 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:161:3 › Workflow: Tavus Inbound Video E2E › 4. Verify VIN lead creation was attempted (metadata check)
+  -  6 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:219:3 › Workflow: Tavus Inbound Video E2E › 5. Verify conversation appears in TeamBox (conversations list)
+  -  7 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:243:3 › Workflow: Tavus Inbound Video E2E › 6. Verify notification was created for admin users
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  ✘  8 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:39:3 › Workflow: Tavus Inbound Video E2E › setup: authenticate and resolve persona ID (retry #1) (213ms)
+  -  9 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:56:3 › Workflow: Tavus Inbound Video E2E › 1. POST Tavus conversation.end webhook creates conversation (retry #1)
+  -  10 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:93:3 › Workflow: Tavus Inbound Video E2E › 2. Verify conversation exists in DB via API (retry #1)
+  -  11 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:119:3 › Workflow: Tavus Inbound Video E2E › 3. Verify transcript was stored as a message (retry #1)
+  -  12 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:161:3 › Workflow: Tavus Inbound Video E2E › 4. Verify VIN lead creation was attempted (metadata check) (retry #1)
+  -  13 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:219:3 › Workflow: Tavus Inbound Video E2E › 5. Verify conversation appears in TeamBox (conversations list) (retry #1)
+  -  14 [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:243:3 › Workflow: Tavus Inbound Video E2E › 6. Verify notification was created for admin users (retry #1)
+
+
+  1) [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:39:3 › Workflow: Tavus Inbound Video E2E › setup: authenticate and resolve persona ID 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      46 |       headers: authHeader(authToken),
+      47 |     });
+    > 48 |     expect(agentsRes.ok()).toBe(true);
+         |                            ^
+      49 |     const agents = await agentsRes.json();
+      50 |     const videoAgent = agents.find((a: any) => a.tavusPersonaId);
+      51 |     personaId = videoAgent?.tavusPersonaId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-tavus-inbound.spec.ts:48:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-tavus-inbound-Workflow--e84e7-cate-and-resolve-persona-ID-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-tavus-inbound-Workflow--e84e7-cate-and-resolve-persona-ID-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      46 |       headers: authHeader(authToken),
+      47 |     });
+    > 48 |     expect(agentsRes.ok()).toBe(true);
+         |                            ^
+      49 |     const agents = await agentsRes.json();
+      50 |     const videoAgent = agents.find((a: any) => a.tavusPersonaId);
+      51 |     personaId = videoAgent?.tavusPersonaId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-tavus-inbound.spec.ts:48:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-tavus-inbound-Workflow--e84e7-cate-and-resolve-persona-ID-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-tavus-inbound-Workflow--e84e7-cate-and-resolve-persona-ID-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-tavus-inbound.spec.ts:39:3 › Workflow: Tavus Inbound Video E2E › setup: authenticate and resolve persona ID 
+  6 did not run
+END: 16:50:07 EXIT=1
+
+=== wf-vin-trigger.spec.ts ===
+START: 16:50:07
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+Running 10 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  ✘   1 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:25:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-1 Agent trigger configuration exists and is valid (217ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+  ✘   2 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:25:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-1 Agent trigger configuration exists and is valid (retry #1) (217ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+Sync status before: delta=never, backfill=never
+Delta sync status: 502
+Delta sync response: {"message":"Delta sync completed with errors","processed":0,"failed":0,"error":"VIN integration not found: 2b841ecf-f5bc-47c8-a2e3-75db8698912d"}
+Delta sync completed with errors: VIN integration not found: 2b841ecf-f5bc-47c8-a2e3-75db8698912d
+Sync status after: delta=never
+  ✓   3 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:103:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-2 Delta sync can be triggered manually and returns results (3.1s)
+  ✘   4 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:149:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-3 Warehouse leads exist with dates after sync (148ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+  ✘   5 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:149:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-3 Warehouse leads exist with dates after sync (retry #1) (217ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+  ✘   6 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:200:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-4 Sync logs track delta sync execution history (255ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+  ✘   7 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:200:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-4 Sync logs track delta sync execution history (retry #1) (218ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+  ✘   8 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:221:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-5 Trigger validation: reject invalid trigger types (214ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+  ✘   9 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:221:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-5 Trigger validation: reject invalid trigger types (retry #1) (221ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+Outbound logs endpoint returned 404 — trying alternative paths
+Alternative path also returned 401
+  ✓  10 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:283:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-6 Outbound logs show trigger-generated messages (258ms)
+  ✘  11 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:335:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-7 Notifications include trigger alerts (207ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+  ✘  12 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:335:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-7 Notifications include trigger alerts (retry #1) (212ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+  ✘  13 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:377:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-8 Conversations in TeamBox include trigger-originated entries (213ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+  ✘  14 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:377:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-8 Conversations in TeamBox include trigger-originated entries (retry #1) (219ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+Scheduled actions endpoint returned 404 — endpoint may not be exposed via API.
+Scheduled actions are internal to the scheduler service (processScheduledActions runs every 30s).
+  ✓  15 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:426:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-9 Scheduled actions table tracks pending trigger actions (122ms)
+  ✘  16 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:458:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-10 Multi-store trigger isolation: triggers respect org boundaries (1.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+  ✘  17 [workflow] › tests/e2e/wf-vin-trigger.spec.ts:458:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-10 Multi-store trigger isolation: triggers respect org boundaries (retry #1) (625ms)
+
+
+  1) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:25:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-1 Agent trigger configuration exists and is valid 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      30 |       headers: authHeader(auth.token),
+      31 |     });
+    > 32 |     expect(agentsRes.ok()).toBeTruthy();
+         |                            ^
+      33 |     const agents = await agentsRes.json();
+      34 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      35 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:32:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-5ee33-uration-exists-and-is-valid-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-5ee33-uration-exists-and-is-valid-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      30 |       headers: authHeader(auth.token),
+      31 |     });
+    > 32 |     expect(agentsRes.ok()).toBeTruthy();
+         |                            ^
+      33 |     const agents = await agentsRes.json();
+      34 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      35 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:32:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-5ee33-uration-exists-and-is-valid-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-5ee33-uration-exists-and-is-valid-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:149:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-3 Warehouse leads exist with dates after sync 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      153 |       headers: authHeader(auth.token),
+      154 |     });
+    > 155 |     expect(whRes.ok()).toBeTruthy();
+          |                        ^
+      156 |     const whData = await whRes.json();
+      157 |     const leads = Array.isArray(whData) ? whData : whData.items || whData.data || [];
+      158 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:155:24
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-1459e-exist-with-dates-after-sync-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-1459e-exist-with-dates-after-sync-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      153 |       headers: authHeader(auth.token),
+      154 |     });
+    > 155 |     expect(whRes.ok()).toBeTruthy();
+          |                        ^
+      156 |     const whData = await whRes.json();
+      157 |     const leads = Array.isArray(whData) ? whData : whData.items || whData.data || [];
+      158 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:155:24
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-1459e-exist-with-dates-after-sync-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-1459e-exist-with-dates-after-sync-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:200:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-4 Sync logs track delta sync execution history 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      204 |       headers: authHeader(auth.token),
+      205 |     });
+    > 206 |     expect(logsRes.ok()).toBeTruthy();
+          |                          ^
+      207 |     const logs = await logsRes.json();
+      208 |     const logList = Array.isArray(logs) ? logs : logs.data || [];
+      209 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:206:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-404d0-elta-sync-execution-history-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-404d0-elta-sync-execution-history-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      204 |       headers: authHeader(auth.token),
+      205 |     });
+    > 206 |     expect(logsRes.ok()).toBeTruthy();
+          |                          ^
+      207 |     const logs = await logsRes.json();
+      208 |     const logList = Array.isArray(logs) ? logs : logs.data || [];
+      209 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:206:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-404d0-elta-sync-execution-history-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-404d0-elta-sync-execution-history-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:221:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-5 Trigger validation: reject invalid trigger types 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      226 |       headers: authHeader(auth.token),
+      227 |     });
+    > 228 |     expect(agentsRes.ok()).toBeTruthy();
+          |                            ^
+      229 |     const agents = await agentsRes.json();
+      230 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      231 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:228:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-f67be-eject-invalid-trigger-types-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-f67be-eject-invalid-trigger-types-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      226 |       headers: authHeader(auth.token),
+      227 |     });
+    > 228 |     expect(agentsRes.ok()).toBeTruthy();
+          |                            ^
+      229 |     const agents = await agentsRes.json();
+      230 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      231 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:228:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-f67be-eject-invalid-trigger-types-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-f67be-eject-invalid-trigger-types-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:335:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-7 Notifications include trigger alerts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      339 |       headers: authHeader(auth.token),
+      340 |     });
+    > 341 |     expect(notifRes.ok()).toBeTruthy();
+          |                           ^
+      342 |     const notifs = await notifRes.json();
+      343 |     const notifList = Array.isArray(notifs) ? notifs : notifs.data || [];
+      344 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:341:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-7e77d-ions-include-trigger-alerts-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-7e77d-ions-include-trigger-alerts-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      339 |       headers: authHeader(auth.token),
+      340 |     });
+    > 341 |     expect(notifRes.ok()).toBeTruthy();
+          |                           ^
+      342 |     const notifs = await notifRes.json();
+      343 |     const notifList = Array.isArray(notifs) ? notifs : notifs.data || [];
+      344 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:341:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-7e77d-ions-include-trigger-alerts-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-7e77d-ions-include-trigger-alerts-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:377:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-8 Conversations in TeamBox include trigger-originated entries 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      382 |       headers: authHeader(auth.token),
+      383 |     });
+    > 384 |     expect(convRes.ok()).toBeTruthy();
+          |                          ^
+      385 |     const convs = await convRes.json();
+      386 |     const convList = Array.isArray(convs) ? convs : convs.data || [];
+      387 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:384:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-66b9d--trigger-originated-entries-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-66b9d--trigger-originated-entries-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      382 |       headers: authHeader(auth.token),
+      383 |     });
+    > 384 |     expect(convRes.ok()).toBeTruthy();
+          |                          ^
+      385 |     const convs = await convRes.json();
+      386 |     const convList = Array.isArray(convs) ? convs : convs.data || [];
+      387 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:384:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-66b9d--trigger-originated-entries-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-66b9d--trigger-originated-entries-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [workflow] › tests/e2e/wf-vin-trigger.spec.ts:458:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-10 Multi-store trigger isolation: triggers respect org boundaries 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      469 |     });
+      470 |
+    > 471 |     expect(hondaAgentsRes.ok()).toBeTruthy();
+          |                                 ^
+      472 |     expect(fordAgentsRes.ok()).toBeTruthy();
+      473 |
+      474 |     const hondaAgents = await hondaAgentsRes.json();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:471:33
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-402d0-gers-respect-org-boundaries-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-402d0-gers-respect-org-boundaries-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      469 |     });
+      470 |
+    > 471 |     expect(hondaAgentsRes.ok()).toBeTruthy();
+          |                                 ^
+      472 |     expect(fordAgentsRes.ok()).toBeTruthy();
+      473 |
+      474 |     const hondaAgents = await hondaAgentsRes.json();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-trigger.spec.ts:471:33
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-trigger-Workflow-VI-402d0-gers-respect-org-boundaries-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-trigger-Workflow-VI-402d0-gers-respect-org-boundaries-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:25:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-1 Agent trigger configuration exists and is valid 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:149:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-3 Warehouse leads exist with dates after sync 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:200:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-4 Sync logs track delta sync execution history 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:221:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-5 Trigger validation: reject invalid trigger types 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:335:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-7 Notifications include trigger alerts 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:377:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-8 Conversations in TeamBox include trigger-originated entries 
+    [workflow] › tests/e2e/wf-vin-trigger.spec.ts:458:3 › Workflow: VIN Lead → Trigger → Outbound → TeamBox › WF-VIN-TRIGGER-10 Multi-store trigger isolation: triggers respect org boundaries 
+  3 passed (28.1s)
+END: 16:50:37 EXIT=1
+
+=== wf-campaign.spec.ts ===
+START: 16:50:37
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+Running 10 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  ✘   1 [workflow] › tests/e2e/wf-campaign.spec.ts:55:3 › Workflow: Campaign lifecycle E2E › 1. Create test campaign (235ms)
+  -   2 [workflow] › tests/e2e/wf-campaign.spec.ts:87:3 › Workflow: Campaign lifecycle E2E › 2. Add recipients via CSV upload
+  -   3 [workflow] › tests/e2e/wf-campaign.spec.ts:144:3 › Workflow: Campaign lifecycle E2E › 3. Execute campaign
+  -   4 [workflow] › tests/e2e/wf-campaign.spec.ts:175:3 › Workflow: Campaign lifecycle E2E › 4. Verify campaign status after execution
+  -   5 [workflow] › tests/e2e/wf-campaign.spec.ts:228:3 › Workflow: Campaign lifecycle E2E › 5. Poll for execution results
+  -   6 [workflow] › tests/e2e/wf-campaign.spec.ts:284:3 › Workflow: Campaign lifecycle E2E › 6. Simulate customer reply via inbound SMS webhook
+  -   7 [workflow] › tests/e2e/wf-campaign.spec.ts:321:3 › Workflow: Campaign lifecycle E2E › 7. Verify reply created a conversation
+  -   8 [workflow] › tests/e2e/wf-campaign.spec.ts:376:3 › Workflow: Campaign lifecycle E2E › 8. Verify AI agent handling of reply
+  -   9 [workflow] › tests/e2e/wf-campaign.spec.ts:458:3 › Workflow: Campaign lifecycle E2E › 9. Verify conversation appears in TeamBox
+  -  10 [workflow] › tests/e2e/wf-campaign.spec.ts:520:3 › Workflow: Campaign lifecycle E2E › 10. Verify human takeover availability
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+  ✘  11 [workflow] › tests/e2e/wf-campaign.spec.ts:55:3 › Workflow: Campaign lifecycle E2E › 1. Create test campaign (retry #1) (208ms)
+  -  12 [workflow] › tests/e2e/wf-campaign.spec.ts:87:3 › Workflow: Campaign lifecycle E2E › 2. Add recipients via CSV upload (retry #1)
+  -  13 [workflow] › tests/e2e/wf-campaign.spec.ts:144:3 › Workflow: Campaign lifecycle E2E › 3. Execute campaign (retry #1)
+  -  14 [workflow] › tests/e2e/wf-campaign.spec.ts:175:3 › Workflow: Campaign lifecycle E2E › 4. Verify campaign status after execution (retry #1)
+  -  15 [workflow] › tests/e2e/wf-campaign.spec.ts:228:3 › Workflow: Campaign lifecycle E2E › 5. Poll for execution results (retry #1)
+  -  16 [workflow] › tests/e2e/wf-campaign.spec.ts:284:3 › Workflow: Campaign lifecycle E2E › 6. Simulate customer reply via inbound SMS webhook (retry #1)
+  -  17 [workflow] › tests/e2e/wf-campaign.spec.ts:321:3 › Workflow: Campaign lifecycle E2E › 7. Verify reply created a conversation (retry #1)
+  -  18 [workflow] › tests/e2e/wf-campaign.spec.ts:376:3 › Workflow: Campaign lifecycle E2E › 8. Verify AI agent handling of reply (retry #1)
+  -  19 [workflow] › tests/e2e/wf-campaign.spec.ts:458:3 › Workflow: Campaign lifecycle E2E › 9. Verify conversation appears in TeamBox (retry #1)
+  -  20 [workflow] › tests/e2e/wf-campaign.spec.ts:520:3 › Workflow: Campaign lifecycle E2E › 10. Verify human takeover availability (retry #1)
+
+
+  1) [workflow] › tests/e2e/wf-campaign.spec.ts:55:3 › Workflow: Campaign lifecycle E2E › 1. Create test campaign 
+
+    Error: Campaign creation failed: 401
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      67 |     });
+      68 |
+    > 69 |     expect(res.ok(), `Campaign creation failed: ${res.status()}`).toBe(true);
+         |                                                                   ^
+      70 |     const campaign = await res.json();
+      71 |
+      72 |     expect(campaign.id).toBeTruthy();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-campaign.spec.ts:69:67
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-campaign-Workflow-Campa-312f7--E2E-1-Create-test-campaign-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-campaign-Workflow-Campa-312f7--E2E-1-Create-test-campaign-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Campaign creation failed: 401
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      67 |     });
+      68 |
+    > 69 |     expect(res.ok(), `Campaign creation failed: ${res.status()}`).toBe(true);
+         |                                                                   ^
+      70 |     const campaign = await res.json();
+      71 |
+      72 |     expect(campaign.id).toBeTruthy();
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-campaign.spec.ts:69:67
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-campaign-Workflow-Campa-312f7--E2E-1-Create-test-campaign-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-campaign-Workflow-Campa-312f7--E2E-1-Create-test-campaign-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-campaign.spec.ts:55:3 › Workflow: Campaign lifecycle E2E › 1. Create test campaign 
+  9 did not run
+END: 16:50:43 EXIT=1
+
+=== wf-cold-service.spec.ts ===
+START: 16:50:43
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+Running 5 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+  Cleanup: Restored textmagicPhone to empty
+  ✘  1 [workflow] › tests/e2e/wf-cold-service.spec.ts:63:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-1: Inbound SMS webhook creates conversation (0ms)
+  -  2 [workflow] › tests/e2e/wf-cold-service.spec.ts:87:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-2: Conversation exists with correct channel and status
+  -  3 [workflow] › tests/e2e/wf-cold-service.spec.ts:106:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-3: AI agent auto-responded with agent message
+  -  4 [workflow] › tests/e2e/wf-cold-service.spec.ts:152:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-4: Conversation appears in TeamBox conversation list
+  -  5 [workflow] › tests/e2e/wf-cold-service.spec.ts:188:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-5: Human takeover capability exists
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+  Cleanup: Restored textmagicPhone to empty
+  ✘  6 [workflow] › tests/e2e/wf-cold-service.spec.ts:63:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-1: Inbound SMS webhook creates conversation (retry #1) (0ms)
+  -  7 [workflow] › tests/e2e/wf-cold-service.spec.ts:87:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-2: Conversation exists with correct channel and status (retry #1)
+  -  8 [workflow] › tests/e2e/wf-cold-service.spec.ts:106:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-3: AI agent auto-responded with agent message (retry #1)
+  -  9 [workflow] › tests/e2e/wf-cold-service.spec.ts:152:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-4: Conversation appears in TeamBox conversation list (retry #1)
+  -  10 [workflow] › tests/e2e/wf-cold-service.spec.ts:188:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-5: Human takeover capability exists (retry #1)
+
+
+  1) [workflow] › tests/e2e/wf-cold-service.spec.ts:63:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-1: Inbound SMS webhook creates conversation 
+
+    Error: Failed to set textmagicPhone on org: 401 {"message":"User not found"}
+
+      54 |       });
+      55 |       if (!patchRes.ok()) {
+    > 56 |         throw new Error(`Failed to set textmagicPhone on org: ${patchRes.status()} ${await patchRes.text()}`);
+         |               ^
+      57 |       }
+      58 |       orgTextmagicPhone = TEST_TEXTMAGIC_PHONE;
+      59 |       console.log(`  Setup: Set textmagicPhone=${TEST_TEXTMAGIC_PHONE} on Serra Honda (was empty)`);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-cold-service.spec.ts:56:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-cold-service-Workflow-C-7a3c3-ebhook-creates-conversation-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-cold-service-Workflow-C-7a3c3-ebhook-creates-conversation-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Failed to set textmagicPhone on org: 401 {"message":"User not found"}
+
+      54 |       });
+      55 |       if (!patchRes.ok()) {
+    > 56 |         throw new Error(`Failed to set textmagicPhone on org: ${patchRes.status()} ${await patchRes.text()}`);
+         |               ^
+      57 |       }
+      58 |       orgTextmagicPhone = TEST_TEXTMAGIC_PHONE;
+      59 |       console.log(`  Setup: Set textmagicPhone=${TEST_TEXTMAGIC_PHONE} on Serra Honda (was empty)`);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-cold-service.spec.ts:56:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-cold-service-Workflow-C-7a3c3-ebhook-creates-conversation-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-cold-service-Workflow-C-7a3c3-ebhook-creates-conversation-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-cold-service.spec.ts:63:3 › Workflow: Cold Inbound SMS — Service Department › WF-SVC-1: Inbound SMS webhook creates conversation 
+  4 did not run
+END: 16:50:49 EXIT=1
+
+=== wf-cold-sales.spec.ts ===
+START: 16:50:49
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+Running 5 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+  Cleanup: Restored textmagicPhone to empty
+  ✘  1 [workflow] › tests/e2e/wf-cold-sales.spec.ts:67:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-1: Inbound SMS webhook creates conversation for sales inquiry (0ms)
+  -  2 [workflow] › tests/e2e/wf-cold-sales.spec.ts:90:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-2: Conversation exists with correct channel and open status
+  -  3 [workflow] › tests/e2e/wf-cold-sales.spec.ts:111:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-3: AI Sales Agent auto-responded to sales inquiry
+  -  4 [workflow] › tests/e2e/wf-cold-sales.spec.ts:158:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-4: Conversation appears in TeamBox SMS list for org
+  -  5 [workflow] › tests/e2e/wf-cold-sales.spec.ts:195:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-5: Salesperson takeover pauses AI and allows human response
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+  Cleanup: Restored textmagicPhone to empty
+  ✘  6 [workflow] › tests/e2e/wf-cold-sales.spec.ts:67:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-1: Inbound SMS webhook creates conversation for sales inquiry (retry #1) (0ms)
+  -  7 [workflow] › tests/e2e/wf-cold-sales.spec.ts:90:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-2: Conversation exists with correct channel and open status (retry #1)
+  -  8 [workflow] › tests/e2e/wf-cold-sales.spec.ts:111:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-3: AI Sales Agent auto-responded to sales inquiry (retry #1)
+  -  9 [workflow] › tests/e2e/wf-cold-sales.spec.ts:158:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-4: Conversation appears in TeamBox SMS list for org (retry #1)
+  -  10 [workflow] › tests/e2e/wf-cold-sales.spec.ts:195:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-5: Salesperson takeover pauses AI and allows human response (retry #1)
+
+
+  1) [workflow] › tests/e2e/wf-cold-sales.spec.ts:67:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-1: Inbound SMS webhook creates conversation for sales inquiry 
+
+    Error: Failed to set textmagicPhone on org: 401 {"message":"User not found"}
+
+      58 |       });
+      59 |       if (!patchRes.ok()) {
+    > 60 |         throw new Error(`Failed to set textmagicPhone on org: ${patchRes.status()} ${await patchRes.text()}`);
+         |               ^
+      61 |       }
+      62 |       orgTextmagicPhone = TEST_TEXTMAGIC_PHONE;
+      63 |       console.log(`  Setup: Set textmagicPhone=${TEST_TEXTMAGIC_PHONE} on Serra Honda (was empty)`);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-cold-sales.spec.ts:60:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-cold-sales-Workflow-Col-a3092-versation-for-sales-inquiry-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-cold-sales-Workflow-Col-a3092-versation-for-sales-inquiry-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Failed to set textmagicPhone on org: 401 {"message":"User not found"}
+
+      58 |       });
+      59 |       if (!patchRes.ok()) {
+    > 60 |         throw new Error(`Failed to set textmagicPhone on org: ${patchRes.status()} ${await patchRes.text()}`);
+         |               ^
+      61 |       }
+      62 |       orgTextmagicPhone = TEST_TEXTMAGIC_PHONE;
+      63 |       console.log(`  Setup: Set textmagicPhone=${TEST_TEXTMAGIC_PHONE} on Serra Honda (was empty)`);
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-cold-sales.spec.ts:60:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-cold-sales-Workflow-Col-a3092-versation-for-sales-inquiry-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-cold-sales-Workflow-Col-a3092-versation-for-sales-inquiry-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-cold-sales.spec.ts:67:3 › Workflow: Cold Inbound SMS — Sales Department › WF-SALES-1: Inbound SMS webhook creates conversation for sales inquiry 
+  4 did not run
+END: 16:50:55 EXIT=1
+
+=== wf-vin-lead.spec.ts ===
+START: 16:50:55
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+
+Running 9 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+vin_health_check status: 200
+vin_health_check response: {"healthy":true}
+  ✓  1 [workflow] › tests/e2e/wf-vin-lead.spec.ts:36:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-1 VIN Safe MCP health check is reachable (628ms)
+  ✘  2 [workflow] › tests/e2e/wf-vin-lead.spec.ts:66:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-2 VAPI webhook creates conversation with transcript (225ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+  ✘  3 [workflow] › tests/e2e/wf-vin-lead.spec.ts:66:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-2 VAPI webhook creates conversation with transcript (retry #1) (263ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+  -  4 [workflow] › tests/e2e/wf-vin-lead.spec.ts:146:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-3 vin_get_dealer_id resolves Serra Honda org to dealer ID
+  -  5 [workflow] › tests/e2e/wf-vin-lead.spec.ts:165:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-4 vin_list_users shows users at dealer
+  -  6 [workflow] › tests/e2e/wf-vin-lead.spec.ts:188:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-5 vin_list_lead_sources returns sources for dealer
+  -  7 [workflow] › tests/e2e/wf-vin-lead.spec.ts:214:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-6 vin_safe_prepare_lead returns preview with correct dealer, user, source
+  -  8 [workflow] › tests/e2e/wf-vin-lead.spec.ts:266:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-7 Full pipeline: prepare → execute → verify lead creation
+  ✘  9 [workflow] › tests/e2e/wf-vin-lead.spec.ts:365:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-8 Webhook-created conversation tracks VIN lead status (239ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+  ✘  10 [workflow] › tests/e2e/wf-vin-lead.spec.ts:365:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-8 Webhook-created conversation tracks VIN lead status (retry #1) (235ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+  ✘  11 [workflow] › tests/e2e/wf-vin-lead.spec.ts:401:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-9 Notification created for VIN lead events (302ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+  ✘  12 [workflow] › tests/e2e/wf-vin-lead.spec.ts:401:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-9 Notification created for VIN lead events (retry #1) (207ms)
+
+
+  1) [workflow] › tests/e2e/wf-vin-lead.spec.ts:66:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-2 VAPI webhook creates conversation with transcript 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      71 |       headers: authHeader(auth.token),
+      72 |     });
+    > 73 |     expect(agentsRes.ok()).toBeTruthy();
+         |                            ^
+      74 |     const agents = await agentsRes.json();
+      75 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      76 |     const agent = agentList[0];
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:73:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-27003-onversation-with-transcript-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-27003-onversation-with-transcript-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      71 |       headers: authHeader(auth.token),
+      72 |     });
+    > 73 |     expect(agentsRes.ok()).toBeTruthy();
+         |                            ^
+      74 |     const agents = await agentsRes.json();
+      75 |     const agentList = Array.isArray(agents) ? agents : agents.data || [];
+      76 |     const agent = agentList[0];
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:73:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-27003-onversation-with-transcript-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-27003-onversation-with-transcript-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [workflow] › tests/e2e/wf-vin-lead.spec.ts:365:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-8 Webhook-created conversation tracks VIN lead status 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      369 |       headers: authHeader(auth.token),
+      370 |     });
+    > 371 |     expect(convRes.ok()).toBeTruthy();
+          |                          ^
+      372 |     const convs = await convRes.json();
+      373 |     const convList = Array.isArray(convs) ? convs : convs.data || [];
+      374 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:371:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-a4407-tion-tracks-VIN-lead-status-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-a4407-tion-tracks-VIN-lead-status-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      369 |       headers: authHeader(auth.token),
+      370 |     });
+    > 371 |     expect(convRes.ok()).toBeTruthy();
+          |                          ^
+      372 |     const convs = await convRes.json();
+      373 |     const convList = Array.isArray(convs) ? convs : convs.data || [];
+      374 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:371:26
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-a4407-tion-tracks-VIN-lead-status-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-a4407-tion-tracks-VIN-lead-status-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [workflow] › tests/e2e/wf-vin-lead.spec.ts:401:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-9 Notification created for VIN lead events 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      405 |       headers: authHeader(auth.token),
+      406 |     });
+    > 407 |     expect(notifRes.ok()).toBeTruthy();
+          |                           ^
+      408 |     const notifs = await notifRes.json();
+      409 |     const notifList = Array.isArray(notifs) ? notifs : notifs.data || [];
+      410 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:407:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-23c55-created-for-VIN-lead-events-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-23c55-created-for-VIN-lead-events-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      405 |       headers: authHeader(auth.token),
+      406 |     });
+    > 407 |     expect(notifRes.ok()).toBeTruthy();
+          |                           ^
+      408 |     const notifs = await notifRes.json();
+      409 |     const notifList = Array.isArray(notifs) ? notifs : notifs.data || [];
+      410 |
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-vin-lead.spec.ts:407:27
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-vin-lead-Workflow-Conve-23c55-created-for-VIN-lead-events-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-vin-lead-Workflow-Conve-23c55-created-for-VIN-lead-events-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [workflow] › tests/e2e/wf-vin-lead.spec.ts:66:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-2 VAPI webhook creates conversation with transcript 
+    [workflow] › tests/e2e/wf-vin-lead.spec.ts:365:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-8 Webhook-created conversation tracks VIN lead status 
+    [workflow] › tests/e2e/wf-vin-lead.spec.ts:401:3 › Workflow: Conversation → VIN Lead Creation › WF-VIN-LEAD-9 Notification created for VIN lead events 
+  5 skipped
+  1 passed (12.7s)
+END: 16:51:09 EXIT=1
+
+=== wf-widget-video.spec.ts ===
+START: 16:51:09
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+Running 34 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+  [1.1] Landing data: {"id":"f4c56901-89ab-4497-9bfb-69e6495a4839","name":"Serra Honda","slug":"serra-honda","personaName":"Caroline"}
+  ✓   1 [workflow] › tests/e2e/wf-widget-video.spec.ts:28:3 › 1. Widget Video — Public API Preconditions › 1.1 Landing page API returns org data for serra-honda (229ms)
+  [1.2] tavusPersonaId=p9eb007721f4, vapiAssistantId=90a876c0-0f11-4424-abfe-9ac82b264d88, orgName=Serra Honda
+  ✓   2 [workflow] › tests/e2e/wf-widget-video.spec.ts:39:3 › 1. Widget Video — Public API Preconditions › 1.2 Voice-config API returns tavusPersonaId for serra-honda (349ms)
+  [1.3] 404 message: Organization not found
+  ✓   3 [workflow] › tests/e2e/wf-widget-video.spec.ts:50:3 › 1. Widget Video — Public API Preconditions › 1.3 Voice-config API returns 404 for unknown slug (132ms)
+  [1.4] serra-honda: 1051 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] serra-nissan: 1053 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] tony-serra-ford: 1059 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] hyundai-of-columbia: 1067 bytes, content-type=application/javascript; charset=utf-8
+  [1.4] ford-of-columbia: 1061 bytes, content-type=application/javascript; charset=utf-8
+  ✓   4 [workflow] › tests/e2e/wf-widget-video.spec.ts:60:3 › 1. Widget Video — Public API Preconditions › 1.4 Widget JS is served for all five dealer slugs (743ms)
+  [2.1] Status: 200, Body: {"conversationId":"cb5c217e4ee3844c","conversationUrl":"https://tavus.daily.co/cb5c217e4ee3844c","status":"active"}
+  ✓   5 [workflow] › tests/e2e/wf-widget-video.spec.ts:82:3 › 2. Widget Video — POST /api/widget/video-session › 2.1 Video session created successfully with valid slug (2.2s)
+  [2.2] Status: 404, message: Organization not found
+  ✓   6 [workflow] › tests/e2e/wf-widget-video.spec.ts:96:3 › 2. Widget Video — POST /api/widget/video-session › 2.2 Video session rejected for org with no Tavus persona (169ms)
+  [2.3] Status: 400, message: widgetCode or slug is required
+  ✓   7 [workflow] › tests/e2e/wf-widget-video.spec.ts:109:3 › 2. Widget Video — POST /api/widget/video-session › 2.3 Video session rejected when slug and widgetCode are both absent (35ms)
+  [2.4] Status: 404, message: Organization not found
+  ✓   8 [workflow] › tests/e2e/wf-widget-video.spec.ts:122:3 › 2. Widget Video — POST /api/widget/video-session › 2.4 Video session rejected when slug is unknown (127ms)
+  ✘   9 [workflow] › tests/e2e/wf-widget-video.spec.ts:165:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.1 Setup: authenticate and resolve persona ID (191ms)
+  -  10 [workflow] › tests/e2e/wf-widget-video.spec.ts:185:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.2 Tavus conversation.end webhook creates a conversation record
+  -  11 [workflow] › tests/e2e/wf-widget-video.spec.ts:219:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.3 Conversation exists in DB with channel=video and status=open
+  -  12 [workflow] › tests/e2e/wf-widget-video.spec.ts:241:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.4 Transcript stored as system message with senderName Tavus
+  -  13 [workflow] › tests/e2e/wf-widget-video.spec.ts:277:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.5 VIN lead pathway exercised (activity log or escalation task)
+  -  14 [workflow] › tests/e2e/wf-widget-video.spec.ts:334:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.6 Conversation visible in TeamBox via channel=video filter
+  -  15 [workflow] › tests/e2e/wf-widget-video.spec.ts:357:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.7 Admin notification created for the video conversation
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+  ✘  16 [workflow] › tests/e2e/wf-widget-video.spec.ts:165:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.1 Setup: authenticate and resolve persona ID (retry #1) (284ms)
+  -  17 [workflow] › tests/e2e/wf-widget-video.spec.ts:185:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.2 Tavus conversation.end webhook creates a conversation record (retry #1)
+  -  18 [workflow] › tests/e2e/wf-widget-video.spec.ts:219:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.3 Conversation exists in DB with channel=video and status=open (retry #1)
+  -  19 [workflow] › tests/e2e/wf-widget-video.spec.ts:241:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.4 Transcript stored as system message with senderName Tavus (retry #1)
+  -  20 [workflow] › tests/e2e/wf-widget-video.spec.ts:277:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.5 VIN lead pathway exercised (activity log or escalation task) (retry #1)
+  -  21 [workflow] › tests/e2e/wf-widget-video.spec.ts:334:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.6 Conversation visible in TeamBox via channel=video filter (retry #1)
+  -  22 [workflow] › tests/e2e/wf-widget-video.spec.ts:357:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.7 Admin notification created for the video conversation (retry #1)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+  [4.1] Status: 400, message: Unable to resolve organization from persona. Webhook rejected to prevent tenant data leak.
+  ✓  23 [workflow] › tests/e2e/wf-widget-video.spec.ts:432:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.1 Webhook rejected when persona_id matches no org agent (1.2s)
+  [4.2] Status: 400, message: Missing or invalid conversation_id
+  ✓  24 [workflow] › tests/e2e/wf-widget-video.spec.ts:455:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.2 Webhook rejected when conversation_id is missing (37ms)
+  [4.3] Status: 200, message: Event type ignored
+  ✓  25 [workflow] › tests/e2e/wf-widget-video.spec.ts:477:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.3 Webhook with unrecognized event type is acknowledged without processing (43ms)
+  [4.4] Secret enforced: Invalid webhook secret
+  ✓  26 [workflow] › tests/e2e/wf-widget-video.spec.ts:499:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.4 Webhook rejected when secret header is missing (if configured) (31ms)
+  [Skip] No personaId resolved -- cannot test
+  -  27 [workflow] › tests/e2e/wf-widget-video.spec.ts:525:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.5 VIN lead skipped when payload has no summary and no transcript
+  [Skip] No personaId resolved
+  -  28 [workflow] › tests/e2e/wf-widget-video.spec.ts:587:3 › 4. Widget Video — Tavus Webhook Rejection Cases › 4.6 Duplicate Tavus conversation_id deduplication check
+  [5.1] Landing page loaded, widget FAB visible
+  ✓  29 [workflow] › tests/e2e/wf-widget-video.spec.ts:665:3 › 5. Widget Video — Browser UI (Landing Page) › 5.1 Landing page loads and displays widget FAB for serra-honda (3.1s)
+  [5.2] Widget menu opened with video option visible
+  ✓  30 [workflow] › tests/e2e/wf-widget-video.spec.ts:675:3 › 5. Widget Video — Browser UI (Landing Page) › 5.2 Widget FAB opens menu with video option (3.2s)
+  [5.3] Video opened in new window: about:blank
+  ✓  31 [workflow] › tests/e2e/wf-widget-video.spec.ts:694:3 › 5. Widget Video — Browser UI (Landing Page) › 5.3 Clicking video option transitions widget to connecting state (3.2s)
+  [5.4] Widget closed, FAB still visible, page unchanged
+  ✓  32 [workflow] › tests/e2e/wf-widget-video.spec.ts:733:3 › 5. Widget Video — Browser UI (Landing Page) › 5.4 Close button collapses the widget menu (3.2s)
+  [5.5] Fullscreen video mode rendered with mic toggle and end call buttons
+  ✓  33 [workflow] › tests/e2e/wf-widget-video.spec.ts:754:3 › 5. Widget Video — Browser UI (Landing Page) › 5.5 Fullscreen video mode renders correctly via ?mode=video (4.2s)
+  [5.6] End call navigated back to landing page
+  ✓  34 [workflow] › tests/e2e/wf-widget-video.spec.ts:782:3 › 5. Widget Video — Browser UI (Landing Page) › 5.6 End call button navigates back to landing page (6.1s)
+  [5.7] Mic toggle: initial="w-12 h-12 rounded-full flex items-center justify-c", after1="w-12 h-12 rounded-full flex items-center justify-c", after2="w-12 h-12 rounded-full flex items-center justify-c"
+  [5.7] Class changed on toggle: true
+  ✓  35 [workflow] › tests/e2e/wf-widget-video.spec.ts:815:3 › 5. Widget Video — Browser UI (Landing Page) › 5.7 Mic toggle button cycles muted and unmuted state (5.3s)
+  [5.8] Fallback button navigated from error state back to landing page
+  ✓  36 [workflow] › tests/e2e/wf-widget-video.spec.ts:848:3 › 5. Widget Video — Browser UI (Landing Page) › 5.8 Fallback button in error state navigates back (13.5s)
+  [5.9] 404 page displayed correctly
+  [5.9] Widget FAB not present on unknown slug page
+  ✓  37 [workflow] › tests/e2e/wf-widget-video.spec.ts:873:3 › 5. Widget Video — Browser UI (Landing Page) › 5.9 Unknown slug shows 404 page (2.8s)
+  [6.1] TeamBox Video tab confirmed visible
+  ✓  38 [workflow] › tests/e2e/wf-widget-video.spec.ts:901:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.1 Admin logs in and TeamBox renders with Video tab (3.8s)
+  [6.2] Video tab content: table=false, noSessions=true
+  ✓  39 [workflow] › tests/e2e/wf-widget-video.spec.ts:910:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.2 TeamBox Video tab shows Tavus sessions content (5.8s)
+  [6.3] Channel chip video not found -- may use different filter UI
+  ✓  40 [workflow] › tests/e2e/wf-widget-video.spec.ts:938:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.3 Channel chip video filters conversation list (5.0s)
+  [6.4] Webhook created conversation: 872148d1-c967-41cd-8f88-79c1af288749
+  [6.4] Conversation not found in TeamBox list within polling window
+  [6.4] Cleanup: deleted conversation 872148d1-c967-41cd-8f88-79c1af288749
+  ✓  41 [workflow] › tests/e2e/wf-widget-video.spec.ts:964:3 › 6. Widget Video — TeamBox Admin Verification (Browser) › 6.4 Video conversation from webhook appears in TeamBox with transcript (33.9s)
+
+
+  1) [workflow] › tests/e2e/wf-widget-video.spec.ts:165:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.1 Setup: authenticate and resolve persona ID 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      172 |       headers: authHeader(authToken),
+      173 |     });
+    > 174 |     expect(agentsRes.ok()).toBe(true);
+          |                            ^
+      175 |     const agents = await agentsRes.json();
+      176 |     const videoAgent = agents.find((a: any) => a.tavusPersonaId);
+      177 |     personaId = videoAgent?.tavusPersonaId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-widget-video.spec.ts:174:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-widget-video-3-Widget-V-c5fec-cate-and-resolve-persona-ID-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-widget-video-3-Widget-V-c5fec-cate-and-resolve-persona-ID-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      172 |       headers: authHeader(authToken),
+      173 |     });
+    > 174 |     expect(agentsRes.ok()).toBe(true);
+          |                            ^
+      175 |     const agents = await agentsRes.json();
+      176 |     const videoAgent = agents.find((a: any) => a.tavusPersonaId);
+      177 |     personaId = videoAgent?.tavusPersonaId || null;
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/wf-widget-video.spec.ts:174:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/wf-widget-video-3-Widget-V-c5fec-cate-and-resolve-persona-ID-workflow-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/wf-widget-video-3-Widget-V-c5fec-cate-and-resolve-persona-ID-workflow-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [workflow] › tests/e2e/wf-widget-video.spec.ts:165:3 › 3. Widget Video — Tavus Webhook Pipeline › 3.1 Setup: authenticate and resolve persona ID 
+  2 skipped
+  6 did not run
+  25 passed (1.8m)
+END: 16:52:58 EXIT=1
+
+=== wf-widget-form.spec.ts ===
+START: 16:52:58
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+Running 16 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+  VERIFIED: FAB opens menu, Contact Form option visible
+  ✓   1 [workflow] › tests/e2e/wf-widget-form.spec.ts:54:3 › Widget Form Workflow › 1. Widget FAB opens menu, form option visible (2.8s)
+  VERIFIED: Form submitted successfully, success state displayed
+  ✓   2 [workflow] › tests/e2e/wf-widget-form.spec.ts:69:3 › Widget Form Workflow › 2. Form fill and successful submission (3.5s)
+  VERIFIED: Form submission succeeds without phone
+  ✓   3 [workflow] › tests/e2e/wf-widget-form.spec.ts:94:3 › Widget Form Workflow › 3. Submit without phone (phone is optional) (3.5s)
+  VERIFIED: Submit button disabled/enabled follows required field rules
+  ✓   4 [workflow] › tests/e2e/wf-widget-form.spec.ts:115:3 › Widget Form Workflow › 4. Submit button disabled when required fields empty (3.2s)
+  VERIFIED: Send another message resets the form to blank state
+  ✓   5 [workflow] › tests/e2e/wf-widget-form.spec.ts:149:3 › Widget Form Workflow › 5. Send another message resets the form (3.6s)
+  VERIFIED: Back button returns to widget menu
+  ✓   6 [workflow] › tests/e2e/wf-widget-form.spec.ts:176:3 › Widget Form Workflow › 6. Back button returns to menu (3.1s)
+  VERIFIED: Close button dismisses widget, FAB remains
+  ✓   7 [workflow] › tests/e2e/wf-widget-form.spec.ts:190:3 › Widget Form Workflow › 7. Close button dismisses the widget (3.1s)
+  VERIFIED: Conversation created — id=5f4368d7-ef3c-4888-a207-76b918293095, channel=form, status=open
+  ✓   8 [workflow] › tests/e2e/wf-widget-form.spec.ts:211:3 › Widget Form Workflow › 8. API: POST /api/widget/contact creates conversation with channel=form (706ms)
+  VERIFIED: Form submission message stored with correct format
+  ✓   9 [workflow] › tests/e2e/wf-widget-form.spec.ts:244:3 › Widget Form Workflow › 9. API: Conversation has the form submission message (729ms)
+  VERIFIED: Missing required fields returns 400
+  ✓  10 [workflow] › tests/e2e/wf-widget-form.spec.ts:281:3 › Widget Form Workflow › 10. API: Missing required fields returns 400 (49ms)
+  VERIFIED: Unknown slug returns 404
+  ✓  11 [workflow] › tests/e2e/wf-widget-form.spec.ts:306:3 › Widget Form Workflow › 11. API: Unknown slug returns 404 (109ms)
+  VERIFIED: Conversation created successfully despite OUTBOUND_LIVE_ENABLED=false, id=c2f39335-a536-4c4e-9c62-a564212e3d5f
+  ✓  12 [workflow] › tests/e2e/wf-widget-form.spec.ts:316:3 › Widget Form Workflow › 12. API: Auto-SMS logged when OUTBOUND_LIVE_ENABLED=false (649ms)
+  VERIFIED: 3 sequential submissions accepted without rate limiting
+  ✓  13 [workflow] › tests/e2e/wf-widget-form.spec.ts:340:3 › Widget Form Workflow › 13. API: Rate limiting accepts normal submission rate (821ms)
+  VERIFIED: Channel filter returns 83 conversations, all channel=form
+  ✓  14 [workflow] › tests/e2e/wf-widget-form.spec.ts:356:3 › Widget Form Workflow › 14. API: Channel filter returns only form conversations (508ms)
+  VERIFIED: Form conversation visible in TeamBox — id=d281dd81-529c-4d1b-8240-5c2fa7d684d8, name=Teambox-Form-1775407982815
+  VERIFIED: Takeover succeeded — assignedTo=0b3f9bbf-1ade-428f-ad82-19aca15b0ad9
+  ✓  15 [workflow] › tests/e2e/wf-widget-form.spec.ts:376:3 › Widget Form Workflow › 15. TeamBox: form conversation visible and takeover works (8.6s)
+  VERIFIED: Admin reply stored in conversation thread — msgId=6e77a726-1c2f-4bb4-ab81-0d3a9bda8344
+  Cleanup: conversation 5f4368d7-ef3c-4888-a207-76b918293095 released
+  ✓  16 [workflow] › tests/e2e/wf-widget-form.spec.ts:438:3 › Widget Form Workflow › 16. TeamBox: admin can reply to form conversation (1.0s)
+
+  16 passed (39.0s)
+END: 16:53:39 EXIT=0
+
+=== wf-widget-chat.spec.ts ===
+START: 16:53:39
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+Running 1 test using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+  VERIFIED via API: 127 chat conversations found, latest id=457fbccf-6e64-4176-818d-65af1d293ab1
+  ✓  1 [workflow] › tests/e2e/wf-widget-chat.spec.ts:8:3 › Widget Chat Workflow › WF-WIDGET-CHAT end-to-end (13.5s)
+
+  1 passed (15.0s)
+END: 16:53:56 EXIT=0
+
+=== wf-widget-callback.spec.ts ===
+START: 16:53:56
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+Running 15 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+  [VoiceConfig] vapiAssistantId=90a876c0-0f11-4424-abfe-9ac82b264d88, tavusPersonaId=p9eb007721f4
+  ✓   1 [workflow] › tests/e2e/wf-widget-callback.spec.ts:34:3 › Widget Callback Workflow › WF-CB-16: Voice config returns VAPI assistant ID for serra-honda (386ms)
+  ✓   2 [workflow] › tests/e2e/wf-widget-callback.spec.ts:48:3 › Widget Callback Workflow › WF-CB-16b: Voice config returns 404 for unknown slug (157ms)
+  ✓   3 [workflow] › tests/e2e/wf-widget-callback.spec.ts:60:3 › Widget Callback Workflow › WF-CB-01: Landing page loads for serra-honda (2.7s)
+  ✓   4 [workflow] › tests/e2e/wf-widget-callback.spec.ts:68:3 › Widget Callback Workflow › WF-CB-02: Widget FAB opens the engagement menu (2.8s)
+  ✓   5 [workflow] › tests/e2e/wf-widget-callback.spec.ts:79:3 › Widget Callback Workflow › WF-CB-03: Clicking Instant Call Back opens phone input panel (3.0s)
+  [Browser] Callback returned 503 — voice agent may not be configured or VAPI unavailable
+  ✓   6 [workflow] › tests/e2e/wf-widget-callback.spec.ts:99:3 › Widget Callback Workflow › WF-CB-04: Callback submission triggers API call and shows success (3.6s)
+  [API] Callback returned 503 (service unavailable): Voice callback service temporarily unavailable
+  [API] VAPI service not reachable — conversation-dependent tests will be skipped
+  ✓   7 [workflow] › tests/e2e/wf-widget-callback.spec.ts:145:3 › Widget Callback Workflow › WF-CB-05: Callback API creates a voice conversation record (415ms)
+  [Skip] No conversation created — voice agent not configured
+  -   8 [workflow] › tests/e2e/wf-widget-callback.spec.ts:212:3 › Widget Callback Workflow › WF-CB-19: VAPI webhook stores transcript for callback-initiated call
+  [Skip] No conversation created — voice agent not configured
+  -   9 [workflow] › tests/e2e/wf-widget-callback.spec.ts:306:3 › Widget Callback Workflow › WF-CB-06: Created conversation appears in admin TeamBox voice queue
+  [Skip] No conversation created — voice agent not configured
+  -  10 [workflow] › tests/e2e/wf-widget-callback.spec.ts:333:3 › Widget Callback Workflow › WF-CB-06b: Admin sees voice conversation in TeamBox browser
+  [Validation] Missing phone number correctly rejected with 400
+  ✓  11 [workflow] › tests/e2e/wf-widget-callback.spec.ts:368:3 › Widget Callback Workflow › WF-CB-07: Callback rejected when phone number is missing (37ms)
+  [Validation] Unknown slug correctly rejected with 404
+  ✓  12 [workflow] › tests/e2e/wf-widget-callback.spec.ts:394:3 › Widget Callback Workflow › WF-CB-08: Callback rejected for unknown slug (104ms)
+  [Normalization] Callback returned 503 — normalization verified at code level
+  ✓  13 [workflow] › tests/e2e/wf-widget-callback.spec.ts:411:3 › Widget Callback Workflow › WF-CB-10: Phone number is normalized to E.164 format (946ms)
+  [Browser] Widget close button correctly dismisses voice panel
+  ✓  14 [workflow] › tests/e2e/wf-widget-callback.spec.ts:489:3 › Widget Callback Workflow › WF-CB-14: Widget close button dismisses the voice panel (3.1s)
+  [Browser] Back button correctly returns to widget menu
+  ✓  15 [workflow] › tests/e2e/wf-widget-callback.spec.ts:516:3 › Widget Callback Workflow › WF-CB-15: Back navigation from voice panel returns to menu (3.0s)
+
+  3 skipped
+  12 passed (22.3s)
+END: 16:54:20 EXIT=0
+
+=== wf-teambox.spec.ts ===
+START: 16:54:20
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+Running 10 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+  [beforeAll] Seeded conversation via VAPI webhook: 6c8bc87b-61e7-4068-864c-20383332d1a5
+  [beforeAll] Set seeded conversation to automated status
+  TeamBox loaded — heading, Phone tab, Video tab all visible
+  ✓   1 [workflow] › tests/e2e/wf-teambox.spec.ts:141:3 › TeamBox Workflow (AC10) › 1. Login and navigate to TeamBox (3.3s)
+  Conversation list visible — 586 items found
+  ✓   2 [workflow] › tests/e2e/wf-teambox.spec.ts:154:3 › TeamBox Workflow (AC10) › 2. Conversation list is populated (3.8s)
+  SMS filter applied — 55 conversations shown
+  All channel filter restored — 586 conversations shown
+  ✓   3 [workflow] › tests/e2e/wf-teambox.spec.ts:201:3 › TeamBox Workflow (AC10) › 3. Filter conversations by SMS channel (9.5s)
+  Automated filter applied — 2 conversations shown
+  ✓   4 [workflow] › tests/e2e/wf-teambox.spec.ts:228:3 › TeamBox Workflow (AC10) › 4. Filter conversations by Automated status (8.0s)
+  Conversation selected: id=75a1859e-b9b0-4796-8d0e-0e3647b7dc44
+  Thread loaded — input-reply and button-send-reply visible
+  ✓   5 [workflow] › tests/e2e/wf-teambox.spec.ts:283:3 › TeamBox Workflow (AC10) › 5. Select conversation and view thread (8.6s)
+  Takeover verified via API: status=open, assignedTo=0b3f9bbf-1ade-428f-ad82-19aca15b0ad9
+  button-take-over no longer visible after takeover
+  select-assign-to dropdown is visible
+  ✓   6 [workflow] › tests/e2e/wf-teambox.spec.ts:313:3 › TeamBox Workflow (AC10) › 6. Take over automated conversation (13.5s)
+  Reply sent and verified in thread: id=5fd74c64-8f87-4faa-bb41-f71f1d5ece3c
+  Message content: "TeamBox workflow test reply — 1775408121802"
+  Reply message visible in browser thread
+  ✓   7 [workflow] › tests/e2e/wf-teambox.spec.ts:397:3 › TeamBox Workflow (AC10) › 7. Send reply message (11.8s)
+  Conversation list item text: "TCTest Customerless than a minute..."
+  Thread update verification complete
+  ✓   8 [workflow] › tests/e2e/wf-teambox.spec.ts:455:3 › TeamBox Workflow (AC10) › 8. Thread updated in conversation list (6.8s)
+  Conversation released: assignedTo=null, status=open
+  Release workflow complete
+  ✓   9 [workflow] › tests/e2e/wf-teambox.spec.ts:491:3 › TeamBox Workflow (AC10) › 9. Release conversation to Unassigned (4.0s)
+  Phone tab: VAPI Call Logs heading visible
+  Video tab: Tavus Video Sessions heading visible
+  Phone and Video tabs verified accessible
+  Cleanup: conversation 75a1859e-b9b0-4796-8d0e-0e3647b7dc44 released
+  Cleanup: seeded conversation 6c8bc87b-61e7-4068-864c-20383332d1a5 deleted
+  ✓  10 [workflow] › tests/e2e/wf-teambox.spec.ts:514:3 › TeamBox Workflow (AC10) › 10. Phone and Video tabs are accessible (6.9s)
+
+  10 passed (1.4m)
+END: 16:55:44 EXIT=0
+
+=== wf-takeover.spec.ts ===
+START: 16:55:44
+[dotenv@17.3.1] injecting env (26) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+Running 6 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+  [beforeAll] Seeded automated conversation via VAPI webhook: 6ba6b36b-6158-4617-9983-aa7b73668c87
+  Conversation detail: status=automated, agentId=34c24869-ebf0-4fc7-94c6-81d3ac290cae
+  ✓  1 [workflow] › tests/e2e/wf-takeover.spec.ts:130:3 › Human Takeover Workflow › 1. Find automated conversation in TeamBox (396ms)
+  button-take-over condition: status=automated, agentId=34c24869-ebf0-4fc7-94c6-81d3ac290cae
+  VERIFIED: status === 'automated' → Take Over button is rendered (data-testid="button-take-over")
+  ✓  2 [workflow] › tests/e2e/wf-takeover.spec.ts:167:3 › Human Takeover Workflow › 2. Take Over button is visible for automated conversation (385ms)
+  Toast: "Conversation taken over" fires on successful PATCH (verified via source)
+  Takeover confirmed: status=open, assignedTo=0b3f9bbf-1ade-428f-ad82-19aca15b0ad9
+  select-assign-to renders assigned user (assignedTo matches userId: 0b3f9bbf-1ade-428f-ad82-19aca15b0ad9)
+  ✓  3 [workflow] › tests/e2e/wf-takeover.spec.ts:188:3 › Human Takeover Workflow › 3. Perform human takeover (468ms)
+  Message sent and verified in thread: id=78f9dc58-3ea6-45af-b915-0f11e73c1c31, content="This is a test message from human agent"
+  ✓  4 [workflow] › tests/e2e/wf-takeover.spec.ts:222:3 › Human Takeover Workflow › 4. Send human agent message after takeover (1.0s)
+  Conversation released: assignedTo=null, aiPaused=false
+  AI resumes: unassigned conversation is eligible for automated handling
+  ✓  5 [workflow] › tests/e2e/wf-takeover.spec.ts:261:3 › Human Takeover Workflow › 5. Release conversation — select Unassigned to resume AI (464ms)
+  Non-automated conversation: id=d32f84f4-b613-4ec5-9246-278f4a19bb21, status=open
+  VERIFIED: button-take-over is NOT rendered (status !== 'automated')
+  Cleanup: seeded conversation 6ba6b36b-6158-4617-9983-aa7b73668c87 deleted
+  ✓  6 [workflow] › tests/e2e/wf-takeover.spec.ts:293:3 › Human Takeover Workflow › 6. Take Over button is NOT visible for non-automated (Open) conversation (1.0s)
+
+  6 passed (7.9s)
+END: 16:55:54 EXIT=0
+
+=== wf-widget-embed.spec.ts ===
+START: 16:55:54
+[dotenv@17.3.1] injecting env (26) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+
+Running 33 tests using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+  ✓   1 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › serra-honda — returns 200/302 with correct content-type (185ms)
+  ✓   2 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › serra-honda — access-control-allow-origin is * (127ms)
+  ✓   3 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › serra-honda — cross-origin-resource-policy is cross-origin (124ms)
+  ✓   4 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › serra-honda — no x-frame-options blocking (106ms)
+  ✓   5 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › serra-honda — CSP frame-ancestors * if present (105ms)
+  ✓   6 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › serra-honda — cache-control includes public (107ms)
+  ✓   7 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › serra-nissan — returns 200/302 with correct content-type (105ms)
+  ✓   8 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › serra-nissan — access-control-allow-origin is * (104ms)
+  ✓   9 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › serra-nissan — cross-origin-resource-policy is cross-origin (111ms)
+  ✓  10 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › serra-nissan — no x-frame-options blocking (107ms)
+  ✓  11 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › serra-nissan — CSP frame-ancestors * if present (107ms)
+  ✓  12 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › serra-nissan — cache-control includes public (107ms)
+  ✓  13 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — returns 200/302 with correct content-type (284ms)
+  ✓  14 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — access-control-allow-origin is * (278ms)
+  ✓  15 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — cross-origin-resource-policy is cross-origin (277ms)
+  ✓  16 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — no x-frame-options blocking (288ms)
+  ✓  17 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — CSP frame-ancestors * if present (278ms)
+  ✓  18 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › tony-serra-ford — cache-control includes public (291ms)
+  ✓  19 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — returns 200/302 with correct content-type (105ms)
+  ✓  20 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — access-control-allow-origin is * (111ms)
+  ✓  21 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — cross-origin-resource-policy is cross-origin (106ms)
+  ✓  22 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — no x-frame-options blocking (109ms)
+  ✓  23 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — CSP frame-ancestors * if present (120ms)
+  ✓  24 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › hyundai-of-columbia — cache-control includes public (122ms)
+  ✓  25 [workflow] › tests/e2e/wf-widget-embed.spec.ts:28:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — returns 200/302 with correct content-type (118ms)
+  ✓  26 [workflow] › tests/e2e/wf-widget-embed.spec.ts:39:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — access-control-allow-origin is * (112ms)
+  ✓  27 [workflow] › tests/e2e/wf-widget-embed.spec.ts:47:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — cross-origin-resource-policy is cross-origin (121ms)
+  ✓  28 [workflow] › tests/e2e/wf-widget-embed.spec.ts:54:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — no x-frame-options blocking (111ms)
+  ✓  29 [workflow] › tests/e2e/wf-widget-embed.spec.ts:64:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — CSP frame-ancestors * if present (105ms)
+  ✓  30 [workflow] › tests/e2e/wf-widget-embed.spec.ts:72:5 › Widget Cross-Origin Embedding Headers › ford-of-columbia — cache-control includes public (108ms)
+  ✓  31 [workflow] › tests/e2e/wf-widget-embed.spec.ts:81:3 › Widget Cross-Origin Embedding Headers › generic widget — /widget/nexxus-widget.js returns 200 with JS (28ms)
+  ✓  32 [workflow] › tests/e2e/wf-widget-embed.spec.ts:96:3 › Widget Cross-Origin Embedding Headers › widget API CORS preflight — OPTIONS /api/widget/video-session (22ms)
+  ✓  33 [workflow] › tests/e2e/wf-widget-embed.spec.ts:113:3 › Widget Cross-Origin Embedding Headers › non-widget route /api/health retains security headers (20ms)
+
+  33 passed (6.5s)
+END: 16:56:02 EXIT=0
+
+=== COMPLETE Sun Apr  5 16:56:02 UTC 2026 ===

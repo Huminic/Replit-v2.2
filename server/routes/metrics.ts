@@ -39,7 +39,7 @@ export function registerMetricsRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const metric = req.query.metric as string;
-      const validMetrics = ['active_pipeline', 'appointments_today', 'open_escalations', 'outbound_sent'];
+      const validMetrics = ['active_pipeline', 'appointments_today', 'open_escalations', 'outbound_sent', 'total_leads', 'new_leads'];
       if (!metric || !validMetrics.includes(metric)) {
         return res.status(400).json({ message: "Invalid metric. Use: " + validMetrics.join(', ') });
       }

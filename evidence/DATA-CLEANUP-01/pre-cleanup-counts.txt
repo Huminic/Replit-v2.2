@@ -1,0 +1,8 @@
+=== BACKUP COUNTS BEFORE CLEANUP ===
+conversations: 522
+campaigns: 100
+agents: 52
+users: 22
+tasks: 523
+messages: 761
+campaign_recipients: 123

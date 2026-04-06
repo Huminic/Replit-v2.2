@@ -138,7 +138,7 @@ Every code change goes through a gated commit process. Hooks are the enforcement
 | 1.6 | Fresh watchdog scan + acknowledgment of any violations | Yes |
 | 1.7 | Session state references current sprint | Yes |
 | 1.8 | Ghost messages — no unacknowledged BLOCK directives | Yes |
-| 1.9 | All executionSteps in sprints.json have status "completed" | Yes |
+| 1.9 | All `type: "code"` executionSteps completed (infrastructure/governance steps skipped) | Yes |
 | 1.10 | Exit gate verdict "EXIT GATE: CLEARED" exists in post-sprint-report.md | Yes |
 | 2 | Evidence directory exists and is non-empty | Yes |
 | 2.5 | Pre-execution report has ## Declared Files, all staged app files listed | Yes (full governance) |

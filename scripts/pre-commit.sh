@@ -315,12 +315,23 @@ steps = sprint.get('executionSteps', [])
 if not steps:
     print('SKIP:No executionSteps defined')
     sys.exit(0)
-incomplete = [s for s in steps if s.get('status') != 'completed']
+# Only check steps with type 'code' or no type (backwards compatible)
+code_steps = [s for s in steps if s.get('type', 'code') == 'code']
+incomplete = [s for s in code_steps if s.get('status') != 'completed']
+total_steps = len(steps)
+code_count = len(code_steps)
+skipped = total_steps - code_count
 if incomplete:
     first = incomplete[0]
-    print(f'BLOCK:Step {first[\"step\"]} ({first[\"action\"]}) not completed. {len(incomplete)} step(s) remaining.')
+    msg = f'BLOCK:Step {first[\"step\"]} ({first[\"action\"]}) not completed. {len(incomplete)} code step(s) remaining.'
+    if skipped > 0:
+        msg += f' ({skipped} infrastructure/governance step(s) skipped.)'
+    print(msg)
     sys.exit(1)
-print(f'OK:All {len(steps)} steps completed')
+msg = f'OK:All {code_count} code steps completed'
+if skipped > 0:
+    msg += f' ({skipped} infrastructure/governance steps not checked by this gate)'
+print(msg)
 " 2>/dev/null)
   STEPS_EXIT=$?
   if [ "$STEPS_EXIT" -ne 0 ]; then

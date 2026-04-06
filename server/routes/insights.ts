@@ -220,6 +220,39 @@ export function registerInsightRoutes(app: Express) {
         };
       }
 
+      // BUG-INS-11: compute freshness score from actual lead ages
+      const activeLeads = allLeads.filter(l => isActiveLead(l.vinStatus) || isNewLead(l.vinStatus));
+      const freshLeads = activeLeads.filter(l => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        return (now.getTime() - created.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+      });
+      const freshnessPct = activeLeads.length > 0 ? Math.round((freshLeads.length / activeLeads.length) * 100) : 0;
+      const freshnessScore = freshnessPct >= 70 ? 'Healthy' : freshnessPct >= 40 ? 'Moderate' : freshnessPct > 0 ? 'Stale' : 'N/A';
+
+      // BUG-INS-10: compute daily lead counts for trend chart
+      const dailyCounts: Record<string, { leads: number; conversions: number }> = {};
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const key = dayNames[d.getDay()];
+        dailyCounts[key] = { leads: 0, conversions: 0 };
+      }
+      allLeads.forEach(l => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        const daysDiff = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysDiff < 7) {
+          const dayKey = dayNames[created.getDay()];
+          if (dailyCounts[dayKey]) {
+            dailyCounts[dayKey].leads++;
+            if (isSoldLead(l.vinStatus)) dailyCounts[dayKey].conversions++;
+          }
+        }
+      });
+      const dailyTrend = Object.entries(dailyCounts).map(([day, data]) => ({
+        date: day, leads: data.leads, conversions: data.conversions,
+      }));
+
       return res.json({
         overview: {
           totalLeads, hotCount, newCount, soldCount, conversionRate,
@@ -240,11 +273,13 @@ export function registerInsightRoutes(app: Express) {
         ],
         pipelineHealth: {
           velocity: metricsMap["pipeline_velocity"] || null,
-          freshness: metricsMap["pipeline_freshness"] || null,
-          forecast: metricsMap["month_end_forecast"] || null,
+          freshness: freshnessScore,
+          freshnessPct,
+          forecast: metricsMap["month_end_forecast"] || soldCount,
         },
         topLeadSources,
         channelPerformance,
+        dailyTrend,
       });
     } catch (err: any) {
       console.error("[Insights] Dashboard error:", err);
@@ -275,13 +310,20 @@ export function registerInsightRoutes(app: Express) {
       const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
       const badCount = allLeads.filter(l => isBadLead(l.vinStatus)).length;
 
-      const sourceCounts: Record<string, { total: number; won: number; lost: number }> = {};
+      const sourceCounts: Record<string, { total: number; won: number; lost: number; lostAges: number[] }> = {};
       allLeads.forEach(l => {
         const src = fmtSrc(l.leadSource);
-        if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0 };
+        if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, lost: 0, lostAges: [] };
         sourceCounts[src].total++;
         if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
-        if (isLostLead(l.vinStatus)) sourceCounts[src].lost++;
+        if (isLostLead(l.vinStatus)) {
+          sourceCounts[src].lost++;
+          // BUG-INS-08: track days before loss for avgDaysBeforeLoss calculation
+          const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+          const updated = l.vinUpdatedAt ? new Date(l.vinUpdatedAt) : now;
+          const daysToLoss = Math.max(0, Math.floor((updated.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)));
+          sourceCounts[src].lostAges.push(daysToLoss);
+        }
       });
 
       const sourceQualityTrends = Object.entries(sourceCounts)
@@ -289,8 +331,12 @@ export function registerInsightRoutes(app: Express) {
         .slice(0, 10)
         .map(([source, data]) => ({
           source, leads: data.total,
+          totalLost: data.lost,
           winRate: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
           lossRate: data.total > 0 ? Math.round((data.lost / data.total) * 100) : 0,
+          avgDaysBeforeLoss: data.lostAges.length > 0
+            ? Math.round(data.lostAges.reduce((a, b) => a + b, 0) / data.lostAges.length)
+            : 0,
         }));
 
       let metricsMap: Record<string, string> = {};

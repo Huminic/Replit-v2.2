@@ -494,13 +494,27 @@ export function registerVendorRoutes(app: Express) {
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const leads = await storageModule.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo });
+      // BUG-05 fix: query both current and previous 30-day periods for delta calculation
+      const sixtyDaysAgo = new Date(now);
+      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+      const [leads, prevLeads] = await Promise.all([
+        storageModule.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo }),
+        storageModule.getWarehouseLeads(orgId, { createdAfter: sixtyDaysAgo }),
+      ]);
+      // Previous period = leads created 60-30 days ago (exclude current period)
+      const prevPeriodLeads = prevLeads.filter((l: any) => {
+        const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
+        return created < thirtyDaysAgo;
+      });
 
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(todayStart);
       todayEnd.setDate(todayEnd.getDate() + 1);
       const appts = await storageModule.getAppointments(orgId, { startDate: todayStart, endDate: todayEnd });
+      // BUG-03 fix: filter to scheduled only, matching pipeline metric count query
+      const scheduledAppts = appts.filter((a: any) => a.status === 'scheduled');
 
       const cur = {
         total: leads.length,
@@ -509,7 +523,19 @@ export function registerVendorRoutes(app: Express) {
         sold: leads.filter((l: any) => isSoldLead(l.vinStatus)).length,
         lost: leads.filter((l: any) => isLostLead(l.vinStatus)).length,
         waiting: leads.filter((l: any) => l.vinStatus === 'ACTIVE_WAITING_FOR_PROSPECT_RESPONSE').length,
-        appt: appts.length,
+        appt: scheduledAppts.length,
+      };
+
+      const prev = {
+        total: prevPeriodLeads.length,
+        active: prevPeriodLeads.filter((l: any) => isActiveLead(l.vinStatus)).length,
+        new: prevPeriodLeads.filter((l: any) => isNewLead(l.vinStatus)).length,
+        sold: prevPeriodLeads.filter((l: any) => isSoldLead(l.vinStatus)).length,
+      };
+
+      const pctChange = (current: number, previous: number): number => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return Math.round(((current - previous) / previous) * 100);
       };
 
       const latestSyncDate = leads.length > 0
@@ -522,13 +548,13 @@ export function registerVendorRoutes(app: Express) {
       return res.json({
         period: { start: thirtyDaysAgo.toISOString().split("T")[0], end: now.toISOString().split("T")[0] },
         totalLeads: cur.total,
-        totalLeadsChange: 0,
+        totalLeadsChange: pctChange(cur.total, prev.total),
         newLeads: cur.new,
-        newLeadsChange: 0,
+        newLeadsChange: pctChange(cur.new, prev.new),
         activeLeads: cur.active,
-        activeLeadsChange: 0,
+        activeLeadsChange: pctChange(cur.active, prev.active),
         soldLeads: cur.sold,
-        soldLeadsChange: 0,
+        soldLeadsChange: pctChange(cur.sold, prev.sold),
         lostLeads: cur.lost,
         waitingForResponse: cur.waiting,
         appointments: cur.appt,

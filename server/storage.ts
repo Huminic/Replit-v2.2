@@ -922,12 +922,14 @@ export class DatabaseStorage implements IStorage {
           sentAt: outboundLog.sentAt,
           createdAt: outboundLog.createdAt,
           recipientId: outboundLog.recipientId,
+          campaignId: outboundLog.campaignId,
         }).from(outboundLog).where(and(
           eq(outboundLog.organizationId, organizationId),
           eq(outboundLog.status, "sent"),
           gte(outboundLog.createdAt, twentyFourHoursAgo),
         )).orderBy(desc(outboundLog.createdAt)).limit(limit);
 
+        // BUG-PE01-003 fix: resolve recipient data from campaignRecipients for campaign sends
         const recipientIds = rows.filter(r => r.recipientId).map(r => r.recipientId!);
         const recipientMap = new Map<string, { name: string; phone: string | null; email: string | null }>();
         if (recipientIds.length > 0) {
@@ -947,10 +949,62 @@ export class DatabaseStorage implements IStorage {
             recipientMap.set(r.id, { name: [r.firstName, r.lastName].filter(Boolean).join(' '), phone: r.phone, email: r.email });
           }
         }
+
         return rows.map(row => {
           const r = row.recipientId ? recipientMap.get(row.recipientId) : undefined;
-          return { ...row, recipientName: r?.name || null, recipientPhone: r?.phone || null, recipientEmail: r?.email || null };
+          if (r) {
+            return { ...row, recipientName: r.name || null, recipientPhone: r.phone || null, recipientEmail: r.email || null };
+          }
+          // BUG-PE01-003: For non-campaign sends, extract phone from messageContent
+          let extractedPhone: string | null = null;
+          let extractedName: string | null = null;
+          if (row.messageContent) {
+            const phoneMatch = row.messageContent.match(/(?:to |confirmation to |sent to )(\+?[\d\-()\s]{7,})/i);
+            if (phoneMatch) extractedPhone = phoneMatch[1].trim();
+          }
+          return { ...row, recipientName: extractedName, recipientPhone: extractedPhone, recipientEmail: null };
         });
+      }
+      case 'total_leads': {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const rows = await db.select({
+          id: warehouseLeads.id,
+          sourceId: warehouseLeads.sourceId,
+          customerName: warehouseLeads.customerName,
+          customerEmail: warehouseLeads.customerEmail,
+          customerPhone: warehouseLeads.customerPhone,
+          vinStatus: warehouseLeads.vinStatus,
+          vehicleOfInterest: warehouseLeads.vehicleOfInterest,
+          leadSource: warehouseLeads.leadSource,
+          syncedAt: warehouseLeads.syncedAt,
+        }).from(warehouseLeads).where(and(
+          eq(warehouseLeads.organizationId, organizationId),
+          sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${thirtyDaysAgo}`,
+          sql`${warehouseLeads.vinStatus} IS NOT NULL`,
+        )).orderBy(desc(warehouseLeads.syncedAt)).limit(limit);
+        return rows;
+      }
+      case 'new_leads': {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const rows = await db.select({
+          id: warehouseLeads.id,
+          sourceId: warehouseLeads.sourceId,
+          customerName: warehouseLeads.customerName,
+          customerEmail: warehouseLeads.customerEmail,
+          customerPhone: warehouseLeads.customerPhone,
+          vinStatus: warehouseLeads.vinStatus,
+          vehicleOfInterest: warehouseLeads.vehicleOfInterest,
+          leadSource: warehouseLeads.leadSource,
+          syncedAt: warehouseLeads.syncedAt,
+        }).from(warehouseLeads).where(and(
+          eq(warehouseLeads.organizationId, organizationId),
+          sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${thirtyDaysAgo}`,
+          sql`${warehouseLeads.vinStatus} IS NOT NULL`,
+          sql`(${warehouseLeads.vinStatus} = 'ACTIVE_NEW_LEAD' OR ${warehouseLeads.vinStatus} = 'new' OR ${warehouseLeads.vinStatus} = 'uncontacted')`,
+        )).orderBy(desc(warehouseLeads.syncedAt)).limit(limit);
+        return rows;
       }
       default:
         return [];
