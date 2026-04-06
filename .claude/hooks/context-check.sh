@@ -25,6 +25,9 @@ case "$TOOL_NAME" in
   Read|Glob|Grep) IS_READ_ONLY=1 ;;
 esac
 
+SPRINT_ID=""
+STEP_NUM=""
+
 echo "--- CONTEXT CHECK (automated hook) ---"
 
 # ═══════════════════════════════════════════════════════════════════
@@ -201,7 +204,8 @@ fi
 # ═══════════════════════════════════════════════════════════════════
 # 4. Audit logging
 # ═══════════════════════════════════════════════════════════════════
-if [ -f "$SPRINTS_FILE" ] && [ -n "$SPRINT_ID" ] && [ "$SPRINT_ID" != "" ]; then
+# Validate SPRINT_ID is set before using it for audit logging
+if [ -f "$SPRINTS_FILE" ] && [ -n "${SPRINT_ID:-}" ]; then
   AUDIT_DIR="$APP_DIR/evidence/$SPRINT_ID"
   AUDIT_FILE="$AUDIT_DIR/workflow-audit.log"
   if [ -d "$AUDIT_DIR" ]; then

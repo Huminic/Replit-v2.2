@@ -214,7 +214,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     freshnessScore: dashboardData?.pipelineHealth?.freshness || 'N/A',
     stalePct: 0,
     freshness: [
-      { pct: totalLeads > 0 ? Math.round((hotCount / totalLeads) * 100) : 100, range: '<7 days', count: hotCount, color: '#10B981' },
+      { pct: dashboardData?.pipelineHealth?.freshnessPct ?? (totalLeads > 0 ? Math.round((hotCount / totalLeads) * 100) : 0), range: '<7 days', count: hotCount, color: '#10B981' },
     ],
     velocity: { sevenDay: 'N/A', thirtyDay: 'N/A', direction: '—', trend: 'Insufficient data' },
     hotLeads: {
@@ -249,9 +249,13 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' : 'neutral', change: '' },
   ];
 
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const leadsChartData = days.map(d => ({ date: d, value: 0, label: d }));
-  const conversionsChartData = days.map(d => ({ date: d, value: 0, label: d }));
+  const apiDailyTrend = dashboardData?.dailyTrend || [];
+  const leadsChartData = apiDailyTrend.length > 0
+    ? apiDailyTrend.map((d: any) => ({ date: d.date, value: d.leads, label: d.date }))
+    : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => ({ date: d, value: 0, label: d }));
+  const conversionsChartData = apiDailyTrend.length > 0
+    ? apiDailyTrend.map((d: any) => ({ date: d.date, value: d.conversions, label: d.date }))
+    : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => ({ date: d, value: 0, label: d }));
 
   const apiTopLeadSources = dashboardData?.topLeadSources || [];
   const topLeadSources = apiTopLeadSources.length > 0 ? apiTopLeadSources : [];
@@ -268,9 +272,13 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const badLeadBreakdown = rptLossAnalysis.totalBad > 0 ? [
     { reason: 'Bad/Invalid', count: rptLossAnalysis.totalBad },
   ] : [];
-  const lossPatternsBySource = rptSourceQuality.map((s: any) => ({
-    source: s.source, leads: s.leads, lossRate: `${s.lossRate}%`, topReason: 'N/A',
-  }));
+  const lossPatternsBySource = rptSourceQuality
+    .filter((s: any) => s.totalLost > 0 || s.lossRate > 0)
+    .map((s: any) => ({
+      source: s.source, leads: s.leads, totalLost: s.totalLost || 0,
+      lossRate: `${s.lossRate}%`, topReason: 'Status Change',
+      topReasonPct: s.lossRate || 0, avgDaysBeforeLoss: s.avgDaysBeforeLoss || 0,
+    }));
   const reengagementCandidates = hotLeadsGoingCold.slice(0, 5).map((l: any) => ({
     id: l.id, leadId: l.leadId, name: l.customerName || l.leadId, vehicle: l.vehicle || 'N/A',
     daysInactive: l.daysOld || 0, lastChannel: 'Unknown', suggestedAction: 'Follow up',

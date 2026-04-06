@@ -73,7 +73,12 @@
       "Bash(git reset --hard *)",
       "Bash(git checkout -- *)",
       "Bash(pm2 delete *)",
-      "Bash(pm2 stop *)"
+      "Bash(pm2 stop *)",
+      "Bash(git clean *)",
+      "Bash(git stash drop *)",
+      "Bash(git branch -D *)",
+      "Bash(git rebase *)",
+      "Bash(git cherry-pick *)"
     ]
   },
   "hooks": {
@@ -110,7 +115,10 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--headless"]
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ]
     },
     "nexxus-integrations": {
       "url": "http://0.0.0.0:4002/mcp",

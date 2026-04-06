@@ -9,3 +9,138 @@
 [2026-04-03T05:05:08Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/I-002/post-sprint-report.md template=post-sprint
   - Missing (exact): **Sprint:** header
   - Missing (exact): **Date:** header
+[2026-04-06T06:49:29Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LV-001a/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T06:49:55Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LV-001a/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T08:35:55Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/pre-execution-report.md template=pre-exec
+  - Missing: ## Objective section
+  - Missing: ## Test Plan section
+  - Missing: ## Declared Files section
+[2026-04-06T08:36:10Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/pre-execution-report.md template=pre-exec
+  - Missing: ## Test Plan section
+  - Missing: ## Declared Files section
+[2026-04-06T08:36:15Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/pre-execution-report.md template=pre-exec
+  - Missing: ## Test Plan section
+[2026-04-06T08:49:43Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## Test Execution section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T08:50:04Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/enforcer-checklist.txt template=enforcer
+  - Missing: Role field
+[2026-04-06T08:50:45Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Test Execution section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T09:22:00Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-INSIGHTS-01/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+[2026-04-06T09:35:35Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-INSIGHTS-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## Test Execution section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T09:35:46Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-INSIGHTS-01/enforcer-checklist.txt template=enforcer
+  - Missing (exact): RESULT: APPROVED
+  - Missing: Timestamp field
+  - Missing: Role field
+[2026-04-06T09:50:22Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-SERVICE-CAMPAIGNS-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## Test Execution section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T09:50:31Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-SERVICE-CAMPAIGNS-01/enforcer-checklist.txt template=enforcer
+  - Missing (exact): RESULT: APPROVED
+  - Missing: Timestamp field
+  - Missing: Sprint field
+  - Missing: Role field
+[2026-04-06T10:07:31Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-INTEGRATIONS-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## Test Execution section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T10:07:38Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-INTEGRATIONS-01/enforcer-checklist.txt template=enforcer
+  - Missing (exact): RESULT: APPROVED
+  - Missing: Timestamp field
+  - Missing: Sprint field
+  - Missing: Role field
+[2026-04-06T14:38:50Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-01/pre-execution-report.md template=pre-exec
+  - Missing: ## Test Plan section
+  - Missing: ## Declared Files section
+[2026-04-06T14:41:38Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-01/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T14:42:00Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-01/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T14:43:43Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-02/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T14:44:23Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-02/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T14:44:39Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-02/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T14:49:38Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/DATA-CLEANUP-02/enforcer-checklist.txt template=enforcer
+  - Missing: Role field
+[2026-04-06T15:05:38Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-002/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T15:11:08Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-002/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T15:11:28Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-002/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T15:11:40Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-002/enforcer-checklist.txt template=enforcer
+  - Missing: Timestamp field
+  - Missing: Role field
+[2026-04-06T15:20:10Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-003/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T15:26:22Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-003/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T15:27:03Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-003/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T15:36:44Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-004/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T15:41:01Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-005/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-06T15:44:23Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-005/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T15:44:43Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-004/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-06T15:45:35Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-005/enforcer-checklist.txt template=enforcer
+  - Missing (exact): RESULT: APPROVED
+  - Missing: Timestamp field
+  - Missing: Sprint field
+[2026-04-06T15:48:03Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-006/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header

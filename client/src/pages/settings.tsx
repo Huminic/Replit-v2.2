@@ -154,14 +154,17 @@ function VinLeadConfigSection({ orgId }: { orgId?: string }) {
   const { toast } = useToast();
   const [selectedUserId, setSelectedUserId] = useState<string>('');
 
-  const { data: vinConfig } = useQuery({
+  const { data: vinConfig, isError: vinConfigError, isLoading: vinConfigLoading } = useQuery({
     queryKey: ['/api/integrations', orgId, 'vin-config'],
     queryFn: async () => {
       const res = await apiRequest('GET', `/api/integrations/${orgId}/vin-config`);
       return res.json();
     },
     enabled: !!orgId,
+    retry: false,
   });
+
+  const hasVinIntegration = !!vinConfig && !vinConfigError;
 
   const { data: vinUsers, isLoading: usersLoading } = useQuery({
     queryKey: ['/api/vin/users', orgId],
@@ -169,7 +172,7 @@ function VinLeadConfigSection({ orgId }: { orgId?: string }) {
       const res = await apiRequest('GET', `/api/vin/users/${orgId}`);
       return res.json();
     },
-    enabled: !!orgId,
+    enabled: !!orgId && hasVinIntegration,
   });
 
   useEffect(() => {
@@ -210,11 +213,11 @@ function VinLeadConfigSection({ orgId }: { orgId?: string }) {
             const userId = parseInt(e.target.value, 10);
             if (userId) saveMutation.mutate(userId);
           }}
-          disabled={usersLoading || saveMutation.isPending}
+          disabled={!hasVinIntegration || usersLoading || saveMutation.isPending}
           data-testid="select-default-vin-user"
         >
           <option value="">
-            {usersLoading ? 'Loading VIN users...' : 'Select a sales rep'}
+            {vinConfigLoading ? 'Checking VIN integration...' : !hasVinIntegration ? 'VIN integration not configured' : usersLoading ? 'Loading VIN users...' : 'Select a sales rep'}
           </option>
           {(vinUsers?.users || []).map((u: any) => (
             <option key={u.userId} value={String(u.userId)}>
@@ -715,6 +718,8 @@ export default function SettingsPage() {
     aiModel?: string;
     systemPrompt?: string;
     chatInstructions?: string;
+    textmagicPhone?: string;
+    [key: string]: any;
   }
 
   const { data: orgSettings, isLoading: orgSettingsLoading } = useQuery<OrgSettings>({
@@ -3761,14 +3766,13 @@ export default function SettingsPage() {
                   type="tel"
                   placeholder="e.g. 18338096836"
                   className="w-48 h-8 text-sm"
-                  defaultValue={(authUser?.organization as any)?.settings?.textmagicPhone || ''}
-                  key={`tm-${(authUser?.organization as any)?.settings?.textmagicPhone || ''}`}
+                  defaultValue={orgSettings?.textmagicPhone || ''}
+                  key={`tm-${orgSettings?.textmagicPhone || ''}`}
                   onBlur={(e) => {
                     const val = e.target.value.trim();
-                    const org = authUser?.organization as any;
-                    const currentSettings = org?.settings || {};
+                    const currentSettings = orgSettings || {} as Record<string, any>;
                     if (val !== (currentSettings.textmagicPhone || '')) {
-                      const orgId = org?.id;
+                      const orgId = authUser?.organization?.id;
                       if (orgId) {
                         apiRequest('PATCH', `/api/organizations/${orgId}`, {
                           settings: { ...currentSettings, textmagicPhone: val }
@@ -3776,6 +3780,7 @@ export default function SettingsPage() {
                           queryClient.invalidateQueries({ queryKey: ['/api/organizations', orgId] });
                           queryClient.invalidateQueries({ queryKey: ['/api/outbound/status'] });
                           queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+                          queryClient.invalidateQueries({ queryKey: ['/api/settings/org'] });
                           toast({ title: 'TextMagic number saved', description: 'Inbound SMS will route to this organization.' });
                         }).catch((err: any) => {
                           toast({ title: 'Failed to save TextMagic number', description: err.message || 'An error occurred', variant: 'destructive' });

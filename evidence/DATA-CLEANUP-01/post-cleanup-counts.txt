@@ -1,0 +1,8 @@
+=== POST-CLEANUP COUNTS ===
+conversations: 297
+campaigns: 4
+agents: 52
+users: 22
+tasks: 523
+messages: 479
+campaign_recipients: 25

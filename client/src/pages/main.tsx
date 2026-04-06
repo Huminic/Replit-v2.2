@@ -886,6 +886,8 @@ export default function MainPage() {
                     setInputValue('');
                     setConversationId(null);
                     setInitialized(false);
+                    setHasSentMessage(false);
+                    setTilesCollapsed(false);
                   }}
                 >
                   <Plus className="h-5 w-5 text-muted-foreground" />
