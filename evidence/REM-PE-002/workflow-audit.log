@@ -1,0 +1,7 @@
+[2026-04-06T15:13:13Z] PRE-COMMIT role=frontend sprint=REM-PE-002 result=BLOCKED detail="Watchdog gate: Ack is 502 minutes old (max 60). Re-acknowledge."
+[2026-04-06T15:14:47Z] PRE-COMMIT role=frontend sprint=REM-PE-002 result=BLOCKED detail="Staged files outside frontend scope."
+[2026-04-06T15:15:10Z] PRE-COMMIT role=orchestrator sprint=REM-PE-002 result=BLOCKED detail="Cross-sign implementing role (frontend) does not match COMMIT_ROLE (orchestrator)."
+[2026-04-06T15:15:29Z] PRE-COMMIT role=orchestrator sprint=REM-PE-002 result=BLOCKED detail="Staged files outside orchestrator scope."
+[2026-04-06T15:15:45Z] agent-launch | role=frontend | task="REM-PE-002 insights crash fixes" | scope=client/src/pages/insights.tsx
+[2026-04-06T15:16:06Z] PRE-COMMIT role=orchestrator sprint=REM-PE-002 result=BLOCKED detail="client/src/pages/insights.tsx has 95 lines changed (max 40, EF-14). Set UI_EXCEPTION=true if owner approved larger UI changes in sprint pre-exec."
+[2026-04-06T15:16:28Z] PRE-COMMIT role=orchestrator sprint=REM-PE-002 result=PASS detail="All 7 gates passed"

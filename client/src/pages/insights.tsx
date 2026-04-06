@@ -32,7 +32,7 @@
  * @see server/routes.ts — API endpoints for insights data
  */
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { 
   TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, Lightbulb, 
   Filter, LayoutGrid, List, Search, BarChart3, LineChart, PieChart, FileText, 
@@ -125,6 +125,7 @@ function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]
 
 export default function InsightsPage({ embedded = false }: { embedded?: boolean }) {
   const [location] = useLocation();
+  const searchString = useSearch();
   const { currentRole } = useApp();
   const canSwitchStore = currentRole === 'super_admin' || currentRole === 'partner_admin';
   const { data: orgListRaw } = useQuery<{ id: string; name: string; slug: string }[]>({
@@ -284,6 +285,9 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const fullChannelComparison = channelPerformance.map((ch: any) => ({
     channel: ch.channel, volume: ch.volume, conversion: `${ch.conversion}%`, avgDaysToClose: 'N/A',
     costPerLead: 'N/A', satisfaction: 'N/A', grade: ch.conversion > 20 ? 'A' : ch.conversion > 10 ? 'B' : 'C',
+    pct: ch.pct ?? '—', winRate: ch.winRate ?? '—', lossRate: ch.lossRate ?? '—',
+    badRate: ch.badRate ?? '—', hotPct: ch.hotPct ?? '—', showPct: ch.showPct ?? '—',
+    deltaWin: ch.deltaWin ?? '—', rank: ch.rank ?? '—',
   }));
 
   const digitalVsPhysical = {
@@ -340,17 +344,17 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const weekOverWeekTrends = [] as any[];
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchString);
     const tab = params.get('tab');
-    if (tab && ['dashboard', 'reports', 'library', 'hunches'].includes(tab)) {
+    if (tab && ['dashboard', 'reports', 'library', 'hunches', 'activity'].includes(tab)) {
       setActiveTab(tab);
     }
-  }, [location]);
+  }, [searchString]);
 
   useEffect(() => {
     const handler = (e: Event) => {
       const tab = (e as CustomEvent).detail;
-      if (tab && ['dashboard', 'reports', 'library', 'hunches'].includes(tab)) {
+      if (tab && ['dashboard', 'reports', 'library', 'hunches', 'activity'].includes(tab)) {
         setActiveTab(tab);
       }
     };
@@ -386,7 +390,68 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   });
 
   const handleExport = (type: string) => {
-    toast({ title: `Export ${type}`, description: `${type} export has been generated and is ready for download.` });
+    try {
+      let csvRows: string[][] = [];
+      let filename = 'insights-export.csv';
+
+      if (activeTab === 'dashboard') {
+        filename = 'insights-dashboard.csv';
+        csvRows.push(['Metric', 'Value', 'Change', 'Trend']);
+        scorecardConversionMetrics.forEach(m => {
+          csvRows.push([m.label, m.value, m.change, m.trend]);
+        });
+        if (hotLeadsGoingCold.length > 0) {
+          csvRows.push([]);
+          csvRows.push(['Hot Leads Going Cold']);
+          csvRows.push(['Lead ID', 'Customer', 'Vehicle', 'Days Old', 'Source']);
+          hotLeadsGoingCold.forEach((l: any) => {
+            csvRows.push([l.leadId || '', l.customerName || '', l.vehicle || '', String(l.daysOld || ''), l.source || '']);
+          });
+        }
+      } else if (activeTab === 'reports') {
+        filename = 'insights-reports.csv';
+        if (reportCategory === 'channel') {
+          csvRows.push(['Channel', 'Volume', 'Conversion', 'Grade']);
+          fullChannelComparison.forEach((row: any) => {
+            csvRows.push([row.channel, String(row.volume), row.conversion, row.grade]);
+          });
+        } else if (reportCategory === 'loss') {
+          csvRows.push(['Source', 'Leads', 'Loss Rate', 'Top Reason']);
+          lossPatternsBySource.forEach((row: any) => {
+            csvRows.push([row.source, String(row.leads), row.lossRate, row.topReason]);
+          });
+        } else {
+          csvRows.push(['Label', 'Current', 'Previous', 'Change']);
+          monthlyPerformanceSummary.keyMetrics.forEach((m: any) => {
+            csvRows.push([m.label, String(m.current), String(m.previous), String(m.change)]);
+          });
+        }
+      } else if (activeTab === 'library') {
+        filename = 'insights-library.csv';
+        csvRows.push(['Metric', 'Value', 'Change', 'Trend', 'Category']);
+        filteredLibrary.forEach(m => {
+          csvRows.push([m.title, m.value, m.change, m.trend, m.category]);
+        });
+      }
+
+      if (csvRows.length === 0) {
+        csvRows.push(['No data available for export']);
+      }
+
+      const csvContent = csvRows.map(row => row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: `Export ${type}`, description: `${type} export downloaded successfully.` });
+    } catch (err) {
+      toast({ title: 'Export failed', description: 'Could not generate export file.', variant: 'destructive' });
+    }
   };
 
   const handleAction = (action: string, detail: string) => {
@@ -910,7 +975,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                         <td className="py-2 px-2 text-right text-muted-foreground">{row.badRate}</td>
                         <td className="py-2 px-2 text-right text-foreground">{row.hotPct}</td>
                         <td className="py-2 px-2 text-right text-muted-foreground">{row.showPct}</td>
-                        <td className={cn('py-2 px-2 text-right', row.deltaWin.includes('+') ? 'text-green-500' : row.deltaWin.includes('-') ? 'text-red-500' : 'text-muted-foreground')}>{row.deltaWin}</td>
+                        <td className={cn('py-2 px-2 text-right', row.deltaWin?.includes('+') ? 'text-green-500' : row.deltaWin?.includes('-') ? 'text-red-500' : 'text-muted-foreground')}>{row.deltaWin}</td>
                         <td className="py-2 px-2 text-right text-muted-foreground">{row.rank}</td>
                       </tr>
                     ))}
@@ -1473,6 +1538,9 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
             <TabsTrigger value="hunches" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-hunches">
               Hunches
             </TabsTrigger>
+            <TabsTrigger value="activity" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-insights-activity">
+              Activity
+            </TabsTrigger>
           </TabsList>
           {embedded && storeSelector}
         </div>
@@ -1491,6 +1559,19 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
 
         <TabsContent value="hunches" className="flex-1 min-h-0 m-0 overflow-hidden flex flex-col data-[state=inactive]:hidden">
           {renderHunches()}
+        </TabsContent>
+
+        <TabsContent value="activity" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-6">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" data-testid="activity-empty-state">
+                <Activity className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                <p className="text-xs text-blue-700 dark:text-blue-400">
+                  Activity tracking coming soon. This tab will show real-time dealership activity, user actions, and system events.
+                </p>
+              </div>
+            </div>
+          </ScrollArea>
         </TabsContent>
       </Tabs>
 
