@@ -247,27 +247,45 @@ export function registerVendorRoutes(app: Express) {
       if (assistantId) mcpArgs.assistantId = assistantId as string;
       const data = await callMCP("vapi_list_calls", mcpArgs);
       const arr = Array.isArray(data) ? data : [];
-      const calls = arr.map((c: any) => ({
-        id: c.id,
-        type: c.type,
-        status: c.status,
-        startedAt: c.startedAt,
-        endedAt: c.endedAt,
-        endedReason: c.endedReason,
-        cost: c.cost,
-        assistantId: c.assistantId,
-        phoneNumberId: c.phoneNumberId,
-        customer: c.customer?.number || null,
-        summary: c.summary,
-        transcript: c.transcript,
-        recordingUrl: c.recordingUrl,
-        stereoRecordingUrl: c.stereoRecordingUrl,
-        duration: c.startedAt && c.endedAt
-          ? (new Date(c.endedAt).getTime() - new Date(c.startedAt).getTime()) / 1000
-          : null,
-        analysis: c.analysis || null,
-        costBreakdown: c.costBreakdown || null,
-      }));
+
+      // BUG-INT-02 fix: filter calls by org's VAPI assistant IDs to prevent cross-org data leak
+      const orgId = (req as any).user?.organizationId;
+      let orgAssistantIds: Set<string> | null = null;
+      if (orgId) {
+        const { storage: storageModule } = await import("./storage");
+        const orgAgents = await storageModule.getAgents(orgId);
+        orgAssistantIds = new Set(
+          orgAgents
+            .filter((a: any) => a.vapiAssistantId)
+            .map((a: any) => a.vapiAssistantId!)
+        );
+      }
+
+      const calls = arr
+        .filter((c: any) => !orgAssistantIds || orgAssistantIds.size === 0 || orgAssistantIds.has(c.assistantId))
+        .map((c: any) => ({
+          id: c.id,
+          type: c.type,
+          status: c.status,
+          startedAt: c.startedAt,
+          endedAt: c.endedAt,
+          endedReason: c.endedReason,
+          cost: c.cost,
+          assistantId: c.assistantId,
+          phoneNumberId: c.phoneNumberId,
+          // BUG-INT-03 fix: return customer as object so frontend can read call.customer?.number
+          customer: c.customer ? { number: c.customer.number || null, name: c.customer.name || null } : null,
+          phoneNumber: c.customer?.number || null,
+          summary: c.summary,
+          transcript: c.transcript,
+          recordingUrl: c.recordingUrl,
+          stereoRecordingUrl: c.stereoRecordingUrl,
+          duration: c.startedAt && c.endedAt
+            ? (new Date(c.endedAt).getTime() - new Date(c.startedAt).getTime()) / 1000
+            : null,
+          analysis: c.analysis || null,
+          costBreakdown: c.costBreakdown || null,
+        }));
       return res.json(calls);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch VAPI calls", error: err.message });
@@ -403,16 +421,36 @@ export function registerVendorRoutes(app: Express) {
 
       const conversations = items
         .filter((c: any) => !orgPersonaIds || orgPersonaIds.has(c.persona_id))
-        .map((c: any) => ({
-          id: c.conversation_id,
-          name: c.conversation_name,
-          status: c.status,
-          personaId: c.persona_id,
-          replicaId: c.replica_id,
-          conversationUrl: c.conversation_url,
-          createdAt: c.created_at,
-          updatedAt: c.updated_at,
-        }));
+        .map((c: any) => {
+          // Extract visitor name from conversation_name (format: "Session with <Name>")
+          const rawName = c.conversation_name || "";
+          const visitorName = rawName.replace(/^Session with /i, "") || null;
+          return {
+            id: c.conversation_id,
+            conversation_id: c.conversation_id,
+            name: c.conversation_name,
+            status: c.status,
+            personaId: c.persona_id,
+            persona_id: c.persona_id,
+            persona_name: c.persona_name || null,
+            personaName: c.persona_name || null,
+            replicaId: c.replica_id,
+            replica_id: c.replica_id,
+            conversationUrl: c.conversation_url,
+            // BUG-INT-05 fix: include both camelCase and snake_case for frontend compatibility
+            createdAt: c.created_at,
+            created_at: c.created_at,
+            updatedAt: c.updated_at,
+            updated_at: c.updated_at,
+            ended_at: c.ended_at || c.updated_at || null,
+            endedAt: c.ended_at || c.updated_at || null,
+            visitor_name: visitorName,
+            visitorName: visitorName,
+            recording_url: c.recording_url || null,
+            recordingUrl: c.recording_url || null,
+            duration: c.duration || null,
+          };
+        });
       return res.json(conversations);
     } catch (err: any) {
       return res.status(502).json({ message: "Failed to fetch Tavus conversations", error: err.message });

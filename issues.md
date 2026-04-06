@@ -133,6 +133,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-194 | **FIXED (T-010a).** VAPI→VIN re-enabled with per-dealer vinLeadSourceName configured in org.settings. Safety guards added: 555-number rejection, transcript-required check, "Unknown Caller" → AI/Lead naming. Tavus path also fixed (was live without guards). Backfill assessed: 1 ringing-only call in 24h, no transcript, not pushable. Dealer source names: Serra Honda/Nissan/Ford="Dealers WebSite", Hyundai of Columbia="Dealer .Com (Our Website)", Ford of Columbia="Dealer Website". | BE | CLOSED (T-010a) | M |
+| I-240 | **BUG-INT-07: VIN lead creation failing on live calls.** The vin-safe-mcp server (port 4003) returns errors during prepare step for some orgs. Root cause: dealer provisioning incomplete or MCP connectivity issue. Webhook error handling (webhooks.ts) correctly creates escalation tasks, but the underlying MCP provisioning must be verified externally. **Blocked pending central-mcp/vin-safe-mcp provisioning verification.** Cannot fix within nexxus project — external dependency per filesystem boundary rules. | BE | OPEN | H |
 
 ---
 
