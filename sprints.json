@@ -4947,7 +4947,7 @@
         "B3: All failures logged in issues.md with fix plan",
         "B4: Operator approves launch readiness"
       ],
-      "commit": null,
+      "commit": "21bd13f",
       "evidence": "evidence/LV-001a/",
       "uiPermissions": "NONE",
       "executionSteps": [
