@@ -42,6 +42,15 @@ setInterval(() => {
   }
 }, 60000);
 
+/**
+ * Check if a string looks like a phone number rather than a real name.
+ * Used to avoid greeting customers with "Hi +18392729080!".
+ */
+function looksLikePhoneNumber(name: string): boolean {
+  const stripped = name.replace(/[\s\-().+]/g, "");
+  return /^\d{7,15}$/.test(stripped);
+}
+
 export function registerSmsRoutes(app: Express) {
   app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
@@ -171,8 +180,8 @@ export function registerSmsRoutes(app: Express) {
         if (org) {
           const settings = (org.settings || {}) as Record<string, any>;
           const tz = settings.timezone || "America/New_York";
-          const startHour = parseInt(settings.businessHoursStart || "07", 10);
-          const endHour = parseInt(settings.businessHoursEnd || "22", 10);
+          const startHour = parseInt(settings.businessHoursStart || "08", 10);
+          const endHour = parseInt(settings.businessHoursEnd || "21", 10);
 
           // Get current hour in the org's timezone
           const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
@@ -320,8 +329,8 @@ export function registerSmsRoutes(app: Express) {
             // Check if current time is within business hours (G-7.4)
             const orgSettings = (org.settings as Record<string, any>) || {};
             const timezone = orgSettings.timezone || "America/New_York";
-            const bhStart = orgSettings.businessHoursStart || "09:00";
-            const bhEnd = orgSettings.businessHoursEnd || "17:00";
+            const bhStart = orgSettings.businessHoursStart || "08:00";
+            const bhEnd = orgSettings.businessHoursEnd || "21:00";
 
             const nowInTz = new Date().toLocaleString("en-US", { timeZone: timezone });
             const localNow = new Date(nowInTz);
@@ -358,14 +367,14 @@ export function registerSmsRoutes(app: Express) {
 
             if (isAfterHours && afterHoursTemplate) {
               messageToSend = afterHoursTemplate
-                .replace(/\{\{customerName\}\}/g, normalizedPhone)
+                .replace(/\{\{customerName\}\}/g, looksLikePhoneNumber(normalizedPhone) ? "there" : normalizedPhone)
                 .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
                 .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
               messageSource = "after_hours_response";
               console.log(`[AutoGreeting] Using after-hours template for ${normalizedPhone}`);
             } else {
               messageToSend = greetingAgent.autoGreeting
-                .replace(/\{\{customerName\}\}/g, normalizedPhone)
+                .replace(/\{\{customerName\}\}/g, looksLikePhoneNumber(normalizedPhone) ? "there" : normalizedPhone)
                 .replace(/\{\{dealershipName\}\}/g, org.name || "our dealership")
                 .replace(/\{\{agentName\}\}/g, greetingAgent.name || "your assistant");
               messageSource = "auto_greeting";
@@ -412,6 +421,20 @@ export function registerSmsRoutes(app: Express) {
         })();
       }
 
+      // Message-level dedup — skip if same content from same phone within 30s (BUG-AG-01)
+      const recentMessages = await storage.getMessages(conversation.id);
+      const thirtySecondsAgo = new Date(Date.now() - 30000);
+      const isDuplicate = recentMessages.some(m =>
+        m.role === "user" &&
+        m.content === content &&
+        m.senderName === normalizedPhone &&
+        new Date(m.createdAt) > thirtySecondsAgo
+      );
+      if (isDuplicate) {
+        console.log(`[TextMagic Webhook] Duplicate message detected from ${normalizedPhone} — skipping`);
+        return res.json({ success: true, skipped: true, reason: "duplicate_message" });
+      }
+
       await storage.createMessage({
         conversationId: conversation.id,
         role: "user",
@@ -435,7 +458,7 @@ export function registerSmsRoutes(app: Express) {
 
       // AI agent processing for inbound SMS (fire-and-forget)
       // Skip if after-hours — the auto-response already handled it
-      if (!isAfterHours) (async () => {
+      if (!isAfterHours && !isNew) (async () => {
         try {
           // Re-query conversation to get fresh assignedTo state
           const freshConversation = await storage.getConversation(conversation!.id);

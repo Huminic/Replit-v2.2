@@ -140,6 +140,9 @@ When an eval discovers bugs:
 ## Declared Files
 
 - server/storage.ts (backfill fallback improvement)
+- server/routes/webhooks.ts (VAPI duplicate webhook dedup guard + message dedup)
+- server/outbound.ts (campaign conversation creation, greeting fix, business hours, TCPA dedup)
+- server/routes/sms.ts (single response prevention — greeting XOR AI agent)
 - sprints.json (sprint status updates)
 - evidence/WAVE-PE3/* (all E2E test evidence artifacts)
 - evidence/SNP-BACKFILL-01/* (backfill evidence)

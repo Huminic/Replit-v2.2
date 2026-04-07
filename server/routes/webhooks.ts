@@ -228,9 +228,21 @@ async function sendLeadNotificationEmail(
   }
 
   // Exclusion — remove test/seed accounts (belt-and-suspenders alongside isActive check)
-  const testPatterns = ['@nexxus.com', '@test.com'];
+  const testDomainPatterns = ['@nexxus.com', '@test.com'];
+  const seedDomains = [
+    '@serrahonda.com', '@serranissan.com', '@tonyserraford.com',
+    '@hyundaiofcolumbia.com', '@fordofcolumbia.com', '@cageautomotive.com',
+  ];
+  const seedPrefixes = ['orgadmin@', 'salesmanager@', 'bdcmanager@', 'servicemanager@', 'fimanager@'];
   for (const email of recipientEmails) {
-    if (email.startsWith("admin@") || testPatterns.some(p => email.endsWith(p))) {
+    const lower = email.toLowerCase();
+    const isSeed =
+      lower.startsWith("admin@") ||
+      testDomainPatterns.some(p => lower.endsWith(p)) ||
+      seedDomains.some(d => lower.endsWith(d)) ||
+      seedPrefixes.some(p => lower.startsWith(p));
+    if (isSeed) {
+      console.log(`[LeadNotify] Excluding seed/test email: ${email}`);
       recipientEmails.delete(email);
     }
   }
@@ -680,25 +692,33 @@ export function registerWebhookRoutes(app: Express) {
         }
       }
 
+      // Fallback: try matching by called phone number (the VAPI phone assigned to the org's agent)
       if (!organizationId) {
-        // Fallback: try to find an org with an active voice agent and assign the call there
-        console.warn(`[VAPI Webhook] Could not resolve organization from assistantId "${assistantId}" — attempting fallback lookup.`);
-        const allOrgs = assistantId ? [] : await storage.getOrganizations(); // already fetched above if assistantId was set
-        const fallbackOrgs = assistantId ? await storage.getOrganizations() : allOrgs;
-        for (const org of fallbackOrgs) {
-          const orgAgents = await storage.getAgents(org.id);
-          const voiceAgent = orgAgents.find(a => a.channels?.includes("voice") && a.status === "active");
-          if (voiceAgent) {
-            organizationId = org.id;
-            // Don't assign agentId — we can't confirm which agent handled the call
-            console.warn(`[VAPI Webhook] Fallback: assigning call to org "${org.name}" (${org.id}), agentId left null.`);
-            break;
+        const calledNumber = call.phoneNumber?.number || null;
+        if (calledNumber) {
+          const normalizedCalled = calledNumber.replace(/\D/g, "").slice(-10);
+          console.warn(`[VAPI Webhook] Could not resolve org from assistantId "${assistantId}" — trying phone match on ${calledNumber}`);
+          const fallbackOrgs = await storage.getOrganizations();
+          for (const org of fallbackOrgs) {
+            const orgAgents = await storage.getAgents(org.id);
+            const phoneMatch = orgAgents.find(a => {
+              if (!a.assignedPhone) return false;
+              const normalizedAgent = a.assignedPhone.replace(/\D/g, "").slice(-10);
+              return normalizedAgent === normalizedCalled;
+            });
+            if (phoneMatch) {
+              organizationId = org.id;
+              agentId = phoneMatch.id;
+              console.log(`[VAPI Webhook] Phone fallback: matched call to org "${org.name}" (${org.id}) via agent phone ${phoneMatch.assignedPhone}`);
+              break;
+            }
           }
         }
-        if (!organizationId) {
-          console.error("[VAPI Webhook] Fallback failed — no org with an active voice agent found. Rejecting.");
-          return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID." });
-        }
+      }
+
+      if (!organizationId) {
+        console.error(`[VAPI Webhook] Could not resolve organization — assistantId: "${assistantId}", calledNumber: "${call.phoneNumber?.number || "none"}". Rejecting to prevent cross-tenant data leak.`);
+        return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID or assigned phone number." });
       }
 
       // Dedup: if we already processed this VAPI call, update transcript if available instead of creating duplicate (I-177, I-176)

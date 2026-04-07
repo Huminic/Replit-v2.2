@@ -1,14 +1,14 @@
 # Screenshot Catalog: marketing
 
-- main: OK
-- sales: OK
-- service: OK
-- marketing: OK
-- management: OK
-- teambox: OK
-- my-work: OK
-- insights: OK
-- billing: OK
-- settings: OK
-- profile: OK
-- agents: OK
+- main: SKIP — locator.count: Target page, context or browser has been closed
+- sales: SKIP — page.goto: Target page, context or browser has been closed
+- service: SKIP — page.goto: Target page, context or browser has been closed
+- marketing: SKIP — page.goto: Target page, context or browser has been closed
+- management: SKIP — page.goto: Target page, context or browser has been closed
+- teambox: SKIP — page.goto: Target page, context or browser has been closed
+- my-work: SKIP — page.goto: Target page, context or browser has been closed
+- insights: SKIP — page.goto: Target page, context or browser has been closed
+- billing: SKIP — page.goto: Target page, context or browser has been closed
+- settings: SKIP — page.goto: Target page, context or browser has been closed
+- profile: SKIP — page.goto: Target page, context or browser has been closed
+- agents: SKIP — page.goto: Target page, context or browser has been closed

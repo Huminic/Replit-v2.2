@@ -2,7 +2,7 @@
   "version": "12.0",
   "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03).",
   "date": "2026-04-06",
-  "totalSprints": 81,
+  "totalSprints": 83,
   "workOrder": [
     "U-001",
     "G-004",
@@ -76,7 +76,8 @@
     "SNP-PE3-SALES-01",
     "SNP-PE3-SVC-01",
     "SNP-PE3-INT-01",
-    "SNP-BACKFILL-01"
+    "SNP-BACKFILL-01",
+    "EMG-CONV-01"
   ],
   "sprints": [
     {
@@ -7624,6 +7625,71 @@
       "dependsOn": [],
       "registeredAt": "2026-04-07T22:00:00Z",
       "operatorApproval": true
+    },
+    {
+      "id": "EMG-CONV-01",
+      "category": "Emergency",
+      "name": "Campaign SMS \u2014 create conversation on send (demo blocker)",
+      "phase": "hotfix",
+      "status": "committed",
+      "source": "Demo blocker \u2014 campaign SMS never creates conversations, breaking TeamBox reply loop",
+      "causedBy": "bug",
+      "outcome": "Campaign SMS execution creates a conversation record per recipient so threads appear in TeamBox and inbound replies attach correctly.",
+      "codebaseArea": [
+        "server/outbound.ts"
+      ],
+      "acceptanceCriteria": [
+        "EMG-CONV-01.AC1: After successful SMS send in startCampaignExecution, a conversation record is created with channel=sms, customerPhone, organizationId, and campaignId",
+        "EMG-CONV-01.AC2: The outbound message is stored as the first message in the conversation",
+        "EMG-CONV-01.AC3: Conversation is NOT created on failed or blocked sends",
+        "EMG-CONV-01.AC4: Conversation is findable by phone number so inbound replies can attach"
+      ],
+      "filesModified": [
+        "server/outbound.ts"
+      ],
+      "uiPermissions": "NONE",
+      "commitHash": null,
+      "startedAt": "2026-04-07T00:00:00Z",
+      "completedAt": "2026-04-07T00:00:00Z"
+    },
+    {
+      "id": "EMG-TCPA-01",
+      "title": "TCPA fix \u2014 deduplicate followup SMS by phone number",
+      "status": "completed",
+      "page": "backend",
+      "category": "bugfix",
+      "description": "getLeadsDueForFollowup() and getLeadsDueForMultiStepFollowup() return all matching leads without deduplication by phone. When VIN sync creates multiple warehouse_leads records for the same phone, each triggers its own SMS. One customer received 7 identical messages. Fix: add DISTINCT ON (customer_phone) to both queries.",
+      "components": [
+        {
+          "name": "followup-phone-dedup",
+          "description": "Add DISTINCT ON (customer_phone) to getLeadsDueForFollowup() and getLeadsDueForMultiStepFollowup() queries to return only one lead per unique phone number"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "getLeadsDueForFollowup returns at most one lead per unique customer_phone",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-2",
+          "description": "getLeadsDueForMultiStepFollowup returns at most one lead per unique phone/email",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-3",
+          "description": "The most recent lead (by created_at) is selected when duplicates exist",
+          "evidenceType": "code-review"
+        }
+      ],
+      "filesModified": [
+        "server/storage.ts"
+      ],
+      "uiPermissions": "NONE",
+      "dependsOn": [],
+      "registeredAt": "2026-04-07T23:00:00Z",
+      "operatorApproval": true,
+      "startedAt": "2026-04-07T23:00:00Z"
     }
   ]
 }

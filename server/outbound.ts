@@ -638,6 +638,34 @@ export async function startCampaignExecution(
           executionSent: exec.sent,
           executionFailed: exec.failed,
         } as any);
+
+        // Create a conversation record so the thread appears in TeamBox
+        // and inbound replies can attach to it by phone number
+        if (contactChannel === "sms" && to) {
+          try {
+            const conv = await storage.createConversation({
+              customerName: customerName !== "valued customer" ? customerName : to,
+              customerPhone: to,
+              channel: "sms",
+              status: "open",
+              organizationId,
+              unreadCount: 0,
+              lastMessageAt: new Date(),
+              campaignId,
+            });
+
+            await storage.createMessage({
+              conversationId: conv.id,
+              role: "agent",
+              content: messageContent,
+              senderName: dealershipName,
+            });
+
+            console.log(`[Campaign ${campaignId}] Conversation created for ${to} (convId: ${conv.id})`);
+          } catch (convErr: any) {
+            console.error(`[Campaign ${campaignId}] Failed to create conversation for ${to}:`, convErr.message);
+          }
+        }
       }
     } else if (result.status === "blocked") {
       exec.blocked++;

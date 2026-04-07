@@ -1277,17 +1277,21 @@ export class DatabaseStorage implements IStorage {
   async getLeadsDueForFollowup(organizationId: string, delayHours: number, limit: number = 20): Promise<WarehouseLead[]> {
     const cutoff = new Date(Date.now() - delayHours * 60 * 60 * 1000);
     const defaultConversionStatuses = ['SOLD', 'sold', 'SOLD_DELIVERED', 'SOLD_PENDING_FINANCE'];
-    return db.select().from(warehouseLeads)
-      .where(and(
-        eq(warehouseLeads.organizationId, organizationId),
-        isNull(warehouseLeads.followupSentAt),
-        isNotNull(warehouseLeads.customerPhone),
-        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.createdAt}) <= ${cutoff}`,
-        sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(defaultConversionStatuses.map(s => sql`${s}`), sql`, `)}))`,
-        sql`COALESCE(${warehouseLeads.followupStep}, 0) < 999`
-      ))
-      .orderBy(desc(warehouseLeads.createdAt))
-      .limit(limit);
+    // TCPA fix (EMG-TCPA-01): deduplicate by phone number — only return the most recent lead
+    // per unique phone to prevent multiple SMS messages to the same customer
+    const rows = await db.execute(sql`
+      SELECT DISTINCT ON (customer_phone) *
+      FROM warehouse_leads
+      WHERE organization_id = ${organizationId}
+        AND followup_sent_at IS NULL
+        AND customer_phone IS NOT NULL
+        AND COALESCE(vin_created_at, created_at) <= ${cutoff}
+        AND (vin_status IS NULL OR vin_status NOT IN (${sql.join(defaultConversionStatuses.map(s => sql`${s}`), sql`, `)}))
+        AND COALESCE(followup_step, 0) < 999
+      ORDER BY customer_phone, created_at DESC
+      LIMIT ${limit}
+    `);
+    return rows.rows as WarehouseLead[];
   }
 
   async getLeadsDueForMultiStepFollowup(organizationId: string, sequenceLength: number, conversionStatuses: string[], limit: number = 20): Promise<WarehouseLead[]> {
@@ -1302,10 +1306,17 @@ export class DatabaseStorage implements IStorage {
         sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(conversionStatuses.map(s => sql`${s}`), sql`, `)}))`
       );
     }
-    return db.select().from(warehouseLeads)
-      .where(and(...conditions))
-      .orderBy(desc(warehouseLeads.createdAt))
-      .limit(limit);
+    // TCPA fix (EMG-TCPA-01): deduplicate by phone/email — only return the most recent lead
+    // per unique contact to prevent multiple messages to the same customer
+    const baseConditions = and(...conditions);
+    const rows = await db.execute(sql`
+      SELECT DISTINCT ON (COALESCE(customer_phone, customer_email)) *
+      FROM warehouse_leads
+      WHERE ${baseConditions}
+      ORDER BY COALESCE(customer_phone, customer_email), created_at DESC
+      LIMIT ${limit}
+    `);
+    return rows.rows as WarehouseLead[];
   }
 
   async markFollowupSent(leadId: string): Promise<void> {
