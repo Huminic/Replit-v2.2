@@ -228,6 +228,50 @@ function SalesMetricDetailDialog({ selectedMetric, onClose, orgId, leadSummary }
       );
     }
 
+    if (metricKey === 'total_leads' || metricKey === 'new_leads') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid={`sales-table-${metricKey}`}>
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Status</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Vehicle</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Source</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Lead ID</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`sales-row-${metricKey}-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[120px]">{row.leadSource || '—'}</td>
+                  <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
+                  <td className="py-2 px-2">
+                    {row.sourceId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
+                        onClick={() => setViewingContact({ leadId: row.sourceId, row })}
+                        data-testid={`sales-button-view-contact-${metricKey}-${idx}`}
+                      >
+                        <User className="h-3 w-3" />
+                        Show Contact
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     if (metricKey === 'appointments_today') {
       return (
         <div className="overflow-x-auto">

@@ -1,0 +1,16 @@
+Timestamp: 2026-04-07T18:36:00Z
+Sprint: SNP-PE3-SALES-01
+Role: enforcer
+
+## Enforcer Checklist
+
+[x] Sprint registered in sprints.json
+[x] Evidence directory exists
+[x] Pre-execution report written with declared files
+[x] Code change limited to declared files (client/src/pages/sales.tsx)
+[x] Table renderer matches existing active_pipeline pattern
+[x] No UI design changes — functional fix only
+[x] API endpoints verified returning data (100 total_leads, 36 new_leads)
+[x] Build succeeds
+
+RESULT: APPROVED
