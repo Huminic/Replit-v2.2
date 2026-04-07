@@ -6892,7 +6892,7 @@
       "category": "Production Eval",
       "name": "Sales Dashboard \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "awaiting_commit",
+      "status": "completed",
       "branch": "wave-pe3",
       "dependsOn": "PE-TEAMBOX-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -6917,7 +6917,7 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "complete",
+          "status": "completed",
           "completedAt": "2026-04-07T21:00:00Z"
         },
         {
@@ -6925,31 +6925,32 @@
           "type": "governance",
           "role": "Dev",
           "action": "Section function map + use case inventory + acceptance matrix",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "step": 3,
           "type": "code",
           "role": "Dev",
           "action": "Flow-by-flow evaluation with Playwright evidence",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "step": 4,
           "type": "code",
           "role": "Dev",
           "action": "Bug triage and remediation loop",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "step": 5,
           "type": "governance",
           "role": "Captain",
           "action": "Post-sprint report + enforcer + cross-sign + Ghost Exit Gate",
-          "status": "pending"
+          "status": "completed"
         }
       ],
-      "evidence": "evidence/PE-SALES-03/"
+      "evidence": "evidence/PE-SALES-03/",
+      "commitHash": "490faa7"
     },
     {
       "id": "PE-INSIGHTS-03",
@@ -7390,7 +7391,7 @@
       "category": "Sniper",
       "name": "Fix Sales drill-down renderers for Total Leads and New Leads",
       "phase": "production_evals_r3",
-      "status": "awaiting_commit",
+      "status": "committed",
       "branch": "wave-pe3",
       "dependsOn": "PE-SALES-03",
       "source": "PE-SALES-03 eval: BUG-01 empty drill-down tables",
@@ -7437,7 +7438,8 @@
         }
       ],
       "evidence": "evidence/SNP-PE3-SALES-01/",
-      "uiPermissions": "FUNCTIONAL_ONLY"
+      "uiPermissions": "FUNCTIONAL_ONLY",
+      "commitHash": "490faa7"
     }
   ]
 }

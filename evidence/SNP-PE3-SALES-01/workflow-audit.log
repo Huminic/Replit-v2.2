@@ -5,3 +5,5 @@
 [2026-04-07T18:38:07Z] PRE-COMMIT role=orchestrator sprint=SNP-PE3-SALES-01 result=BLOCKED detail="Staged files outside orchestrator scope."
 [2026-04-07T18:39:07Z] PRE-COMMIT role=orchestrator sprint=SNP-PE3-SALES-01 result=BLOCKED detail="client/src/pages/sales.tsx has 44 lines changed (max 40, EF-14). Set UI_EXCEPTION=true if owner approved larger UI changes in sprint pre-exec."
 [2026-04-07T18:39:30Z] PRE-COMMIT role=orchestrator sprint=SNP-PE3-SALES-01 result=PASS detail="All 7 gates passed"
+[2026-04-07T18:39:57Z] PRE-COMMIT role=governance sprint=SNP-PE3-SALES-01 result=BLOCKED detail="Governance file 'sprints.json' staged by role 'governance'. Only orchestrator may modify."
+[2026-04-07T18:40:21Z] PRE-COMMIT role=orchestrator sprint=SNP-PE3-SALES-01 result=PASS detail="All 7 gates passed"
