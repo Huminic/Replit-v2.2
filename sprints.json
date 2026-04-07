@@ -7027,7 +7027,7 @@
       "category": "Production Eval",
       "name": "Service Campaigns \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "completed",
+      "status": "committed",
       "branch": "wave-pe3",
       "dependsOn": "PE-INSIGHTS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -7096,7 +7096,7 @@
       "category": "Production Eval",
       "name": "Comms Integrations \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "paused",
+      "status": "completed",
       "branch": "wave-pe3",
       "dependsOn": "PE-SERVICE-CAMPAIGNS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -7120,7 +7120,7 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "complete",
+          "status": "completed",
           "completedAt": "2026-04-07T23:30:00Z"
         },
         {
@@ -7128,32 +7128,36 @@
           "type": "governance",
           "role": "Dev",
           "action": "Section function map + use case inventory + acceptance matrix",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:35:00Z"
         },
         {
           "step": 3,
           "type": "code",
           "role": "Dev",
           "action": "Flow-by-flow evaluation with Playwright evidence",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:35:00Z"
         },
         {
           "step": 4,
           "type": "code",
           "role": "Dev",
           "action": "Bug triage and remediation loop",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:35:00Z"
         },
         {
           "step": 5,
           "type": "governance",
           "role": "Captain",
           "action": "Post-sprint report + enforcer + cross-sign + Ghost Exit Gate",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:35:00Z"
         }
       ],
       "evidence": "evidence/PE-INTEGRATIONS-03/",
-      "pauseReason": "Paused for SNP-PE3-SVC-01 commit"
+      "completedAt": "2026-04-07T19:35:00Z"
     },
     {
       "id": "PE-SETTINGS-03",
@@ -7461,7 +7465,7 @@
       "category": "Sniper",
       "name": "Add campaign execute confirmation dialog (safety fix)",
       "phase": "production_evals_r3",
-      "status": "committing",
+      "status": "committed",
       "branch": "wave-pe3",
       "dependsOn": "PE-SERVICE-CAMPAIGNS-03",
       "source": "PE-SERVICE-CAMPAIGNS-03 eval: BUG-03 no execute confirmation",
@@ -7489,18 +7493,19 @@
           "type": "code",
           "role": "Dev",
           "action": "Add confirmation dialog",
-          "status": "completed"
+          "status": "complete"
         },
         {
           "step": 3,
           "type": "governance",
           "role": "Captain",
           "action": "Commit",
-          "status": "pending"
+          "status": "complete"
         }
       ],
       "evidence": "evidence/SNP-PE3-SVC-01/",
-      "uiPermissions": "FUNCTIONAL_ONLY"
+      "uiPermissions": "FUNCTIONAL_ONLY",
+      "commitHash": "c21753e"
     }
   ]
 }
