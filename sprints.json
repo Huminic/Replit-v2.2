@@ -7586,6 +7586,44 @@
       "uiPermissions": "NONE",
       "dependsOn": [],
       "registeredAt": "2026-04-07T18:30:00Z"
+    },
+    {
+      "id": "FIX-VAPI-DEDUP-01",
+      "title": "VAPI webhook phone+time dedup to prevent duplicate conversations from split call IDs",
+      "status": "committed",
+      "page": "backend",
+      "category": "bugfix",
+      "description": "VAPI generates two different call IDs for the same physical call. The existing I-177 dedup only checks call ID. Add a phone+assistant+time-window dedup layer to catch duplicates with different call IDs.",
+      "components": [
+        {
+          "name": "vapi-phone-dedup",
+          "description": "Add phone+assistantId+60s time window dedup guard before conversation creation in VAPI webhook handler"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Second webhook with same phone+assistant within 60s is deduplicated and returns existing conversation",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-2",
+          "description": "First webhook for a new phone+assistant combination creates conversation normally",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-3",
+          "description": "Dedup map entries are cleaned up after 30 minutes",
+          "evidenceType": "code-review"
+        }
+      ],
+      "filesModified": [
+        "server/routes/webhooks.ts"
+      ],
+      "uiPermissions": "NONE",
+      "dependsOn": [],
+      "registeredAt": "2026-04-07T22:00:00Z",
+      "operatorApproval": true
     }
   ]
 }

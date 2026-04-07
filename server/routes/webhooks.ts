@@ -570,11 +570,20 @@ const vapiWebhookPayloadSchema = z.union([
 
 // Track processed VAPI call IDs to prevent duplicate conversations (I-177)
 const processedVapiCalls = new Map<string, { conversationId: string; timestamp: number }>();
+
+// Track recent VAPI calls by phone+assistant to catch duplicate webhooks with different call IDs (I-177 enhanced)
+// Key: `${normalizedPhone}::${assistantId}`, Value: { conversationId, callId, timestamp }
+const recentVapiCallsByPhone = new Map<string, { conversationId: string; callId: string; timestamp: number }>();
+const VAPI_PHONE_DEDUP_WINDOW_MS = 60_000; // 60 seconds — same phone + same assistant = same call
+
 // Clean up old entries every 10 minutes
 setInterval(() => {
   const cutoff = Date.now() - 30 * 60 * 1000;
   for (const [key, val] of processedVapiCalls) {
     if (val.timestamp < cutoff) processedVapiCalls.delete(key);
+  }
+  for (const [key, val] of recentVapiCallsByPhone) {
+    if (val.timestamp < cutoff) recentVapiCallsByPhone.delete(key);
   }
 }, 10 * 60 * 1000);
 
@@ -716,6 +725,40 @@ export function registerWebhookRoutes(app: Express) {
         return res.json({ success: true, conversationId: existing.conversationId, deduplicated: true });
       }
 
+      // Enhanced dedup: same phone + same assistant within 60s = same call with different VAPI call ID (I-177 enhanced)
+      // This catches the case where VAPI generates two different call IDs for one physical call
+      if (customerPhone) {
+        const normalizedPhone = customerPhone.replace(/\D/g, "");
+        const phoneKey = `${normalizedPhone}::${assistantId || "unknown"}`;
+        const recentCall = recentVapiCallsByPhone.get(phoneKey);
+        if (recentCall && (Date.now() - recentCall.timestamp) < VAPI_PHONE_DEDUP_WINDOW_MS) {
+          // Same phone + assistant within the time window — this is a duplicate
+          console.log(`[VAPI Webhook] Phone+assistant dedup: ${phoneKey} already processed ${Date.now() - recentCall.timestamp}ms ago (callId=${recentCall.callId}). Current callId=${vapiCallId}. Skipping.`);
+          // Still update transcript if this webhook has one and the existing conversation doesn't
+          if (transcript || summary) {
+            const messageContent = summary
+              ? `**Call Summary:**\n${summary}\n\n**Transcript:**\n${transcript}`
+              : transcript;
+            const existingMessages = await storage.getMessages(recentCall.conversationId);
+            const hasTranscript = existingMessages.some(m => m.senderName === "VAPI");
+            if (!hasTranscript) {
+              await storage.createMessage({
+                conversationId: recentCall.conversationId,
+                role: "system",
+                content: messageContent,
+                senderName: "VAPI",
+              });
+              console.log(`[VAPI Webhook] Added transcript to existing conversation ${recentCall.conversationId} from phone-dedup event`);
+            }
+          }
+          // Track this call ID too so future events for it are caught by call-ID dedup
+          if (vapiCallId) {
+            processedVapiCalls.set(vapiCallId, { conversationId: recentCall.conversationId, timestamp: Date.now() });
+          }
+          return res.json({ success: true, conversationId: recentCall.conversationId, deduplicated: true, deduplicatedBy: "phone+assistant+window" });
+        }
+      }
+
       const conversation = await storage.createConversation({
         customerName,
         customerPhone,
@@ -730,6 +773,13 @@ export function registerWebhookRoutes(app: Express) {
       // Track this call to prevent duplicates
       if (vapiCallId) {
         processedVapiCalls.set(vapiCallId, { conversationId: conversation.id, timestamp: Date.now() });
+      }
+
+      // Track by phone+assistant for cross-callId dedup (I-177 enhanced)
+      if (customerPhone) {
+        const normalizedPhone = customerPhone.replace(/\D/g, "");
+        const phoneKey = `${normalizedPhone}::${assistantId || "unknown"}`;
+        recentVapiCallsByPhone.set(phoneKey, { conversationId: conversation.id, callId: vapiCallId || "none", timestamp: Date.now() });
       }
 
       if (transcript || summary) {
