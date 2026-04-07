@@ -949,7 +949,9 @@ export class DatabaseStorage implements IStorage {
             gte(outboundLog.createdAt, twentyFourHoursAgo),
           )).orderBy(desc(outboundLog.createdAt)).limit(limit);
 
-        return rows.map(row => {
+        // First pass: resolve what we can synchronously, collect unresolved names for warehouse lookup
+        const unresolvedNames: Map<string, string[]> = new Map(); // firstName -> [rowId, ...]
+        const firstPassResults = rows.map(row => {
           let { recipientName, recipientPhone, recipientEmail } = row;
 
           // If direct columns are populated, use them as-is
@@ -960,6 +962,7 @@ export class DatabaseStorage implements IStorage {
               createdAt: row.createdAt, recipientId: row.recipientId,
               campaignId: row.campaignId,
               recipientName, recipientPhone, recipientEmail,
+              _needsLookup: false,
             };
           }
 
@@ -974,6 +977,7 @@ export class DatabaseStorage implements IStorage {
               recipientName: joinedName,
               recipientPhone: row.crPhone || null,
               recipientEmail: row.crEmail || null,
+              _needsLookup: false,
             };
           }
 
@@ -996,6 +1000,18 @@ export class DatabaseStorage implements IStorage {
             }
           }
 
+          // If still no phone, try to extract first name for warehouse_leads lookup
+          const needsLookup = !extractedPhone && row.channel === 'sms';
+          if (needsLookup && row.messageContent) {
+            const nameMatch = row.messageContent.match(/^Hi (\w+),/);
+            if (nameMatch && nameMatch[1] !== 'there') {
+              const firstName = nameMatch[1];
+              const ids = unresolvedNames.get(firstName) || [];
+              ids.push(row.id);
+              unresolvedNames.set(firstName, ids);
+            }
+          }
+
           return {
             id: row.id, channel: row.channel, status: row.status,
             messageContent: row.messageContent, sentAt: row.sentAt,
@@ -1004,8 +1020,43 @@ export class DatabaseStorage implements IStorage {
             recipientName: recipientName || null,
             recipientPhone: extractedPhone,
             recipientEmail: extractedEmail,
+            _needsLookup: needsLookup,
           };
         });
+
+        // Second pass: batch lookup warehouse_leads by first name for unresolved SMS rows
+        if (unresolvedNames.size > 0) {
+          const nameList = Array.from(unresolvedNames.keys());
+          const warehouseRows = await db.select({
+            customerName: warehouseLeads.customerName,
+            customerPhone: warehouseLeads.customerPhone,
+          }).from(warehouseLeads).where(and(
+            eq(warehouseLeads.organizationId, organizationId),
+            isNotNull(warehouseLeads.customerPhone),
+          ));
+
+          // Build firstName -> phone map from warehouse data
+          const phoneByFirstName: Record<string, string> = {};
+          for (const wl of warehouseRows) {
+            if (!wl.customerPhone || !wl.customerName) continue;
+            const firstName = wl.customerName.split(' ')[0];
+            if (nameList.includes(firstName) && !phoneByFirstName[firstName]) {
+              phoneByFirstName[firstName] = wl.customerPhone;
+            }
+          }
+
+          // Apply matches back to unresolved rows
+          for (const result of firstPassResults) {
+            if (!result._needsLookup || result.recipientPhone) continue;
+            if (!result.messageContent) continue;
+            const nameMatch = result.messageContent.match(/^Hi (\w+),/);
+            if (nameMatch && nameMatch[1] !== 'there' && phoneByFirstName[nameMatch[1]]) {
+              result.recipientPhone = phoneByFirstName[nameMatch[1]];
+            }
+          }
+        }
+
+        return firstPassResults.map(({ _needsLookup, ...rest }) => rest);
       }
       case 'total_leads': {
         const thirtyDaysAgo = new Date();

@@ -1,10 +1,10 @@
 Acknowledged-By: orchestrator
-Sprint: SNP-PE3-INT-01
-Timestamp: 2026-04-07T23:30:00Z
+Sprint: WAVE-PE3
+Timestamp: 2026-04-08T01:15:00Z
 
-C1: ACKNOWLEDGED — Pre-existing: many older sprints lack commit hashes in sprints.json. Not introduced by SNP-PE3-INT-01.
-C2: ACKNOWLEDGED — Pre-existing: older sprints committed without full evidence artifacts. Not introduced by SNP-PE3-INT-01.
-C3: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 cross-sign issues from earlier work. Not introduced by SNP-PE3-INT-01.
-C4: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 checklist issues from earlier work. Not introduced by SNP-PE3-INT-01.
-C16: ACKNOWLEDGED — Pre-existing: historical sprints claim commit null. Same root cause as C1. Not introduced by SNP-PE3-INT-01.
-C19: ACKNOWLEDGED — PE-SETTINGS-03 declared files and SNP-PE3-SVC-01 pre-exec issues are pre-existing from other sprints. SNP-PE3-INT-01 pre-exec now has all required sections.
+C1: ACKNOWLEDGED — Pre-existing: many older sprints lack commit hashes in sprints.json. Not introduced by WAVE-PE3.
+C2: ACKNOWLEDGED — Pre-existing: older sprints committed without full evidence artifacts. Not introduced by WAVE-PE3.
+C3: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 cross-sign issues from earlier work. Not introduced by WAVE-PE3.
+C4: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 checklist issues from earlier work. Not introduced by WAVE-PE3.
+C16: ACKNOWLEDGED — Pre-existing: historical sprints claim commit null. Same root cause as C1. Not introduced by WAVE-PE3.
+C19: ACKNOWLEDGED — Pre-existing: earlier sprint pre-exec issues. Not introduced by WAVE-PE3.
