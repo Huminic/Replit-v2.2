@@ -407,7 +407,7 @@ export function registerVendorRoutes(app: Express) {
       }
       const mcpPayload: Record<string, unknown> = {
         persona_id: personaId,
-        callback_url: "https://live.huminic.app/api/webhooks/tavus",
+        callback_url: `${process.env.APP_BASE_URL || "https://live.huminic.app"}/api/webhooks/tavus`,
       };
       if (visitorName) {
         mcpPayload.conversation_name = `Session with ${visitorName}`;

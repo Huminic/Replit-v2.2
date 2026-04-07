@@ -2,7 +2,7 @@
   "version": "12.0",
   "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03).",
   "date": "2026-04-06",
-  "totalSprints": 79,
+  "totalSprints": 80,
   "workOrder": [
     "U-001",
     "G-004",
@@ -74,7 +74,8 @@
     "SNP-PE3-CHAT-01",
     "SNP-PE3-TB-01",
     "SNP-PE3-SALES-01",
-    "SNP-PE3-SVC-01"
+    "SNP-PE3-SVC-01",
+    "SNP-PE3-INT-01"
   ],
   "sprints": [
     {
@@ -6829,7 +6830,7 @@
       "category": "Production Eval",
       "name": "TeamBox \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "completed",
+      "status": "committed",
       "branch": "sniper-launch",
       "dependsOn": "PE-AI-CHAT-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -7165,8 +7166,8 @@
       "category": "Production Eval",
       "name": "Settings \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "planned",
-      "branch": "sniper-launch",
+      "status": "in_progress",
+      "branch": "wave-pe3",
       "dependsOn": "PE-INTEGRATIONS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
       "outcome": "Baseline eval of Settings with real data, real workflows, 8-question commentary, false-pass detection",
@@ -7190,7 +7191,8 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-08T00:00:00Z"
         },
         {
           "step": 2,
@@ -7507,6 +7509,44 @@
       "evidence": "evidence/SNP-PE3-SVC-01/",
       "uiPermissions": "FUNCTIONAL_ONLY",
       "commitHash": "c21753e"
+    },
+    {
+      "id": "SNP-PE3-INT-01",
+      "category": "Sniper",
+      "name": "Fix Tavus callback URL \u2014 use APP_BASE_URL instead of hardcoded production",
+      "phase": "production_evals_r3",
+      "status": "in_progress",
+      "branch": "wave-pe3",
+      "dependsOn": "PE-INTEGRATIONS-03",
+      "source": "PE-INTEGRATIONS-03 eval: BUG-INT-06",
+      "outcome": "Tavus callbacks route to correct environment",
+      "codebaseArea": [
+        "server/vendorProxy.ts",
+        "evidence/SNP-PE3-INT-01/"
+      ],
+      "acceptanceCriteria": [
+        "SNP-PE3-INT-01.AC1: Tavus callback URL uses APP_BASE_URL",
+        "SNP-PE3-INT-01.AC2: No hardcoded production URLs remain in Tavus integration"
+      ],
+      "executionSteps": [
+        {
+          "step": 1,
+          "type": "code",
+          "role": "Dev",
+          "action": "Fix callback URL",
+          "status": "completed"
+        },
+        {
+          "step": 2,
+          "type": "governance",
+          "role": "Captain",
+          "action": "Commit",
+          "status": "completed"
+        }
+      ],
+      "evidence": "evidence/SNP-PE3-INT-01/",
+      "uiPermissions": "NONE",
+      "operatorApproval": true
     }
   ]
 }
