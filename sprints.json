@@ -7018,15 +7018,16 @@
           "completedAt": "2026-04-07T22:55:00Z"
         }
       ],
-      "evidence": "evidence/PE-INSIGHTS-03/"
+      "evidence": "evidence/PE-INSIGHTS-03/",
+      "commitHash": "e1af513"
     },
     {
       "id": "PE-SERVICE-CAMPAIGNS-03",
       "category": "Production Eval",
       "name": "Service Campaigns \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "planned",
-      "branch": "sniper-launch",
+      "status": "completed",
+      "branch": "wave-pe3",
       "dependsOn": "PE-INSIGHTS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
       "outcome": "Baseline eval of Service Campaigns with real data, real workflows, 8-question commentary, false-pass detection",
@@ -7050,35 +7051,40 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
         },
         {
           "step": 2,
           "type": "governance",
           "role": "Dev",
           "action": "Section function map + use case inventory + acceptance matrix",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
         },
         {
           "step": 3,
           "type": "code",
           "role": "Dev",
           "action": "Flow-by-flow evaluation with Playwright evidence",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
         },
         {
           "step": 4,
           "type": "code",
           "role": "Dev",
           "action": "Bug triage and remediation loop",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
         },
         {
           "step": 5,
           "type": "governance",
           "role": "Captain",
           "action": "Post-sprint report + enforcer + cross-sign + Ghost Exit Gate",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
         }
       ],
       "evidence": "evidence/PE-SERVICE-CAMPAIGNS-03/"
