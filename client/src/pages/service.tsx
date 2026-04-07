@@ -221,6 +221,7 @@ export default function ServicePage() {
 
   const [scheduleDialogCampaignId, setScheduleDialogCampaignId] = useState<string | null>(null);
   const [scheduleDateTime, setScheduleDateTime] = useState('');
+  const [executeConfirmCampaignId, setExecuteConfirmCampaignId] = useState<string | null>(null);
 
   const executeMutation = useMutation({
     mutationFn: async ({ id, dryRun, scheduledAt }: { id: string; dryRun: boolean; scheduledAt?: string }) => {
@@ -462,7 +463,7 @@ export default function ServicePage() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
+                                    onClick={() => setExecuteConfirmCampaignId(campaign.id)}
                                     disabled={executeMutation.isPending || campaign.recipientCount === 0}
                                     data-testid={`button-start-campaign-${campaign.id}`}
                                   >
@@ -649,6 +650,41 @@ export default function ServicePage() {
             >
               {executeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CalendarIcon className="h-4 w-4 mr-2" />}
               Schedule
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Execute Confirmation Dialog (SNP-PE3-SVC-01 safety fix) */}
+      <Dialog open={!!executeConfirmCampaignId} onOpenChange={(open) => { if (!open) setExecuteConfirmCampaignId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Execute Campaign?</DialogTitle>
+            <DialogDescription>
+              This will send real SMS messages to{' '}
+              {executeConfirmCampaignId
+                ? (serviceCampaigns.find(c => c.id === executeConfirmCampaignId)?.recipientCount ?? 0)
+                : 0}{' '}
+              recipients via TextMagic. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExecuteConfirmCampaignId(null)} data-testid="button-cancel-execute">
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (executeConfirmCampaignId) {
+                  executeMutation.mutate({ id: executeConfirmCampaignId, dryRun: false });
+                  setExecuteConfirmCampaignId(null);
+                }
+              }}
+              disabled={executeMutation.isPending}
+              data-testid="button-confirm-execute"
+            >
+              {executeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+              Execute
             </Button>
           </DialogFooter>
         </DialogContent>

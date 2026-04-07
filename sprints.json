@@ -2,7 +2,7 @@
   "version": "12.0",
   "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03).",
   "date": "2026-04-06",
-  "totalSprints": 78,
+  "totalSprints": 79,
   "workOrder": [
     "U-001",
     "G-004",
@@ -73,7 +73,8 @@
     "PE-SETTINGS-03",
     "SNP-PE3-CHAT-01",
     "SNP-PE3-TB-01",
-    "SNP-PE3-SALES-01"
+    "SNP-PE3-SALES-01",
+    "SNP-PE3-SVC-01"
   ],
   "sprints": [
     {
@@ -7095,8 +7096,8 @@
       "category": "Production Eval",
       "name": "Comms Integrations \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "planned",
-      "branch": "sniper-launch",
+      "status": "paused",
+      "branch": "wave-pe3",
       "dependsOn": "PE-SERVICE-CAMPAIGNS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
       "outcome": "Baseline eval of Comms Integrations with real data, real workflows, 8-question commentary, false-pass detection",
@@ -7119,7 +7120,8 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T23:30:00Z"
         },
         {
           "step": 2,
@@ -7150,7 +7152,8 @@
           "status": "pending"
         }
       ],
-      "evidence": "evidence/PE-INTEGRATIONS-03/"
+      "evidence": "evidence/PE-INTEGRATIONS-03/",
+      "pauseReason": "Paused for SNP-PE3-SVC-01 commit"
     },
     {
       "id": "PE-SETTINGS-03",
@@ -7452,6 +7455,52 @@
       "evidence": "evidence/SNP-PE3-SALES-01/",
       "uiPermissions": "FUNCTIONAL_ONLY",
       "commitHash": "490faa7"
+    },
+    {
+      "id": "SNP-PE3-SVC-01",
+      "category": "Sniper",
+      "name": "Add campaign execute confirmation dialog (safety fix)",
+      "phase": "production_evals_r3",
+      "status": "committing",
+      "branch": "wave-pe3",
+      "dependsOn": "PE-SERVICE-CAMPAIGNS-03",
+      "source": "PE-SERVICE-CAMPAIGNS-03 eval: BUG-03 no execute confirmation",
+      "outcome": "Execute button requires explicit confirmation before sending real SMS",
+      "codebaseArea": [
+        "client/src/pages/service.tsx",
+        "evidence/SNP-PE3-SVC-01/"
+      ],
+      "acceptanceCriteria": [
+        "SNP-PE3-SVC-01.AC1: Execute button shows confirmation dialog before API call",
+        "SNP-PE3-SVC-01.AC2: Dialog shows recipient count and warns about irreversibility",
+        "SNP-PE3-SVC-01.AC3: Cancel aborts execution, Confirm proceeds",
+        "SNP-PE3-SVC-01.AC4: No UI design changes \u2014 uses existing dialog pattern"
+      ],
+      "executionSteps": [
+        {
+          "step": 1,
+          "type": "governance",
+          "role": "Captain",
+          "action": "Register sniper",
+          "status": "complete"
+        },
+        {
+          "step": 2,
+          "type": "code",
+          "role": "Dev",
+          "action": "Add confirmation dialog",
+          "status": "completed"
+        },
+        {
+          "step": 3,
+          "type": "governance",
+          "role": "Captain",
+          "action": "Commit",
+          "status": "pending"
+        }
+      ],
+      "evidence": "evidence/SNP-PE3-SVC-01/",
+      "uiPermissions": "FUNCTIONAL_ONLY"
     }
   ]
 }
