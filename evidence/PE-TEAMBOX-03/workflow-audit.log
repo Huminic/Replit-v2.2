@@ -1,0 +1,41 @@
+2026-04-07T18:00:00Z | PE-TEAMBOX-03 | START | Production eval initiated for TeamBox page
+2026-04-07T18:00:01Z | PE-TEAMBOX-03 | READ  | Read teambox.tsx (975 lines) to build section-function-map
+2026-04-07T18:00:02Z | PE-TEAMBOX-03 | WRITE | section-function-map.md written to evidence/PE-TEAMBOX-03/
+2026-04-07T18:00:10Z | PE-TEAMBOX-03 | NAV   | Navigated to https://dev.huminicdev.com/login
+2026-04-07T18:00:15Z | PE-TEAMBOX-03 | AUTH  | Logged in as serra_honda@huminic.ai (Serra Honda org)
+2026-04-07T18:00:20Z | PE-TEAMBOX-03 | NAV   | Navigated to /teambox via sidebar
+2026-04-07T18:00:25Z | PE-TEAMBOX-03 | F1    | TeamBox layout load — 4-column layout verified, 7 conversations visible
+2026-04-07T18:00:25Z | PE-TEAMBOX-03 | BUG   | BUG-04: Auto-selected conversation is ai-chat (invisible in list)
+2026-04-07T18:00:26Z | PE-TEAMBOX-03 | SCREENSHOT | F1-teambox-full-layout.png
+2026-04-07T18:00:30Z | PE-TEAMBOX-03 | F2    | Clicked "Website Visitor" — 3 messages loaded, detail pane populated
+2026-04-07T18:00:31Z | PE-TEAMBOX-03 | SCREENSHOT | F2-conversation-selected.png
+2026-04-07T18:00:35Z | PE-TEAMBOX-03 | F3    | SMS filter — 2 conversations (+1821616232, +1428670293)
+2026-04-07T18:00:36Z | PE-TEAMBOX-03 | SCREENSHOT | F3-sms-filter.png
+2026-04-07T18:00:40Z | PE-TEAMBOX-03 | F3    | Email filter — 1 conversation (Stephanie Thompson)
+2026-04-07T18:00:41Z | PE-TEAMBOX-03 | SCREENSHOT | F3-email-filter.png
+2026-04-07T18:00:45Z | PE-TEAMBOX-03 | F3    | Web Chat filter — 1 conversation (Website Visitor)
+2026-04-07T18:00:50Z | PE-TEAMBOX-03 | F3    | WhatsApp filter — 0 conversations
+2026-04-07T18:00:55Z | PE-TEAMBOX-03 | F3    | Voice filter — 3 conversations (2x Unknown Caller, Test Probe)
+2026-04-07T18:00:56Z | PE-TEAMBOX-03 | SCREENSHOT | F3-voice-filter.png
+2026-04-07T18:01:00Z | PE-TEAMBOX-03 | F4    | SMS conversation +1821616232 — 1 inbound message ("oil change" inquiry)
+2026-04-07T18:01:01Z | PE-TEAMBOX-03 | SCREENSHOT | F4-sms-conversation.png
+2026-04-07T18:01:05Z | PE-TEAMBOX-03 | F4    | SMS conversation +1428670293 — 1 inbound message ("CR-V" inquiry)
+2026-04-07T18:01:10Z | PE-TEAMBOX-03 | F5    | Voice conversation "Unknown Caller" — "No messages yet"
+2026-04-07T18:01:10Z | PE-TEAMBOX-03 | BUG   | BUG-01: Voice conversations empty despite VAPI call data existing
+2026-04-07T18:01:11Z | PE-TEAMBOX-03 | SCREENSHOT | F5-voice-no-messages.png
+2026-04-07T18:01:15Z | PE-TEAMBOX-03 | F5    | Stephanie Thompson email — campaign-like content, no campaignId
+2026-04-07T18:01:15Z | PE-TEAMBOX-03 | BUG   | BUG-02: Marketing Agent email lacks campaignId metadata
+2026-04-07T18:01:20Z | PE-TEAMBOX-03 | F5    | Phone tab — 6 VAPI call logs, all Caroline, all ended
+2026-04-07T18:01:21Z | PE-TEAMBOX-03 | SCREENSHOT | F5-phone-tab-vapi-calls.png
+2026-04-07T18:01:25Z | PE-TEAMBOX-03 | F5    | Video tab — "No video sessions found"
+2026-04-07T18:01:30Z | PE-TEAMBOX-03 | F6    | Search "Stephanie" — 1 result returned correctly
+2026-04-07T18:01:31Z | PE-TEAMBOX-03 | SCREENSHOT | F6-search-stephanie.png
+2026-04-07T18:01:35Z | PE-TEAMBOX-03 | F7    | Website Visitor chat — 3 messages, chronological, sender labels clear
+2026-04-07T18:01:35Z | PE-TEAMBOX-03 | BUG   | BUG-03: Visitor message styled as agent (wrong role in DB)
+2026-04-07T18:01:40Z | PE-TEAMBOX-03 | F7    | Stephanie Thompson email — 2 messages, chronological
+2026-04-07T18:01:41Z | PE-TEAMBOX-03 | SCREENSHOT | F7-email-thread.png
+2026-04-07T18:01:45Z | PE-TEAMBOX-03 | F8    | Reply affordance verified — textarea + send button present, did NOT send
+2026-04-07T18:01:50Z | PE-TEAMBOX-03 | F9    | Detail pane verified across Chat, SMS, Email, Voice — all show correct metadata
+2026-04-07T18:01:51Z | PE-TEAMBOX-03 | SCREENSHOT | F8-F9-reply-detail-pane.png
+2026-04-07T18:02:00Z | PE-TEAMBOX-03 | WRITE | All evidence files written
+2026-04-07T18:02:05Z | PE-TEAMBOX-03 | END   | Evaluation complete — 4 bugs found, 7 accepted, 2 accepted-with-risk

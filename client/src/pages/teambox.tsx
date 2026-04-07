@@ -170,11 +170,20 @@ export default function TeamboxPage() {
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null;
 
+  const filteredConversations = conversations.filter(conv => {
+    if (conv.channel === 'ai-chat') return false;
+    if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
+    if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
+    if (selectedCampaignId && conv.campaignId !== selectedCampaignId) return false;
+    if (searchTerm && !conv.customerName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
+  });
+
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId) {
-      setSelectedConversationId(conversations[0].id);
+    if (filteredConversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(filteredConversations[0].id);
     }
-  }, [conversations, selectedConversationId]);
+  }, [filteredConversations, selectedConversationId]);
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: ['/api/conversations', selectedConversationId, 'messages'],
@@ -190,15 +199,6 @@ export default function TeamboxPage() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
-
-  const filteredConversations = conversations.filter(conv => {
-    if (conv.channel === 'ai-chat') return false;
-    if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
-    if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
-    if (selectedCampaignId && conv.campaignId !== selectedCampaignId) return false;
-    if (searchTerm && !conv.customerName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    return true;
-  });
 
   const getStatusCount = (status: ConversationStatus | 'all') => {
     const nonAiChat = conversations.filter(c => c.channel !== 'ai-chat');
@@ -769,7 +769,7 @@ export default function TeamboxPage() {
                       key={msg.id}
                       className={cn(
                         'flex gap-2',
-                        msg.role === 'system' ? 'justify-center' : msg.role === 'customer' ? 'justify-start' : 'justify-end'
+                        msg.role === 'system' ? 'justify-center' : (msg.role === 'customer' || msg.role === 'user') ? 'justify-start' : 'justify-end'
                       )}
                       data-testid={`message-${msg.id}`}
                     >
@@ -778,7 +778,7 @@ export default function TeamboxPage() {
                         msg.role === 'system'
                           ? 'w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700'
                           : 'max-w-[75%]',
-                        msg.role === 'customer'
+                        (msg.role === 'customer' || msg.role === 'user')
                           ? 'bg-muted text-foreground rounded-bl-sm'
                           : msg.role === 'bot'
                             ? 'bg-primary/10 text-foreground rounded-br-sm border border-primary/20'
