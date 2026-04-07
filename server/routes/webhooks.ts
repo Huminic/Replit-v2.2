@@ -270,6 +270,8 @@ async function sendLeadNotificationEmail(
       status: "sent",
       blockedReason: null,
       messageContent: `[notification:${idempotencyKey}] ${subject} — sent to ${sentCount} admin(s)`,
+      recipientEmail: recipients.join(", "),
+      recipientName: `${sentCount} admin(s)`,
       sentAt: new Date(),
     });
   } catch (logErr: any) {

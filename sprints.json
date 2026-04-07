@@ -2,7 +2,7 @@
   "version": "12.0",
   "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03).",
   "date": "2026-04-06",
-  "totalSprints": 74,
+  "totalSprints": 76,
   "workOrder": [
     "U-001",
     "G-004",
@@ -70,7 +70,8 @@
     "PE-INSIGHTS-03",
     "PE-SERVICE-CAMPAIGNS-03",
     "PE-INTEGRATIONS-03",
-    "PE-SETTINGS-03"
+    "PE-SETTINGS-03",
+    "SNP-PE3-CHAT-01"
   ],
   "sprints": [
     {
@@ -6756,8 +6757,8 @@
       "category": "Production Eval",
       "name": "AI Chat / Main Dashboard \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "planned",
-      "branch": "sniper-launch",
+      "status": "committed",
+      "branch": "wave-pe3",
       "dependsOn": "SNP-001",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
       "outcome": "Baseline eval of AI Chat / Main Dashboard with real data, real workflows, 8-question commentary, false-pass detection",
@@ -6781,35 +6782,40 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T18:00:00Z"
         },
         {
           "step": 2,
           "type": "governance",
           "role": "Dev",
           "action": "Section function map + use case inventory + acceptance matrix",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T18:15:00Z"
         },
         {
           "step": 3,
           "type": "code",
           "role": "Dev",
           "action": "Flow-by-flow evaluation with Playwright evidence",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T18:30:00Z"
         },
         {
           "step": 4,
           "type": "code",
           "role": "Dev",
           "action": "Bug triage and remediation loop",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T19:20:00Z"
         },
         {
           "step": 5,
           "type": "governance",
           "role": "Captain",
           "action": "Post-sprint report + enforcer + cross-sign + Ghost Exit Gate",
-          "status": "pending"
+          "status": "complete",
+          "completedAt": "2026-04-07T20:00:00Z"
         }
       ],
       "evidence": "evidence/PE-AI-CHAT-03/"
@@ -7194,7 +7200,7 @@
     {
       "id": "WAVE-PE3",
       "title": "Production Eval Round 3 \u2014 Real E2E Workflow Verification",
-      "status": "planned",
+      "status": "committed",
       "type": "wave",
       "branch": "wave-pe3",
       "purpose": "Run all 7 production eval sprints with REAL end-to-end workflow testing. Not UI navigation \u2014 actual data flowing through third-party systems (TextMagic SMS, Resend email, VAPI calls, VIN Solutions leads, Tavus video). Discover baseline of what is actually broken, then fix/verify in sniper loops.",
@@ -7258,6 +7264,65 @@
         "loopExit": "Eval flow passes clean with no new bugs. Ghost gate confirms."
       },
       "createdAt": "2026-04-07T14:22:17.495031Z"
+    },
+    {
+      "id": "SNP-PE3-CHAT-01",
+      "category": "Sniper",
+      "name": "Fix dashboard data bugs \u2014 vehicle field, modal contact button, AI chat data source",
+      "phase": "production_evals_r3",
+      "status": "completed",
+      "branch": "wave-pe3",
+      "dependsOn": "PE-AI-CHAT-03",
+      "source": "PE-AI-CHAT-03 eval bugs: BUG-CHAT03-001, BUG-CHAT03-002, operator feedback on modal button",
+      "outcome": "Vehicle field shows real data or No data, modal contact button works, AI chat uses same metrics as tiles",
+      "codebaseArea": [
+        "server/routes/",
+        "client/src/pages/main.tsx",
+        "server/vendorProxy.ts",
+        "evidence/SNP-PE3-CHAT-01/"
+      ],
+      "acceptanceCriteria": [
+        "SNP-PE3-CHAT-01.AC1: Vehicle of Interest shows vehicle description if available from VIN, or No data if not",
+        "SNP-PE3-CHAT-01.AC2: Any field not available from VIN Solutions shows No data instead of blank/URL",
+        "SNP-PE3-CHAT-01.AC3: Modal contact detail button loads real contact data via URL-based query",
+        "SNP-PE3-CHAT-01.AC4: AI chat queries same metrics data source as dashboard tiles"
+      ],
+      "executionSteps": [
+        {
+          "step": 1,
+          "type": "governance",
+          "role": "Captain",
+          "action": "Register sniper + investigate VIN API fields",
+          "status": "completed",
+          "completedAt": "2026-04-07T18:30:00Z"
+        },
+        {
+          "step": 2,
+          "type": "code",
+          "role": "Dev",
+          "action": "Fix vehicle field, blank fields, modal button, AI chat data",
+          "status": "completed",
+          "completedAt": "2026-04-07T19:00:00Z"
+        },
+        {
+          "step": 3,
+          "type": "code",
+          "role": "Dev",
+          "action": "Test fixes via Playwright",
+          "status": "completed",
+          "completedAt": "2026-04-07T19:15:00Z"
+        },
+        {
+          "step": 4,
+          "type": "governance",
+          "role": "Captain",
+          "action": "Ghost gate + commit",
+          "status": "completed",
+          "completedAt": "2026-04-07T19:20:00Z"
+        }
+      ],
+      "evidence": "evidence/SNP-PE3-CHAT-01/",
+      "uiPermissions": "FUNCTIONAL_ONLY"
     }
   ]
 }

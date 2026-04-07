@@ -19,7 +19,17 @@ function transformVinLead(raw: any, organizationId: string): InsertWarehouseLead
     customerEmail: raw.contact?.email || raw.email || null,
     customerPhone: raw.contact?.phone || raw.phone || null,
     leadSource: raw.source?.name || raw.leadSource || null,
-    vehicleOfInterest: (Array.isArray(raw.vehiclesOfInterest) && raw.vehiclesOfInterest.length > 0 ? String(raw.vehiclesOfInterest[0]) : null) || raw.vehicle?.description || raw.vehicleOfInterest || null,
+    vehicleOfInterest: raw.vehicle?.description
+      || (Array.isArray(raw.vehiclesOfInterest) && raw.vehiclesOfInterest.length > 0
+        ? (typeof raw.vehiclesOfInterest[0] === 'string'
+          ? raw.vehiclesOfInterest[0]
+          : raw.vehiclesOfInterest[0]?.description
+            || raw.vehiclesOfInterest[0]?.name
+            || [raw.vehiclesOfInterest[0]?.year, raw.vehiclesOfInterest[0]?.make, raw.vehiclesOfInterest[0]?.model].filter(Boolean).join(' ')
+            || null)
+        : null)
+      || raw.vehicleOfInterest
+      || 'No data',
     assignedSalesperson: raw.salesperson?.name || raw.assignedSalesperson || null,
     dealerName: raw.dealer?.name || raw.dealerName || null,
     vinCreatedAt: raw.createdUtc ? new Date(raw.createdUtc) : raw.createdDate ? new Date(raw.createdDate) : raw.createdAt ? new Date(raw.createdAt) : null,

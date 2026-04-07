@@ -241,6 +241,9 @@ export const outboundLog = pgTable("outbound_log", {
   status: text("status").notNull().default("pending"),
   blockedReason: text("blocked_reason"),
   messageContent: text("message_content"),
+  recipientName: text("recipient_name"),
+  recipientPhone: text("recipient_phone"),
+  recipientEmail: text("recipient_email"),
   sentAt: timestamp("sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => [

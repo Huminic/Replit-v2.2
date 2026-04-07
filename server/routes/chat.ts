@@ -122,7 +122,7 @@ export function registerChatRoutes(app: Express) {
       const history = await storage.getMessages(conversationId);
       const recentMessages = history.slice(-20);
 
-      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches, latestMetricsSync, latestLeadSync, activityLogs, orgCampaigns] = await Promise.all([
+      const [org, orgUsers, orgAgents, orgDocuments, acceptedHunches, latestMetricsSync, latestLeadSync, activityLogs, orgCampaigns, pipelineMetrics] = await Promise.all([
         storage.getOrganization(req.user.organizationId),
         storage.getUsers(req.user.organizationId),
         storage.getAgents(req.user.organizationId, {}),
@@ -134,6 +134,7 @@ export function registerChatRoutes(app: Express) {
         ),
         storage.getActivityLogs(req.user.organizationId, 15),
         storage.getCampaigns(req.user.organizationId),
+        storage.getPipelineMetrics(req.user.organizationId),
       ]);
       const orgName = org?.name || "Nexxus Connect";
       const personaName = org?.personaName || "Automa";
@@ -223,6 +224,12 @@ export function registerChatRoutes(app: Express) {
         campaignContext = `\n\nCampaigns (${orgCampaigns.length} total):\n${campaignLines}`;
       }
 
+      const pipelineContext = `\n\nDashboard Pipeline Metrics (these are the EXACT numbers shown on the user's dashboard tiles — use these when asked about pipeline, appointments, escalations, or outbound activity):
+- Active Pipeline Leads: ${pipelineMetrics.activePipeline} (leads from last 14 days, excluding lost/sold/bad/duplicate/service statuses)
+- Appointments Today: ${pipelineMetrics.appointmentsToday} (scheduled appointments for today)
+- Open Escalations: ${pipelineMetrics.openEscalations} (open escalation and unsent message tasks)
+- Outbound Sent (24h): ${pipelineMetrics.outboundSent24h} (messages sent in last 24 hours)`;
+
       const systemPrompt = `You are ${personaName}, an AI assistant powering Nexxus Connect for ${orgName} — an automotive dealership management platform.
 
 Current date and time: ${dateStr}, ${timeStr} (Eastern Time)
@@ -272,7 +279,7 @@ You are operating as the Data Guru — the dedicated CRM intelligence agent. Fol
 
 When the user asks a question that requires deep CRM data (specific lead details, deal histories, contact records, pipeline specifics):
 - First try to answer from available internal data warehouse
-- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to Data Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${activityContext}${campaignContext}${hunchContext}${knowledgeContext}`;
+- If the data is insufficient or the question requires real-time CRM data, suggest: "For detailed CRM data, I recommend switching to Data Guru mode which has deeper CRM integration. You can activate it from the agent selector."`}${agentContext}${pageContext ? `\n\nPage context — the user is currently viewing: ${typeof pageContext === 'string' ? pageContext : JSON.stringify(pageContext)}. Tailor your responses to be relevant to what they're looking at.` : ''}${syncFreshnessContext}${activityContext}${campaignContext}${pipelineContext}${hunchContext}${knowledgeContext}`;
 
       const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = recentMessages
         .filter((m) => m.role === "user" || m.role === "assistant")

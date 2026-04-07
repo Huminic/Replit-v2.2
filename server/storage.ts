@@ -923,6 +923,7 @@ export class DatabaseStorage implements IStorage {
         return rows;
       }
       case 'outbound_sent': {
+        // Single query with LEFT JOIN to campaign_recipients for legacy rows
         const rows = await db.select({
           id: outboundLog.id,
           channel: outboundLog.channel,
@@ -932,46 +933,78 @@ export class DatabaseStorage implements IStorage {
           createdAt: outboundLog.createdAt,
           recipientId: outboundLog.recipientId,
           campaignId: outboundLog.campaignId,
-        }).from(outboundLog).where(and(
-          eq(outboundLog.organizationId, organizationId),
-          eq(outboundLog.status, "sent"),
-          gte(outboundLog.createdAt, twentyFourHoursAgo),
-        )).orderBy(desc(outboundLog.createdAt)).limit(limit);
-
-        // BUG-PE01-003 fix: resolve recipient data from campaignRecipients for campaign sends
-        const recipientIds = rows.filter(r => r.recipientId).map(r => r.recipientId!);
-        const recipientMap = new Map<string, { name: string; phone: string | null; email: string | null }>();
-        if (recipientIds.length > 0) {
-          const recipients = await db.select({
-            id: campaignRecipients.id,
-            firstName: campaignRecipients.firstName,
-            lastName: campaignRecipients.lastName,
-            phone: campaignRecipients.phone,
-            email: campaignRecipients.email,
-          }).from(campaignRecipients)
-            .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
-            .where(and(
-              eq(campaigns.organizationId, organizationId),
-              sql`${campaignRecipients.id} IN (${sql.join(recipientIds.map(id => sql`${id}`), sql`, `)})`
-            ));
-          for (const r of recipients) {
-            recipientMap.set(r.id, { name: [r.firstName, r.lastName].filter(Boolean).join(' '), phone: r.phone, email: r.email });
-          }
-        }
+          recipientName: outboundLog.recipientName,
+          recipientPhone: outboundLog.recipientPhone,
+          recipientEmail: outboundLog.recipientEmail,
+          // JOIN fields for legacy fallback
+          crFirstName: campaignRecipients.firstName,
+          crLastName: campaignRecipients.lastName,
+          crPhone: campaignRecipients.phone,
+          crEmail: campaignRecipients.email,
+        }).from(outboundLog)
+          .leftJoin(campaignRecipients, eq(outboundLog.recipientId, campaignRecipients.id))
+          .where(and(
+            eq(outboundLog.organizationId, organizationId),
+            eq(outboundLog.status, "sent"),
+            gte(outboundLog.createdAt, twentyFourHoursAgo),
+          )).orderBy(desc(outboundLog.createdAt)).limit(limit);
 
         return rows.map(row => {
-          const r = row.recipientId ? recipientMap.get(row.recipientId) : undefined;
-          if (r) {
-            return { ...row, recipientName: r.name || null, recipientPhone: r.phone || null, recipientEmail: r.email || null };
+          let { recipientName, recipientPhone, recipientEmail } = row;
+
+          // If direct columns are populated, use them as-is
+          if (recipientName || recipientPhone || recipientEmail) {
+            return {
+              id: row.id, channel: row.channel, status: row.status,
+              messageContent: row.messageContent, sentAt: row.sentAt,
+              createdAt: row.createdAt, recipientId: row.recipientId,
+              campaignId: row.campaignId,
+              recipientName, recipientPhone, recipientEmail,
+            };
           }
-          // BUG-PE01-003: For non-campaign sends, extract phone from messageContent
+
+          // Fall back to campaign_recipients JOIN data for legacy rows
+          if (row.crFirstName || row.crLastName || row.crPhone || row.crEmail) {
+            const joinedName = [row.crFirstName, row.crLastName].filter(Boolean).join(' ') || null;
+            return {
+              id: row.id, channel: row.channel, status: row.status,
+              messageContent: row.messageContent, sentAt: row.sentAt,
+              createdAt: row.createdAt, recipientId: row.recipientId,
+              campaignId: row.campaignId,
+              recipientName: joinedName,
+              recipientPhone: row.crPhone || null,
+              recipientEmail: row.crEmail || null,
+            };
+          }
+
+          // Last resort: extract phone/email from messageContent for truly orphaned rows
           let extractedPhone: string | null = null;
-          let extractedName: string | null = null;
+          let extractedEmail: string | null = null;
           if (row.messageContent) {
-            const phoneMatch = row.messageContent.match(/(?:to |confirmation to |sent to )(\+?[\d\-()\s]{7,})/i);
-            if (phoneMatch) extractedPhone = phoneMatch[1].trim();
+            // Match "STOP confirmation to +1234567890" and similar patterns
+            const explicitPhoneMatch = row.messageContent.match(/(?:to |confirmation to |sent to )(\+?[\d\-()\s]{7,})/i);
+            if (explicitPhoneMatch) {
+              extractedPhone = explicitPhoneMatch[1].trim();
+            }
+            // Match email addresses anywhere in messageContent
+            const emailMatch = row.messageContent.match(/[\w.+-]+@[\w.-]+\.\w{2,}/);
+            if (emailMatch) extractedEmail = emailMatch[0];
+            // Match "[notification:*] ... sent to N admin(s)" pattern for subject extraction
+            const notifMatch = row.messageContent.match(/\[notification:[^\]]+\]\s*(.+?)\s*—/);
+            if (notifMatch && !recipientName) {
+              recipientName = notifMatch[1].trim() || null;
+            }
           }
-          return { ...row, recipientName: extractedName, recipientPhone: extractedPhone, recipientEmail: null };
+
+          return {
+            id: row.id, channel: row.channel, status: row.status,
+            messageContent: row.messageContent, sentAt: row.sentAt,
+            createdAt: row.createdAt, recipientId: row.recipientId,
+            campaignId: row.campaignId,
+            recipientName: recipientName || null,
+            recipientPhone: extractedPhone,
+            recipientEmail: extractedEmail,
+          };
         });
       }
       case 'total_leads': {

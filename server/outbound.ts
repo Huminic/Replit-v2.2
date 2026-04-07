@@ -29,6 +29,7 @@ export interface SendRequest {
   messageContent: string;
   dryRun?: boolean;
   callContext?: OutboundCallContext;
+  recipientName?: string;
 }
 
 export interface SendResult {
@@ -67,6 +68,7 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
         status: "sent",
         blockedReason: null,
         messageContent: `STOP confirmation to ${phone}`,
+        recipientPhone: phone,
         sentAt: new Date(),
       });
     } catch (logErr) {
@@ -451,6 +453,9 @@ async function logAttempt(
       status,
       blockedReason: blockedReason || null,
       messageContent: request.messageContent,
+      recipientName: request.recipientName || null,
+      recipientPhone: request.channel === "email" ? null : request.to,
+      recipientEmail: request.channel === "email" ? request.to : null,
       sentAt: status === "sent" ? new Date() : null,
     });
   } catch (logErr) {
@@ -613,6 +618,7 @@ export async function startCampaignExecution(
       to,
       messageContent,
       dryRun,
+      recipientName: customerName !== "valued customer" ? customerName : undefined,
       callContext: contactChannel === "phone" ? {
         customerName,
         campaignName: campaign.name,
