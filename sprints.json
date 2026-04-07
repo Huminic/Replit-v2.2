@@ -7096,7 +7096,7 @@
       "category": "Production Eval",
       "name": "Comms Integrations \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "completed",
+      "status": "committed",
       "branch": "wave-pe3",
       "dependsOn": "PE-SERVICE-CAMPAIGNS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -7157,7 +7157,8 @@
         }
       ],
       "evidence": "evidence/PE-INTEGRATIONS-03/",
-      "completedAt": "2026-04-07T19:35:00Z"
+      "completedAt": "2026-04-07T19:40:00Z",
+      "commitHash": "16b3cac"
     },
     {
       "id": "PE-SETTINGS-03",
