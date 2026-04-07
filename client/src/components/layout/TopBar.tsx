@@ -139,33 +139,37 @@ export function TopBar() {
 
       {/* Org switcher — center-aligned, switches between organizations for multi-org users */}
       <div className="flex-1 flex items-center justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2 text-sm" data-testid="button-org-switcher">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium truncate max-w-40">{currentOrganization.name}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-56" data-testid="dropdown-org-switcher">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Organization</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {organizations.map((org) => (
-              <DropdownMenuItem
-                key={org.id}
-                onClick={() => handleSwitchOrg(org.id)}
-                className="flex items-center justify-between"
-                data-testid={`org-option-${org.id}`}
-              >
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span>{org.name}</span>
-                </div>
-                {org.id === currentOrganization.id && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {organizations.length > 1 ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2 text-sm" data-testid="button-org-switcher">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium truncate max-w-40">{currentOrganization.name}</span>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-56" data-testid="dropdown-org-switcher">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Organization</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {organizations.map((org) => (
+                <DropdownMenuItem
+                  key={org.id}
+                  onClick={() => handleSwitchOrg(org.id)}
+                  className="flex items-center justify-between"
+                  data-testid={`org-option-${org.id}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{org.name}</span>
+                  </div>
+                  {org.id === currentOrganization.id && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <span className="font-medium text-sm truncate max-w-40">{currentOrganization.name}</span>
+        )}
       </div>
 
       {/* Right-side action icons */}

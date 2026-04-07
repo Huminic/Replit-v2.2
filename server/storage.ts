@@ -56,6 +56,7 @@ export interface IStorage {
   getSessionByRefreshToken(token: string): Promise<Session | undefined>;
   deleteSession(id: string): Promise<void>;
   deleteUserSessions(userId: string): Promise<void>;
+  getMostRecentSessionForUser(userId: string): Promise<Session | undefined>;
 
   getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]>;
   getUsers(organizationId: string): Promise<Array<User & { role?: Role }>>;
@@ -370,6 +371,14 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUserSessions(userId: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, userId));
+  }
+
+  async getMostRecentSessionForUser(userId: string): Promise<Session | undefined> {
+    const [session] = await db.select().from(sessions)
+      .where(eq(sessions.userId, userId))
+      .orderBy(desc(sessions.createdAt))
+      .limit(1);
+    return session;
   }
 
   async getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]> {

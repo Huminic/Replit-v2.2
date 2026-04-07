@@ -171,28 +171,53 @@ export function registerInsightRoutes(app: Express) {
       const conversionRate = totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0;
       const newCount = allLeads.filter(l => isNewLead(l.vinStatus)).length;
 
-      const sourceCounts: Record<string, number> = {};
+      const sourceCounts: Record<string, { total: number; won: number; bad: number }> = {};
       allLeads.forEach(l => {
         const src = fmtSrc(l.leadSource);
-        sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+        if (!sourceCounts[src]) sourceCounts[src] = { total: 0, won: 0, bad: 0 };
+        sourceCounts[src].total++;
+        if (isSoldLead(l.vinStatus)) sourceCounts[src].won++;
+        if (isBadLead(l.vinStatus)) sourceCounts[src].bad++;
       });
+      const gradeColorMap: Record<string, string> = { "A+": "green", "A": "green", "B": "blue", "C": "yellow", "D": "orange", "F": "red" };
       const topLeadSources = Object.entries(sourceCounts)
-        .sort(([, a], [, b]) => b - a)
+        .sort(([, a], [, b]) => b.total - a.total)
         .slice(0, 8)
-        .map(([source, count], i) => ({
-          source, leads: count, rate: totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0,
-          grade: i === 0 ? "A+" : i < 3 ? "A" : i < 5 ? "B" : "C",
-        }));
+        .map(([source, data], i) => {
+          const grade = i === 0 ? "A+" : i < 3 ? "A" : i < 5 ? "B" : "C";
+          const srcWinRate = data.total > 0 ? Math.round((data.won / data.total) * 1000) / 10 : 0;
+          const quality = srcWinRate >= 20 ? "High" : srcWinRate >= 10 ? "Medium" : "Low";
+          return {
+            source, leads: data.total, rate: totalLeads > 0 ? Math.round((data.total / totalLeads) * 100) : 0,
+            grade, rank: i + 1, volume: data.total,
+            winRate: srcWinRate,
+            quality,
+            badPct: data.total > 0 ? Math.round((data.bad / data.total) * 1000) / 10 : 0,
+            trend: "flat" as const,
+            gradeColor: gradeColorMap[grade] || "gray",
+          };
+        });
 
-      const channelCounts: Record<string, { total: number; won: number }> = {};
+      const channelCounts: Record<string, { total: number; won: number; lost: number; bad: number; hot: number }> = {};
       allLeads.forEach(l => {
         const ch = deriveChannel(l.leadSource, l.vinStatus);
-        if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0 };
+        if (!channelCounts[ch]) channelCounts[ch] = { total: 0, won: 0, lost: 0, bad: 0, hot: 0 };
         channelCounts[ch].total++;
         if (isSoldLead(l.vinStatus)) channelCounts[ch].won++;
+        if (isLostLead(l.vinStatus)) channelCounts[ch].lost++;
+        if (isBadLead(l.vinStatus)) channelCounts[ch].bad++;
+        if (isActiveLead(l.vinStatus)) channelCounts[ch].hot++;
       });
+      const grandTotal = allLeads.length;
       const channelPerformance = Object.entries(channelCounts).map(([channel, data]) => ({
-        channel, volume: data.total, conversion: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
+        channel,
+        volume: data.total,
+        conversion: data.total > 0 ? Math.round((data.won / data.total) * 100) : 0,
+        pctTotal: grandTotal > 0 ? Math.round((data.total / grandTotal) * 1000) / 10 : 0,
+        winRate: data.total > 0 ? Math.round((data.won / data.total) * 1000) / 10 : 0,
+        lossRate: data.total > 0 ? Math.round((data.lost / data.total) * 1000) / 10 : 0,
+        badRate: data.total > 0 ? Math.round((data.bad / data.total) * 1000) / 10 : 0,
+        hotPct: data.total > 0 ? Math.round((data.hot / data.total) * 1000) / 10 : 0,
       }));
 
       let metricsMap: Record<string, string> = {};
@@ -298,7 +323,7 @@ export function registerInsightRoutes(app: Express) {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [allLeads, metrics, sourceMap] = await Promise.all([
-        storage.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo }),
+        storage.getWarehouseLeads(orgId, {}),
         storage.getWarehouseMetrics(orgId, {}),
         getLeadSourceMap(orgId),
       ]);

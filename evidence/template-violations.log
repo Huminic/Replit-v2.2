@@ -144,3 +144,13 @@
 [2026-04-06T15:48:03Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/REM-PE-006/pre-execution-report.md template=pre-exec
   - Missing (exact): **Sprint:** header
   - Missing (exact): **Date:** header
+[2026-04-07T08:02:39Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/SNP-001/post-sprint-report.md template=post-sprint
+  - Missing: ## Test Execution section
+[2026-04-07T09:12:06Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/SNP-001/post-sprint-report.md template=post-sprint
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header
+[2026-04-07T13:47:35Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/PE-AI-CHAT-03/pre-execution-report.md template=pre-exec
+  - Missing: ## Test Plan section

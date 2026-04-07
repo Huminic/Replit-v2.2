@@ -3065,3 +3065,126 @@
 [2026-04-06T16:42:18Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/pre-commit.sh (DELETE)
 [2026-04-06T16:42:18Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (DELETE)
 [2026-04-06T16:42:18Z] ALERT: C1 MULTIPLE_IN_PROGRESS 2 sprints have status in_progress
+[2026-04-06T17:03:35Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:03:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-AI-CHAT-02 has evidence but is not in sprints.json
+[2026-04-06T17:04:34Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:05:12Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:05:27Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:05:56Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:06:09Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:06:18Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:06:28Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:06:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:06:54Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:07:06Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:07:17Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:07:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:08:03Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:08:14Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:08:37Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:09:22Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:09:34Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:10:25Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:10:25Z] ALERT: C8 ORPHAN_EVIDENCE PE-INSIGHTS-02 has evidence but is not in sprints.json
+[2026-04-06T17:11:14Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:11:14Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:11:59Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:12:06Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:12:15Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:12:23Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:12:42Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:13:05Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:16:16Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:16:33Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:16:55Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:19:54Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:19:54Z] ALERT: C8 ORPHAN_EVIDENCE PE-SALES-02 has evidence but is not in sprints.json
+[2026-04-06T17:20:31Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:20:31Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:21:16Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:21:54Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:22:07Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:23:24Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:23:45Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:23:57Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:24:11Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:24:23Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:24:43Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:24:55Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:28:17Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:29:34Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:29:34Z] ALERT: C8 ORPHAN_EVIDENCE PE-INTEGRATIONS-02 has evidence but is not in sprints.json
+[2026-04-06T17:30:06Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:30:22Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:30:35Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:31:05Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:31:29Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:31:43Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:32:32Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:33:11Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:33:37Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:34:03Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:34:03Z] ALERT: C8 ORPHAN_EVIDENCE PE-SETTINGS-02 has evidence but is not in sprints.json
+[2026-04-06T17:34:33Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:35:15Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:36:16Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:36:42Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:37:24Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:38:03Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:39:01Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:39:54Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:40:45Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:40:45Z] ALERT: C8 ORPHAN_EVIDENCE PE-TEAMBOX-02 has evidence but is not in sprints.json
+[2026-04-06T17:41:14Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:41:43Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:41:57Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:43:32Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:43:43Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:44:17Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:44:28Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:44:39Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:45:21Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T17:45:21Z] ALERT: C8 ORPHAN_EVIDENCE PE-SERVICE-02 has evidence but is not in sprints.json
+[2026-04-06T19:17:00Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-06T19:17:02Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-06T23:19:29Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-06T23:22:27Z] ALERT: C8 ORPHAN_EVIDENCE register-snp001.js.tmp.1945932.1775517747043 has evidence but is not in sprints.json
+[2026-04-06T23:22:27Z] ALERT: C8 ORPHAN_EVIDENCE register-snp001.js has evidence but is not in sprints.json
+[2026-04-06T23:22:53Z] ALERT: C8 ORPHAN_EVIDENCE register-snp001.cjs has evidence but is not in sprints.json
+[2026-04-06T23:23:32Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-06T23:25:25Z] ALERT: C8 ORPHAN_EVIDENCE register-snp001.cjs has evidence but is not in sprints.json
+[2026-04-07T05:04:48Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-07T05:31:16Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T05:49:25Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:09:27Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-07T06:10:33Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:32:49Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:45:02Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:45:06Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:38Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:42Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:45Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:49Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:53Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:52:56Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:53:00Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:55:45Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:55:49Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:55:53Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T06:55:57Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-07T08:02:39Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-07T08:46:32Z] ALERT: C8 ORPHAN_EVIDENCE service-campaigns-table.png has evidence but is not in sprints.json
+[2026-04-07T08:47:09Z] ALERT: C8 ORPHAN_EVIDENCE service-campaign-detail-dialog.png has evidence but is not in sprints.json
+[2026-04-07T09:12:06Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-07T13:42:31Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-07T13:43:18Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-07T13:47:35Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-07T14:17:40Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-07T14:22:17Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)

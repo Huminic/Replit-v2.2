@@ -21,7 +21,7 @@
  *
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
@@ -81,6 +81,7 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function ServicePage() {
   const [currentLocation, setLocation] = useLocation();
+  const searchString = useSearch();
   const { communicationGateEnabled, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
@@ -93,7 +94,7 @@ export default function ServicePage() {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
-  }, [currentLocation]);
+  }, [currentLocation, searchString]);
   const [selectedMetric, setSelectedMetric] = useState<ServiceMetricTile | null>(null);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
@@ -121,6 +122,17 @@ export default function ServicePage() {
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [csvUploadCampaignId, setCsvUploadCampaignId] = useState<string | null>(null);
   const [selectedCampaign, setSelectedCampaign] = useState<APICampaign | null>(null);
+
+  // Fetch recipients when campaign detail dialog is open
+  const { data: campaignRecipients = [], isLoading: recipientsLoading } = useQuery<Array<{
+    id: string; firstName: string | null; lastName: string | null;
+    phone: string | null; email: string | null; status: string | null;
+    sentAt: string | null; deliveredAt: string | null;
+  }>>({
+    queryKey: [`/api/campaigns/${selectedCampaign?.id}/recipients`],
+    enabled: !!selectedCampaign?.id,
+  });
+
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState('');
   const [newCampaignChannels, setNewCampaignChannels] = useState<string[]>(['sms']);
@@ -204,7 +216,7 @@ export default function ServicePage() {
 
   const { data: executionStatuses = {} } = useQuery<Record<string, { campaignId: string; status: string; totalRecipients: number; processed: number; sent: number; blocked: number; failed: number; dryRun: boolean }>>({
     queryKey: ['/api/campaigns/execution-statuses', orgId],
-    refetchInterval: 3000,
+    refetchInterval: 15000,
   });
 
   const [scheduleDialogCampaignId, setScheduleDialogCampaignId] = useState<string | null>(null);
@@ -407,9 +419,9 @@ export default function ServicePage() {
                 <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-center">
                     <Switch
-                      checked={!campaign.killSwitch}
-                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: !checked })}
-                      className="data-[state=unchecked]:bg-red-500"
+                      checked={campaign.killSwitch}
+                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: checked })}
+                      className="data-[state=checked]:bg-red-500"
                       data-testid={`switch-killswitch-${campaign.id}`}
                     />
                   </div>
@@ -723,6 +735,43 @@ export default function ServicePage() {
                   <p className="text-sm mt-1 bg-muted/50 rounded-md p-2 whitespace-pre-wrap">{selectedCampaign.messageTemplate}</p>
                 </div>
               )}
+              {/* Recipients table */}
+              <div data-testid="campaign-recipients-section">
+                <p className="text-xs text-muted-foreground mb-2">Recipients</p>
+                {recipientsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Loading recipients...
+                  </div>
+                ) : campaignRecipients.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recipients uploaded yet.</p>
+                ) : (
+                  <ScrollArea className="max-h-48">
+                    <table className="w-full text-xs" data-testid="recipients-table">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Name</th>
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Phone</th>
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {campaignRecipients.map((r) => (
+                          <tr key={r.id} className="border-b border-muted/30">
+                            <td className="py-1 px-1">{[r.firstName, r.lastName].filter(Boolean).join(' ') || '—'}</td>
+                            <td className="py-1 px-1 text-muted-foreground">{r.phone || r.email || '—'}</td>
+                            <td className="py-1 px-1">
+                              <Badge variant={r.status === 'sent' || r.status === 'delivered' ? 'default' : 'secondary'} className="text-[9px] px-1">
+                                {r.status || 'pending'}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </ScrollArea>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>

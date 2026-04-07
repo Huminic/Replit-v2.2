@@ -205,6 +205,42 @@ export function registerAuthRoutes(app: Express) {
 
       const session = await storage.getSessionByRefreshToken(refreshToken);
       if (!session || session.expiresAt < new Date()) {
+        // Check for concurrent rotation — another refresh may have already succeeded
+        try {
+          const decoded = verifyToken(refreshToken, 'refresh') as { userId: string };
+          if (decoded?.userId) {
+            const recentSession = await storage.getMostRecentSessionForUser(decoded.userId);
+            if (recentSession && (Date.now() - new Date(recentSession.createdAt).getTime()) < 10000) {
+              // Concurrent refresh already rotated. Return current session tokens.
+              const user = await storage.getUser(decoded.userId);
+              if (user) {
+                const role = await storage.getRole(user.roleId);
+                const org = await storage.getOrganization(user.organizationId);
+                const tokenPayload = {
+                  userId: user.id,
+                  organizationId: user.organizationId,
+                  roleId: user.roleId,
+                };
+                const newAccessToken = generateAccessToken(tokenPayload);
+                setRefreshCookie(res, recentSession.refreshToken);
+                return res.json({
+                  accessToken: newAccessToken,
+                  expiresIn: getAccessTokenExpirySeconds(),
+                  user: role && org ? {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: { id: role.id, name: role.name, level: role.level },
+                    organization: { id: org.id, name: org.name },
+                  } : undefined,
+                });
+              }
+            }
+          }
+        } catch {
+          // Token decode failed — fall through to normal 401
+        }
         clearRefreshCookie(res);
         return res.status(401).json({ message: "Invalid or expired refresh token" });
       }
@@ -329,7 +365,7 @@ export function registerAuthRoutes(app: Express) {
         return res.status(403).json({ message: "Only partner admins and above can switch organizations" });
       }
 
-      await storage.updateUser(req.user.id, { organizationId });
+      // Org switch is session-only via JWT — do not persist to user record
 
       const tokenPayload = {
         userId: req.user.id,

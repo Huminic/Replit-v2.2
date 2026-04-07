@@ -1,0 +1,100 @@
+version: 1.0
+coreRule: No flow is accepted without evidence and commentary.
+minimumEvidenceByFlowClass:
+  uiOnly:
+    required:
+      - before-action screenshot
+      - after-action screenshot
+      - route or URL capture
+      - visible text or state proof
+      - commentary
+  metricDataHeavy:
+    required:
+      - before-action screenshot
+      - after-action screenshot
+      - drill-down screenshot or detail proof
+      - route or URL capture
+      - visible data proof
+      - commentary on plausibility and contradictions
+      - corroborating comparison
+  crossScreenWorkflow:
+    required:
+      - source-screen evidence
+      - downstream-screen evidence
+      - route or URL captures for both
+      - persisted or refreshed state check when relevant
+      - continuity commentary
+  externalProviderIntegrated:
+    required:
+      - source-screen evidence
+      - downstream Nexxus UI evidence
+      - provider or log evidence when approved
+      - commentary on provider truth vs app truth
+      - note whether the action was sent, attempted, blocked, or unproven
+evidenceTiers:
+  - tier: Bronze
+    description: Single-surface proof with screenshots and commentary.
+    acceptableFor:
+      - low-risk UI spot checks
+  - tier: Silver
+    description: Multi-state proof with route or state evidence and commentary.
+    acceptableFor:
+      - standard section eval flows
+  - tier: Gold
+    description: Cross-screen or cross-system proof with corroboration and persistence checks.
+    acceptableFor:
+      - core workflows
+      - metrics
+      - TeamBox continuity
+      - campaign flows
+  - tier: Platinum
+    description: Gold plus provider or source-system corroboration and retest delta proof.
+    acceptableFor:
+      - critical defect fix verification
+      - high-risk production claims
+requiredTierByOutcomeType:
+  cosmeticLowRiskUiIssue: Bronze
+  standardSectionAcceptance: Silver
+  metricCredibilityClaim: Gold
+  teamboxConversationContinuityClaim: Gold
+  campaignSmsPhoneVideoWorkflowClaim: Gold
+  externalProviderUiAlignmentClaim: Platinum preferred
+  criticalFixVerification: Platinum
+commentaryQuestions:
+  - What was under evaluation?
+  - What should have happened?
+  - What actually happened?
+  - What proves it?
+  - Does the data look believable?
+  - What result status follows?
+evidenceIndexStandard:
+  requiredColumns:
+    - useCaseId
+    - artifactType
+    - fileOrReference
+    - whatItProves
+    - tierLevel
+acceptanceBlockers:
+  - screenshots exist but no commentary exists
+  - commentary exists but artifacts do not support it
+  - provider or log success exists but UI evidence is missing for UI-visible claims
+  - data is shown but no plausibility or contradiction check was performed on a data-heavy flow
+  - a fix was applied but the exact failing flow was not rerun
+  - downstream continuity is claimed but downstream evidence is missing
+redFlags:
+  - all-green automation with obvious operator-visible breakage
+  - metrics that contradict visible records or store context
+  - blank or stale panes after selection actions
+  - filters that contradict the visible dataset
+  - modals that technically load but are operationally meaningless
+  - any core flow accepted on assertion output alone
+qualityThresholds:
+  screenshot:
+    must_show: actionable visible state
+    reject_if: cropped, unreadable, or not mappable to step
+  routeCapture:
+    must_show: final route or page state relevant to the claim
+  logCapture:
+    must_show: console, network, or provider event tied to the use case when relevant
+  narration:
+    must_show: expected vs actual vs evidence vs decision

@@ -524,6 +524,23 @@ const vapiWebhookPayloadSchema = z.union([
       type: z.string(),
       call: vapiCallSchema.optional(),
       recordingUrl: z.string().optional(),
+      // VAPI end-of-call-report puts transcript/artifact at message level too
+      transcript: z.string().optional(),
+      summary: z.string().optional(),
+      artifact: z.object({
+        transcript: z.string().optional(),
+        messages: z.array(z.object({
+          role: z.string().optional(),
+          message: z.string().optional(),
+          content: z.string().optional(),
+        })).optional(),
+        recordingUrl: z.string().optional(),
+      }).optional(),
+      messages: z.array(z.object({
+        role: z.string().optional(),
+        message: z.string().optional(),
+        content: z.string().optional(),
+      })).optional(),
     }),
   }),
   // New/flat format: { type, call, ... } (no message wrapper)
@@ -601,19 +618,31 @@ export function registerWebhookRoutes(app: Express) {
       // Extract transcript from multiple possible locations in VAPI payload:
       // 1. call.transcript (old format)
       // 2. call.artifact.transcript (new format)
-      // 3. call.artifact.messages or call.messages array (structured transcript)
-      // 4. Top-level artifact/messages (flat format)
+      // 3. message.transcript / message.artifact.transcript (end-of-call-report format)
+      // 4. call.artifact.messages, call.messages, message.messages array (structured transcript)
+      // 5. Top-level artifact/messages (flat format)
       let transcript = call.transcript || "";
       let summary = call.summary || "";
 
-      // Check artifact.transcript (new VAPI format)
-      const artifact = call.artifact || ("artifact" in data ? (data as any).artifact : null);
+      // Check message-level transcript (VAPI end-of-call-report often puts it here, not in call)
+      if (!transcript && (message as any).transcript) {
+        transcript = (message as any).transcript;
+      }
+      if (!summary && (message as any).summary) {
+        summary = (message as any).summary;
+      }
+
+      // Check artifact.transcript — from call, message, or top-level data
+      const artifact = call.artifact || (message as any).artifact || ("artifact" in data ? (data as any).artifact : null);
       if (!transcript && artifact?.transcript) {
         transcript = artifact.transcript;
       }
+      if (!summary && artifact?.summary) {
+        summary = artifact.summary;
+      }
 
-      // Check messages array (structured transcript from VAPI)
-      const messagesArray = call.messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
+      // Check messages array (structured transcript from VAPI) — from call, message, artifact, or top-level data
+      const messagesArray = call.messages || (message as any).messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
       if (!transcript && messagesArray && Array.isArray(messagesArray) && messagesArray.length > 0) {
         transcript = messagesArray
           .map((m: any) => `${m.role || "unknown"}: ${m.message || m.content || ""}`)
@@ -1205,8 +1234,8 @@ export function registerWebhookRoutes(app: Express) {
 
       console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
 
-      // Send email notification to admins (non-blocking)
-      {
+      // Send email notification to admins — only if transcript/summary exists (I-230: no notification for empty sessions)
+      if (hasTavusTranscript) {
         const org = await storage.getOrganization(organizationId);
         const orgName = org?.name || "Dealership";
         let sessionDurationStr = "Unknown";
@@ -1221,6 +1250,14 @@ export function registerWebhookRoutes(app: Express) {
           sessionDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${tavusData.duration}s`;
         }
 
+        // I-229: Compute VIN status for email body
+        let tavusVinStatusText = "";
+        if (vinLeadCreated) {
+          tavusVinStatusText = "\u2705 Lead created in VIN Solutions";
+        } else {
+          tavusVinStatusText = "\u274C Not inserted \u2014 VIN integration error (check logs)";
+        }
+
         const emailHtml = generateLeadEmailHTML({
           orgName,
           assistantName: visitorName,
@@ -1228,6 +1265,7 @@ export function registerWebhookRoutes(app: Express) {
           summary: summary || transcript.substring(0, 300),
           callId: tavusConversationId,
           channel: "video",
+          vinStatus: tavusVinStatusText,
         });
 
         const idempotencyKey = `tavus-${tavusConversationId}`;
@@ -1239,6 +1277,8 @@ export function registerWebhookRoutes(app: Express) {
         ).catch((err) => {
           console.error("[Tavus Webhook] Email notification failed (non-blocking):", err.message);
         });
+      } else {
+        console.log(`[Tavus Webhook] Skipped email notification \u2014 no transcript/summary (empty session)`);
       }
 
       if (transcript && transcript.length > 0) {

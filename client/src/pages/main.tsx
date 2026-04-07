@@ -568,6 +568,7 @@ export default function MainPage() {
   const [hasSentMessage, setHasSentMessage] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [, setLocation] = useLocation();
@@ -595,8 +596,29 @@ export default function MainPage() {
   const metrics = buildPipelineTiles(pipelineData);
   const metricDetails = buildMetricDetails(pipelineData);
 
+  const { data: existingConversations } = useQuery<DbConversation[]>({
+    queryKey: ['/api/conversations?channel=ai-chat'],
+    enabled: !!authUser,
+  });
+
   const findOrCreateConversation = useCallback(async () => {
     if (!authUser || initialized) return;
+
+    // Reuse an existing ai-chat conversation for this user if one exists
+    const userEmail = authUser.email;
+    const match = existingConversations?.find(
+      (c) => c.customerEmail === userEmail && c.channel === 'ai-chat'
+    );
+
+    if (match) {
+      setConversationId(match.id);
+      setChatError(null);
+      setInitialized(true);
+      return;
+    }
+
+    // Only create if the query has resolved (not still loading)
+    if (existingConversations === undefined) return;
 
     try {
       const res = await apiRequest('POST', '/api/conversations', {
@@ -607,12 +629,14 @@ export default function MainPage() {
       });
       const newConv: DbConversation = await res.json();
       setConversationId(newConv.id);
+      setChatError(null);
       queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
     } catch (err) {
       console.error('Failed to create main chat conversation:', err);
+      setChatError('Failed to initialize chat. Click to retry.');
     }
-  }, [authUser, initialized, personaName]);
+  }, [authUser, existingConversations, initialized, personaName]);
 
   useEffect(() => {
     findOrCreateConversation();
@@ -660,7 +684,18 @@ export default function MainPage() {
   }, [messages, streamingContent]);
 
   const handleSend = async () => {
-    if (!inputValue.trim() || !conversationId) return;
+    if (!inputValue.trim()) return;
+
+    if (!conversationId) {
+      // Try to recreate the conversation before giving up
+      setChatError(null);
+      setInitialized(false);
+      await findOrCreateConversation();
+      // conversationId is set via state, so we can't read it synchronously here.
+      // Show a toast and let the user retry after the conversation initializes.
+      toast({ title: 'Chat initializing', description: 'Please try sending your message again.', variant: 'default' });
+      return;
+    }
 
     const content = inputValue.trim();
     const userMessage: ChatMessage = {
@@ -771,6 +806,19 @@ export default function MainPage() {
 
         <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
           <div className="max-w-3xl mx-auto flex flex-col gap-4">
+            {chatError && (
+              <div
+                className="flex justify-center cursor-pointer"
+                onClick={() => { setChatError(null); setInitialized(false); }}
+                data-testid="chat-error-banner"
+              >
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive hover:bg-destructive/20 transition-colors">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span>{chatError}</span>
+                </div>
+              </div>
+            )}
+
             {messages.map((message, idx) => {
               const isLastAssistant = message.role === 'assistant' && idx === messages.length - 1;
               return (
@@ -886,6 +934,7 @@ export default function MainPage() {
                     setInputValue('');
                     setConversationId(null);
                     setInitialized(false);
+                    setChatError(null);
                     setHasSentMessage(false);
                     setTilesCollapsed(false);
                   }}

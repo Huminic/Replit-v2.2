@@ -107,7 +107,8 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
     }
 
     const role = await storage.getRole(user.roleId);
-    const org = await storage.getOrganization(user.organizationId);
+    const activeOrgId = payload.organizationId || user.organizationId;
+    const org = await storage.getOrganization(activeOrgId);
 
     if (!role || !org) {
       return res.status(401).json({ message: "Invalid user configuration" });

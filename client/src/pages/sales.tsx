@@ -16,7 +16,7 @@
  *
  */
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings, User, ArrowLeft, Phone, MessageSquare, Mail, MapPin, Sparkles, Loader2 } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { useQuery } from '@tanstack/react-query';
@@ -467,6 +467,7 @@ function SalesContactDetailView({ leadId, leadRow, onBack, orgId }: {
 
 export default function SalesPage() {
   const [currentLocation, setLocation] = useLocation();
+  const searchString = useSearch();
   const { selectedAgent, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const { toast } = useToast();
@@ -478,7 +479,7 @@ export default function SalesPage() {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
-  }, [currentLocation]);
+  }, [currentLocation, searchString]);
   const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({

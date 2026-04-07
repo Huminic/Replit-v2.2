@@ -49,17 +49,7 @@ const pageSubMenus: Record<string, { label: string; items: SubMenuItem[] }> = {
       { id: 'reports', label: 'Reports', icon: PieChart, path: '/insights?tab=reports' },
       { id: 'library', label: 'Library', icon: BookOpen, path: '/insights?tab=library' },
       { id: 'hunches', label: 'Hunches', icon: Lightbulb, path: '/insights?tab=hunches' },
-      { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
-    ],
-  },
-  '/activity': {
-    label: 'Insights',
-    items: [
-      { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/insights?tab=dashboard' },
-      { id: 'reports', label: 'Reports', icon: PieChart, path: '/insights?tab=reports' },
-      { id: 'library', label: 'Library', icon: BookOpen, path: '/insights?tab=library' },
-      { id: 'hunches', label: 'Hunches', icon: Lightbulb, path: '/insights?tab=hunches' },
-      { id: 'activity', label: 'Activity', icon: Activity, path: '/activity' },
+      { id: 'activity', label: 'Activity', icon: Activity, path: '/insights?tab=activity' },
     ],
   },
   '/work-center': {

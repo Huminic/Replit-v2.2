@@ -216,7 +216,7 @@ export async function runMetricsRefresh(organizationId: string): Promise<SyncRes
       callMCP("vin_query_leads", {
         orgId: nexxusOrgId, startDate, endDate, limit: 1,
         ...(status ? { status } : {}),
-      }).then((r: any) => r.count ?? r.items?.length ?? 0).catch(() => 0);
+      }).then((r: any) => r.totalItems ?? r.count ?? r.items?.length ?? 0).catch(() => 0);
 
     const [
       curTotal, prevTotal,
@@ -333,7 +333,12 @@ export async function startSyncScheduler(): Promise<void> {
   stopSyncScheduler();
 
   const orgs = await storage.getOrganizations();
-  const orgIds = orgs.map(o => o.id);
+  const allIntegrations = await Promise.all(
+    orgs.map(o => storage.getIntegrations(o.id, { provider: "vinsolutions" }))
+  );
+  const orgIds = orgs
+    .filter((_, i) => allIntegrations[i].length > 0 && allIntegrations[i][0].status === "active")
+    .map(o => o.id);
 
   if (orgIds.length === 0) {
     console.log("[Sync] No organizations found, scheduler idle");
