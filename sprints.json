@@ -7087,7 +7087,8 @@
           "completedAt": "2026-04-07T19:20:00Z"
         }
       ],
-      "evidence": "evidence/PE-SERVICE-CAMPAIGNS-03/"
+      "evidence": "evidence/PE-SERVICE-CAMPAIGNS-03/",
+      "commitHash": "b20961e"
     },
     {
       "id": "PE-INTEGRATIONS-03",
