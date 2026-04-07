@@ -7166,7 +7166,7 @@
       "category": "Production Eval",
       "name": "Settings \u2014 Round 3 Production Eval",
       "phase": "production_evals_r3",
-      "status": "in_progress",
+      "status": "complete",
       "branch": "wave-pe3",
       "dependsOn": "PE-INTEGRATIONS-03",
       "source": "Production Evals v2.0 methodology + SNP-001 fixes",
@@ -7191,7 +7191,7 @@
           "type": "governance",
           "role": "Captain",
           "action": "Pre-execution package + Ghost Entry Gate",
-          "status": "complete",
+          "status": "completed",
           "completedAt": "2026-04-08T00:00:00Z"
         },
         {
@@ -7199,28 +7199,32 @@
           "type": "governance",
           "role": "Dev",
           "action": "Section function map + use case inventory + acceptance matrix",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-08T00:00:00Z"
         },
         {
           "step": 3,
           "type": "code",
           "role": "Dev",
           "action": "Flow-by-flow evaluation with Playwright evidence",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-08T00:00:00Z"
         },
         {
           "step": 4,
           "type": "code",
           "role": "Dev",
           "action": "Bug triage and remediation loop",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-08T00:00:00Z"
         },
         {
           "step": 5,
           "type": "governance",
           "role": "Captain",
           "action": "Post-sprint report + enforcer + cross-sign + Ghost Exit Gate",
-          "status": "pending"
+          "status": "completed",
+          "completedAt": "2026-04-08T00:00:00Z"
         }
       ],
       "evidence": "evidence/PE-SETTINGS-03/"
@@ -7515,7 +7519,7 @@
       "category": "Sniper",
       "name": "Fix Tavus callback URL \u2014 use APP_BASE_URL instead of hardcoded production",
       "phase": "production_evals_r3",
-      "status": "in_progress",
+      "status": "committed",
       "branch": "wave-pe3",
       "dependsOn": "PE-INTEGRATIONS-03",
       "source": "PE-INTEGRATIONS-03 eval: BUG-INT-06",
@@ -7546,7 +7550,8 @@
       ],
       "evidence": "evidence/SNP-PE3-INT-01/",
       "uiPermissions": "NONE",
-      "operatorApproval": true
+      "operatorApproval": true,
+      "commitHash": "fc30d4b"
     }
   ]
 }
