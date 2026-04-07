@@ -7227,7 +7227,8 @@
           "completedAt": "2026-04-08T00:00:00Z"
         }
       ],
-      "evidence": "evidence/PE-SETTINGS-03/"
+      "evidence": "evidence/PE-SETTINGS-03/",
+      "commitHash": "145d2d0"
     },
     {
       "id": "WAVE-PE3",
