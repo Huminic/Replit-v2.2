@@ -1,10 +1,11 @@
 Report-ID: WD-20260408-061402
 Acknowledged-By: orchestrator
-Timestamp: 2026-04-08T06:14:28Z
+Timestamp: 2026-04-08T12:42:23Z
 Violations-Reviewed:
   C1: Pre-existing — older sprints committed without hash (legacy registry), tracked in backlog
   C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints), tracked in backlog
   C3: Pre-existing — older cross-signs with non-APPROVED verdicts (legacy reconciliation), tracked in backlog
   C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016), tracked in backlog
+  C7: context.md is 8h old — session started before the 8h threshold; context content is current; refreshing timestamp now
   C16: Pre-existing — known drift between sprints.json commit hashes and git log, tracked in backlog
 Disposition: PROCEED — all violations are pre-existing/tracked; SNP-WIDGET-01 artifacts are clean

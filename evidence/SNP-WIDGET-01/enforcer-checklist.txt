@@ -3,8 +3,8 @@ DATE: 2026-04-08
 CHECKER: builder-agent
 
 [PASS] Only declared files modified: client/src/pages/widget-landing.tsx
-[PASS] Change is minimal — window.open dimensions only (width=1280,height=800,resizable=yes)
-[PASS] No security implications
+[PASS] Change is minimal — removed about:blank popup, now opens video URL directly in new tab with noopener,noreferrer
+[PASS] No security implications (noopener,noreferrer is more secure than prior approach)
 [PASS] No DB changes
 [PASS] No API changes
 [PASS] No other files touched

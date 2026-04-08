@@ -110,14 +110,12 @@ export default function WidgetLandingPage() {
       setWidgetMode('video');
       setVideoStatus('connecting');
       setVideoActive(true);
-      // I-121: Open window SYNCHRONOUSLY before async work to avoid popup blocker
-      const videoWindow = window.open('about:blank', '_blank', 'width=1280,height=800,resizable=yes');
       (async () => {
         try {
           const cfgRes = await fetch(`/api/widget/voice-config/${slug}`);
-          if (!cfgRes.ok) { if (videoWindow) videoWindow.close(); setVideoStatus('error'); return; }
+          if (!cfgRes.ok) { setVideoStatus('error'); return; }
           const cfg = await cfgRes.json();
-          if (!cfg?.tavusPersonaId) { if (videoWindow) videoWindow.close(); setVideoStatus('error'); return; }
+          if (!cfg?.tavusPersonaId) { setVideoStatus('error'); return; }
           const res = await fetch('/api/widget/video-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -125,10 +123,10 @@ export default function WidgetLandingPage() {
           });
           if (res.ok) {
             const data = await res.json();
-            if (videoWindow) { videoWindow.location.href = data.conversationUrl; }
+            window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
             setVideoStatus('connected');
-          } else { if (videoWindow) videoWindow.close(); setVideoStatus('error'); }
-        } catch { if (videoWindow) videoWindow.close(); setVideoStatus('error'); }
+          } else { setVideoStatus('error'); }
+        } catch { setVideoStatus('error'); }
       })();
     }
   }, [queryMode, orgData, loading, autoLaunched, slug]);
@@ -325,18 +323,12 @@ export default function WidgetLandingPage() {
     }
   };
 
-  // I-121: Open window SYNCHRONOUSLY in click handler to avoid popup blocker,
-  // then redirect after async fetch completes.
-  // I-122: These widget changes require deployment to take effect on the live site.
   const startVideoChat = async () => {
-    // Open blank window SYNCHRONOUSLY in click handler — not blocked by popup blocker
-    const videoWindow = window.open('about:blank', '_blank', 'width=1280,height=800,resizable=yes');
     setWidgetMode('video');
     setVideoStatus('connecting');
     setVideoActive(true);
     const config = await fetchVoiceConfig();
     if (!config?.tavusPersonaId) {
-      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
       return;
     }
@@ -348,17 +340,13 @@ export default function WidgetLandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (videoWindow) {
-          videoWindow.location.href = data.conversationUrl;
-        }
+        window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
         setVideoStatus('connected');
       } else {
-        if (videoWindow) videoWindow.close();
         setVideoStatus('error');
       }
     } catch (err) {
       console.error('Video session error:', err);
-      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
     }
   };
