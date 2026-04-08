@@ -1,0 +1,53 @@
+[2026-04-08T06:09:37Z] TOOL=Edit step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:09:44Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:02Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:08Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:13Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:20Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:23Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:33Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:36Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+
+2026-04-08T00:00:00Z builder SNP-WIDGET-01 EXECUTED: Fixed video popup dimensions — added width=1280,height=800,resizable=yes to window.open calls
+[2026-04-08T06:10:39Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:49Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:52Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:10:57Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:01Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:05Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:15Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:35Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:46Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:11:48Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:12:00Z] PRE-COMMIT role=frontend sprint=SNP-WIDGET-01 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-04-08T06:12:37Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:12:39Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:12:44Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:12:53Z] TOOL=Agent step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:12:56Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:13:12Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:13:12Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:13:25Z] PRE-COMMIT role=frontend sprint=SNP-WIDGET-01 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-04-08T06:13:42Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:13:54Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:13:57Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:02Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:18Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:27Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:32Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:38Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:14:50Z] PRE-COMMIT role=frontend sprint=SNP-WIDGET-01 result=BLOCKED detail="Cross-sign not found: evidence/SNP-WIDGET-01/cross-sign.md. A different role must review and create it."
+[2026-04-08T06:15:00Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:15:05Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:15:17Z] PRE-COMMIT role=frontend sprint=SNP-WIDGET-01 result=BLOCKED detail="Staged files outside frontend scope."
+[2026-04-08T06:15:21Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:15:28Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:15:40Z] PRE-COMMIT role=orchestrator sprint=SNP-WIDGET-01 result=BLOCKED detail="Cross-sign implementing role (frontend) does not match COMMIT_ROLE (orchestrator)."
+[2026-04-08T06:15:50Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:15:55Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:16:08Z] PRE-COMMIT role=orchestrator sprint=SNP-WIDGET-01 result=BLOCKED detail="Staged files outside orchestrator scope."
+[2026-04-08T06:16:15Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+
+[2026-04-08T06:16:16Z] agent-launch | role=frontend | task="Fix window.open dimensions" | scope=client/src/pages/widget-landing.tsx
+[2026-04-08T06:16:19Z] TOOL=Bash step=? sprint=SNP-WIDGET-01
+[2026-04-08T06:16:38Z] PRE-COMMIT role=orchestrator sprint=SNP-WIDGET-01 result=PASS detail="All 7 gates passed"

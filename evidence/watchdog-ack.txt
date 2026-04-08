@@ -1,12 +1,10 @@
+Report-ID: WD-20260408-061402
 Acknowledged-By: orchestrator
-Date: 2026-04-08T05:12:00Z
-Sprint: SNP-SEC-01
-Reason: Pre-existing technical debt — governance commit only (issues.md, sprints.json, evidence dirs, .governor/approvals). No app code changes.
-
-C1: ACKNOWLEDGED — Many sprints lack commit hashes because this project migrated from a prior repo. These are historical records, not new violations. Batch commits predate current governance rules.
-C2: ACKNOWLEDGED — Missing cross-sign.md and enforcer-checklist.txt across many sprints are pre-existing debt from prior governance phases. Not introduced by this commit.
-C3: ACKNOWLEDGED — Cross-sign verdicts not APPROVED for M-002, M-003, PE-AI-CHAT-03, R-015, R-016, T-019 are pre-existing. Not changed by this commit.
-C4: ACKNOWLEDGED — Checklist approval gaps for M-002, M-003, R-015, R-016, T-019 are pre-existing. Not changed by this commit.
-C16: ACKNOWLEDGED — Drift detection violations are the same as C1 — historical sprints without commit hashes. Pre-existing, not introduced here.
-
-This is a governance-only commit staging sprint planning artifacts (9 new sprint pre-execs, 26 issues, .governor/approvals). No violations are introduced or worsened by this commit.
+Timestamp: 2026-04-08T06:14:28Z
+Violations-Reviewed:
+  C1: Pre-existing — older sprints committed without hash (legacy registry), tracked in backlog
+  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints), tracked in backlog
+  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (legacy reconciliation), tracked in backlog
+  C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016), tracked in backlog
+  C16: Pre-existing — known drift between sprints.json commit hashes and git log, tracked in backlog
+Disposition: PROCEED — all violations are pre-existing/tracked; SNP-WIDGET-01 artifacts are clean

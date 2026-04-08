@@ -111,7 +111,7 @@ export default function WidgetLandingPage() {
       setVideoStatus('connecting');
       setVideoActive(true);
       // I-121: Open window SYNCHRONOUSLY before async work to avoid popup blocker
-      const videoWindow = window.open('about:blank', '_blank');
+      const videoWindow = window.open('about:blank', '_blank', 'width=1280,height=800,resizable=yes');
       (async () => {
         try {
           const cfgRes = await fetch(`/api/widget/voice-config/${slug}`);
@@ -330,7 +330,7 @@ export default function WidgetLandingPage() {
   // I-122: These widget changes require deployment to take effect on the live site.
   const startVideoChat = async () => {
     // Open blank window SYNCHRONOUSLY in click handler — not blocked by popup blocker
-    const videoWindow = window.open('about:blank', '_blank');
+    const videoWindow = window.open('about:blank', '_blank', 'width=1280,height=800,resizable=yes');
     setWidgetMode('video');
     setVideoStatus('connecting');
     setVideoActive(true);

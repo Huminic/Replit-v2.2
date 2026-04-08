@@ -7762,7 +7762,7 @@
     {
       "id": "SNP-COMMS-FIX-01",
       "title": "CommGate silent drop fix + VIN lead source name fix",
-      "status": "planned",
+      "status": "parked",
       "priority": "p0",
       "category": "Sniper",
       "branch": "wave-pe3",
@@ -7806,12 +7806,13 @@
       ],
       "uiPermissions": "NONE",
       "dependsOn": [],
-      "registeredAt": "2026-04-08T00:00:00Z"
+      "registeredAt": "2026-04-08T00:00:00Z",
+      "parkReason": "Pending operator decisions D1/D2/D3 (CommGate response format, DB migration, Columbia org settings)"
     },
     {
       "id": "SNP-WIDGET-01",
       "title": "Widget video window dimensions + chat history limit + JSON.parse guards",
-      "status": "planned",
+      "status": "in_progress",
       "priority": "p1",
       "category": "Sniper",
       "branch": "wave-pe3",

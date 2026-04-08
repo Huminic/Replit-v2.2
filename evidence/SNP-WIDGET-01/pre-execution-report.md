@@ -31,6 +31,11 @@ All four changes are additive/defensive — no logic is removed or reordered.
 
 Application code files to be modified:
 
+- client/src/pages/widget-landing.tsx
+- server/routes/public.ts
+- server/services/hunchService.ts
+- server/routes/webhooks.ts
+
 | File | Lines | Change |
 |------|-------|--------|
 | `client/src/pages/widget-landing.tsx` | 114, 333 | Add window dimensions to both `window.open` calls |
