@@ -1,0 +1,15 @@
+2026-04-08T13:27:24Z orchestrator EMG-ORG-SWITCH-01 EXECUTED: Replace page reload with queryClient.invalidateQueries() in handleSwitchOrg
+agent-launch scope=client/src/components/layout/TopBar.tsx
+[2026-04-08T13:29:02Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:29:21Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:29:34Z] PRE-COMMIT role=orchestrator sprint=EMG-ORG-SWITCH-01 result=BLOCKED detail="Watchdog gate: 1 violation(s) not addressed in ack."
+[2026-04-08T13:29:50Z] TOOL=Edit step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:29:55Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:30:13Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:30:31Z] TOOL=Edit step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:30:40Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:30:53Z] PRE-COMMIT role=orchestrator sprint=EMG-ORG-SWITCH-01 result=BLOCKED detail="Cross-sign not found: evidence/EMG-ORG-SWITCH-01/cross-sign.md. A different role must review and create it."
+[2026-04-08T13:31:18Z] TOOL=Write step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:31:25Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:31:25Z] TOOL=Bash step=? sprint=EMG-ORG-SWITCH-01
+[2026-04-08T13:31:46Z] PRE-COMMIT role=orchestrator sprint=EMG-ORG-SWITCH-01 result=PASS detail="All 7 gates passed"

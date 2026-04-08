@@ -111,13 +111,10 @@ export function TopBar() {
     try {
       await authSwitchOrg(orgId);
       appSwitchOrg(orgId);
-      // Allow the refresh cookie (Set-Cookie from switch-org response) to be fully
-      // committed by the browser before reloading. Without this delay, the page can
-      // reload before the cookie is available, causing the refresh flow to fail and
-      // redirecting to /login (I-066 fix).
-      await new Promise(r => setTimeout(r, 100));
-      // Full page reload to ensure all contexts, queries, and cached data refresh for new org
-      window.location.href = '/';
+      // Invalidate all cached queries so UI refreshes with new org data.
+      // Avoids full page reload (which loses the in-memory access token and
+      // causes a login redirect on HTTPS due to cookie timing — I-066).
+      await queryClient.invalidateQueries();
     } catch {
       toast({ title: 'Switch failed', description: 'Could not switch organization. Please try again.', variant: 'destructive' });
     }

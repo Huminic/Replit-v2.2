@@ -7810,6 +7810,22 @@
       "parkReason": "Pending operator decisions D1/D2/D3 (CommGate response format, DB migration, Columbia org settings)"
     },
     {
+      "id": "EMG-ORG-SWITCH-01",
+      "title": "Fix org-switch login redirect on HTTPS",
+      "status": "in_progress",
+      "priority": "p0",
+      "filesModified": [
+        "client/src/components/layout/TopBar.tsx"
+      ],
+      "description": "Super admin org-switch redirects to login on dev (HTTPS). Root cause: page reload loses in-memory access token before cookie commits. Fix: replace reload with queryClient.invalidateQueries().",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Super admin can switch orgs without being redirected to login"
+        }
+      ]
+    },
+    {
       "id": "SNP-WIDGET-01",
       "title": "Widget video window dimensions + chat history limit + JSON.parse guards",
       "status": "in_progress",
