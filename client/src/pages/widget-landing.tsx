@@ -327,8 +327,11 @@ export default function WidgetLandingPage() {
     setWidgetMode('video');
     setVideoStatus('connecting');
     setVideoActive(true);
+    // Open window synchronously before any awaits to avoid popup blocker
+    const videoWindow = window.open('', '_blank');
     const config = await fetchVoiceConfig();
     if (!config?.tavusPersonaId) {
+      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
       return;
     }
@@ -340,13 +343,15 @@ export default function WidgetLandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        window.open(data.conversationUrl, '_blank', 'noopener,noreferrer');
+        if (videoWindow) videoWindow.location.href = data.conversationUrl;
         setVideoStatus('connected');
       } else {
+        if (videoWindow) videoWindow.close();
         setVideoStatus('error');
       }
     } catch (err) {
       console.error('Video session error:', err);
+      if (videoWindow) videoWindow.close();
       setVideoStatus('error');
     }
   };
