@@ -212,11 +212,57 @@ No open issues. I-164 verified working in S8 walkthrough.
 
 ---
 
+## Security
+
+Issues with security severity. Must be resolved before production launch.
+
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-244 | **B01 — IDOR on /api/vin/leads/summary.** Any authenticated user can pass `?orgId=<any-uuid>` to `/api/vin/leads/summary` and receive that org's lead data. No role check. Classic IDOR vulnerability. File: `server/vendorProxy.ts:555`. Fix: if user.roleLevel > 2 (org_admin), enforce `orgId === req.user.organizationId`. | AU, BE | OPEN | E |
+| I-245 | **B02 — AI system prompt writable by org_admin via URL bypass.** AI Configuration settings tile is hidden in UI for org_admin, but the PATCH /api/settings/org endpoint uses requireRole(3), allowing org_admin to overwrite the system prompt and chat instructions by navigating directly to /settings?section=ai. File: `server/routes/settings.ts`. Fix: raise requireRole to 2 for AI config fields, or strip those fields from org_admin requests. | AU, BE | OPEN | E |
+| I-246 | **B22 — Role dropdown exposes all 8 roles to org_admin (privilege escalation risk).** When creating/editing users, org_admin sees all role options including super_admin and partner_admin. No server-side restriction on role assignment. Files: `client/src/pages/settings.tsx`, `server/routes/users.ts`. Fix: server-side — prevent org_admin from assigning roles with roleLevel < 3. UI: filter role dropdown to org_admin's own level and below. | AU, BE, FE | OPEN | M |
+| I-247 | **B29 — Org slug writable via API PATCH — silently breaks widget embeds.** PATCH /api/organizations/:id uses createInsertSchema which allows any org column including slug. An org_admin changing their slug would break all widget embed codes and landing page URLs immediately with no warning. File: `server/routes/organizations.ts:212`. Fix: remove slug from updateOrganizationSchema (omit it). | AU, BE | OPEN | E |
+| I-248 | **B30 — Invalid timezone string silently crashes outbound gate.** If org timezone is set to an invalid IANA string, isWithinBusinessHours returns NaN for the hour, making currentHour >= start evaluate to false. This permanently blocks all SMS/phone outbound for that org with no error logged. File: `server/outbound.ts`. Fix: validate timezone on write; add fallback in isWithinBusinessHours. | BE | OPEN | E |
+| I-249 | **B31 — Self-deactivation: no server check, no reactivation path in UI.** An org_admin can deactivate themselves via user management UI. No server-side check prevents it. Once deactivated, no reactivation button exists — only a super_admin could fix it. Files: `server/routes/users.ts` (PATCH /api/users/:id), `client/src/pages/settings.tsx`. Fix: server-side check — prevent req.user.id === req.params.id with isActive: false. UI: disable deactivate button for current user. | AU, BE, FE | OPEN | E |
+
+---
+
+## Bugs
+
+New bugs discovered during SNP-001 research audit (2026-04-08).
+
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-250 | **B03 — CommGate silent drop: human TeamBox reply appears sent but customer never receives it.** When CommGate is disabled (outboundEnabled=false or smsEnabled=false), processOutboundSend returns "blocked". But conversations.ts still returns 201 and stores the message. UI shows the message as sent but the customer never receives it — no error signal shown in-chat. File: `server/routes/conversations.ts:253-278`. Fix: check CommGate result before returning 201; return appropriate error or warning to frontend when message is blocked. | BE, FE | OPEN | M |
+| I-251 | **B04 — VIN lead source name mismatch — all VAPI real calls fail insertion.** The app sends "Dealers WebSite" as the VIN lead source but VIN Solutions has different names per dealer: Ford of Columbia uses "Dealer Website", Hyundai of Columbia uses "Dealer .Com (Our Website)". All real VAPI inbound calls fail VIN lead creation. Fix: update hardcoded lead source name to match actual VIN Solutions values per org, or add per-org config for lead source name. | BE | OPEN | M |
+| I-252 | **B05 — Widget chat unbounded message history causes context overflow.** Widget chat sends full existingMessages array to Claude every turn with no slice(). Long customer conversations will overflow Claude's context window, causing API errors and silent "I'm unable to respond" fallback. File: `server/routes/public.ts:313-314`. Fix: add .slice(-20) to existingMessages before sending to Claude (same pattern as chat.ts). | BE | OPEN | E |
+| I-253 | **B06 — JSON.parse unguarded in hunchService and webhooks.** hunchService.ts calls JSON.parse(rawText) without try/catch. If Claude returns malformed JSON (truncated by max_tokens), this throws and crashes weekly hunch generation for that org. webhooks.ts has similar issue but is caught by outer try/catch and silently drops appointment creation. Files: `server/services/hunchService.ts:73`, `server/routes/webhooks.ts:80`. Fix: wrap both JSON.parse calls in try/catch with appropriate fallback. | BE | OPEN | E |
+| I-254 | **B07 — AI race condition: AI can fire after human takeover.** The AI checks freshConversation.assignedTo before calling Claude, but if a human takes over between that check (line 464) and the SMS send (line 530), the AI message still goes out. Race window is ~1-3 seconds. File: `server/routes/sms.ts:464-530`. Fix: re-check assignedTo immediately before processOutboundSend, or use a lock. | BE | OPEN | M |
+| I-255 | **B08 — No "Return to AI" button after human takeover.** After a human takes over a conversation, there is no explicit "Return to AI" button. The only way to restore AI is to select "Unassigned" from the assignment dropdown, which is non-obvious. Conversations silently stay in human mode indefinitely. File: `client/src/pages/teambox.tsx`. Fix: add a "Return to AI" button in the takeover UI that sets assignedTo=null. | FE | OPEN | E |
+| I-256 | **B09 — Deleted agent with active conversations causes silent AI outage.** If the only active SMS agent for an org is deleted, getAgents() returns no smsAgent. The SMS auto-response block returns early with no response and no notification. Customers texting in get no reply and no error is surfaced to operators. File: `server/routes/sms.ts:479-484`. Fix: log a warning and create an alert/task when no active SMS agent is found. | BE | OPEN | E |
+| I-257 | **B10 — Widget video window.open has no dimensions — browser may open small window.** window.open('about:blank', '_blank') without a features string lets the browser decide the window size, which can be small on some browser/OS combinations. The Tavus video session inside that window will be cramped. File: `client/src/pages/widget-landing.tsx:114,333`. Fix: add 'width=1280,height=800,resizable=yes' to both window.open calls. | FE | OPEN | E |
+| I-258 | **B11 — Win rate denominator includes bad/duplicate/service leads.** conversionRate = soldCount / totalLeads where totalLeads includes bad, duplicate, service, and unknown-status leads. Industry standard: sold / (sold + lost). Current formula shows ~10-15% when actual close rate may be 60-70%. Files: `server/routes/insights.ts`, `client/src/pages/insights.tsx`. Fix: change denominator to soldCount + lostCount (or guard with minimum sample size). | BE, FE | OPEN | M |
+| I-259 | **B12 — "Hot Leads" metric label is wrong — shows all active leads.** hotCount = isActiveLead() which matches ACTIVE_APPOINTMENT_SET, ACTIVE_REVISIT, ACTIVE_WAITING_FOR_PROSPECT_RESPONSE, etc. These are not "hot" leads. Files: `server/routes/insights.ts`, `client/src/pages/main.tsx`. Fix: rename label from "Hot Leads" to "Active Leads". | FE, BE | OPEN | E |
+| I-260 | **B13 — lib-21 Avg Time to First Contact hardcoded to "—".** The lib-21 metric value is hardcoded as a dash string. The tile never shows a real number. The drill-down exists but is unreachable without a computed value. File: `client/src/pages/insights.tsx` (~line 1160). Fix: compute average days between vinCreatedAt and first conversation match. | BE, FE | OPEN | M |
+| I-261 | **B14 — Channel metrics near-zero for all VinSolutions orgs.** Walk-In, Phone, Referral channel classifications use string matching ("walk", "phone", "referral") against raw leadSource values. VinSolutions stores sources as API URLs (e.g. https://api.vinsolutions.com/leadsources/id/7098). All URL-format sources go to "Website" or "Other". Walk-In/Phone/Referral show 0 for virtually every VinSolutions org. Files: `server/routes/insights.ts`, `client/src/pages/insights.tsx`. Fix: resolve leadSource IDs to human-readable names during sync, or map numeric IDs in deriveChannel(). | BE, DT | OPEN | H |
+| I-262 | **B15 — Showroom Not Closed includes resolved (lost) leads.** The showroomNotClosed query includes LOST_* leads. A lead that visited the showroom and was lost is not "not closed" — it's resolved. File: `server/routes/insights.ts`. Fix: add !isLostLead() filter to showroomNotClosed. | BE | OPEN | E |
+| I-263 | **B16 — super_admin pipeline tiles always show Huminic data, ignore org-switch.** All metric APIs use req.user.organizationId from JWT. When super_admin switches org in the UI, the displayed org name changes but all metric tiles still show Huminic's data. Data and label are out of sync. Files: `server/storage.ts` (getDashboardMetrics), `client/src/contexts/AppContext.tsx`. Fix: pass currentOrganization.id as a query param and honor it server-side for super_admin/partner_admin. | BE, FE | OPEN | M |
+| I-264 | **B17 — Open Escalations counter has no time window — never ages out.** Open Escalations queries all-time open tasks of type escalation/unsent_message. Old tasks from months ago inflate the counter indefinitely. File: `server/storage.ts` (getDashboardMetrics ~line 834). Fix: add a 30-day or 90-day window, or add resolvedAt filtering. | BE | OPEN | E |
+| I-265 | **B18 — Monthly target hardcoded to 50 for all orgs.** Pipeline coverage and month-end gap calculations use a hardcoded target of 50. Every org sees "target: 50" regardless of their actual goals. File: `client/src/pages/insights.tsx`. Fix: add per-org monthlyTarget to org settings; default 50 if not set. | BE, FE, DT | OPEN | M |
+| I-266 | **B19 — Active Pipeline shows different values on Main vs Sales page.** Main page uses 14-day window for Active Pipeline. Sales page falls back to a 30-day window value. Same label, different numbers on different pages. Files: `client/src/pages/main.tsx`, `client/src/pages/sales.tsx`. Fix: standardize to 14-day window across both pages (or label them differently). | BE, FE | OPEN | E |
+| I-267 | **B20 — Engagement Transition metric always near 100% (meaningless).** lib-20 counts any active lead where vinUpdatedAt > vinCreatedAt as "engaged." This is virtually every lead ever touched (any status change updates vinUpdatedAt). The metric is always 95%+. File: `server/routes/insights.ts` (lib-20). Fix: use a better engagement signal (conversation match, or specific status progressions). | BE | OPEN | M |
+| I-268 | **B21 — Service metrics silently fall back to all-department totals.** When byDepartment.service is null (no service campaigns), service metric tiles fall back to cross-department totals. A service manager sees inflated numbers that include sales activity. File: `client/src/pages/service.tsx:106-111`. Fix: show 0 or "—" instead of cross-department fallback, with a message explaining no service campaigns exist yet. | FE | OPEN | E |
+| I-269 | **B23 — {{dealershipName}} placeholder never substituted in agent instructions.** agent-instructions.json uses {{dealershipName}} as a template variable. The server appends agent.instructions verbatim to the system prompt without substitution. Claude sees the literal string {{dealershipName}} in the context. File: `server/routes/chat.ts` (agent.instructions injection). Fix: add substitution of {{dealershipName}} and other template vars when building the system prompt. | BE | OPEN | E |
+
+---
+
 ## Summary
 
 | Status | Count |
 |--------|-------|
 | OPEN | 15 |
+| OPEN (Security — I-244 through I-249) | 6 |
+| OPEN (Bugs — I-250 through I-269) | 20 |
 | IN SPRINT (I-001) | 5 |
 | IN SPRINT (I-002) | 3 |
 | IN SPRINT (I-003) | 2 |
@@ -225,7 +271,7 @@ No open issues. I-164 verified working in S8 walkthrough.
 | NEEDS LIVE TEST | 8 |
 | BACKLOGGED | 5 |
 | BEHAVIORAL GAPS (T-007) | 11 |
-| **Total active (non-backlogged)** | **45** |
+| **Total active (non-backlogged)** | **71** |
 
 ---
 

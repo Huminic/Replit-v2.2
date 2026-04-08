@@ -1,8 +1,8 @@
 {
-  "version": "12.0",
-  "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03).",
-  "date": "2026-04-06",
-  "totalSprints": 83,
+  "version": "13.0",
+  "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03). V13: 9 wave-pe3 sniper sprints registered (SNP-SEC-01, SNP-COMMS-FIX-01, SNP-WIDGET-01, SNP-AI-HANDOFF-01, SNP-INSIGHTS-A, SNP-INSIGHTS-B, SNP-UI-MISC-01, WFV-COMMS-01, SNP-LANDING-01).",
+  "date": "2026-04-08",
+  "totalSprints": 93,
   "workOrder": [
     "U-001",
     "G-004",
@@ -77,7 +77,16 @@
     "SNP-PE3-SVC-01",
     "SNP-PE3-INT-01",
     "SNP-BACKFILL-01",
-    "EMG-CONV-01"
+    "EMG-CONV-01",
+    "SNP-SEC-01",
+    "SNP-COMMS-FIX-01",
+    "SNP-WIDGET-01",
+    "SNP-AI-HANDOFF-01",
+    "SNP-INSIGHTS-A",
+    "SNP-INSIGHTS-B",
+    "SNP-UI-MISC-01",
+    "WFV-COMMS-01",
+    "SNP-LANDING-01"
   ],
   "sprints": [
     {
@@ -7655,7 +7664,7 @@
     {
       "id": "EMG-TCPA-01",
       "title": "TCPA fix \u2014 deduplicate followup SMS by phone number",
-      "status": "completed",
+      "status": "committed",
       "page": "backend",
       "category": "bugfix",
       "description": "getLeadsDueForFollowup() and getLeadsDueForMultiStepFollowup() return all matching leads without deduplication by phone. When VIN sync creates multiple warehouse_leads records for the same phone, each triggers its own SMS. One customer received 7 identical messages. Fix: add DISTINCT ON (customer_phone) to both queries.",
@@ -7690,6 +7699,571 @@
       "registeredAt": "2026-04-07T23:00:00Z",
       "operatorApproval": true,
       "startedAt": "2026-04-07T23:00:00Z"
+    },
+    {
+      "id": "SNP-SEC-01",
+      "title": "Security fixes \u2014 IDOR, AI prompt bypass, org slug, role dropdown",
+      "status": "planned",
+      "priority": "p0",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix IDOR vulnerability on /api/vin/leads/summary?orgId=, restrict AI system prompt to partner_admin+, remove org slug from PATCH schema, restrict role assignment to org_admin's own level and below",
+      "components": [
+        {
+          "name": "idor-fix",
+          "description": "Enforce org-scoped access control on /api/vin/leads/summary?orgId= \u2014 verify requesting user belongs to target org"
+        },
+        {
+          "name": "ai-prompt-restriction",
+          "description": "Restrict AI system prompt editing to partner_admin and above"
+        },
+        {
+          "name": "org-slug-removal",
+          "description": "Remove org slug field from PATCH schema to prevent enumeration"
+        },
+        {
+          "name": "role-dropdown-filter",
+          "description": "Filter role dropdown in settings.tsx so org_admin cannot assign roles above their own level"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "org_admin for org A cannot retrieve lead summary data for org B via orgId query param",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-2",
+          "description": "AI system prompt endpoint returns 403 for org_admin callers",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-3",
+          "description": "PATCH /api/organizations/:id ignores org slug field if present in body",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-4",
+          "description": "Role dropdown in settings shows only roles at or below the current user's role level",
+          "evidenceType": "playwright-test"
+        }
+      ],
+      "filesModified": [
+        "server/vendorProxy.ts",
+        "server/routes/settings.ts",
+        "server/routes/organizations.ts",
+        "server/routes/users.ts",
+        "client/src/pages/settings.tsx"
+      ],
+      "uiPermissions": "DECLARED \u2014 role dropdown filtering in settings.tsx",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-COMMS-FIX-01",
+      "title": "CommGate silent drop fix + VIN lead source name fix",
+      "status": "planned",
+      "priority": "p0",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix CommGate blocked sends returning 201 silently \u2014 surface error to frontend. Fix VIN lead source name mismatch for Columbia stores (Ford of Columbia: 'Dealer Website', Hyundai of Columbia: 'Dealer .Com (Our Website)')",
+      "components": [
+        {
+          "name": "commgate-error-surface",
+          "description": "Return 4xx or error payload when CommGate blocks a send instead of silent 201"
+        },
+        {
+          "name": "vin-lead-source-names",
+          "description": "Map correct lead source names for Ford of Columbia and Hyundai of Columbia in VIN integration"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "When CommGate blocks a send, the API response indicates failure (not 201 success)",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-2",
+          "description": "Frontend receives and displays the CommGate blocked error to the user",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-3",
+          "description": "Ford of Columbia VIN lead source resolves to 'Dealer Website'",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-4",
+          "description": "Hyundai of Columbia VIN lead source resolves to 'Dealer .Com (Our Website)'",
+          "evidenceType": "code-review"
+        }
+      ],
+      "filesModified": [
+        "server/routes/conversations.ts",
+        "server/routes/webhooks.ts",
+        "server/storage.ts"
+      ],
+      "uiPermissions": "NONE",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-WIDGET-01",
+      "title": "Widget video window dimensions + chat history limit + JSON.parse guards",
+      "status": "planned",
+      "priority": "p1",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Add window dimensions to video window.open calls. Add .slice(-20) to widget chat history. Wrap JSON.parse in hunchService and webhooks with try/catch.",
+      "components": [
+        {
+          "name": "video-window-dimensions",
+          "description": "Pass width and height parameters to window.open calls for video in widget-landing.tsx"
+        },
+        {
+          "name": "chat-history-limit",
+          "description": "Limit widget chat history to last 20 messages via .slice(-20) before passing to AI"
+        },
+        {
+          "name": "json-parse-guards",
+          "description": "Wrap JSON.parse calls in hunchService.ts and webhooks.ts with try/catch to prevent unhandled parse errors"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Video popup opens with explicit width and height dimensions set",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-2",
+          "description": "Widget chat history passed to AI is capped at 20 messages",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-3",
+          "description": "JSON.parse in hunchService wrapped in try/catch \u2014 malformed JSON returns graceful error, not crash",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-4",
+          "description": "JSON.parse in webhooks.ts wrapped in try/catch \u2014 malformed payload returns 400, not 500",
+          "evidenceType": "code-review"
+        }
+      ],
+      "filesModified": [
+        "client/src/pages/widget-landing.tsx",
+        "server/routes/public.ts",
+        "server/services/hunchService.ts",
+        "server/routes/webhooks.ts"
+      ],
+      "uiPermissions": "DECLARED \u2014 widget-landing.tsx window.open change",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-AI-HANDOFF-01",
+      "title": "AI handoff fixes \u2014 race condition, return-to-AI button, deleted agent handling",
+      "status": "planned",
+      "priority": "p1",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix AI race condition during human takeover. Add explicit Return to AI button in TeamBox. Add alert/task when no active SMS agent found after deletion.",
+      "components": [
+        {
+          "name": "handoff-race-fix",
+          "description": "Fix race condition where AI sends a message after human takeover is initiated in sms.ts"
+        },
+        {
+          "name": "return-to-ai-button",
+          "description": "Add explicit Return to AI button in TeamBox conversation view to re-enable AI mode"
+        },
+        {
+          "name": "deleted-agent-alert",
+          "description": "When no active SMS agent found after deletion, create an alert or task for org_admin to reassign"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "After human takeover, AI does not send any additional messages to the customer",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-2",
+          "description": "Return to AI button visible in TeamBox when conversation is in human mode",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-3",
+          "description": "Clicking Return to AI re-enables AI responses for that conversation",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-4",
+          "description": "When SMS agent is deleted and no replacement active, system creates alert visible in TeamBox",
+          "evidenceType": "playwright-test"
+        }
+      ],
+      "filesModified": [
+        "server/routes/sms.ts",
+        "client/src/pages/teambox.tsx",
+        "client/src/components/layout/SubMenuManager.tsx"
+      ],
+      "uiPermissions": "DECLARED \u2014 Return to AI button in teambox.tsx",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-INSIGHTS-A",
+      "title": "Insights Sprint A \u2014 win rate, labels, filters, org-switch, escalations",
+      "status": "planned",
+      "priority": "p2",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix win rate denominator to sold/(sold+lost). Rename Hot Leads to Active Leads. Add !isLostLead() to showroom filter. Compute lib-21 avg time to first contact. Fix super_admin pipeline tiles to respect org-switch. Add 90-day window to escalations counter. Standardize Active Pipeline to 14-day window on both pages.",
+      "components": [
+        {
+          "name": "win-rate-denominator",
+          "description": "Fix win rate calculation to use sold/(sold+lost) instead of current denominator"
+        },
+        {
+          "name": "hot-leads-rename",
+          "description": "Rename 'Hot Leads' label to 'Active Leads' in insights.tsx, main.tsx, sales.tsx"
+        },
+        {
+          "name": "showroom-filter",
+          "description": "Add !isLostLead() guard to showroom visit filter in insights.ts"
+        },
+        {
+          "name": "avg-time-to-contact",
+          "description": "Compute lib-21 average time to first contact metric in storage.ts and expose via insights.ts"
+        },
+        {
+          "name": "superadmin-org-switch",
+          "description": "Fix super_admin pipeline tiles to respect selected org from org-switch selector"
+        },
+        {
+          "name": "escalations-window",
+          "description": "Add 90-day rolling window to escalations counter query"
+        },
+        {
+          "name": "active-pipeline-window",
+          "description": "Standardize Active Pipeline metric to 14-day window consistently on all pages"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Win rate displays sold/(sold+lost) and matches manual calculation from drill-down data",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-2",
+          "description": "'Hot Leads' label replaced with 'Active Leads' everywhere in the UI",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-3",
+          "description": "Showroom visits metric excludes lost leads",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-4",
+          "description": "Avg time to first contact metric visible and shows numeric value",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-5",
+          "description": "super_admin switching org causes pipeline tiles to reload with selected org's data",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-6",
+          "description": "Escalations counter reflects 90-day window",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-7",
+          "description": "Active Pipeline tile shows same value on main dashboard and insights page for same org/window",
+          "evidenceType": "playwright-test"
+        }
+      ],
+      "filesModified": [
+        "server/routes/insights.ts",
+        "server/storage.ts",
+        "client/src/pages/insights.tsx",
+        "client/src/pages/main.tsx",
+        "client/src/pages/sales.tsx"
+      ],
+      "uiPermissions": "DECLARED \u2014 label changes and metric logic in insights.tsx, main.tsx, sales.tsx",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-INSIGHTS-B",
+      "title": "Insights Sprint B \u2014 channel classification, engagement metric, service fallback",
+      "status": "planned",
+      "priority": "p2",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix channel classification to resolve VIN API URL lead sources to human-readable names. Fix lib-20 Engagement Transition to use a meaningful signal. Fix service metrics to show 0 instead of cross-department fallback. Fix VIN source IDs displayed as numeric codes.",
+      "components": [
+        {
+          "name": "channel-classification",
+          "description": "Resolve VIN API URL lead source strings to human-readable channel names in insights.ts"
+        },
+        {
+          "name": "engagement-metric",
+          "description": "Fix lib-20 Engagement Transition metric to use a meaningful behavioral signal rather than current placeholder"
+        },
+        {
+          "name": "service-metric-fallback",
+          "description": "Fix service page metrics to show 0 when no service data exists instead of falling back to sales/cross-department data"
+        },
+        {
+          "name": "vin-source-id-display",
+          "description": "Resolve numeric VIN source IDs to human-readable names before display in insights.tsx and service.tsx"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Channel breakdown shows names like 'Website', 'Phone', 'Referral' \u2014 not raw VIN API URLs",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-2",
+          "description": "lib-20 Engagement Transition metric reflects a real behavioral signal described in evidence",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-3",
+          "description": "Service page metrics show 0 (not sales data) when org has no service campaign data",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-4",
+          "description": "No numeric VIN source IDs visible to end users anywhere in the insights UI",
+          "evidenceType": "playwright-test"
+        }
+      ],
+      "filesModified": [
+        "server/routes/insights.ts",
+        "server/sync.ts",
+        "client/src/pages/insights.tsx",
+        "client/src/pages/service.tsx"
+      ],
+      "uiPermissions": "DECLARED \u2014 service.tsx fallback display change",
+      "dependsOn": [
+        "SNP-INSIGHTS-A"
+      ],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-UI-MISC-01",
+      "title": "Misc UI fixes \u2014 dealershipName substitution, TeamBox cleanup, modal title, phantom count, timezone validation, self-deactivation guard",
+      "status": "planned",
+      "priority": "p3",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Fix {{dealershipName}} substitution in agent instructions. Remove 5 empty TCTest chat entries from TeamBox seed/DB. Fix Insights modal title mismatch. Fix phantom recipientCount on Oil Change campaign. Add timezone validation on org settings save. Block self-deactivation server-side.",
+      "components": [
+        {
+          "name": "dealership-name-substitution",
+          "description": "Fix {{dealershipName}} template variable substitution in agent instructions at send time"
+        },
+        {
+          "name": "tctest-cleanup",
+          "description": "Remove 5 empty TCTest chat conversation entries from DB and seed data"
+        },
+        {
+          "name": "insights-modal-title",
+          "description": "Fix Insights drill-down modal title to match the metric tile that was clicked"
+        },
+        {
+          "name": "phantom-recipient-count",
+          "description": "Fix phantom recipientCount showing incorrect number on Oil Change campaign"
+        },
+        {
+          "name": "timezone-validation",
+          "description": "Validate timezone string against IANA tz database before saving org settings"
+        },
+        {
+          "name": "self-deactivation-guard",
+          "description": "Block server-side: user cannot deactivate their own account via PATCH /api/users/:id"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Agent instructions sent to customers show dealership name, not {{dealershipName}} literal",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-2",
+          "description": "TeamBox conversation list has no empty TCTest entries",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-3",
+          "description": "Insights modal title matches the tile that opened it",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-4",
+          "description": "Oil Change campaign recipientCount matches actual eligible recipient query count",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-5",
+          "description": "Invalid timezone string on org settings save returns validation error",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-6",
+          "description": "PATCH /api/users/:id returns 403 when user attempts to deactivate their own account",
+          "evidenceType": "playwright-test"
+        }
+      ],
+      "filesModified": [
+        "server/routes/chat.ts",
+        "server/routes/users.ts",
+        "server/outbound.ts",
+        "server/storage.ts",
+        "client/src/pages/insights.tsx"
+      ],
+      "uiPermissions": "NONE \u2014 no UI changes, data fixes only",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "WFV-COMMS-01",
+      "title": "Workflow verification \u2014 TeamBox reply, human takeover, campaign reply, edge cases",
+      "status": "planned",
+      "priority": "p1",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Verify: TeamBox SMS reply \u2192 customer receives it. Human takeover \u2192 send as human \u2192 delivery confirmed. Campaign inbound reply \u2192 TeamBox thread. Edge case: conversation deleted \u2192 customer texts again. Edge case: back-and-forth agent then human. Run via Playwright MCP + operator phone verification.",
+      "components": [
+        {
+          "name": "teambox-sms-reply-verification",
+          "description": "Verify TeamBox SMS reply reaches customer phone \u2014 requires operator phone confirmation"
+        },
+        {
+          "name": "human-takeover-verification",
+          "description": "Verify human takeover send path delivers message as human, not AI"
+        },
+        {
+          "name": "campaign-reply-thread-verification",
+          "description": "Verify inbound reply to campaign SMS attaches to correct TeamBox thread"
+        },
+        {
+          "name": "edge-case-deleted-conversation",
+          "description": "Verify that when a conversation is deleted and customer re-texts, a new thread is created correctly"
+        },
+        {
+          "name": "edge-case-agent-human-alternation",
+          "description": "Verify back-and-forth between agent and human mode works without message ordering issues"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "TeamBox SMS reply confirmed received on operator test phone",
+          "evidenceType": "operator-confirmation"
+        },
+        {
+          "id": "AC-2",
+          "description": "Human takeover message delivered with human sender identity",
+          "evidenceType": "operator-confirmation"
+        },
+        {
+          "id": "AC-3",
+          "description": "Campaign inbound reply appears in correct TeamBox thread",
+          "evidenceType": "playwright-screenshot"
+        },
+        {
+          "id": "AC-4",
+          "description": "Customer re-text after conversation deletion creates new thread without errors",
+          "evidenceType": "playwright-test"
+        },
+        {
+          "id": "AC-5",
+          "description": "Agent \u2192 human \u2192 agent mode switches produce correct message attribution in thread",
+          "evidenceType": "playwright-screenshot"
+        }
+      ],
+      "filesModified": [],
+      "uiPermissions": "NONE \u2014 verification only, no code changes (fixes go in separate sprints if bugs found)",
+      "dependsOn": [
+        "SNP-COMMS-FIX-01",
+        "SNP-AI-HANDOFF-01"
+      ],
+      "registeredAt": "2026-04-08T00:00:00Z"
+    },
+    {
+      "id": "SNP-LANDING-01",
+      "title": "Service landing page \u2014 query param approach, TopBar dropdown",
+      "status": "planned",
+      "priority": "p2",
+      "category": "Sniper",
+      "branch": "wave-pe3",
+      "description": "Duplicate sales landing page for service via ?dept=service query param. Add TopBar Globe dropdown with Sales/Service options. Conditional content: service copy, service form labels, service hero stats. Voice/video routing update to filter agents by department when dept=service.",
+      "components": [
+        {
+          "name": "service-landing-query-param",
+          "description": "Add ?dept=service query param handling to widget-landing.tsx to render service-specific content"
+        },
+        {
+          "name": "topbar-globe-dropdown",
+          "description": "Add Globe icon dropdown in TopBar.tsx with Sales and Service navigation options"
+        },
+        {
+          "name": "service-conditional-content",
+          "description": "Conditional service copy, form labels, and hero stats when dept=service is active"
+        },
+        {
+          "name": "department-agent-routing",
+          "description": "Update voice/video routing in public.ts to filter agents by department when dept=service param present"
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "AC-1",
+          "description": "Navigating to landing page with ?dept=service shows service-specific copy and form labels",
+          "evidenceType": "playwright-screenshot"
+        },
+        {
+          "id": "AC-2",
+          "description": "TopBar Globe dropdown renders with Sales and Service options",
+          "evidenceType": "playwright-screenshot"
+        },
+        {
+          "id": "AC-3",
+          "description": "Service hero stats section displays service-relevant metrics (not sales metrics)",
+          "evidenceType": "playwright-screenshot"
+        },
+        {
+          "id": "AC-4",
+          "description": "Voice/video call from ?dept=service landing routes to service department agents",
+          "evidenceType": "code-review"
+        },
+        {
+          "id": "AC-5",
+          "description": "Default landing (no ?dept param) continues to show sales content unchanged",
+          "evidenceType": "playwright-screenshot"
+        }
+      ],
+      "filesModified": [
+        "client/src/pages/widget-landing.tsx",
+        "client/src/components/layout/TopBar.tsx",
+        "server/routes/public.ts"
+      ],
+      "uiPermissions": "DECLARED \u2014 widget-landing.tsx conditional content, TopBar.tsx dropdown",
+      "dependsOn": [],
+      "registeredAt": "2026-04-08T00:00:00Z"
     }
   ]
 }
