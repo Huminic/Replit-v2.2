@@ -267,8 +267,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store new access token in memory
       storeToken(data.accessToken, data.expiresIn);
 
-      // Update user with new organization
-      if (user) {
+      // Update user state with full user object from response (includes new org)
+      if (data.user) {
+        setUser(data.user);
+      } else if (user) {
         setUser({
           ...user,
           organization: data.organization,

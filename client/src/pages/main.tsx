@@ -617,6 +617,8 @@ export default function MainPage() {
   const [initialized, setInitialized] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isInitialLoad = useRef(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [, setLocation] = useLocation();
   const searchString = useSearch();
@@ -699,21 +701,10 @@ export default function MainPage() {
   });
 
   useEffect(() => {
-    if (dbMessages && dbMessages.length > 0) {
-      const mapped: ChatMessage[] = dbMessages.map((m) => ({
-        id: m.id,
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-        timestamp: m.createdAt ? new Date(m.createdAt).toISOString() : new Date().toISOString(),
-      }));
-      setMessages(mapped);
-      if (mapped.some((m) => m.role === 'user')) {
-        setHasSentMessage(true);
-        setTilesCollapsed(true);
-      }
-    } else if (dbMessages && dbMessages.length === 0 && conversationId && !initialized) {
-    }
-  }, [dbMessages, conversationId, personaName, authUser]);
+    // Chat starts blank and accumulates only via UI interactions.
+    // Never sync from DB to prevent history flooding in after first send.
+    isInitialLoad.current = false;
+  }, [dbMessages]);
 
   const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
@@ -729,6 +720,10 @@ export default function MainPage() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, streamingContent]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [messages]);
 
   const handleSend = async () => {
     if (!inputValue.trim()) return;
@@ -938,6 +933,7 @@ export default function MainPage() {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 

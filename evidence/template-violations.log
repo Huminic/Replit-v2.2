@@ -225,3 +225,9 @@
   - Missing (exact): **Sprint:** header
 [2026-04-07T21:27:21Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/WAVE-PE3/pre-execution-report.md template=pre-exec
   - Missing: ## Test Plan section
+[2026-04-07T22:24:15Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/WAVE-PE3/enforcer-checklist.txt template=enforcer
+  - Missing: Role field
+[2026-04-08T13:27:17Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/EMG-ORG-SWITCH-01/pre-execution-report.md template=pre-exec
+  - Missing: ## Test Plan section
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header

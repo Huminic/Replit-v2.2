@@ -22,7 +22,7 @@
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocation, useSearch } from 'wouter';
-import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -87,7 +87,6 @@ export default function ServicePage() {
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('campaigns');
-  const [campaignSafetyDismissed, setCampaignSafetyDismissed] = useState(() => localStorage.getItem('campaign-safety-dismissed') === 'true');
 
   // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
   useEffect(() => {
@@ -340,7 +339,6 @@ export default function ServicePage() {
    * Campaigns tab — campaign table with CSV upload info, status, channel,
    * recipient/sent/replied counts, and per-campaign kill switch toggle.
    * Shows "Communications Paused" destructive badge when global communication gate is OFF.
-   * Campaign Safety card at bottom explains kill switch behavior and per-conversation disconnect in TeamBox.
    */
   const renderCampaigns = () => (
     <div className="p-6 space-y-4">
@@ -690,32 +688,6 @@ export default function ServicePage() {
         </DialogContent>
       </Dialog>
 
-      {!campaignSafetyDismissed && (
-      <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20" data-testid="card-campaign-safety">
-        <CardContent className="p-4 flex items-start gap-3">
-          <Ban className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Campaign Safety</p>
-            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-              Use the Kill Switch to immediately stop all outbound messages for a campaign.
-              Individual conversations can also be disconnected from campaigns in TeamBox.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
-            onClick={() => {
-              setCampaignSafetyDismissed(true);
-              localStorage.setItem('campaign-safety-dismissed', 'true');
-            }}
-            data-testid="button-dismiss-campaign-safety"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </CardContent>
-      </Card>
-      )}
 
       <Dialog open={!!selectedCampaign} onOpenChange={(open) => { if (!open) setSelectedCampaign(null); }}>
         <DialogContent className="sm:max-w-lg" data-testid="dialog-campaign-detail">

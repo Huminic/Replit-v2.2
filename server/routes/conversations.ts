@@ -276,4 +276,107 @@ export function registerConversationRoutes(app: Express) {
       return res.status(500).json({ message: "Failed to create message" });
     }
   });
+
+  // POST /api/conversations/:id/push-to-vin — push TeamBox conversation as VIN Solutions lead
+  app.post("/api/conversations/:id/push-to-vin", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+      const conversation = await storage.getConversation(req.params.id as string);
+      if (!conversation) return res.status(404).json({ message: "Conversation not found" });
+      if (conversation.organizationId !== req.user.organizationId && req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const allMessages = await storage.getMessages(req.params.id as string);
+      const last5 = allMessages.slice(-5);
+      const messageSnippet = last5
+        .map((m: any) => `${m.role}: ${(m.content || "").slice(0, 200)}`)
+        .join("\n");
+
+      const channel = conversation.channel || "chat";
+      const description = `TeamBox ${channel} conversation.\n\nMessages:\n${messageSnippet}`;
+      const customerName = (conversation as any).customerName && (conversation as any).customerName !== "Unknown"
+        ? (conversation as any).customerName
+        : ((conversation as any).customerPhone || "Unknown");
+
+      const nameParts = customerName.split(" ");
+      const firstName = nameParts[0] || "Unknown";
+      const lastName = nameParts.slice(1).join(" ") || "Lead";
+
+      const org = await storage.getOrganization(conversation.organizationId);
+      const orgSettings = ((org as any)?.settings || {}) as Record<string, any>;
+      const vinLeadSourceName = orgSettings.vinLeadSourceName || "Dealers WebSite";
+      const orgName = org?.name || "Nexxus Connect";
+
+      const { callMCP, resolveNexxusOrgId, warmIntegrationCache } = await import("../vendorProxy");
+      await warmIntegrationCache(conversation.organizationId);
+      const nexxusOrgId = resolveNexxusOrgId(conversation.organizationId);
+
+      const VIN_SAFE_URL = process.env.VIN_SAFE_MCP_URL || "http://0.0.0.0:4003";
+      const VIN_SAFE_TOKEN = process.env.VIN_SAFE_MCP_TOKEN || "8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=";
+
+      const prepareRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_prepare_lead`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orgId: nexxusOrgId,
+          firstName,
+          lastName,
+          phone: (conversation as any).customerPhone || "",
+          leadType: "INTERNET",
+          leadSourceName: vinLeadSourceName,
+          description,
+        }),
+      });
+      const prepareData = await prepareRes.json() as Record<string, any>;
+
+      if (prepareData.status !== "READY" || !prepareData.approval_token) {
+        console.error(`[TeamBox→VIN] Prepare failed:`, JSON.stringify(prepareData).slice(0, 500));
+        return res.status(500).json({
+          message: "VIN Solutions lead prepare failed",
+          detail: prepareData.message || prepareData.error || "Unknown error from vin-safe-mcp",
+        });
+      }
+
+      const executeRes = await fetch(`${VIN_SAFE_URL}/api/tool/vin_safe_execute_lead`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${VIN_SAFE_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ approval_token: prepareData.approval_token, user_confirmed: true }),
+      });
+      const executeData = await executeRes.json() as Record<string, any>;
+
+      if (executeData.status !== "EXECUTED" || executeData.verification?.status !== "VERIFIED_CORRECT") {
+        return res.status(500).json({
+          message: "VIN Solutions lead execute/verify failed",
+          detail: executeData.message || executeData.error || "Unknown error",
+          verification: executeData.verification?.status,
+        });
+      }
+
+      try {
+        const orgUsers = await storage.getUsers(conversation.organizationId);
+        const adminEmails = orgUsers
+          .filter((u: any) => u.isActive && u.email && ["org_admin", "partner_admin", "super_admin"].includes(u.role?.name || u.roleName || ""))
+          .map((u: any) => u.email)
+          .filter(Boolean);
+
+        if (adminEmails.length > 0 && process.env.RESEND_API_KEY) {
+          await callMCP("resend_send_email", {
+            from: `${orgName} <notifications@huminic.ai>`,
+            to: adminEmails,
+            subject: `Lead pushed to VIN Solutions — ${customerName}`,
+            html: `<p>A TeamBox conversation was manually pushed to VIN Solutions.</p><ul><li><strong>Customer:</strong> ${customerName}</li><li><strong>Phone:</strong> ${(conversation as any).customerPhone || "N/A"}</li><li><strong>Channel:</strong> ${channel}</li><li><strong>VIN Contact ID:</strong> ${executeData.contactId}</li><li><strong>VIN Lead ID:</strong> ${executeData.leadId}</li></ul><p>Pushed by: ${req.user!.firstName} ${req.user!.lastName}</p>`,
+          });
+        }
+      } catch (emailErr: any) {
+        console.warn(`[TeamBox→VIN] Email notification failed (non-fatal):`, emailErr.message);
+      }
+
+      return res.json({ success: true, message: "Lead pushed to VIN Solutions" });
+    } catch (err: any) {
+      console.error("[TeamBox→VIN] Unhandled error:", err.message);
+      return res.status(500).json({ message: "Failed to push lead to VIN Solutions", detail: err.message });
+    }
+  });
 }

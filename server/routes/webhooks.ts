@@ -258,18 +258,20 @@ async function sendLeadNotificationEmail(
   let sentCount = 0;
   const FROM_ADDRESS = "Nexxus Connect <notifications@huminic.ai>";
 
-  for (const email of recipients) {
-    try {
-      await callMCP("resend_send_email", {
-        from: FROM_ADDRESS,
-        to: email,
-        subject,
-        html: htmlBody,
-      });
-      sentCount++;
-    } catch (emailErr: any) {
-      console.error(`[LeadNotify] Failed to send to ${email}:`, emailErr.message);
-    }
+  // Batch all recipients into a single API call (comma-separated).
+  // The central-mcp resend_send_email tool splits on commas before forwarding
+  // to Resend, so this sends one email with multiple recipients instead of
+  // one email per recipient — avoids hitting the 100 emails/day free-plan cap.
+  try {
+    await callMCP("resend_send_email", {
+      from: FROM_ADDRESS,
+      to: recipients.join(","),
+      subject,
+      html: htmlBody,
+    });
+    sentCount = recipients.length;
+  } catch (emailErr: any) {
+    console.error(`[LeadNotify] Failed to send batch notification to ${recipients.join(", ")}:`, emailErr.message);
   }
 
   // Log the notification for idempotency tracking

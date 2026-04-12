@@ -36,10 +36,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { Conversation, Message, User } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
@@ -147,6 +147,7 @@ export default function TeamboxPage() {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [transcriptModal, setTranscriptModal] = useState<{ open: boolean; transcript: string; audioUrl?: string; callerNumber?: string }>({ open: false, transcript: '' });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: campaigns = [] } = useQuery<{ id: string; name: string }[]>({
@@ -159,7 +160,7 @@ export default function TeamboxPage() {
   });
 
   const { data: vapiCalls = [], isLoading: vapiLoading } = useQuery<any[]>({
-    queryKey: ['/api/vapi/calls'],
+    queryKey: ['/api/vapi/calls?limit=100'],
     enabled: activeView === 'phone',
   });
 
@@ -195,8 +196,8 @@ export default function TeamboxPage() {
   });
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
     }
   }, [messages]);
 
@@ -249,6 +250,23 @@ export default function TeamboxPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+  });
+
+  const [vinConfirmOpen, setVinConfirmOpen] = useState(false);
+
+  const pushToVinMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const res = await apiRequest('POST', `/api/conversations/${conversationId}/push-to-vin`, {});
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: 'Lead pushed to VIN Solutions', description: data.message || 'Successfully created lead.' });
+      setVinConfirmOpen(false);
+    },
+    onError: (err: any) => {
+      toast({ title: 'Push to VIN failed', description: err?.message || 'An error occurred.', variant: 'destructive' });
+      setVinConfirmOpen(false);
     },
   });
 
@@ -654,8 +672,8 @@ export default function TeamboxPage() {
                           </AvatarFallback>
                         </Avatar>
                         {conv.status === 'automated' && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
-                            <Bot className="h-2.5 w-2.5 text-white" />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted-foreground/40 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
+                            <Bot className="h-2.5 w-2.5 text-foreground" />
                           </div>
                         )}
                       </div>
@@ -664,7 +682,9 @@ export default function TeamboxPage() {
                           <span className="text-sm font-medium truncate">{conv.customerName}</span>
                           <span className="text-[10px] text-muted-foreground flex-shrink-0">
                             {conv.lastMessageAt
-                              ? formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
+                              ? isToday(new Date(conv.lastMessageAt))
+                                ? 'Today'
+                                : formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
                               : ''}
                           </span>
                         </div>
@@ -674,17 +694,12 @@ export default function TeamboxPage() {
                         <div className="flex items-center gap-1.5 mt-1">
                           <ChannelIcon className="h-3 w-3 text-muted-foreground" />
                           {agentName && (
-                            <Badge variant="outline" className={cn(
-                              "h-4 text-[10px] px-1 gap-0.5",
-                              conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
-                            )}>
+                            <Badge variant="outline" className="h-4 text-[10px] px-1 gap-0.5">
                               {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
                               {agentName}
                             </Badge>
                           )}
-                          {conv.unreadCount > 0 && (
-                            <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
-                          )}
+                          <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto" variant={(conv.unreadCount ?? 0) > 0 ? 'default' : 'secondary'}>{conv.unreadCount ?? 0}</Badge>
                         </div>
                       </div>
                     </div>
@@ -756,6 +771,21 @@ export default function TeamboxPage() {
                     {selectedConversation.campaignDisconnected ? 'Disconnected' : 'Disconnect Campaign'}
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setVinConfirmOpen(true)}
+                  disabled={pushToVinMutation.isPending}
+                  data-testid="button-push-to-vin"
+                >
+                  {pushToVinMutation.isPending ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <UserCheck className="h-3 w-3" />
+                  )}
+                  Push to VIN
+                </Button>
               </div>
             </div>
 
@@ -801,6 +831,7 @@ export default function TeamboxPage() {
                       No messages yet
                     </div>
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </ScrollArea>
@@ -937,6 +968,31 @@ export default function TeamboxPage() {
       )}
     </div>}
     </div>
+
+      <Dialog open={vinConfirmOpen} onOpenChange={setVinConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Push to VIN Solutions</DialogTitle>
+            <DialogDescription>
+              Push this conversation to VIN Solutions as a lead?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setVinConfirmOpen(false)} disabled={pushToVinMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => selectedConversationId && pushToVinMutation.mutate(selectedConversationId)}
+              disabled={pushToVinMutation.isPending}
+              data-testid="button-vin-confirm"
+            >
+              {pushToVinMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={transcriptModal.open} onOpenChange={(open) => setTranscriptModal(prev => ({ ...prev, open }))}>
         <DialogContent className="max-w-lg max-h-[80vh]">

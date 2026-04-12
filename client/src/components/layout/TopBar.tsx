@@ -111,10 +111,12 @@ export function TopBar() {
     try {
       await authSwitchOrg(orgId);
       appSwitchOrg(orgId);
-      // Invalidate all cached queries so UI refreshes with new org data.
+      // Reset (clear + refetch) all cached queries so UI loads fresh org data.
+      // resetQueries removes stale data immediately, unlike invalidateQueries
+      // which only marks stale and refetches lazily on next render.
       // Avoids full page reload (which loses the in-memory access token and
       // causes a login redirect on HTTPS due to cookie timing — I-066).
-      await queryClient.invalidateQueries();
+      await queryClient.resetQueries();
     } catch {
       toast({ title: 'Switch failed', description: 'Could not switch organization. Please try again.', variant: 'destructive' });
     }

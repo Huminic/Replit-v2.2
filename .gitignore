@@ -14,3 +14,6 @@ evidence/DB-1/supabase-backup.sql
 attached_assets/
 temp/
 File Reorganization/
+# Launch stabilization artifacts
+*.png
+.playwright-mcp/

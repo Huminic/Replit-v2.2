@@ -1,0 +1,8 @@
+[2026-04-12T20:00:00Z] agent-launch | role=orchestrator | task="demo backlog consolidation" | scope=client/src/components/layout/TopBar.tsx,client/src/contexts/AuthContext.tsx,client/src/pages/main.tsx,client/src/pages/marketing.tsx,client/src/pages/service.tsx,client/src/pages/teambox.tsx,NEXXUS_UNIFIED_LAUNCH_PROMPT.md,teambox-snapshot.yml,test-campaign.csv
+[2026-04-12T20:00:00Z] PRE-FLIGHT role=orchestrator sprint=LAUNCH-STABILIZE result=PASS detail="Sprint registered, demo backlog staged"
+[2026-04-12T20:19:19Z] PRE-COMMIT role=governance sprint=LAUNCH-STABILIZE result=BLOCKED detail="Watchdog gate: Ack is 6168 minutes old (max 60). Re-acknowledge."
+[2026-04-12T20:20:03Z] PRE-COMMIT role=governance sprint=LAUNCH-STABILIZE result=BLOCKED detail="Staged files outside governance scope."
+[2026-04-12T20:20:52Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-STABILIZE result=BLOCKED detail="Pre-execution report not found: evidence/LAUNCH-STABILIZE/pre-execution-report.md"
+[2026-04-12T20:22:10Z] PRE-COMMIT role=governance sprint=LAUNCH-STABILIZE result=BLOCKED detail="Governance file 'sprints.json' staged by role 'governance'. Only orchestrator may modify."
+[2026-04-12T20:22:49Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-STABILIZE result=BLOCKED detail="client/src/pages/teambox.tsx has 86 lines changed (max 40, EF-14). Set UI_EXCEPTION=true if owner approved larger UI changes in sprint pre-exec."
+[2026-04-12T20:23:17Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-STABILIZE result=PASS detail="All 7 gates passed"

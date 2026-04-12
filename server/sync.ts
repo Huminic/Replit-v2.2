@@ -386,8 +386,31 @@ export async function startSyncScheduler(): Promise<void> {
     }
   }, TWENTY_FOUR_HOURS);
 
-  syncIntervals = [metricsInterval, deltaInterval];
-  console.log(`[Sync] Scheduler started for ${orgIds.length} organization(s). Metrics every 4h (business hours), delta nightly.`);
+  const FIFTEEN_MINUTES = 15 * 60 * 1000;
+  const quickDeltaInterval = setInterval(async () => {
+    try {
+      const currentOrgs = await storage.getOrganizations();
+      const currentIntegrations = await Promise.all(
+        currentOrgs.map(o => storage.getIntegrations(o.id, { provider: "vinsolutions" }))
+      );
+      const activeOrgIds = currentOrgs
+        .filter((_, i) => currentIntegrations[i].length > 0 && currentIntegrations[i][0].status === "active")
+        .map(o => o.id);
+      for (const orgId of activeOrgIds) {
+        try {
+          const result = await runDailyDelta(orgId);
+          console.log(`[Sync] 15-min delta complete for orgId ${orgId}: ${result.processed} leads synced`);
+        } catch (err) {
+          console.error(`[Sync] 15-min delta failed for orgId ${orgId}:`, err);
+        }
+      }
+    } catch (err) {
+      console.error("[Sync] 15-min delta: failed to fetch active orgs:", err);
+    }
+  }, FIFTEEN_MINUTES);
+
+  syncIntervals = [metricsInterval, deltaInterval, quickDeltaInterval];
+  console.log(`[Sync] Scheduler started for ${orgIds.length} organization(s). Metrics every 4h (business hours), delta nightly, quick delta every 15min.`);
 }
 
 export function stopSyncScheduler(): void {

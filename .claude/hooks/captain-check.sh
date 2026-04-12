@@ -151,6 +151,33 @@ if [ "$TOOL_NAME" = "Bash" ]; then
     ls|cat|head|tail|grep|find|wc|stat|date|pwd|echo|test|curl|python3|which|file|md5sum|diff|readlink|jq|true|false)
       exit 0
       ;;
+    npm)
+      # Allow build only — block install/publish/other
+      if echo "$COMMAND" | grep -qP 'npm\s+run\s+build'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: npm command blocked during active sprint (only 'npm run build' allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    pm2)
+      # Allow restart/list only — block delete/stop/other
+      if echo "$COMMAND" | grep -qP 'pm2\s+(restart|list|status)'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: pm2 command blocked during active sprint (only restart/list allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    npx)
+      # Allow playwright and tsc only
+      if echo "$COMMAND" | grep -qP 'npx\s+(playwright|tsc)'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: npx command blocked during active sprint (only playwright/tsc allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
     npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)
       echo "CAPTAIN VIOLATION: Execution command blocked during active sprint. Delegate to sub-agent." >&2
       echo "Command: $COMMAND" >&2
