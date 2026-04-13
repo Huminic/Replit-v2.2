@@ -3550,3 +3550,13 @@
 [2026-04-13T18:09:52Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-180937)
 [2026-04-13T18:10:34Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-181019)
 [2026-04-13T18:20:43Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-182028)
+[2026-04-13T18:26:16Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-182558)
+[2026-04-13T18:46:54Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-184638)
+[2026-04-13T18:47:22Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-184705)
+[2026-04-13T18:47:38Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.4022179.1776106058248 has evidence but is not in sprints.json
+[2026-04-13T18:47:38Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-13T18:48:06Z] Previous ack (WD-20260413-184705) invalidated by new report (WD-20260413-184747)
+[2026-04-13T18:48:37Z] Previous ack (WD-20260413-184705) invalidated by new report (WD-20260413-184820)
+[2026-04-13T18:50:43Z] Previous ack (WD-20260413-184705) invalidated by new report (WD-20260413-185028)
+[2026-04-13T18:51:03Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.4022179.1776106263240 has evidence but is not in sprints.json
+[2026-04-13T18:51:03Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json

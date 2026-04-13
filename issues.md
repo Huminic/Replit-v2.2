@@ -31,6 +31,10 @@
 
 No open issues. I-126 and I-139 verified working in S2.
 
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-277 | **Chat AI response disappears after streaming.** Response renders while streaming but vanishes when stream completes. Root cause: useEffect/useRef race condition — streaming bubble hides before message added to permanent state. Fix: replaced with synchronous onComplete callback in useStreamingChat.ts, handleStreamComplete in main.tsx. | FE | CLOSED (LAUNCH-RECON-01) | M |
+
 ---
 
 ## TeamBox (/teambox)

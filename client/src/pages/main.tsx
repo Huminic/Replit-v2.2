@@ -700,15 +700,25 @@ export default function MainPage() {
     enabled: !!conversationId,
   });
 
+  const handleStreamComplete = useCallback((finalContent: string) => {
+    setMessages(prev => [...prev, {
+      id: `msg-ai-${Date.now()}`,
+      role: 'assistant' as const,
+      content: finalContent,
+      timestamp: new Date().toISOString(),
+    }]);
+  }, []);
+
+  const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
+    conversationId,
+    onComplete: handleStreamComplete,
+  });
+
   useEffect(() => {
     // Chat starts blank and accumulates only via UI interactions.
     // Never sync from DB to prevent history flooding in after first send.
     isInitialLoad.current = false;
   }, [dbMessages]);
-
-  const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
-    conversationId,
-  });
 
   const lastUserContent = messages.filter(m => m.role === 'user').at(-1)?.content;
   const handleRegenerate = () => {

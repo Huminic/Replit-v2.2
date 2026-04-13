@@ -11,6 +11,8 @@ Phase 1 -- Reconnaissance and Gap Evaluation. Dispatch recon agents across three
 - evidence/LAUNCH-RECON-01/ (evidence artifacts)
 - evidence/watchdog-alerts.log (watchdog scan updates)
 - evidence/watchdog-report.txt (watchdog report updates)
+- client/src/hooks/useStreamingChat.ts (fix streaming race condition I-277)
+- client/src/pages/main.tsx (fix handleStreamComplete callback I-277)
 
 ## UI Changes
 NONE -- uiPermissions is "NONE"

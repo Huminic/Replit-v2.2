@@ -7,6 +7,7 @@ interface UseStreamingChatOptions {
   agentId?: string;
   mode?: string;
   pageContext?: string;
+  onComplete?: (content: string) => void;
 }
 
 interface UseStreamingChatReturn {
@@ -50,7 +51,7 @@ function parseSSELines(lines: string[], accumulated: { text: string }, setStream
   return false;
 }
 
-export function useStreamingChat({ conversationId, agentId, mode, pageContext }: UseStreamingChatOptions): UseStreamingChatReturn {
+export function useStreamingChat({ conversationId, agentId, mode, pageContext, onComplete }: UseStreamingChatOptions): UseStreamingChatReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -131,6 +132,9 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext }:
       }
 
       queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
+      if (onComplete && accumulated.text) {
+        onComplete(accumulated.text);
+      }
     } catch (err: any) {
       if (err.name === 'AbortError') {
         queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
@@ -141,10 +145,11 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext }:
       setLastFailedContent(content);
     } finally {
       setIsStreaming(false);
+      setStreamingContent('');
       setStatusMessage(null);
       abortRef.current = null;
     }
-  }, [conversationId, agentId, mode, pageContext]);
+  }, [conversationId, agentId, mode, pageContext, onComplete]);
 
   const retry = useCallback(() => {
     if (lastFailedContent) {
