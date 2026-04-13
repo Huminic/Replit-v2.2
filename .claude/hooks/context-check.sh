@@ -123,19 +123,24 @@ print(f'SPRINT:{sid}|STEP:{step_num}|ACTION:{action}|GHOST:{is_ghost}')
       STEP_NUM=$(echo "$SPRINT_INFO" | grep -oP 'STEP:\K[^|]+')
       ACTION=$(echo "$SPRINT_INFO" | grep -oP 'ACTION:\K[^|]+')
       echo "Sprint: $SPRINT_ID — Step $STEP_NUM: $ACTION (GHOST GATE)"
-      # Allow reads and Agent dispatch (Captain dispatches Ghost for verification)
-      IS_AGENT_DISPATCH=0
-      if [ "$TOOL_NAME" = "Agent" ]; then IS_AGENT_DISPATCH=1; fi
-      if [ "$IS_READ_ONLY" -eq 0 ] && [ "$IS_AGENT_DISPATCH" -eq 0 ]; then
-        # Check if phase verification file exists for this step
-        PHASE_FILE="$APP_DIR/evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md"
-        if [ -f "$PHASE_FILE" ] && grep -q "PHASE VERIFIED" "$PHASE_FILE" 2>/dev/null; then
-          echo "Phase $STEP_NUM verification found — proceed"
-        else
-          echo "WARNING: Ghost gate (step $STEP_NUM) pending. Phase verification file missing." >&2
-          echo "Expected: evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md with 'PHASE VERIFIED'" >&2
-          echo "Dispatch Ghost to verify. Allowing Agent dispatch to proceed." >&2
-        fi
+      # Check if phase verification file exists for this step
+      PHASE_FILE="$APP_DIR/evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md"
+      if [ -f "$PHASE_FILE" ] && grep -q "PHASE VERIFIED" "$PHASE_FILE" 2>/dev/null; then
+        echo "Phase $STEP_NUM verification found — proceed"
+      elif [ "$IS_READ_ONLY" -eq 1 ]; then
+        # Read/Glob/Grep — warn but allow
+        echo "WARNING: Ghost gate (step $STEP_NUM) pending. Phase verification file missing." >&2
+        echo "Expected: evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md with 'PHASE VERIFIED'" >&2
+      elif [ "$TOOL_NAME" = "Bash" ]; then
+        # Bash — warn but allow (git, npm, investigation commands)
+        echo "WARNING: Ghost gate (step $STEP_NUM) pending. Phase verification file missing." >&2
+        echo "Expected: evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md with 'PHASE VERIFIED'" >&2
+      else
+        # Edit, Write, Agent — hard block
+        echo "BLOCKED: Ghost gate (step $STEP_NUM) not cleared. Cannot proceed with $TOOL_NAME." >&2
+        echo "Expected: evidence/$SPRINT_ID/phase-${STEP_NUM}-verification.md with 'PHASE VERIFIED'" >&2
+        echo "--- END CONTEXT CHECK ---"
+        exit 2
       fi
       ;;
     *)
@@ -165,9 +170,20 @@ except:
     print('no')
 " 2>/dev/null)
         if [ "$PREV_IS_GHOST" = "yes" ] && [ ! -f "$PREV_PHASE_FILE" ]; then
-          if [ "$IS_READ_ONLY" -eq 0 ]; then
+          if [ "$IS_READ_ONLY" -eq 1 ]; then
+            # Read/Glob/Grep — warn but allow
             echo "WARNING: Previous step $PREV_STEP was a Ghost gate but no phase-${PREV_STEP}-verification.md found." >&2
             echo "Dispatch Ghost to verify step $PREV_STEP before continuing." >&2
+          elif [ "$TOOL_NAME" = "Bash" ]; then
+            # Bash — warn but allow (git, npm, investigation commands)
+            echo "WARNING: Previous step $PREV_STEP was a Ghost gate but no phase-${PREV_STEP}-verification.md found." >&2
+            echo "Dispatch Ghost to verify step $PREV_STEP before continuing." >&2
+          else
+            # Edit, Write, Agent — hard block
+            echo "BLOCKED: Previous Ghost gate (step $PREV_STEP) not cleared. Cannot proceed with $TOOL_NAME." >&2
+            echo "Expected: evidence/$SPRINT_ID/phase-${PREV_STEP}-verification.md with 'PHASE VERIFIED'" >&2
+            echo "--- END CONTEXT CHECK ---"
+            exit 2
           fi
         fi
       fi

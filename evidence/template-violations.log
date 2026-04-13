@@ -231,3 +231,5 @@
   - Missing: ## Test Plan section
   - Missing (exact): **Sprint:** header
   - Missing (exact): **Date:** header
+[2026-04-13T17:30:35Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LAUNCH-P0-CLEANUP/enforcer-checklist.txt template=enforcer
+  - Missing: Role field

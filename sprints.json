@@ -8403,7 +8403,32 @@
                   "filesModified": [],
                   "uiPermissions": "NONE",
                   "dependsOn": [],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "completed",
+                              "timestamp": "2026-04-13T12:00:00Z"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Commit demo backlog + fix hooks",
+                              "status": "completed",
+                              "timestamp": "2026-04-13T12:30:00Z"
+                        },
+                        {
+                              "step": 2,
+                              "action": "Harden permissions + ghost gates",
+                              "status": "completed",
+                              "timestamp": "2026-04-13T17:30:00Z"
+                        },
+                        {
+                              "step": 3,
+                              "action": "GHOST VERIFY",
+                              "status": "completed",
+                              "timestamp": "2026-04-13T17:30:00Z"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8423,7 +8448,38 @@
                   "dependsOn": [
                         "LAUNCH-P0-CLEANUP"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Dispatch P1 recon agent (Software Ops)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "Dispatch P2 recon agent (Integrations)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 3,
+                              "action": "Dispatch P3 recon agent (E2E Workflows)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 4,
+                              "action": "Consolidate triage matrices + produce delta report",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 5,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8443,7 +8499,23 @@
                   "dependsOn": [
                         "LAUNCH-RECON-01"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Fix security items from triage matrix",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8463,7 +8535,23 @@
                   "dependsOn": [
                         "LAUNCH-FIX-W1"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Fix P1 slices: Chat, Teambox, Agents, Settings, Billing, Insights",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8483,7 +8571,23 @@
                   "dependsOn": [
                         "LAUNCH-FIX-W2"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Fix P2 slices: VIN, VAPI, Tavus, TextMagic, Resend",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8503,7 +8607,23 @@
                   "dependsOn": [
                         "LAUNCH-FIX-W3"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Close eval gaps identified in recon",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8523,7 +8643,48 @@
                   "dependsOn": [
                         "LAUNCH-FIX-W4"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Run P1 verification slices (6)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "Run P2 verification slices (6)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 3,
+                              "action": "Run P3 inbound flow slices (5)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 4,
+                              "action": "Run P3 campaign flow slices (7)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 5,
+                              "action": "Run P3 outbound trigger slices (6)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 6,
+                              "action": "Run P3 observability slices (4)",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 7,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8543,7 +8704,33 @@
                   "dependsOn": [
                         "LAUNCH-AUTOTEST-01"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Interactive SMS test with operator phones",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "Interactive email test with operator email",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 3,
+                              "action": "Interactive campaign test with operator phones",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 4,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             },
             {
@@ -8563,7 +8750,23 @@
                   "dependsOn": [
                         "LAUNCH-INTERACTIVE-01"
                   ],
-                  "executionSteps": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Produce launch decision matrix",
+                              "status": "pending"
+                        },
+                        {
+                              "step": 2,
+                              "action": "GHOST VERIFY",
+                              "status": "pending"
+                        }
+                  ],
                   "registeredAt": "2026-04-13T12:00:00Z"
             }
       ]
