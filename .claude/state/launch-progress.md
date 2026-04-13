@@ -1,8 +1,8 @@
 # Launch Progress — 2026-04-13
 
-## Current Phase: 0 (completing)
-## Current Sprint: LAUNCH-P0-CLEANUP
-## Iteration: 0
+## Current Phase: 1 (Eval and Test Verification)
+## Current Sprint: LAUNCH-RECON-01
+## Iteration: 1
 
 ## Completed
 - [x] Demo backlog registered (14e6a28)
@@ -13,6 +13,11 @@
 - [x] Permissions hardened — orchestrator cannot write app code
 - [x] Ghost gates hardened — warnings changed to blocks
 - [x] Stop-hook installed
+- [x] Part 0: Harness fix — Bash bypass closed (2c6b065)
+- [x] Part 0: Orchestrator verified blocked from app code writes
+- [x] Part 1.1: DOM crawl checked — STALE (14 days, 16 UI commits since)
+- [x] Part 1.2-1.3: Test classification complete — 8 COVERED, 13 PARTIAL, 13 MISSING
+- [ ] Part 1.4-1.5: Upgrading partial tests + writing missing tests (in progress)
 - [ ] plan.md created
 - [ ] executionSteps added to launch sprints
 - [ ] Phase 0 closed
@@ -28,4 +33,4 @@
 - Triggers: DISABLED for Serra Honda pending bug fixes (I-272, I-273, I-274)
 
 ## Next Action
-Create plan.md, add executionSteps to sprints, close Phase 0, begin Phase 1 recon
+Waiting for test upgrade agents to complete, then run baseline test suite

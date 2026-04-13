@@ -231,6 +231,7 @@ test.describe("Domain 3: Chat & AI Agents", () => {
     expect(listRes.ok()).toBe(true);
     const agents = await listRes.json();
     expect(Array.isArray(agents)).toBe(true);
+    const agentCountBefore = agents.length;
 
     // POST — create agent (requires role level 3+ and entitlement)
     const createRes = await request.post("/api/agents", {
@@ -250,6 +251,16 @@ test.describe("Domain 3: Chat & AI Agents", () => {
       expect(created.id).toBeDefined();
       expect(created.name).toBe("E2E Test Agent");
 
+      // Verify the created agent appears in the agent list
+      const listAfterCreate = await request.get("/api/agents", {
+        headers: authHeader(adminAuth.token),
+      });
+      expect(listAfterCreate.ok()).toBe(true);
+      const agentsAfterCreate = await listAfterCreate.json();
+      const foundInList = agentsAfterCreate.some((a: any) => a.id === created.id && a.name === "E2E Test Agent");
+      expect(foundInList, "Newly created agent should appear in agent list").toBe(true);
+      expect(agentsAfterCreate.length, "Agent count should increase after creation").toBeGreaterThan(agentCountBefore);
+
       // PATCH — update agent
       const patchRes = await request.patch(`/api/agents/${created.id}`, {
         headers: authHeader(adminAuth.token),
@@ -257,11 +268,30 @@ test.describe("Domain 3: Chat & AI Agents", () => {
       });
       expect(patchRes.ok()).toBe(true);
 
+      // Verify the update persisted by re-fetching the agent list
+      const listAfterPatch = await request.get("/api/agents", {
+        headers: authHeader(adminAuth.token),
+      });
+      expect(listAfterPatch.ok()).toBe(true);
+      const agentsAfterPatch = await listAfterPatch.json();
+      const updatedAgent = agentsAfterPatch.find((a: any) => a.id === created.id);
+      expect(updatedAgent, "Updated agent should still exist in list").toBeTruthy();
+      expect(updatedAgent.description, "Agent description should reflect the update").toBe("Updated by e2e test");
+
       // DELETE — cleanup
       const deleteRes = await request.delete(`/api/agents/${created.id}`, {
         headers: authHeader(adminAuth.token),
       });
       expect(deleteRes.ok()).toBe(true);
+
+      // Verify the agent is gone after deletion
+      const listAfterDelete = await request.get("/api/agents", {
+        headers: authHeader(adminAuth.token),
+      });
+      expect(listAfterDelete.ok()).toBe(true);
+      const agentsAfterDelete = await listAfterDelete.json();
+      const stillExists = agentsAfterDelete.some((a: any) => a.id === created.id);
+      expect(stillExists, "Deleted agent should not appear in agent list").toBe(false);
     } else {
       // May fail due to entitlement limits — that is acceptable, verify it returns a proper error
       expect(createRes.status()).toBeLessThan(500);

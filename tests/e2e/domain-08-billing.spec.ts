@@ -1,10 +1,10 @@
 import { test, expect } from "playwright/test";
-import { testUsers, loginForBrowser } from "./helpers/auth";
+import { testUsers, login, authHeader, loginForBrowser } from "./helpers/auth";
 
 const BASE = "http://localhost:5000";
 
 test.describe("Domain 8: Billing", () => {
-  test("8.1 Billing pages load", async ({ browser }) => {
+  test("8.1 Billing pages load without crash and show real content", async ({ browser }) => {
     const context = await browser.newContext({ baseURL: BASE });
     const page = await context.newPage();
 
@@ -12,12 +12,48 @@ test.describe("Domain 8: Billing", () => {
     page.on("pageerror", (err) => errors.push(err.message));
 
     await loginForBrowser(page, testUsers.superAdmin, "/settings/billing");
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
 
     // Page should load without crashing
     expect(errors).toHaveLength(0);
 
+    // Verify the billing page shows meaningful content (not a blank page or crash screen)
+    const pageText = await page.textContent("body");
+    const hasBillingContent =
+      /billing|usage|plan|invoice|wallet|subscription|entitlement|not configured|no billing/i.test(pageText || "");
+    expect(hasBillingContent, "Billing page should show billing content or a 'not configured' message, not a blank/crash screen").toBe(true);
+
+    // Verify no "error" or "500" crash message is displayed
+    const hasCrash = /internal server error|500|something went wrong|unexpected error/i.test(pageText || "");
+    expect(hasCrash, "Billing page should not display a crash/error message").toBe(false);
+
     await page.close();
+  });
+
+  test("8.1b Billing API responds (FlexPrice/Lago connectivity)", async ({ request }) => {
+    // Test billing API endpoint to verify backend connectivity
+    const session = await login(request, testUsers.superAdmin);
+
+    const summaryRes = await request.get(`${BASE}/api/billing/summary`, {
+      headers: authHeader(session.token),
+    });
+
+    // Billing API should respond — 200 if FlexPrice connected, or a controlled error (not 500)
+    if (summaryRes.ok()) {
+      const data = await summaryRes.json();
+      // If connected, should return billing data structure
+      expect(data).toBeTruthy();
+      console.log("  Billing API: connected, returned data");
+    } else if (summaryRes.status() === 503 || summaryRes.status() === 502) {
+      // FlexPrice/Lago MCP not responding — acceptable, but noted
+      test.info().annotations.push({
+        type: "note",
+        description: `Billing backend returned ${summaryRes.status()} — FlexPrice/Lago MCP may not be running`,
+      });
+    } else {
+      // Should not be a 500 crash
+      expect(summaryRes.status(), "Billing API should not crash with 500").not.toBe(500);
+    }
   });
 
   test("8.2 Connected to FlexPrice", async ({ browser }) => {

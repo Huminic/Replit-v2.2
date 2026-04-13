@@ -3543,3 +3543,9 @@
 [2026-04-13T17:32:55Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
 [2026-04-13T17:34:12Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
 [2026-04-13T17:34:27Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-13T17:35:38Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-173523)
+[2026-04-13T18:06:59Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-13T18:07:34Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-180719)
+[2026-04-13T18:09:08Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-180852)
+[2026-04-13T18:09:52Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-180937)
+[2026-04-13T18:10:34Z] Previous ack (WD-20260413-173124) invalidated by new report (WD-20260413-181019)
