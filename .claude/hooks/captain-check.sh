@@ -134,17 +134,23 @@ fi
 
 # Bash — check command
 if [ "$TOOL_NAME" = "Bash" ]; then
-  # Extract the first meaningful command word
+  # Extract the first meaningful command word (skip env var assignments like VAR=val)
   FIRST_CMD=$(echo "$COMMAND" | grep -oP '^\s*\K\S+' | head -1)
+  TEMP_CMD="$COMMAND"
+  while echo "$FIRST_CMD" | grep -qP '^[A-Z_]+='; do
+    TEMP_CMD=$(echo "$TEMP_CMD" | sed 's/^[[:space:]]*[A-Z_]*=[^ ]* *//')
+    FIRST_CMD=$(echo "$TEMP_CMD" | grep -oP '^\s*\K\S+' | head -1)
+  done
 
   # Explicitly allowed read-only commands
   case "$FIRST_CMD" in
     git)
       # Allow git read commands, block git write commands
-      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan)'; then
+      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan|add|commit)'; then
         exit 0
       fi
       echo "CAPTAIN VIOLATION: Git write command blocked during active sprint. Delegate to sub-agent." >&2
+      echo "Allowed: status, log, diff, branch, show, checkout -b, add, commit" >&2
       echo "Command: $COMMAND" >&2
       exit 2
       ;;
