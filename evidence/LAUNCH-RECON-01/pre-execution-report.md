@@ -13,6 +13,9 @@ Phase 1 -- Reconnaissance and Gap Evaluation. Dispatch recon agents across three
 - evidence/watchdog-report.txt (watchdog report updates)
 - client/src/hooks/useStreamingChat.ts (fix streaming race condition I-277)
 - client/src/pages/main.tsx (fix handleStreamComplete callback I-277)
+- server/routes/sms.ts (I-271 TextMagic delivery webhook fix)
+- server/services/triggerService.ts (I-272 TCPA bypass, I-273 dedup tag, I-274 test whitelist)
+- plan.md (execution pattern update)
 
 ## UI Changes
 NONE -- uiPermissions is "NONE"

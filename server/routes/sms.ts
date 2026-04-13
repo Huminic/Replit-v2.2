@@ -66,6 +66,16 @@ export function registerSmsRoutes(app: Express) {
     const ip = req.ip || req.socket.remoteAddress || "unknown";
     if (!checkPublicRate(ip, 30)) return res.status(429).json({ message: "Too many requests" });
     try {
+      // Detect delivery notification (DLR) payloads — these have status/messageId but no sender/text
+      const body = req.body;
+      const isDeliveryNotification = body.status || body.messageId || body.id;
+      if (isDeliveryNotification && !body.sender && !body.text) {
+        // Log the delivery status for debugging
+        console.log(`[TextMagic] Delivery notification received: messageId=${body.messageId || body.id}, status=${body.status}`);
+        // Return 200 to acknowledge — TextMagic will stop retrying
+        return res.status(200).json({ received: true, type: "delivery_notification" });
+      }
+
       const { sender, text: messageText, receiver } = req.body;
       const phone = typeof sender === "string" ? sender : String(sender || "");
       const content = typeof messageText === "string" ? messageText : String(messageText || "");
