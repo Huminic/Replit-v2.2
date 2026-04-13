@@ -3595,3 +3595,5 @@
 [2026-04-13T21:29:31Z] ALERT: C8 ORPHAN_EVIDENCE unknown-sprint has evidence but is not in sprints.json
 [2026-04-13T21:29:42Z] Previous ack (WD-20260413-212847) invalidated by new report (WD-20260413-212924)
 [2026-04-13T21:29:49Z] Previous ack (WD-20260413-212847) invalidated by new report (WD-20260413-212932)
+[2026-04-13T21:32:25Z] Previous ack (WD-20260413-212847) invalidated by new report (WD-20260413-213207)
+[2026-04-13T21:32:26Z] Previous ack (WD-20260413-212847) invalidated by new report (WD-20260413-213209)

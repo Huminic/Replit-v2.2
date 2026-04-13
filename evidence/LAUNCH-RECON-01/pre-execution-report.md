@@ -26,6 +26,7 @@ Phase 1 -- Reconnaissance and Gap Evaluation. Dispatch recon agents across three
 - client/src/pages/service.tsx (I-268 service page no fallback to zero)
 - server/routes/users.ts (I-235 email kill switch — OUTBOUND_LIVE_ENABLED check)
 - server/routes/organizations.ts (partner org creation — partnerId auto-set)
+- public/widget-test.html (widget embed test page for dealer verification)
 
 ## UI Changes
 NONE -- uiPermissions is "NONE"
