@@ -142,6 +142,13 @@ if [ "$TOOL_NAME" = "Bash" ]; then
     FIRST_CMD=$(echo "$TEMP_CMD" | grep -oP '^\s*\K\S+' | head -1)
   done
 
+  # Block Bash commands that redirect output to app code directories
+  if echo "$COMMAND" | grep -qP '>\s*(server/|client/|shared/|tests/)'; then
+    echo "CAPTAIN VIOLATION: Bash redirect to app code directory blocked. Delegate to sub-agent." >&2
+    echo "Command: $COMMAND" >&2
+    exit 2
+  fi
+
   # Explicitly allowed read-only commands
   case "$FIRST_CMD" in
     git)
@@ -184,7 +191,16 @@ if [ "$TOOL_NAME" = "Bash" ]; then
       echo "Command: $COMMAND" >&2
       exit 2
       ;;
-    npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)
+    bash)
+      # Allow governance scripts only
+      if echo "$COMMAND" | grep -qP 'bash\s+scripts/(watchdog|enforcer-checklist|check-file-scope)\.sh'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: bash command blocked during active sprint (only governance scripts allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    npx|npm|node|pm2|docker|sed|awk|perl|tee|dd|install|patch)
       echo "CAPTAIN VIOLATION: Execution command blocked during active sprint. Delegate to sub-agent." >&2
       echo "Command: $COMMAND" >&2
       exit 2
