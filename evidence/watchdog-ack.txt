@@ -6,5 +6,7 @@ Violations-Reviewed:
   C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints S0-S18, VFY-01-05, FIX-01, G-004, etc.), tracked in backlog; recent sprints (SNP-*, EMG-*, LAUNCH-STABILIZE) have partial artifacts — will be completed in launch sprints
   C3: Pre-existing — older cross-signs with non-APPROVED verdicts (M-002, M-003 reconciliation; PE-AI-CHAT-03, R-015, R-016, T-019 missing fields), tracked in backlog
   C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016, T-019), tracked in backlog
+  C14: Intentional — scripts/enforcer-checklist.sh has staged changes as part of LAUNCH-P0-CLEANUP governance fix (adding completed/registered to EF-12 vocabulary). Operator-approved 2026-04-13.
   C16: Pre-existing — known drift between sprints.json commit hashes and git log (null hashes from legacy registry migration), tracked in backlog
-Disposition: PROCEED — all violations are pre-existing/tracked; this commit consolidates LAUNCH-STABILIZE WIP work and parks the sprint for replacement by 9 specific launch sprints
+  C19: Known — LAUNCH-P0-CLEANUP pre-exec has 0 success criteria because this is a governance-fix sprint with no testable application changes. ACs are tracked in sprints.json.
+Disposition: PROCEED — C14 and C19 are intentional governance fixes approved by operator; all other violations are pre-existing/tracked

@@ -8393,7 +8393,7 @@
                   "category": "Launch",
                   "name": "Phase 0 \u2014 Clear the Deck",
                   "phase": "qa_resolve_loop",
-                  "status": "registered",
+                  "status": "in_progress",
                   "operatorApproval": true,
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 0",
                   "causedBy": "launch",

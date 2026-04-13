@@ -3522,3 +3522,12 @@
 [2026-04-13T16:11:19Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-161102)
 [2026-04-13T16:11:49Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-161131)
 [2026-04-13T16:12:23Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-161205)
+[2026-04-13T16:13:28Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-161307)
+[2026-04-13T16:14:31Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-13T16:17:48Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/enforcer-checklist.sh (MOVED_TO)
+[2026-04-13T16:20:50Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-162035)
+[2026-04-13T16:21:23Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.4022179.1776097283751 has evidence but is not in sprints.json
+[2026-04-13T16:21:23Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-13T16:21:52Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-162137)
+[2026-04-13T16:24:32Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-162408)
+[2026-04-13T16:25:32Z] Previous ack (WD-20260413-160417) invalidated by new report (WD-20260413-162514)
