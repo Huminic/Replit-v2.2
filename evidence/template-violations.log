@@ -233,3 +233,6 @@
   - Missing (exact): **Date:** header
 [2026-04-13T17:30:35Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LAUNCH-P0-CLEANUP/enforcer-checklist.txt template=enforcer
   - Missing: Role field
+[2026-04-13T17:34:27Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LAUNCH-RECON-01/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Sprint:** header
+  - Missing (exact): **Date:** header

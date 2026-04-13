@@ -8393,7 +8393,7 @@
                   "category": "Launch",
                   "name": "Phase 0 \u2014 Clear the Deck",
                   "phase": "qa_resolve_loop",
-                  "status": "in_progress",
+                  "status": "committed",
                   "operatorApproval": true,
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 0",
                   "causedBy": "launch",
@@ -8436,7 +8436,7 @@
                   "category": "Launch",
                   "name": "Phase 1 \u2014 Reconnaissance and Gap Evaluation",
                   "phase": "qa_resolve_loop",
-                  "status": "planned",
+                  "status": "in_progress",
                   "operatorApproval": true,
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 1",
                   "causedBy": "launch",
@@ -8452,31 +8452,38 @@
                         {
                               "step": 0,
                               "action": "PRE-FLIGHT",
-                              "status": "pending"
+                              "type": "governance",
+                              "status": "completed",
+                              "timestamp": "2026-04-13T17:33:00Z"
                         },
                         {
                               "step": 1,
                               "action": "Dispatch P1 recon agent (Software Ops)",
+                              "type": "infrastructure",
                               "status": "pending"
                         },
                         {
                               "step": 2,
                               "action": "Dispatch P2 recon agent (Integrations)",
+                              "type": "infrastructure",
                               "status": "pending"
                         },
                         {
                               "step": 3,
                               "action": "Dispatch P3 recon agent (E2E Workflows)",
+                              "type": "infrastructure",
                               "status": "pending"
                         },
                         {
                               "step": 4,
                               "action": "Consolidate triage matrices + produce delta report",
+                              "type": "infrastructure",
                               "status": "pending"
                         },
                         {
                               "step": 5,
                               "action": "GHOST VERIFY",
+                              "type": "governance",
                               "status": "pending"
                         }
                   ],
