@@ -1,0 +1,110 @@
+=== Enforcer Compliance Checklist — Production Eval (Observation Mode) ===
+Sprint: PE-{ID}
+Timestamp: {ISO-8601}
+Mode: OBSERVATION (no code changes)
+
+--- Evidence Quality Checks ---
+
+[EQ-01] Pre-execution-report.md exists with all required sections
+  [ ] Objective
+  [ ] Scope (section, subsection, included/excluded flows)
+  [ ] Declared Files
+  [ ] Section / Page Function Map
+  [ ] Use Case Inventory
+  [ ] Acceptance Matrix
+  [ ] Evidence Plan
+  [ ] Bug Handling Plan
+  [ ] Action Boundary Review
+  Result: [PASS] / [FAIL]
+
+[EQ-02] Ghost Entry Gate APPROVED exists in pre-execution-report.md
+  Verified: grep "ENTRY GATE: APPROVED" evidence/PE-{ID}/pre-execution-report.md
+  Result: [PASS] / [FAIL]
+
+[EQ-03] Every executed flow has evidence AND commentary
+  Flows executed: {N}
+  Flows with evidence: {N}
+  Flows with commentary: {N}
+  Flows with result status: {N}
+  Missing: {list or "none"}
+  Result: [PASS] / [FAIL]
+
+[EQ-04] Evidence tiers meet rubric requirements
+  Bronze flows: {N} (required: Bronze)
+  Silver flows: {N} (required: Silver)
+  Gold flows: {N} (required: Gold)
+  Platinum flows: {N} (required: Platinum)
+  Tier violations: {list or "none"}
+  Result: [PASS] / [FAIL]
+
+[EQ-05] Data plausibility checks documented for all metric/data-heavy flows
+  Data-heavy flows identified: {N}
+  Plausibility checks documented: {N}
+  Missing: {list or "none"}
+  Result: [PASS] / [FAIL]
+
+[EQ-06] False-pass detection actively performed
+  False-pass conditions checked: {N}
+  False passes found: {N}
+  False passes classified: {N}
+  Result: [PASS] / [FAIL]
+
+[EQ-07] Bug log complete with required fields
+  Bugs found: {N}
+  Bugs with severity: {N}
+  Bugs with type: {N}
+  Bugs with false-pass class (where applicable): {N}
+  Bugs with evidence links: {N}
+  Result: [PASS] / [FAIL]
+
+[EQ-08] Post-sprint-report.md exists with all required sections
+  [ ] AC Results table
+  [ ] Executed Flow Summary table
+  [ ] Bug Summary table
+  [ ] Remediation Summary (or "No remediation authorized")
+  [ ] Evidence Gaps
+  [ ] Confidence Assessment (4 dimensions)
+  [ ] Recommendation (Go / No-Go / Continue)
+  [ ] Recommended next sprint
+  Result: [PASS] / [FAIL]
+
+[EQ-09] Evidence index maps every artifact to sprint ID, use case ID, and AC
+  Artifacts indexed: {N}
+  Unmapped artifacts: {N}
+  Result: [PASS] / [FAIL]
+
+[EQ-10] No code changes were made (observation mode)
+  Application files staged: {count}
+  Expected: 0
+  Result: [PASS] / [FAIL]
+
+--- Governance Checks ---
+
+[GV-01] Sprint registered in sprints.json
+  Result: [PASS] / [FAIL]
+
+[GV-02] ghost_messages.json clear (empty messages array)
+  Result: [PASS] / [FAIL]
+
+[GV-03] Watchdog violations acknowledged (if any exist)
+  Violations: {N}
+  Acknowledged: {Y/N or N/A}
+  Result: [PASS] / [FAIL]
+
+[GV-04] One sprint at a time — no other PE sprint in_progress
+  Result: [PASS] / [FAIL]
+
+[GV-05] Cross-sign.md exists with different reviewing role
+  Implementing: {role}
+  Reviewing: {role}
+  Verdict: {approved/rejected}
+  Result: [PASS] / [FAIL]
+
+=== SUMMARY ===
+PASS: {N}
+FAIL: {N}
+WARN: {N}
+
+RESULT: APPROVED — all checks pass
+(or)
+RESULT: BLOCKED — {reason}

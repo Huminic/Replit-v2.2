@@ -2,6 +2,7 @@ import { QueryClient, QueryCache, QueryFunction } from "@tanstack/react-query";
 import { getAccessToken, setAccessToken, clearAccessToken } from "./tokenStore";
 
 let refreshPromise: Promise<boolean> | null = null;
+let refreshPromiseExpiry: number = 0;
 
 function getAuthHeaders(extra?: Record<string, string>): Record<string, string> {
   const headers: Record<string, string> = { ...extra };
@@ -22,8 +23,8 @@ function handleUnauthorized() {
   }
 }
 
-async function tryRefreshToken(): Promise<boolean> {
-  if (refreshPromise) return refreshPromise;
+export async function tryRefreshToken(): Promise<boolean> {
+  if (refreshPromise && Date.now() < refreshPromiseExpiry) return refreshPromise;
 
   refreshPromise = (async () => {
     try {
@@ -44,11 +45,16 @@ async function tryRefreshToken(): Promise<boolean> {
     }
   })();
 
-  try {
-    return await refreshPromise;
-  } finally {
+  refreshPromiseExpiry = Date.now() + 30000; // far future while in-flight
+  refreshPromise.then(() => {
+    refreshPromiseExpiry = Date.now() + 2000; // 2s grace after completion
+    setTimeout(() => { refreshPromise = null; }, 2000);
+  }).catch(() => {
     refreshPromise = null;
-  }
+    refreshPromiseExpiry = 0;
+  });
+
+  return refreshPromise;
 }
 
 async function fetchWithAutoRefresh(url: string, init: RequestInit): Promise<Response> {

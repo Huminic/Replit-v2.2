@@ -159,9 +159,13 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const [autoDismissDays, setAutoDismissDays] = useState(7);
   const { toast } = useToast();
 
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery<any>({
+  const { data: dashboardData, isLoading: dashboardLoading, dataUpdatedAt } = useQuery<any>({
     queryKey: [dashboardUrl],
   });
+
+  const lastUpdatedTime = dataUpdatedAt
+    ? new Date(dataUpdatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    : '—';
 
   const { data: reportsData, isLoading: reportsLoading } = useQuery<any>({
     queryKey: [reportsUrl],
@@ -177,6 +181,10 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   });
 
   const libraryMetrics = libraryMetricsData || [];
+
+  const { data: activityLogData, isLoading: activityLoading } = useQuery<any[]>({
+    queryKey: ['/api/activity-log?limit=50'],
+  });
 
   const { data: hunchesRaw } = useQuery<any[]>({
     queryKey: ['/api/hunches'],
@@ -196,7 +204,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const showroomNotClosed = dashboardData?.redZone?.showroomNotClosed || [];
 
   const yellowZoneData = {
-    staleLeads: { label: 'Stale Leads (>7 days)', count: dashboardData?.yellowZone?.staleLeads || 0, avgAge: 14 },
+    staleLeads: { label: 'Stale Leads (>7 days)', count: dashboardData?.yellowZone?.staleLeads || 0, avgAge: dashboardData?.yellowZone?.staleLeadsAvgAge ?? 14 },
     pendingFinance: { label: 'Pending Finance', count: dashboardData?.yellowZone?.pendingFinance || 0, overFiveDays: 0 },
   };
 
@@ -245,7 +253,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
   const scorecardConversionMetrics: { id: string; label: string; value: string; sparkline: number[]; trend: 'up' | 'down' | 'neutral'; change: string }[] = [
     { id: 'sc-1', label: 'Win Rate', value: `${convRate}%`, sparkline: [convRate], trend: 'neutral', change: '' },
     { id: 'sc-2', label: 'Total Sold', value: `${soldCount}`, sparkline: [soldCount], trend: soldCount > 0 ? 'up' : 'neutral', change: '' },
-    { id: 'sc-3', label: 'Hot Leads', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' : 'neutral', change: '' },
+    { id: 'sc-3', label: 'Active Leads', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' : 'neutral', change: '' },
     { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' : 'neutral', change: '' },
   ];
 
@@ -501,7 +509,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 rounded-full bg-red-500" />
             <h2 className="text-sm font-semibold text-foreground">Immediate Action Required</h2>
-            <span className="text-[11px] text-muted-foreground ml-auto">Last updated: 8:45 AM</span>
+            <span className="text-[11px] text-muted-foreground ml-auto">Last updated: {lastUpdatedTime}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Card className="border-red-500/20 hover-elevate cursor-pointer" onClick={() => setDrillDown('hotLeads')} data-testid="card-hot-leads">
@@ -570,7 +578,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-muted-foreground">{yellowZoneData.staleLeads.label}</p>
                     <p className="text-2xl font-bold text-foreground">{yellowZoneData.staleLeads.count}</p>
-                    <p className="text-[11px] text-muted-foreground">Avg Age: {yellowZoneData.staleLeads.avgAge} days</p>
+                    <p className="text-[11px] text-muted-foreground">Avg Age: {yellowZoneData.staleLeads.count > 0 ? `${yellowZoneData.staleLeads.avgAge} days` : '—'}</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleExport('CSV'); }} data-testid="button-export-stale">
                     <Download className="h-3.5 w-3.5 mr-1" /> CSV
@@ -1571,13 +1579,53 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
 
         <TabsContent value="activity" className="flex-1 min-h-0 m-0 overflow-hidden data-[state=inactive]:hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-6">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" data-testid="activity-empty-state">
-                <Activity className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                <p className="text-xs text-blue-700 dark:text-blue-400">
-                  Activity tracking coming soon. This tab will show real-time dealership activity, user actions, and system events.
-                </p>
-              </div>
+            <div className="p-4 space-y-6" data-testid="activity-feed">
+              {activityLoading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                      <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  ))}
+                </div>
+              ) : !activityLogData || activityLogData.length === 0 ? (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" data-testid="activity-empty-state">
+                  <Activity className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                  <p className="text-xs text-blue-700 dark:text-blue-400">
+                    No activity recorded yet. Activity will appear here as actions occur across the dealership.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {activityLogData.map((item: any, idx: number) => {
+                    const actionLabel = (item.action || '').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+                    const detail = item.metadata?.campaignName || item.metadata?.senderPhone || item.metadata?.targetName || item.metadata?.detail || '';
+                    const IconComponent = item.action?.includes('phone') || item.action?.includes('call') ? Phone
+                      : item.action?.includes('campaign') ? Target
+                      : item.action?.includes('alert') || item.action?.includes('error') ? AlertCircle
+                      : Activity;
+                    return (
+                      <div key={item.id || idx} className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors" data-testid={`activity-item-${idx}`}>
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <IconComponent className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{actionLabel}</p>
+                          {detail && <p className="text-xs text-muted-foreground truncate">{detail}</p>}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {item.createdAt ? new Date(item.createdAt).toLocaleString() : ''}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
@@ -1844,7 +1892,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
               </div>
               <div className="flex justify-between items-center mt-2">
                 <span className="text-sm text-muted-foreground">Average age</span>
-                <span className="text-lg font-semibold text-foreground">{yellowZoneData.staleLeads.avgAge} days</span>
+                <span className="text-lg font-semibold text-foreground">{yellowZoneData.staleLeads.count > 0 ? `${yellowZoneData.staleLeads.avgAge} days` : '—'}</span>
               </div>
             </div>
             <Button className="w-full" variant="outline" onClick={() => handleExport('CSV')} data-testid="button-export-stale-detail">

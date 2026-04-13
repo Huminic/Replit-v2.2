@@ -21,8 +21,8 @@
  *
  */
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Ban, Loader2, Settings, Play, Square, Eye, X } from 'lucide-react';
+import { useLocation, useSearch } from 'wouter';
+import { Bot, BarChart3, Calendar as CalendarIcon, Megaphone, MessageSquare, CalendarCheck, ThumbsDown, DollarSign, Upload, Download, Power, PowerOff, Loader2, Settings, Play, Square, Eye } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { cn } from '@/lib/utils';
@@ -81,19 +81,19 @@ const campaignStatusColors: Record<string, string> = {
 
 export default function ServicePage() {
   const [currentLocation, setLocation] = useLocation();
+  const searchString = useSearch();
   const { communicationGateEnabled, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const orgId = currentOrganization?.id;
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('campaigns');
-  const [campaignSafetyDismissed, setCampaignSafetyDismissed] = useState(() => localStorage.getItem('campaign-safety-dismissed') === 'true');
 
   // Sync activeTab from URL ?tab= parameter (used by submenu navigation links)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
-  }, [currentLocation]);
+  }, [currentLocation, searchString]);
   const [selectedMetric, setSelectedMetric] = useState<ServiceMetricTile | null>(null);
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
@@ -101,13 +101,15 @@ export default function ServicePage() {
   });
 
   const serviceStats = metrics?.campaignStats?.byDepartment?.service;
+  // I-268: Show only service-department metrics. Don't fall back to cross-department totals.
+  const hasServiceData = !!serviceStats;
   const serviceMetrics: ServiceMetricTile[] = [
-    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), icon: Megaphone },
-    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), icon: MessageSquare },
-    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: MessageSquare },
+    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? 0), icon: Megaphone },
+    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? 0), icon: MessageSquare },
+    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? 0), icon: MessageSquare },
     { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), icon: CalendarCheck },
     { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), icon: ThumbsDown },
-    { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, icon: DollarSign },
+    { id: 'svm-6', label: 'Reply Rate', value: hasServiceData ? `${serviceStats?.replyRate ?? 0}%` : '\u2014', icon: DollarSign },
   ];
 
   const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
@@ -121,6 +123,17 @@ export default function ServicePage() {
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [csvUploadCampaignId, setCsvUploadCampaignId] = useState<string | null>(null);
   const [selectedCampaign, setSelectedCampaign] = useState<APICampaign | null>(null);
+
+  // Fetch recipients when campaign detail dialog is open
+  const { data: campaignRecipients = [], isLoading: recipientsLoading } = useQuery<Array<{
+    id: string; firstName: string | null; lastName: string | null;
+    phone: string | null; email: string | null; status: string | null;
+    sentAt: string | null; deliveredAt: string | null;
+  }>>({
+    queryKey: [`/api/campaigns/${selectedCampaign?.id}/recipients`],
+    enabled: !!selectedCampaign?.id,
+  });
+
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState('');
   const [newCampaignChannels, setNewCampaignChannels] = useState<string[]>(['sms']);
@@ -204,11 +217,12 @@ export default function ServicePage() {
 
   const { data: executionStatuses = {} } = useQuery<Record<string, { campaignId: string; status: string; totalRecipients: number; processed: number; sent: number; blocked: number; failed: number; dryRun: boolean }>>({
     queryKey: ['/api/campaigns/execution-statuses', orgId],
-    refetchInterval: 3000,
+    refetchInterval: 15000,
   });
 
   const [scheduleDialogCampaignId, setScheduleDialogCampaignId] = useState<string | null>(null);
   const [scheduleDateTime, setScheduleDateTime] = useState('');
+  const [executeConfirmCampaignId, setExecuteConfirmCampaignId] = useState<string | null>(null);
 
   const executeMutation = useMutation({
     mutationFn: async ({ id, dryRun, scheduledAt }: { id: string; dryRun: boolean; scheduledAt?: string }) => {
@@ -327,7 +341,6 @@ export default function ServicePage() {
    * Campaigns tab — campaign table with CSV upload info, status, channel,
    * recipient/sent/replied counts, and per-campaign kill switch toggle.
    * Shows "Communications Paused" destructive badge when global communication gate is OFF.
-   * Campaign Safety card at bottom explains kill switch behavior and per-conversation disconnect in TeamBox.
    */
   const renderCampaigns = () => (
     <div className="p-6 space-y-4">
@@ -407,9 +420,9 @@ export default function ServicePage() {
                 <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-center">
                     <Switch
-                      checked={!campaign.killSwitch}
-                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: !checked })}
-                      className="data-[state=unchecked]:bg-red-500"
+                      checked={campaign.killSwitch}
+                      onCheckedChange={(checked) => killSwitchMutation.mutate({ id: campaign.id, killSwitch: checked })}
+                      className="data-[state=checked]:bg-red-500"
                       data-testid={`switch-killswitch-${campaign.id}`}
                     />
                   </div>
@@ -450,7 +463,7 @@ export default function ServicePage() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => executeMutation.mutate({ id: campaign.id, dryRun: false })}
+                                    onClick={() => setExecuteConfirmCampaignId(campaign.id)}
                                     disabled={executeMutation.isPending || campaign.recipientCount === 0}
                                     data-testid={`button-start-campaign-${campaign.id}`}
                                   >
@@ -642,32 +655,41 @@ export default function ServicePage() {
         </DialogContent>
       </Dialog>
 
-      {!campaignSafetyDismissed && (
-      <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20" data-testid="card-campaign-safety">
-        <CardContent className="p-4 flex items-start gap-3">
-          <Ban className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Campaign Safety</p>
-            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-              Use the Kill Switch to immediately stop all outbound messages for a campaign.
-              Individual conversations can also be disconnected from campaigns in TeamBox.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
-            onClick={() => {
-              setCampaignSafetyDismissed(true);
-              localStorage.setItem('campaign-safety-dismissed', 'true');
-            }}
-            data-testid="button-dismiss-campaign-safety"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </CardContent>
-      </Card>
-      )}
+      {/* Execute Confirmation Dialog (SNP-PE3-SVC-01 safety fix) */}
+      <Dialog open={!!executeConfirmCampaignId} onOpenChange={(open) => { if (!open) setExecuteConfirmCampaignId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Execute Campaign?</DialogTitle>
+            <DialogDescription>
+              This will send real SMS messages to{' '}
+              {executeConfirmCampaignId
+                ? (serviceCampaigns.find(c => c.id === executeConfirmCampaignId)?.recipientCount ?? 0)
+                : 0}{' '}
+              recipients via TextMagic. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExecuteConfirmCampaignId(null)} data-testid="button-cancel-execute">
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (executeConfirmCampaignId) {
+                  executeMutation.mutate({ id: executeConfirmCampaignId, dryRun: false });
+                  setExecuteConfirmCampaignId(null);
+                }
+              }}
+              disabled={executeMutation.isPending}
+              data-testid="button-confirm-execute"
+            >
+              {executeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+              Execute
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!selectedCampaign} onOpenChange={(open) => { if (!open) setSelectedCampaign(null); }}>
         <DialogContent className="sm:max-w-lg" data-testid="dialog-campaign-detail">
@@ -723,6 +745,43 @@ export default function ServicePage() {
                   <p className="text-sm mt-1 bg-muted/50 rounded-md p-2 whitespace-pre-wrap">{selectedCampaign.messageTemplate}</p>
                 </div>
               )}
+              {/* Recipients table */}
+              <div data-testid="campaign-recipients-section">
+                <p className="text-xs text-muted-foreground mb-2">Recipients</p>
+                {recipientsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Loading recipients...
+                  </div>
+                ) : campaignRecipients.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recipients uploaded yet.</p>
+                ) : (
+                  <ScrollArea className="max-h-48">
+                    <table className="w-full text-xs" data-testid="recipients-table">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Name</th>
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Phone</th>
+                          <th className="text-left py-1 px-1 font-medium text-muted-foreground">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {campaignRecipients.map((r) => (
+                          <tr key={r.id} className="border-b border-muted/30">
+                            <td className="py-1 px-1">{[r.firstName, r.lastName].filter(Boolean).join(' ') || '—'}</td>
+                            <td className="py-1 px-1 text-muted-foreground">{r.phone || r.email || '—'}</td>
+                            <td className="py-1 px-1">
+                              <Badge variant={r.status === 'sent' || r.status === 'delivered' ? 'default' : 'secondary'} className="text-[9px] px-1">
+                                {r.status || 'pending'}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </ScrollArea>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>

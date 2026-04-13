@@ -80,16 +80,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { personaName, selectedAgent, setSelectedAgent, currentRole, showTour, setShowTour } = useApp();
   const { rightPaneOpen, setRightPaneOpen } = useUILayout();
 
+  // Product tour disabled — it hijacks navigation and intercepts clicks globally.
+  // To re-enable, restore the per-page auto-show logic that was here.
   useEffect(() => {
-    const pageKey = getTourPageKey(location);
-    const tourDismissedForPage = localStorage.getItem(TOUR_DISMISSED_PREFIX + pageKey);
-    if (!tourDismissedForPage) {
-      const timer = setTimeout(() => setShowTour(true), 800);
-      return () => clearTimeout(timer);
-    } else {
-      // If tour was already dismissed for this page, make sure it's hidden
-      setShowTour(false);
-    }
+    setShowTour(false);
   }, [location]);
 
   const tourSteps = getTourStepsForRole(currentRole);

@@ -202,11 +202,27 @@ async function tavusPost(path: string, body: unknown) {
 }
 
 export function registerVendorRoutes(app: Express) {
-  app.get("/api/vapi/assistants", authenticateToken, async (_req: Request, res: Response) => {
+  app.get("/api/vapi/assistants", authenticateToken, async (req: Request, res: Response) => {
     try {
       const data = await callMCP("vapi_list_assistants", { limit: 100 });
       const arr = Array.isArray(data) ? data : [];
-      const assistants = arr.map((a: any) => ({
+
+      // SNP-001 Step 7: filter assistants by org's VAPI assistant IDs to prevent cross-org leak
+      const orgId = (req as any).user?.organizationId;
+      let orgAssistantIds: Set<string> | null = null;
+      if (orgId) {
+        const { storage: storageModule } = await import("./storage");
+        const orgAgents = await storageModule.getAgents(orgId);
+        orgAssistantIds = new Set(
+          orgAgents
+            .filter((a: any) => a.vapiAssistantId)
+            .map((a: any) => a.vapiAssistantId!)
+        );
+      }
+
+      const assistants = arr
+        .filter((a: any) => !orgAssistantIds || orgAssistantIds.size === 0 || orgAssistantIds.has(a.id))
+        .map((a: any) => ({
         id: a.id,
         name: a.name,
         voice: a.voice?.voiceId || a.voice?.provider,
@@ -251,6 +267,7 @@ export function registerVendorRoutes(app: Express) {
       // BUG-INT-02 fix: filter calls by org's VAPI assistant IDs to prevent cross-org data leak
       const orgId = (req as any).user?.organizationId;
       let orgAssistantIds: Set<string> | null = null;
+      const agentNameMap = new Map<string, string>();
       if (orgId) {
         const { storage: storageModule } = await import("./storage");
         const orgAgents = await storageModule.getAgents(orgId);
@@ -259,6 +276,10 @@ export function registerVendorRoutes(app: Express) {
             .filter((a: any) => a.vapiAssistantId)
             .map((a: any) => a.vapiAssistantId!)
         );
+        // SNP-001 Step 6: build name lookup from org agents (reuses same DB fetch)
+        for (const a of orgAgents) {
+          if (a.vapiAssistantId) agentNameMap.set(a.vapiAssistantId, a.name);
+        }
       }
 
       const calls = arr
@@ -272,6 +293,7 @@ export function registerVendorRoutes(app: Express) {
           endedReason: c.endedReason,
           cost: c.cost,
           assistantId: c.assistantId,
+          assistantName: agentNameMap.get(c.assistantId) || c.assistantId,
           phoneNumberId: c.phoneNumberId,
           // BUG-INT-03 fix: return customer as object so frontend can read call.customer?.number
           customer: c.customer ? { number: c.customer.number || null, name: c.customer.name || null } : null,
@@ -385,7 +407,7 @@ export function registerVendorRoutes(app: Express) {
       }
       const mcpPayload: Record<string, unknown> = {
         persona_id: personaId,
-        callback_url: "https://live.huminic.app/api/webhooks/tavus",
+        callback_url: `${process.env.APP_BASE_URL || "https://live.huminic.app"}/api/webhooks/tavus`,
       };
       if (visitorName) {
         mcpPayload.conversation_name = `Session with ${visitorName}`;
@@ -405,13 +427,21 @@ export function registerVendorRoutes(app: Express) {
   app.get("/api/tavus/conversations", authenticateToken, async (req: Request, res: Response) => {
     try {
       const { personaId, limit = "20" } = req.query;
+
+      // Query local DB for video conversations (webhook data stored with channel: "video")
+      const orgId = (req as any).user?.organizationId;
+      let localConversations: any[] = [];
+      if (orgId) {
+        const { storage: storageModule } = await import("./storage");
+        localConversations = await storageModule.getConversations(orgId, { channel: "video" });
+      }
+
       const convArgs: Record<string, unknown> = { limit: Number(limit) };
       if (personaId) convArgs.persona_id = personaId as string;
       const data = await callMCP("tavus_list_conversations", convArgs);
       const items = Array.isArray(data) ? data : (data?.data || []);
 
       // Org scoping: only return conversations for this org's Tavus personas
-      const orgId = (req as any).user?.organizationId;
       let orgPersonaIds: Set<string> | null = null;
       if (orgId) {
         const { storage: storageModule } = await import("./storage");
@@ -419,8 +449,8 @@ export function registerVendorRoutes(app: Express) {
         orgPersonaIds = new Set(orgAgents.filter((a: any) => a.tavusPersonaId).map((a: any) => a.tavusPersonaId!));
       }
 
-      const conversations = items
-        .filter((c: any) => !orgPersonaIds || orgPersonaIds.has(c.persona_id))
+      const apiConversations = items
+        .filter((c: any) => !orgPersonaIds || orgPersonaIds.size === 0 || orgPersonaIds.has(c.persona_id))
         .map((c: any) => {
           // Extract visitor name from conversation_name (format: "Session with <Name>")
           const rawName = c.conversation_name || "";
@@ -450,6 +480,43 @@ export function registerVendorRoutes(app: Express) {
             recordingUrl: c.recording_url || null,
             duration: c.duration || null,
           };
+        });
+
+      // Merge local DB video conversations with Tavus API results
+      const apiIds = new Set(apiConversations.map((c: any) => c.conversation_id));
+      const localMapped = localConversations
+        .filter((c: any) => !apiIds.has(c.id))
+        .map((c: any) => ({
+          id: c.id,
+          conversation_id: c.id,
+          name: c.customerName ? `Session with ${c.customerName}` : null,
+          status: c.status || "ended",
+          personaId: null,
+          persona_id: null,
+          persona_name: null,
+          personaName: null,
+          replicaId: null,
+          replica_id: null,
+          conversationUrl: null,
+          createdAt: c.createdAt,
+          created_at: c.createdAt,
+          updatedAt: c.updatedAt,
+          updated_at: c.updatedAt,
+          ended_at: c.updatedAt || null,
+          endedAt: c.updatedAt || null,
+          visitor_name: c.customerName || null,
+          visitorName: c.customerName || null,
+          recording_url: null,
+          recordingUrl: null,
+          duration: null,
+          source: "local",
+        }));
+
+      const conversations = [...apiConversations, ...localMapped]
+        .sort((a: any, b: any) => {
+          const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return db - da;
         });
       return res.json(conversations);
     } catch (err: any) {
@@ -558,7 +625,7 @@ export function registerVendorRoutes(app: Express) {
         lostLeads: cur.lost,
         waitingForResponse: cur.waiting,
         appointments: cur.appt,
-        conversionRate: cur.total > 0 ? Math.round((cur.sold / cur.total) * 1000) / 10 : 0,
+        conversionRate: (cur.sold + cur.lost) > 0 ? Math.round((cur.sold / (cur.sold + cur.lost)) * 1000) / 10 : 0,
         source: "warehouse",
         syncedAt: latestSyncDate,
       });

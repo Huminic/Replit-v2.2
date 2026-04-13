@@ -36,10 +36,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/contexts/AppContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { Conversation, Message, User } from '@shared/schema';
 
 type ConversationChannel = 'sms' | 'email' | 'chat' | 'whatsapp' | 'voice';
@@ -79,6 +79,8 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'sms', label: 'SMS' },
   { id: 'email', label: 'Email' },
+  { id: 'chat', label: 'Web Chat' },
+  { id: 'whatsapp', label: 'WhatsApp' },
   { id: 'voice', label: 'Voice' },
 ];
 
@@ -142,9 +144,15 @@ export default function TeamboxPage() {
   });
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [transcriptModal, setTranscriptModal] = useState<{ open: boolean; transcript: string; audioUrl?: string; callerNumber?: string }>({ open: false, transcript: '' });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { data: campaigns = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/campaigns', orgId],
+  });
 
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations', orgId],
@@ -152,7 +160,7 @@ export default function TeamboxPage() {
   });
 
   const { data: vapiCalls = [], isLoading: vapiLoading } = useQuery<any[]>({
-    queryKey: ['/api/vapi/calls'],
+    queryKey: ['/api/vapi/calls?limit=100'],
     enabled: activeView === 'phone',
   });
 
@@ -163,11 +171,20 @@ export default function TeamboxPage() {
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null;
 
+  const filteredConversations = conversations.filter(conv => {
+    if (conv.channel === 'ai-chat') return false;
+    if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
+    if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
+    if (selectedCampaignId && conv.campaignId !== selectedCampaignId) return false;
+    if (searchTerm && !conv.customerName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
+  });
+
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId) {
-      setSelectedConversationId(conversations[0].id);
+    if (filteredConversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(filteredConversations[0].id);
     }
-  }, [conversations, selectedConversationId]);
+  }, [filteredConversations, selectedConversationId]);
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: ['/api/conversations', selectedConversationId, 'messages'],
@@ -179,21 +196,15 @@ export default function TeamboxPage() {
   });
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
     }
   }, [messages]);
 
-  const filteredConversations = conversations.filter(conv => {
-    if (activeStatus !== 'all' && conv.status !== activeStatus) return false;
-    if (activeChannel !== 'all' && conv.channel !== activeChannel) return false;
-    if (searchTerm && !conv.customerName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    return true;
-  });
-
   const getStatusCount = (status: ConversationStatus | 'all') => {
-    if (status === 'all') return conversations.length;
-    return conversations.filter(c => c.status === status).length;
+    const nonAiChat = conversations.filter(c => c.channel !== 'ai-chat');
+    if (status === 'all') return nonAiChat.length;
+    return nonAiChat.filter(c => c.status === status).length;
   };
 
   const getLastMessage = (conv: Conversation): string => {
@@ -239,6 +250,23 @@ export default function TeamboxPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+  });
+
+  const [vinConfirmOpen, setVinConfirmOpen] = useState(false);
+
+  const pushToVinMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const res = await apiRequest('POST', `/api/conversations/${conversationId}/push-to-vin`, {});
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: 'Lead pushed to VIN Solutions', description: data.message || 'Successfully created lead.' });
+      setVinConfirmOpen(false);
+    },
+    onError: (err: any) => {
+      toast({ title: 'Push to VIN failed', description: err?.message || 'An error occurred.', variant: 'destructive' });
+      setVinConfirmOpen(false);
     },
   });
 
@@ -348,9 +376,9 @@ export default function TeamboxPage() {
             Video
           </button>
         </div>
-        {/* Channel filter chips — visible in conversations view */}
+        {/* Channel filter chips + campaign filter — visible in conversations view */}
         {activeView === 'conversations' && (
-          <div className="flex gap-1 mt-2 pb-2" data-testid="channel-filter-bar">
+          <div className="flex items-center gap-1 flex-wrap mt-2 pb-2" data-testid="channel-filter-bar">
             {channelFilters.map(filter => (
               <button
                 key={filter.id}
@@ -366,6 +394,26 @@ export default function TeamboxPage() {
                 {filter.label}
               </button>
             ))}
+            {campaigns.length > 0 && (
+              <div className="relative ml-2" data-testid="campaign-filter-bar">
+                <Select
+                  value={selectedCampaignId || 'all'}
+                  onValueChange={(value) => setSelectedCampaignId(value === 'all' ? null : value)}
+                >
+                  <SelectTrigger className="h-7 w-[200px] text-xs" data-testid="select-campaign-filter">
+                    <SelectValue placeholder="All Conversations" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Conversations</SelectItem>
+                    {campaigns.map(campaign => (
+                      <SelectItem key={campaign.id} value={campaign.id}>
+                        {campaign.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -390,6 +438,7 @@ export default function TeamboxPage() {
                     <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Assistant</th>
                     <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Duration</th>
                     <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Status</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-muted-foreground">Summary</th>
                     <th className="py-2 px-3 text-xs font-semibold text-muted-foreground"></th>
                   </tr>
                 </thead>
@@ -397,17 +446,20 @@ export default function TeamboxPage() {
                   {vapiCalls.map((call: any, idx: number) => (
                     <tr key={call.id || idx} className="border-b border-border hover:bg-muted/50 transition-colors">
                       <td className="py-2 px-3 text-xs">
-                        {call.createdAt ? new Date(call.createdAt).toLocaleString() : call.startedAt ? new Date(call.startedAt).toLocaleString() : '-'}
+                        {call.startedAt ? new Date(call.startedAt).toLocaleString() : call.endedAt ? new Date(call.endedAt).toLocaleString() : call.createdAt ? new Date(call.createdAt).toLocaleString() : '-'}
                       </td>
                       <td className="py-2 px-3 text-xs font-mono">{call.customer?.number || call.phoneNumber || '-'}</td>
-                      <td className="py-2 px-3 text-xs">{call.assistant?.name || call.assistantId || '-'}</td>
+                      <td className="py-2 px-3 text-xs">{call.assistantName || call.assistantId || '-'}</td>
                       <td className="py-2 px-3 text-xs">
                         {call.endedAt && call.startedAt
                           ? `${Math.round((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000)}s`
-                          : call.duration ? `${call.duration}s` : '-'}
+                          : call.duration ? `${call.duration}s` : (call.endedReason && call.endedReason !== 'customer-ended-call' && call.endedReason !== 'assistant-ended-call') ? 'Failed' : '-'}
                       </td>
                       <td className="py-2 px-3">
                         <Badge variant="secondary" className="text-[10px]">{call.status || '-'}</Badge>
+                      </td>
+                      <td className="py-2 px-3 text-xs max-w-[200px]">
+                        {call.summary ? (call.summary.length > 80 ? call.summary.slice(0, 80) + '...' : call.summary) : '-'}
                       </td>
                       <td className="py-2 px-3">
                         {call.transcript && (
@@ -620,8 +672,8 @@ export default function TeamboxPage() {
                           </AvatarFallback>
                         </Avatar>
                         {conv.status === 'automated' && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
-                            <Bot className="h-2.5 w-2.5 text-white" />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted-foreground/40 flex items-center justify-center ring-2 ring-background" title="AI-handled conversation">
+                            <Bot className="h-2.5 w-2.5 text-foreground" />
                           </div>
                         )}
                       </div>
@@ -630,7 +682,9 @@ export default function TeamboxPage() {
                           <span className="text-sm font-medium truncate">{conv.customerName}</span>
                           <span className="text-[10px] text-muted-foreground flex-shrink-0">
                             {conv.lastMessageAt
-                              ? formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
+                              ? isToday(new Date(conv.lastMessageAt))
+                                ? 'Today'
+                                : formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: false })
                               : ''}
                           </span>
                         </div>
@@ -640,17 +694,12 @@ export default function TeamboxPage() {
                         <div className="flex items-center gap-1.5 mt-1">
                           <ChannelIcon className="h-3 w-3 text-muted-foreground" />
                           {agentName && (
-                            <Badge variant="outline" className={cn(
-                              "h-4 text-[10px] px-1 gap-0.5",
-                              conv.status === 'automated' && "border-purple-300 dark:border-purple-700"
-                            )}>
+                            <Badge variant="outline" className="h-4 text-[10px] px-1 gap-0.5">
                               {conv.status === 'automated' && <Bot className="h-2.5 w-2.5" />}
                               {agentName}
                             </Badge>
                           )}
-                          {conv.unreadCount > 0 && (
-                            <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto">{conv.unreadCount}</Badge>
-                          )}
+                          <Badge className="h-4 min-w-4 text-[10px] px-1 ml-auto" variant={(conv.unreadCount ?? 0) > 0 ? 'default' : 'secondary'}>{conv.unreadCount ?? 0}</Badge>
                         </div>
                       </div>
                     </div>
@@ -722,6 +771,21 @@ export default function TeamboxPage() {
                     {selectedConversation.campaignDisconnected ? 'Disconnected' : 'Disconnect Campaign'}
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setVinConfirmOpen(true)}
+                  disabled={pushToVinMutation.isPending}
+                  data-testid="button-push-to-vin"
+                >
+                  {pushToVinMutation.isPending ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <UserCheck className="h-3 w-3" />
+                  )}
+                  Push to VIN
+                </Button>
               </div>
             </div>
 
@@ -735,20 +799,27 @@ export default function TeamboxPage() {
                       key={msg.id}
                       className={cn(
                         'flex gap-2',
-                        msg.role === 'customer' ? 'justify-start' : 'justify-end'
+                        msg.role === 'system' ? 'justify-center' : (msg.role === 'customer' || msg.role === 'user') ? 'justify-start' : 'justify-end'
                       )}
                       data-testid={`message-${msg.id}`}
                     >
                       <div className={cn(
-                        'max-w-[75%] rounded-xl px-3 py-2',
-                        msg.role === 'customer'
+                        'rounded-xl px-3 py-2',
+                        msg.role === 'system'
+                          ? 'w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700'
+                          : 'max-w-[75%]',
+                        (msg.role === 'customer' || msg.role === 'user')
                           ? 'bg-muted text-foreground rounded-bl-sm'
                           : msg.role === 'bot'
                             ? 'bg-primary/10 text-foreground rounded-br-sm border border-primary/20'
-                            : 'bg-primary text-primary-foreground rounded-br-sm'
+                            : msg.role === 'system'
+                              ? ''
+                              : 'bg-primary text-primary-foreground rounded-br-sm'
                       )}>
-                        <p className="text-[10px] font-medium mb-0.5 opacity-70">{msg.senderName || msg.role}</p>
-                        <p className="text-sm">{msg.content}</p>
+                        <p className="text-[10px] font-medium mb-0.5 opacity-70">
+                          {msg.role === 'system' ? 'Voice Transcript' : (msg.senderName || msg.role)}
+                        </p>
+                        <p className={cn('text-sm', msg.role === 'system' && 'whitespace-pre-wrap')}>{msg.content}</p>
                         <p className="text-[10px] mt-1 opacity-50">
                           {msg.createdAt ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true }) : ''}
                         </p>
@@ -760,6 +831,7 @@ export default function TeamboxPage() {
                       No messages yet
                     </div>
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </ScrollArea>
@@ -896,6 +968,31 @@ export default function TeamboxPage() {
       )}
     </div>}
     </div>
+
+      <Dialog open={vinConfirmOpen} onOpenChange={setVinConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Push to VIN Solutions</DialogTitle>
+            <DialogDescription>
+              Push this conversation to VIN Solutions as a lead?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setVinConfirmOpen(false)} disabled={pushToVinMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => selectedConversationId && pushToVinMutation.mutate(selectedConversationId)}
+              disabled={pushToVinMutation.isPending}
+              data-testid="button-vin-confirm"
+            >
+              {pushToVinMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={transcriptModal.open} onOpenChange={(open) => setTranscriptModal(prev => ({ ...prev, open }))}>
         <DialogContent className="max-w-lg max-h-[80vh]">

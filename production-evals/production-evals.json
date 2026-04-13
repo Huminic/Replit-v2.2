@@ -1,0 +1,1110 @@
+{
+  "version": "1.1",
+  "description": "Production Evals registry for Nexxus Connect v2.2. Structured to mirror the existing sprints.json style while shifting from shallow pass/fail testing to section-based evaluation sprints.",
+  "date": "2026-04-06",
+  "totalSprints": 7,
+  "workOrder": [
+    "PE-AI-CHAT-01",
+    "PE-TEAMBOX-01",
+    "PE-SALES-01",
+    "PE-INSIGHTS-01",
+    "PE-SERVICE-CAMPAIGNS-01",
+    "PE-INTEGRATIONS-01",
+    "PE-SETTINGS-01"
+  ],
+  "sprints": [
+    {
+      "id": "PE-AI-CHAT-01",
+      "category": "Production Eval",
+      "name": "AI Chat / Main Dashboard \u2014 UI Behavior, Metric Credibility, and Drill-Down Truth",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator review + U-001 reconciliation + user stories",
+      "causedBy": "operator defects and false-pass risk",
+      "outcome": "AI Chat is evaluated as an operator-visible dashboard, not just a passing route. Chat behavior, scroll behavior, store switching, visible metrics, drill-downs, contact detail usefulness, and data plausibility are proven or rejected with evidence.",
+      "codebaseArea": [
+        "client/src/pages/main.tsx",
+        "evidence/PE-AI-CHAT-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-AI-CHAT-01.AC1: Section / page function map states what AI Chat does in interface terms, including chat area, metric tiles, drill-downs, and store context.",
+        "PE-AI-CHAT-01.AC2: Chat response behavior is evaluated for auto-scroll, rendering stability, and visible usability with evidence and commentary.",
+        "PE-AI-CHAT-01.AC3: Store switching is evaluated across at least the currently questioned dealerships and the visible metrics are assessed for plausibility, not just rendering.",
+        "PE-AI-CHAT-01.AC4: Metric tiles and drill-downs are evaluated for visible truth, contradiction checks, and operator usefulness.",
+        "PE-AI-CHAT-01.AC5: Contact detail states opened from drill-downs are evaluated for meaningfulness, actionability, and data credibility.",
+        "PE-AI-CHAT-01.AC6: Every executed flow has evidence, commentary, and a result status.",
+        "PE-AI-CHAT-01.AC7: Bugs are logged with severity, type, and false-pass classification where applicable.",
+        "PE-AI-CHAT-01.AC8: Post-sprint review includes confidence assessment and recommendation."
+      ],
+      "entryGates": [
+        "A1: Relevant governance and product sources read (production-evals pack, CLAUDE.md, relevant sprints.json context, feature map, U-001 evidence, user stories).",
+        "A2: Scope limited to AI Chat / Main Dashboard only.",
+        "A3: User story gate satisfied \u2014 expected behavior defined in concrete interface terms.",
+        "A4: Pre-execution report exists with function map, use cases, acceptance matrix, evidence plan, and bug handling plan.",
+        "A5: Irreversible actions approved or explicitly excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Ghost / enforcer / operator messages clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned AI Chat flows have execution reports.",
+        "B2: Evidence and commentary exist for each executed flow.",
+        "B3: Data plausibility checks are documented for metric-heavy flows.",
+        "B4: Drill-down and contact-detail usefulness are explicitly assessed.",
+        "B5: Bugs are logged with status and false-pass classification where relevant.",
+        "B6: Remediation retests completed or explicitly deferred.",
+        "B7: Post-sprint review includes confidence and next recommendation.",
+        "B8: If code changed, relevant tests rerun and recorded.",
+        "B9: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "DT",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Main dashboard trust anchor. If this section is visibly wrong or data-untrustworthy, operator confidence collapses immediately.",
+      "parallelizable": false,
+      "dependsOn": [],
+      "declaredFiles": [
+        "evidence/PE-AI-CHAT-01/pre-execution-report.md",
+        "evidence/PE-AI-CHAT-01/section-function-map.md",
+        "evidence/PE-AI-CHAT-01/use-case-inventory.md",
+        "evidence/PE-AI-CHAT-01/acceptance-matrix.md",
+        "evidence/PE-AI-CHAT-01/evidence-index.md",
+        "evidence/PE-AI-CHAT-01/bug-log.md",
+        "evidence/PE-AI-CHAT-01/post-sprint-report.md",
+        "evidence/PE-AI-CHAT-01/enforcer-checklist.txt",
+        "evidence/PE-AI-CHAT-01/cross-sign.md",
+        "evidence/PE-AI-CHAT-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-AI-CHAT-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-TEAMBOX-01",
+      "category": "Production Eval",
+      "name": "TeamBox \u2014 Thread Truth, Pane Refresh, Filter Integrity, and Human Operations",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator review + U-001 reconciliation + TeamBox-related user stories",
+      "causedBy": "operator defects and false-pass risk",
+      "outcome": "TeamBox is evaluated as an operational workspace. Message selection, third-pane population, subcategory refresh, filter integrity, SMS truth, service campaign visibility, and thread continuity are proven or rejected with evidence.",
+      "codebaseArea": [
+        "client/src/pages/teambox.tsx",
+        "evidence/PE-TEAMBOX-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-TEAMBOX-01.AC1: Section / page function map states what each TeamBox pane, tab, and filter is for in interface terms.",
+        "PE-TEAMBOX-01.AC2: Clicking a message / conversation is evaluated for whether the active thread and detail pane populate correctly.",
+        "PE-TEAMBOX-01.AC3: Changing a TeamBox subcategory or filter is evaluated for whether the active content refreshes correctly.",
+        "PE-TEAMBOX-01.AC4: SMS filter truth is evaluated against the All filter and visible message reality.",
+        "PE-TEAMBOX-01.AC5: Service-campaign and escalation visibility / absence is documented as working, broken, or intentionally missing.",
+        "PE-TEAMBOX-01.AC6: Human takeover / operator response continuity is evaluated where available within scope.",
+        "PE-TEAMBOX-01.AC7: Every executed flow has evidence, commentary, and result status.",
+        "PE-TEAMBOX-01.AC8: Bugs are logged with severity, type, and false-pass classification where applicable."
+      ],
+      "entryGates": [
+        "A1: Relevant governance and TeamBox sources read.",
+        "A2: Scope limited to TeamBox only unless downstream continuity is explicitly required by a flow.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with function map, use cases, acceptance matrix, and evidence plan.",
+        "A5: Irreversible actions approved or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned TeamBox flows have execution reports.",
+        "B2: Pane population, filter integrity, and continuity claims each have evidence.",
+        "B3: False-pass conditions are explicitly called out where prior automation could have missed them.",
+        "B4: Bugs are logged with status.",
+        "B5: Remediation retests completed or deferred explicitly.",
+        "B6: Post-sprint review includes operational confidence assessment.",
+        "B7: If code changed, relevant tests rerun and recorded.",
+        "B8: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "DT",
+          "AU",
+          "IN"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "TeamBox is the operator truth surface for communications. If it is visually or behaviorally wrong, production operations are compromised.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-AI-CHAT-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-TEAMBOX-01/pre-execution-report.md",
+        "evidence/PE-TEAMBOX-01/section-function-map.md",
+        "evidence/PE-TEAMBOX-01/use-case-inventory.md",
+        "evidence/PE-TEAMBOX-01/acceptance-matrix.md",
+        "evidence/PE-TEAMBOX-01/evidence-index.md",
+        "evidence/PE-TEAMBOX-01/bug-log.md",
+        "evidence/PE-TEAMBOX-01/post-sprint-report.md",
+        "evidence/PE-TEAMBOX-01/enforcer-checklist.txt",
+        "evidence/PE-TEAMBOX-01/cross-sign.md",
+        "evidence/PE-TEAMBOX-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-TEAMBOX-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-SALES-01",
+      "category": "Production Eval",
+      "name": "Sales Dashboard \u2014 Metric Plausibility, Store Context, Popout Truth, and Trigger Visibility",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator review + Sales-related user stories + prior dashboard evidence",
+      "causedBy": "operator defects and data credibility risk",
+      "outcome": "Sales dashboard is evaluated as a management surface. Visible metrics, popouts, recent activity alignment, configuration truth, and store-context credibility are proven or rejected with evidence.",
+      "codebaseArea": [
+        "client/src/pages/sales.tsx",
+        "evidence/PE-SALES-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-SALES-01.AC1: Section function map exists for dashboard, popouts, configuration, and relevant sub-tabs in interface terms.",
+        "PE-SALES-01.AC2: Store selection changes are evaluated for whether visible metrics remain plausible and coherent.",
+        "PE-SALES-01.AC3: Popout and configuration surfaces are checked against acceptance intent, including whether extra cost information appears without justification.",
+        "PE-SALES-01.AC4: Visible metrics are checked against recent activity and any available drill-down truth.",
+        "PE-SALES-01.AC5: Trigger configuration and channel-related behavior / visibility are evaluated in the dashboard context.",
+        "PE-SALES-01.AC6: Every executed flow has evidence, commentary, and result status.",
+        "PE-SALES-01.AC7: Bugs are logged with severity, type, and false-pass classification where applicable."
+      ],
+      "entryGates": [
+        "A1: Relevant governance and Sales sources read.",
+        "A2: Scope limited to Sales dashboard surfaces selected for this sprint.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with use cases and evidence plan.",
+        "A5: Irreversible actions approved or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned Sales flows have execution reports.",
+        "B2: Metric plausibility and contradiction checks are documented.",
+        "B3: Popout and configuration truth claims have evidence.",
+        "B4: Bugs are logged with status.",
+        "B5: Remediation retests completed or deferred explicitly.",
+        "B6: Post-sprint review includes confidence assessment.",
+        "B7: If code changed, relevant tests rerun and recorded.",
+        "B8: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "DT",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Sales dashboard is a high-credibility management surface. Wrong metrics or misleading popouts create immediate trust loss.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-TEAMBOX-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-SALES-01/pre-execution-report.md",
+        "evidence/PE-SALES-01/section-function-map.md",
+        "evidence/PE-SALES-01/use-case-inventory.md",
+        "evidence/PE-SALES-01/acceptance-matrix.md",
+        "evidence/PE-SALES-01/evidence-index.md",
+        "evidence/PE-SALES-01/bug-log.md",
+        "evidence/PE-SALES-01/post-sprint-report.md",
+        "evidence/PE-SALES-01/enforcer-checklist.txt",
+        "evidence/PE-SALES-01/cross-sign.md",
+        "evidence/PE-SALES-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-SALES-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-INSIGHTS-01",
+      "category": "Production Eval",
+      "name": "Insights \u2014 Graph Population, Modal Usefulness, Contact Actions, and Report Credibility",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator review + prior insights evidence",
+      "causedBy": "operator defects and analytic credibility risk",
+      "outcome": "Insights is evaluated as an analysis and action surface. Graphs, report cards, library cards, modals, contact affordances, and data clarity are proven or rejected with evidence.",
+      "codebaseArea": [
+        "client/src/pages/insights.tsx",
+        "evidence/PE-INSIGHTS-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-INSIGHTS-01.AC1: Section function map exists for dashboard, reports, library, and modal actions in interface terms.",
+        "PE-INSIGHTS-01.AC2: Graphs and cards are evaluated for whether they populate, fail, or remain empty with clear evidence.",
+        "PE-INSIGHTS-01.AC3: Drill-down modals are evaluated for meaningfulness, actionability, and data clarity.",
+        "PE-INSIGHTS-01.AC4: Contact-action affordances are evaluated for whether they support the operator workflow logically.",
+        "PE-INSIGHTS-01.AC5: Any use of unclear IDs, source fields, or non-working actions is documented as a quality defect or accepted behavior with rationale.",
+        "PE-INSIGHTS-01.AC6: Every executed flow has evidence, commentary, and result status.",
+        "PE-INSIGHTS-01.AC7: Bugs are logged with severity, type, and false-pass classification where applicable."
+      ],
+      "entryGates": [
+        "A1: Relevant governance and Insights sources read.",
+        "A2: Scope limited to Insights surfaces selected for this sprint.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with use cases and evidence plan.",
+        "A5: Irreversible actions approved or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned Insights flows have execution reports.",
+        "B2: Population / emptiness / failure states are documented with evidence.",
+        "B3: Modal usefulness and contact-action judgments are documented.",
+        "B4: Bugs are logged with status.",
+        "B5: Remediation retests completed or deferred explicitly.",
+        "B6: Post-sprint review includes confidence assessment.",
+        "B7: If code changed, relevant tests rerun and recorded.",
+        "B8: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "DT",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Insights influences operator judgment. Broken graphs or meaningless modals create silent but dangerous false confidence.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-SALES-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-INSIGHTS-01/pre-execution-report.md",
+        "evidence/PE-INSIGHTS-01/section-function-map.md",
+        "evidence/PE-INSIGHTS-01/use-case-inventory.md",
+        "evidence/PE-INSIGHTS-01/acceptance-matrix.md",
+        "evidence/PE-INSIGHTS-01/evidence-index.md",
+        "evidence/PE-INSIGHTS-01/bug-log.md",
+        "evidence/PE-INSIGHTS-01/post-sprint-report.md",
+        "evidence/PE-INSIGHTS-01/enforcer-checklist.txt",
+        "evidence/PE-INSIGHTS-01/cross-sign.md",
+        "evidence/PE-INSIGHTS-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-INSIGHTS-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-SERVICE-CAMPAIGNS-01",
+      "category": "Production Eval",
+      "name": "Service Campaigns \u2014 CSV Upload, Channel Execution, Reply Routing, and TeamBox Continuity",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator testing context + service campaign user stories",
+      "causedBy": "core workflow risk",
+      "outcome": "Service campaigns are evaluated as a real operator workflow from preparation to outbound messaging to inbound reply to TeamBox continuity and visible message accuracy.",
+      "codebaseArea": [
+        "client/src/pages/service.tsx",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-SERVICE-CAMPAIGNS-01.AC1: Section function map exists for campaign setup, CSV upload, execution, and downstream TeamBox continuity in interface terms.",
+        "PE-SERVICE-CAMPAIGNS-01.AC2: CSV upload flow is evaluated for file acceptance, recipient interpretation, and visible operator feedback.",
+        "PE-SERVICE-CAMPAIGNS-01.AC3: Single-channel and configured multi-channel behavior are evaluated according to the approved sprint scope.",
+        "PE-SERVICE-CAMPAIGNS-01.AC4: Outbound execution is evaluated with in-app evidence and external/provider evidence when approved.",
+        "PE-SERVICE-CAMPAIGNS-01.AC5: Inbound response routing to TeamBox is evaluated for correct filter visibility, active thread continuity, and message truth.",
+        "PE-SERVICE-CAMPAIGNS-01.AC6: At least one operator / agent response turn is evaluated for accuracy and continuity where approved.",
+        "PE-SERVICE-CAMPAIGNS-01.AC7: Every executed flow has evidence, commentary, and result status.",
+        "PE-SERVICE-CAMPAIGNS-01.AC8: Bugs are logged with severity, type, and false-pass classification where applicable."
+      ],
+      "entryGates": [
+        "A1: Relevant governance, service, TeamBox, and comms-context sources read.",
+        "A2: Scope limited to Service Campaigns and required downstream continuity surfaces only.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with use cases, evidence plan, action boundary review, and approved comms boundary.",
+        "A5: Irreversible actions explicitly approved for this sprint or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned service campaign flows have execution reports.",
+        "B2: Outbound, inbound, TeamBox continuity, and message-accuracy claims each have evidence.",
+        "B3: Provider/app truth alignment is documented where applicable.",
+        "B4: Bugs are logged with status.",
+        "B5: Remediation retests completed or deferred explicitly.",
+        "B6: Post-sprint review includes confidence assessment and recommended next campaign/integration sprint.",
+        "B7: If code changed, relevant tests rerun and recorded.",
+        "B8: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "DT",
+          "IN",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "This is a signature production workflow. A false pass here would be highly damaging because it can look operational while being wrong in continuity or messaging truth.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-INSIGHTS-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-SERVICE-CAMPAIGNS-01/pre-execution-report.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/section-function-map.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/use-case-inventory.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/acceptance-matrix.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/evidence-index.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/bug-log.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/post-sprint-report.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/enforcer-checklist.txt",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/cross-sign.md",
+        "evidence/PE-SERVICE-CAMPAIGNS-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-SERVICE-CAMPAIGNS-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-INTEGRATIONS-01",
+      "category": "Production Eval",
+      "name": "Comms Integrations \u2014 TextMagic, VAPI, Tavus, Resend, and Downstream Truth in Nexxus",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator comms-testing context + integration-related stories",
+      "causedBy": "integration truth risk",
+      "outcome": "Provider-side activity is evaluated against Nexxus-side truth. SMS, phone, video, email, transcripts, and downstream UI states are proven or rejected with evidence instead of assumed from provider success.",
+      "codebaseArea": [
+        "server/routes/",
+        "evidence/PE-INTEGRATIONS-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-INTEGRATIONS-01.AC1: Function map exists for the integration surfaces and the corresponding Nexxus-visible outcomes.",
+        "PE-INTEGRATIONS-01.AC2: TextMagic send/receive truth is evaluated against TeamBox / message-thread reality where approved.",
+        "PE-INTEGRATIONS-01.AC3: VAPI flow is evaluated for transcript arrival and downstream parsing / visibility where approved.",
+        "PE-INTEGRATIONS-01.AC4: Tavus flow is evaluated to the approved acceptance boundary, such as popup/initiation or transcript visibility.",
+        "PE-INTEGRATIONS-01.AC5: Resend email-related flows are evaluated via allowed log evidence and downstream UI truth where applicable.",
+        "PE-INTEGRATIONS-01.AC6: Any provider-only pass that does not materialize correctly in Nexxus is logged as a false-pass condition.",
+        "PE-INTEGRATIONS-01.AC7: Every executed flow has evidence, commentary, and result status."
+      ],
+      "entryGates": [
+        "A1: Relevant governance, integration, and comms-context sources read.",
+        "A2: Scope limited to approved integration flows for this sprint.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with explicit irreversible-action boundary and approved provider checks.",
+        "A5: Irreversible actions explicitly approved or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned integration flows have execution reports.",
+        "B2: Provider/app truth alignment is documented for each executed flow.",
+        "B3: False-pass classes are documented where present.",
+        "B4: Bugs are logged with status.",
+        "B5: Remediation retests completed or deferred explicitly.",
+        "B6: Post-sprint review includes confidence assessment and next recommendation.",
+        "B7: If code changed, relevant tests rerun and recorded.",
+        "B8: Exit review clear.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "BE",
+          "DT",
+          "IN",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Provider success alone is not enough. This sprint exists to prove whether communications and transcripts actually land in Nexxus in a trustworthy way.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-SERVICE-CAMPAIGNS-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-INTEGRATIONS-01/pre-execution-report.md",
+        "evidence/PE-INTEGRATIONS-01/section-function-map.md",
+        "evidence/PE-INTEGRATIONS-01/use-case-inventory.md",
+        "evidence/PE-INTEGRATIONS-01/acceptance-matrix.md",
+        "evidence/PE-INTEGRATIONS-01/evidence-index.md",
+        "evidence/PE-INTEGRATIONS-01/bug-log.md",
+        "evidence/PE-INTEGRATIONS-01/post-sprint-report.md",
+        "evidence/PE-INTEGRATIONS-01/enforcer-checklist.txt",
+        "evidence/PE-INTEGRATIONS-01/cross-sign.md",
+        "evidence/PE-INTEGRATIONS-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-INTEGRATIONS-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright and approved provider evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    },
+    {
+      "id": "PE-SETTINGS-01",
+      "category": "Production Eval",
+      "name": "Settings / Users / Notifications \u2014 Invite Truth, Config Clarity, and System Usefulness",
+      "phase": "production_evals",
+      "status": "planned",
+      "source": "Production Evals methodology + operator review + prior settings evidence",
+      "causedBy": "configuration risk",
+      "outcome": "Settings is evaluated as the system control surface. Invite flows, notification behavior, config clarity, and downstream implications are proven or rejected with evidence.",
+      "codebaseArea": [
+        "client/src/pages/settings.tsx",
+        "evidence/PE-SETTINGS-01/"
+      ],
+      "acceptanceCriteria": [
+        "PE-SETTINGS-01.AC1: Function map exists for the selected Settings subsections in interface terms.",
+        "PE-SETTINGS-01.AC2: User invite / add-user flow is evaluated for visible outcome truth and any missing email-configuration behavior.",
+        "PE-SETTINGS-01.AC3: Notification and tool-configuration surfaces are evaluated for usefulness, clarity, and downstream implications.",
+        "PE-SETTINGS-01.AC4: Any route-vs-inline navigation behavior that affects operator expectations is documented.",
+        "PE-SETTINGS-01.AC5: Every executed flow has evidence, commentary, and result status.",
+        "PE-SETTINGS-01.AC6: Bugs are logged with severity, type, and false-pass classification where applicable."
+      ],
+      "entryGates": [
+        "A1: Relevant governance and Settings sources read.",
+        "A2: Scope limited to selected Settings subsections for this sprint.",
+        "A3: User story gate satisfied in interface terms.",
+        "A4: Pre-execution report exists with use cases and evidence plan.",
+        "A5: Irreversible actions approved or excluded.",
+        "A6: Worktree clean if remediation is authorized.",
+        "A7: Entry review clear.",
+        "A8: Sprint registered in sprints.json with status committed.",
+        "A9: Ghost Entry Gate \u2014 ENTRY GATE: APPROVED in pre-execution-report.md."
+      ],
+      "exitGates": [
+        "B1: All planned Settings flows have execution reports.",
+        "B2: Invite/configuration truth claims have evidence.",
+        "B3: Bugs are logged with status.",
+        "B4: Remediation retests completed or deferred explicitly.",
+        "B5: Post-sprint review includes confidence assessment.",
+        "B6: If code changed, relevant tests rerun and recorded.",
+        "B7: Exit review clear.",
+        "B8: Cross-sign.md exists with verdict: approved and different reviewing role.",
+        "B10: Ghost Exit Gate \u2014 EXIT GATE: CLEARED in post-sprint-report.md."
+      ],
+      "dimensions": {
+        "layers": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "featureDims": [
+          "FE",
+          "BE",
+          "AU"
+        ],
+        "testLevels": [
+          "T2",
+          "T3",
+          "T4"
+        ]
+      },
+      "wholeProductFit": "Settings defects are high leverage because they can silently invalidate downstream workflows, communications, and operator expectations.",
+      "parallelizable": false,
+      "dependsOn": [
+        "PE-INTEGRATIONS-01"
+      ],
+      "declaredFiles": [
+        "evidence/PE-SETTINGS-01/pre-execution-report.md",
+        "evidence/PE-SETTINGS-01/section-function-map.md",
+        "evidence/PE-SETTINGS-01/use-case-inventory.md",
+        "evidence/PE-SETTINGS-01/acceptance-matrix.md",
+        "evidence/PE-SETTINGS-01/evidence-index.md",
+        "evidence/PE-SETTINGS-01/bug-log.md",
+        "evidence/PE-SETTINGS-01/post-sprint-report.md",
+        "evidence/PE-SETTINGS-01/enforcer-checklist.txt",
+        "evidence/PE-SETTINGS-01/cross-sign.md",
+        "evidence/PE-SETTINGS-01/workflow-audit.log"
+      ],
+      "commit": null,
+      "evidence": "evidence/PE-SETTINGS-01/",
+      "executionSteps": [
+        {
+          "step": 1,
+          "action": "Sprint registration + pre-execution package + Ghost Entry Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 2,
+          "action": "Section function map + use case inventory + acceptance matrix",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 3,
+          "action": "Flow-by-flow evaluation with Playwright evidence",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 4,
+          "action": "Bug triage and remediation loop if authorized",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        },
+        {
+          "step": 5,
+          "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate",
+          "status": "pending",
+          "timestamp": null,
+          "verdict": null
+        }
+      ],
+      "uiPermissions": null
+    }
+  ],
+  "registryType": "production_evals",
+  "alignedTo": "sprints.json",
+  "oneSprintAtATime": true,
+  "oneFlowAtATime": true,
+  "playwrightPrinciple": "Playwright is the witness, not the judge.",
+  "programGoals": [
+    "Replace shallow automated testing with evidence-backed human-AI evaluation sprints.",
+    "Evaluate data accuracy, UI behavior consistency, and cross-screen workflow outcomes.",
+    "Force explicit acceptance criteria, narrative commentary, and false-pass detection.",
+    "Run remediation and exact-flow retest loops until flows are accepted or explicitly deferred."
+  ],
+  "subAgentRoles": [
+    {
+      "name": "Eval Orchestrator",
+      "responsibilities": [
+        "Select and restate the active sprint in interface terms.",
+        "Enforce one-sprint-at-a-time and one-flow-at-a-time discipline.",
+        "Sequence use cases and stop scope drift.",
+        "Coordinate final acceptance recommendations."
+      ]
+    },
+    {
+      "name": "Playwright Operator",
+      "responsibilities": [
+        "Execute UI flows.",
+        "Capture screenshots, route state, DOM snapshots, console notes, and network anomalies.",
+        "Prove visible state transitions and persistence after refresh when relevant."
+      ]
+    },
+    {
+      "name": "Data Verifier",
+      "responsibilities": [
+        "Check metric plausibility and contradictions.",
+        "Compare drill-downs, counts, filters, activity feeds, and store context.",
+        "Validate downstream truth in TeamBox, campaigns, and CRM-linked flows."
+      ]
+    },
+    {
+      "name": "Integration Verifier",
+      "responsibilities": [
+        "Compare provider-side truth to Nexxus-side truth for TextMagic, VAPI, Tavus, Resend, and Vin Solutions.",
+        "Flag provider-only passes as false passes if Nexxus truth is absent or wrong."
+      ]
+    },
+    {
+      "name": "Evidence Scribe",
+      "responsibilities": [
+        "Index every artifact by sprint, use case, and acceptance criterion.",
+        "Ensure evidence meets the required tier.",
+        "Write concise proof statements for each artifact."
+      ]
+    },
+    {
+      "name": "Bug and Remediation Analyst",
+      "responsibilities": [
+        "Classify defects by severity, type, and false-pass class.",
+        "Describe operator and business impact.",
+        "Require exact-flow retests after approved fixes."
+      ]
+    },
+    {
+      "name": "Governance Enforcer",
+      "responsibilities": [
+        "Block unauthorized irreversible actions.",
+        "Require pre-execution package before execution.",
+        "Block sprint acceptance if evidence or commentary is incomplete."
+      ]
+    }
+  ],
+  "playwrightCollaborationRules": [
+    "Playwright may execute, observe, and capture evidence, but it may not self-certify acceptance.",
+    "Every flow needs before/after proof, expected-vs-actual commentary, and a result status.",
+    "A visible contradiction overrides green assertions.",
+    "Provider success without correct Nexxus materialization is a false pass.",
+    "After any fix, rerun the exact failing flow and adjacent risk flows when warranted.",
+    "Do not continue to the next sprint until the current sprint has a post-sprint review."
+  ],
+  "falsePassDetection": {
+    "classes": [
+      "Assertion-Only Pass",
+      "DOM-Only Pass",
+      "Provider-Only Pass",
+      "Route-Only Pass",
+      "Data-Render Pass",
+      "Partial Workflow Pass"
+    ],
+    "triggers": [
+      "Test passes but UI is visibly wrong.",
+      "DOM shows an element but the operator experience is broken.",
+      "Provider or webhook log shows success but Nexxus UI is missing or wrong.",
+      "Navigation technically occurs but lands in the wrong or useless state.",
+      "Numbers render but are implausible or contradictory.",
+      "Early steps succeed but downstream continuity breaks."
+    ]
+  },
+  "evidenceRequirements": {
+    "minimumArtifacts": [
+      "before-action screenshot",
+      "after-action screenshot",
+      "final-state screenshot",
+      "route or URL capture",
+      "visible text or state proof",
+      "DOM snapshot or state proof when relevant",
+      "console or network notes when relevant",
+      "downstream verification when relevant",
+      "commentary and acceptance decision"
+    ],
+    "tiers": [
+      "Bronze",
+      "Silver",
+      "Gold",
+      "Platinum"
+    ]
+  },
+  "integrationContexts": {
+    "vapi": {
+      "reference": "../nexxus/elliott.ts",
+      "purpose": "Phone-number agents for inbound and outbound calls.",
+      "acceptanceBoundary": "Call initiation, transcript arrival, downstream lead or TeamBox truth when approved."
+    },
+    "textmagic": {
+      "purpose": "Two-way SMS sending and receiving with three numbers, two authorized for send/receive.",
+      "acceptanceBoundary": "Provider send/receive truth must match TeamBox and message-thread reality."
+    },
+    "tavus": {
+      "purpose": "Video chat popup and session initiation.",
+      "acceptanceBoundary": "Popup, initiation, session evidence, and downstream truth to the approved scope."
+    },
+    "resend": {
+      "purpose": "Outbound notification email service.",
+      "acceptanceBoundary": "Outbound-only evidence and downstream Nexxus truth where applicable."
+    },
+    "vinSolutions": {
+      "purpose": "Dealer CRM system of record for dealer account Durran Cage.",
+      "acceptanceBoundary": "Lead creation or update must be visible and mappable to the initiating flow when approved."
+    }
+  },
+  "flowCoverage": {
+    "salesFlows": [
+      "inbound phone via VAPI",
+      "inbound text via TextMagic to TeamBox",
+      "outbound phone follow-up",
+      "outbound text follow-up",
+      "AI Chat lead and drill-down validation",
+      "sales dashboard metric and popout validation",
+      "VIN lead verification"
+    ],
+    "serviceFlows": [
+      "service campaign creation and execution",
+      "service outbound SMS",
+      "service inbound reply routing",
+      "TeamBox thread continuity and human takeover",
+      "service filter and escalation integrity",
+      "service metrics and campaign visibility"
+    ]
+  },
+  "seedDefects": {
+    "critical": [
+      {
+        "title": "AI Chat auto-scroll failure",
+        "targetSprint": "PE-AI-CHAT-01"
+      },
+      {
+        "title": "Wrong metric zeros for tony serra ford",
+        "targetSprint": "PE-SALES-01"
+      },
+      {
+        "title": "Wrong escalations for ford of columbia",
+        "targetSprint": "PE-TEAMBOX-01"
+      },
+      {
+        "title": "Visor metrics accuracy",
+        "targetSprint": "PE-SALES-01"
+      },
+      {
+        "title": "TeamBox message display / third-pane issue",
+        "targetSprint": "PE-TEAMBOX-01"
+      },
+      {
+        "title": "Sub-category refresh failure",
+        "targetSprint": "PE-TEAMBOX-01"
+      },
+      {
+        "title": "SMS filter missing",
+        "targetSprint": "PE-TEAMBOX-01"
+      },
+      {
+        "title": "No service-campaign filter",
+        "targetSprint": "PE-SERVICE-CAMPAIGNS-01"
+      },
+      {
+        "title": "Missing text-message responses",
+        "targetSprint": "PE-SERVICE-CAMPAIGNS-01"
+      },
+      {
+        "title": "Unwanted COST info on sales dashboard",
+        "targetSprint": "PE-SALES-01"
+      }
+    ],
+    "nonCritical": [
+      {
+        "title": "Chat flicker",
+        "targetSprint": "PE-AI-CHAT-01"
+      },
+      {
+        "title": "Mis-aligned dropdown",
+        "targetSprint": "PE-SALES-01"
+      },
+      {
+        "title": "UI inconsistencies",
+        "targetSprint": "PE-SALES-01"
+      },
+      {
+        "title": "Insights contact button issue",
+        "targetSprint": "PE-INSIGHTS-01"
+      },
+      {
+        "title": "Modal actions missing or wrong",
+        "targetSprint": "PE-INSIGHTS-01"
+      },
+      {
+        "title": "Missing graphs",
+        "targetSprint": "PE-INSIGHTS-01"
+      },
+      {
+        "title": "Library cards issue",
+        "targetSprint": "PE-INSIGHTS-01"
+      },
+      {
+        "title": "VAPI leads count issue",
+        "targetSprint": "PE-INTEGRATIONS-01"
+      },
+      {
+        "title": "Trigger config issue",
+        "targetSprint": "PE-SETTINGS-01"
+      },
+      {
+        "title": "User-invite email missing",
+        "targetSprint": "PE-SETTINGS-01"
+      },
+      {
+        "title": "Minor modal / action polish issues",
+        "targetSprint": "PE-SETTINGS-01"
+      }
+    ]
+  },
+  "harnessIntegration": {
+    "sprintsJsonRegistration": "REQUIRED \u2014 each PE sprint must be registered in sprints.json before execution",
+    "ghostProtocol": "File-based entry/exit gates \u2014 ghost appends to pre-exec and post-sprint reports",
+    "enforcerChecklist": "Required per sprint \u2014 observation or remediation variant",
+    "crossSign": "Required per sprint \u2014 implementing role != reviewing role",
+    "commitCommand": "COMMIT_ROLE=<role> COMMIT_SPRINT=PE-{ID} git commit -m 'message'",
+    "preCommitHook": "scripts/pre-commit.sh \u2014 7 gates, all must pass",
+    "watchdog": "scripts/watchdog.sh \u2014 C1-C19 checks, run before each commit"
+  }
+}

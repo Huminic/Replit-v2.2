@@ -92,25 +92,35 @@ export default function MarketingPage() {
     { id: 'mm-4', label: 'Replies Received', value: String(mktStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: Globe },
   ];
 
+  const hasCampaignData = !metricsLoading && ((mktStats?.total ?? 0) > 0 || (metrics?.campaignStats?.total ?? 0) > 0);
+
   const renderDashboard = () => (
     <div className="p-6 space-y-6">
       <div>
         <h2 className="text-lg font-semibold mb-1">Marketing Dashboard</h2>
         <p className="text-sm text-muted-foreground">Campaign performance and lead generation metrics</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {marketingMetrics.map(metric => (
-          <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-2xl font-bold">{metric.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {hasCampaignData ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {marketingMetrics.map(metric => (
+            <Card key={metric.id} className="hover:shadow-md transition-shadow cursor-pointer" data-testid={`metric-tile-${metric.id}`} onClick={() => setSelectedMetric(metric)}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">{metric.label}</p>
+                  <metric.icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <p className="text-2xl font-bold">{metric.value}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card data-testid="card-no-campaigns">
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            No campaign data yet. Check the <button className="underline text-foreground" onClick={() => setActiveTab('insights')}>Insights tab</button> for activity metrics.
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 

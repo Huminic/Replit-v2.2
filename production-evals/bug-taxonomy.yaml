@@ -1,0 +1,97 @@
+version: 1.0
+purpose: Standardize defect classification for Production Evals so false passes, trust breaks, workflow gaps, and operator-visible bugs are recorded consistently.
+severities:
+  - level: Critical
+    meaning: Breaks a business-critical workflow, destroys trust, or makes a core section unusable.
+    sprint_effect: Blocks section acceptance and usually blocks release confidence.
+    examples:
+      - TeamBox message click leaves third pane blank
+      - Store switch shows impossible zeros for active dealership
+      - Campaign replies never appear in TeamBox
+  - level: High
+    meaning: Major defect with serious operator impact or high credibility risk.
+    sprint_effect: Blocks flow acceptance and normally needs prompt remediation.
+    examples:
+      - Filter hides real SMS traffic
+      - Drill-down opens with wrong or meaningless data
+      - Escalations fire for wrong dealership
+  - level: Medium
+    meaning: Degrades usefulness or creates misleading or incomplete experience.
+    sprint_effect: Must be tracked and evaluated for production impact.
+    examples:
+      - Broken modal action
+      - Missing graph in non-core view
+      - Contact button present but non-functional
+  - level: Low
+    meaning: Cosmetic or low-risk issue that does not materially change task completion.
+    sprint_effect: Can be deferred if documented.
+    examples:
+      - Alignment issue
+      - Minor flicker without data loss
+      - Card spacing inconsistency
+primaryTypes:
+  - name: Functional
+    definition: Intended action does not complete or produces the wrong result.
+  - name: Data
+    definition: UI displays implausible, stale, contradictory, or wrong information.
+  - name: UX
+    definition: UI technically works but is confusing, misleading, or low quality for operators.
+  - name: State
+    definition: UI does not refresh, maintain, or reconcile state correctly.
+  - name: Permissions
+    definition: Role, store, or organization constraints are wrong or inconsistent.
+  - name: Async
+    definition: Loading, streaming, timing, race, or optimistic-update behavior is broken.
+  - name: Integration
+    definition: Provider or downstream system event does not materialize correctly in Nexxus.
+  - name: Regression
+    definition: Previously accepted behavior re-breaks.
+  - name: Ambiguity
+    definition: Acceptance target is under-specified or contradictory.
+falsePassClasses:
+  - name: Assertion-Only Pass
+    signal: Test assertions passed but the UI outcome is visibly wrong.
+  - name: DOM-Only Pass
+    signal: DOM proves presence but the operator experience is broken.
+  - name: Provider-Only Pass
+    signal: External service shows success but Nexxus UI truth is absent or wrong.
+  - name: Route-Only Pass
+    signal: Navigation technically occurs but lands in the wrong or useless state.
+  - name: Data-Render Pass
+    signal: Numbers render but the data is implausible or contradictory.
+  - name: Partial Workflow Pass
+    signal: Early steps succeed but downstream continuity breaks.
+requiredFields:
+  - bugId
+  - sprintId
+  - section
+  - useCaseId
+  - title
+  - severity
+  - type
+  - environment
+  - roleContext
+  - reproductionSteps
+  - expectedBehavior
+  - actualBehavior
+  - evidenceRefs
+  - userBusinessImpact
+  - suspectedCause
+  - falsePassClass
+  - status
+  - retestStatus
+statusValues:
+  - Open
+  - Fixed in sprint
+  - Partially fixed
+  - Deferred
+  - Blocked
+  - Needs operator decision
+  - Cannot reproduce
+retestValues:
+  - Not started
+  - Passed
+  - Failed
+  - Partial
+  - N/A
+criticalEscalationRule: Any defect that causes a core section to look trustworthy while behaving untrustworthily must be treated at least as High and often as Critical, even if a test technically passed.

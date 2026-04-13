@@ -186,25 +186,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const refreshToken = async () => {
     try {
-      // Refresh token is in httpOnly cookie — sent automatically
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
+      const { tryRefreshToken } = await import('@/lib/queryClient');
+      const success = await tryRefreshToken();
 
-      if (!response.ok) {
+      if (!success) {
         throw new Error('Token refresh failed');
       }
 
-      const data = await response.json();
-
-      // Store new access token in memory
-      storeToken(data.accessToken, data.expiresIn);
-
-      // Update user if provided
-      if (data.user) {
-        setUser(data.user);
+      // Fetch updated user data with the new token
+      const { getAccessToken } = await import('@/lib/tokenStore');
+      const token = getAccessToken();
+      if (token) {
+        await fetchUser(token);
       }
     } catch (err) {
       console.error('Token refresh error:', err);
@@ -274,8 +267,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store new access token in memory
       storeToken(data.accessToken, data.expiresIn);
 
-      // Update user with new organization
-      if (user) {
+      // Update user state with full user object from response (includes new org)
+      if (data.user) {
+        setUser(data.user);
+      } else if (user) {
         setUser({
           ...user,
           organization: data.organization,
@@ -308,19 +303,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // We must attempt the refresh call and let the server decide if the
       // cookie is present. A 401/400 response simply means no valid session.
       try {
-        const response = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-        });
+        const { tryRefreshToken } = await import('@/lib/queryClient');
+        const success = await tryRefreshToken();
 
-        if (response.ok) {
-          const data = await response.json();
-          storeToken(data.accessToken, data.expiresIn);
-          if (data.user) {
-            setUser(data.user);
-          } else {
-            await fetchUser(data.accessToken);
+        if (success) {
+          const { getAccessToken } = await import('@/lib/tokenStore');
+          const token = getAccessToken();
+          if (token) {
+            await fetchUser(token);
           }
         }
         // If refresh fails, user simply isn't authenticated — no error shown

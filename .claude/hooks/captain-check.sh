@@ -134,24 +134,73 @@ fi
 
 # Bash — check command
 if [ "$TOOL_NAME" = "Bash" ]; then
-  # Extract the first meaningful command word
+  # Extract the first meaningful command word (skip env var assignments like VAR=val)
   FIRST_CMD=$(echo "$COMMAND" | grep -oP '^\s*\K\S+' | head -1)
+  TEMP_CMD="$COMMAND"
+  while echo "$FIRST_CMD" | grep -qP '^[A-Z_]+='; do
+    TEMP_CMD=$(echo "$TEMP_CMD" | sed 's/^[[:space:]]*[A-Z_]*=[^ ]* *//')
+    FIRST_CMD=$(echo "$TEMP_CMD" | grep -oP '^\s*\K\S+' | head -1)
+  done
+
+  # Block Bash commands that redirect output to app code directories
+  if echo "$COMMAND" | grep -qP '>\s*(server/|client/|shared/|tests/)'; then
+    echo "CAPTAIN VIOLATION: Bash redirect to app code directory blocked. Delegate to sub-agent." >&2
+    echo "Command: $COMMAND" >&2
+    exit 2
+  fi
 
   # Explicitly allowed read-only commands
   case "$FIRST_CMD" in
     git)
       # Allow git read commands, block git write commands
-      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan)'; then
+      if echo "$COMMAND" | grep -qP 'git\s+(status|log|diff|branch|show|remote|rev-parse|blame|tag|stash\s+list|checkout\s+-[bB]|switch\s+-c|checkout\s+--orphan|add|commit)'; then
         exit 0
       fi
       echo "CAPTAIN VIOLATION: Git write command blocked during active sprint. Delegate to sub-agent." >&2
+      echo "Allowed: status, log, diff, branch, show, checkout -b, add, commit" >&2
       echo "Command: $COMMAND" >&2
       exit 2
       ;;
     ls|cat|head|tail|grep|find|wc|stat|date|pwd|echo|test|curl|python3|which|file|md5sum|diff|readlink|jq|true|false)
       exit 0
       ;;
-    npx|npm|node|pm2|docker|bash|sed|awk|perl|tee|dd|install|patch)
+    npm)
+      # Allow build only — block install/publish/other
+      if echo "$COMMAND" | grep -qP 'npm\s+run\s+build'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: npm command blocked during active sprint (only 'npm run build' allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    pm2)
+      # Allow restart/list only — block delete/stop/other
+      if echo "$COMMAND" | grep -qP 'pm2\s+(restart|list|status)'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: pm2 command blocked during active sprint (only restart/list allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    npx)
+      # Allow playwright and tsc only
+      if echo "$COMMAND" | grep -qP 'npx\s+(playwright|tsc)'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: npx command blocked during active sprint (only playwright/tsc allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    bash)
+      # Allow governance scripts only
+      if echo "$COMMAND" | grep -qP 'bash\s+scripts/(watchdog|enforcer-checklist|check-file-scope)\.sh'; then
+        exit 0
+      fi
+      echo "CAPTAIN VIOLATION: bash command blocked during active sprint (only governance scripts allowed). Delegate to sub-agent." >&2
+      echo "Command: $COMMAND" >&2
+      exit 2
+      ;;
+    npx|npm|node|pm2|docker|sed|awk|perl|tee|dd|install|patch)
       echo "CAPTAIN VIOLATION: Execution command blocked during active sprint. Delegate to sub-agent." >&2
       echo "Command: $COMMAND" >&2
       exit 2

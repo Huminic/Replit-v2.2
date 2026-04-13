@@ -1,0 +1,75 @@
+{
+  "id": "PE-SECTION-01",
+  "category": "Production Eval",
+  "name": "[Section] — [Focused Eval Name]",
+  "phase": "production_evals",
+  "status": "planned",
+  "source": "Production Evals methodology + operator review + relevant user stories + prior evidence",
+  "causedBy": "risk",
+  "outcome": "What will be proven when this sprint is complete.",
+  "codebaseArea": [
+    "evidence/PE-SECTION-01/"
+  ],
+  "acceptanceCriteria": [
+    "PE-SECTION-01.AC1: Section / page function map exists in interface terms.",
+    "PE-SECTION-01.AC2: Use case inventory includes happy path, negative path, and edge cases.",
+    "PE-SECTION-01.AC3: Acceptance matrix defines expected outcomes, evidence required, and data-truth checks.",
+    "PE-SECTION-01.AC4: Every executed flow has evidence and commentary.",
+    "PE-SECTION-01.AC5: Bugs found are logged with severity, type, false-pass class, and status.",
+    "PE-SECTION-01.AC6: Remediation retests are completed or explicitly deferred.",
+    "PE-SECTION-01.AC7: Post-sprint review includes confidence assessment and next recommendation."
+  ],
+  "entryGates": [
+    "A1: Relevant governance and product sources read (production-evals pack, CLAUDE.md, sprints.json, feature map, user stories).",
+    "A2: Scope limited to one section or subsection.",
+    "A3: User story gate satisfied — expected behavior defined in interface terms.",
+    "A4: Pre-execution report exists with objective, section map, use cases, acceptance matrix, evidence plan, action-boundary review.",
+    "A5: Irreversible actions approved or explicitly excluded.",
+    "A6: ghost_messages.json clear (empty messages array).",
+    "A7: Watchdog scan run — violations acknowledged or zero.",
+    "A8: Sprint registered in sprints.json with status committed.",
+    "A9: Ghost Entry Gate — ENTRY GATE: APPROVED in pre-execution-report.md."
+  ],
+  "exitGates": [
+    "B1: All planned flows have execution reports with evidence and commentary.",
+    "B2: Data-accuracy checks documented for all metric/data-heavy flows.",
+    "B3: False-pass detection performed with classes documented.",
+    "B4: Bug log updated with status for every issue found.",
+    "B5: Remediation retests completed or explicitly deferred.",
+    "B6: Post-sprint review written with confidence and recommendation.",
+    "B7: Enforcer-checklist.txt exists with RESULT: APPROVED.",
+    "B8: Cross-sign.md exists with verdict: approved and different reviewing role.",
+    "B9: If code changed, relevant tests rerun and recorded.",
+    "B10: Ghost Exit Gate — EXIT GATE: CLEARED in post-sprint-report.md."
+  ],
+  "dimensions": {
+    "layers": ["S1", "S2", "S3"],
+    "featureDims": ["FE", "BE", "DT", "AU", "IN"],
+    "testLevels": ["T2", "T3", "T4"]
+  },
+  "wholeProductFit": "Why this section matters to production readiness.",
+  "parallelizable": false,
+  "dependsOn": [],
+  "uiPermissions": null,
+  "declaredFiles": [
+    "evidence/PE-SECTION-01/pre-execution-report.md",
+    "evidence/PE-SECTION-01/section-function-map.md",
+    "evidence/PE-SECTION-01/use-case-inventory.md",
+    "evidence/PE-SECTION-01/acceptance-matrix.md",
+    "evidence/PE-SECTION-01/evidence-index.md",
+    "evidence/PE-SECTION-01/bug-log.md",
+    "evidence/PE-SECTION-01/post-sprint-report.md",
+    "evidence/PE-SECTION-01/enforcer-checklist.txt",
+    "evidence/PE-SECTION-01/cross-sign.md",
+    "evidence/PE-SECTION-01/workflow-audit.log"
+  ],
+  "commit": null,
+  "evidence": "evidence/PE-SECTION-01/",
+  "executionSteps": [
+    { "step": 1, "action": "Sprint registration + pre-execution package + Ghost Entry Gate", "status": "pending", "timestamp": null, "verdict": null },
+    { "step": 2, "action": "Section function map + use case inventory + acceptance matrix", "status": "pending", "timestamp": null, "verdict": null },
+    { "step": 3, "action": "Flow-by-flow evaluation with Playwright evidence", "status": "pending", "timestamp": null, "verdict": null },
+    { "step": 4, "action": "Bug triage and remediation loop if authorized", "status": "pending", "timestamp": null, "verdict": null },
+    { "step": 5, "action": "Post-sprint report + enforcer checklist + cross-sign + Ghost Exit Gate", "status": "pending", "timestamp": null, "verdict": null }
+  ]
+}

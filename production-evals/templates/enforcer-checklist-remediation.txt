@@ -1,0 +1,112 @@
+=== Enforcer Compliance Checklist — Production Eval (Remediation Mode) ===
+Sprint: PE-{ID}
+Timestamp: {ISO-8601}
+Mode: REMEDIATION (code changes authorized)
+
+--- Evidence Quality Checks (same as observation) ---
+
+[EQ-01] Pre-execution-report.md exists with all required sections
+  Result: [PASS] / [FAIL]
+
+[EQ-02] Ghost Entry Gate APPROVED exists in pre-execution-report.md
+  Result: [PASS] / [FAIL]
+
+[EQ-03] Every executed flow has evidence AND commentary
+  Result: [PASS] / [FAIL]
+
+[EQ-04] Evidence tiers meet rubric requirements
+  Result: [PASS] / [FAIL]
+
+[EQ-05] Data plausibility checks documented for all metric/data-heavy flows
+  Result: [PASS] / [FAIL]
+
+[EQ-06] False-pass detection actively performed
+  Result: [PASS] / [FAIL]
+
+[EQ-07] Bug log complete with required fields
+  Result: [PASS] / [FAIL]
+
+[EQ-08] Post-sprint-report.md exists with all required sections
+  Result: [PASS] / [FAIL]
+
+[EQ-09] Evidence index maps every artifact to sprint ID, use case ID, and AC
+  Result: [PASS] / [FAIL]
+
+--- Code Quality Checks (remediation mode only) ---
+
+[EF-01] TypeScript compilation: npx tsc --noEmit
+  Errors: {N}
+  Result: [PASS] / [FAIL]
+
+[EF-05] Governance files unchanged (CLAUDE.md, sprints.json staged only by orchestrator)
+  Result: [PASS] / [FAIL]
+
+[EF-14] UI Rendering Guard: page files max 40 line changes (or UI_EXCEPTION=true)
+  Lines changed: {N}
+  Result: [PASS] / [FAIL] / [SKIP — UI_EXCEPTION]
+
+[EF-15] Data Array Guard: no data array declarations deleted
+  Result: [PASS] / [FAIL]
+
+[EF-16] UI Element Guard: no UI elements removed
+  Result: [PASS] / [FAIL]
+
+[EF-18] UI Permission Gate: changes match uiPermissions declaration
+  uiPermissions: {value from sprint entry}
+  Result: [PASS] / [FAIL]
+
+[EF-19] Runtime smoke test (if APP_BASE_URL set)
+  Result: [PASS] / [FAIL] / [SKIP]
+
+--- Remediation-Specific Checks ---
+
+[REM-01] Before-fix evidence captured for every remediated bug
+  Bugs remediated: {N}
+  Before-fix evidence: {N}
+  Result: [PASS] / [FAIL]
+
+[REM-02] Exact failing flow rerun after every fix
+  Flows retested: {N}
+  Retest results: {PASS/FAIL counts}
+  Result: [PASS] / [FAIL]
+
+[REM-03] Adjacent risk flows rerun where warranted
+  Adjacent flows identified: {N}
+  Adjacent flows retested: {N}
+  Result: [PASS] / [FAIL]
+
+[REM-04] All staged files declared in pre-execution-report.md Declared Files
+  Staged app files: {list}
+  All declared: {Y/N}
+  Result: [PASS] / [FAIL]
+
+[REM-05] Fix scope is tightly bounded (no unrelated changes)
+  Changed files: {list}
+  All within remediation scope: {Y/N}
+  Result: [PASS] / [FAIL]
+
+--- Governance Checks ---
+
+[GV-01] Sprint registered in sprints.json
+  Result: [PASS] / [FAIL]
+
+[GV-02] ghost_messages.json clear
+  Result: [PASS] / [FAIL]
+
+[GV-03] Watchdog violations acknowledged
+  Result: [PASS] / [FAIL]
+
+[GV-04] One sprint at a time
+  Result: [PASS] / [FAIL]
+
+[GV-05] Cross-sign.md exists with different reviewing role
+  Result: [PASS] / [FAIL]
+
+=== SUMMARY ===
+PASS: {N}
+FAIL: {N}
+WARN: {N}
+
+RESULT: APPROVED — all critical checks pass ({N} warning(s))
+(or)
+RESULT: BLOCKED — {critical failures}

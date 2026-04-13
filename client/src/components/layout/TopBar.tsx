@@ -111,13 +111,12 @@ export function TopBar() {
     try {
       await authSwitchOrg(orgId);
       appSwitchOrg(orgId);
-      // Allow the refresh cookie (Set-Cookie from switch-org response) to be fully
-      // committed by the browser before reloading. Without this delay, the page can
-      // reload before the cookie is available, causing the refresh flow to fail and
-      // redirecting to /login (I-066 fix).
-      await new Promise(r => setTimeout(r, 100));
-      // Full page reload to ensure all contexts, queries, and cached data refresh for new org
-      window.location.href = '/';
+      // Reset (clear + refetch) all cached queries so UI loads fresh org data.
+      // resetQueries removes stale data immediately, unlike invalidateQueries
+      // which only marks stale and refetches lazily on next render.
+      // Avoids full page reload (which loses the in-memory access token and
+      // causes a login redirect on HTTPS due to cookie timing — I-066).
+      await queryClient.resetQueries();
     } catch {
       toast({ title: 'Switch failed', description: 'Could not switch organization. Please try again.', variant: 'destructive' });
     }
@@ -139,33 +138,37 @@ export function TopBar() {
 
       {/* Org switcher — center-aligned, switches between organizations for multi-org users */}
       <div className="flex-1 flex items-center justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2 text-sm" data-testid="button-org-switcher">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium truncate max-w-40">{currentOrganization.name}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-56" data-testid="dropdown-org-switcher">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Organization</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {organizations.map((org) => (
-              <DropdownMenuItem
-                key={org.id}
-                onClick={() => handleSwitchOrg(org.id)}
-                className="flex items-center justify-between"
-                data-testid={`org-option-${org.id}`}
-              >
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span>{org.name}</span>
-                </div>
-                {org.id === currentOrganization.id && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {organizations.length > 1 ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2 text-sm" data-testid="button-org-switcher">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium truncate max-w-40">{currentOrganization.name}</span>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-56" data-testid="dropdown-org-switcher">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Switch Organization</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {organizations.map((org) => (
+                <DropdownMenuItem
+                  key={org.id}
+                  onClick={() => handleSwitchOrg(org.id)}
+                  className="flex items-center justify-between"
+                  data-testid={`org-option-${org.id}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{org.name}</span>
+                  </div>
+                  {org.id === currentOrganization.id && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <span className="font-medium text-sm truncate max-w-40">{currentOrganization.name}</span>
+        )}
       </div>
 
       {/* Right-side action icons */}

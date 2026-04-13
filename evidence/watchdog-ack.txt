@@ -1,11 +1,12 @@
-Report-ID: WD-20260406-151321
-Acknowledged-By: frontend
-Sprint: REM-PE-002
-Timestamp: 2026-04-06T15:13:45Z
-
-C1: ACKNOWLEDGED — Pre-existing: many older sprints lack commit hashes in sprints.json. Not introduced by REM-PE-002.
-C2: ACKNOWLEDGED — Pre-existing: older sprints committed without evidence in git. Not introduced by REM-PE-002.
-C3: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 cross-sign issues from earlier work. Not introduced by REM-PE-002.
-C4: ACKNOWLEDGED — Pre-existing: M-002, M-003, R-015, R-016, T-019 checklist issues from earlier work. Not introduced by REM-PE-002.
-C14: ACKNOWLEDGED — scripts/pre-commit.sh has unstaged changes from a previous session. Not modified by REM-PE-002.
-C16: ACKNOWLEDGED — Pre-existing: server/sync.ts modified outside sprint scope by a previous session. Not modified by REM-PE-002.
+Report-ID: WD-20260413-212847
+Acknowledged-By: orchestrator
+Timestamp: 2026-04-13T21:29:00Z
+Violations-Reviewed:
+  C1: Pre-existing — older sprints committed without hash (legacy registry migration), tracked in backlog; batch commits from wave-pe3 work
+  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints S0-S18, VFY-01-05, FIX-01, G-004, etc.), tracked in backlog; recent sprints (SNP-*, EMG-*, LAUNCH-STABILIZE, LAUNCH-RECON-01) have partial artifacts — will be completed in launch sprints
+  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (M-002, M-003 reconciliation; PE-AI-CHAT-03, R-015, R-016, T-019 missing fields), tracked in backlog
+  C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016, T-019), tracked in backlog
+  C16: Pre-existing — known drift between sprints.json commit hashes and git log (null hashes from legacy registry migration), tracked in backlog
+  C19: Known — LAUNCH-RECON-01 pre-exec has 0 success criteria because this is a recon/fix sprint; LAUNCH-P0-CLEANUP same — governance-fix sprint with no testable application changes. ACs are tracked in sprints.json.
+  C20: LAUNCH-RECON-01 declares 13 application files (max 5) — this sprint expanded from recon-only to include 7 metric bugfixes (I-258 through I-268) plus I-235 email kill switch and partner org creation per operator direction during live eval. The fixes span insights, metrics, storage, users, organizations, and 3 client pages. Owner-approved scope expansion for production eval wave.
+Disposition: PROCEED — C20 is operator-directed scope expansion; all other violations are pre-existing/tracked

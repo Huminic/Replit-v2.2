@@ -56,6 +56,7 @@ export interface IStorage {
   getSessionByRefreshToken(token: string): Promise<Session | undefined>;
   deleteSession(id: string): Promise<void>;
   deleteUserSessions(userId: string): Promise<void>;
+  getMostRecentSessionForUser(userId: string): Promise<Session | undefined>;
 
   getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]>;
   getUsers(organizationId: string): Promise<Array<User & { role?: Role }>>;
@@ -370,6 +371,14 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUserSessions(userId: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, userId));
+  }
+
+  async getMostRecentSessionForUser(userId: string): Promise<Session | undefined> {
+    const [session] = await db.select().from(sessions)
+      .where(eq(sessions.userId, userId))
+      .orderBy(desc(sessions.createdAt))
+      .limit(1);
+    return session;
   }
 
   async getAgents(organizationId: string, filters?: { department?: string }): Promise<Agent[]> {
@@ -826,6 +835,7 @@ export class DatabaseStorage implements IStorage {
         eq(tasks.organizationId, organizationId),
         eq(tasks.status, "todo"),
         sql`(${tasks.type} = 'escalation' OR ${tasks.type} = 'unsent_message')`,
+        gte(tasks.createdAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)),
       )),
 
       db.select({ cnt: count() }).from(outboundLog).where(and(
@@ -914,6 +924,7 @@ export class DatabaseStorage implements IStorage {
         return rows;
       }
       case 'outbound_sent': {
+        // Single query with LEFT JOIN to campaign_recipients for legacy rows
         const rows = await db.select({
           id: outboundLog.id,
           channel: outboundLog.channel,
@@ -923,47 +934,130 @@ export class DatabaseStorage implements IStorage {
           createdAt: outboundLog.createdAt,
           recipientId: outboundLog.recipientId,
           campaignId: outboundLog.campaignId,
-        }).from(outboundLog).where(and(
-          eq(outboundLog.organizationId, organizationId),
-          eq(outboundLog.status, "sent"),
-          gte(outboundLog.createdAt, twentyFourHoursAgo),
-        )).orderBy(desc(outboundLog.createdAt)).limit(limit);
+          recipientName: outboundLog.recipientName,
+          recipientPhone: outboundLog.recipientPhone,
+          recipientEmail: outboundLog.recipientEmail,
+          // JOIN fields for legacy fallback
+          crFirstName: campaignRecipients.firstName,
+          crLastName: campaignRecipients.lastName,
+          crPhone: campaignRecipients.phone,
+          crEmail: campaignRecipients.email,
+        }).from(outboundLog)
+          .leftJoin(campaignRecipients, eq(outboundLog.recipientId, campaignRecipients.id))
+          .where(and(
+            eq(outboundLog.organizationId, organizationId),
+            eq(outboundLog.status, "sent"),
+            gte(outboundLog.createdAt, twentyFourHoursAgo),
+          )).orderBy(desc(outboundLog.createdAt)).limit(limit);
 
-        // BUG-PE01-003 fix: resolve recipient data from campaignRecipients for campaign sends
-        const recipientIds = rows.filter(r => r.recipientId).map(r => r.recipientId!);
-        const recipientMap = new Map<string, { name: string; phone: string | null; email: string | null }>();
-        if (recipientIds.length > 0) {
-          const recipients = await db.select({
-            id: campaignRecipients.id,
-            firstName: campaignRecipients.firstName,
-            lastName: campaignRecipients.lastName,
-            phone: campaignRecipients.phone,
-            email: campaignRecipients.email,
-          }).from(campaignRecipients)
-            .innerJoin(campaigns, eq(campaignRecipients.campaignId, campaigns.id))
-            .where(and(
-              eq(campaigns.organizationId, organizationId),
-              sql`${campaignRecipients.id} IN (${sql.join(recipientIds.map(id => sql`${id}`), sql`, `)})`
-            ));
-          for (const r of recipients) {
-            recipientMap.set(r.id, { name: [r.firstName, r.lastName].filter(Boolean).join(' '), phone: r.phone, email: r.email });
+        // First pass: resolve what we can synchronously, collect unresolved names for warehouse lookup
+        const unresolvedNames: Map<string, string[]> = new Map(); // firstName -> [rowId, ...]
+        const firstPassResults = rows.map(row => {
+          let { recipientName, recipientPhone, recipientEmail } = row;
+
+          // If direct columns are populated, use them as-is
+          if (recipientName || recipientPhone || recipientEmail) {
+            return {
+              id: row.id, channel: row.channel, status: row.status,
+              messageContent: row.messageContent, sentAt: row.sentAt,
+              createdAt: row.createdAt, recipientId: row.recipientId,
+              campaignId: row.campaignId,
+              recipientName, recipientPhone, recipientEmail,
+              _needsLookup: false,
+            };
+          }
+
+          // Fall back to campaign_recipients JOIN data for legacy rows
+          if (row.crFirstName || row.crLastName || row.crPhone || row.crEmail) {
+            const joinedName = [row.crFirstName, row.crLastName].filter(Boolean).join(' ') || null;
+            return {
+              id: row.id, channel: row.channel, status: row.status,
+              messageContent: row.messageContent, sentAt: row.sentAt,
+              createdAt: row.createdAt, recipientId: row.recipientId,
+              campaignId: row.campaignId,
+              recipientName: joinedName,
+              recipientPhone: row.crPhone || null,
+              recipientEmail: row.crEmail || null,
+              _needsLookup: false,
+            };
+          }
+
+          // Last resort: extract phone/email from messageContent for truly orphaned rows
+          let extractedPhone: string | null = null;
+          let extractedEmail: string | null = null;
+          if (row.messageContent) {
+            // Match "STOP confirmation to +1234567890" and similar patterns
+            const explicitPhoneMatch = row.messageContent.match(/(?:to |confirmation to |sent to )(\+?[\d\-()\s]{7,})/i);
+            if (explicitPhoneMatch) {
+              extractedPhone = explicitPhoneMatch[1].trim();
+            }
+            // Match email addresses anywhere in messageContent
+            const emailMatch = row.messageContent.match(/[\w.+-]+@[\w.-]+\.\w{2,}/);
+            if (emailMatch) extractedEmail = emailMatch[0];
+            // Match "[notification:*] ... sent to N admin(s)" pattern for subject extraction
+            const notifMatch = row.messageContent.match(/\[notification:[^\]]+\]\s*(.+?)\s*—/);
+            if (notifMatch && !recipientName) {
+              recipientName = notifMatch[1].trim() || null;
+            }
+          }
+
+          // If still no phone, try to extract first name for warehouse_leads lookup
+          const needsLookup = !extractedPhone && row.channel === 'sms';
+          if (needsLookup && row.messageContent) {
+            const nameMatch = row.messageContent.match(/^Hi (\w+),/);
+            if (nameMatch && nameMatch[1] !== 'there') {
+              const firstName = nameMatch[1];
+              const ids = unresolvedNames.get(firstName) || [];
+              ids.push(row.id);
+              unresolvedNames.set(firstName, ids);
+            }
+          }
+
+          return {
+            id: row.id, channel: row.channel, status: row.status,
+            messageContent: row.messageContent, sentAt: row.sentAt,
+            createdAt: row.createdAt, recipientId: row.recipientId,
+            campaignId: row.campaignId,
+            recipientName: recipientName || null,
+            recipientPhone: extractedPhone,
+            recipientEmail: extractedEmail,
+            _needsLookup: needsLookup,
+          };
+        });
+
+        // Second pass: batch lookup warehouse_leads by first name for unresolved SMS rows
+        if (unresolvedNames.size > 0) {
+          const nameList = Array.from(unresolvedNames.keys());
+          const warehouseRows = await db.select({
+            customerName: warehouseLeads.customerName,
+            customerPhone: warehouseLeads.customerPhone,
+          }).from(warehouseLeads).where(and(
+            eq(warehouseLeads.organizationId, organizationId),
+            isNotNull(warehouseLeads.customerPhone),
+          ));
+
+          // Build firstName -> phone map from warehouse data
+          const phoneByFirstName: Record<string, string> = {};
+          for (const wl of warehouseRows) {
+            if (!wl.customerPhone || !wl.customerName) continue;
+            const firstName = wl.customerName.split(' ')[0];
+            if (nameList.includes(firstName) && !phoneByFirstName[firstName]) {
+              phoneByFirstName[firstName] = wl.customerPhone;
+            }
+          }
+
+          // Apply matches back to unresolved rows
+          for (const result of firstPassResults) {
+            if (!result._needsLookup || result.recipientPhone) continue;
+            if (!result.messageContent) continue;
+            const nameMatch = result.messageContent.match(/^Hi (\w+),/);
+            if (nameMatch && nameMatch[1] !== 'there' && phoneByFirstName[nameMatch[1]]) {
+              result.recipientPhone = phoneByFirstName[nameMatch[1]];
+            }
           }
         }
 
-        return rows.map(row => {
-          const r = row.recipientId ? recipientMap.get(row.recipientId) : undefined;
-          if (r) {
-            return { ...row, recipientName: r.name || null, recipientPhone: r.phone || null, recipientEmail: r.email || null };
-          }
-          // BUG-PE01-003: For non-campaign sends, extract phone from messageContent
-          let extractedPhone: string | null = null;
-          let extractedName: string | null = null;
-          if (row.messageContent) {
-            const phoneMatch = row.messageContent.match(/(?:to |confirmation to |sent to )(\+?[\d\-()\s]{7,})/i);
-            if (phoneMatch) extractedPhone = phoneMatch[1].trim();
-          }
-          return { ...row, recipientName: extractedName, recipientPhone: extractedPhone, recipientEmail: null };
-        });
+        return firstPassResults.map(({ _needsLookup, ...rest }) => rest);
       }
       case 'total_leads': {
         const thirtyDaysAgo = new Date();
@@ -1184,17 +1278,21 @@ export class DatabaseStorage implements IStorage {
   async getLeadsDueForFollowup(organizationId: string, delayHours: number, limit: number = 20): Promise<WarehouseLead[]> {
     const cutoff = new Date(Date.now() - delayHours * 60 * 60 * 1000);
     const defaultConversionStatuses = ['SOLD', 'sold', 'SOLD_DELIVERED', 'SOLD_PENDING_FINANCE'];
-    return db.select().from(warehouseLeads)
-      .where(and(
-        eq(warehouseLeads.organizationId, organizationId),
-        isNull(warehouseLeads.followupSentAt),
-        isNotNull(warehouseLeads.customerPhone),
-        sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.createdAt}) <= ${cutoff}`,
-        sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(defaultConversionStatuses.map(s => sql`${s}`), sql`, `)}))`,
-        sql`COALESCE(${warehouseLeads.followupStep}, 0) < 999`
-      ))
-      .orderBy(desc(warehouseLeads.createdAt))
-      .limit(limit);
+    // TCPA fix (EMG-TCPA-01): deduplicate by phone number — only return the most recent lead
+    // per unique phone to prevent multiple SMS messages to the same customer
+    const rows = await db.execute(sql`
+      SELECT DISTINCT ON (customer_phone) *
+      FROM warehouse_leads
+      WHERE organization_id = ${organizationId}
+        AND followup_sent_at IS NULL
+        AND customer_phone IS NOT NULL
+        AND COALESCE(vin_created_at, created_at) <= ${cutoff}
+        AND (vin_status IS NULL OR vin_status NOT IN (${sql.join(defaultConversionStatuses.map(s => sql`${s}`), sql`, `)}))
+        AND COALESCE(followup_step, 0) < 999
+      ORDER BY customer_phone, created_at DESC
+      LIMIT ${limit}
+    `);
+    return rows.rows as WarehouseLead[];
   }
 
   async getLeadsDueForMultiStepFollowup(organizationId: string, sequenceLength: number, conversionStatuses: string[], limit: number = 20): Promise<WarehouseLead[]> {
@@ -1209,10 +1307,17 @@ export class DatabaseStorage implements IStorage {
         sql`(${warehouseLeads.vinStatus} IS NULL OR ${warehouseLeads.vinStatus} NOT IN (${sql.join(conversionStatuses.map(s => sql`${s}`), sql`, `)}))`
       );
     }
-    return db.select().from(warehouseLeads)
-      .where(and(...conditions))
-      .orderBy(desc(warehouseLeads.createdAt))
-      .limit(limit);
+    // TCPA fix (EMG-TCPA-01): deduplicate by phone/email — only return the most recent lead
+    // per unique contact to prevent multiple messages to the same customer
+    const baseConditions = and(...conditions);
+    const rows = await db.execute(sql`
+      SELECT DISTINCT ON (COALESCE(customer_phone, customer_email)) *
+      FROM warehouse_leads
+      WHERE ${baseConditions}
+      ORDER BY COALESCE(customer_phone, customer_email), created_at DESC
+      LIMIT ${limit}
+    `);
+    return rows.rows as WarehouseLead[];
   }
 
   async markFollowupSent(leadId: string): Promise<void> {
@@ -1227,12 +1332,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(warehouseLeads.id, leadId));
   }
 
-  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]> {
+  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date; syncedAfter?: Date }): Promise<WarehouseLead[]> {
     const conditions = [eq(warehouseLeads.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
     if (filters?.dataSource) conditions.push(eq(warehouseLeads.dataSource, filters.dataSource));
     if (filters?.createdAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.createdAfter}`);
     if (filters?.activityAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinUpdatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.activityAfter}`);
+    if (filters?.syncedAfter) conditions.push(sql`${warehouseLeads.syncedAt} >= ${filters.syncedAfter}`);
     const query = db.select().from(warehouseLeads).where(and(...conditions)).orderBy(desc(warehouseLeads.syncedAt));
     if (filters?.limit) return query.limit(filters.limit);
     return query;

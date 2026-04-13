@@ -228,9 +228,21 @@ async function sendLeadNotificationEmail(
   }
 
   // Exclusion — remove test/seed accounts (belt-and-suspenders alongside isActive check)
-  const testPatterns = ['@nexxus.com', '@test.com'];
+  const testDomainPatterns = ['@nexxus.com', '@test.com'];
+  const seedDomains = [
+    '@serrahonda.com', '@serranissan.com', '@tonyserraford.com',
+    '@hyundaiofcolumbia.com', '@fordofcolumbia.com', '@cageautomotive.com',
+  ];
+  const seedPrefixes = ['orgadmin@', 'salesmanager@', 'bdcmanager@', 'servicemanager@', 'fimanager@'];
   for (const email of recipientEmails) {
-    if (email.startsWith("admin@") || testPatterns.some(p => email.endsWith(p))) {
+    const lower = email.toLowerCase();
+    const isSeed =
+      lower.startsWith("admin@") ||
+      testDomainPatterns.some(p => lower.endsWith(p)) ||
+      seedDomains.some(d => lower.endsWith(d)) ||
+      seedPrefixes.some(p => lower.startsWith(p));
+    if (isSeed) {
+      console.log(`[LeadNotify] Excluding seed/test email: ${email}`);
       recipientEmails.delete(email);
     }
   }
@@ -246,18 +258,20 @@ async function sendLeadNotificationEmail(
   let sentCount = 0;
   const FROM_ADDRESS = "Nexxus Connect <notifications@huminic.ai>";
 
-  for (const email of recipients) {
-    try {
-      await callMCP("resend_send_email", {
-        from: FROM_ADDRESS,
-        to: email,
-        subject,
-        html: htmlBody,
-      });
-      sentCount++;
-    } catch (emailErr: any) {
-      console.error(`[LeadNotify] Failed to send to ${email}:`, emailErr.message);
-    }
+  // Batch all recipients into a single API call (comma-separated).
+  // The central-mcp resend_send_email tool splits on commas before forwarding
+  // to Resend, so this sends one email with multiple recipients instead of
+  // one email per recipient — avoids hitting the 100 emails/day free-plan cap.
+  try {
+    await callMCP("resend_send_email", {
+      from: FROM_ADDRESS,
+      to: recipients.join(","),
+      subject,
+      html: htmlBody,
+    });
+    sentCount = recipients.length;
+  } catch (emailErr: any) {
+    console.error(`[LeadNotify] Failed to send batch notification to ${recipients.join(", ")}:`, emailErr.message);
   }
 
   // Log the notification for idempotency tracking
@@ -270,6 +284,8 @@ async function sendLeadNotificationEmail(
       status: "sent",
       blockedReason: null,
       messageContent: `[notification:${idempotencyKey}] ${subject} — sent to ${sentCount} admin(s)`,
+      recipientEmail: recipients.join(", "),
+      recipientName: `${sentCount} admin(s)`,
       sentAt: new Date(),
     });
   } catch (logErr: any) {
@@ -524,6 +540,23 @@ const vapiWebhookPayloadSchema = z.union([
       type: z.string(),
       call: vapiCallSchema.optional(),
       recordingUrl: z.string().optional(),
+      // VAPI end-of-call-report puts transcript/artifact at message level too
+      transcript: z.string().optional(),
+      summary: z.string().optional(),
+      artifact: z.object({
+        transcript: z.string().optional(),
+        messages: z.array(z.object({
+          role: z.string().optional(),
+          message: z.string().optional(),
+          content: z.string().optional(),
+        })).optional(),
+        recordingUrl: z.string().optional(),
+      }).optional(),
+      messages: z.array(z.object({
+        role: z.string().optional(),
+        message: z.string().optional(),
+        content: z.string().optional(),
+      })).optional(),
     }),
   }),
   // New/flat format: { type, call, ... } (no message wrapper)
@@ -551,11 +584,20 @@ const vapiWebhookPayloadSchema = z.union([
 
 // Track processed VAPI call IDs to prevent duplicate conversations (I-177)
 const processedVapiCalls = new Map<string, { conversationId: string; timestamp: number }>();
+
+// Track recent VAPI calls by phone+assistant to catch duplicate webhooks with different call IDs (I-177 enhanced)
+// Key: `${normalizedPhone}::${assistantId}`, Value: { conversationId, callId, timestamp }
+const recentVapiCallsByPhone = new Map<string, { conversationId: string; callId: string; timestamp: number }>();
+const VAPI_PHONE_DEDUP_WINDOW_MS = 60_000; // 60 seconds — same phone + same assistant = same call
+
 // Clean up old entries every 10 minutes
 setInterval(() => {
   const cutoff = Date.now() - 30 * 60 * 1000;
   for (const [key, val] of processedVapiCalls) {
     if (val.timestamp < cutoff) processedVapiCalls.delete(key);
+  }
+  for (const [key, val] of recentVapiCallsByPhone) {
+    if (val.timestamp < cutoff) recentVapiCallsByPhone.delete(key);
   }
 }, 10 * 60 * 1000);
 
@@ -601,19 +643,31 @@ export function registerWebhookRoutes(app: Express) {
       // Extract transcript from multiple possible locations in VAPI payload:
       // 1. call.transcript (old format)
       // 2. call.artifact.transcript (new format)
-      // 3. call.artifact.messages or call.messages array (structured transcript)
-      // 4. Top-level artifact/messages (flat format)
+      // 3. message.transcript / message.artifact.transcript (end-of-call-report format)
+      // 4. call.artifact.messages, call.messages, message.messages array (structured transcript)
+      // 5. Top-level artifact/messages (flat format)
       let transcript = call.transcript || "";
       let summary = call.summary || "";
 
-      // Check artifact.transcript (new VAPI format)
-      const artifact = call.artifact || ("artifact" in data ? (data as any).artifact : null);
+      // Check message-level transcript (VAPI end-of-call-report often puts it here, not in call)
+      if (!transcript && (message as any).transcript) {
+        transcript = (message as any).transcript;
+      }
+      if (!summary && (message as any).summary) {
+        summary = (message as any).summary;
+      }
+
+      // Check artifact.transcript — from call, message, or top-level data
+      const artifact = call.artifact || (message as any).artifact || ("artifact" in data ? (data as any).artifact : null);
       if (!transcript && artifact?.transcript) {
         transcript = artifact.transcript;
       }
+      if (!summary && artifact?.summary) {
+        summary = artifact.summary;
+      }
 
-      // Check messages array (structured transcript from VAPI)
-      const messagesArray = call.messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
+      // Check messages array (structured transcript from VAPI) — from call, message, artifact, or top-level data
+      const messagesArray = call.messages || (message as any).messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
       if (!transcript && messagesArray && Array.isArray(messagesArray) && messagesArray.length > 0) {
         transcript = messagesArray
           .map((m: any) => `${m.role || "unknown"}: ${m.message || m.content || ""}`)
@@ -640,25 +694,33 @@ export function registerWebhookRoutes(app: Express) {
         }
       }
 
+      // Fallback: try matching by called phone number (the VAPI phone assigned to the org's agent)
       if (!organizationId) {
-        // Fallback: try to find an org with an active voice agent and assign the call there
-        console.warn(`[VAPI Webhook] Could not resolve organization from assistantId "${assistantId}" — attempting fallback lookup.`);
-        const allOrgs = assistantId ? [] : await storage.getOrganizations(); // already fetched above if assistantId was set
-        const fallbackOrgs = assistantId ? await storage.getOrganizations() : allOrgs;
-        for (const org of fallbackOrgs) {
-          const orgAgents = await storage.getAgents(org.id);
-          const voiceAgent = orgAgents.find(a => a.channels?.includes("voice") && a.status === "active");
-          if (voiceAgent) {
-            organizationId = org.id;
-            // Don't assign agentId — we can't confirm which agent handled the call
-            console.warn(`[VAPI Webhook] Fallback: assigning call to org "${org.name}" (${org.id}), agentId left null.`);
-            break;
+        const calledNumber = call.phoneNumber?.number || null;
+        if (calledNumber) {
+          const normalizedCalled = calledNumber.replace(/\D/g, "").slice(-10);
+          console.warn(`[VAPI Webhook] Could not resolve org from assistantId "${assistantId}" — trying phone match on ${calledNumber}`);
+          const fallbackOrgs = await storage.getOrganizations();
+          for (const org of fallbackOrgs) {
+            const orgAgents = await storage.getAgents(org.id);
+            const phoneMatch = orgAgents.find(a => {
+              if (!a.assignedPhone) return false;
+              const normalizedAgent = a.assignedPhone.replace(/\D/g, "").slice(-10);
+              return normalizedAgent === normalizedCalled;
+            });
+            if (phoneMatch) {
+              organizationId = org.id;
+              agentId = phoneMatch.id;
+              console.log(`[VAPI Webhook] Phone fallback: matched call to org "${org.name}" (${org.id}) via agent phone ${phoneMatch.assignedPhone}`);
+              break;
+            }
           }
         }
-        if (!organizationId) {
-          console.error("[VAPI Webhook] Fallback failed — no org with an active voice agent found. Rejecting.");
-          return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID." });
-        }
+      }
+
+      if (!organizationId) {
+        console.error(`[VAPI Webhook] Could not resolve organization — assistantId: "${assistantId}", calledNumber: "${call.phoneNumber?.number || "none"}". Rejecting to prevent cross-tenant data leak.`);
+        return res.status(422).json({ message: "No organization found to associate call with. Configure agent's VAPI assistant ID or assigned phone number." });
       }
 
       // Dedup: if we already processed this VAPI call, update transcript if available instead of creating duplicate (I-177, I-176)
@@ -685,6 +747,40 @@ export function registerWebhookRoutes(app: Express) {
         return res.json({ success: true, conversationId: existing.conversationId, deduplicated: true });
       }
 
+      // Enhanced dedup: same phone + same assistant within 60s = same call with different VAPI call ID (I-177 enhanced)
+      // This catches the case where VAPI generates two different call IDs for one physical call
+      if (customerPhone) {
+        const normalizedPhone = customerPhone.replace(/\D/g, "");
+        const phoneKey = `${normalizedPhone}::${assistantId || "unknown"}`;
+        const recentCall = recentVapiCallsByPhone.get(phoneKey);
+        if (recentCall && (Date.now() - recentCall.timestamp) < VAPI_PHONE_DEDUP_WINDOW_MS) {
+          // Same phone + assistant within the time window — this is a duplicate
+          console.log(`[VAPI Webhook] Phone+assistant dedup: ${phoneKey} already processed ${Date.now() - recentCall.timestamp}ms ago (callId=${recentCall.callId}). Current callId=${vapiCallId}. Skipping.`);
+          // Still update transcript if this webhook has one and the existing conversation doesn't
+          if (transcript || summary) {
+            const messageContent = summary
+              ? `**Call Summary:**\n${summary}\n\n**Transcript:**\n${transcript}`
+              : transcript;
+            const existingMessages = await storage.getMessages(recentCall.conversationId);
+            const hasTranscript = existingMessages.some(m => m.senderName === "VAPI");
+            if (!hasTranscript) {
+              await storage.createMessage({
+                conversationId: recentCall.conversationId,
+                role: "system",
+                content: messageContent,
+                senderName: "VAPI",
+              });
+              console.log(`[VAPI Webhook] Added transcript to existing conversation ${recentCall.conversationId} from phone-dedup event`);
+            }
+          }
+          // Track this call ID too so future events for it are caught by call-ID dedup
+          if (vapiCallId) {
+            processedVapiCalls.set(vapiCallId, { conversationId: recentCall.conversationId, timestamp: Date.now() });
+          }
+          return res.json({ success: true, conversationId: recentCall.conversationId, deduplicated: true, deduplicatedBy: "phone+assistant+window" });
+        }
+      }
+
       const conversation = await storage.createConversation({
         customerName,
         customerPhone,
@@ -699,6 +795,13 @@ export function registerWebhookRoutes(app: Express) {
       // Track this call to prevent duplicates
       if (vapiCallId) {
         processedVapiCalls.set(vapiCallId, { conversationId: conversation.id, timestamp: Date.now() });
+      }
+
+      // Track by phone+assistant for cross-callId dedup (I-177 enhanced)
+      if (customerPhone) {
+        const normalizedPhone = customerPhone.replace(/\D/g, "");
+        const phoneKey = `${normalizedPhone}::${assistantId || "unknown"}`;
+        recentVapiCallsByPhone.set(phoneKey, { conversationId: conversation.id, callId: vapiCallId || "none", timestamp: Date.now() });
       }
 
       if (transcript || summary) {
@@ -1205,8 +1308,8 @@ export function registerWebhookRoutes(app: Express) {
 
       console.log(`[Tavus Webhook] Created conversation ${conversation.id} from video ${tavusConversationId}, VIN lead: ${vinLeadCreated}`);
 
-      // Send email notification to admins (non-blocking)
-      {
+      // Send email notification to admins — only if transcript/summary exists (I-230: no notification for empty sessions)
+      if (hasTavusTranscript) {
         const org = await storage.getOrganization(organizationId);
         const orgName = org?.name || "Dealership";
         let sessionDurationStr = "Unknown";
@@ -1221,6 +1324,14 @@ export function registerWebhookRoutes(app: Express) {
           sessionDurationStr = mins > 0 ? `${mins}m ${remSecs}s` : `${tavusData.duration}s`;
         }
 
+        // I-229: Compute VIN status for email body
+        let tavusVinStatusText = "";
+        if (vinLeadCreated) {
+          tavusVinStatusText = "\u2705 Lead created in VIN Solutions";
+        } else {
+          tavusVinStatusText = "\u274C Not inserted \u2014 VIN integration error (check logs)";
+        }
+
         const emailHtml = generateLeadEmailHTML({
           orgName,
           assistantName: visitorName,
@@ -1228,6 +1339,7 @@ export function registerWebhookRoutes(app: Express) {
           summary: summary || transcript.substring(0, 300),
           callId: tavusConversationId,
           channel: "video",
+          vinStatus: tavusVinStatusText,
         });
 
         const idempotencyKey = `tavus-${tavusConversationId}`;
@@ -1239,6 +1351,8 @@ export function registerWebhookRoutes(app: Express) {
         ).catch((err) => {
           console.error("[Tavus Webhook] Email notification failed (non-blocking):", err.message);
         });
+      } else {
+        console.log(`[Tavus Webhook] Skipped email notification \u2014 no transcript/summary (empty session)`);
       }
 
       if (transcript && transcript.length > 0) {

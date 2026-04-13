@@ -158,6 +158,53 @@ function clickToCall(phone: string | null | undefined, toast: any) {
   toast({ title: 'Calling', description: `Initiating call to ${digits}` });
 }
 
+function cleanVehicleOfInterest(value: string | null | undefined): string {
+  if (!value) return '—';
+  if (value.startsWith('https://api.vinsolutions.com') || value.startsWith('http://api.vinsolutions.com')) return 'No data';
+  if (value === '[object Object]') return 'No data';
+  return value;
+}
+
+function formatPhoneNumber(phone: string | null | undefined): string {
+  if (!phone) return '—';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('1')) {
+    const d = digits.slice(1);
+    return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
+
+const VIN_STATUS_LABELS: Record<string, string> = {
+  ACTIVE_NEW_LEAD: 'New Lead',
+  ACTIVE_WAITING_FOR_PROSPECT_RESPONSE: 'Waiting for Response',
+  ACTIVE_APPOINTMENT_SET: 'Appointment Set',
+  ACTIVE_REVISIT: 'Revisit',
+  SOLD_DELIVERED: 'Sold - Delivered',
+  SOLD_PENDING_FINANCE: 'Sold - Pending Finance',
+  SOLD_PENDING_DELIVERY: 'Sold - Pending Delivery',
+  LOST_PURCHASED_SAME_BRAND_DIFFERENT_DEALER: 'Lost - Same Brand, Other Dealer',
+  LOST_PURCHASED_DIFFERENT_BRAND: 'Lost - Different Brand',
+  LOST_NOT_IN_MARKET: 'Lost - Not in Market',
+  LOST_BAD_LEAD: 'Lost - Bad Lead',
+  LOST_DUPLICATE: 'Lost - Duplicate',
+  WALK_IN: 'Walk-In',
+  INTERNET: 'Internet',
+  PHONE: 'Phone',
+};
+
+function formatVinStatus(status: string | null | undefined): string {
+  if (!status) return '—';
+  if (VIN_STATUS_LABELS[status]) return VIN_STATUS_LABELS[status];
+  return status
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 function PhoneCell({ phone, toast }: { phone: string | null | undefined; toast: any }) {
   if (!phone || phone === '—') return <span>—</span>;
   return (
@@ -166,7 +213,7 @@ function PhoneCell({ phone, toast }: { phone: string | null | undefined; toast: 
       onClick={() => clickToCall(phone, toast)}
       data-testid={`phone-click-${phone}`}
     >
-      {phone}
+      {formatPhoneNumber(phone)}
     </span>
   );
 }
@@ -234,7 +281,7 @@ function ContactDetailView({ leadId, leadRow, onBack, orgId }: {
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-foreground" data-testid="text-contact-name">{contactName}</h3>
               {leadRow?.vinStatus && (
-                <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground" data-testid="text-contact-status">{leadRow.vinStatus}</span>
+                <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground" data-testid="text-contact-status">{formatVinStatus(leadRow.vinStatus)}</span>
               )}
             </div>
           </div>
@@ -243,7 +290,7 @@ function ContactDetailView({ leadId, leadRow, onBack, orgId }: {
             {contactPhone && (
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-phone-row">
                 <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm text-foreground flex-1" data-testid="text-contact-phone">{contactPhone}</span>
+                <span className="text-sm text-foreground flex-1" data-testid="text-contact-phone">{formatPhoneNumber(contactPhone)}</span>
               </div>
             )}
             {contactEmail && (
@@ -266,12 +313,12 @@ function ContactDetailView({ leadId, leadRow, onBack, orgId }: {
                 <span className="text-sm text-foreground flex-1" data-testid="text-contact-company">{contact.companyName}</span>
               </div>
             )}
-            {leadRow?.vehicleOfInterest && (
+            {leadRow?.vehicleOfInterest && cleanVehicleOfInterest(leadRow.vehicleOfInterest) !== 'No data' && (
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border" data-testid="contact-vehicle-row">
                 <Sparkles className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <div className="flex-1">
                   <span className="text-xs text-muted-foreground">Vehicle of Interest</span>
-                  <p className="text-sm text-foreground" data-testid="text-contact-vehicle">{leadRow.vehicleOfInterest}</p>
+                  <p className="text-sm text-foreground" data-testid="text-contact-vehicle">{cleanVehicleOfInterest(leadRow.vehicleOfInterest)}</p>
                 </div>
               </div>
             )}
@@ -375,8 +422,8 @@ function MetricDetailDialog({ selectedMetric, metricDetails, onClose, orgId }: {
               {detailRows.map((row: any, idx: number) => (
                 <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`row-pipeline-${idx}`}>
                   <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
-                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
-                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{formatVinStatus(row.vinStatus)}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{cleanVehicleOfInterest(row.vehicleOfInterest)}</td>
                   <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
                   <td className="py-2 px-2">
                     {row.sourceId && (
@@ -568,7 +615,10 @@ export default function MainPage() {
   const [hasSentMessage, setHasSentMessage] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isInitialLoad = useRef(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [, setLocation] = useLocation();
   const searchString = useSearch();
@@ -595,8 +645,29 @@ export default function MainPage() {
   const metrics = buildPipelineTiles(pipelineData);
   const metricDetails = buildMetricDetails(pipelineData);
 
+  const { data: existingConversations } = useQuery<DbConversation[]>({
+    queryKey: ['/api/conversations?channel=ai-chat'],
+    enabled: !!authUser,
+  });
+
   const findOrCreateConversation = useCallback(async () => {
     if (!authUser || initialized) return;
+
+    // Reuse an existing ai-chat conversation for this user if one exists
+    const userEmail = authUser.email;
+    const match = existingConversations?.find(
+      (c) => c.customerEmail === userEmail && c.channel === 'ai-chat'
+    );
+
+    if (match) {
+      setConversationId(match.id);
+      setChatError(null);
+      setInitialized(true);
+      return;
+    }
+
+    // Only create if the query has resolved (not still loading)
+    if (existingConversations === undefined) return;
 
     try {
       const res = await apiRequest('POST', '/api/conversations', {
@@ -607,12 +678,14 @@ export default function MainPage() {
       });
       const newConv: DbConversation = await res.json();
       setConversationId(newConv.id);
+      setChatError(null);
       queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
     } catch (err) {
       console.error('Failed to create main chat conversation:', err);
+      setChatError('Failed to initialize chat. Click to retry.');
     }
-  }, [authUser, initialized, personaName]);
+  }, [authUser, existingConversations, initialized, personaName]);
 
   useEffect(() => {
     findOrCreateConversation();
@@ -627,26 +700,25 @@ export default function MainPage() {
     enabled: !!conversationId,
   });
 
-  useEffect(() => {
-    if (dbMessages && dbMessages.length > 0) {
-      const mapped: ChatMessage[] = dbMessages.map((m) => ({
-        id: m.id,
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-        timestamp: m.createdAt ? new Date(m.createdAt).toISOString() : new Date().toISOString(),
-      }));
-      setMessages(mapped);
-      if (mapped.some((m) => m.role === 'user')) {
-        setHasSentMessage(true);
-        setTilesCollapsed(true);
-      }
-    } else if (dbMessages && dbMessages.length === 0 && conversationId && !initialized) {
-    }
-  }, [dbMessages, conversationId, personaName, authUser]);
+  const handleStreamComplete = useCallback((finalContent: string) => {
+    setMessages(prev => [...prev, {
+      id: `msg-ai-${Date.now()}`,
+      role: 'assistant' as const,
+      content: finalContent,
+      timestamp: new Date().toISOString(),
+    }]);
+  }, []);
 
   const { sendMessage: streamSend, abortStream, retry, isStreaming, streamingContent, statusMessage, error: streamError, lastFailedContent } = useStreamingChat({
     conversationId,
+    onComplete: handleStreamComplete,
   });
+
+  useEffect(() => {
+    // Chat starts blank and accumulates only via UI interactions.
+    // Never sync from DB to prevent history flooding in after first send.
+    isInitialLoad.current = false;
+  }, [dbMessages]);
 
   const lastUserContent = messages.filter(m => m.role === 'user').at(-1)?.content;
   const handleRegenerate = () => {
@@ -659,8 +731,23 @@ export default function MainPage() {
     }
   }, [messages, streamingContent]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [messages]);
+
   const handleSend = async () => {
-    if (!inputValue.trim() || !conversationId) return;
+    if (!inputValue.trim()) return;
+
+    if (!conversationId) {
+      // Try to recreate the conversation before giving up
+      setChatError(null);
+      setInitialized(false);
+      await findOrCreateConversation();
+      // conversationId is set via state, so we can't read it synchronously here.
+      // Show a toast and let the user retry after the conversation initializes.
+      toast({ title: 'Chat initializing', description: 'Please try sending your message again.', variant: 'default' });
+      return;
+    }
 
     const content = inputValue.trim();
     const userMessage: ChatMessage = {
@@ -771,6 +858,19 @@ export default function MainPage() {
 
         <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
           <div className="max-w-3xl mx-auto flex flex-col gap-4">
+            {chatError && (
+              <div
+                className="flex justify-center cursor-pointer"
+                onClick={() => { setChatError(null); setInitialized(false); }}
+                data-testid="chat-error-banner"
+              >
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive hover:bg-destructive/20 transition-colors">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span>{chatError}</span>
+                </div>
+              </div>
+            )}
+
             {messages.map((message, idx) => {
               const isLastAssistant = message.role === 'assistant' && idx === messages.length - 1;
               return (
@@ -843,6 +943,7 @@ export default function MainPage() {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
@@ -886,6 +987,7 @@ export default function MainPage() {
                     setInputValue('');
                     setConversationId(null);
                     setInitialized(false);
+                    setChatError(null);
                     setHasSentMessage(false);
                     setTilesCollapsed(false);
                   }}

@@ -21,7 +21,7 @@
 import { useLocation } from 'wouter';
 import { useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
+import {
   MessageSquare,
   Inbox,
   ShoppingCart,
@@ -31,6 +31,7 @@ import {
   Settings,
   ChevronsRight,
   LogOut,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,7 @@ const menuItems: MenuItem[] = [
   // { id: 'my-work', label: 'My Work', icon: User, path: '/my-work', hasPanel: true, section: 'my-work' },
   { id: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales', hasPanel: true, section: 'sales' },
   { id: 'service', label: 'Service', icon: Wrench, path: '/service', hasPanel: true, section: 'service' },
+  { id: 'insights', label: 'Insights', icon: BarChart3, path: '/insights', hasPanel: true },
   { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/marketing', hasPanel: true, section: 'marketing' },
   { id: 'management', label: 'Manage', icon: LayoutDashboard, path: '/management', hasPanel: true, section: 'management' },
 ];
@@ -132,7 +134,7 @@ export function Sidebar() {
         if (!panelHovered) {
           setActivePanel(null);
         }
-      }, 2000);
+      }, 300);
     }
   };
 

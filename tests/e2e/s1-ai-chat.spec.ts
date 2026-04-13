@@ -65,16 +65,64 @@ test("S-1.AC2: metrics dashboard returns numeric values", async ({ request }) =>
 });
 
 // ==========================================
-// S-1.AC3: Chat input / conversation API
+// S-1.AC3: Chat input / conversation API — send message and verify response
 // ==========================================
-test("S-1.AC3: conversations endpoint responds", async ({ request }) => {
+test("S-1.AC3: send message and verify response appears in conversation", async ({ request }) => {
   const token = await getToken(request, "serra_honda@huminic.ai");
-  const res = await request.get(`${BASE}/api/conversations`, {
+
+  // List conversations before sending
+  const beforeRes = await request.get(`${BASE}/api/conversations`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  expect(res.status()).toBe(200);
-  const data = await res.json();
-  expect(Array.isArray(data)).toBe(true);
+  expect(beforeRes.status()).toBe(200);
+  const beforeData = await beforeRes.json();
+  expect(Array.isArray(beforeData)).toBe(true);
+  const countBefore = beforeData.length;
+
+  // Create a new conversation
+  const convRes = await request.post(`${BASE}/api/conversations`, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    data: { customerName: "S-1.AC3 Message Test", channel: "ai-chat" },
+  });
+  expect(convRes.status()).toBe(201);
+  const conv = await convRes.json();
+
+  // Send a chat message
+  const chatRes = await request.post(`${BASE}/api/chat/${conv.id}/stream`, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    data: { content: "What is 2 plus 2?" },
+    timeout: 20000,
+  });
+  expect(chatRes.status()).toBe(200);
+  const body = await chatRes.text();
+
+  // Extract content from SSE stream
+  const contentParts: string[] = [];
+  for (const line of body.split("\n")) {
+    if (line.startsWith("data: ")) {
+      try {
+        const d = JSON.parse(line.slice(6));
+        if (d.type === "content" && d.text) contentParts.push(d.text);
+      } catch {}
+    }
+  }
+  const fullResponse = contentParts.join("");
+
+  // Assert the AI actually responded with content (not empty)
+  expect(fullResponse.length, "AI response should have meaningful content").toBeGreaterThan(5);
+  // Assert the response mentions "4" (answer to 2+2)
+  expect(fullResponse, "AI should answer the math question").toContain("4");
+
+  // Verify conversation count incremented
+  const afterRes = await request.get(`${BASE}/api/conversations`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(afterRes.status()).toBe(200);
+  const afterData = await afterRes.json();
+  expect(afterData.length, "Conversation count should increment after creating one").toBeGreaterThan(countBefore);
+
+  console.log(`  Message response: "${fullResponse.substring(0, 80)}..."`);
+  console.log(`  Conversations: before=${countBefore}, after=${afterData.length}`);
 });
 
 // ==========================================

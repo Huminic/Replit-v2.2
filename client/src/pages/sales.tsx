@@ -16,7 +16,7 @@
  *
  */
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { LayoutDashboard, Bot, BarChart3, Calendar as CalendarIcon, TrendingUp, TrendingDown, Users, Clock, Zap, Target, ArrowUpRight, Settings, User, ArrowLeft, Phone, MessageSquare, Mail, MapPin, Sparkles, Loader2 } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { useQuery } from '@tanstack/react-query';
@@ -106,7 +106,8 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-7', label: 'Conversion Rate', value: '0%', change: 0, trend: 'up' as const, icon: TrendingUp },
   ];
   const t = (v: number) => (v >= 0 ? 'up' : 'down') as 'up' | 'down';
-  const activePipeline = pipeline?.activePipeline ?? summary.activeLeads;
+  // I-266: Use only 14-day pipeline metric (matches Main page). Don't fall back to 30-day activeLeads.
+  const activePipeline = pipeline?.activePipeline ?? 0;
   return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },
@@ -214,6 +215,50 @@ function SalesMetricDetailDialog({ selectedMetric, onClose, orgId, leadSummary }
                         className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
                         onClick={() => setViewingContact({ leadId: row.sourceId, row })}
                         data-testid={`sales-button-view-contact-${idx}`}
+                      >
+                        <User className="h-3 w-3" />
+                        Show Contact
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (metricKey === 'total_leads' || metricKey === 'new_leads') {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid={`sales-table-${metricKey}`}>
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Name</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Status</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Vehicle</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Source</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground">Lead ID</th>
+                <th className="py-2 px-2 text-xs font-semibold text-muted-foreground"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailRows.map((row: any, idx: number) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-muted/30" data-testid={`sales-row-${metricKey}-${idx}`}>
+                  <td className="py-2 px-2 font-medium text-foreground">{row.customerName || '—'}</td>
+                  <td className="py-2 px-2"><span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">{row.vinStatus || '—'}</span></td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[140px]">{row.vehicleOfInterest || '—'}</td>
+                  <td className="py-2 px-2 text-muted-foreground truncate max-w-[120px]">{row.leadSource || '—'}</td>
+                  <td className="py-2 px-2 text-xs text-muted-foreground font-mono">{row.sourceId || row.id?.substring(0, 8)}</td>
+                  <td className="py-2 px-2">
+                    {row.sourceId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
+                        onClick={() => setViewingContact({ leadId: row.sourceId, row })}
+                        data-testid={`sales-button-view-contact-${metricKey}-${idx}`}
                       >
                         <User className="h-3 w-3" />
                         Show Contact
@@ -467,6 +512,7 @@ function SalesContactDetailView({ leadId, leadRow, onBack, orgId }: {
 
 export default function SalesPage() {
   const [currentLocation, setLocation] = useLocation();
+  const searchString = useSearch();
   const { selectedAgent, setSelectedAgent, currentOrganization } = useApp();
   const { setRightPaneOpen } = useUILayout();
   const { toast } = useToast();
@@ -478,7 +524,7 @@ export default function SalesPage() {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     if (tab && tabs.some(t => t.id === tab)) setActiveTab(tab);
-  }, [currentLocation]);
+  }, [currentLocation, searchString]);
   const [selectedMetric, setSelectedMetric] = useState<SalesMetricTile | null>(null);
   
   const { data: salesAgents = [], isLoading } = useQuery<Agent[]>({

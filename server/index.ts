@@ -12,6 +12,7 @@ import { startSchedulers } from "./services/scheduler";
 import { seedDatabase } from "./seed";
 import { registerVendorRoutes } from "./vendorProxy";
 import { startSyncScheduler } from "./sync";
+import { startTriggerScheduler } from "./services/triggerService";
 
 function validateEnvironment() {
   const required = ['DATABASE_URL', 'JWT_SECRET'];
@@ -109,9 +110,12 @@ app.use(helmet({
 // iframe embeds. This middleware runs after Helmet to override those headers
 // only on widget paths.
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/widget') || req.path.startsWith('/widget') || req.path.startsWith('/w/') || req.path.startsWith('/p/')) {
+  if (req.path.startsWith('/api/widget') || req.path.startsWith('/widget') || req.path.startsWith('/w/') || req.path.startsWith('/p/') || req.path.startsWith('/dealer-widgets/') || req.path.startsWith('/dealer-handoff/')) {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
     res.removeHeader('X-Frame-Options');
     res.removeHeader('X-Content-Type-Options');
     res.removeHeader('X-XSS-Protection');
@@ -237,6 +241,11 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
       startSchedulers();
+      // Start trigger scheduler as backup (60s delay). Primary trigger runs post-sync in sync.ts.
+      setTimeout(() => {
+        startTriggerScheduler();
+        console.log("[Triggers] Backup trigger scheduler started (60s delay, primary runs post-sync)");
+      }, 60000);
     },
   );
 })();

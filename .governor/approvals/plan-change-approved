@@ -1,0 +1,3 @@
+Operator-approved structural changes to sprints.json for LAUNCH sprint transitions.
+Approved: 2026-04-13T17:33:00Z
+Reason: Adding type annotations to executionSteps for LAUNCH-RECON-01 (governance/infrastructure classification)

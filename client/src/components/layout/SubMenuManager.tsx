@@ -76,6 +76,7 @@ export function SubMenuManager() {
     subMenuExpanded,
     setActivePanel,
     setSubMenuExpanded,
+    panelHovered,
     setPanelHovered
   } = useUILayout();
   const orgId = currentOrganization?.id;
@@ -186,7 +187,7 @@ export function SubMenuManager() {
     if (!subMenuExpanded) {
       panelLeaveTimeoutRef.current = setTimeout(() => {
         setActivePanel(null);
-      }, 2000);
+      }, 500);
     }
   };
 
@@ -757,7 +758,7 @@ export function SubMenuManager() {
   if (subMenuExpanded && isVisible) {
     return (
       <div
-        className="relative z-40 w-[280px] border-r border-border bg-background flex-shrink-0 transition-all duration-200"
+        className="relative z-0 w-[280px] border-r border-border bg-background flex-shrink-0 transition-all duration-200"
         onMouseMove={handlePanelInteraction}
         onClick={handlePanelInteraction}
         data-testid="submenu-panel"
@@ -772,8 +773,8 @@ export function SubMenuManager() {
   return (
     <div
       className={cn(
-        'fixed left-16 top-14 bottom-0 z-40 w-[280px] border-r border-border bg-background shadow-lg transition-all duration-200',
-        isVisible ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+        'fixed left-[72px] top-14 bottom-0 z-30 w-[280px] border-r border-border bg-background shadow-lg transition-all duration-200',
+        isVisible ? `translate-x-0 opacity-100 ${panelHovered ? 'pointer-events-auto' : 'pointer-events-none'}` : '-translate-x-full opacity-0 pointer-events-none'
       )}
       onMouseEnter={handlePanelMouseEnter}
       onMouseLeave={handlePanelMouseLeave}

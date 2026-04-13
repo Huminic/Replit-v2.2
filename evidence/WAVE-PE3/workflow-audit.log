@@ -1,0 +1,13 @@
+[2026-04-07T21:20:00Z] agent-launch role=orchestrator scope=server/storage.ts,evidence/WAVE-PE3/,evidence/SNP-BACKFILL-01/
+[2026-04-07T21:25:48Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Watchdog gate: Ack is 101 minutes old (max 60). Re-acknowledge."
+[2026-04-07T21:26:40Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Pre-execution report not found: evidence/WAVE-PE3/pre-execution-report.md"
+[2026-04-07T21:27:08Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Pre-execution report missing '## Declared Files' section. List every file you plan to modify."
+[2026-04-07T21:27:49Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Enforcer checklist not found: evidence/WAVE-PE3/enforcer-checklist.txt. Run: ./scripts/enforcer-checklist.sh WAVE-PE3"
+[2026-04-07T21:31:32Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Cross-sign not found: evidence/WAVE-PE3/cross-sign.md. A different role must review and create it."
+[2026-04-07T21:32:20Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=PASS detail="All 7 gates passed"
+[2026-04-07T21:37:49Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Staged files not declared in pre-execution report: server/routes/webhooks.ts. Update ## Declared Files section."
+[2026-04-07T21:38:30Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=PASS detail="All 7 gates passed"
+[2026-04-07T22:23:25Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Staged files not declared in pre-execution report: server/outbound.ts server/routes/sms.ts. Update ## Declared Files section."
+[2026-04-07T22:23:58Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Enforcer checklist is stale (modified 3169s ago, max 1800s). Re-run the generator."
+[2026-04-07T22:25:07Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=BLOCKED detail="Cross-sign is stale (modified 3191s ago, max 1800s). Re-run the generator."
+[2026-04-07T22:25:55Z] PRE-COMMIT role=orchestrator sprint=WAVE-PE3 result=PASS detail="All 7 gates passed"

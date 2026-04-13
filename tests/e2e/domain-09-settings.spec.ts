@@ -112,4 +112,56 @@ test.describe("Domain 9: Settings", () => {
 
     expect(toggleVisible).toBe(true);
   });
+
+  test("9.6 Settings persist after page reload", async ({ page, request }) => {
+    // Use API to verify setting persistence (avoids flaky UI-only test)
+    const loginRes = await request.post(`${BASE}/api/auth/login`, {
+      data: { email: testUsers.superAdmin.email, password: testUsers.superAdmin.password },
+    });
+    expect(loginRes.ok()).toBe(true);
+    const { accessToken } = await loginRes.json();
+
+    // Get the current org settings via API
+    const orgRes = await request.get(`${BASE}/api/organizations`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    expect(orgRes.ok()).toBe(true);
+    const orgs = await orgRes.json();
+    expect(Array.isArray(orgs)).toBe(true);
+    expect(orgs.length).toBeGreaterThan(0);
+
+    // Pick the first org and read its commGate setting
+    const org = orgs[0];
+    const originalCommGate = org.commGateEnabled ?? org.comm_gate_enabled ?? null;
+
+    // Navigate to settings in browser, then reload and verify page still shows settings
+    await loginForBrowser(page, testUsers.superAdmin, "/settings");
+    await page.waitForTimeout(1000);
+
+    // Capture what's on the page before reload
+    const tilesBeforeReload = await page.locator('[class*="tile"], [class*="card"], [class*="Card"], [class*="Tile"], [data-testid*="settings"]').count();
+    expect(tilesBeforeReload, "Settings tiles should render before reload").toBeGreaterThan(0);
+
+    // Reload the page
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(2000);
+
+    // Verify settings tiles still render after reload (state persisted, not lost)
+    const tilesAfterReload = await page.locator('[class*="tile"], [class*="card"], [class*="Card"], [class*="Tile"], [data-testid*="settings"]').count();
+    expect(tilesAfterReload, "Settings tiles should still render after page reload").toBeGreaterThan(0);
+
+    // Verify we're still on the settings page (not redirected)
+    expect(page.url()).toContain("settings");
+
+    // Verify the org settings API returns the same value (no data loss on reload)
+    const orgResAfter = await request.get(`${BASE}/api/organizations`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    expect(orgResAfter.ok()).toBe(true);
+    const orgsAfter = await orgResAfter.json();
+    const orgAfter = orgsAfter.find((o: any) => o.id === org.id);
+    expect(orgAfter, "Org should still exist after reload").toBeTruthy();
+    const commGateAfter = orgAfter.commGateEnabled ?? orgAfter.comm_gate_enabled ?? null;
+    expect(commGateAfter, "CommGate setting should persist across reload").toBe(originalCommGate);
+  });
 });

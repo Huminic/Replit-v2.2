@@ -1,0 +1,58 @@
+{
+  "packName": "nexxus-production-evals-runtime-pack",
+  "version": "2.0-harness-native",
+  "alignedTo": "sprints.json",
+  "harnessVersion": "nexxus pre-commit.sh v2026-03-13",
+  "purpose": "Harness-native Production Evals pack for Nexxus Connect v2.2. Fully wired to Ghost entry/exit gates, enforcer checklist, cross-sign, watchdog, and pre-commit hook.",
+  "criticalRules": [
+    "Playwright is the witness, not the judge.",
+    "Run exactly one sprint at a time.",
+    "Run exactly one flow at a time inside a sprint.",
+    "No acceptance without evidence and commentary.",
+    "False-pass detection is mandatory.",
+    "Fixes require exact-flow retests.",
+    "Ghost Entry Gate APPROVED required before execution.",
+    "Ghost Exit Gate CLEARED required before next sprint.",
+    "Enforcer-checklist.txt with RESULT: APPROVED required per sprint.",
+    "Cross-sign.md with different reviewing role required per sprint.",
+    "Sprint must be registered in sprints.json before work begins.",
+    "All commits require COMMIT_ROLE and COMMIT_SPRINT env vars."
+  ],
+  "files": [
+    "README.md",
+    "harness-gap-analysis.md",
+    "claude-code-master-prompt.md",
+    "production-evals.json",
+    "production-evals-manifest.json",
+    "production-evals-brief.md",
+    "first-wave-eval-sprints.md",
+    "sprint-template.json",
+    "sprint-template.md",
+    "sprint-template.yaml",
+    "bug-taxonomy.md",
+    "bug-taxonomy.yaml",
+    "evidence-rubric.md",
+    "evidence-rubric.yaml",
+    "handoff-brief.md",
+    "templates/enforcer-checklist-observation.txt",
+    "templates/enforcer-checklist-remediation.txt",
+    "templates/cross-sign-template.md",
+    "templates/ghost-entry-gate-template.md",
+    "templates/ghost-exit-gate-template.md"
+  ],
+  "startHere": [
+    "handoff-brief.md",
+    "harness-gap-analysis.md",
+    "claude-code-master-prompt.md",
+    "production-evals.json",
+    "first-wave-eval-sprints.md"
+  ],
+  "compactSafe": [
+    "production-evals.json",
+    "production-evals-manifest.json",
+    "claude-code-master-prompt.md",
+    "bug-taxonomy.yaml",
+    "evidence-rubric.yaml",
+    "first-wave-eval-sprints.md"
+  ]
+}

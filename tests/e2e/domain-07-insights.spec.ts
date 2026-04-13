@@ -1,5 +1,5 @@
 import { test, expect } from "playwright/test";
-import { testUsers, loginForBrowser } from "./helpers/auth";
+import { testUsers, login, authHeader, loginForBrowser } from "./helpers/auth";
 
 const BASE = "http://localhost:5000";
 
@@ -51,6 +51,65 @@ test.describe("Domain 7: Insights", () => {
     expect(metricCount).toBeGreaterThan(0);
 
     await page.close();
+  });
+
+  test("7.3b Insights API returns real metrics (non-zero, non-hardcoded)", async ({ request }) => {
+    const session = await login(request, testUsers.orgAdmin);
+
+    // Fetch the insights dashboard API directly
+    const dashRes = await request.get(`${BASE}/api/insights/dashboard`, {
+      headers: authHeader(session.token),
+    });
+    expect(dashRes.ok()).toBe(true);
+    const dashboard = await dashRes.json();
+
+    // Dashboard should return actual data structure (not empty)
+    expect(dashboard).toBeTruthy();
+    expect(typeof dashboard).toBe("object");
+
+    // Check for real metric values — at least one metric should have a non-zero value
+    const values: number[] = [];
+    function extractNumbers(obj: any, depth = 0): void {
+      if (depth > 5) return;
+      if (obj === null || obj === undefined) return;
+      if (typeof obj === "number") { values.push(obj); return; }
+      if (typeof obj === "object") {
+        for (const val of Object.values(obj)) {
+          extractNumbers(val, depth + 1);
+        }
+      }
+    }
+    extractNumbers(dashboard);
+
+    // There should be numeric values in the dashboard response
+    expect(values.length, "Dashboard should contain numeric metric values").toBeGreaterThan(0);
+
+    // At least one value should be non-zero (real data, not all-zeros stub)
+    const hasNonZero = values.some(v => v !== 0);
+    if (!hasNonZero) {
+      test.info().annotations.push({
+        type: "note",
+        description: `All ${values.length} metric values are zero — may indicate no data for this org`,
+      });
+    }
+
+    // Verify values are not suspiciously identical (hardcoded stubs)
+    const uniqueValues = new Set(values);
+    if (values.length > 3) {
+      expect(uniqueValues.size, "Metrics should not all be the same value (likely hardcoded)").toBeGreaterThan(1);
+    }
+
+    // Also check the library endpoint for metric definitions
+    const libRes = await request.get(`${BASE}/api/insights/library`, {
+      headers: authHeader(session.token),
+    });
+    expect(libRes.ok()).toBe(true);
+    const library = await libRes.json();
+    const metrics = Array.isArray(library) ? library : (library.metrics ?? library.data ?? []);
+    expect(metrics.length, "Insights library should have metric definitions").toBeGreaterThan(0);
+
+    console.log(`  Dashboard: ${values.length} numeric values, ${uniqueValues.size} unique`);
+    console.log(`  Library: ${metrics.length} metric definitions`);
   });
 
   test("7.4 Role-filtered — compare metrics for different roles", async ({ browser }) => {

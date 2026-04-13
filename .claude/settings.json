@@ -4,27 +4,21 @@
       "Read",
       "Glob",
       "Grep",
-      "Edit(server/**)",
-      "Edit(client/src/**)",
-      "Edit(shared/**)",
-      "Edit(tests/**)",
       "Edit(evidence/**)",
       "Edit(sprints.json)",
       "Edit(plan.md)",
       "Edit(issues.md)",
       "Edit(acceptance_criteria.md)",
       "Edit(agent-instructions.json)",
-      "Write(server/**)",
-      "Write(client/src/**)",
-      "Write(shared/**)",
-      "Write(tests/**)",
+      "Edit(tasks.md)",
       "Write(evidence/**)",
+      "Write(tasks.md)",
+      "Write(plan.md)",
       "Bash(npx tsc *)",
       "Bash(npx playwright *)",
       "Bash(npm run build)",
       "Bash(npm run dev *)",
       "Bash(npm test *)",
-      "Bash(node *)",
       "Bash(cat *)",
       "Bash(ls *)",
       "Bash(pwd)",
@@ -42,7 +36,6 @@
       "Bash(echo *)",
       "Bash(mkdir *)",
       "Bash(cp *)",
-      "Bash(python3 *)",
       "Bash(psql *)",
       "Bash(md5sum *)",
       "Bash(stat *)",
@@ -82,7 +75,74 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/build-context.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/context-inject.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/governance-inject.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/memory-write-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/sprint-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/plan-protection.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/file-boundary.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/commit-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/branch-enforcement.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/memory-read-guard.sh"
+          }
+        ]
+      },
       {
         "matcher": "Bash|Edit|Write|Agent",
         "hooks": [

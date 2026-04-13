@@ -37,6 +37,7 @@ const createOrgSchema = z.object({
   videoMinutes: z.number().optional(),
   smsMessages: z.number().optional(),
   setupFee: z.number().optional(),
+  partnerId: z.string().uuid().optional().nullable(),
   tools: z.record(z.boolean()).optional(),
   agentName: z.string().optional(),
   agentPersona: z.string().optional(),
@@ -50,8 +51,8 @@ export function registerOrganizationRoutes(app: Express) {
   app.post("/api/organizations", authenticateToken, requireRole(2), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      if (req.user.roleLevel > 1) {
-        return res.status(403).json({ message: "Only super admins can create organizations" });
+      if (req.user.roleLevel > 2) {
+        return res.status(403).json({ message: "Only super admins and partner admins can create organizations" });
       }
 
       const parsed = createOrgSchema.safeParse(req.body);
@@ -70,6 +71,7 @@ export function registerOrganizationRoutes(app: Express) {
         voiceMinutes, videoMinutes, smsMessages, setupFee,
         tools, agentName, agentPersona, agentChannel,
         autoRespond, deployImmediately, skills,
+        partnerId: requestedPartnerId,
       } = parsed.data;
 
       const existingUser = await storage.getUserByEmail(adminEmail);
@@ -81,11 +83,22 @@ export function registerOrganizationRoutes(app: Express) {
       const existingOrg = await storage.getOrganizationBySlug(slug);
       const finalSlug = existingOrg ? `${slug}-${Date.now()}` : slug;
 
+      // Determine partnerId: partner_admin auto-sets to their org, super_admin can pass explicitly
+      let resolvedPartnerId: string | null = null;
+      if (req.user.roleLevel === 2) {
+        // partner_admin: automatically set partnerId to their own organization
+        resolvedPartnerId = req.user.organizationId;
+      } else if (req.user.roleLevel === 1 && requestedPartnerId) {
+        // super_admin: use the explicitly provided partnerId
+        resolvedPartnerId = requestedPartnerId;
+      }
+
       const enabledTools = tools || {} as Record<string, boolean>;
       const org = await storage.createOrganization({
         name: orgName.trim(),
         slug: finalSlug,
         personaName: agentName || "Serra",
+        partnerId: resolvedPartnerId,
         outboundEnabled: false,
         smsEnabled: !!enabledTools.sms,
         phoneEnabled: !!enabledTools.voice,
