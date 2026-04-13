@@ -835,6 +835,7 @@ export class DatabaseStorage implements IStorage {
         eq(tasks.organizationId, organizationId),
         eq(tasks.status, "todo"),
         sql`(${tasks.type} = 'escalation' OR ${tasks.type} = 'unsent_message')`,
+        gte(tasks.createdAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)),
       )),
 
       db.select({ cnt: count() }).from(outboundLog).where(and(

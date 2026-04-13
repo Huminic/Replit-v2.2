@@ -152,7 +152,7 @@ export function registerInsightRoutes(app: Express) {
 
       const showroomNotClosed = allLeads
         .filter(l => l.leadSource?.toLowerCase().includes("walk") || l.leadSource?.toLowerCase().includes("showroom"))
-        .filter(l => !isSoldLead(l.vinStatus))
+        .filter(l => !isSoldLead(l.vinStatus) && !isLostLead(l.vinStatus))
         .map(l => {
           const created = l.vinCreatedAt ? new Date(l.vinCreatedAt) : new Date(l.createdAt);
           const daysOld = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
@@ -168,7 +168,9 @@ export function registerInsightRoutes(app: Express) {
       const totalLeads = allLeads.length;
       const hotCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
       const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
-      const conversionRate = totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0;
+      const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
+      const winRateDenom = soldCount + lostCount;
+      const conversionRate = winRateDenom > 0 ? Math.round((soldCount / winRateDenom) * 1000) / 10 : 0;
       const newCount = allLeads.filter(l => isNewLead(l.vinStatus)).length;
 
       const sourceCounts: Record<string, { total: number; won: number; bad: number }> = {};
@@ -380,7 +382,7 @@ export function registerInsightRoutes(app: Express) {
           lost_leads: String(lostCount),
           bad_leads: String(badCount),
           active_leads: String(activeCount),
-          win_rate: String(totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0),
+          win_rate: String((soldCount + lostCount) > 0 ? Math.round((soldCount / (soldCount + lostCount)) * 1000) / 10 : 0),
           computed_from: "warehouse_leads",
         };
       }
@@ -394,7 +396,7 @@ export function registerInsightRoutes(app: Express) {
         sourceQualityTrends,
         performanceSummary: {
           totalLeads, sold: soldCount, lost: lostCount, bad: badCount,
-          winRate: totalLeads > 0 ? Math.round((soldCount / totalLeads) * 1000) / 10 : 0,
+          winRate: (soldCount + lostCount) > 0 ? Math.round((soldCount / (soldCount + lostCount)) * 1000) / 10 : 0,
           metricsFromWarehouse: metricsMap,
         },
       });
@@ -1154,8 +1156,8 @@ export function registerInsightRoutes(app: Express) {
       libMetrics.push({ id: "lib-19", title: "Waiting Lead Volume", value: String(waitingLeads.length), change: "\u2014", trend: "neutral", category: "Response" });
 
       const totalNewAndActive = newLeads.length + activeLeads.length;
-      const engagementRate = totalNewAndActive > 0 ? Math.round((engagementTransition.length / totalNewAndActive) * 100) : 0;
-      libMetrics.push({ id: "lib-20", title: "Engagement Transition", value: `${engagementRate}%`, change: "\u2014", trend: "neutral", category: "Response" });
+      // I-267: Engagement metric is misleading (always near 100%) — show N/A until a better signal is implemented
+      libMetrics.push({ id: "lib-20", title: "Engagement Transition", value: "—", change: "—", trend: "neutral", category: "Response" });
 
       libMetrics.push({ id: "lib-21", title: "Avg Time to 1st Contact", value: "\u2014", change: "\u2014", trend: "neutral", category: "Response" });
 

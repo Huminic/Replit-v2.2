@@ -101,13 +101,15 @@ export default function ServicePage() {
   });
 
   const serviceStats = metrics?.campaignStats?.byDepartment?.service;
+  // I-268: Show only service-department metrics. Don't fall back to cross-department totals.
+  const hasServiceData = !!serviceStats;
   const serviceMetrics: ServiceMetricTile[] = [
-    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? metrics?.campaignStats?.active ?? 0), icon: Megaphone },
-    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? metrics?.campaignStats?.totalSent ?? 0), icon: MessageSquare },
-    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? metrics?.campaignStats?.totalReplied ?? 0), icon: MessageSquare },
+    { id: 'svm-1', label: 'Active Campaigns', value: String(serviceStats?.active ?? 0), icon: Megaphone },
+    { id: 'svm-2', label: 'Messages Sent', value: String(serviceStats?.sent ?? 0), icon: MessageSquare },
+    { id: 'svm-3', label: 'Replies Received', value: String(serviceStats?.replied ?? 0), icon: MessageSquare },
     { id: 'svm-4', label: 'Open Conversations', value: String(metrics?.conversationCounts?.open ?? 0), icon: CalendarCheck },
     { id: 'svm-5', label: 'Total Conversations', value: String(metrics?.conversationCounts?.total ?? 0), icon: ThumbsDown },
-    { id: 'svm-6', label: 'Reply Rate', value: `${serviceStats?.replyRate ?? metrics?.campaignStats?.replyRate ?? 0}%`, icon: DollarSign },
+    { id: 'svm-6', label: 'Reply Rate', value: hasServiceData ? `${serviceStats?.replyRate ?? 0}%` : '\u2014', icon: DollarSign },
   ];
 
   const { data: serviceAgents = [], isLoading: agentsLoading } = useQuery<Agent[]>({

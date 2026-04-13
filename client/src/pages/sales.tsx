@@ -106,7 +106,8 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-7', label: 'Conversion Rate', value: '0%', change: 0, trend: 'up' as const, icon: TrendingUp },
   ];
   const t = (v: number) => (v >= 0 ? 'up' : 'down') as 'up' | 'down';
-  const activePipeline = pipeline?.activePipeline ?? summary.activeLeads;
+  // I-266: Use only 14-day pipeline metric (matches Main page). Don't fall back to 30-day activeLeads.
+  const activePipeline = pipeline?.activePipeline ?? 0;
   return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },

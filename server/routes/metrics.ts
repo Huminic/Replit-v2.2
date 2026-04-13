@@ -3,12 +3,27 @@ import { authenticateToken } from "../auth";
 import { storage } from "../storage";
 import { resolveNexxusOrgId, callMCP, extractContactIdFromHref, flattenContactInfo } from "../vendorProxy";
 
+/**
+ * I-263: Resolve effective orgId — honors ?orgId query param for super_admin/partner_admin (roleLevel <= 2).
+ */
+function resolveMetricOrgId(req: import("express").Request): string | null {
+  if (!req.user) return null;
+  const requestedOrgId = req.query.orgId as string | undefined;
+  if (!requestedOrgId) return req.user.organizationId;
+  if (requestedOrgId === req.user.organizationId) return requestedOrgId;
+  // roleLevel 1 = super_admin, 2 = partner_admin — can view any org
+  if (req.user.roleLevel <= 2) return requestedOrgId;
+  return null;
+}
+
 export function registerMetricsRoutes(app: Express) {
   app.get("/api/activity-log", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
       const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
-      const logs = await storage.getActivityLogs(req.user.organizationId, limit);
+      const orgId = resolveMetricOrgId(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+      const logs = await storage.getActivityLogs(orgId, limit);
       return res.json(logs);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch activity logs" });
@@ -18,7 +33,9 @@ export function registerMetricsRoutes(app: Express) {
   app.get("/api/metrics/dashboard", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const metrics = await storage.getDashboardMetrics(req.user.organizationId);
+      const orgId = resolveMetricOrgId(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+      const metrics = await storage.getDashboardMetrics(orgId);
       return res.json(metrics);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch dashboard metrics" });
@@ -28,7 +45,9 @@ export function registerMetricsRoutes(app: Express) {
   app.get("/api/metrics/pipeline", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const pipeline = await storage.getPipelineMetrics(req.user.organizationId);
+      const orgId = resolveMetricOrgId(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+      const pipeline = await storage.getPipelineMetrics(orgId);
       return res.json(pipeline);
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch pipeline metrics" });
@@ -43,13 +62,15 @@ export function registerMetricsRoutes(app: Express) {
       if (!metric || !validMetrics.includes(metric)) {
         return res.status(400).json({ message: "Invalid metric. Use: " + validMetrics.join(', ') });
       }
-      const details = await storage.getPipelineMetricDetails(req.user.organizationId, metric);
+      const orgId = resolveMetricOrgId(req);
+      if (!orgId) return res.status(403).json({ message: "Access denied: cannot view that organization" });
+      const details = await storage.getPipelineMetricDetails(orgId, metric);
 
       if (metric === 'active_pipeline') {
         const needsEnrichment = details.filter((r: any) => !r.customerName && r.sourceId);
         if (needsEnrichment.length > 0) {
-          const orgId = req.user.organizationId;
-          const nexxusOrgId = resolveNexxusOrgId(orgId);
+          const detailOrgId = orgId;
+          const nexxusOrgId = resolveNexxusOrgId(detailOrgId);
           (async () => {
             try {
               const now = new Date();

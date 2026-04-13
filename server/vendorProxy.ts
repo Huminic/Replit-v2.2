@@ -625,7 +625,7 @@ export function registerVendorRoutes(app: Express) {
         lostLeads: cur.lost,
         waitingForResponse: cur.waiting,
         appointments: cur.appt,
-        conversionRate: cur.total > 0 ? Math.round((cur.sold / cur.total) * 1000) / 10 : 0,
+        conversionRate: (cur.sold + cur.lost) > 0 ? Math.round((cur.sold / (cur.sold + cur.lost)) * 1000) / 10 : 0,
         source: "warehouse",
         syncedAt: latestSyncDate,
       });

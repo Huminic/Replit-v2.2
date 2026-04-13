@@ -142,6 +142,8 @@ Same discipline. Slice by slice.
 - [ ] 3.38 Fix any bugs → smoke test
 - [ ] 3.39 Run P2-06 test → GREEN or log issue
 
+> **Note:** Lago billing integration is POST-LAUNCH. FlexPrice code is dead but billing page degrades gracefully. Integration plan documented in issues.md I-278.
+
 ### Pillar 2 Full Test
 - [ ] 3.40 Run ALL P2 tests together
 - [ ] 3.41 Capture evidence (API responses, external service logs)

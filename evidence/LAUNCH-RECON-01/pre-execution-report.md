@@ -16,6 +16,14 @@ Phase 1 -- Reconnaissance and Gap Evaluation. Dispatch recon agents across three
 - server/routes/sms.ts (I-271 TextMagic delivery webhook fix)
 - server/services/triggerService.ts (I-272 TCPA bypass, I-273 dedup tag, I-274 test whitelist)
 - plan.md (execution pattern update)
+- issues.md (issue tracking updates for I-258 through I-278)
+- server/routes/insights.ts (I-258 win rate, I-259 active leads, I-264 escalations 90d)
+- server/routes/metrics.ts (I-266 sales pipeline consistent 14d window)
+- server/storage.ts (I-262 showroom excludes lost, I-263 super_admin org switch)
+- server/vendorProxy.ts (no functional change — staged with related fixes)
+- client/src/pages/insights.tsx (I-259 Hot Leads → Active Leads label fix)
+- client/src/pages/sales.tsx (I-266 pipeline card label consistency)
+- client/src/pages/service.tsx (I-268 service page no fallback to zero)
 
 ## UI Changes
 NONE -- uiPermissions is "NONE"
