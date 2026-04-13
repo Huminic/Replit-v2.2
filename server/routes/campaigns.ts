@@ -474,11 +474,33 @@ export function registerCampaignRoutes(app: Express) {
         });
       }
 
-      await storage.createRecipients(recipients);
+      // Deduplicate by phone number — keep first occurrence, skip subsequent duplicates
+      let duplicatesRemoved = 0;
+      const seenPhones = new Set<string>();
+      const dedupedRecipients = recipients.filter(r => {
+        if (!r.phone) return true; // keep entries without phone (email-only)
+        const normalized = r.phone.replace(/[^0-9]/g, "");
+        if (!normalized) return true;
+        if (seenPhones.has(normalized)) {
+          duplicatesRemoved++;
+          return false;
+        }
+        seenPhones.add(normalized);
+        return true;
+      });
+
+      if (duplicatesRemoved > 0) {
+        console.log(`[Campaign] CSV upload: removed ${duplicatesRemoved} duplicate phone entries`);
+      }
+
+      await storage.createRecipients(dedupedRecipients);
       const recipientCount = await storage.getRecipientCount(campaign.id);
       await storage.updateCampaign(campaign.id, { recipientCount, csvFilename: file.originalname });
 
       const warnings: string[] = [];
+      if (duplicatesRemoved > 0) {
+        warnings.push(`${duplicatesRemoved} duplicate phone numbers removed`);
+      }
       if (missingRequired.length > 0) {
         warnings.push(`Missing recommended columns: ${missingRequired.join(", ")}`);
       }
@@ -494,6 +516,7 @@ export function registerCampaignRoutes(app: Express) {
         missingRequired,
         missingOptional,
         warnings: warnings.length > 0 ? warnings : undefined,
+        duplicatesRemoved: duplicatesRemoved > 0 ? duplicatesRemoved : undefined,
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to process CSV" });

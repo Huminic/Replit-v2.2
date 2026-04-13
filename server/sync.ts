@@ -1,6 +1,7 @@
 import { storage } from "./storage";
-import { callMCP, resolveNexxusOrgId, warmIntegrationCache } from "./vendorProxy";
+import { callMCP, resolveNexxusOrgId, warmIntegrationCache, extractContactIdFromHref, flattenContactInfo } from "./vendorProxy";
 import type { InsertWarehouseLead, InsertWarehouseMetric } from "@shared/schema";
+import { runTriggerEvaluation } from "./services/triggerService";
 
 interface SyncResult {
   processed: number;
@@ -8,16 +9,25 @@ interface SyncResult {
   error?: string;
 }
 
-function transformVinLead(raw: any, organizationId: string): InsertWarehouseLead {
-  const name = [raw.contact?.firstName, raw.contact?.lastName].filter(Boolean).join(" ") || raw.customerName || null;
+interface ResolvedContact {
+  phone: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+function transformVinLead(raw: any, organizationId: string, resolvedContact?: ResolvedContact | null): InsertWarehouseLead {
+  const name = resolvedContact?.firstName
+    ? `${resolvedContact.firstName} ${resolvedContact.lastName || ""}`.trim()
+    : [raw.contact?.firstName, raw.contact?.lastName].filter(Boolean).join(" ") || raw.customerName || null;
   return {
     organizationId,
     sourceId: String(raw.id || raw.leadId || ""),
     dataSource: "vin_solutions",
     vinStatus: raw.status || raw.leadStatus || null,
     customerName: name,
-    customerEmail: raw.contact?.email || raw.email || null,
-    customerPhone: raw.contact?.phone || raw.phone || null,
+    customerEmail: resolvedContact?.email || raw.contact?.email || raw.email || null,
+    customerPhone: resolvedContact?.phone || raw.contact?.phone || raw.phone || null,
     leadSource: raw.source?.name || raw.leadSource || null,
     vehicleOfInterest: raw.vehicle?.description
       || (Array.isArray(raw.vehiclesOfInterest) && raw.vehiclesOfInterest.length > 0
@@ -36,6 +46,78 @@ function transformVinLead(raw: any, organizationId: string): InsertWarehouseLead
     vinUpdatedAt: raw.modifiedUtc ? new Date(raw.modifiedUtc) : raw.modifiedDate ? new Date(raw.modifiedDate) : raw.updatedAt ? new Date(raw.updatedAt) : null,
     syncedAt: new Date(),
   };
+}
+
+/**
+ * For a batch of raw VIN leads, resolve contact details from the contact href.
+ * Only resolves contacts for leads that don't already have phone data in the warehouse.
+ * Caps at MAX_CONTACT_FETCHES per sync cycle to avoid rate-limiting.
+ */
+const MAX_CONTACT_FETCHES_PER_CYCLE = 10;
+
+async function resolveLeadContacts(
+  rawLeads: any[],
+  organizationId: string,
+  nexxusOrgId: string,
+): Promise<Map<string, ResolvedContact>> {
+  const resolved = new Map<string, ResolvedContact>();
+  let fetchCount = 0;
+
+  for (const raw of rawLeads) {
+    if (fetchCount >= MAX_CONTACT_FETCHES_PER_CYCLE) {
+      console.log(`[Sync] Contact resolution cap reached (${MAX_CONTACT_FETCHES_PER_CYCLE}), skipping remaining`);
+      break;
+    }
+
+    const leadSourceId = String(raw.id || raw.leadId || "");
+    if (!leadSourceId) continue;
+
+    // Skip if raw lead already has a non-string contact with phone data
+    if (raw.contact && typeof raw.contact === "object" && raw.contact.phone) {
+      continue;
+    }
+
+    // Check if lead already has phone in warehouse
+    try {
+      const existing = await storage.getWarehouseLeadBySourceId(organizationId, leadSourceId);
+      if (existing?.customerPhone) {
+        continue; // Already have phone data, skip
+      }
+    } catch {
+      // If lookup fails, proceed with contact resolution
+    }
+
+    // Extract contactId from href string
+    const contactHref = typeof raw.contact === "string" ? raw.contact
+      : raw.ContactHref || raw.contactHref || null;
+    if (!contactHref || typeof contactHref !== "string") continue;
+
+    const contactId = extractContactIdFromHref(contactHref);
+    if (!contactId) continue;
+
+    // Fetch contact details via MCP
+    try {
+      console.log(`[Sync] Resolving contact ${contactId} for lead ${leadSourceId}`);
+      const rawContact = await callMCP("vin_get_contact", { orgId: nexxusOrgId, contactId });
+      const flat = flattenContactInfo(rawContact);
+      resolved.set(leadSourceId, {
+        phone: flat.phone || null,
+        email: flat.email || null,
+        firstName: flat.firstName || null,
+        lastName: flat.lastName || null,
+      });
+      fetchCount++;
+    } catch (err) {
+      console.error(`[Sync] Failed to resolve contact ${contactId} for lead ${leadSourceId}:`, err);
+      // Continue with null — don't crash the sync
+    }
+  }
+
+  if (fetchCount > 0) {
+    console.log(`[Sync] Resolved ${fetchCount} contact(s) in this cycle`);
+  }
+
+  return resolved;
 }
 
 export async function runHistoricalBackfill(organizationId: string): Promise<SyncResult> {
@@ -74,9 +156,14 @@ export async function runHistoricalBackfill(organizationId: string): Promise<Syn
 
       const items = data?.items || data?.results || (Array.isArray(data) ? data : []);
 
+      // Resolve contact details for leads missing phone data
+      const contactMap = await resolveLeadContacts(items, organizationId, nexxusOrgId);
+
       for (const raw of items) {
         try {
-          const lead = transformVinLead(raw, organizationId);
+          const leadSourceId = String(raw.id || raw.leadId || "");
+          const resolvedContact = contactMap.get(leadSourceId) || null;
+          const lead = transformVinLead(raw, organizationId, resolvedContact);
           await storage.upsertWarehouseLead(lead);
           processed++;
         } catch (err) {
@@ -154,9 +241,14 @@ export async function runDailyDelta(organizationId: string): Promise<SyncResult>
 
     const items = data?.items || data?.results || (Array.isArray(data) ? data : []);
 
+    // Resolve contact details for leads missing phone data
+    const contactMap = await resolveLeadContacts(items, organizationId, nexxusOrgId);
+
     for (const raw of items) {
       try {
-        const lead = transformVinLead(raw, organizationId);
+        const leadSourceId = String(raw.id || raw.leadId || "");
+        const resolvedContact = contactMap.get(leadSourceId) || null;
+        const lead = transformVinLead(raw, organizationId, resolvedContact);
         await storage.upsertWarehouseLead(lead);
         processed++;
       } catch (err) {
@@ -403,6 +495,14 @@ export async function startSyncScheduler(): Promise<void> {
         } catch (err) {
           console.error(`[Sync] 15-min delta failed for orgId ${orgId}:`, err);
         }
+      }
+      // Run trigger evaluation immediately after sync completes with fresh data
+      console.log("[Sync] Delta sync complete. Running post-sync trigger evaluation...");
+      try {
+        const triggerResult = await runTriggerEvaluation();
+        console.log("[Sync] Post-sync trigger result:", JSON.stringify(triggerResult));
+      } catch (err) {
+        console.error("[Sync] Post-sync trigger evaluation failed:", err);
       }
     } catch (err) {
       console.error("[Sync] 15-min delta: failed to fetch active orgs:", err);

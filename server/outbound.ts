@@ -30,6 +30,9 @@ export interface SendRequest {
   dryRun?: boolean;
   callContext?: OutboundCallContext;
   recipientName?: string;
+  /** When true, skip the business-hours TCPA check in CommGate.
+   *  Used by the after-hours trigger which is explicitly designed to send outside business hours. */
+  bypassBusinessHours?: boolean;
 }
 
 export interface SendResult {
@@ -92,8 +95,13 @@ export async function sendSmsRaw(to: string, content: string, fromNumber?: strin
     mcpParams.from = fromNumber;
   }
 
-  const result = await callMCP("tm_send_message", mcpParams);
-  console.log(`[TextMagic/MCP] SMS sent to ${formattedPhone}${fromNumber ? ` from ${fromNumber}` : ""}, messageId: ${result.id}`);
+  try {
+    const result = await callMCP("tm_send_message", mcpParams);
+    console.log(`[TextMagic/MCP] SMS sent to ${formattedPhone}${fromNumber ? ` from ${fromNumber}` : ""}, messageId: ${result.id}`);
+  } catch (err: any) {
+    console.error(`[Outbound] TextMagic MCP send failed for ${formattedPhone}: ${err.message}`);
+    throw err;
+  }
 }
 
 export async function sendSms(to: string, content: string, organizationId?: string, fromNumber?: string): Promise<void> {
@@ -125,13 +133,18 @@ export async function sendEmail(to: string, content: string): Promise<void> {
     return;
   }
 
-  const result = await callMCP("resend_send_email", {
-    from: RESEND_FROM,
-    to,
-    subject: "Message from Nexxus Connect",
-    html: content,
-  });
-  console.log(`[Resend/MCP] Email sent to ${to}`);
+  try {
+    const result = await callMCP("resend_send_email", {
+      from: RESEND_FROM,
+      to,
+      subject: "Message from Nexxus Connect",
+      html: content,
+    });
+    console.log(`[Resend/MCP] Email sent to ${to}`);
+  } catch (err: any) {
+    console.error(`[Outbound] Resend MCP send failed for ${to}: ${err.message}`);
+    throw err;
+  }
 }
 
 export interface OutboundCallContext {
@@ -202,8 +215,13 @@ export async function sendPhone(to: string, content: string, organizationId?: st
     callArgs.firstMessageOverride = content;
   }
 
-  const result = await callMCP("vapi_create_call", callArgs);
-  console.log(`[VAPI/MCP] Outbound call initiated to ${to}, callId: ${result.id}`);
+  try {
+    const result = await callMCP("vapi_create_call", callArgs);
+    console.log(`[VAPI/MCP] Outbound call initiated to ${to}, callId: ${result.id}`);
+  } catch (err: any) {
+    console.error(`[Outbound] VAPI MCP call failed for ${to}: ${err.message}`);
+    throw err;
+  }
 }
 
 function isGlobalOutboundEnabled(): boolean {
@@ -241,7 +259,8 @@ async function checkCommGate(
   campaign: Campaign | undefined,
   recipient: CampaignRecipient | undefined,
   channel: "sms" | "email" | "phone" | "video",
-  customerContact: string
+  customerContact: string,
+  bypassBusinessHours: boolean = false
 ): Promise<{ allowed: boolean; reason?: string }> {
   if (!isGlobalOutboundEnabled()) {
     return { allowed: false, reason: "Global outbound kill switch is OFF (OUTBOUND_LIVE_ENABLED != true)" };
@@ -266,12 +285,17 @@ async function checkCommGate(
 
   // TCPA compliance: block outbound SMS and phone outside business hours
   if (channel === "sms" || channel === "phone") {
-    const bh = isWithinBusinessHours(org);
-    if (!bh.within) {
-      return {
-        allowed: false,
-        reason: `Outside business hours (${bh.currentHour}:00 ${bh.tz}, allowed ${bh.start}:00-${bh.end}:00)`,
-      };
+    if (bypassBusinessHours) {
+      // Skip business hours check — caller explicitly authorized after-hours send
+      console.log(`[CommGate] Business hours check bypassed (trigger-authorized)`);
+    } else {
+      const bh = isWithinBusinessHours(org);
+      if (!bh.within) {
+        return {
+          allowed: false,
+          reason: `Outside business hours (${bh.currentHour}:00 ${bh.tz}, allowed ${bh.start}:00-${bh.end}:00)`,
+        };
+      }
     }
   }
 
@@ -337,7 +361,7 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
     ? await storage.getRecipient(request.recipientId)
     : undefined;
 
-  const gateResult = await checkCommGate(org, campaign, recipient, request.channel, request.to);
+  const gateResult = await checkCommGate(org, campaign, recipient, request.channel, request.to, request.bypassBusinessHours || false);
 
   if (!gateResult.allowed) {
     await logAttempt(request, "blocked", gateResult.reason);
@@ -663,7 +687,28 @@ export async function startCampaignExecution(
 
             console.log(`[Campaign ${campaignId}] Conversation created for ${to} (convId: ${conv.id})`);
           } catch (convErr: any) {
-            console.error(`[Campaign ${campaignId}] Failed to create conversation for ${to}:`, convErr.message);
+            console.warn(`[Campaign] WARNING: SMS sent to ${to} but conversation creation failed — replies may not route. Error: ${convErr.message}`);
+            // Create escalation task so admin knows about the orphaned send
+            try {
+              await storage.createTask({
+                type: "orphaned_send",
+                title: `Orphaned SMS — conversation creation failed for ${to}`,
+                description: `Campaign ${campaignId}: SMS was sent to ${to} but conversation creation failed. Inbound replies from this number may not route correctly. Error: ${convErr.message}`,
+                status: "todo",
+                priority: "high",
+                organizationId,
+                tags: ["orphaned-send", "campaign", "auto-generated"],
+                metadata: JSON.stringify({
+                  trigger_id: `orphan-${Date.now()}`,
+                  campaign_id: campaignId,
+                  recipient_phone: to,
+                  error: convErr.message,
+                  timestamp: new Date().toISOString(),
+                }),
+              });
+            } catch (taskErr: any) {
+              console.error(`[Campaign ${campaignId}] Failed to create escalation task for orphaned send to ${to}:`, taskErr.message);
+            }
           }
         }
       }

@@ -1,10 +1,10 @@
-Report-ID: WD-20260412-201904
+Report-ID: WD-20260413-160417
 Acknowledged-By: orchestrator
-Timestamp: 2026-04-12T20:20:00Z
+Timestamp: 2026-04-13T16:04:17Z
 Violations-Reviewed:
-  C1: Pre-existing — older sprints committed without hash (legacy registry), tracked in backlog; batch commits from wave-pe3 work
-  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints), tracked in backlog; LAUNCH-STABILIZE just registered (artifacts will be created during sprint execution)
-  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (legacy reconciliation), tracked in backlog
+  C1: Pre-existing — older sprints committed without hash (legacy registry migration), tracked in backlog; batch commits from wave-pe3 work
+  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints S0-S18, VFY-01-05, FIX-01, G-004, etc.), tracked in backlog; recent sprints (SNP-*, EMG-*, LAUNCH-STABILIZE) have partial artifacts — will be completed in launch sprints
+  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (M-002, M-003 reconciliation; PE-AI-CHAT-03, R-015, R-016, T-019 missing fields), tracked in backlog
   C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016, T-019), tracked in backlog
   C16: Pre-existing — known drift between sprints.json commit hashes and git log (null hashes from legacy registry migration), tracked in backlog
-Disposition: PROCEED — all violations are pre-existing/tracked; this is a governance commit consolidating demo backlog
+Disposition: PROCEED — all violations are pre-existing/tracked; this commit consolidates LAUNCH-STABILIZE WIP work and parks the sprint for replacement by 9 specific launch sprints

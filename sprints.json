@@ -8288,7 +8288,7 @@
       "category": "Launch",
       "name": "Launch Stabilization — Triggers, Notifications, Service Campaigns, E2E Verification",
       "phase": "qa_resolve_loop",
-      "status": "planned",
+      "status": "parked",
       "operatorApproval": true,
       "source": "Operator directive 2026-04-12",
       "causedBy": "launch",

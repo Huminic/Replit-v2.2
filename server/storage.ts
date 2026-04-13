@@ -1331,12 +1331,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(warehouseLeads.id, leadId));
   }
 
-  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date }): Promise<WarehouseLead[]> {
+  async getWarehouseLeads(organizationId: string, filters?: { status?: string; dataSource?: string; limit?: number; createdAfter?: Date; activityAfter?: Date; syncedAfter?: Date }): Promise<WarehouseLead[]> {
     const conditions = [eq(warehouseLeads.organizationId, organizationId)];
     if (filters?.status) conditions.push(eq(warehouseLeads.vinStatus, filters.status));
     if (filters?.dataSource) conditions.push(eq(warehouseLeads.dataSource, filters.dataSource));
     if (filters?.createdAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinCreatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.createdAfter}`);
     if (filters?.activityAfter) conditions.push(sql`COALESCE(${warehouseLeads.vinUpdatedAt}, ${warehouseLeads.syncedAt}) >= ${filters.activityAfter}`);
+    if (filters?.syncedAfter) conditions.push(sql`${warehouseLeads.syncedAt} >= ${filters.syncedAfter}`);
     const query = db.select().from(warehouseLeads).where(and(...conditions)).orderBy(desc(warehouseLeads.syncedAt));
     if (filters?.limit) return query.limit(filters.limit);
     return query;

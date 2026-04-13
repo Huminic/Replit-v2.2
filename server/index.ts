@@ -12,6 +12,7 @@ import { startSchedulers } from "./services/scheduler";
 import { seedDatabase } from "./seed";
 import { registerVendorRoutes } from "./vendorProxy";
 import { startSyncScheduler } from "./sync";
+import { startTriggerScheduler } from "./services/triggerService";
 
 function validateEnvironment() {
   const required = ['DATABASE_URL', 'JWT_SECRET'];
@@ -240,6 +241,11 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
       startSchedulers();
+      // Start trigger scheduler as backup (60s delay). Primary trigger runs post-sync in sync.ts.
+      setTimeout(() => {
+        startTriggerScheduler();
+        console.log("[Triggers] Backup trigger scheduler started (60s delay, primary runs post-sync)");
+      }, 60000);
     },
   );
 })();
