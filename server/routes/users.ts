@@ -90,7 +90,9 @@ export function registerUserRoutes(app: Express) {
       const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
       let welcomeEmailSent = false;
 
-      if (!commGateOpen) {
+      if (process.env.OUTBOUND_LIVE_ENABLED !== "true") {
+        console.log(`[Users] Welcome email skipped — OUTBOUND_LIVE_ENABLED is not true`);
+      } else if (!commGateOpen) {
         console.log(`[Users] CommGate blocked email for org ${req.user!.organizationId}. User ${email} created but welcome email skipped.`);
       } else if (process.env.RESEND_API_KEY) {
         try {
@@ -343,7 +345,9 @@ export function registerUserRoutes(app: Express) {
       const commGateOpen = org?.outboundEnabled && org?.emailEnabled;
       let inviteSent = false;
 
-      if (!commGateOpen) {
+      if (process.env.OUTBOUND_LIVE_ENABLED !== "true") {
+        console.log(`[Users] Welcome email skipped — OUTBOUND_LIVE_ENABLED is not true`);
+      } else if (!commGateOpen) {
         console.log(`[Invite] CommGate blocked email for org ${req.user.organizationId}. User ${email} created but invite email skipped.`);
       } else if (process.env.RESEND_API_KEY) {
         try {

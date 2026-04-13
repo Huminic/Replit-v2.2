@@ -24,6 +24,8 @@ Phase 1 -- Reconnaissance and Gap Evaluation. Dispatch recon agents across three
 - client/src/pages/insights.tsx (I-259 Hot Leads → Active Leads label fix)
 - client/src/pages/sales.tsx (I-266 pipeline card label consistency)
 - client/src/pages/service.tsx (I-268 service page no fallback to zero)
+- server/routes/users.ts (I-235 email kill switch — OUTBOUND_LIVE_ENABLED check)
+- server/routes/organizations.ts (partner org creation — partnerId auto-set)
 
 ## UI Changes
 NONE -- uiPermissions is "NONE"
