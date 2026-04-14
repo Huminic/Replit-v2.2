@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexxus Widget Test — Serra Honda</title>
+  <title>Nexxus Widget Test</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -23,24 +23,26 @@
       margin-top: 20px;
     }
     code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 14px; }
+    a { color: #0d9488; }
   </style>
 </head>
 <body>
   <h1>Nexxus Widget Test Page</h1>
-  <p>This page simulates a dealer website with the Nexxus widget embedded.
-     Look for the floating chat button in the bottom-right corner.</p>
+  <p>This page simulates a dealer website with the Nexxus multi-function widget embedded.
+     Look for the floating teal button in the bottom-right corner.</p>
 
   <div class="info">
     <h3>Widget Details</h3>
-    <p><strong>Dealer:</strong> Serra Honda</p>
-    <p><strong>Type:</strong> Floating video concierge button</p>
+    <p><strong>Dealer:</strong> <span id="dealer-name">Serra Honda</span></p>
+    <p><strong>Type:</strong> Multi-function widget (Chat, Callback, Form, Video)</p>
     <p><strong>Embed code:</strong></p>
-    <code>&lt;script src="/widget/dealer/serra-honda.js"&gt;&lt;/script&gt;</code>
+    <code>&lt;script src="/dealer-widgets/nexxus-widget.js"&gt;&lt;/script&gt;</code>
   </div>
 
   <div class="info">
     <h3>Other Dealer Widgets</h3>
-    <p><a href="/widget-test.html?dealer=ford-of-columbia">Ford of Columbia</a> |
+    <p><a href="/widget-test.html?dealer=serra-honda">Serra Honda</a> |
+       <a href="/widget-test.html?dealer=ford-of-columbia">Ford of Columbia</a> |
        <a href="/widget-test.html?dealer=hyundai-of-columbia">Hyundai of Columbia</a> |
        <a href="/widget-test.html?dealer=serra-nissan">Serra Nissan</a> |
        <a href="/widget-test.html?dealer=tony-serra-ford">Tony Serra Ford</a></p>
@@ -53,12 +55,19 @@
   </div>
 
   <script>
-    // Load the widget for the selected dealer (default: serra-honda)
+    // Configure the widget for the selected dealer (default: serra-honda)
     var params = new URLSearchParams(window.location.search);
     var dealer = params.get('dealer') || 'serra-honda';
-    var script = document.createElement('script');
-    script.src = '/widget/dealer/' + dealer + '.js';
-    document.body.appendChild(script);
+    var orgName = dealer.split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+
+    document.getElementById('dealer-name').textContent = orgName;
+    document.title = 'Nexxus Widget Test — ' + orgName;
+
+    window.nexxusWidgetConfig = {
+      slug: dealer,
+      orgName: orgName
+    };
   </script>
+  <script src="/dealer-widgets/nexxus-widget.js"></script>
 </body>
 </html>

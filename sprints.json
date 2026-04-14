@@ -8437,6 +8437,7 @@
                   "name": "Part 1 \u2014 Eval and Test Verification",
                   "phase": "qa_resolve_loop",
                   "status": "in_progress",
+                  "commitHash": "513e857",
                   "operatorApproval": true,
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 1",
                   "causedBy": "launch",
