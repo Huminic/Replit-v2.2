@@ -218,6 +218,7 @@ Run every workflow end-to-end without human intervention.
 - [ ] 5.6 All P3 observability tests pass
 - [ ] 5.7 Capture full evidence set
 - [ ] 5.8 Commit autonomous test results
+- [ ] 5.9 Widget embed test: FAB renders, dropdown opens, all 4 options work, iframe loads, per-dealer JS serves
 
 ---
 
