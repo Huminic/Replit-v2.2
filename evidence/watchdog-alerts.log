@@ -3621,3 +3621,9 @@
 [2026-04-14T02:37:32Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023717)
 [2026-04-14T02:38:42Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023826)
 [2026-04-14T02:38:48Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023832)
+[2026-04-14T03:50:24Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-035008)
+[2026-04-14T03:50:47Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-035031)
+[2026-04-14T03:51:21Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.4022179.1776138681071 has evidence but is not in sprints.json
+[2026-04-14T03:51:21Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-14T03:51:53Z] Previous ack (WD-20260414-035031) invalidated by new report (WD-20260414-035137)
+[2026-04-14T03:53:16Z] Previous ack (WD-20260414-035031) invalidated by new report (WD-20260414-035258)
