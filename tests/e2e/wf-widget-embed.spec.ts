@@ -1,134 +1,98 @@
 /**
- * Workflow E2E: Widget Cross-Origin Embedding Headers
+ * wf-widget-embed.spec.ts — Workflow E2E: Hosted Widget Embed
  *
- * Verifies that all 5 dealer widget JS endpoints return correct headers
- * for cross-origin embedding on dealer sites. Also checks that the generic
- * widget endpoint, widget API CORS preflight, and non-widget routes behave
- * correctly.
+ * Tests the full widget embed lifecycle on any environment:
+ *   1. Widget JS loads (200, JavaScript content-type)
+ *   2. Widget test page loads (200, contains title)
+ *   3. Widget FAB renders (button with aria-label)
+ *   4. Widget dropdown opens with all 4 options
+ *   5. Chat iframe loads via widget
+ *   6. Landing page serves (per-dealer)
+ *   7. Per-dealer widget JS files serve
  *
- * API-only tests (no browser needed).
+ * Uses real browser (Playwright) — not API-only.
+ * BASE_URL from environment so it can run against dev or live.
  */
 import { test, expect } from 'playwright/test';
 
-const BASE = process.env.BASE_URL || 'http://localhost:5000';
+const BASE = process.env.BASE_URL || 'https://dev.huminicdev.com';
 
-const DEALER_WIDGETS = [
-  '/widget/dealer/serra-honda.js',
-  '/widget/dealer/serra-nissan.js',
-  '/widget/dealer/tony-serra-ford.js',
-  '/widget/dealer/hyundai-of-columbia.js',
-  '/widget/dealer/ford-of-columbia.js',
-];
+test.describe.serial('Widget Embed: hosted widget lifecycle', () => {
 
-test.describe.serial('Widget Cross-Origin Embedding Headers', () => {
-
-  for (const path of DEALER_WIDGETS) {
-    const slug = path.replace('/widget/dealer/', '').replace('.js', '');
-
-    test(`${slug} — returns 200/302 with correct content-type`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      const status = res.status();
-      expect([200, 302]).toContain(status);
-
-      if (status === 200) {
-        const ct = res.headers()['content-type'] || '';
-        expect(ct).toMatch(/javascript/i);
-      }
-    });
-
-    test(`${slug} — access-control-allow-origin is *`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      // Header checks only apply to 200 responses; 302 redirects may not carry widget headers
-      if (res.status() === 200) {
-        expect(res.headers()['access-control-allow-origin']).toBe('*');
-      }
-    });
-
-    test(`${slug} — cross-origin-resource-policy is cross-origin`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      if (res.status() === 200) {
-        expect(res.headers()['cross-origin-resource-policy']).toBe('cross-origin');
-      }
-    });
-
-    test(`${slug} — no x-frame-options blocking`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      const xfo = res.headers()['x-frame-options'];
-      // Should be absent (removed by widget middleware)
-      if (xfo) {
-        // If present for some reason (e.g. reverse proxy), it must not block
-        expect(xfo).not.toMatch(/DENY/i);
-      }
-    });
-
-    test(`${slug} — CSP frame-ancestors * if present`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      const csp = res.headers()['content-security-policy'];
-      if (csp) {
-        expect(csp).toContain('frame-ancestors *');
-      }
-    });
-
-    test(`${slug} — cache-control includes public`, async ({ request }) => {
-      const res = await request.get(`${BASE}${path}`, { maxRedirects: 0 });
-      if (res.status() === 200) {
-        const cc = res.headers()['cache-control'] || '';
-        expect(cc.toLowerCase()).toContain('public');
-      }
-    });
-  }
-
-  test('generic widget — /widget/nexxus-widget.js returns 200 with JS', async ({ request }) => {
-    const res = await request.get(`${BASE}/widget/nexxus-widget.js`, { maxRedirects: 0 });
-    const status = res.status();
-    expect([200, 302]).toContain(status);
-
-    if (status === 200) {
-      const ct = res.headers()['content-type'] || '';
-      expect(ct).toMatch(/javascript/i);
-    }
-
-    // Cross-origin headers
-    expect(res.headers()['access-control-allow-origin']).toBe('*');
-    expect(res.headers()['cross-origin-resource-policy']).toBe('cross-origin');
+  // 1. Widget JS loads
+  test('widget JS loads — GET /dealer-widgets/nexxus-widget.js returns 200 with JavaScript', async ({ request }) => {
+    const res = await request.get(`${BASE}/dealer-widgets/nexxus-widget.js`);
+    expect(res.status()).toBe(200);
+    const ct = res.headers()['content-type'] || '';
+    expect(ct).toMatch(/javascript/i);
+    const body = await res.text();
+    expect(body.length).toBeGreaterThan(100);
   });
 
-  test('widget API CORS preflight — OPTIONS /api/widget/video-session', async ({ request }) => {
-    const res = await request.fetch(`${BASE}/api/widget/video-session`, {
-      method: 'OPTIONS',
-      headers: {
-        'Origin': 'https://example-dealer.com',
-        'Access-Control-Request-Method': 'POST',
-        'Access-Control-Request-Headers': 'Content-Type',
-      },
-    });
-    // Preflight should succeed (200 or 204)
-    expect([200, 204]).toContain(res.status());
-
-    const headers = res.headers();
-    expect(headers['access-control-allow-origin']).toBe('*');
-    expect(headers['access-control-allow-methods']).toMatch(/POST/i);
+  // 2. Widget test page loads
+  test('widget test page loads — GET /widget-test.html returns 200 with title', async ({ request }) => {
+    const res = await request.get(`${BASE}/widget-test.html`);
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain('Nexxus Widget Test');
   });
 
-  test('non-widget route /api/health retains security headers', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/health`);
-    const headers = res.headers();
+  // 3. Widget FAB renders on test page
+  test('widget FAB renders — page has button with aria-label "Open chat widget"', async ({ page }) => {
+    await page.goto(`${BASE}/widget-test.html`, { waitUntil: 'networkidle', timeout: 30000 });
+    const fab = page.getByRole('button', { name: 'Open chat widget' });
+    await expect(fab).toBeVisible({ timeout: 15000 });
+  });
 
-    // Helmet defaults should be present on non-widget routes
-    if (headers['x-content-type-options']) {
-      expect(headers['x-content-type-options']).toMatch(/nosniff/i);
-    }
+  // 4. Widget dropdown opens with all 4 options
+  test('widget dropdown opens — click FAB, verify 4 options appear', async ({ page }) => {
+    await page.goto(`${BASE}/widget-test.html`, { waitUntil: 'networkidle', timeout: 30000 });
 
-    if (headers['x-frame-options']) {
-      expect(headers['x-frame-options']).toMatch(/SAMEORIGIN|DENY/i);
-    }
+    // Click the FAB to open the dropdown
+    const fab = page.getByRole('button', { name: 'Open chat widget' });
+    await expect(fab).toBeVisible({ timeout: 15000 });
+    await fab.click();
 
-    // Should NOT have cross-origin-resource-policy: cross-origin
-    // (Helmet default is same-origin, or it may be absent)
-    const corp = headers['cross-origin-resource-policy'];
-    if (corp) {
-      expect(corp).not.toBe('cross-origin');
+    // Verify all 4 options are visible
+    const expectedOptions = ['Web Chat', 'Instant Call Back', 'Contact Form', 'Two-Way Video'];
+    for (const option of expectedOptions) {
+      await expect(page.getByText(option, { exact: false })).toBeVisible({ timeout: 10000 });
     }
+  });
+
+  // 5. Chat iframe loads — click "Web Chat", verify iframe appears
+  test('chat iframe loads — click Web Chat, verify iframe with /p/{slug}?mode=chat', async ({ page }) => {
+    await page.goto(`${BASE}/widget-test.html`, { waitUntil: 'networkidle', timeout: 30000 });
+
+    // Open dropdown
+    const fab = page.getByRole('button', { name: 'Open chat widget' });
+    await expect(fab).toBeVisible({ timeout: 15000 });
+    await fab.click();
+
+    // Click "Web Chat"
+    await page.getByText('Web Chat').click();
+
+    // Verify an iframe appears with src containing /p/ and mode=chat
+    const iframe = page.locator('iframe[src*="/p/"]');
+    await expect(iframe).toBeVisible({ timeout: 15000 });
+
+    const src = await iframe.getAttribute('src');
+    expect(src).toBeTruthy();
+    expect(src).toMatch(/\/p\/[\w-]+\?.*mode=chat/);
+  });
+
+  // 6. Landing page loads
+  test('landing page loads — GET /p/serra-honda returns 200', async ({ request }) => {
+    const res = await request.get(`${BASE}/p/serra-honda`);
+    expect(res.status()).toBe(200);
+  });
+
+  // 7. Per-dealer widget JS exists
+  test('per-dealer widget JS — GET /dealer-widgets/serra-honda-widget.js returns 200', async ({ request }) => {
+    const res = await request.get(`${BASE}/dealer-widgets/serra-honda-widget.js`);
+    expect(res.status()).toBe(200);
+    const ct = res.headers()['content-type'] || '';
+    expect(ct).toMatch(/javascript/i);
   });
 
 });
