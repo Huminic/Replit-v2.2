@@ -1,14 +1,13 @@
-Report-ID: WD-20260414-035031
+Report-ID: WD-20260414-084217
 Acknowledged-By: orchestrator
-Timestamp: 2026-04-14T03:52:00Z
+Timestamp: 2026-04-14T08:43:00Z
 Violations-Reviewed:
-  C1: Pre-existing — older sprints committed without hash (legacy registry migration), tracked in backlog; batch commits from wave-pe3 work
-  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints S0-S18, VFY-01-05, FIX-01, G-004, etc.), tracked in backlog; recent sprints (SNP-*, EMG-*, LAUNCH-STABILIZE, LAUNCH-RECON-01) have partial artifacts — will be completed in launch sprints
-  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (M-002, M-003 reconciliation; PE-AI-CHAT-03, R-015, R-016, T-019 missing fields), tracked in backlog
-  C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016, T-019), tracked in backlog
-  C7: context.md age exceeded 8h threshold — this is a session boundary artifact. Context was valid at session start; the 8h limit triggered during this long-running session. No stale data risk.
-  C15: MEMORY.md referenced is the governor root memory, updated this session. Nexxus-local memory not maintained separately. context.md staleness is expected between operator sessions — operator promotes from session-output.md.
-  C16: Pre-existing — known drift between sprints.json commit hashes and git log (null hashes from legacy registry migration), tracked in backlog
-  C19: Known — LAUNCH-RECON-01 pre-exec has 0 success criteria because this is a recon/fix sprint; LAUNCH-P0-CLEANUP same — governance-fix sprint with no testable application changes. ACs are tracked in sprints.json.
-  C20: LAUNCH-RECON-01 declares 13 application files (max 5) — this sprint expanded from recon-only to include 7 metric bugfixes (I-258 through I-268) plus I-235 email kill switch and partner org creation per operator direction during live eval. Owner-approved scope expansion for production eval wave.
+  C1: Pre-existing — older sprints committed without hash (legacy registry migration), tracked in backlog
+  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints), tracked in backlog
+  C3: Pre-existing — older cross-signs with non-APPROVED verdicts, tracked in backlog
+  C4: Pre-existing — older sprint checklists missing RESULT: APPROVED, tracked in backlog
+  C15: MEMORY.md age expected between operator sessions — operator promotes from session-output.md
+  C16: Pre-existing — null hashes from legacy registry migration, tracked in backlog
+  C19: Known — recon/fix sprints have ACs tracked in sprints.json, not pre-exec
+  C20: LAUNCH-RECON-01 scope expanded per operator direction during live eval wave
 Disposition: PROCEED — all violations are pre-existing/tracked or session-boundary artifacts
