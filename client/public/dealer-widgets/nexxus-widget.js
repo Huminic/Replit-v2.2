@@ -412,7 +412,10 @@
     }
   }
 
-  fab.addEventListener('click', toggleWidget);
+  fab.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleWidget();
+  });
 
   // ── Close on outside click ─────────────────────────────────
   document.addEventListener('click', function(e) {
