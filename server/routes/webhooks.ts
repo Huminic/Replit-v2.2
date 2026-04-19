@@ -231,7 +231,7 @@ async function sendLeadNotificationEmail(
   const testDomainPatterns = ['@nexxus.com', '@test.com'];
   const seedDomains = [
     '@serrahonda.com', '@serranissan.com', '@tonyserraford.com',
-    '@hyundaiofcolumbia.com', '@fordofcolumbia.com', '@cageautomotive.com',
+    '@hyundaiofcolumbia.com', '@fordofcolumbia.com',
   ];
   const seedPrefixes = ['orgadmin@', 'salesmanager@', 'bdcmanager@', 'servicemanager@', 'fimanager@'];
   for (const email of recipientEmails) {
@@ -328,7 +328,12 @@ function generateLeadEmailHTML(params: {
     ? "A visitor just completed a video session with your AI assistant."
     : `Congratulations! Your AI assistant <strong>${params.assistantName}</strong> just completed a call with a potential customer.`;
 
-  const summaryBlock = params.summary && params.summary !== "No summary available"
+  const hasSummaryContent = !!(params.summary && params.summary.trim() && params.summary !== "No summary available");
+  const hasTranscriptContent = !!(params.transcript && params.transcript.trim());
+  const genericFallback = `This was a real inbound sales call and should be returned. The caller hung up before providing details. Suggested follow-up: &ldquo;Good day, I&rsquo;m calling from ${params.orgName}. Someone called in and I wanted to check if you were looking for a new vehicle or wanted to schedule a test drive.&rdquo;`;
+  const summaryDisplayText = hasSummaryContent ? params.summary : (!hasTranscriptContent ? genericFallback : "");
+
+  const summaryBlock = summaryDisplayText
     ? `
           <tr>
             <td style="padding: 0 40px 20px;">
@@ -337,7 +342,7 @@ function generateLeadEmailHTML(params: {
                   Lead Summary
                 </h3>
                 <p style="margin: 0; font-size: 15px; color: #333; line-height: 1.6;">
-                  ${params.summary}
+                  ${summaryDisplayText}
                 </p>
               </div>
             </td>
@@ -495,6 +500,284 @@ ${params.transcript}
 </body>
 </html>
   `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADF/XML Lead Submission Functions
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function formatPhoneForAdf(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  const cleaned = digits.startsWith('1') && digits.length === 11 ? digits.slice(1) : digits;
+  if (cleaned.length === 10) {
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  }
+  return cleaned;
+}
+
+function parseVehicleFromText(text: string): { year: string; make: string; model: string } | null {
+  if (!text) return null;
+  const makes = [
+    'Honda', 'Nissan', 'Ford', 'Hyundai', 'Toyota', 'Chevrolet', 'Chevy',
+    'Dodge', 'Ram', 'Jeep', 'Kia', 'Subaru', 'Mazda', 'BMW', 'Mercedes',
+    'Audi', 'Lexus', 'Acura', 'Infiniti', 'Volkswagen', 'VW', 'Buick',
+    'Cadillac', 'GMC', 'Lincoln', 'Chrysler', 'Mitsubishi', 'Volvo',
+  ];
+  const makePattern = makes.join('|');
+  const regex = new RegExp(
+    `(?:(20[0-2]\\d)\\s+)?(${makePattern})\\s+([A-Z][A-Za-z0-9\\-]+(?:\\s+[A-Z][A-Za-z0-9\\-]+)?)`,
+    'i'
+  );
+  const match = text.match(regex);
+  if (match) {
+    const model = match[3].trim();
+
+    // Skip dealer name patterns: "Ford of Columbia", "Hyundai of Columbia"
+    if (/^of\b/i.test(model)) return null;
+
+    // Skip "Serra Honda", "Serra Nissan", "Serra Ford"
+    const matchIndex = match.index || 0;
+    const before = text.substring(Math.max(0, matchIndex - 10), matchIndex).toLowerCase();
+    if (before.includes('serra')) return null;
+
+    const year = match[1] || new Date().getFullYear().toString();
+    let make = match[2];
+    if (make.toLowerCase() === 'chevy') make = 'Chevrolet';
+    if (make.toLowerCase() === 'vw') make = 'Volkswagen';
+    return { year, make, model };
+  }
+  return null;
+}
+
+function buildAdfXml(params: {
+  requestDate: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerPhone?: string | null;
+  customerEmail?: string | null;
+  vehicleYear: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  comments: string;
+  dealerName: string;
+}): string {
+  const firstName = escapeXml(params.customerFirstName);
+  const lastName = escapeXml(params.customerLastName);
+  const dealerName = escapeXml(params.dealerName);
+  const comments = escapeXml(params.comments);
+  const vehicleYear = escapeXml(params.vehicleYear);
+  const vehicleMake = escapeXml(params.vehicleMake);
+  const vehicleModel = escapeXml(params.vehicleModel);
+  const requestDate = escapeXml(params.requestDate);
+
+  const phoneTag = params.customerPhone
+    ? `\n  <phone type="cellphone">${escapeXml(formatPhoneForAdf(params.customerPhone))}</phone>`
+    : '';
+  const emailTag = params.customerEmail && params.customerEmail.trim()
+    ? `\n  <email>${escapeXml(params.customerEmail.trim())}</email>`
+    : '';
+
+  return `<?xml version="1.0"?>
+<?adf version="1.0"?>
+<adf>
+<prospect>
+<requestdate>${requestDate}</requestdate>
+<vehicle interest="buy" status="new">
+  <year>${vehicleYear}</year>
+  <make>${vehicleMake}</make>
+  <model>${vehicleModel}</model>
+</vehicle>
+<customer>
+<contact>
+  <name part="first">${firstName}</name>
+  <name part="last">${lastName}</name>${phoneTag}${emailTag}
+</contact>
+<timeframe>
+  <description/>
+</timeframe>
+<comments>${comments}</comments>
+</customer>
+<vendor>
+<vendorname>${dealerName}</vendorname>
+<contact>
+  <name part="full"/>
+</contact>
+</vendor>
+<provider>
+<name part="full">Nexxus Connect</name>
+<service>AI Voice Agent</service>
+</provider>
+</prospect>
+</adf>`;
+}
+
+async function submitAdfLead(
+  organizationId: string,
+  leadData: {
+    customerName: string;
+    customerPhone?: string | null;
+    customerEmail?: string | null;
+    transcript?: string | null;
+    summary?: string | null;
+    callId: string;
+    callTimestamp: string;
+    source: 'vapi' | 'tavus';
+  }
+): Promise<{ sent: boolean; mode: string; xml: string; targetEmail: string }> {
+  const org = await storage.getOrganization(organizationId);
+  if (!org) {
+    console.warn(`[ADF] Organization not found: ${organizationId}`);
+    return { sent: false, mode: 'no-org', xml: '', targetEmail: '' };
+  }
+
+  // Idempotency check — don't send the same ADF twice
+  const adfIdempotencyKey = `adf-${leadData.source}-${leadData.callId}`;
+  const existingAdfLogs = await storage.getOutboundLogs(organizationId, {});
+  const adfAlreadySent = existingAdfLogs.some(
+    (log) =>
+      log.channel === "email" &&
+      log.status === "sent" &&
+      log.messageContent?.includes(`[adf:${adfIdempotencyKey}]`)
+  );
+  if (adfAlreadySent) {
+    console.log(`[ADF] Already sent for ${adfIdempotencyKey} — skipping`);
+    return { sent: false, mode: 'duplicate', xml: '', targetEmail: '' };
+  }
+
+  const settings = (org.settings as Record<string, any>) || {};
+  const adfEmail: string | undefined = settings.adfEmail;
+  const adfBrand: string | undefined = settings.adfBrand;
+
+  if (!adfEmail) {
+    console.log(`[ADF] No adfEmail configured for org=${org.name} (${organizationId})`);
+    return { sent: false, mode: 'no-config', xml: '', targetEmail: '' };
+  }
+
+  const nameParts = (leadData.customerName || '').trim().split(/\s+/);
+  let firstName = nameParts[0] || '';
+  let lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+  // Treat known placeholder names as unknown
+  const placeholderNames = ['unknown', 'caller', 'unknown caller', 'anonymous', 'no name', 'n/a', ''];
+  const fullNameLower = (leadData.customerName || '').trim().toLowerCase();
+  if (!firstName || placeholderNames.includes(firstName.toLowerCase()) || placeholderNames.includes(fullNameLower)) firstName = 'Phone';
+  if (!lastName || placeholderNames.includes(lastName.toLowerCase()) || placeholderNames.includes(fullNameLower)) lastName = 'Inquiry';
+
+  const textForVehicle = (leadData.summary || '') + ' ' + (leadData.transcript || '');
+  const parsedVehicle = parseVehicleFromText(textForVehicle);
+  const vehicleYear = parsedVehicle?.year || new Date().getFullYear().toString();
+  const vehicleMake = parsedVehicle?.make || 'Vehicle Unknown';
+  const vehicleModel = parsedVehicle?.model || 'Vehicle Unknown';
+
+  const dealerName = org.name || 'the dealership';
+  let comments = '';
+  if (leadData.summary && leadData.summary.trim()) {
+    comments += `Summary: ${leadData.summary.trim()}`;
+  }
+  if (leadData.transcript && leadData.transcript.trim()) {
+    const t = leadData.transcript.trim();
+    const truncated = t.length > 2000 ? t.slice(0, 2000) + '...' : t;
+    comments += comments ? `\n\nFull Transcript:\n${truncated}` : truncated;
+  }
+  if (!comments) {
+    comments = `This was a real inbound sales call and should be returned. Suggested follow-up: "Good day, I'm calling from ${dealerName}. Someone called in and I wanted to check if you were looking for a new vehicle or wanted to schedule a test drive."`;
+  }
+
+  const xml = buildAdfXml({
+    requestDate: leadData.callTimestamp,
+    customerFirstName: firstName,
+    customerLastName: lastName,
+    customerPhone: leadData.customerPhone,
+    customerEmail: leadData.customerEmail,
+    vehicleYear,
+    vehicleMake,
+    vehicleModel,
+    comments,
+    dealerName,
+  });
+
+  const adfMode = (process.env.ADF_MODE || 'live').toLowerCase();
+  let targetEmail: string;
+  let mode: string;
+
+  if (adfMode === 'log') {
+    mode = 'log';
+    targetEmail = adfEmail;
+    console.log(`[ADF] LOG-ONLY mode — XML generated but NOT sent`);
+    console.log(`[ADF] org=${org.name} to=${targetEmail} phone=${leadData.customerPhone || 'none'}`);
+    console.log(`[ADF] XML:\n${xml}`);
+    return { sent: false, mode, xml, targetEmail };
+  } else if (adfMode === 'test') {
+    targetEmail = process.env.ADF_TEST_EMAIL || '';
+    mode = 'test';
+    if (!targetEmail) {
+      console.warn(`[ADF] TEST mode but ADF_TEST_EMAIL not set`);
+      return { sent: false, mode: 'test-no-email', xml, targetEmail: '' };
+    }
+  } else {
+    targetEmail = adfEmail;
+    mode = 'live';
+  }
+
+  try {
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) {
+      console.error('[ADF] RESEND_API_KEY not set — cannot send ADF email');
+      return { sent: false, mode: `${mode}-no-key`, xml, targetEmail };
+    }
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Nexxus Connect <leads@huminic.ai>',
+        to: [targetEmail],
+        subject: `New Lead - ${firstName} ${lastName}`,
+        text: xml,
+      }),
+    });
+    if (!emailRes.ok) {
+      const errBody = await emailRes.text();
+      console.error(`[ADF] Resend API error ${emailRes.status}: ${errBody}`);
+      return { sent: false, mode: `${mode}-error`, xml, targetEmail };
+    }
+    const emailData = await emailRes.json() as { id?: string };
+    console.log(`[ADF] mode=${mode} org=${org.name} to=${targetEmail} phone=${leadData.customerPhone || 'none'} resendId=${emailData.id} — SENT`);
+
+    // Log to outbound_log for idempotency and audit
+    try {
+      await storage.createOutboundLog({
+        organizationId,
+        campaignId: null,
+        recipientId: null,
+        channel: 'email',
+        status: 'sent',
+        blockedReason: null,
+        messageContent: `[adf:${adfIdempotencyKey}] ADF XML sent for ${firstName} ${lastName}`,
+        recipientEmail: targetEmail,
+        recipientName: `${firstName} ${lastName}`,
+        sentAt: new Date(),
+      });
+    } catch (logErr: any) {
+      console.error('[ADF] Failed to log to outbound_log:', logErr);
+    }
+
+    return { sent: true, mode, xml, targetEmail };
+  } catch (err) {
+    console.error(`[ADF] Failed to send ADF email:`, err);
+    return { sent: false, mode: `${mode}-error`, xml, targetEmail };
+  }
 }
 
 // VAPI webhook call object schema (shared between wrapped and flat formats)
@@ -836,7 +1119,35 @@ export function registerWebhookRoutes(app: Express) {
       const isTestPhone = vinPhone && (vinPhone.startsWith("555") || vinPhone.startsWith("5550"));
       const hasTranscript = !!(transcript && transcript.trim().length > 0);
 
-      if (!isTestPhone && vinPhone && hasTranscript) {
+      // ADF path — if configured, send ADF email instead of VIN API
+      const orgForAdf = await storage.getOrganization(organizationId);
+      const hasAdfConfig = !!((orgForAdf?.settings as any)?.adfEmail);
+      let adfSent = false;
+      let adfTargetEmail = "";
+
+      if (hasAdfConfig && hasTranscript && customerPhone) {
+        try {
+          const adfResult = await submitAdfLead(organizationId, {
+            customerName: customerName || 'Unknown Caller',
+            customerPhone,
+            customerEmail: null,
+            transcript: transcript || null,
+            summary: summary || null,
+            callId: call.id || vapiCallId || 'unknown',
+            callTimestamp: call.startedAt || new Date().toISOString(),
+            source: 'vapi',
+          });
+          adfSent = adfResult.sent;
+          adfTargetEmail = adfResult.targetEmail || "";
+          if (adfSent) {
+            console.log(`[VAPI→ADF] ADF email sent for ${customerPhone} to ${adfResult.targetEmail}`);
+          }
+        } catch (adfErr: any) {
+          console.error('[VAPI→ADF] ADF submission failed:', adfErr.message);
+        }
+      }
+
+      if (!adfSent && !isTestPhone && vinPhone && hasTranscript) {
       try {
         // VIN lead creation via vin-safe-mcp REST API (port 4003)
         // Per-dealer userId and leadSourceName resolved from integrations table
@@ -963,7 +1274,7 @@ export function registerWebhookRoutes(app: Express) {
           organizationId,
           type: "call",
           title: "New Inbound Call Completed",
-          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
+          message: `Call from ${customerName}${customerPhone ? ` (${customerPhone})` : ""} has been completed and added to TeamBox.${adfSent ? " ADF lead sent." : vinLeadCreated ? " VIN lead created." : ""}`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
         }).catch(() => {});
@@ -1011,7 +1322,9 @@ export function registerWebhookRoutes(app: Express) {
         }
 
         let vinStatusText = "";
-        if (vinLeadCreated) {
+        if (adfSent) {
+          vinStatusText = adfTargetEmail ? `\u2705 ADF lead sent to ${adfTargetEmail}` : "\u2705 Lead sent via ADF email";
+        } else if (vinLeadCreated) {
           vinStatusText = "\u2705 Lead created in VIN Solutions";
         } else if (!hasTranscript) {
           vinStatusText = "\u26A0\uFE0F Not inserted — no transcript (ringing-only or failed call)";
@@ -1031,7 +1344,7 @@ export function registerWebhookRoutes(app: Express) {
           duration: callDurationStr,
           endedReason: call.status || "completed",
           vinStatus: vinStatusText,
-          summary: summary || transcript.substring(0, 300),
+          summary: summary || (transcript && transcript.trim() ? transcript.substring(0, 300) : ""),
           transcript: transcript || "",
           recordingUrl: recordingUrl,
           callId: call.id || "unknown",
@@ -1187,7 +1500,34 @@ export function registerWebhookRoutes(app: Express) {
       let vinLeadCreated = false;
       // Safety: same guards as VAPI path (T-010a)
       const hasTavusTranscript = !!(summary && summary.trim().length > 0);
-      if (hasTavusTranscript) {
+
+      // ADF path — if configured, send ADF email instead of VIN API
+      const tavusOrgForAdf = await storage.getOrganization(organizationId);
+      const tavusHasAdfConfig = !!((tavusOrgForAdf?.settings as any)?.adfEmail);
+      let tavusAdfSent = false;
+
+      if (tavusHasAdfConfig && hasTavusTranscript) {
+        try {
+          const adfResult = await submitAdfLead(organizationId, {
+            customerName: visitorName || 'Video Visitor',
+            customerPhone: null,
+            customerEmail: null,
+            transcript: transcript || null,
+            summary: summary || null,
+            callId: tavusConversationId || 'unknown',
+            callTimestamp: tavusData?.started_at || new Date().toISOString(),
+            source: 'tavus',
+          });
+          tavusAdfSent = adfResult.sent;
+          if (tavusAdfSent) {
+            console.log(`[Tavus→ADF] ADF email sent for ${visitorName} to ${adfResult.targetEmail}`);
+          }
+        } catch (adfErr: any) {
+          console.error('[Tavus→ADF] ADF submission failed:', adfErr.message);
+        }
+      }
+
+      if (!tavusAdfSent && hasTavusTranscript) {
       try {
         // VIN lead creation via vin-safe-mcp REST API (port 4003)
         const integration = await storage.getIntegrations(organizationId, { provider: "vinsolutions" });
@@ -1292,7 +1632,7 @@ export function registerWebhookRoutes(app: Express) {
           organizationId,
           type: "call",
           title: "Video Conversation Completed",
-          message: `Video conversation with ${visitorName} has been completed and added to TeamBox.${vinLeadCreated ? " VIN lead created." : ""}`,
+          message: `Video conversation with ${visitorName} has been completed and added to TeamBox.${tavusAdfSent ? " ADF lead sent." : vinLeadCreated ? " VIN lead created." : ""}`,
           relatedEntityType: "conversation",
           relatedEntityId: conversation.id,
         }).catch(() => {});
@@ -1326,7 +1666,9 @@ export function registerWebhookRoutes(app: Express) {
 
         // I-229: Compute VIN status for email body
         let tavusVinStatusText = "";
-        if (vinLeadCreated) {
+        if (tavusAdfSent) {
+          tavusVinStatusText = "\u2705 Lead sent via ADF email";
+        } else if (vinLeadCreated) {
           tavusVinStatusText = "\u2705 Lead created in VIN Solutions";
         } else {
           tavusVinStatusText = "\u274C Not inserted \u2014 VIN integration error (check logs)";

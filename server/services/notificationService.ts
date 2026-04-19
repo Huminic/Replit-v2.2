@@ -98,7 +98,7 @@ async function resolveAdminRecipients(orgId: string): Promise<string[]> {
   const testDomainPatterns = ["@nexxus.com", "@test.com"];
   const seedDomains = [
     "@serrahonda.com", "@serranissan.com", "@tonyserraford.com",
-    "@hyundaiofcolumbia.com", "@fordofcolumbia.com", "@cageautomotive.com",
+    "@hyundaiofcolumbia.com", "@fordofcolumbia.com",
   ];
   const seedPrefixes = ["orgadmin@", "salesmanager@", "bdcmanager@", "servicemanager@", "fimanager@"];
   for (const email of recipientEmails) {
