@@ -620,6 +620,7 @@ export default function MainPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const conversationIdRef = useRef<string | null>(null);
   const [, setLocation] = useLocation();
   const searchString = useSearch();
 
@@ -628,6 +629,7 @@ export default function MainPage() {
     const params = new URLSearchParams(searchString);
     const resumeId = params.get('conversationId');
     if (resumeId) {
+      conversationIdRef.current = resumeId;
       setConversationId(resumeId);
       setMessages([]);
       setInitialized(true);
@@ -650,8 +652,8 @@ export default function MainPage() {
     enabled: !!authUser,
   });
 
-  const findOrCreateConversation = useCallback(async () => {
-    if (!authUser || initialized) return;
+  const findOrCreateConversation = useCallback(async (): Promise<string | null> => {
+    if (!authUser || initialized) return conversationIdRef.current;
 
     // Reuse an existing ai-chat conversation for this user if one exists
     const userEmail = authUser.email;
@@ -660,14 +662,15 @@ export default function MainPage() {
     );
 
     if (match) {
+      conversationIdRef.current = match.id;
       setConversationId(match.id);
       setChatError(null);
       setInitialized(true);
-      return;
+      return match.id;
     }
 
     // Only create if the query has resolved (not still loading)
-    if (existingConversations === undefined) return;
+    if (existingConversations === undefined) return null;
 
     try {
       const res = await apiRequest('POST', '/api/conversations', {
@@ -677,13 +680,16 @@ export default function MainPage() {
         status: 'open',
       });
       const newConv: DbConversation = await res.json();
+      conversationIdRef.current = newConv.id;
       setConversationId(newConv.id);
       setChatError(null);
       queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
+      return newConv.id;
     } catch (err) {
       console.error('Failed to create main chat conversation:', err);
       setChatError('Failed to initialize chat. Click to retry.');
+      return null;
     }
   }, [authUser, existingConversations, initialized, personaName]);
 
@@ -738,15 +744,16 @@ export default function MainPage() {
   const handleSend = async () => {
     if (!inputValue.trim()) return;
 
-    if (!conversationId) {
-      // Try to recreate the conversation before giving up
+    let activeConversationId = conversationId || conversationIdRef.current;
+    if (!activeConversationId) {
+      // Conversation not yet initialized — create it and use the returned ID directly
       setChatError(null);
       setInitialized(false);
-      await findOrCreateConversation();
-      // conversationId is set via state, so we can't read it synchronously here.
-      // Show a toast and let the user retry after the conversation initializes.
-      toast({ title: 'Chat initializing', description: 'Please try sending your message again.', variant: 'default' });
-      return;
+      activeConversationId = await findOrCreateConversation();
+      if (!activeConversationId) {
+        toast({ title: 'Chat error', description: 'Could not create conversation. Please refresh the page.', variant: 'destructive' });
+        return;
+      }
     }
 
     const content = inputValue.trim();
@@ -765,7 +772,7 @@ export default function MainPage() {
       setTilesCollapsed(true);
     }
 
-    await streamSend(content);
+    await streamSend(content, activeConversationId);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

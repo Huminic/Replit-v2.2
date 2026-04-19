@@ -103,14 +103,21 @@ export function registerUserRoutes(app: Express) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Nexxus Connect <no-reply@huminic.app>",
+              from: "Nexxus Connect <no-reply@huminic.ai>",
               to: email,
               subject: `Welcome to ${org?.name || "Nexxus Connect"} on Nexxus Connect`,
               html: `<h2>Welcome to ${escapeHtml(org?.name || "Nexxus Connect")}!</h2>
                 <p>Hi ${escapeHtml(firstName)},</p>
                 <p>Your account has been created for <strong>${escapeHtml(org?.name || "Nexxus Connect")}</strong> by ${escapeHtml(req.user!.firstName)} ${escapeHtml(req.user!.lastName)}.</p>
-                <p>You can log in using your email address: <strong>${escapeHtml(email)}</strong></p>
-                <p>Please change your password after your first login for security purposes.</p>
+                <p><strong>Your login credentials:</strong></p>
+                <ul>
+                  <li><strong>Email:</strong> ${escapeHtml(email)}</li>
+                  <li><strong>Password:</strong> ${escapeHtml(password)}</li>
+                </ul>
+                <p style="margin: 24px 0;">
+                  <a href="https://live.huminic.app/login" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Log In to Nexxus Connect</a>
+                </p>
+                <p style="color: #666; font-size: 14px;">Please change your password after your first login for security purposes.</p>
                 <p>Welcome aboard!</p>`,
             }),
           });
@@ -358,7 +365,7 @@ export function registerUserRoutes(app: Express) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Nexxus Connect <no-reply@huminic.app>",
+              from: "Nexxus Connect <no-reply@huminic.ai>",
               to: email,
               subject: `You've been invited to ${org?.name || "Nexxus Connect"}`,
               html: `<h2>Welcome to ${escapeHtml(org?.name || "Nexxus Connect")}!</h2>
