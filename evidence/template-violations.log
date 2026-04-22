@@ -236,3 +236,14 @@
 [2026-04-13T17:34:27Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/LAUNCH-RECON-01/pre-execution-report.md template=pre-exec
   - Missing (exact): **Sprint:** header
   - Missing (exact): **Date:** header
+[2026-04-20T04:10:13Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/TRG-RPT-001/pre-execution-report.md template=pre-exec
+  - Missing (exact): **Date:** header
+  - Ghost Entry Gate section missing verdict (ENTRY GATE: APPROVED or REJECTED)
+[2026-04-21T06:49:09Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/TRG-RPT-001/post-sprint-report.md template=post-sprint
+  - Missing: ## Objective section
+  - Missing: ## Changes Made section
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section
+[2026-04-21T06:49:36Z] TEMPLATE_VIOLATION file=/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/TRG-RPT-001/post-sprint-report.md template=post-sprint
+  - Missing: ## UI Delta section
+  - Missing: ## Regression Delta section

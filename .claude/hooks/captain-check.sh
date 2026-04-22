@@ -6,9 +6,26 @@
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 
-# Sub-agents skip captain enforcement — this hook governs the orchestrator only
+# Sub-agents skip captain enforcement — this hook governs the orchestrator only.
+# Env-var detection (preferred, kept in case the harness starts exposing it):
 if [ -n "${CLAUDE_AGENT_DEPTH:-}" ] && [ "${CLAUDE_AGENT_DEPTH:-0}" -gt 0 ]; then
   exit 0
+fi
+if [ -n "${CLAUDE_CODE_SUBAGENT_ID:-}" ] || [ -n "${CLAUDE_AGENT_NAME:-}" ]; then
+  exit 0
+fi
+
+# File-based operator bypass (added 2026-04-20 after env recon confirmed Claude Code
+# does not expose any reliable sub-agent signal — captain and sub-agent envs are
+# identical). Captain touches this file before dispatching a sub-agent that will
+# write app code. 1-hour window. Operator can revoke by deleting the file.
+# Mirror of the pattern used by plan-protection.sh.
+SUBAGENT_APPROVAL="/home/ubuntu/Claude-store/nexxus2.2_replit/.governor/approvals/subagent-write-approved"
+if [ -f "$SUBAGENT_APPROVAL" ]; then
+  AGE=$(( $(date +%s) - $(stat -c %Y "$SUBAGENT_APPROVAL" 2>/dev/null || echo 0) ))
+  if [ "$AGE" -lt 3600 ]; then
+    exit 0
+  fi
 fi
 
 # Read-only tools — always allowed

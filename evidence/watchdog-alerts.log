@@ -3638,3 +3638,43 @@
 [2026-04-14T08:45:20Z] Previous ack (WD-20260414-084217) invalidated by new report (WD-20260414-084504)
 [2026-04-14T08:45:45Z] Previous ack (WD-20260414-084217) invalidated by new report (WD-20260414-084529)
 [2026-04-14T08:47:07Z] Previous ack (WD-20260414-084217) invalidated by new report (WD-20260414-084650)
+[2026-04-20T04:05:54Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:06:05Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:07:23Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:07:29Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:07:49Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:08:24Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T04:10:13Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-20T04:22:23Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T05:25:26Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-20T08:01:58Z] ALERT: C8 ORPHAN_EVIDENCE CODEBASE-AUDIT-2026-04-20.md.tmp.1215578.1776672118508 has evidence but is not in sprints.json
+[2026-04-20T08:01:58Z] ALERT: C8 ORPHAN_EVIDENCE CODEBASE-AUDIT-2026-04-20.md has evidence but is not in sprints.json
+[2026-04-21T06:46:02Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MOVED_TO)
+[2026-04-21T06:49:09Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-21T06:49:36Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
+[2026-04-21T06:50:36Z] Previous ack (WD-20260414-084217) invalidated by new report (WD-20260421-065021)
+[2026-04-21T07:01:12Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/ack-and-retry.sh (MOVED_TO)
+[2026-04-21T07:02:31Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-21T07:03:30Z] Previous ack () invalidated by new report (WD-20260421-070316)
+[2026-04-21T07:04:11Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/ack-and-retry.sh (MOVED_TO)
+[2026-04-21T07:25:19Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-21T07:25:55Z] Previous ack () invalidated by new report (WD-20260421-072540)
+[2026-04-21T07:26:28Z] Previous ack () invalidated by new report (WD-20260421-072612)
+[2026-04-21T07:29:33Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/ack-and-retry.sh (MOVED_TO)
+[2026-04-21T07:35:04Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (MODIFY)
+[2026-04-21T07:35:53Z] Previous ack () invalidated by new report (WD-20260421-073539)
+[2026-04-21T07:40:18Z] Previous ack () invalidated by new report (WD-20260421-074003)
+[2026-04-21T07:41:25Z] ALERT: C12 GOVERNANCE_FILE_CHANGED scripts/ack-and-retry.sh (MOVED_TO)
+[2026-04-21T17:02:44Z] Previous ack () invalidated by new report (WD-20260421-170229)
+[2026-04-21T17:03:56Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-21T17:06:02Z] Previous ack () invalidated by new report (WD-20260421-170547)
+[2026-04-21T17:06:53Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-21T17:07:29Z] Previous ack () invalidated by new report (WD-20260421-170713)
+[2026-04-21T17:08:30Z] Previous ack () invalidated by new report (WD-20260421-170815)
+[2026-04-21T17:09:46Z] Previous ack () invalidated by new report (WD-20260421-170931)
+[2026-04-22T00:37:38Z] Previous ack () invalidated by new report (WD-20260422-003723)
+[2026-04-22T00:38:58Z] Previous ack () invalidated by new report (WD-20260422-003843)
+[2026-04-22T00:40:00Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.1215578.1776818400362 has evidence but is not in sprints.json
+[2026-04-22T00:40:00Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+[2026-04-22T00:41:54Z] Previous ack () invalidated by new report (WD-20260422-004138)
+[2026-04-22T00:43:32Z] Previous ack () invalidated by new report (WD-20260422-004317)

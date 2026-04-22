@@ -1,8 +1,20 @@
 # Nexxus v2.2 — Launch Execution Plan
 
-**Date:** 2026-04-13
+**Date:** 2026-04-13 (original) — last updated 2026-04-20
 **Mode:** Sniper — find bug, fix bug, smoke test, move on
 **Branch:** wave-pe3
+
+---
+
+## Current Active Work (2026-04-20)
+
+**Active sprint:** `TRG-RPT-001` — Trigger Activation + Response Handling + Weekly AI Executive Report
+**Pre-exec + evidence:** `evidence/TRG-RPT-001/`
+**Depends on:** `ADF-001` (committed, retroactive — e85248b + 2af3eaf)
+
+Sections below (PART 0 through PART 6) are historical launch-plan reference for the original LAUNCH-* sprint family. Live work follows sprints.json + evidence/TRG-RPT-001/ only.
+
+Apology SMS scope (former PART 7) removed 2026-04-20 — affected customers waved it off.
 
 ---
 
@@ -234,13 +246,6 @@ Run critical flows with operator's real phone numbers and email.
 - [ ] 6.6 Outbound call to operator's phone (if VAPI configured)
 - [ ] 6.7 Capture evidence + operator confirmation
 - [ ] 6.8 Final commit
-
----
-
-## PART 7: APOLOGY SMS
-
-- [ ] 7.1 Send apology to 7 Serra Honda customers (operator approves message first)
-- [ ] 7.2 Check for replies and respond appropriately
 
 ---
 

@@ -1,39 +1,12 @@
-# Operational Tasks — LAUNCH-STABILIZE
+# Operational Tasks — LAUNCH-STABILIZE (HISTORICAL)
 
 **Created:** 2026-04-13 02:00 UTC
-**Sprint:** LAUNCH-STABILIZE
+**Sprint:** LAUNCH-STABILIZE (parked) — trigger work continues in TRG-RPT-001
+**Apology to 7 customers:** resolved 2026-04-20 — customers waved it off, no action taken
 
 ---
 
-## URGENT — Morning of April 13
-
-### 1. Send apology SMS to 7 real customers (FIRST THING)
-
-After-hours trigger sent SMS to 7 real Serra Honda customers at ~10 PM ET on April 12. Must apologize in the morning during business hours.
-
-**Recipients:**
-
-| Name | Phone |
-|------|-------|
-| Lisa Morris | 5417783509 |
-| Noah Koger | 6623046188 |
-| Jennifer Jones | 2564527205 |
-| Jennifer Ueltschey | 6019517616 |
-| Fedor Zanin | 8594458581 |
-| Richard Chambliss | 2567944375 |
-| Allie Nix | 2054102897 |
-
-**Suggested apology message (operator to approve before sending):**
-> Hi [firstName], this is Serra Honda. We apologize for the late message last night — it was sent in error during a system update. Please disregard it. If you do need anything, we're here during business hours. Thank you for your patience.
-
-**Actions:**
-- [ ] Operator approves apology message text
-- [ ] Send apology via TextMagic during business hours (after 8 AM ET)
-- [ ] Check for any replies from the 7 recipients and respond appropriately
-
----
-
-## BUGS TO FIX (before any more trigger testing)
+## BUGS TO FIX (before any more trigger testing — carried into TRG-RPT-001)
 
 ### 2. Remove TCPA bypass from after-hours trigger
 The `bypassBusinessHours: true` flag must be removed. After-hours trigger should QUEUE sends for next business hours window, not bypass TCPA.

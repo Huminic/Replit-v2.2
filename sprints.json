@@ -1,8 +1,8 @@
 {
-      "version": "16.0",
-      "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03). V13: 9 wave-pe3 sniper sprints registered (SNP-SEC-01, SNP-COMMS-FIX-01, SNP-WIDGET-01, SNP-AI-HANDOFF-01, SNP-INSIGHTS-A, SNP-INSIGHTS-B, SNP-UI-MISC-01, WFV-COMMS-01, SNP-LANDING-01). V14: LAUNCH-STABILIZE sprint registered for launch day stabilization. V15: LAUNCH-STABILIZE parked. 9 launch sprints registered (LAUNCH-P0-CLEANUP through LAUNCH-DECISION-01) covering Phase 0-5 of unified launch plan. V16: Sprints restructured to match 7-part launch execution plan.",
-      "date": "2026-04-13",
-      "totalSprints": 104,
+      "version": "17.0",
+      "description": "V9: T-010a expanded (widget CORS, Tavus fix, backfill). T-010b/c/d add mock strategy + cleanup. T-010e added (live data verification). T-011 parked. V10: 7 PE eval sprints registered. V11: 8 remediation sprints registered (DATA-CLEANUP-01/02, REM-PE-001 through REM-PE-006). V12: SNP-001 completed. 7 Round 3 PE eval sprints registered (PE-*-03). V13: 9 wave-pe3 sniper sprints registered (SNP-SEC-01, SNP-COMMS-FIX-01, SNP-WIDGET-01, SNP-AI-HANDOFF-01, SNP-INSIGHTS-A, SNP-INSIGHTS-B, SNP-UI-MISC-01, WFV-COMMS-01, SNP-LANDING-01). V14: LAUNCH-STABILIZE sprint registered for launch day stabilization. V15: LAUNCH-STABILIZE parked. 9 launch sprints registered (LAUNCH-P0-CLEANUP through LAUNCH-DECISION-01) covering Phase 0-5 of unified launch plan. V16: Sprints restructured to match 7-part launch execution plan. V17 (2026-04-20): LAUNCH-RECON-01 parked (pivot captured). ADF-001 registered retroactively (ADF pipeline + welcome email + chat fix, commits e85248b + 2af3eaf). TRG-RPT-001 registered prospectively (triggers + weekly AI exec report + E2E evals). LAUNCH-INTERACTIVE-01 renamed, apology SMS scope removed (customers waved it off).",
+      "date": "2026-04-20",
+      "totalSprints": 106,
       "workOrder": [
             "U-001",
             "G-004",
@@ -96,7 +96,9 @@
             "LAUNCH-FIX-W4",
             "LAUNCH-AUTOTEST-01",
             "LAUNCH-INTERACTIVE-01",
-            "LAUNCH-DECISION-01"
+            "LAUNCH-DECISION-01",
+            "ADF-001",
+            "TRG-RPT-001"
       ],
       "sprints": [
             {
@@ -8436,9 +8438,10 @@
                   "category": "Launch",
                   "name": "Part 1 \u2014 Eval and Test Verification",
                   "phase": "qa_resolve_loop",
-                  "status": "in_progress",
+                  "status": "parked",
                   "commitHash": "513e857",
                   "operatorApproval": true,
+                  "note": "Parked 2026-04-20. Declared recon steps 1-5 (P1/P2/P3 dispatches, triage consolidation, ghost verify) never executed. Work pivoted to live ADF/XML lead submission pipeline \u2014 see ADF-001 (retroactive). Some trigger bugfix commits (I-272/273/274) were attributed to this sprint's commit hash 8acc270; honest ledger attribution belongs to ADF-001 era. Not marked completed because declared scope did not run.",
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 1",
                   "causedBy": "launch",
                   "outcome": "DOM crawl verified, all .spec.ts files validated, 34 slices classified as COVERED/PARTIAL/MISSING, baseline test run complete",
@@ -8698,13 +8701,14 @@
             {
                   "id": "LAUNCH-INTERACTIVE-01",
                   "category": "Launch",
-                  "name": "Part 7 \u2014 Apology SMS + Final Commit",
+                  "name": "Part 7 \u2014 Interactive Operator Tests + Final Commit",
                   "phase": "qa_resolve_loop",
                   "status": "planned",
                   "operatorApproval": true,
+                  "note": "Apology SMS scope removed 2026-04-20 \u2014 affected customers waved it off, no action required (original item INC-001 / tasks.md).",
                   "source": "NEXXUS_UNIFIED_LAUNCH_PROMPT.md \u2014 Phase 4",
                   "causedBy": "launch",
-                  "outcome": "Apology sent to 7 customers. All code committed. Launch ready.",
+                  "outcome": "Interactive operator tests pass (SMS, email, campaign). All code committed. Launch ready.",
                   "components": [],
                   "acceptanceCriteria": [],
                   "filesModified": [],
@@ -8776,6 +8780,248 @@
                         }
                   ],
                   "registeredAt": "2026-04-13T12:00:00Z"
+            },
+            {
+                  "id": "ADF-001",
+                  "category": "Launch",
+                  "name": "ADF/XML Lead Submission Pipeline + Welcome Email + Chat Fix",
+                  "phase": "qa_resolve_loop",
+                  "status": "committed",
+                  "retroactive": true,
+                  "commitHashes": [
+                        "e85248b",
+                        "2af3eaf"
+                  ],
+                  "operatorApproval": true,
+                  "source": "Operator directive \u2014 VAPI/Tavus voice leads must land in dealer VIN Solutions Unassigned inbox via ADF/XML email. Spec: /home/ubuntu/Claude-store/central-mcp/docs/prompt-adf-builder-for-nexxus-agent.md",
+                  "causedBy": "operator directive",
+                  "outcome": "ADF pipeline live for Serra Honda, Serra Nissan, Tony Serra Ford. Disabled for Columbia stores per operator request (notifications only). 30 backlog leads delivered, ADF delivery verified in VIN Solutions (James Richardson lead 2001875551, Daniel Meyer lead 2001876101). 5 production accounts created with working welcome emails. Chat 'conversation not found' race condition fixed. Notification exclusion filter corrected.",
+                  "components": [
+                        "buildAdfXml() pure function \u2014 ADF 1.0 XML builder",
+                        "submitAdfLead() wrapper \u2014 org config lookup + Resend send",
+                        "escapeXml() + formatPhoneForAdf() helpers",
+                        "parseVehicleFromText() \u2014 dealer-name aware vehicle extraction",
+                        "VAPI webhook wiring (ADF path when adfEmail configured)",
+                        "Tavus webhook wiring (same)",
+                        "Welcome email domain fix huminic.app \u2192 huminic.ai",
+                        "Welcome email adds login link + password display",
+                        "Chat conversationIdRef pattern (race condition fix)",
+                        "Notification exclusion filter \u2014 remove @cageautomotive.com",
+                        "Idempotency via outbound_log [adf:*] tags",
+                        "ADF config per-org in settings (adfEmail, adfBrand, adfLeadSource)"
+                  ],
+                  "acceptanceCriteria": [
+                        "VAPI voice call at Serra Honda \u2192 ADF XML delivered to leads@serrahonda.co (VERIFIED)",
+                        "Tavus video call \u2192 ADF XML delivered (wired, awaiting organic traffic)",
+                        "Columbia stores: adfEmail unset \u2192 no ADF sent, notification email still fires",
+                        "Welcome email delivered from leads@huminic.ai with login link + password",
+                        "Chat new-user flow: no 'conversation not found' on first message",
+                        "30 backlog leads delivered with correct parsed names/vehicles (VERIFIED in Resend + VIN)"
+                  ],
+                  "filesModified": [
+                        "server/routes/webhooks.ts",
+                        "server/services/notificationService.ts",
+                        "server/routes/users.ts",
+                        "client/src/hooks/useStreamingChat.ts",
+                        "client/src/pages/main.tsx",
+                        "client/public/dealer-handoff/Dealer.com Integration Instructions.txt",
+                        "client/public/dealer-handoff/Nexxus_Connect_Dealer.com_Integration.zip",
+                        "client/public/dealer-handoff/Widget Links by Store.txt"
+                  ],
+                  "uiPermissions": "Chat new-user flow fix in client/src/pages/main.tsx + useStreamingChat.ts. No other UI changes.",
+                  "dependsOn": [],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT (retroactive)",
+                              "status": "completed",
+                              "timestamp": "2026-04-20T04:05:00Z"
+                        },
+                        {
+                              "step": 1,
+                              "action": "Deployment pipeline alignment \u2014 dev + live on same staging DB via Coolify env var update",
+                              "status": "completed",
+                              "timestamp": "2026-04-16T00:00:00Z"
+                        },
+                        {
+                              "step": 2,
+                              "action": "5 production accounts created with welcome email verification",
+                              "status": "completed",
+                              "timestamp": "2026-04-16T00:00:00Z"
+                        },
+                        {
+                              "step": 3,
+                              "action": "buildAdfXml() + submitAdfLead() built and wired into VAPI/Tavus handlers",
+                              "status": "completed",
+                              "timestamp": "2026-04-16T00:00:00Z"
+                        },
+                        {
+                              "step": 4,
+                              "action": "30 backlog leads pushed to VIN Solutions via ADF; verified delivery",
+                              "status": "completed",
+                              "timestamp": "2026-04-16T00:00:00Z"
+                        },
+                        {
+                              "step": 5,
+                              "action": "Chat conversation-not-found race condition fixed",
+                              "status": "completed",
+                              "timestamp": "2026-04-16T00:00:00Z"
+                        },
+                        {
+                              "step": 6,
+                              "action": "Columbia stores \u2014 adfEmail removed per operator; notification emails still fire",
+                              "status": "completed",
+                              "timestamp": "2026-04-18T00:00:00Z"
+                        },
+                        {
+                              "step": 7,
+                              "action": "Commits e85248b + 2af3eaf on wave-pe3 via [skip-ghost]",
+                              "status": "completed",
+                              "timestamp": "2026-04-18T00:00:00Z"
+                        },
+                        {
+                              "step": 8,
+                              "action": "Retroactive sprint registration",
+                              "status": "completed",
+                              "timestamp": "2026-04-20T04:05:00Z"
+                        }
+                  ],
+                  "registeredAt": "2026-04-20T04:05:00Z"
+            },
+            {
+                  "id": "TRG-RPT-001",
+                  "category": "Launch",
+                  "name": "Trigger Activation + Response Handling + Weekly AI Executive Report",
+                  "phase": "qa_resolve_loop",
+                  "status": "in_progress",
+                  "operatorApproval": true,
+                  "source": "Operator directive 2026-04-20 \u2014 external leads after-hours immediate SMS, all leads 24h follow-up, response outcomes handled, weekly Monday 7am executive report with QA gate + humble tone + 0-100 sales team score, real E2E evals",
+                  "causedBy": "operator directive",
+                  "outcome": "Triggers fire correctly for external/after-hours + 24h check-in for all qualifying leads at all 5 dealerships. Response outcomes routed to TeamBox. Weekly AI executive report delivered Monday 7am per store timezone (operator first, then org/partner admins) with QA gate blocking unsafe sends. Real E2E evals pass.",
+                  "components": [
+                        "Fix synced_at window \u2192 vin_created_at in lead eligibility query",
+                        "Fix isNexxusOriginatedLead() URL-vs-name mismatch",
+                        "Fix after-hours DEFER path to actually SEND next business window",
+                        "Enable triggersEnabled toggle per store with test-phone whitelist",
+                        "External-lead after-hours immediate engagement SMS",
+                        "All-lead 24h follow-up SMS",
+                        "Response outcome handler (yes / no / call-me / silence routing)",
+                        "Settings page UI \u2014 trigger config (hours, templates, whitelist, enable)",
+                        "Weekly AI executive report generator",
+                        "QA gate / validator for weekly report before send",
+                        "Humble AI tone + interstitial feedback messaging",
+                        "Sales team score 0-100 with commentary",
+                        "Partner-admin roll-up (Serra Auto, Columbia Auto grouping \u2014 verify DB partnerId chain)",
+                        "Monday 7am scheduled send per store timezone"
+                  ],
+                  "acceptanceCriteria": [
+                        "External lead arrives after hours \u2192 immediate engagement SMS delivered (whitelist phase first)",
+                        "All qualifying leads at 24h age \u2192 follow-up SMS delivered exactly once (duplicate prevention verified across two cycles)",
+                        "Customer replies to trigger SMS \u2192 response routed to TeamBox; admin notified (yes / no / call-me / silence cases)",
+                        "Weekly report delivered Monday 7am per store timezone",
+                        "Weekly report QA gate blocks send when validation fails; alerts super_admin",
+                        "Weekly report content: untouched leads list (with names), 24h+ no-attention leads, ghosted leads, weekly activity summary (inbound calls, leads synced, ADF delivered, triggers fired, notifications sent, escalations), start-of-week priorities, AI narrative 2\u20133 paragraphs, 0\u2013100 sales team score with commentary, humble tone + interstitial feedback messaging",
+                        "Partner admin receives single email with all customer stores sectioned",
+                        "Partner admin grouping verified: Serra Auto = Serra Honda/Nissan/Tony Serra; Columbia Auto = Hyundai of Columbia/Ford of Columbia",
+                        "Operator receives test weekly report before any org_admin (first cycle sends only to operator)",
+                        "Real E2E evals pass without shortcuts: live ADF delivery, live trigger SMS to whitelist, live weekly email, AI chat + TeamBox + Insights as org_admin"
+                  ],
+                  "filesModified": [
+                        "server/services/triggerService.ts",
+                        "server/services/leadSource.ts",
+                        "server/services/weeklyReportService.ts",
+                        "server/services/scheduler.ts",
+                        "server/services/notificationService.ts",
+                        "server/routes/settings.ts",
+                        "server/routes/sms.ts",
+                        "server/routes/insights.ts",
+                        "client/src/pages/settings.tsx",
+                        "shared/schema.ts",
+                        "tests/unit/triggerService.eligibility.test.ts",
+                        "tests/unit/weeklyReport.validator.test.ts",
+                        "tests/unit/weeklyReport.content.test.ts",
+                        "tests/unit/weeklyReport.scheduler.test.ts",
+                        "tests/e2e/settings-triggers.spec.ts",
+                        "tests/e2e/trigger-response.spec.ts",
+                        "tests/e2e/weekly-report-preview.spec.ts"
+                  ],
+                  "uiPermissions": "Settings page \u2014 new Triggers section (hours, templates, test-phone whitelist, enable toggle, weekly report preview). No other UI changes without explicit approval.",
+                  "dependsOn": [
+                        "ADF-001"
+                  ],
+                  "executionSteps": [
+                        {
+                              "step": 0,
+                              "action": "PRE-FLIGHT + pre-execution-report",
+                              "status": "completed"
+                        },
+                        {
+                              "step": 1,
+                              "action": "GHOST ENTRY GATE",
+                              "status": "pending",
+                              "type": "governance"
+                        },
+                        {
+                              "step": 2,
+                              "action": "Phase A \u2014 Fix 4 trigger bugs (synced_at, isNexxusOriginatedLead, after-hours DEFER, enable toggles)",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 3,
+                              "action": "Phase B \u2014 Build response outcome handler + TeamBox routing + admin notifications",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 4,
+                              "action": "Phase C \u2014 Settings UI for trigger config",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 5,
+                              "action": "Phase D \u2014 Weekly AI executive report generator + QA gate + scheduler",
+                              "status": "completed"
+                        },
+                        {
+                              "step": 6,
+                              "action": "Phase E \u2014 Partner-admin roll-up + DB grouping verification",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 7,
+                              "action": "Phase F \u2014 Operator test weekly report (first send)",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 8,
+                              "action": "Phase G \u2014 Enable triggers with whitelist at one store; verify",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 9,
+                              "action": "Phase H \u2014 Real E2E evals (live ADF, live trigger, live weekly, chat/teambox/insights as org_admin)",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 10,
+                              "action": "Phase I \u2014 Go live for all 5 stores; remove whitelist; weekly report to all org/partner admins",
+                              "status": "pending",
+                              "type": "deferred"
+                        },
+                        {
+                              "step": 11,
+                              "action": "GHOST EXIT GATE",
+                              "status": "pending",
+                              "type": "governance"
+                        }
+                  ],
+                  "registeredAt": "2026-04-20T04:05:00Z"
             }
       ]
 }

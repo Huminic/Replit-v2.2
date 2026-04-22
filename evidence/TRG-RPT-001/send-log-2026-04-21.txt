@@ -1,0 +1,159 @@
+
+========== Serra Honda (serra-honda) ==========
+Routing: {"to":["dwood@serrahonda.net","jessica@misscommunicationconsulting.com","sdew@serrahonda.net","victoria@misscommunicationconsulting.com"],"cc":["durran@cageautomotive.com"],"bcc":["duane.wells@huminic.ai"]}
+toExcluded: [
+  { email: 'orgadmin@serrahonda.com', reason: 'isTestOrSeedEmail' },
+  { email: 'serra_honda@huminic.ai', reason: 'isTestOrSeedEmail' },
+  { email: 'neoweaver@gmail.com', reason: 'isTestOrSeedEmail' }
+]
+ccExcluded: [ { email: 'duanekwells@gmail.com', reason: 'isTestOrSeedEmail' } ]
+Sanity checks PASS for serra-honda
+Sending correction for serra-honda from Caroline (Nexxus Connect) <leads@huminic.ai>
+Correction sent. messageId=1496d371-44d8-460c-a2b1-c89fb3bc0911
+Sending revised report for serra-honda (html length=41210)
+[WeeklyReport] Sending report "🚗 AI Dealership Performance Analysis — Serra Honda — week ending Apr 20, 2026" to=4 cc=1 bcc=1 (via Resend direct)
+[WeeklyReport] Sent. messageId=abee4e89-8b60-4f90-9043-b19bf9090bc2
+Revised report sent. messageId=abee4e89-8b60-4f90-9043-b19bf9090bc2
+
+========== Serra Nissan (serra-nissan) ==========
+Routing: {"to":["dwood@serrahonda.net","victoria@misscommunicationconsulting.com"],"cc":["durran@cageautomotive.com"],"bcc":["duane.wells@huminic.ai"]}
+toExcluded: [ { email: 'serra_nissan@huminic.ai', reason: 'isTestOrSeedEmail' } ]
+ccExcluded: [ { email: 'duanekwells@gmail.com', reason: 'isTestOrSeedEmail' } ]
+Sanity checks PASS for serra-nissan
+Sending correction for serra-nissan from Magnolia (Nexxus Connect) <leads@huminic.ai>
+Correction sent. messageId=b7e6fb5b-6aee-47bc-9860-749eed168ffc
+Sending revised report for serra-nissan (html length=39581)
+[WeeklyReport] Sending report "🚗 AI Dealership Performance Analysis — Serra Nissan — week ending Apr 20, 2026" to=2 cc=1 bcc=1 (via Resend direct)
+[WeeklyReport] Sent. messageId=b2af5904-7ccc-40a6-b559-c0376c548c45
+Revised report sent. messageId=b2af5904-7ccc-40a6-b559-c0376c548c45
+
+========== Tony Serra Ford (tony-serra-ford) ==========
+Routing: {"to":["dwood@serrahonda.net","victoria@misscommunicationconsulting.com"],"cc":["durran@cageautomotive.com"],"bcc":["duane.wells@huminic.ai"]}
+toExcluded: [ { email: 'serra_ford@huminic.ai', reason: 'isTestOrSeedEmail' } ]
+ccExcluded: [ { email: 'duanekwells@gmail.com', reason: 'isTestOrSeedEmail' } ]
+Sanity checks PASS for tony-serra-ford
+Sending correction for tony-serra-ford from Georgia (Nexxus Connect) <leads@huminic.ai>
+Correction sent. messageId=1112b111-a2f9-46e9-bdab-ff3f786c7e83
+Sending revised report for tony-serra-ford (html length=40066)
+[WeeklyReport] Sending report "🚗 AI Dealership Performance Analysis — Tony Serra Ford — week ending Apr 20, 2026" to=2 cc=1 bcc=1 (via Resend direct)
+[WeeklyReport] Sent. messageId=39ca0bc5-38da-49d3-9762-a3b8bdc73969
+Revised report sent. messageId=39ca0bc5-38da-49d3-9762-a3b8bdc73969
+
+========== Ford of Columbia (ford-of-columbia) ==========
+Routing: {"to":["sam.mayfield@bc.auto"],"cc":["durran@cageautomotive.com"],"bcc":["duane.wells@huminic.ai"]}
+toExcluded: [ { email: 'columbia_ford@huminic.ai', reason: 'isTestOrSeedEmail' } ]
+ccExcluded: [ { email: 'duanekwells@gmail.com', reason: 'isTestOrSeedEmail' } ]
+Sanity checks PASS for ford-of-columbia
+Sending correction for ford-of-columbia from Savannah (Nexxus Connect) <leads@huminic.ai>
+Correction sent. messageId=2cf27a4f-ad0f-4e99-bd5c-77903894c5c7
+Sending revised report for ford-of-columbia (html length=42807)
+[WeeklyReport] Sending report "🚗 AI Dealership Performance Analysis — Ford of Columbia — week ending Apr 20, 2026" to=1 cc=1 bcc=1 (via Resend direct)
+[WeeklyReport] Sent. messageId=ca00b396-6a3e-4a99-8a66-60d8dd04d52b
+Revised report sent. messageId=ca00b396-6a3e-4a99-8a66-60d8dd04d52b
+
+========== Hyundai of Columbia (hyundai-of-columbia) ==========
+Routing: {"to":["sam.mayfield@bc.auto"],"cc":["durran@cageautomotive.com"],"bcc":["duane.wells@huminic.ai"]}
+toExcluded: [
+  { email: 'columbia_hyundai@huminic.ai', reason: 'isTestOrSeedEmail' }
+]
+ccExcluded: [ { email: 'duanekwells@gmail.com', reason: 'isTestOrSeedEmail' } ]
+Sanity checks PASS for hyundai-of-columbia
+Sending correction for hyundai-of-columbia from Elizabeth (Nexxus Connect) <leads@huminic.ai>
+Correction sent. messageId=785e6a82-af50-4c53-8e34-adaf0d76de70
+Sending revised report for hyundai-of-columbia (html length=43113)
+[WeeklyReport] Sending report "🚗 AI Dealership Performance Analysis — Hyundai of Columbia — week ending Apr 20, 2026" to=1 cc=1 bcc=1 (via Resend direct)
+[WeeklyReport] Sent. messageId=7efd65ae-057d-41db-be08-25a661c953aa
+Revised report sent. messageId=7efd65ae-057d-41db-be08-25a661c953aa
+
+
+========== FINAL RESULTS ==========
+[
+  {
+    "store": "Serra Honda",
+    "slug": "serra-honda",
+    "to": [
+      "dwood@serrahonda.net",
+      "jessica@misscommunicationconsulting.com",
+      "sdew@serrahonda.net",
+      "victoria@misscommunicationconsulting.com"
+    ],
+    "cc": [
+      "durran@cageautomotive.com"
+    ],
+    "bcc": [
+      "duane.wells@huminic.ai"
+    ],
+    "correctionMsgId": "1496d371-44d8-460c-a2b1-c89fb3bc0911",
+    "revisedMsgId": "abee4e89-8b60-4f90-9043-b19bf9090bc2"
+  },
+  {
+    "store": "Serra Nissan",
+    "slug": "serra-nissan",
+    "to": [
+      "dwood@serrahonda.net",
+      "victoria@misscommunicationconsulting.com"
+    ],
+    "cc": [
+      "durran@cageautomotive.com"
+    ],
+    "bcc": [
+      "duane.wells@huminic.ai"
+    ],
+    "correctionMsgId": "b7e6fb5b-6aee-47bc-9860-749eed168ffc",
+    "revisedMsgId": "b2af5904-7ccc-40a6-b559-c0376c548c45"
+  },
+  {
+    "store": "Tony Serra Ford",
+    "slug": "tony-serra-ford",
+    "to": [
+      "dwood@serrahonda.net",
+      "victoria@misscommunicationconsulting.com"
+    ],
+    "cc": [
+      "durran@cageautomotive.com"
+    ],
+    "bcc": [
+      "duane.wells@huminic.ai"
+    ],
+    "correctionMsgId": "1112b111-a2f9-46e9-bdab-ff3f786c7e83",
+    "revisedMsgId": "39ca0bc5-38da-49d3-9762-a3b8bdc73969"
+  },
+  {
+    "store": "Ford of Columbia",
+    "slug": "ford-of-columbia",
+    "to": [
+      "sam.mayfield@bc.auto"
+    ],
+    "cc": [
+      "durran@cageautomotive.com"
+    ],
+    "bcc": [
+      "duane.wells@huminic.ai"
+    ],
+    "correctionMsgId": "2cf27a4f-ad0f-4e99-bd5c-77903894c5c7",
+    "revisedMsgId": "ca00b396-6a3e-4a99-8a66-60d8dd04d52b"
+  },
+  {
+    "store": "Hyundai of Columbia",
+    "slug": "hyundai-of-columbia",
+    "to": [
+      "sam.mayfield@bc.auto"
+    ],
+    "cc": [
+      "durran@cageautomotive.com"
+    ],
+    "bcc": [
+      "duane.wells@huminic.ai"
+    ],
+    "correctionMsgId": "785e6a82-af50-4c53-8e34-adaf0d76de70",
+    "revisedMsgId": "7efd65ae-057d-41db-be08-25a661c953aa"
+  }
+]
+
+| Store | Routing.to | Routing.cc | Routing.bcc | Correction msgId | Revised report msgId |
+|---|---|---|---|---|---|
+| Serra Honda | dwood@serrahonda.net; jessica@misscommunicationconsulting.com; sdew@serrahonda.net; victoria@misscommunicationconsulting.com | durran@cageautomotive.com | duane.wells@huminic.ai | 1496d371-44d8-460c-a2b1-c89fb3bc0911 | abee4e89-8b60-4f90-9043-b19bf9090bc2 |
+| Serra Nissan | dwood@serrahonda.net; victoria@misscommunicationconsulting.com | durran@cageautomotive.com | duane.wells@huminic.ai | b7e6fb5b-6aee-47bc-9860-749eed168ffc | b2af5904-7ccc-40a6-b559-c0376c548c45 |
+| Tony Serra Ford | dwood@serrahonda.net; victoria@misscommunicationconsulting.com | durran@cageautomotive.com | duane.wells@huminic.ai | 1112b111-a2f9-46e9-bdab-ff3f786c7e83 | 39ca0bc5-38da-49d3-9762-a3b8bdc73969 |
+| Ford of Columbia | sam.mayfield@bc.auto | durran@cageautomotive.com | duane.wells@huminic.ai | 2cf27a4f-ad0f-4e99-bd5c-77903894c5c7 | ca00b396-6a3e-4a99-8a66-60d8dd04d52b |
+| Hyundai of Columbia | sam.mayfield@bc.auto | durran@cageautomotive.com | duane.wells@huminic.ai | 785e6a82-af50-4c53-8e34-adaf0d76de70 | 7efd65ae-057d-41db-be08-25a661c953aa |
