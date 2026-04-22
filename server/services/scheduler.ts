@@ -1,6 +1,7 @@
 import { storage } from "../storage";
 import { startCampaignExecution, processOutboundSend } from "../outbound";
 import { generateHunchesForOrg } from "./hunchService";
+import { sendWeeklyReportProduction } from "./weeklyReportService";
 import { log } from "../index";
 import type { Organization, Agent } from "@shared/schema";
 
@@ -133,6 +134,395 @@ async function runWeeklyHunches() {
   } catch (err) {
     log(`Weekly hunch scheduler failed: ${err}`, "hunches");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Weekly Executive Report Scheduler (TRG-RPT-001 — Phase D final step)
+// ---------------------------------------------------------------------------
+//
+// Per-store Monday 7am local send. The runner checks each of the 5 dealer
+// orgs (orgs whose partner points at Cage Automotive), computes the local
+// time in that store's configured timezone (settings.timezone, fallback
+// "America/Chicago" with a warning log), and fires the production send if:
+//   - local day is Monday
+//   - local hour is 7 (7:00 to 7:59 inclusive)
+//   - no scheduler_locks row exists for this org's weekly key
+// OR a catch-up condition (Monday past 7am through Tuesday 7am local, still
+// within ~24h of target, lock missing) — covers container-restart cases.
+//
+// Idempotency key format: `weekly_report_{orgId}_{isoWeekYear}-W{isoWeek}`.
+// Each week creates its own row — old rows accumulate but are harmless; a
+// separate purge sprint can clean them if needed.
+//
+// The send itself is handled by `sendWeeklyReportProduction` in
+// weeklyReportService — same function the integration test uses.
+//
+// Safety Bcc: by default, every send includes `duane.wells@huminic.ai` on
+// Bcc for operator observability. Operator will flip
+// `WEEKLY_REPORT_SAFETY_BCC_DISABLED=1` after confidence is built.
+
+export interface LocalTimeInfo {
+  day: string; // "Monday", "Tuesday", ...
+  hour: number; // 0–23
+  isoWeekYear: number;
+  isoWeekNumber: number;
+  tzUsed: string;
+  tzFellBack: boolean;
+  nowMs: number; // ms since epoch (same for every TZ — reference)
+  localTimestamp: string; // "YYYY-MM-DD HH:MM" in the chosen TZ, for logs
+}
+
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+/**
+ * Compute the local day / hour / ISO-week information for a given timezone.
+ *
+ * `now` defaults to `new Date()` — accept an override for deterministic tests.
+ * If the `tz` string is invalid (throws inside Intl), we fall back to
+ * "America/Chicago" and flag `tzFellBack = true`.
+ */
+export function getLocalTimeInTz(
+  tz: string | null | undefined,
+  now: Date = new Date(),
+): LocalTimeInfo {
+  const FALLBACK = "America/Chicago";
+  let effectiveTz = tz && tz.trim().length > 0 ? tz.trim() : FALLBACK;
+  let tzFellBack = !tz || tz.trim().length === 0;
+
+  // Validate by running a cheap format — throws for bad TZ strings.
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: effectiveTz }).format(now);
+  } catch {
+    effectiveTz = FALLBACK;
+    tzFellBack = true;
+  }
+
+  // Extract parts in the target TZ.
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: effectiveTz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    weekday: "long",
+  });
+  const parts = fmt.formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  const year = parseInt(get("year"), 10);
+  const month = parseInt(get("month"), 10);
+  const day = parseInt(get("day"), 10);
+  // Intl uses "24" for midnight hour in hour12:false — normalize to 0.
+  let hour = parseInt(get("hour"), 10);
+  if (hour === 24) hour = 0;
+  const minute = parseInt(get("minute"), 10);
+  const weekday = get("weekday") || DAY_NAMES[0];
+
+  // Compute ISO week using the local calendar date (year/month/day) in TZ.
+  const { isoWeekYear, isoWeekNumber } = isoWeekFromCalendar(year, month, day);
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const localTimestamp = `${year}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}`;
+
+  return {
+    day: weekday,
+    hour,
+    isoWeekYear,
+    isoWeekNumber,
+    tzUsed: effectiveTz,
+    tzFellBack,
+    nowMs: now.getTime(),
+    localTimestamp,
+  };
+}
+
+/**
+ * ISO-8601 week number from a local calendar date (Y-M-D).
+ *
+ * Implements the standard algorithm: the ISO week-year of a date is the
+ * calendar year of its Thursday; week 1 is the week containing the year's
+ * first Thursday.
+ */
+export function isoWeekFromCalendar(
+  year: number,
+  month: number,
+  day: number,
+): { isoWeekYear: number; isoWeekNumber: number } {
+  // Build a UTC date at noon to avoid DST boundary drift.
+  const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const dayOfWeek = d.getUTCDay() || 7; // Monday=1..Sunday=7
+  d.setUTCDate(d.getUTCDate() + 4 - dayOfWeek); // shift to Thursday of same week
+  const isoWeekYear = d.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(isoWeekYear, 0, 1));
+  const isoWeekNumber = Math.ceil(
+    ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
+  );
+  return { isoWeekYear, isoWeekNumber };
+}
+
+/**
+ * Returns the lock key for a given org + local-week.
+ */
+export function weeklyReportLockKey(
+  orgId: string,
+  isoWeekYear: number,
+  isoWeekNumber: number,
+): string {
+  const weekPart = `W${isoWeekNumber.toString().padStart(2, "0")}`;
+  return `weekly_report_${orgId}_${isoWeekYear}-${weekPart}`;
+}
+
+export interface WeeklyReportDecision {
+  fire: boolean;
+  reason: string;
+  local: LocalTimeInfo;
+  lockKey: string;
+}
+
+/**
+ * Pure decision function — given the org, the current time, and whether a
+ * lock already exists, return whether the scheduler should fire for this org
+ * on this tick. Extracted so unit tests can exercise it without hitting the
+ * DB or sending anything.
+ *
+ *   fire = (local.day === "Monday" && local.hour === 7 && !lockHeld)
+ *          OR (catch-up) local time is Monday past 7am through Tuesday before
+ *          7am AND lockHeld === false
+ */
+export function decideWeeklyReportFire(
+  orgId: string,
+  tz: string | null | undefined,
+  lockHeld: boolean,
+  now: Date = new Date(),
+): WeeklyReportDecision {
+  const local = getLocalTimeInTz(tz, now);
+  const lockKey = weeklyReportLockKey(orgId, local.isoWeekYear, local.isoWeekNumber);
+
+  if (lockHeld) {
+    return { fire: false, reason: "lock_held", local, lockKey };
+  }
+
+  // Primary window: Monday 7:00–7:59 local.
+  if (local.day === "Monday" && local.hour === 7) {
+    return { fire: true, reason: "primary_window", local, lockKey };
+  }
+
+  // Catch-up window: Monday 8am through Tuesday 6:59am local, ≤24h from 7am.
+  // Covers: container restart during the send window → missed-and-recover.
+  const isMondayAfter7 = local.day === "Monday" && local.hour >= 8;
+  const isTuesdayBefore7 = local.day === "Tuesday" && local.hour < 7;
+  if (isMondayAfter7 || isTuesdayBefore7) {
+    return { fire: true, reason: "catchup_window", local, lockKey };
+  }
+
+  return { fire: false, reason: "outside_window", local, lockKey };
+}
+
+/**
+ * Main scheduler job. Runs every 5 minutes — checks each dealer org, fires
+ * the production weekly-report send for any store whose local time is inside
+ * the Monday 7am window (or catch-up) and which hasn't already fired this
+ * week.
+ *
+ * Exported so it can be unit-tested. Accepts injectable dependencies —
+ * production callers should use the default arguments.
+ */
+export async function runWeeklyReportScheduler(deps: {
+  listProductionOrgs?: () => Promise<Array<Pick<Organization, "id" | "name" | "settings">>>;
+  getLock?: (key: string) => Promise<{ lockedAt: Date | null } | undefined>;
+  acquireLock?: (key: string) => Promise<boolean>;
+  send?: typeof sendWeeklyReportProduction;
+  writeActivityLog?: (entry: {
+    organizationId: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    metadata: Record<string, unknown>;
+  }) => Promise<void>;
+  now?: Date;
+} = {}): Promise<void> {
+  const {
+    listProductionOrgs = defaultListProductionOrgs,
+    getLock = (k) => storage.getSchedulerLock(k),
+    // 7-day TTL: the weekly-report lock must outlive its week. Short TTLs
+    // like the default 5-minute campaign-scheduler lock would let the row
+    // "age out" and re-fire within the same week. 10080 minutes = 7 days.
+    acquireLock = (k) => storage.acquireSchedulerLock(k, instanceId, 10080),
+    send = sendWeeklyReportProduction,
+    writeActivityLog = (e) => storage.createActivityLog(e).then(() => undefined),
+    now = new Date(),
+  } = deps;
+
+  let orgs: Array<Pick<Organization, "id" | "name" | "settings">>;
+  try {
+    orgs = await listProductionOrgs();
+  } catch (err) {
+    log(`Weekly report scheduler — org list failed: ${err}`, "weekly-report");
+    return;
+  }
+
+  const safetyBccDisabled = process.env.WEEKLY_REPORT_SAFETY_BCC_DISABLED === "1";
+  const safetyBcc: string | null = safetyBccDisabled ? null : "duane.wells@huminic.ai";
+
+  for (const org of orgs) {
+    const tz = ((org.settings as Record<string, unknown> | null)?.timezone as string | undefined) || null;
+    const localPeek = getLocalTimeInTz(tz, now);
+    const lockKey = weeklyReportLockKey(org.id, localPeek.isoWeekYear, localPeek.isoWeekNumber);
+
+    let lockRow: { lockedAt: Date | null } | undefined;
+    try {
+      lockRow = await getLock(lockKey);
+    } catch (err) {
+      log(
+        `[WeeklyReportScheduler] lock read failed for ${org.name} (${org.id}): ${err}`,
+        "weekly-report",
+      );
+      continue;
+    }
+    const lockHeld = !!lockRow && !!lockRow.lockedAt;
+
+    const decision = decideWeeklyReportFire(org.id, tz, lockHeld, now);
+
+    if (decision.local.tzFellBack) {
+      log(
+        `[WeeklyReportScheduler] ${org.name} has no valid settings.timezone — falling back to ${decision.local.tzUsed}`,
+        "weekly-report",
+      );
+    }
+
+    if (!decision.fire) {
+      // Quiet log — we hit this every 5 minutes for every org.
+      continue;
+    }
+
+    // Acquire lock first — race-safe. If another instance beat us to it,
+    // skip.
+    let acquired: boolean;
+    try {
+      acquired = await acquireLock(decision.lockKey);
+    } catch (err) {
+      log(
+        `[WeeklyReportScheduler] lock acquire failed for ${org.name}: ${err}`,
+        "weekly-report",
+      );
+      continue;
+    }
+    if (!acquired) {
+      log(
+        `[WeeklyReportScheduler] lock race — another instance holds ${decision.lockKey}`,
+        "weekly-report",
+      );
+      continue;
+    }
+
+    log(
+      `[WeeklyReportScheduler] firing for ${org.name} (${org.id}) — reason=${decision.reason} local=${decision.local.localTimestamp} tz=${decision.local.tzUsed}`,
+      "weekly-report",
+    );
+
+    try {
+      const result = await send(org.id, { safetyBcc });
+      try {
+        await writeActivityLog({
+          organizationId: org.id,
+          action: result.sent ? "weekly_report_sent" : "weekly_report_skipped",
+          entityType: "org",
+          entityId: org.id,
+          metadata: {
+            trigger: "scheduler",
+            reason: decision.reason,
+            localTimestamp: decision.local.localTimestamp,
+            tz: decision.local.tzUsed,
+            tzFellBack: decision.local.tzFellBack,
+            lockKey: decision.lockKey,
+            messageId: result.messageId ?? null,
+            to: result.to,
+            cc: result.cc,
+            bcc: result.bcc,
+            skipReason: result.skipReason ?? null,
+            validationFailures: result.validationFailures ?? null,
+            haltFailures: result.haltFailures ?? null,
+            error: result.error ?? null,
+            narrativeWordCount: result.narrativeWordCount ?? null,
+          },
+        });
+      } catch (logErr) {
+        log(
+          `[WeeklyReportScheduler] activity_log write failed for ${org.name}: ${logErr}`,
+          "weekly-report",
+        );
+      }
+
+      if (result.sent) {
+        log(
+          `[WeeklyReportScheduler] ${org.name}: SENT messageId=${result.messageId ?? "(none)"} to=${result.to.length} cc=${result.cc.length} bcc=${result.bcc.length}`,
+          "weekly-report",
+        );
+      } else {
+        log(
+          `[WeeklyReportScheduler] ${org.name}: SKIPPED reason=${result.skipReason ?? "(unknown)"} error=${result.error ?? "(none)"}`,
+          "weekly-report",
+        );
+      }
+    } catch (err) {
+      // Isolate — one org's failure must not break the loop for the other 4.
+      log(
+        `[WeeklyReportScheduler] ${org.name}: unexpected error: ${err}`,
+        "weekly-report",
+      );
+      try {
+        await writeActivityLog({
+          organizationId: org.id,
+          action: "weekly_report_error",
+          entityType: "org",
+          entityId: org.id,
+          metadata: {
+            trigger: "scheduler",
+            reason: decision.reason,
+            localTimestamp: decision.local.localTimestamp,
+            tz: decision.local.tzUsed,
+            lockKey: decision.lockKey,
+            error: String(err),
+          },
+        });
+      } catch (logErr) {
+        log(
+          `[WeeklyReportScheduler] error-log write also failed for ${org.name}: ${logErr}`,
+          "weekly-report",
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Default org list — every org whose partner is Cage Automotive (the 5
+ * dealer stores). Kept as a function so tests can inject a stub without
+ * touching storage.
+ */
+async function defaultListProductionOrgs(): Promise<
+  Array<Pick<Organization, "id" | "name" | "settings">>
+> {
+  const allOrgs = await storage.getOrganizations();
+  const cage = allOrgs.find((o) => o.slug === "cage-automotive");
+  if (!cage) {
+    log(
+      `[WeeklyReportScheduler] Cage Automotive org not found — weekly report scheduler is idle`,
+      "weekly-report",
+    );
+    return [];
+  }
+  const dealers = allOrgs.filter((o) => o.partnerId === cage.id);
+  return dealers.map((o) => ({ id: o.id, name: o.name, settings: o.settings }));
 }
 
 async function executeTriggerAction(actionType: string, phone: string | null, email: string | null, customerName: string, org: Organization, agent: Agent) {
@@ -423,6 +813,15 @@ export function startSchedulers() {
 
   // Weekly hunches (check every 5min, runs Monday at 6am)
   setInterval(runWeeklyHunches, 5 * 60 * 1000);
+
+  // Weekly executive report (TRG-RPT-001) — check every 5min, runs per store
+  // when local time hits Monday 7:00–7:59 (with Monday-after / Tuesday-before
+  // catch-up window). Protected by per-org per-week scheduler_locks row.
+  setInterval(() => {
+    runWeeklyReportScheduler().catch((err) => {
+      log(`Weekly report scheduler tick failed: ${err}`, "weekly-report");
+    });
+  }, 5 * 60 * 1000);
 
   // Trigger conditions (every 15min)
   setInterval(checkTriggerConditions, 15 * 60 * 1000);

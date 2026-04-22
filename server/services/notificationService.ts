@@ -415,6 +415,148 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
   }
 }
 
+// ---------------------------------------------------------------------------
+// Weekly Executive Report sender — TRG-RPT-001 Phase D
+// ---------------------------------------------------------------------------
+
+/**
+ * Send a weekly executive report email.
+ *
+ * Accepts either a single recipient (string) or an array of recipients, plus
+ * optional cc/bcc lists via `opts`. When cc/bcc are present, this function
+ * calls Resend directly via fetch (POST https://api.resend.com/emails)
+ * because the central-mcp `resend_send_email` tool does not currently forward
+ * cc/bcc fields (its schema only accepts from/to/subject/html/replyTo). This
+ * is consistent with the existing direct-Resend pattern used by ADF sends in
+ * server/routes/webhooks.ts and is tracked under BL-062 (route remaining
+ * direct Resend usage through MCP once the MCP tool supports cc/bcc).
+ *
+ * When cc/bcc are NOT provided, this function continues to route through
+ * callMCP("resend_send_email") for backward-compat with earlier callers.
+ *
+ * Unlike the trigger notifications above, this is NOT non-blocking: callers
+ * (the integration test, the future scheduler) need to know the outcome so
+ * they can surface failures. Returns a structured result instead of throwing.
+ *
+ * The `from:` domain follows the operator's explicit spec for TRG-RPT-001
+ * ("Nexxus Connect <leads@huminic.ai>"). That domain is verified in Resend
+ * per the project .env / central-mcp resend configuration.
+ *
+ * TRG-RPT-001 (production-send cycle): signature extended from
+ *   sendWeeklyReportEmail(toEmail, subject, html)
+ * to
+ *   sendWeeklyReportEmail(to, subject, html, opts?)
+ * where `to` may be a single email or an array, and `opts` may include
+ * `{ cc?: string[]; bcc?: string[] }`. The old single-string To: form still
+ * works unchanged.
+ */
+export interface WeeklyReportEmailOpts {
+  cc?: string[];
+  bcc?: string[];
+}
+
+export async function sendWeeklyReportEmail(
+  to: string | string[],
+  subject: string,
+  html: string,
+  opts: WeeklyReportEmailOpts = {},
+): Promise<{ sent: boolean; messageId?: string; error?: string }> {
+  const FROM = "Nexxus Connect <leads@huminic.ai>";
+
+  // Normalize `to` → array of trimmed non-empty emails. A legacy single
+  // comma-separated string is also accepted and split.
+  const toArr: string[] = Array.isArray(to)
+    ? to.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
+    : typeof to === "string"
+      ? to.split(",").map((e) => e.trim()).filter(Boolean)
+      : [];
+
+  const ccArr: string[] = Array.isArray(opts.cc)
+    ? opts.cc.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
+    : [];
+  const bccArr: string[] = Array.isArray(opts.bcc)
+    ? opts.bcc.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
+    : [];
+
+  // Guards — basic email shape check on every address in every list
+  const emailShape = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (toArr.length === 0) {
+    return { sent: false, error: "At least one To: recipient is required." };
+  }
+  for (const e of [...toArr, ...ccArr, ...bccArr]) {
+    if (!emailShape.test(e)) {
+      return { sent: false, error: `Recipient email looks invalid: ${e}` };
+    }
+  }
+  if (!subject || !html) {
+    return { sent: false, error: "Subject and html are required." };
+  }
+
+  const hasExtras = ccArr.length > 0 || bccArr.length > 0;
+
+  try {
+    // Path A: no cc/bcc → route through callMCP for backward-compat.
+    if (!hasExtras) {
+      console.log(
+        `[WeeklyReport] Sending report "${subject}" to ${toArr.join(", ")} (via MCP)`,
+      );
+      const resp = await callMCP("resend_send_email", {
+        from: FROM,
+        to: toArr.join(","),
+        subject,
+        html,
+      });
+      const messageId: string | undefined =
+        (resp && typeof resp === "object" && (resp as any).id) ||
+        (resp && typeof resp === "object" && (resp as any).data?.id) ||
+        undefined;
+      console.log(`[WeeklyReport] Sent. messageId=${messageId ?? "(not returned)"}`);
+      return { sent: true, messageId };
+    }
+
+    // Path B: cc/bcc present → call Resend REST API directly (same pattern as
+    // the ADF sender in server/routes/webhooks.ts).
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) {
+      return {
+        sent: false,
+        error: "RESEND_API_KEY is not configured — cannot send with cc/bcc.",
+      };
+    }
+    console.log(
+      `[WeeklyReport] Sending report "${subject}" to=${toArr.length} cc=${ccArr.length} bcc=${bccArr.length} (via Resend direct)`,
+    );
+    const emailRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to: toArr,
+        cc: ccArr.length > 0 ? ccArr : undefined,
+        bcc: bccArr.length > 0 ? bccArr : undefined,
+        subject,
+        html,
+      }),
+    });
+    if (!emailRes.ok) {
+      const errBody = await emailRes.text();
+      const msg = `Resend API error ${emailRes.status}: ${errBody}`;
+      console.error(`[WeeklyReport] ${msg}`);
+      return { sent: false, error: msg };
+    }
+    const data = (await emailRes.json()) as { id?: string };
+    console.log(`[WeeklyReport] Sent. messageId=${data.id ?? "(not returned)"}`);
+    return { sent: true, messageId: data.id };
+  } catch (err: any) {
+    const msg = err?.message || String(err);
+    console.error(`[WeeklyReport] Send failed: ${msg}`);
+    return { sent: false, error: msg };
+  }
+}
+
 /**
  * Send "24-Hour Check-In Delivered" notification to org admins.
  * Non-blocking — errors are logged but never thrown to caller.
