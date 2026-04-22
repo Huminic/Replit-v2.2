@@ -8893,7 +8893,7 @@
                   "category": "Launch",
                   "name": "Trigger Activation + Response Handling + Weekly AI Executive Report",
                   "phase": "qa_resolve_loop",
-                  "status": "in_progress",
+                  "status": "committed",
                   "operatorApproval": true,
                   "source": "Operator directive 2026-04-20 \u2014 external leads after-hours immediate SMS, all leads 24h follow-up, response outcomes handled, weekly Monday 7am executive report with QA gate + humble tone + 0-100 sales team score, real E2E evals",
                   "causedBy": "operator directive",
@@ -8949,6 +8949,7 @@
                   "dependsOn": [
                         "ADF-001"
                   ],
+                  "commit": "406a811",
                   "executionSteps": [
                         {
                               "step": 0,
