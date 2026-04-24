@@ -58,12 +58,19 @@ Organized by phase (per plan.md). Within a phase, sprints run in listed order un
 - **Done looks like:** Operator has a concrete architectural recommendation with rationale, cost estimate per option, and a clear decision point before Phase 2 sprint finalization. TeamBox-related sprint additions/changes to plan.md follow from this output.
 - **Constraints:** Read-only. No code changes. Under 45 min. Uses live dev URL (no `npm run dev` or service restart).
 
-### Sprint 1.4 — Quick-win insight audit
+### Sprint 1.4 — Quick-win insight audit + DNA buildability matrix
 
-- **Objective:** Cross-reference imported 45-day data against live warehouse data to identify a shortlist of 2-3 high-signal insights/alerts/reports that could ship as quick wins in Phase 2.
-- **Scope:** Read-only analytical pass. Produce `evidence/quick-win-insights-2026-04-24.md` with candidates, effort estimate per candidate, data shape, and user-visible output sketch.
-- **Done looks like:** Shortlist exists with at least 5 candidates, scored on impact vs effort. Captain + operator pick top 2-3 to ship in Sprint 2.4.
+- **Objective:** Locate the CRM capability YAML (check `../nexxus/` and `../nexxus2.2/` uploaded docs). Cross-reference imported 45-day data + live warehouse data against the DNA Alert Library in plan.md section 11. Produce a buildability matrix: which alerts are buildable now, which need the import, which are blocked on external data.
+- **Scope:** Read-only analytical pass. Produce `evidence/quick-win-insights-2026-04-24.md` with per-alert: buildability state (now / needs-import / blocked), data shape, threshold ranges, effort estimate. Include sketch of each alert's briefing-email render.
+- **Done looks like:** Matrix produced covering all 12 DNA alerts from section 11. Sprint 2.4 implementation has concrete queries and threshold config ready. YAML located or documented as not-found.
 - **Constraints:** Analysis only, no code changes, no sends.
+
+### Sprint 1.6 — conversations.department data model + backfill
+
+- **Objective:** Add `conversations.department` column (enum: sales | service | marketing | unknown) with a backfill rule that derives domain from existing campaign / agent / channel signal for existing rows. Unlocks DNA alerts + Hybrid TeamBox (Sprint 4.6).
+- **Scope:** `shared/schema.ts` migration, `server/services/` backfill script, trigger + SMS + voice webhook writes set department on new conversations. No UI changes.
+- **Done looks like:** Column exists, existing rows backfilled with best-effort derivation, new conversations write department correctly, a read query can filter conversations by department across rooftops.
+- **Constraints:** Additive only — no behavioral change to existing code paths. "unknown" is a valid value and safe fallback.
 
 ---
 
@@ -90,12 +97,33 @@ Organized by phase (per plan.md). Within a phase, sprints run in listed order un
 - **Done looks like:** Durran receives the package Friday AM, can run it async over the weekend, reports back Sat or Sun with any issues.
 - **Constraints:** Package must be runnable from a test phone without captain on call. Conversation flow viewer is read-only + super_admin-gated.
 
-### Sprint 2.4 — Ship quick-win insights
+### Sprint 2.4 — Ship 5 Tier-1 DNA alerts
 
-- **Objective:** Ship the top 2-3 insights picked from Sprint 1.4 as real user-visible features (alert, report, or dashboard card).
-- **Scope:** Depends on which insights are picked — likely touches `server/services/` + `client/src/pages/insights.tsx` or equivalent. May include new email template.
-- **Done looks like:** 2-3 insights shipped and verifiable. Each one answers a specific dealer question with data from the 45-day warehouse + live signals.
-- **Constraints:** Only ship insights where the data is solid and the user-visible language is operator-approved.
+- **Objective:** Implement and ship the 5 Tier-1 DNA alerts from plan.md section 11: Opportunity on the Floor (10.0), Pipeline Freeze (9.8), Lead Flow Shock (9.4), Night Shift Opportunity (9.2), Source Performance Drift scaled (9.1). Delivered via Sprint 2.12's Daily Briefing email.
+- **Scope:** New `server/services/dnaAlertService.ts` with alert query + threshold logic; integration with Sprint 2.12 briefing renderer; per-dealer threshold config in org settings. Each alert: exception-detected + impact-quantified + recommended-action + deep link.
+- **Done looks like:** All 5 alerts fire correctly in test fixtures. Briefing template renders each alert cleanly. Dry-run against Serra Honda data shows realistic alert counts. Source Performance Drift handles unresolved sources honestly ("VIN Source #nnnn").
+- **Constraints:** Only ship alerts where data is solid. Thresholds set to reasonable defaults; per-dealer override available. No fire-on-test-data that would reach real admins before operator approval.
+
+### Sprint 2.10 — Security closure (6 paid-contract-path issues)
+
+- **Objective:** Close 6 open security issues touching paid-contract paths before Monday go-live. Promoted from Phase 4 Sprint 4.11 per captain judgment.
+- **Scope:** I-244 IDOR on `/api/vin/leads/summary` (enforce orgId match); I-245 AI system prompt writable by org_admin via URL bypass (require super_admin role server-side); I-246 role dropdown privilege escalation (server-side role restriction); I-247 org slug mutability (remove from PATCH schema); I-248 TZ validation crash (validate timezone string on write); I-249 self-deactivation (prevent in UI + server).
+- **Done looks like:** Each issue fixed with a test. Code-reviewer agent verifies fix + no regressions. 6 commits or one bundled commit with per-issue rationale.
+- **Constraints:** Each fix isolated. Changes stay within declared files per issue. Deploy gated on operator approval, not automatic.
+
+### Sprint 2.11 — Insights page visual audit
+
+- **Objective:** Pre-Monday visual verification of the Insights page (I-156 + I-163 + ~37 related states). Insights is the first screen a dealer sees at login; never been visually verified; fix critical issues before launch.
+- **Scope:** Captain-driven Playwright MCP walk of Insights at all role levels. Screenshot every major state. Compare against sales + service + marketing section needs. Fix-or-defer each issue found; critical issues fix in this sprint, cosmetic issues go to Sprint 4.5 (metrics cleanup).
+- **Done looks like:** `evidence/insights-audit-2026-04-25.md` produced with per-state screenshot + verdict. Critical issues shipped. Cosmetic issues queued for Sprint 4.5.
+- **Constraints:** Captain drives; operator reviews critical-issue fixes before deploy. No UI redesign — audit + fix only.
+
+### Sprint 2.12 — Daily Briefing MVP
+
+- **Objective:** Email delivery vehicle for the 5 Tier-1 DNA alerts from Sprint 2.4. First fire Monday morning to Serra Honda admins as part of go-live. Pulled forward from Phase 4 because alerts without a push channel are invisible.
+- **Scope:** New `server/services/dailyBriefingService.ts`; email template with alert blocks; scheduled fire per-org TZ (default 7:30 AM); opt-out per recipient stored in user settings; integration with Sprint 2.4 alert service.
+- **Done looks like:** First briefing lands Monday morning to Serra Honda admin list. Each included alert has exception + impact + action + deep link. Recipients can opt out from the email itself. Empty-day handling: if no alerts fired, briefing still sends with a brief "quiet night" message rather than skipping (establishes cadence expectation).
+- **Constraints:** Content generated at 5 AM local, sent at 7:30 AM local. Must survive a day with zero alerts without being spammy. Operator approves template copy before first fire.
 
 ### Sprint 2.5 — Inbound voice → ADF verification (3 Serra stores)
 
@@ -247,12 +275,12 @@ Run in listed order but parallel-friendly where obvious.
 - **Done looks like:** Operator can see per-dealer usage counters (SMS sent, voice minutes, widget sessions, AI completions). No customer-facing billing surfaces changed. Full Lago integration explicitly deferred to v2.3.
 - **Constraints:** Monitoring-only. Not required for Monday. Fast-follow post-Monday, low urgency. No production invoicing path.
 
-### Sprint 4.10 — Daily briefing email MVP
+### Sprint 4.10 — Daily Briefing Tier-2 alerts + multi-channel expansion
 
-- **Objective:** Monday-morning digest email to dealer admins per store: overnight activity, top 3 actions, stale leads, service candidates (if warehouse has them).
-- **Scope:** New service `server/services/dailyBriefingService.ts`. Email template. Scheduled fire per-store TZ.
-- **Done looks like:** First briefing lands Mon May 4 (or per operator's date) to Serra Honda admins. Includes opt-out per recipient.
-- **Constraints:** Content generated at 5 AM local, sent at 6 AM local. Must survive a day with zero overnight activity (no spammy empty emails).
+- **Objective:** Extend the Sprint 2.12 MVP with Tier-2 DNA alerts from plan.md section 11 (Contact Quality Breakdown, Demand Shift Radar, Digital-to-Showroom Gap) as Durran's import enriches the data. Add multi-channel delivery options (SMS for highest-impact, web push, optional Slack).
+- **Scope:** `server/services/dnaAlertService.ts` extensions for Tier-2 alerts; `server/services/dailyBriefingService.ts` channel expansion; per-recipient channel preferences in user settings.
+- **Done looks like:** All 3 Tier-2 alerts firing. Multi-channel delivery tested. Recipients can pick email / SMS / push / Slack per alert type.
+- **Constraints:** Extensions only. Core MVP from Sprint 2.12 remains the default path. New channels opt-in per recipient.
 
 ### Sprint 4.11 — Security hardening (targeted)
 
