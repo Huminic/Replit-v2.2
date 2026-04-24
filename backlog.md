@@ -51,6 +51,13 @@ Organized by phase (per plan.md). Within a phase, sprints run in listed order un
 - **Done looks like:** Tables populated, row counts match source, sanity queries return expected shape for all 5 stores. Schema documented.
 - **Constraints:** Do not mutate existing `warehouse_leads` or other tables. Additive only. Import is idempotent (re-runnable without duplicates).
 
+### Sprint 1.5 — TeamBox first-principles research
+
+- **Objective:** Pre-flight research to determine whether TeamBox should stay unified, split into per-section inboxes (Sales / Service / Marketing), or adopt a hybrid. Playwright MCP driven.
+- **Scope:** Read-only UX research on live dev.huminicdev.com. Evaluate current TeamBox + Sales/Service/Marketing sections. Multi-role walkthrough (super_admin, org_admin, partner_admin simulations). Output: `evidence/teambox-first-principles-2026-04-24.md` with recommendation + implementation cost per option.
+- **Done looks like:** Operator has a concrete architectural recommendation with rationale, cost estimate per option, and a clear decision point before Phase 2 sprint finalization. TeamBox-related sprint additions/changes to plan.md follow from this output.
+- **Constraints:** Read-only. No code changes. Under 45 min. Uses live dev URL (no `npm run dev` or service restart).
+
 ### Sprint 1.4 — Quick-win insight audit
 
 - **Objective:** Cross-reference imported 45-day data against live warehouse data to identify a shortlist of 2-3 high-signal insights/alerts/reports that could ship as quick wins in Phase 2.
@@ -65,9 +72,9 @@ Organized by phase (per plan.md). Within a phase, sprints run in listed order un
 ### Sprint 2.1 — Trigger activation end-to-end
 
 - **Objective:** Complete the SMS trigger stack so Serra Honda can go live on whitelist Monday morning.
-- **Scope:** `server/services/triggerService.ts`, `server/services/scheduler.ts`, `server/routes/sms.ts`, `server/routes/webhooks.ts`. Includes: after-hours DEFER→morning send, isNexxusOriginatedLead URL resolution, SMS appointment intent detection, appointment admin email, first-inbound AI path.
-- **Done looks like:** All 5 trigger work units complete and committed. Unit tests pass. `triggersEnabled=true` at Serra Honda with test-phone whitelist. E2E dry-run on test phone confirms after-hours SMS → two-way conversation → appointment intent → admin email fires cleanly.
-- **Constraints:** Changes stay inside declared files. Captain does NOT run live tests to real customer phones — whitelist-only.
+- **Scope:** `server/services/triggerService.ts`, `server/services/scheduler.ts`, `server/routes/sms.ts`, `server/routes/webhooks.ts`. Includes: after-hours DEFER→morning send, isNexxusOriginatedLead URL resolution, SMS appointment intent detection, appointment stored in our system calendar + admin notification email (VIN Solutions does not accept appointment entries — calendar stays in-platform; ADF XML is the existing CRM touchpoint and remains unchanged), first-inbound AI path, `{{dealershipName}}` template leak fix (I-269).
+- **Done looks like:** All 6 trigger work units complete and committed. Unit tests pass. `triggersEnabled=true` at Serra Honda with test-phone whitelist. E2E dry-run on test phone confirms after-hours SMS → two-way conversation → appointment intent → calendar entry + admin email fires cleanly. Agent chat shows resolved dealership name (no literal template leak).
+- **Constraints:** Changes stay inside declared files. Captain does NOT run live tests to real customer phones — whitelist-only. Appointment flow writes to our DB calendar only — no VIN appointment write (intentional — VIN doesn't support it).
 
 ### Sprint 2.2 — Widget verification + Serra Honda production embed
 
@@ -233,12 +240,12 @@ Run in listed order but parallel-friendly where obvious.
 - **Done looks like:** Operator and Durran can preview every flavor: after-hours first-contact, 24h check-in, appointment confirmation, opt-out response. Filterable by dealer.
 - **Constraints:** Read-only. No live sending from this view.
 
-### Sprint 4.9 — Lago billing integration (proper)
+### Sprint 4.9 — Lago billing monitoring only (fast-follow)
 
-- **Objective:** Lago billing wired properly (not stub); dealer usage and invoicing flow through.
-- **Scope:** `server/services/lago*.ts`, Lago API integration, dealer/user plan mapping.
-- **Done looks like:** Lago reflects real dealer usage. Invoicing works end-to-end. No stub/mock data in production path.
-- **Constraints:** Awaits operator's contract details with Lago. Sandbox testing before live switch.
+- **Objective:** Wire basic usage-monitoring visibility so operator can see what each dealer is using. Full invoicing integration is v2.3 scope.
+- **Scope:** `server/services/lago*.ts` metrics pipeline only. Surface usage data in existing super_admin view (or minimal new view). No token-level or feature-level billing; no invoicing.
+- **Done looks like:** Operator can see per-dealer usage counters (SMS sent, voice minutes, widget sessions, AI completions). No customer-facing billing surfaces changed. Full Lago integration explicitly deferred to v2.3.
+- **Constraints:** Monitoring-only. Not required for Monday. Fast-follow post-Monday, low urgency. No production invoicing path.
 
 ### Sprint 4.10 — Daily briefing email MVP
 

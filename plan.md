@@ -71,7 +71,7 @@ Columbia ADF intake emails: operator decision pending. If intentional "off for n
 - Inbound call answering & VIN delivery via ADF at the 3 Serra stores (Columbia conditional on operator)
 - Outbound triggers at all 5 stores (after-hours + 24h check-in SMS)
 - Two-way SMS conversation working at all 5 stores
-- Appointment intent detection (SMS path) + admin email + calendar entry
+- Appointment intent detection (SMS path): appointment stored in our system calendar + notification email to org admins with reminders. VIN Solutions does not accept appointment entries; ADF XML remains the CRM touchpoint, calendar stays in-platform.
 - Core metrics + reports (weekly exec report already delivering)
 - Main chat + agent chat verified basic working at all 5 stores
 - Staff messaging (TeamBox) working at all 5 stores
@@ -103,6 +103,10 @@ Explicitly deferred. Not part of v2.2. Documented so the dealer knows:
 - Daily briefing email engine beyond MVP
 - Lead source API ingestion (awaiting logins)
 - Monthly CRM export pipeline (beyond one-time 45-day import)
+- Executive / Management module (chat governance, access controls, executive-only insights gating) — bottom of v2.3 stack
+- Tasks concept (agent-created or human-created tasks) — scope unclear; defer to v2.3 for a proper user-story pass
+- Lago billing full integration (usage tracking, invoicing, dealer plan mapping) — v2.3; v2.2 ships monitoring-only fast-follow (see Sprint 4.9)
+- Staff-to-staff messaging — explicitly not in scope (no such feature exists; TeamBox is customer-conversation only)
 
 ---
 
@@ -115,9 +119,10 @@ Each sprint is detailed in `backlog.md` with 4-field format. This section sequen
 Purpose: know what we have, know what we're shipping, line up the data.
 
 - **Sprint 1.1** — Governance + plan closure (plan.md, backlog.md populated, standards committed) — **in progress tonight**
-- **Sprint 1.2** — Codebase validation sweep (autonomous, dispatched tonight, runs overnight)
+- **Sprint 1.2** — Codebase validation sweep (autonomous, dispatched tonight — COMPLETE; output at `evidence/v2.2-inventory-2026-04-24.md`)
 - **Sprint 1.3** — Warehouse data import (Durran's 45-day export → warehouse tables, cross-reference)
 - **Sprint 1.4** — Quick-win insight audit (causal cross-ref of imported + existing data → shortlist of alert/hunch/report candidates)
+- **Sprint 1.5** — TeamBox first-principles research (Playwright MCP driven, pre-flight gate for governance finalization — dispatched tonight)
 
 **Human relay (Phase 1):**
 - Confirm Durran's 45-day export is in `uploads/crm-exports-2026-04-23/` (or tell captain where it is)
@@ -175,7 +180,7 @@ Purpose: finish everything else in v2.2 scope. Run in sprint order but parallel-
 - **Sprint 4.6** — TeamBox segmentation + sales/service split + push-to-VIN clarity
 - **Sprint 4.7** — Agent configuration UI (unhardcode trigger config, message tone, quiet hours, rate limits)
 - **Sprint 4.8** — Conversation flow viewer (read-only preview of every scenario's messaging)
-- **Sprint 4.9** — Lago billing integration (proper wiring, not stub)
+- **Sprint 4.9** — Lago billing monitoring only (usage visibility, not full invoicing wire; full integration is v2.3). Fast-follow post-Monday, not Monday-critical.
 - **Sprint 4.10** — Daily briefing email MVP (Mon morning digest to dealer admins)
 - **Sprint 4.11** — Security hardening (targeted: IDOR, prompt injection, role escalation, slug mutability, TZ validation, self-deactivation)
 - **Sprint 4.12** — Performance audit pass 1 (N+1 queries, unnecessary roundtrips)
