@@ -5,6 +5,7 @@ CRM/AI platform for automotive dealerships.
 **Stack:** Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Supabase)
 
 Global values and rules: `~/.claude/CLAUDE.md`.
+Governance file standards: `~/Claude-store/sysadmin/governance-framework/file-standards.md`.
 
 ## Memory (two-file protocol)
 
