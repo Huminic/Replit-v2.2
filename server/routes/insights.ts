@@ -1,77 +1,12 @@
 import type { Express } from "express";
 import { authenticateToken } from "../auth";
 import { storage } from "../storage";
-import { callMCP, resolveNexxusOrgId } from "../vendorProxy";
 import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
 import {
   computeAvgDaysToFirstContact,
   formatAvgDaysToFirstContact,
 } from "../lib/leadContactMatch";
-
-/**
- * Cache for VIN Solutions lead source ID -> name mappings.
- * Keyed by orgId, populated on first request per org.
- */
-const leadSourceCache = new Map<string, { map: Map<string, string>; fetchedAt: number }>();
-const LEAD_SOURCE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
-
-async function getLeadSourceMap(orgId: string): Promise<Map<string, string>> {
-  const cached = leadSourceCache.get(orgId);
-  if (cached && Date.now() - cached.fetchedAt < LEAD_SOURCE_CACHE_TTL_MS) {
-    return cached.map;
-  }
-
-  const map = new Map<string, string>();
-  try {
-    const nexxusOrgId = resolveNexxusOrgId(orgId);
-    const data = await callMCP("vin_get_lead_sources", { orgId: nexxusOrgId });
-    const sources = Array.isArray(data) ? data : (data?.items || data?.leadSources || []);
-    for (const src of sources) {
-      const id = String(src.id || src.sourceId || "");
-      const name = src.name || src.description || "";
-      if (id && name) {
-        map.set(id, name);
-      }
-    }
-    leadSourceCache.set(orgId, { map, fetchedAt: Date.now() });
-  } catch (err) {
-    console.log(`[Insights] Failed to fetch lead source mapping for org ${orgId}: ${err}`);
-    // Return empty map on failure — formatLeadSource will fall back to ID-based label
-  }
-  return map;
-}
-
-/**
- * Transform a raw lead source value into a human-readable label.
- * VIN Solutions stores lead sources as API URLs like:
- *   "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043"
- * This resolves the numeric ID to a human-readable name via the cached
- * lead source mapping from VIN Solutions. Falls back to "VIN Source #ID"
- * if the mapping is not available.
- * Non-URL values are returned as-is.
- */
-function formatLeadSource(raw: string | null | undefined, sourceMap?: Map<string, string>): string {
-  if (!raw) return "Unknown";
-  // Match VIN Solutions leadsources URL pattern
-  const vinMatch = raw.match(/\/leadsources\/id\/(\d+)/i);
-  if (vinMatch) {
-    const sourceId = vinMatch[1];
-    if (sourceMap && sourceMap.has(sourceId)) {
-      return sourceMap.get(sourceId)!;
-    }
-    return `VIN Source #${sourceId}`;
-  }
-  // If it looks like a generic URL but not a VIN leadsources URL, show domain
-  if (raw.startsWith("http://") || raw.startsWith("https://")) {
-    try {
-      const hostname = new URL(raw).hostname;
-      return hostname;
-    } catch {
-      return raw;
-    }
-  }
-  return raw;
-}
+import { formatLeadSource, getLeadSourceMap } from "../lib/leadSourceFormat";
 
 /**
  * Derive a channel category from the lead source string.
