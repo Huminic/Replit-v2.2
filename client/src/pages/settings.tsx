@@ -367,6 +367,16 @@ export default function SettingsPage() {
     queryKey: ['/api/roles'],
   });
 
+  // I-246: filter the role list to roles the current user is allowed to
+  // assign. Rule (mirrors server/lib/roleGuard.ts canAssignRole): an actor
+  // can only assign a role at their own level OR LOWER privilege
+  // (numerically equal or HIGHER level number). org_admin (level 3) sees
+  // org_admin (3) and below; super_admin (1) sees all 8 roles.
+  // The server is the load-bearing security check; this UI filter is UX.
+  const assignableRoles = authUser?.role?.level !== undefined
+    ? roles.filter(r => r.level >= authUser.role.level)
+    : roles;
+
   const [addUserOpen, setAddUserOpen] = useState(false);
   const [addForm, setAddForm] = useState({ firstName: '', lastName: '', email: '', password: '', roleId: '' });
 
@@ -3855,7 +3865,7 @@ export default function SettingsPage() {
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map(r => (
+                  {assignableRoles.map(r => (
                     <SelectItem key={r.id} value={r.id} data-testid={`role-option-${r.id}`}>{getRoleLabel(r.name as UserRole)}</SelectItem>
                   ))}
                 </SelectContent>
@@ -3895,7 +3905,7 @@ export default function SettingsPage() {
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map(r => (
+                  {assignableRoles.map(r => (
                     <SelectItem key={r.id} value={r.id}>{getRoleLabel(r.name as UserRole)}</SelectItem>
                   ))}
                 </SelectContent>
@@ -3999,7 +4009,7 @@ export default function SettingsPage() {
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map(r => (
+                  {assignableRoles.map(r => (
                     <SelectItem key={r.id} value={r.id} data-testid={`invite-role-option-${r.id}`}>{getRoleLabel(r.name as UserRole)}</SelectItem>
                   ))}
                 </SelectContent>

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
 import { updateUserProfileSchema } from "@shared/schema";
+import { canAssignRole } from "../lib/roleGuard";
 
 const upload = multer({
   storage: multer.diskStorage({ destination: os.tmpdir() }),
@@ -53,7 +54,7 @@ export function registerUserRoutes(app: Express) {
 
       const role = await storage.getRole(roleId);
       if (!role) return res.status(400).json({ message: "Invalid role" });
-      if (role.level < req.user.roleLevel) {
+      if (!canAssignRole(req.user.roleLevel, role.level)) {
         return res.status(403).json({ message: "Cannot assign a role with higher privileges than your own" });
       }
 
@@ -182,7 +183,7 @@ export function registerUserRoutes(app: Express) {
       }
 
       const targetRole = await storage.getRole(targetUser.roleId);
-      if (targetRole && targetRole.level < req.user.roleLevel) {
+      if (targetRole && !canAssignRole(req.user.roleLevel, targetRole.level)) {
         return res.status(403).json({ message: "Cannot modify a user with higher privileges than your own" });
       }
 
@@ -192,7 +193,7 @@ export function registerUserRoutes(app: Express) {
       if (req.body.roleId !== undefined) {
         const role = await storage.getRole(req.body.roleId);
         if (!role) return res.status(400).json({ message: "Invalid role" });
-        if (role.level < req.user.roleLevel) {
+        if (!canAssignRole(req.user.roleLevel, role.level)) {
           return res.status(403).json({ message: "Cannot assign a role with higher privileges than your own" });
         }
         allowedFields.roleId = req.body.roleId;
@@ -331,7 +332,7 @@ export function registerUserRoutes(app: Express) {
 
       const role = await storage.getRole(roleId);
       if (!role) return res.status(400).json({ message: "Invalid role" });
-      if (role.level < req.user.roleLevel) {
+      if (!canAssignRole(req.user.roleLevel, role.level)) {
         return res.status(403).json({ message: "Cannot invite a user with higher privileges than your own" });
       }
 
