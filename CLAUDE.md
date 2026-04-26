@@ -145,3 +145,142 @@ See `~/Claude-store/sysadmin/CLAUDE.md`. Use the safe wrappers for DNS, ports, m
 ## Legacy artifacts
 
 Previous harness files (pre-2026-04-23) are preserved in `legacy-artifacts/` for reference only. Do not follow them; they were deprecated as part of the subtractive harness revision. See `legacy-artifacts/README.md` for the index.
+
+## Harness — agent team workflow (2026-04-25)
+
+Project-level Claude Code harness lives at:
+- hooks: `~/Claude-store/sysadmin/harness/hooks/` (referenced by `.claude/settings.json`)
+- agents: `~/Claude-store/sysadmin/harness/agents-common/` (symlinked into `.claude/agents/`)
+- commands: `~/Claude-store/sysadmin/harness/commands-common/` (symlinked into `.claude/commands/`)
+
+### Mandatory before any non-trivial work
+
+1. Run `/preflight` and present pre-flight confirmations to the operator. Wait for explicit "go".
+2. For launch-affecting work, also run `/launch-check`.
+3. Dispatch `harness-orchestrator` (not the legacy `orchestrator`).
+4. Subagents:
+   - `scope-guardian` — verifies scope before completion
+   - `harness-backend` / `harness-frontend` — implementation
+   - `qa-evaluator` — produces two deltas of proof
+   - `code-reviewer` — independent diff review
+   - `integration-safety` — external-provider boundary safety
+   - `nexxus-launch-captain` — launch readiness (Monday Apr 27, 2026 9 AM ET)
+   - `nexxus-e2e-evaluator` — Playwright/MCP end-to-end recorded evidence
+
+### Hard requirements before completion
+
+- `/verify-scope` returns `PASS`.
+- `/proof` returns `PASS` with two independent deltas of evidence.
+- `/handoff` writes `.claude/session.md` and `memory/session-output.md`.
+
+### Bypass markers (when operator has explicitly authorized)
+
+- Bash blocked action: append `# APPROVED: <reason>` to the command.
+- Edit blocked file: `mkdir -p .claude/state/scope && touch .claude/state/scope/<basename>.ok` before retrying. Marker auto-clears on first use.
+- Stop hook escape: `touch .claude/state/skip-stop-check` (one-shot, auto-clears; use only after explicit operator approval).
+
+### Completion gates (machine-checked by Stop hook)
+
+If this session edits any non-handoff file, the Stop hook BLOCKS until ALL these markers exist for the current session:
+
+| Marker | Required when | How to write |
+|---|---|---|
+| `verify-scope` | always | `mark-complete.sh verify-scope` after `scope-guardian` returns PASS |
+| `proof` | always | `mark-complete.sh proof <evidence-path>` after `qa-evaluator` returns PASS with TWO deltas |
+| `code-review` | always | `mark-complete.sh code-review` after `code-reviewer` returns APPROVE |
+| `integration-safety` | external-provider files touched (`integrations`, `providers`, `safe-mcp`, `central-mcp`, `commgate`, `outbound`, `webhooks`, `signalwire`, `textmagic`, `resend`, `vapi`, `tavus`, `lago`, `coolify`) | `mark-complete.sh integration-safety` after `integration-safety` returns PASS |
+| `launch-check` | launch-affecting files touched (triggers, appointments, outbound, reports, widget, conversations, sms, voice, adf, scheduler, schema) | `mark-complete.sh launch-check` after `nexxus-launch-captain` returns GO with operator authorization |
+
+`mark-complete.sh` is at `/home/ubuntu/Claude-store/sysadmin/harness/bin/mark-complete.sh`.
+
+Markers must reflect actual subagent verdicts for THIS session. Writing a marker preemptively, on a FAIL/BLOCK verdict, or recycled from a prior session is a discipline violation.
+
+Plus: handoff (`/handoff`) must update `.claude/session.md` or `memory/session-output.md` after first edit.
+
+### Two deltas of proof — minimum, NOT maximum
+
+Every completed task requires:
+- Delta 1: a runnable test/eval result (command + pass/fail + path).
+- Delta 2: an independent observation (Playwright screenshot, log entry, DB row, network capture).
+
+A single test run is one delta. You always need two. Higher testing levels (sprint / phase / pre-prod) require MORE evidence — see Testing Doctrine.
+
+### Testing doctrine — required reading
+
+`~/Claude-store/sysadmin/harness/TESTING_DOCTRINE.md` is the authoritative testing policy. Five levels (step / sprint / phase / pre-prod / post-prod), each with explicit scope, required tests, GUI requirement, and evidence layout. Completion claim must specify the testing level via `mark-complete.sh testing-level <level> [evidence-path]`. GUI testing via Playwright or Playwright MCP is MANDATORY at sprint-level and above for any user-facing change.
+
+Nexxus eval entry points discovered 2026-04-26:
+- `npm run test:e2e` (43 specs across 13 Playwright projects in `tests/e2e/`)
+- `npm run test:e2e:list`
+- `npx playwright test --project=workflow` (15 wf-*.spec.ts)
+- `npx playwright test --project=visual` (timeout 180s)
+- `node tests/pe-insights-03-eval.js` (Insights eval)
+- `npx tsx server/comms-test.ts <fn>` (allowlisted-recipient comms)
+
+Playwright MCP agents available (all real files in `.claude/agents/`): `playwright-test-planner`, `playwright-test-generator`, `playwright-test-healer`. Plus harness symlinks `nexxus-e2e-evaluator` and `qa-evaluator`.
+
+### TEST-SAFETY MODEL (NEXXUS) — verified 2026-04-25
+
+**Dev and live SHARE the same Supabase database.** Any mutating test fired from dev hits the live database. All 7 named org_admin accounts are real dealership admins. All 7 orgs have outbound flags enabled. `OUTBOUND_LIVE_ENABLED=true` and `ADF_MODE=live` on both deployments.
+
+The model is **NOT "block all real sends"**. The model IS:
+
+> **Allow real provider sends ONLY to approved internal/test destinations.**
+> **Block any send whose recipient is a real customer or unapproved external party.**
+
+### Autonomy ALLOWED after preflight (no per-action approval needed)
+
+- Edit code within approved Nexxus launch/test scope (server/, harness/, evidence/, tests/) — UI files still require per-file scope marker
+- Configure `TESTLANE_*` env vars in `.env` (operator's own `.env`)
+- `pm2 restart nexxus-app` or `pm2 reload nexxus-app --update-env` (DEV ONLY) after presenting exact command + reason
+- Run autonomous test scripts (`npx tsx server/comms-test.ts <fn>`) that target ONLY allowlisted destinations
+- Check Resend / TextMagic / VAPI / Tavus logs / dashboards for proof
+- Use Playwright MCP for full workflow testing on `localhost:5000`, `dev.huminicdev.com`, `live.huminic.app`
+- Create test records clearly marked `[TESTLANE]` (campaigns, conversations, recipients, leads)
+- Run `harness/bin/test-lane-reset.sh` DRY-RUN
+- Run `harness/bin/test-lane-reset.sh --execute` when `TESTLANE_RESET_APPROVED=yes` is set
+
+### STILL REQUIRES EXPLICIT APPROVAL
+
+- Production deploy (`npm run build && pm2 restart nexxus-app` past dev — anything affecting `live.huminic.app`)
+- Migration / schema change
+- VIN `execute` write after `prepare → review`
+- Adding or changing real customer recipients
+- Enabling service campaigns for stores OTHER than `serra-honda`
+- Sending to any non-allowlisted phone/email
+- Changing live Coolify env (`phqqzjj5pal13wlp39m5ohx6-…` container)
+- Restarting live Coolify container (any `docker restart` / `docker compose restart`)
+- Force push or push to main
+- Broad UI redesign (anything beyond approved per-file scope markers)
+
+### Hard preconditions for any mutating action
+
+1. Run `/home/ubuntu/Claude-store/sysadmin/harness/bin/test-safety-check.sh` and present the report. (`/preflight` does this automatically.)
+2. Present a destination-classification table per `/preflight` (every send/call enumerated with category from the allowlist).
+3. Verify each target via `test-orgs-allowlist-check.sh recipient <target>` (exit 0 + category) and `test-orgs-allowlist-check.sh org <slug>`.
+4. If env changes are needed, present exact env vars + exact PM2 restart command + reason.
+5. If the action requires explicit-approval per the list above, get operator chat confirmation.
+
+Read-only login as a real org_admin (`serra_honda@huminic.ai` etc.) is acceptable. Mutating actions under those identities require per-action operator approval in chat.
+
+### Service-campaign launch rule (NEXXUS) — operator decision 2026-04-25
+
+Service-campaign capability may be IMPLEMENTED for all stores in code (Sprint 2.2), but **only `serra-honda`** ships it ENABLED for Monday Apr 27 launch. For all other orgs, service module flags (sms / phone / email / outbound at the per-module level) must default OFF until the operator authorizes per-store. Pre-launch verification requires two deltas of proof (DB snapshot + UI walk-through).
+
+### Minimal-UI-change rule (NEXXUS) — BLOCKED by hook
+
+UI changes require explicit operator approval. The hook `edit-scope-guard.sh` BLOCKS edits to:
+
+- `client/src/pages/**`
+- `client/src/components/**`
+- `client/src/styles/**`
+- `client/src/layouts/**`
+
+Per-file bypass: `mkdir -p .claude/state/scope && touch .claude/state/scope/<basename>.ok` (one-shot, auto-clears).
+
+The only pre-approved UI change categories per `plan.md` are:
+
+- TeamBox section access (Sales / Service / Marketing submenus, only if data model supports)
+- metric revision so visible metrics answer useful dealership questions
+
+All other UI changes require additional operator approval, captured in `decisions.md` before work starts AND a per-file `.claude/state/scope/<basename>.ok` marker for each file.
