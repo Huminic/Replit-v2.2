@@ -3,6 +3,10 @@ import { authenticateToken } from "../auth";
 import { storage } from "../storage";
 import { callMCP, resolveNexxusOrgId } from "../vendorProxy";
 import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
+import {
+  computeAvgDaysToFirstContact,
+  formatAvgDaysToFirstContact,
+} from "../lib/leadContactMatch";
 
 /**
  * Cache for VIN Solutions lead source ID -> name mappings.
@@ -1159,7 +1163,37 @@ export function registerInsightRoutes(app: Express) {
       // I-267: Engagement metric is misleading (always near 100%) — show N/A until a better signal is implemented
       libMetrics.push({ id: "lib-20", title: "Engagement Transition", value: "—", change: "—", trend: "neutral", category: "Response" });
 
-      libMetrics.push({ id: "lib-21", title: "Avg Time to 1st Contact", value: "\u2014", change: "\u2014", trend: "neutral", category: "Response" });
+      // I-260: compute Avg Time to 1st Contact across leads with at least one
+      // matched conversation (phone last-10 digits OR email case-insensitive).
+      // Returns null when no matches \u2014 UI renders "\u2014" + "Data source not
+      // connected" via the existing fallback at insights.tsx:1410-1419.
+      const avgFirstContact = computeAvgDaysToFirstContact(allLeads, allOrgConversations);
+      const priorAvgFirstContact = computeAvgDaysToFirstContact(priorOnlyLeads, allOrgConversations);
+      let lib21Change = "\u2014";
+      let lib21Trend: "up" | "down" | "neutral" = "neutral";
+      if (avgFirstContact && priorAvgFirstContact) {
+        const diff = avgFirstContact.avgDays - priorAvgFirstContact.avgDays;
+        // Lower is better \u2014 "down" means faster contact (improvement).
+        if (Math.abs(diff) < 0.05) {
+          lib21Change = "0%";
+          lib21Trend = "neutral";
+        } else {
+          const pct = priorAvgFirstContact.avgDays > 0
+            ? Math.round((diff / priorAvgFirstContact.avgDays) * 100)
+            : 0;
+          lib21Change = pct > 0 ? `+${pct}%` : `${pct}%`;
+          // Inverted: increase in days is BAD ("down"), decrease is GOOD ("up").
+          lib21Trend = pct > 0 ? "down" : "up";
+        }
+      }
+      libMetrics.push({
+        id: "lib-21",
+        title: "Avg Time to 1st Contact",
+        value: avgFirstContact ? formatAvgDaysToFirstContact(avgFirstContact.avgDays) : "\u2014",
+        change: lib21Change,
+        trend: lib21Trend,
+        category: "Response",
+      });
 
       libMetrics.push({ id: "lib-22", title: "Top Source", value: totalLeads > 0 ? `${topSourceName} (${topSourcePct}%)` : "\u2014", change: "\u2014", trend: "neutral", category: "Lead Source" });
 
