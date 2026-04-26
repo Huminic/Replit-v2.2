@@ -302,6 +302,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // The refresh cookie is httpOnly so it's invisible to document.cookie.
       // We must attempt the refresh call and let the server decide if the
       // cookie is present. A 401/400 response simply means no valid session.
+      //
+      // BUGFIX (deep-link auth bootstrap): tryRefreshToken() updates the
+      // in-memory tokenStore module variable but does NOT update the React
+      // accessTokenState used by isAuthenticated. On a full-page reload (deep
+      // link / refresh / bookmark) the bootstrap therefore fetched the user
+      // successfully BUT isAuthenticated remained false (because
+      // accessTokenState was still null), and ProtectedRoute redirected to
+      // /login. The fix: after a successful refresh, sync accessTokenState
+      // from the tokenStore so React state mirrors the module variable.
       try {
         const { tryRefreshToken } = await import('@/lib/queryClient');
         const success = await tryRefreshToken();
@@ -310,6 +319,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { getAccessToken } = await import('@/lib/tokenStore');
           const token = getAccessToken();
           if (token) {
+            // Mirror the tokenStore variable into React state so
+            // isAuthenticated = !!user && !!accessTokenState evaluates true
+            // after deep-link bootstrap completes.
+            setAccessTokenState(token);
             await fetchUser(token);
           }
         }
