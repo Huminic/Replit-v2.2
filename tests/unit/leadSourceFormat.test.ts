@@ -92,6 +92,30 @@ describe("formatLeadSource", () => {
     expect(formatLeadSource("", map)).toBe("Unknown");
   });
 
+  it("OR-chain priority: leadSourceId / leadSourceName win over legacy id / name when BOTH are present", () => {
+    // Defends the OR-chain order at server/lib/leadSourceFormat.ts:68-69.
+    // If the MCP ever simultaneously emits both shapes (e.g. during an
+    // upgrade window), the AUTHORITATIVE current names must take precedence
+    // so the resolved label matches what VIN actually returns. Reading the
+    // legacy `id` / `name` fields first would silently regress to the pre-
+    // Path A bug.
+    const map = buildMapFromMcpLikeItems([
+      {
+        leadSourceId: 362,
+        leadSourceName: "Dealers WebSite (current)",
+        // Conflicting legacy fields on the same row — must lose to the current ones.
+        id: 999,
+        name: "Wrong Legacy Name",
+      },
+    ]);
+    // The current ID (362) won during map construction; the legacy ID (999) was discarded.
+    expect(map.has("362")).toBe(true);
+    expect(map.has("999")).toBe(false);
+    // Resolution uses the leadSourceName, not the conflicting legacy name.
+    const url = "https://api.vinsolutions.com/leadsources/id/362?dealerid=21043";
+    expect(formatLeadSource(url, map)).toBe("Dealers WebSite (current)");
+  });
+
   it("falls back to 'Source #N' for every VIN URL when the MCP map is empty", () => {
     // Models the central-mcp outage / empty-response case. The resolver
     // must degrade gracefully: every VIN URL becomes Source #<id>, not a

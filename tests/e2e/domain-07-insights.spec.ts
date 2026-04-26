@@ -158,9 +158,10 @@ test.describe("Domain 7: Insights", () => {
     await loginForBrowser(page, testUsers.orgAdmin, "/insights");
     await page.waitForTimeout(1000);
 
-    // Check that no raw "VIN Source #" labels appear — should be meaningful names
+    // Check that no raw "Source #" fallback labels appear — should be meaningful names.
+    // (Renamed from "VIN Source #" by Fix 7.5 / 2026-04-26 — drop developer-jargon "VIN".)
     const pageText = await page.textContent("body");
-    const hasRawVinSource = /VIN Source #\d+/i.test(pageText || "");
+    const hasRawVinSource = /Source #\d+/i.test(pageText || "");
     expect(hasRawVinSource).toBe(false);
 
     await page.close();

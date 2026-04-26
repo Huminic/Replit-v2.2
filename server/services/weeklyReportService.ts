@@ -102,9 +102,11 @@
  * Revision 3 changes (operator v2-review flags, 2026-04-20 late-day):
  *   - Lead source resolution: fixed field-name mismatch. vin_get_lead_sources
  *     returns `{leadSourceId, leadSourceName, href}` — v2 was reading `id`/`name`
- *     which never matched, so every source fell back to "VIN Source #N".
+ *     which never matched, so every source fell back to "Source #N"
+ *     (renamed from "VIN Source #N" by Fix 7.5 / 2026-04-26 — drop
+ *     developer-jargon "VIN" from user-facing copy, align with insights).
  *   - New `sourceResolutionFailed` flag on the data object. Validator allows
- *     full "VIN Source #N" fallback only when this flag is set (MCP outage).
+ *     full "Source #N" fallback only when this flag is set (MCP outage).
  *     Otherwise >30% fallback rows is a hard validation fail.
  *   - Vehicle display: if vehicleOfInterest starts with http(s):// (common
  *     today per schema audit — no year/make/model cols exist), show
@@ -370,7 +372,7 @@ export interface WeeklyReportData {
   droppedNamelessGhostedCount: number;
 
   // rev-3: true when the vin_get_lead_sources MCP call failed or returned
-  // empty. When true, the validator permits full "VIN Source #N" fallback
+  // empty. When true, the validator permits full "Source #N" fallback
   // (MCP outage shouldn't block the send). When false, >30% fallback rows
   // fails validation — the MCP call succeeded so the names SHOULD resolve.
   sourceResolutionFailed: boolean;
@@ -562,7 +564,7 @@ export async function getPrimaryAgentName(orgId: string): Promise<string> {
 // live response shape (verified 2026-04-20 against mcp.huminicdev.com) is:
 //   { count: N, items: [ { leadSourceId, leadSourceName, href } ] }
 // v2 read `src.id` / `src.name` which never matched — so the map was always
-// empty and every source fell back to "VIN Source #N". That's the bug fixed
+// empty and every source fell back to "Source #N". That's the bug fixed
 // here. We keep an OR-chain for safety in case the shape is ever extended.
 //
 // Returns `{ map, failed }`. `failed` is true when the MCP call threw OR
@@ -611,7 +613,7 @@ function formatLeadSource(
     const id = vinMatch[1];
     const resolved = sourceMap.get(id);
     if (resolved) return { display: resolved, fellBack: false };
-    return { display: `VIN Source #${id}`, fellBack: true };
+    return { display: `Source #${id}`, fellBack: true };
   }
   if (raw.startsWith("http://") || raw.startsWith("https://")) {
     try {
@@ -1239,7 +1241,7 @@ export async function buildWeeklyReport(
   const { map: sourceMap, failed: sourceResolutionFailedFromMcp } = await buildLeadSourceMap(orgId);
   if (sourceResolutionFailedFromMcp) {
     warnings.push(
-      "vin_get_lead_sources MCP call failed or returned empty — lead source names fell back to 'VIN Source #{id}'. Report still sent (MCP outages shouldn't block) but the 'sourceResolutionFailed' flag is true.",
+      "vin_get_lead_sources MCP call failed or returned empty — lead source names fell back to 'Source #{id}'. Report still sent (MCP outages shouldn't block) but the 'sourceResolutionFailed' flag is true.",
     );
   }
 
@@ -1294,7 +1296,7 @@ export async function buildWeeklyReport(
   // reality is that vin_get_lead_sources returns a SUBSET of actual lead
   // sources for most dealers (see issues.md I-279). A dealer can have 49
   // distinct source IDs in this week's leads but the MCP only returns 15 —
-  // leaving 70% as "VIN Source #N" fallbacks.
+  // leaving 70% as "Source #N" fallbacks.
   //
   // Policy: if < 70% of distinct this-week source IDs resolve to a name
   // (i.e. > 30% fall back), treat it as partial failure and set the flag.
@@ -1315,7 +1317,7 @@ export async function buildWeeklyReport(
     sourceResolutionFailed = true;
     const pct = Math.round((resolvableCount / totalDistinctCount) * 100);
     warnings.push(
-      `Only ${resolvableCount} of ${totalDistinctCount} lead sources resolved by VIN API (${pct}% coverage). Remaining entries display as "VIN Source #{id}". Upstream VIN limitation — tracked under issue below.`,
+      `Only ${resolvableCount} of ${totalDistinctCount} lead sources resolved by VIN API (${pct}% coverage). Remaining entries display as "Source #{id}". Upstream VIN limitation — tracked under issue below.`,
     );
   }
 
@@ -2243,7 +2245,7 @@ export const BANNED_PRIORITY_TOKENS = [
 ];
 
 // When sourceResolutionFailed is false (MCP succeeded), more than this
-// fraction of leadsBySource entries falling back to "VIN Source #N" fails
+// fraction of leadsBySource entries falling back to "Source #N" fails
 // validation. Operator policy: 30%.
 export const SOURCE_FALLBACK_MAX_RATIO = 0.3;
 
@@ -2822,12 +2824,12 @@ export function validateWeeklyReport(report: WeeklyReportData | null | undefined
   // hard fail. If MCP failed, full fallback is tolerated (outage guard).
   if (Array.isArray(report.leadsBySource) && report.leadsBySource.length > 0) {
     const fallbackCount = report.leadsBySource.filter(
-      (s) => s && typeof s.name === "string" && /^VIN Source #\d+$/.test(s.name),
+      (s) => s && typeof s.name === "string" && /^Source #\d+$/.test(s.name),
     ).length;
     const ratio = fallbackCount / report.leadsBySource.length;
     if (!report.sourceResolutionFailed && ratio > SOURCE_FALLBACK_MAX_RATIO) {
       failures.push(
-        `${fallbackCount} of ${report.leadsBySource.length} lead source names fell back to "VIN Source #N" (${Math.round(ratio * 100)}% > ${Math.round(SOURCE_FALLBACK_MAX_RATIO * 100)}% threshold) — name resolution is broken`,
+        `${fallbackCount} of ${report.leadsBySource.length} lead source names fell back to "Source #N" (${Math.round(ratio * 100)}% > ${Math.round(SOURCE_FALLBACK_MAX_RATIO * 100)}% threshold) — name resolution is broken`,
       );
     }
   }

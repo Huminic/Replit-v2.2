@@ -497,18 +497,22 @@ describe("validateWeeklyReport (revision 2)", () => {
 
   // ---------- rev-3: source-resolution fallback ratio ----------
 
-  it("fails when > 30% of leadsBySource fell back to 'VIN Source #N' and MCP did NOT fail", () => {
+  it("fails when > 30% of leadsBySource fell back to 'Source #N' and MCP did NOT fail", () => {
+    // Fixture string must match the validator regex /^Source #\d+$/ exactly.
+    // Fallback string was renamed from "VIN Source #N" → "Source #N" by
+    // Fix 7.5 / 2026-04-26 (drop developer-jargon "VIN"). Validator regex
+    // and these fixtures were updated together to keep behavior coverage.
     const bad = makeValidReport({
       sourceResolutionFailed: false,
       leadsBySource: [
         { name: "Dealer website", thisWeek: 5, priorWeek: 4, delta: 1, direction: "up" },
-        { name: "VIN Source #7098", thisWeek: 3, priorWeek: 2, delta: 1, direction: "up" },
-        { name: "VIN Source #3743779", thisWeek: 2, priorWeek: 1, delta: 1, direction: "up" },
+        { name: "Source #7098", thisWeek: 3, priorWeek: 2, delta: 1, direction: "up" },
+        { name: "Source #3743779", thisWeek: 2, priorWeek: 1, delta: 1, direction: "up" },
       ],
     });
     const r = validateWeeklyReport(bad);
     expect(r.ok).toBe(false);
-    expect(r.failures.some((f) => f.includes("VIN Source #N"))).toBe(true);
+    expect(r.failures.some((f) => f.includes("Source #N"))).toBe(true);
   });
 
   it("passes when > 30% fell back but MCP call failed (outage guard)", () => {
@@ -516,9 +520,9 @@ describe("validateWeeklyReport (revision 2)", () => {
       makeValidReport({
         sourceResolutionFailed: true,
         leadsBySource: [
-          { name: "VIN Source #7098", thisWeek: 3, priorWeek: 2, delta: 1, direction: "up" },
-          { name: "VIN Source #3743779", thisWeek: 2, priorWeek: 1, delta: 1, direction: "up" },
-          { name: "VIN Source #8", thisWeek: 5, priorWeek: 4, delta: 1, direction: "up" },
+          { name: "Source #7098", thisWeek: 3, priorWeek: 2, delta: 1, direction: "up" },
+          { name: "Source #3743779", thisWeek: 2, priorWeek: 1, delta: 1, direction: "up" },
+          { name: "Source #8", thisWeek: 5, priorWeek: 4, delta: 1, direction: "up" },
         ],
       }),
     );
@@ -533,7 +537,7 @@ describe("validateWeeklyReport (revision 2)", () => {
           { name: "Dealer website", thisWeek: 5, priorWeek: 4, delta: 1, direction: "up" },
           { name: "Cars.com", thisWeek: 4, priorWeek: 4, delta: 0, direction: "flat" },
           { name: "Cargurus", thisWeek: 3, priorWeek: 2, delta: 1, direction: "up" },
-          { name: "VIN Source #99999", thisWeek: 1, priorWeek: 0, delta: 1, direction: "up" }, // 25% fallback
+          { name: "Source #99999", thisWeek: 1, priorWeek: 0, delta: 1, direction: "up" }, // 25% fallback
         ],
       }),
     );
