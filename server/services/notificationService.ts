@@ -512,6 +512,81 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
 export interface WeeklyReportEmailOpts {
   cc?: string[];
   bcc?: string[];
+  /** Optional test-lane session id. When set together with TESTLANE_MODE=true,
+   *  to/cc/bcc are hard-routed to TESTLANE_EMAIL_TO and the subject + html are
+   *  tagged with [testlane:<sid>]. Detection also fires automatically if
+   *  subject or html contains [TESTLANE] or [testlane:]. Two-way fail-closed:
+   *  TESTLANE_MODE without a marker BLOCKS the send (returns sent:false);
+   *  a marker without TESTLANE_MODE BLOCKS (defensive). */
+  testLaneSessionId?: string;
+}
+
+/**
+ * Compute test-lane recipient override for sendWeeklyReportEmail.
+ *
+ * Mirrors applyTestLaneRecipientOverride() but operates on the weekly-report
+ * to/cc/bcc tuple and additionally tags subject + html when the override
+ * fires. Two-way fail-closed (see helper above).
+ */
+function applyWeeklyReportTestLaneOverride(
+  subject: string,
+  html: string,
+  toArr: string[],
+  ccArr: string[],
+  bccArr: string[],
+  opts: WeeklyReportEmailOpts,
+):
+  | { ok: true; toArr: string[]; ccArr: string[]; bccArr: string[]; subject: string; html: string; overridden?: boolean; sid?: string }
+  | { ok: false; reason: string } {
+  const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const requestHasMarker =
+    !!opts.testLaneSessionId ||
+    (subject || "").includes("[TESTLANE]") ||
+    (subject || "").includes("[testlane:") ||
+    (html || "").includes("[TESTLANE]") ||
+    (html || "").includes("[testlane:");
+
+  if (!testLaneEnv && !requestHasMarker) {
+    return { ok: true, toArr, ccArr, bccArr, subject, html };
+  }
+  if (testLaneEnv && !requestHasMarker) {
+    return {
+      ok: false,
+      reason:
+        "TESTLANE_MODE=true but weekly-report send lacks test-lane marker (no opts.testLaneSessionId, no [TESTLANE]/[testlane:] in subject/html) — fail-closed",
+    };
+  }
+  if (!testLaneEnv && requestHasMarker) {
+    return {
+      ok: false,
+      reason:
+        "Weekly-report send has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)",
+    };
+  }
+  // testLaneEnv && requestHasMarker -> override
+  const t = process.env.TESTLANE_EMAIL_TO;
+  if (!t) {
+    return {
+      ok: false,
+      reason: "TESTLANE_MODE on but TESTLANE_EMAIL_TO unset (fail-closed)",
+    };
+  }
+  const sid = opts.testLaneSessionId || "unknown";
+  const tag = `[testlane:${sid}]`;
+  const taggedSubject = subject.includes(tag) ? subject : `${tag} ${subject}`;
+  const taggedHtml = html.includes(tag)
+    ? html
+    : `<!-- ${tag} TEST LANE OVERRIDE: original to=${toArr.length} cc=${ccArr.length} bcc=${bccArr.length} -->\n${html}`;
+  return {
+    ok: true,
+    toArr: [t],
+    ccArr: [],
+    bccArr: [],
+    subject: taggedSubject,
+    html: taggedHtml,
+    overridden: true,
+    sid,
+  };
 }
 
 export async function sendWeeklyReportEmail(
@@ -524,16 +599,17 @@ export async function sendWeeklyReportEmail(
 
   // Normalize `to` → array of trimmed non-empty emails. A legacy single
   // comma-separated string is also accepted and split.
-  const toArr: string[] = Array.isArray(to)
+  // (declared with `let` so the test-lane guard below can hard-route to/cc/bcc.)
+  let toArr: string[] = Array.isArray(to)
     ? to.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
     : typeof to === "string"
       ? to.split(",").map((e) => e.trim()).filter(Boolean)
       : [];
 
-  const ccArr: string[] = Array.isArray(opts.cc)
+  let ccArr: string[] = Array.isArray(opts.cc)
     ? opts.cc.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
     : [];
-  const bccArr: string[] = Array.isArray(opts.bcc)
+  let bccArr: string[] = Array.isArray(opts.bcc)
     ? opts.bcc.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean)
     : [];
 
@@ -550,6 +626,28 @@ export async function sendWeeklyReportEmail(
   if (!subject || !html) {
     return { sent: false, error: "Subject and html are required." };
   }
+
+  // ── TEST LANE GUARD ─────────────────────────────────────────────────────────
+  // Two-way fail-closed. Mirrors processOutboundSend in server/outbound.ts and
+  // applyTestLaneRecipientOverride above. When TESTLANE_MODE=true with no
+  // marker, BLOCK; when a marker is present without TESTLANE_MODE, BLOCK; when
+  // both, hard-route to TESTLANE_EMAIL_TO and tag subject + html.
+  const tl = applyWeeklyReportTestLaneOverride(subject, html, toArr, ccArr, bccArr, opts);
+  if (!tl.ok) {
+    console.log(`[WeeklyReport] Test-lane gate BLOCKED weekly-report send: ${tl.reason}`);
+    return { sent: false, error: `test-lane gate blocked: ${tl.reason}` };
+  }
+  if (tl.overridden) {
+    console.log(
+      `[WeeklyReport] Test-lane override ACTIVE sid=${tl.sid} — original to=${toArr.length} cc=${ccArr.length} bcc=${bccArr.length} -> hard-routed to ${tl.toArr.join(",")}`,
+    );
+  }
+  toArr = tl.toArr;
+  ccArr = tl.ccArr;
+  bccArr = tl.bccArr;
+  subject = tl.subject;
+  html = tl.html;
+  // ── END TEST LANE GUARD ─────────────────────────────────────────────────────
 
   const hasExtras = ccArr.length > 0 || bccArr.length > 0;
 
