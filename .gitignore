@@ -17,3 +17,7 @@ File Reorganization/
 # Launch stabilization artifacts
 *.png
 .playwright-mcp/
+
+# Claude Code per-machine settings (may contain bearer tokens; never commit)
+.claude/settings.local.json
+.claude/state/

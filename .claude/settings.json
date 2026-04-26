@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_PROJECT_DIR": "/home/ubuntu/Claude-store/nexxus2.2_replit"
+  },
   "mcpServers": {
     "playwright": {
       "command": "npx",
@@ -7,14 +10,73 @@
         "--headless"
       ]
     },
-    "nexxus-integrations": {
-      "url": "http://0.0.0.0:4002/mcp",
-      "headers": {
-        "Authorization": "Bearer 8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4="
-      }
-    },
     "lago-billing": {
       "url": "http://0.0.0.0:4004/mcp"
     }
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/credentials.json)",
+      "Bash(rm -rf:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin master:*)",
+      "Bash(git push:* --force:*)",
+      "Bash(git push:* -f:*)"
+    ],
+    "ask": [
+      "Bash(npm run build:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(pm2 reload:*)",
+      "Bash(pm2 stop:*)",
+      "Bash(systemctl:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker compose down:*)",
+      "Bash(drizzle-kit push:*)",
+      "Bash(drizzle-kit migrate:*)",
+      "Bash(coolify deploy:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/session-start.sh" } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/user-prompt-submit.sh" } ] }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/bash-safety.sh" } ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/edit-scope-guard.sh" } ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/post-edit-tracker.sh" } ]
+      }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/stop-completion-check.sh" } ] }
+    ],
+    "SubagentStop": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/subagent-stop-report.sh" } ] }
+    ],
+    "PreCompact": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/pre-compact.sh" } ] }
+    ],
+    "SessionEnd": [
+      { "hooks": [ { "type": "command", "command": "/home/ubuntu/Claude-store/sysadmin/harness/hooks/session-end.sh" } ] }
+    ]
   }
 }
