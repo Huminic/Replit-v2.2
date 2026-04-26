@@ -1,0 +1,45 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/ubuntu/Claude-store/nexxus2.2_replit[39m
+
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a] env=true + marker present (testLaneSessionId) -> hard-route SMS to TESTLANE_SMS_TO[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a-email] env=true + marker present -> hard-route EMAIL to TESTLANE_EMAIL_TO[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a-phone] env=true + marker present -> hard-route PHONE to TESTLANE_VOICE_TO[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a-marker-content] env=true + marker present (via [testlane:] in messageContent) -> hard-route[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a-marker-campaign] env=true + marker via campaignName starting with [TESTLANE] -> hard-route[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1a-marker-recipient] env=true + recipientFirstName=TestLane -> hard-route[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1b] env=true + no marker -> blocked[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1c] env=false + marker present -> blocked (defensive)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1d] env=true + marker + missing TESTLANE_SMS_TO -> blocked[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1d-email] env=true + marker + missing TESTLANE_EMAIL_TO -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1d-phone] env=true + marker + missing TESTLANE_VOICE_TO -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1-pass] env=false + no marker -> pass (production posture)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateOutboundTestLaneGuard (server/outbound.ts)[2m > [22m[1-idempotent-tag] env=true + marker + content already tagged -> does not double-tag[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2a] env=true + marker (testLaneSessionId) -> override to [TESTLANE_EMAIL_TO][32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2a-marker-customer] env=true + customerName has [TESTLANE] -> override[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2b] env=true + no marker -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2c] env=false + marker -> blocked (defensive)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2d] env=true + marker + missing TESTLANE_EMAIL_TO -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyTestLaneRecipientOverride (notificationService.ts)[2m > [22m[2-pass] env=false + no marker -> pass-through (recipients unchanged)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3a] env=true + marker (testLaneSessionId) -> override to=[TESTLANE_EMAIL_TO], cc=[], bcc=[], tags subject + html[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3a-marker-subject] env=true + marker via [TESTLANE] in subject -> override[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3b] env=true + no marker -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3c] env=false + marker -> blocked (defensive)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3d] env=true + marker + missing TESTLANE_EMAIL_TO -> blocked[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3-pass] env=false + no marker -> pass-through, all fields unchanged[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mapplyWeeklyReportTestLaneOverride (notificationService.ts)[2m > [22m[3-idempotent-tag] env=true + marker + subject already tagged -> does not double-tag[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4a] TESTLANE_MODE=true + lead-is-[TESTLANE] + ADF_MODE=test -> pass[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4b] TESTLANE_MODE=true + ADF_MODE='live' -> blocked (testlane-adf-misconfig-live)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4b-default] TESTLANE_MODE=true + ADF_MODE unset -> blocked (defaults to live)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4c] lead-is-[TESTLANE] + TESTLANE_MODE!=true -> blocked (testlane-lead-but-mode-off)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4d] lead-is-[TESTLANE] + ADF_MODE=live -> blocked (testlane-lead-but-live-adf)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4-pass] TESTLANE_MODE=false + lead-not-marked + ADF_MODE=live -> pass (production posture)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4-marker-transcript] lead-is-[TESTLANE] via transcript -> caught[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4-marker-summary] lead-is-[TESTLANE] via summary -> caught[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4-marker-callId] callId starting with testlane- -> caught[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts[2m > [22mevaluateAdfTestLaneGuard (services/testLaneGuards.ts)[2m > [22m[4-test-mode-no-marker] TESTLANE_MODE=true + lead-not-marked + ADF_MODE=test -> pass (asymmetry)[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m36 passed[39m[22m[90m (36)[39m
+[2m   Start at [22m 04:50:02
+[2m   Duration [22m 1.16s[2m (transform 420ms, setup 234ms, import 554ms, tests 15ms, environment 0ms)[22m
+

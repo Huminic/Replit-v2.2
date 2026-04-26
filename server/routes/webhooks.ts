@@ -4,6 +4,7 @@ import { z } from "zod";
 import { storage } from "../storage";
 import { billingService } from "../services/billingService";
 import { callMCP, resolveNexxusOrgId, warmIntegrationCache } from "../vendorProxy";
+import { evaluateAdfTestLaneGuard } from "../services/testLaneGuards";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -634,28 +635,17 @@ async function submitAdfLead(
   }
 ): Promise<{ sent: boolean; mode: string; xml: string; targetEmail: string }> {
   // ── TEST LANE FAIL-CLOSED GUARD ────────────────────────────────────────────
-  // 1) If TESTLANE_MODE=true, ADF_MODE MUST be 'test'. Otherwise refuse.
-  // 2) If the inbound lead is [TESTLANE]-marked, ADF_MODE MUST be 'test'
-  //    (or 'log'). Otherwise refuse — never emit a TESTLANE-marked ADF to a
-  //    real dealer intake.
-  const _adfMode = (process.env.ADF_MODE || 'live').toLowerCase();
-  const _testLaneEnv = process.env.TESTLANE_MODE === "true";
-  const _leadIsTestLane =
-    (leadData.customerName || '').includes('[TESTLANE]') ||
-    (leadData.transcript || '').includes('[TESTLANE]') ||
-    (leadData.summary || '').includes('[TESTLANE]') ||
-    (leadData.callId || '').toLowerCase().startsWith('testlane-');
-  if (_testLaneEnv && _adfMode !== 'test') {
-    console.warn(`[ADF] TESTLANE_MODE=true but ADF_MODE=${_adfMode} — refusing to send (fail-closed)`);
-    return { sent: false, mode: `testlane-adf-misconfig-${_adfMode}`, xml: '', targetEmail: '' };
-  }
-  if (_leadIsTestLane && _adfMode === 'live') {
-    console.warn(`[ADF] Lead is [TESTLANE]-marked but ADF_MODE=live — refusing to emit ADF to real dealer intake (fail-closed)`);
-    return { sent: false, mode: 'testlane-lead-but-live-adf', xml: '', targetEmail: '' };
-  }
-  if (_leadIsTestLane && !_testLaneEnv) {
-    console.warn(`[ADF] Lead is [TESTLANE]-marked but TESTLANE_MODE!=true — refusing (fail-closed)`);
-    return { sent: false, mode: 'testlane-lead-but-mode-off', xml: '', targetEmail: '' };
+  // Pure logic lives in evaluateAdfTestLaneGuard() in services/testLaneGuards.
+  // This branch only handles IO (console.warn) and the function-return shape.
+  const _adfTl = evaluateAdfTestLaneGuard({
+    customerName: leadData.customerName,
+    transcript: leadData.transcript,
+    summary: leadData.summary,
+    callId: leadData.callId,
+  });
+  if (_adfTl.kind === "blocked") {
+    console.warn(`[ADF] ${_adfTl.reason}`);
+    return { sent: false, mode: _adfTl.mode, xml: "", targetEmail: "" };
   }
   // ── END TEST LANE FAIL-CLOSED GUARD ────────────────────────────────────────
 

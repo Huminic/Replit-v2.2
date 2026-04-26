@@ -47,6 +47,122 @@ export interface SendResult {
   blockedReason?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Test-lane guard (pure helper, exported for unit tests)
+// ---------------------------------------------------------------------------
+
+/**
+ * Inputs the test-lane guard reads from request/campaign/recipient.
+ * Subset of the full SendRequest + minimal storage shapes — kept narrow so the
+ * guard is unit-testable without mocking storage / DB.
+ */
+export interface OutboundTestLaneGuardInput {
+  channel: "sms" | "email" | "phone";
+  to: string;
+  messageContent: string;
+  recipientName?: string;
+  testLaneSessionId?: string;
+  campaignName?: string | null;
+  recipientFirstName?: string | null;
+}
+
+/**
+ * Pure result from the outbound test-lane guard.
+ *
+ * - `pass`: nothing to override; the caller proceeds with original recipient.
+ * - `override`: hard-route the request to TESTLANE_*_TO; replace
+ *   `messageContent` and `recipientName` with the patched values.
+ * - `blocked`: caller MUST NOT send; log reason via existing logAttempt path.
+ *
+ * Two-way fail-closed:
+ *   TESTLANE_MODE=true + no marker         -> blocked
+ *   TESTLANE_MODE!=true + marker present   -> blocked (defensive)
+ *   TESTLANE_MODE=true + marker + missing TESTLANE_*_TO for channel -> blocked
+ *   TESTLANE_MODE=true + marker + env set  -> override
+ *   else                                   -> pass
+ */
+export type OutboundTestLaneGuardResult =
+  | { kind: "pass" }
+  | {
+      kind: "override";
+      sid: string;
+      to: string;
+      messageContent: string;
+      recipientName: string;
+    }
+  | { kind: "blocked"; reason: string };
+
+/**
+ * Pure evaluation of the outbound test-lane guard. Reads process.env at call
+ * time (so tests can mutate process.env around the call); does no IO.
+ */
+export function evaluateOutboundTestLaneGuard(
+  input: OutboundTestLaneGuardInput,
+): OutboundTestLaneGuardResult {
+  const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const requestHasMarker =
+    !!input.testLaneSessionId ||
+    (input.messageContent || "").includes("[TESTLANE]") ||
+    (input.messageContent || "").includes("[testlane:") ||
+    (input.campaignName || "").startsWith("[TESTLANE]") ||
+    (input.recipientFirstName || "").toLowerCase() === "testlane";
+
+  if (testLaneEnv && !requestHasMarker) {
+    return {
+      kind: "blocked",
+      reason:
+        "TESTLANE_MODE=true but request lacks test-lane marker (no testLaneSessionId, no [TESTLANE]/[testlane:] in content/campaign/recipient)",
+    };
+  }
+  if (!testLaneEnv && requestHasMarker) {
+    return {
+      kind: "blocked",
+      reason:
+        "Request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)",
+    };
+  }
+  if (!testLaneEnv && !requestHasMarker) {
+    return { kind: "pass" };
+  }
+  // testLaneEnv && requestHasMarker -> override
+  const sid = input.testLaneSessionId || "unknown";
+  let envVar: string | undefined;
+  let envName: string;
+  if (input.channel === "sms") {
+    envVar = process.env.TESTLANE_SMS_TO;
+    envName = "TESTLANE_SMS_TO";
+  } else if (input.channel === "email") {
+    envVar = process.env.TESTLANE_EMAIL_TO;
+    envName = "TESTLANE_EMAIL_TO";
+  } else if (input.channel === "phone") {
+    envVar = process.env.TESTLANE_VOICE_TO;
+    envName = "TESTLANE_VOICE_TO";
+  } else {
+    return {
+      kind: "blocked",
+      reason: `TESTLANE_MODE on but unsupported channel "${input.channel as string}" (fail-closed)`,
+    };
+  }
+  if (!envVar) {
+    return {
+      kind: "blocked",
+      reason: `TESTLANE_MODE on but ${envName} unset (fail-closed)`,
+    };
+  }
+  const sidTag = `[testlane:${sid}]`;
+  const newMessageContent = input.messageContent.includes(sidTag)
+    ? input.messageContent
+    : `${sidTag} ${input.messageContent}`;
+  const newRecipientName = `[TESTLANE] ${input.recipientName || "test"}`.trim();
+  return {
+    kind: "override",
+    sid,
+    to: envVar,
+    messageContent: newMessageContent,
+    recipientName: newRecipientName,
+  };
+}
+
 const stopConfirmationCache = new Map<string, number>();
 
 export async function sendStopConfirmation(phone: string, orgName: string, organizationId: string): Promise<void> {
@@ -373,56 +489,26 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
   // If both are present, hard-route the recipient to operator-controlled test
   // addresses and tag messageContent with [testlane:<sid>].
   // If only one is present, BLOCK the send (do not rewrite, do not pass through).
-  const testLaneEnv = process.env.TESTLANE_MODE === "true";
-  const requestHasMarker =
-    !!request.testLaneSessionId ||
-    (request.messageContent || "").includes("[TESTLANE]") ||
-    (request.messageContent || "").includes("[testlane:") ||
-    (campaign?.name || "").startsWith("[TESTLANE]") ||
-    (recipient?.firstName || "").toLowerCase() === "testlane";
-
-  if (testLaneEnv && !requestHasMarker) {
-    const reason = "TESTLANE_MODE=true but request lacks test-lane marker (no testLaneSessionId, no [TESTLANE]/[testlane:] in content/campaign/recipient)";
-    await logAttempt(request, "blocked", reason);
-    return { status: "blocked", blockedReason: reason };
+  // Pure logic lives in evaluateOutboundTestLaneGuard() above; this branch
+  // only handles IO (logAttempt) and request mutation.
+  const _tlGuard = evaluateOutboundTestLaneGuard({
+    channel: request.channel,
+    to: request.to,
+    messageContent: request.messageContent,
+    recipientName: request.recipientName,
+    testLaneSessionId: request.testLaneSessionId,
+    campaignName: campaign?.name ?? null,
+    recipientFirstName: recipient?.firstName ?? null,
+  });
+  if (_tlGuard.kind === "blocked") {
+    await logAttempt(request, "blocked", _tlGuard.reason);
+    return { status: "blocked", blockedReason: _tlGuard.reason };
   }
-  if (!testLaneEnv && requestHasMarker) {
-    const reason = "Request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)";
-    await logAttempt(request, "blocked", reason);
-    return { status: "blocked", blockedReason: reason };
-  }
-  if (testLaneEnv && requestHasMarker) {
-    const sid = request.testLaneSessionId || "unknown";
-    if (request.channel === "sms") {
-      const t = process.env.TESTLANE_SMS_TO;
-      if (!t) {
-        const reason = "TESTLANE_MODE on but TESTLANE_SMS_TO unset (fail-closed)";
-        await logAttempt(request, "blocked", reason);
-        return { status: "blocked", blockedReason: reason };
-      }
-      request.to = t;
-    } else if (request.channel === "email") {
-      const t = process.env.TESTLANE_EMAIL_TO;
-      if (!t) {
-        const reason = "TESTLANE_MODE on but TESTLANE_EMAIL_TO unset (fail-closed)";
-        await logAttempt(request, "blocked", reason);
-        return { status: "blocked", blockedReason: reason };
-      }
-      request.to = t;
-    } else if (request.channel === "phone") {
-      const t = process.env.TESTLANE_VOICE_TO;
-      if (!t) {
-        const reason = "TESTLANE_MODE on but TESTLANE_VOICE_TO unset (fail-closed)";
-        await logAttempt(request, "blocked", reason);
-        return { status: "blocked", blockedReason: reason };
-      }
-      request.to = t;
-    }
-    if (!request.messageContent.includes(`[testlane:${sid}]`)) {
-      request.messageContent = `[testlane:${sid}] ${request.messageContent}`;
-    }
-    request.recipientName = `[TESTLANE] ${request.recipientName || "test"}`.trim();
-    console.log(`[TestLane] processOutboundSend hard-routed channel=${request.channel} to=${request.to} sid=${sid}`);
+  if (_tlGuard.kind === "override") {
+    request.to = _tlGuard.to;
+    request.messageContent = _tlGuard.messageContent;
+    request.recipientName = _tlGuard.recipientName;
+    console.log(`[TestLane] processOutboundSend hard-routed channel=${request.channel} to=${request.to} sid=${_tlGuard.sid}`);
   }
   // ── END TEST LANE GUARD ─────────────────────────────────────────────────────
 

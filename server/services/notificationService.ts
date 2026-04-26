@@ -46,7 +46,7 @@ export interface TriggerNotificationParams {
  * without TESTLANE_MODE is blocked. Mirrors the guard in
  * server/outbound.ts:processOutboundSend.
  */
-function applyTestLaneRecipientOverride(
+export function applyTestLaneRecipientOverride(
   params: TriggerNotificationParams,
   recipients: string[]
 ): { ok: true; recipients: string[]; overridden?: boolean; sid?: string } | { ok: false; reason: string } {
@@ -528,7 +528,7 @@ export interface WeeklyReportEmailOpts {
  * to/cc/bcc tuple and additionally tags subject + html when the override
  * fires. Two-way fail-closed (see helper above).
  */
-function applyWeeklyReportTestLaneOverride(
+export function applyWeeklyReportTestLaneOverride(
   subject: string,
   html: string,
   toArr: string[],
