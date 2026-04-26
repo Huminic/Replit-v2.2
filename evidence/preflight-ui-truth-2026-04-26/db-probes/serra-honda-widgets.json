@@ -1,0 +1,107 @@
+{
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "slug": "serra-honda",
+    "name": "Serra Honda",
+    "outbound_enabled": true
+  },
+  "widgets": [
+    {
+      "id": "0de04433-d04c-4e05-abef-2a6013369bb8",
+      "widget_code": "wgt_serra_honda_sales",
+      "name": "Serra Honda Sales Chat",
+      "type": "text",
+      "status": "active",
+      "config": {
+        "agentId": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+        "greeting": "Hi! How can I help you find your perfect vehicle?",
+        "position": "bottom-right",
+        "animation": "fade",
+        "exitIntent": true,
+        "accentColor": "#8b5cf6",
+        "audienceType": "all",
+        "deviceMobile": true,
+        "primaryColor": "#6366f1",
+        "triggerDelay": 3,
+        "deviceDesktop": true,
+        "allowedDomains": [
+          "serrahonda.com",
+          "www.serrahonda.com"
+        ],
+        "showOrganizationName": true
+      }
+    },
+    {
+      "id": "328afdab-28e3-4158-bf36-5634d2b726e2",
+      "widget_code": "wgt_serra_video_assist",
+      "name": "Serra Video Assistant",
+      "type": "video",
+      "status": "active",
+      "config": {
+        "greeting": "Click to start a video chat!",
+        "position": "bottom-right",
+        "animation": "slide",
+        "exitIntent": false,
+        "accentColor": "#a78bfa",
+        "audienceType": "returning",
+        "deviceMobile": false,
+        "primaryColor": "#8b5cf6",
+        "triggerDelay": 5,
+        "deviceDesktop": true,
+        "allowedDomains": [
+          "serrahonda.com"
+        ],
+        "tavusPersonaId": "p9eb007721f4",
+        "showOrganizationName": true
+      }
+    },
+    {
+      "id": "0e9dfaf2-b5f7-4062-aa62-ac1548736b1c",
+      "widget_code": "wgt_serra_service_voice",
+      "name": "Service Appointment Bot",
+      "type": "voice",
+      "status": "inactive",
+      "config": {
+        "greeting": "Need to schedule service?",
+        "position": "bottom-left",
+        "animation": "bounce",
+        "exitIntent": false,
+        "accentColor": "#2dd4bf",
+        "audienceType": "all",
+        "deviceMobile": true,
+        "primaryColor": "#14b8a6",
+        "triggerDelay": 0,
+        "deviceDesktop": true,
+        "allowedDomains": [
+          "serrahonda.com",
+          "service.serrahonda.com"
+        ],
+        "vapiAssistantId": "90a876c0-0f11-4424-abfe-9ac82b264d88",
+        "showOrganizationName": false
+      }
+    },
+    {
+      "id": "94a5c0aa-e6bb-40b0-a3df-487447cf0235",
+      "widget_code": "wgt_serra_marketing_unified",
+      "name": "Marketing Landing Widget",
+      "type": "unified",
+      "status": "draft",
+      "config": {
+        "greeting": "Explore our latest deals!",
+        "position": "bottom-right",
+        "animation": "fade",
+        "exitIntent": true,
+        "accentColor": "#f472b6",
+        "audienceType": "new",
+        "deviceMobile": true,
+        "primaryColor": "#ec4899",
+        "triggerDelay": 10,
+        "deviceDesktop": true,
+        "allowedDomains": [
+          "deals.serrahonda.com"
+        ],
+        "showOrganizationName": true
+      }
+    }
+  ]
+}

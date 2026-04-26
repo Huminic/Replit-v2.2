@@ -1,0 +1,53 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - heading "Serra Honda" [level=1] [ref=e6]
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - img [ref=e11]
+        - generic [ref=e15]: Serra Honda
+      - heading "Let's schedule a VIP test drive" [level=1] [ref=e16]
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - text: First Name
+            - textbox "John" [ref=e20]
+          - generic [ref=e21]:
+            - text: Last Name
+            - textbox "Smith" [ref=e22]
+        - generic [ref=e23]:
+          - text: Phone Number
+          - textbox "(555) 123-4567" [ref=e24]
+        - generic [ref=e25]:
+          - text: Email
+          - textbox "john@example.com" [ref=e26]
+        - generic [ref=e27]:
+          - text: What are you looking for?
+          - textbox "e.g. SUV under $40K, trade-in value" [ref=e28]
+        - button "Get in Touch" [ref=e29] [cursor=pointer]:
+          - text: Get in Touch
+          - img
+      - paragraph [ref=e30]: By submitting, you agree to receive communications from Serra Honda. Message & data rates may apply. Reply STOP to opt out.
+    - generic [ref=e35]:
+      - button "Start a live video chat" [ref=e36] [cursor=pointer]:
+        - img "Start a live video chat" [ref=e37]
+        - img [ref=e39]
+        - img [ref=e43]
+      - heading "We are here for you 24/7" [level=2] [ref=e46]
+      - paragraph [ref=e47]: Our AI-powered team is ready to help you find the perfect vehicle, get a trade-in estimate, or schedule a test drive.
+      - button "Start a Live Video Chat" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - text: Start a Live Video Chat
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - paragraph [ref=e54]: 500+
+          - paragraph [ref=e55]: Vehicles
+        - generic [ref=e57]:
+          - paragraph [ref=e58]: 4.9★
+          - paragraph [ref=e59]: Rating
+        - generic [ref=e61]:
+          - paragraph [ref=e62]: 24/7
+          - paragraph [ref=e63]: Available
+    - button [ref=e64] [cursor=pointer]:
+      - img [ref=e65]
