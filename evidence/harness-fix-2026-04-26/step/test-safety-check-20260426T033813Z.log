@@ -1,0 +1,14 @@
+=== Test-safety-check before fix (no env var) ===
+================================================================
+ NEXXUS TEST-SAFETY REPORT
+ Generated: 2026-04-26T03:38:13Z
+
+=== Test-safety-check after fix simulation (with env var) ===
+================================================================
+ NEXXUS TEST-SAFETY REPORT
+ Generated: 2026-04-26T03:38:14Z
+ Project: /home/ubuntu/Claude-store/nexxus2.2_replit
+================================================================
+
+STEP 1 — Deployment topology
+----------------------------------------------------------------

@@ -1,0 +1,189 @@
+================================================================
+ NEXXUS TEST-SAFETY REPORT
+ Generated: 2026-04-26T04:26:30Z
+ Project: /home/ubuntu/Claude-store/nexxus2.2_replit
+================================================================
+
+STEP 1 — Deployment topology
+----------------------------------------------------------------
+  dev.huminicdev.com -> {"status":"ok","version":"2.2.0","uptime":837860,"timestamp":"2026-04-26T04:26:30.346Z","environment":"production"}
+  live.huminic.app -> {"status":"ok","version":"2.2.0","uptime":967531,"timestamp":"2026-04-26T04:26:30.375Z","environment":"production"}
+  localhost:5000 -> {"status":"ok","version":"2.2.0","uptime":837860,"timestamp":"2026-04-26T04:26:30.390Z","environment":"production"}
+
+  Caddy live.huminic.app routing:
+    live.huminic.app {
+    	reverse_proxy localhost:5001 {
+    		header_up Host {host}
+    		header_up X-Real-IP {remote}
+    		header_up X-Forwarded-For {remote}
+
+STEP 2 — DATABASE host comparison (no password printed)
+----------------------------------------------------------------
+  dev .env DATABASE_URL  -> host=aws-1-us-west-2.pooler.supabase.com port=6543 db=postgres
+  dev .env DIRECT_URL    -> host=aws-1-us-west-2.pooler.supabase.com port=5432 db=postgres
+  live container        -> phqqzjj5pal13wlp39m5ohx6-233919687476
+  live DATABASE_URL     -> host=aws-1-us-west-2.pooler.supabase.com port=6543 db=postgres
+  live DIRECT_URL       -> host=aws-1-us-west-2.pooler.supabase.com port=5432 db=postgres
+
+  ⚠️  CRITICAL: dev and live SHARE the same database.
+     Any write performed in dev affects live customer data.
+
+STEP 3 — Outbound posture (env values: known-safe sentinels only)
+----------------------------------------------------------------
+  dev .env:
+    NODE_ENV=development
+    OUTBOUND_LIVE_ENABLED=true
+    ADF_MODE=live
+    ADF_TEST_EMAIL=duane.wells@huminic.ai
+    APP_BASE_URL=<unset>
+    SEED_DEMO_DATA=true
+    ⚠️  OUTBOUND_LIVE_ENABLED is TRUE — outbound sends to real recipients are ENABLED.
+    ⚠️  ADF_MODE=live — ADF emails route to real dealer intake addresses.
+
+STEP 4 — Per-org CommGate flags + ADF config (counts only, no PII)
+----------------------------------------------------------------
+  slug                   persona      ob sms phn eml vid adf brand
+  ---------------------- ------------ -- --- --- --- --- --- -----
+  cage-automotive        Cage         Y  Y   Y   Y   n   n   
+  ford-of-columbia       Savannah     Y  Y   Y   Y   n   n   Ford
+  huminic                Admin        Y  Y   Y   Y   n   n   
+  hyundai-of-columbia    Elizabeth    Y  Y   Y   Y   n   n   Hyundai
+  serra-honda            Caroline     Y  Y   Y   Y   n   Y   Honda
+  serra-nissan           Magnolia     Y  Y   Y   Y   n   Y   Nissan
+  tony-serra-ford        Georgia      Y  Y   Y   Y   n   Y   Ford
+
+  Orgs with outbound_enabled=TRUE: 7/7
+  ⚠️  Any test action through an enabled org may produce real outbound.
+
+STEP 5 — Recent outbound activity (counts only — no PII selected)
+----------------------------------------------------------------
+  outbound_log last 24h: 1 groups
+    org=serra-honda            sms    blocked        n=4     last=2026-04-26 02:56:01
+  outbound_log last 14d: 9 groups
+    org=serra-honda            sms    blocked        n=155   last=2026-04-26 02:56:01
+    org=ford-of-columbia       email  sent           n=12    last=2026-04-25 00:12:46
+    org=hyundai-of-columbia    email  sent           n=40    last=2026-04-24 12:59:07
+    org=serra-honda            sms    dry_run        n=2     last=2026-04-23 21:57:49
+    org=tony-serra-ford        email  sent           n=2     last=2026-04-22 00:18:14
+    org=serra-honda            email  sent           n=29    last=2026-04-19 22:12:18
+    org=serra-honda            sms    failed         n=17    last=2026-04-14 19:37:05
+    org=serra-honda            phone  dry_run        n=1     last=2026-04-14 19:36:49
+    org=serra-honda            sms    sent           n=29    last=2026-04-13 01:59:54
+
+STEP 6 — Allowlist files (operator-maintained)
+----------------------------------------------------------------
+  /home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-orgs.txt:
+    # Operator-maintained allowlist of org slugs allowed to receive MUTATING test
+    # actions (campaign sends, trigger fires, ADF emits, lead creates, conversation
+    # replies, kill-switch toggles).
+    #
+    # Format:
+    #   <slug>                — bare slug, treated as "approved"
+    #   <category>:<slug>     — categorized entry (preferred)
+    #   # comment lines and blank lines are ignored
+    #
+    # Categories:
+    #   test_org              — org approved as test target. Mutating actions go
+    #                            through processOutboundSend, which has the test-lane
+    #                            guard. Recipient gets hard-routed to TESTLANE_*_TO.
+    #   blocked_org           — informational; the default for orgs NOT in this file
+    #                            is BLOCK.
+    #
+    # As of 2026-04-25, the seven real dealership orgs in the SHARED dev/live DB are:
+    #   cage-automotive, serra-honda, serra-nissan, tony-serra-ford,
+    #   hyundai-of-columbia, ford-of-columbia, huminic
+    #
+    # Per operator decision (2026-04-25): Monday Apr 27 launch ships service-campaign
+    # capability ONLY for serra-honda. The Test Lane is also scoped to serra-honda.
+    
+    # ── test_org ──────────────────────────────────────────────────────────────────
+    # Serra Honda is the approved Test Lane org. The test-lane guard hard-routes
+    # all recipients to TESTLANE_*_TO (operator-controlled), so adding serra-honda
+    # here authorizes test-lane execution against Serra Honda's real config without
+    # allowing real customer contact.
+    test_org:serra-honda
+    
+    # ── (informational) other orgs are NOT allowlisted ────────────────────────────
+    # Adding any of these requires explicit operator authorization in chat:
+    #   test_org:cage-automotive
+    #   test_org:serra-nissan
+    #   test_org:tony-serra-ford
+    #   test_org:hyundai-of-columbia
+    #   test_org:ford-of-columbia
+    #   test_org:huminic
+  /home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-recipients.txt:
+    # Operator-maintained allowlist of recipient phone numbers / email addresses
+    # allowed to receive autonomous test sends.
+    #
+    # Format:
+    #   <entry>                       — bare entry, treated as "approved"
+    #   <category>:<entry>            — categorized entry (preferred for new entries)
+    #   # comment lines and blank lines are ignored
+    #
+    # Categories (informational; the check script does exact-match against the
+    # value portion regardless of category):
+    #   internal_operator       — operator's own phone/email
+    #   test_email              — operator-controlled test email
+    #   vapi_test_agent         — VAPI assistant ID we own (Elliott, Caroline, etc.)
+    #   textmagic_test_number   — TextMagic numbers we control; sub-classify in comments:
+    #                              receive-only, outbound-authorized, webhook-test
+    #   tavus_test              — Tavus test session contact (popup name proof only)
+    #   vin_test_contact        — VIN Solutions test customer (Durran Cage in every dealer)
+    #   blocked_customer        — informational; do NOT add real customers here.
+    #                              Anything NOT in this file is blocked by default.
+    #
+    # CRITICAL: every entry below authorizes real provider sends to the value during
+    # autonomous test-lane sessions. Adding a real customer phone here is a discipline
+    # violation and may produce unauthorized real-world communication.
+    
+    # ── internal_operator ─────────────────────────────────────────────────────────
+    internal_operator:+14126546500
+    internal_operator:duanewells@icloud.com
+    
+    # ── test_email ────────────────────────────────────────────────────────────────
+    # operator's huminic-domain inbox used as ADF_TEST_EMAIL fallback
+    test_email:duane.wells@huminic.ai
+    
+    # ── vapi_test_agent ───────────────────────────────────────────────────────────
+    # Elliott assistant — autonomous voice test counterparty
+    # (assistant id: c303d993-bf42-4784-a8cb-247477b1cbdd, env override TEST_ELLIOTT_ASSISTANT_ID)
+    vapi_test_agent:c303d993-bf42-4784-a8cb-247477b1cbdd
+    
+    # ── textmagic_test_number ─────────────────────────────────────────────────────
+    # Operator-owned TextMagic numbers. Sub-classification in trailing comment.
+    # Operator: replace placeholders below with the actual three numbers and roles.
+    # Until populated, broader SMS testing must stay restricted to internal_operator above.
+    # textmagic_test_number:+1XXXXXXXXXX  # receive-only
+    # textmagic_test_number:+1XXXXXXXXXX  # outbound-authorized
+    # textmagic_test_number:+1XXXXXXXXXX  # webhook-test
+    
+    # ── vin_test_contact ──────────────────────────────────────────────────────────
+    # Durran Cage account exists in every dealer in VIN Solutions.
+    # This entry is symbolic — actual VIN identifiers (dealer/user/contact ids) are
+    # resolved via vin-safe-mcp prepare and shown to operator before execute.
+    vin_test_contact:Durran Cage
+    
+    # ── tavus_test ────────────────────────────────────────────────────────────────
+    # Tavus test session. Pass criterion is the popup asking for participant name.
+    # No customer recipient is contacted; entry is symbolic.
+    tavus_test:popup-only
+    
+    # ── (informational) blocked_customer ──────────────────────────────────────────
+    # Do NOT add real customer phone/email here. The default behavior for any
+    # entry NOT in this file is BLOCK. Listed here for documentation only:
+    #   real_customer:+1XXXXXXXXXX
+
+================================================================
+ OPERATOR DECISION REQUIRED
+================================================================
+ Confirm with operator before proceeding to any mutating test:
+   1. Are dev and live confirmed shared-DB? (Step 2 above)
+   2. Are the named org_admin accounts confirmed real?
+   3. Is OUTBOUND_LIVE_ENABLED=true acceptable for THIS test?
+   4. Are the allowlists (Step 6) sufficient for THIS test?
+
+ Until operator says GO, only read-only actions are allowed.
+ Mutating actions need '# APPROVED:' marker and an allowlist match.
+================================================================
+
+Report saved: /home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-safety/report-20260426T042630Z.txt
