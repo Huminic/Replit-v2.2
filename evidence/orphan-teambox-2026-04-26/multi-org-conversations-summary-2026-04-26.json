@@ -1,0 +1,122 @@
+{
+  "probed_at": "2026-04-26T16:19:15.669Z",
+  "target_slugs": [
+    "cage-automotive",
+    "ford-of-columbia",
+    "huminic",
+    "hyundai-of-columbia",
+    "serra-honda",
+    "serra-nissan",
+    "tony-serra-ford"
+  ],
+  "orgs_resolved": 7,
+  "per_org": [
+    {
+      "slug": "cage-automotive",
+      "name": "Cage Automotive",
+      "id": "fe2e50a8-0029-4763-8ca7-83325fd70dde",
+      "conversation_count": 2,
+      "message_count": 0,
+      "earliest_conversation_created_at": "2026-04-06T17:00:46.340Z",
+      "latest_conversation_created_at": "2026-04-16T10:32:38.842Z",
+      "users_count": 3,
+      "channel_breakdown": {
+        "ai-chat": 2
+      }
+    },
+    {
+      "slug": "ford-of-columbia",
+      "name": "Ford of Columbia",
+      "id": "6ae2548b-f6ec-4b1e-8d8b-ae565123f0df",
+      "conversation_count": 18,
+      "message_count": 18,
+      "earliest_conversation_created_at": "2026-04-07T23:38:49.705Z",
+      "latest_conversation_created_at": "2026-04-25T00:12:41.603Z",
+      "users_count": 1,
+      "channel_breakdown": {
+        "voice": 18
+      }
+    },
+    {
+      "slug": "huminic",
+      "name": "Huminic",
+      "id": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+      "conversation_count": 7,
+      "message_count": 15,
+      "earliest_conversation_created_at": "2026-04-03T14:38:49.496Z",
+      "latest_conversation_created_at": "2026-04-14T19:36:40.843Z",
+      "users_count": 8,
+      "channel_breakdown": {
+        "ai-chat": 5,
+        "chat": 2
+      }
+    },
+    {
+      "slug": "hyundai-of-columbia",
+      "name": "Hyundai of Columbia",
+      "id": "f18cbf4e-bcbd-46fe-bf54-33bcee4afec8",
+      "conversation_count": 50,
+      "message_count": 50,
+      "earliest_conversation_created_at": "2026-04-07T22:05:18.510Z",
+      "latest_conversation_created_at": "2026-04-24T12:59:01.966Z",
+      "users_count": 2,
+      "channel_breakdown": {
+        "voice": 50
+      }
+    },
+    {
+      "slug": "serra-honda",
+      "name": "Serra Honda",
+      "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "conversation_count": 84,
+      "message_count": 176,
+      "earliest_conversation_created_at": "2026-04-03T05:01:56.082Z",
+      "latest_conversation_created_at": "2026-04-21T13:57:37.462Z",
+      "users_count": 13,
+      "channel_breakdown": {
+        "ai-chat": 24,
+        "sms": 22,
+        "voice": 16,
+        "chat": 14,
+        "email": 3,
+        "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6": 2,
+        "ai-assistant": 2,
+        "agent-chat-1e8607bb-0034-406f-a35b-b2e5f0aa6d0f": 1
+      }
+    },
+    {
+      "slug": "serra-nissan",
+      "name": "Serra Nissan",
+      "id": "4a23d5ad-38ff-4016-8af5-f4cfc9fd88cd",
+      "conversation_count": 5,
+      "message_count": 2,
+      "earliest_conversation_created_at": "2026-04-06T17:02:31.686Z",
+      "latest_conversation_created_at": "2026-04-07T22:05:17.791Z",
+      "users_count": 1,
+      "channel_breakdown": {
+        "voice": 4,
+        "ai-chat": 1
+      }
+    },
+    {
+      "slug": "tony-serra-ford",
+      "name": "Tony Serra Ford",
+      "id": "2cbf687f-7cd5-480c-b81c-220cb632cd91",
+      "conversation_count": 2,
+      "message_count": 1,
+      "earliest_conversation_created_at": "2026-04-06T17:01:06.036Z",
+      "latest_conversation_created_at": "2026-04-22T00:18:11.174Z",
+      "users_count": 1,
+      "channel_breakdown": {
+        "ai-chat": 1,
+        "voice": 1
+      }
+    }
+  ],
+  "grand_totals": {
+    "conversations": 168,
+    "messages": 262,
+    "users": 29
+  },
+  "note": "Summary only. No DELETE preview generated for any org in this step. Operator decides whether to extend cleanup beyond Serra Honda based on this summary."
+}

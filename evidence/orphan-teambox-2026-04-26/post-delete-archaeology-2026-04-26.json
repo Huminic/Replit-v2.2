@@ -1,0 +1,39 @@
+{
+  "probed_at": "2026-04-26T16:20:28.572Z",
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "slug": "serra-honda"
+  },
+  "total_conversations_for_org": 0,
+  "classification_summary": {
+    "delete-recommended (test AND zero messages, no inbound pointers)": 0,
+    "test-tagged BUT has messages (conservative HOLD)": 0,
+    "zero messages BUT not test-tagged (genuine empty starts — review)": 0,
+    "test-tagged AND zero msg BUT has inbound source-pointer (HOLD)": 0,
+    "real-looking with messages (do not touch)": 0
+  },
+  "buckets": {
+    "delete-recommended (test AND zero messages, no inbound pointers)": [],
+    "test-tagged BUT has messages (conservative HOLD)": [],
+    "zero messages BUT not test-tagged (genuine empty starts — review)": [],
+    "test-tagged AND zero msg BUT has inbound source-pointer (HOLD)": [],
+    "real-looking with messages (do not touch)": []
+  },
+  "delete_recommended_count": 0,
+  "delete_recommended_ids": [],
+  "cascade_impact_for_delete_recommended": {},
+  "classifier_rules": {
+    "test_name_regex": "\\btest\\b|testlane|test customer|test user",
+    "operator_phones": [
+      "+14126546500",
+      "14126546500",
+      "4126546500"
+    ],
+    "operator_emails": [
+      "duane.wells@huminic.ai",
+      "duanewells@icloud.com",
+      "duanekwells@gmail.com"
+    ],
+    "phone_555_rule": "After stripping non-digits, take last 10 (NANP local). Central-office code (positions 4-6) === '555'."
+  }
+}

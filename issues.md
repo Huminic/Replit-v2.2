@@ -42,6 +42,9 @@ No open issues. I-126 and I-139 verified working in S2.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-174 | "Send to CRM" button — manual VIN lead creation from conversations (form + SMS channels) | BE, FE | BACKLOGGED (BL-092) | H |
+| I-NEW-2026-04-26-B | **Test Customer auto-create source** — chat-init code path creates a `Test Customer` conversation row before the user types or identifies. Surfaced during Priority 9 cleanup: 11 such rows accumulated for Serra Honda over 18 days, all with no phone/email and 0 messages. Investigate `client/src/pages/widget-landing.tsx` and `server/routes/conversations.ts` create paths. Likely fix: defer conversation row creation until first real message OR mark/skip these in TeamBox list. | BE, FE | OPEN | M |
+| I-NEW-2026-04-26-C | **Shelby Dew duplicate-init race** — three `ai-chat` / `ai-assistant` conversation rows created within ~1ms of each other for `sdew@serrahonda.net` when chat is opened. Suggests a duplicate-create race in the conversation init flow (or two channels independently creating from one event). Reproduce by opening chat as Shelby Dew and watching the conversations table. | BE | OPEN | M |
+| I-NEW-2026-04-26-D | **Voice channel without thread** — voice integration creates a conversation row before/independent of any message arriving. Surfaced during Priority 9 cleanup: 4 zero-message voice-channel rows for Serra Honda (and 50/18/4 voice rows on Hyundai of Columbia / Ford of Columbia / Serra Nissan respectively, many likely the same pattern). Investigate VAPI / voice-call webhook conversation-creation timing — the row should be created on first transcript chunk, not on call-init. | BE | OPEN | M |
 
 ---
 
