@@ -55,7 +55,11 @@ No open issues. I-126 and I-139 verified working in S2.
 
 ## Service (/service)
 
-No open issues. I-113 and I-132 resolved in S4.
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-NEW-2026-04-26 | **service.tsx should reflect execution_status, not only status** — `client/src/pages/service.tsx:412-413` shows `campaign.status` as the user-facing label, but the actual scheduler state lives in `campaign.execution_status`. CSV uploads create campaigns with `status='active'` and `execution_status='idle'` simultaneously, causing admins to see "active" for never-started campaigns. Surfaced during Priority 8 archaeology of stuck campaign `30267ae2-5d81-4c21-b0bf-ad96e4eb31ec`. Concurrent minor defect: `campaignStatusColors` map at `service.tsx:74-80` has no `'archived'` key — after the operator-approved archive, the indicator dot renders unstyled. The list itself does not filter by status either (server `getCampaigns()` at `storage.ts:477-481` returns all rows; UI at `service.tsx:397` maps unconditionally), so archived rows still appear in the campaigns list. Fix: display `execution_status` (or a derived state) as the primary label, OR enforce `status` matches `execution_status` at upload time. Optionally also: add `'archived'` to `campaignStatusColors` and filter archived rows out of the active campaigns list. | FE | OPEN | E |
+
+I-113 and I-132 resolved in S4.
 
 ---
 

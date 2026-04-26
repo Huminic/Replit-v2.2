@@ -1,0 +1,121 @@
+{
+  "probed_at": "2026-04-26T10:37:32.851Z",
+  "step": 3,
+  "query": {
+    "sql": "SELECT * FROM campaigns WHERE organization_id = $1 AND department = $2",
+    "params": [
+      "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "service"
+    ],
+    "result_count": 8
+  },
+  "archived_campaign_still_in_list": true,
+  "archived_campaign_row": {
+    "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+    "name": "Service Reminder - February",
+    "status": "archived",
+    "kill_switch": true,
+    "execution_status": "idle",
+    "channel": "sms",
+    "recipient_count": 16,
+    "sent_count": 0,
+    "replied_count": 0
+  },
+  "ui_render_observation": {
+    "displayed_status_text": "Archived",
+    "status_dot_color_class": null,
+    "status_dot_color_class_resolves_to_class": false,
+    "note": "MINOR UI DEFECT: campaignStatusColors has no 'archived' key — the indicator dot will be unstyled (no background color). Text shows 'Archived'. Row still appears in the list because neither server query nor UI filters by status. This is a pre-existing UX gap, not caused by the archive."
+  },
+  "kill_switch_state_observed": true,
+  "all_service_campaign_rows": [
+    {
+      "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+      "name": "Service Reminder - February",
+      "status": "archived",
+      "kill_switch": true,
+      "execution_status": "idle",
+      "channel": "sms",
+      "recipient_count": 16,
+      "sent_count": 0,
+      "replied_count": 0
+    },
+    {
+      "id": "d72f9fcc-f013-4675-a183-8c7019c1388d",
+      "name": "Oil Change Reminder",
+      "status": "paused",
+      "kill_switch": true,
+      "execution_status": "idle",
+      "channel": "sms",
+      "recipient_count": 234,
+      "sent_count": 0,
+      "replied_count": 0
+    },
+    {
+      "id": "a8b7e5ae-5693-43ee-8933-9a2e96c67061",
+      "name": "Vehicle Merge Test",
+      "status": "draft",
+      "kill_switch": false,
+      "execution_status": "idle",
+      "channel": "sms",
+      "recipient_count": 1,
+      "sent_count": 0,
+      "replied_count": 0
+    },
+    {
+      "id": "d1799d79-3d2b-4107-ab72-20a7fd7efe14",
+      "name": "Service Reminder - Wave PE3 Test",
+      "status": "completed",
+      "kill_switch": false,
+      "execution_status": "completed",
+      "channel": "sms",
+      "recipient_count": 2,
+      "sent_count": 2,
+      "replied_count": 0
+    },
+    {
+      "id": "9352dd7a-09aa-4e7f-8fe4-598e820f4df6",
+      "name": "Wave-PE3 Verification Campaign",
+      "status": "completed",
+      "kill_switch": false,
+      "execution_status": "completed",
+      "channel": "sms",
+      "recipient_count": 1,
+      "sent_count": 1,
+      "replied_count": 0
+    },
+    {
+      "id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+      "name": "Launch Day Service Test",
+      "status": "completed",
+      "kill_switch": false,
+      "execution_status": "completed",
+      "channel": "sms",
+      "recipient_count": 5,
+      "sent_count": 5,
+      "replied_count": 0
+    },
+    {
+      "id": "82cef534-0a83-44ee-b99a-bbc0c7c1b6c0",
+      "name": "S-4 Test Campaign",
+      "status": "draft",
+      "kill_switch": false,
+      "execution_status": "idle",
+      "channel": "sms",
+      "recipient_count": 0,
+      "sent_count": 0,
+      "replied_count": 0
+    },
+    {
+      "id": "db97291b-dd9c-45ad-b24e-467db6fe4943",
+      "name": "S-4 Test Campaign",
+      "status": "draft",
+      "kill_switch": false,
+      "execution_status": "idle",
+      "channel": "sms",
+      "recipient_count": 0,
+      "sent_count": 0,
+      "replied_count": 0
+    }
+  ]
+}

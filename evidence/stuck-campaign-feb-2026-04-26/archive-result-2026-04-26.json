@@ -1,0 +1,191 @@
+{
+  "executed_at": "2026-04-26T10:36:38.757Z",
+  "campaign_id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+  "step": 2,
+  "operator_approval_scope": "single campaign id only — no other rows touched",
+  "before_row_full": {
+    "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+    "name": "Service Reminder - February",
+    "department": "service",
+    "status": "active",
+    "channel": "sms",
+    "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "kill_switch": false,
+    "recipient_count": 16,
+    "sent_count": 0,
+    "replied_count": 0,
+    "csv_filename": "test-recipients.csv",
+    "message_template": null,
+    "send_interval_seconds": 60,
+    "execution_status": "idle",
+    "execution_total": 0,
+    "execution_processed": 0,
+    "execution_sent": 0,
+    "execution_failed": 0,
+    "execution_started_at": null,
+    "scheduled_at": null,
+    "created_at": "2026-04-03T05:01:53.856Z",
+    "updated_at": "2026-04-03T14:26:45.955Z"
+  },
+  "after_row_full": {
+    "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+    "name": "Service Reminder - February",
+    "department": "service",
+    "status": "archived",
+    "channel": "sms",
+    "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "kill_switch": true,
+    "recipient_count": 16,
+    "sent_count": 0,
+    "replied_count": 0,
+    "csv_filename": "test-recipients.csv",
+    "message_template": null,
+    "send_interval_seconds": 60,
+    "execution_status": "idle",
+    "execution_total": 0,
+    "execution_processed": 0,
+    "execution_sent": 0,
+    "execution_failed": 0,
+    "execution_started_at": null,
+    "scheduled_at": null,
+    "created_at": "2026-04-03T05:01:53.856Z",
+    "updated_at": "2026-04-26T10:36:38.106Z"
+  },
+  "tx_assertions": {
+    "status_active": true,
+    "execution_status_idle": true,
+    "kill_switch_false": true,
+    "scheduled_at_null": true,
+    "execution_started_at_null": true,
+    "sent_count_zero": true,
+    "replied_count_zero": true,
+    "org_id_serra_honda": true,
+    "name_matches": true,
+    "recipient_count_16": true,
+    "outbound_log_count_0": true
+  },
+  "tx_assertions_pass": true,
+  "counts": {
+    "recipients_before": 16,
+    "recipients_after": 16,
+    "recipients_unchanged": true,
+    "outbound_log_before": 0,
+    "outbound_log_after": 0,
+    "outbound_log_unchanged": true
+  },
+  "mutations_observed": {
+    "status": {
+      "before": "active",
+      "after": "archived"
+    },
+    "kill_switch": {
+      "before": false,
+      "after": true
+    },
+    "updated_at": {
+      "before": "2026-04-03T14:26:45.955Z",
+      "after": "2026-04-26T10:36:38.106Z",
+      "advanced": true
+    }
+  },
+  "unchanged_fields_held": {
+    "id": {
+      "before": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+      "after": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+      "same": true
+    },
+    "name": {
+      "before": "Service Reminder - February",
+      "after": "Service Reminder - February",
+      "same": true
+    },
+    "department": {
+      "before": "service",
+      "after": "service",
+      "same": true
+    },
+    "channel": {
+      "before": "sms",
+      "after": "sms",
+      "same": true
+    },
+    "organization_id": {
+      "before": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "after": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "same": true
+    },
+    "recipient_count": {
+      "before": 16,
+      "after": 16,
+      "same": true
+    },
+    "sent_count": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "replied_count": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "csv_filename": {
+      "before": "test-recipients.csv",
+      "after": "test-recipients.csv",
+      "same": true
+    },
+    "message_template": {
+      "before": null,
+      "after": null,
+      "same": true
+    },
+    "send_interval_seconds": {
+      "before": 60,
+      "after": 60,
+      "same": true
+    },
+    "execution_status": {
+      "before": "idle",
+      "after": "idle",
+      "same": true
+    },
+    "execution_total": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "execution_processed": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "execution_sent": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "execution_failed": {
+      "before": 0,
+      "after": 0,
+      "same": true
+    },
+    "execution_started_at": {
+      "before": null,
+      "after": null,
+      "same": true
+    },
+    "scheduled_at": {
+      "before": null,
+      "after": null,
+      "same": true
+    },
+    "created_at": {
+      "before": "2026-04-03T05:01:53.856Z",
+      "after": "2026-04-03T05:01:53.856Z",
+      "same": true
+    }
+  },
+  "all_unchanged_fields_held": true,
+  "execution_status_unchanged": true,
+  "committed": true
+}
