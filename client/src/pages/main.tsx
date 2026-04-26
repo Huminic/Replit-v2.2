@@ -62,8 +62,14 @@ interface MetricTile {
   iconBg: string;
 }
 
+// P6 follow-up: 'Active Pipeline' renamed to 'Active Pipeline (14d)' to
+// match Sales (sales.tsx). The Home tile sources the same 14d metric from
+// /api/metrics/dashboard. metricApiKeys map keys MUST track the literal
+// label string used in buildPipelineTiles (line ~78) — the drill-down
+// detail dialog at line ~372 looks up the API key via
+// metricApiKeys[selectedMetric.label].
 const metricApiKeys: Record<string, string> = {
-  'Active Pipeline': 'active_pipeline',
+  'Active Pipeline (14d)': 'active_pipeline',
   'Appointments Today': 'appointments_today',
   'Open Escalations': 'open_escalations',
   'Outbound Sent 24h': 'outbound_sent',
@@ -75,7 +81,7 @@ function buildPipelineTiles(data: PipelineData | undefined): MetricTile[] {
   const oe = data?.openEscalations ?? 0;
   const os = data?.outboundSent24h ?? 0;
   return [
-    { label: 'Active Pipeline', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { label: 'Active Pipeline (14d)', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
     { label: 'Appointments Today', value: String(at), change: 'live', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
     { label: 'Open Escalations', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
     { label: 'Outbound Sent 24h', value: String(os), change: 'live', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
@@ -89,7 +95,9 @@ function buildMetricDetails(data: PipelineData | undefined): Record<string, { br
   const oe = data?.openEscalations ?? 0;
   const os = data?.outboundSent24h ?? 0;
   return {
-    'Active Pipeline': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
+    // P6 follow-up: key MUST match the tile label at line ~78. Lookup at
+    // line ~572 via metricDetails[selectedMetric.label].
+    'Active Pipeline (14d)': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
       { label: 'Total Active Leads', value: String(ap) },
       { label: 'Window', value: '14 days', detail: 'Active leads from the last 14 days' },
     ], highlights: ap > 0 ? ['14-day pipeline window ensures freshness'] : ['No active pipeline leads in the current window'] },
