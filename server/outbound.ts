@@ -33,6 +33,13 @@ export interface SendRequest {
   /** When true, skip the business-hours TCPA check in CommGate.
    *  Used by the after-hours trigger which is explicitly designed to send outside business hours. */
   bypassBusinessHours?: boolean;
+  /** Test-lane session id. When set together with TESTLANE_MODE=true, the
+   *  recipient is hard-routed to operator-controlled test addresses
+   *  (TESTLANE_SMS_TO / TESTLANE_EMAIL_TO / TESTLANE_VOICE_TO). The session
+   *  id is embedded in messageContent as [testlane:<sid>] for audit. Two-way
+   *  fail-closed: TESTLANE_MODE without a marker is blocked, and a marker
+   *  without TESTLANE_MODE is blocked. */
+  testLaneSessionId?: string;
 }
 
 export interface SendResult {
@@ -360,6 +367,64 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
   const recipient = request.recipientId
     ? await storage.getRecipient(request.recipientId)
     : undefined;
+
+  // ── TEST LANE GUARD ─────────────────────────────────────────────────────────
+  // Two-way fail-closed: TESTLANE_MODE and per-request marker must agree.
+  // If both are present, hard-route the recipient to operator-controlled test
+  // addresses and tag messageContent with [testlane:<sid>].
+  // If only one is present, BLOCK the send (do not rewrite, do not pass through).
+  const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const requestHasMarker =
+    !!request.testLaneSessionId ||
+    (request.messageContent || "").includes("[TESTLANE]") ||
+    (request.messageContent || "").includes("[testlane:") ||
+    (campaign?.name || "").startsWith("[TESTLANE]") ||
+    (recipient?.firstName || "").toLowerCase() === "testlane";
+
+  if (testLaneEnv && !requestHasMarker) {
+    const reason = "TESTLANE_MODE=true but request lacks test-lane marker (no testLaneSessionId, no [TESTLANE]/[testlane:] in content/campaign/recipient)";
+    await logAttempt(request, "blocked", reason);
+    return { status: "blocked", blockedReason: reason };
+  }
+  if (!testLaneEnv && requestHasMarker) {
+    const reason = "Request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)";
+    await logAttempt(request, "blocked", reason);
+    return { status: "blocked", blockedReason: reason };
+  }
+  if (testLaneEnv && requestHasMarker) {
+    const sid = request.testLaneSessionId || "unknown";
+    if (request.channel === "sms") {
+      const t = process.env.TESTLANE_SMS_TO;
+      if (!t) {
+        const reason = "TESTLANE_MODE on but TESTLANE_SMS_TO unset (fail-closed)";
+        await logAttempt(request, "blocked", reason);
+        return { status: "blocked", blockedReason: reason };
+      }
+      request.to = t;
+    } else if (request.channel === "email") {
+      const t = process.env.TESTLANE_EMAIL_TO;
+      if (!t) {
+        const reason = "TESTLANE_MODE on but TESTLANE_EMAIL_TO unset (fail-closed)";
+        await logAttempt(request, "blocked", reason);
+        return { status: "blocked", blockedReason: reason };
+      }
+      request.to = t;
+    } else if (request.channel === "phone") {
+      const t = process.env.TESTLANE_VOICE_TO;
+      if (!t) {
+        const reason = "TESTLANE_MODE on but TESTLANE_VOICE_TO unset (fail-closed)";
+        await logAttempt(request, "blocked", reason);
+        return { status: "blocked", blockedReason: reason };
+      }
+      request.to = t;
+    }
+    if (!request.messageContent.includes(`[testlane:${sid}]`)) {
+      request.messageContent = `[testlane:${sid}] ${request.messageContent}`;
+    }
+    request.recipientName = `[TESTLANE] ${request.recipientName || "test"}`.trim();
+    console.log(`[TestLane] processOutboundSend hard-routed channel=${request.channel} to=${request.to} sid=${sid}`);
+  }
+  // ── END TEST LANE GUARD ─────────────────────────────────────────────────────
 
   const gateResult = await checkCommGate(org, campaign, recipient, request.channel, request.to, request.bypassBusinessHours || false);
 

@@ -24,6 +24,55 @@ export interface TriggerNotificationParams {
   triggerType: "after_hours_followup" | "24h_checkin";
   messageSent: string;
   vehicleOfInterest?: string | null;
+  /** Optional test-lane session id. When set together with TESTLANE_MODE=true,
+   *  admin recipients are replaced with TESTLANE_EMAIL_TO. Detection also
+   *  fires automatically if customerName starts with [TESTLANE] or messageSent
+   *  contains [testlane:] / [TESTLANE]. Two-way fail-closed enforced here. */
+  testLaneSessionId?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Test-lane recipient enforcement
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute admin recipient override for the test lane.
+ * Returns:
+ *   { ok: true, recipients: [...] } — pass-through (no test-lane involvement)
+ *   { ok: true, recipients: [TESTLANE_EMAIL_TO], overridden: true, sid }
+ *   { ok: false, reason: "..." } — fail-closed; caller must skip the send
+ *
+ * Two-way fail-closed: TESTLANE_MODE without a marker is blocked; a marker
+ * without TESTLANE_MODE is blocked. Mirrors the guard in
+ * server/outbound.ts:processOutboundSend.
+ */
+function applyTestLaneRecipientOverride(
+  params: TriggerNotificationParams,
+  recipients: string[]
+): { ok: true; recipients: string[]; overridden?: boolean; sid?: string } | { ok: false; reason: string } {
+  const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const requestHasMarker =
+    !!params.testLaneSessionId ||
+    (params.customerName || "").includes("[TESTLANE]") ||
+    (params.messageSent || "").includes("[TESTLANE]") ||
+    (params.messageSent || "").includes("[testlane:");
+
+  if (!testLaneEnv && !requestHasMarker) {
+    return { ok: true, recipients };
+  }
+  if (testLaneEnv && !requestHasMarker) {
+    return { ok: false, reason: "TESTLANE_MODE=true but notification request lacks test-lane marker (fail-closed)" };
+  }
+  if (!testLaneEnv && requestHasMarker) {
+    return { ok: false, reason: "Notification request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)" };
+  }
+  // testLaneEnv && requestHasMarker -> override
+  const t = process.env.TESTLANE_EMAIL_TO;
+  if (!t) {
+    return { ok: false, reason: "TESTLANE_MODE on but TESTLANE_EMAIL_TO unset (fail-closed)" };
+  }
+  const sid = params.testLaneSessionId || "unknown";
+  return { ok: true, recipients: [t], overridden: true, sid };
 }
 
 // ---------------------------------------------------------------------------
@@ -359,11 +408,21 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
       return;
     }
 
-    const recipients = await resolveAdminRecipients(params.orgId);
-    if (recipients.length === 0) {
+    const adminRecipients = await resolveAdminRecipients(params.orgId);
+    if (adminRecipients.length === 0) {
       console.log(`[TriggerNotify] No admin recipients found for org ${org.name}, skipping AI follow-up notification`);
       return;
     }
+
+    // \u2500\u2500 TEST LANE: override admin recipients when this notification is part of
+    // a test-lane session. Two-way fail-closed (see helper).
+    const tl = applyTestLaneRecipientOverride(params, adminRecipients);
+    if (!tl.ok) {
+      console.log(`[TriggerNotify] Test-lane gate BLOCKED notification for org ${org.name}: ${tl.reason}`);
+      return;
+    }
+    const recipients = tl.recipients;
+    const tlTag = tl.overridden ? `[testlane:${tl.sid}] ` : "";
 
     const timestamp = new Date().toLocaleString("en-US", {
       timeZone: "America/New_York",
@@ -375,7 +434,7 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
       hour12: true,
     });
 
-    const subject = `\u{1F916} ${org.name} \u2014 AI Follow-Up Initiated for ${params.customerName}`;
+    const subject = `${tlTag}\u{1F916} ${org.name} \u2014 AI Follow-Up Initiated for ${params.customerName}`;
 
     const htmlBody = generateAIFollowUpHTML({
       orgName: org.name,
@@ -386,7 +445,7 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
       timestamp,
     });
 
-    console.log(`[TriggerNotify] Sending AI follow-up notification to ${recipients.length} admin(s) for org "${org.name}"`);
+    console.log(`[TriggerNotify] Sending AI follow-up notification to ${recipients.length} admin(s) for org "${org.name}"${tl.overridden ? ` (TEST LANE override -> ${recipients.join(",")})` : ""}`);
 
     await callMCP("resend_send_email", {
       from: FROM_ADDRESS,
@@ -403,9 +462,9 @@ export async function sendAIFollowUpNotification(params: TriggerNotificationPara
       channel: "email",
       status: "sent",
       blockedReason: null,
-      messageContent: `[notification:${idempotencyKey}] ${subject} \u2014 sent to ${recipients.length} admin(s)`,
+      messageContent: `${tlTag}[notification:${idempotencyKey}] ${subject} \u2014 sent to ${recipients.length} admin(s)`,
       recipientEmail: recipients.join(", "),
-      recipientName: `${recipients.length} admin(s)`,
+      recipientName: `${tl.overridden ? "[TESTLANE] " : ""}${recipients.length} admin(s)`,
       sentAt: new Date(),
     });
 
@@ -588,11 +647,21 @@ export async function sendCheckInDeliveredNotification(params: TriggerNotificati
       return;
     }
 
-    const recipients = await resolveAdminRecipients(params.orgId);
-    if (recipients.length === 0) {
+    const adminRecipients = await resolveAdminRecipients(params.orgId);
+    if (adminRecipients.length === 0) {
       console.log(`[TriggerNotify] No admin recipients found for org ${org.name}, skipping check-in notification`);
       return;
     }
+
+    // \u2500\u2500 TEST LANE: override admin recipients when this notification is part of
+    // a test-lane session. Two-way fail-closed (see helper).
+    const tl = applyTestLaneRecipientOverride(params, adminRecipients);
+    if (!tl.ok) {
+      console.log(`[TriggerNotify] Test-lane gate BLOCKED notification for org ${org.name}: ${tl.reason}`);
+      return;
+    }
+    const recipients = tl.recipients;
+    const tlTag = tl.overridden ? `[testlane:${tl.sid}] ` : "";
 
     const timestamp = new Date().toLocaleString("en-US", {
       timeZone: "America/New_York",
@@ -604,7 +673,7 @@ export async function sendCheckInDeliveredNotification(params: TriggerNotificati
       hour12: true,
     });
 
-    const subject = `\u2705 ${org.name} \u2014 24-Hour Lead Check-In Delivered to ${params.customerName}`;
+    const subject = `${tlTag}\u2705 ${org.name} \u2014 24-Hour Lead Check-In Delivered to ${params.customerName}`;
 
     const htmlBody = generateCheckInDeliveredHTML({
       orgName: org.name,
@@ -615,7 +684,7 @@ export async function sendCheckInDeliveredNotification(params: TriggerNotificati
       timestamp,
     });
 
-    console.log(`[TriggerNotify] Sending check-in notification to ${recipients.length} admin(s) for org "${org.name}"`);
+    console.log(`[TriggerNotify] Sending check-in notification to ${recipients.length} admin(s) for org "${org.name}"${tl.overridden ? ` (TEST LANE override -> ${recipients.join(",")})` : ""}`);
 
     await callMCP("resend_send_email", {
       from: FROM_ADDRESS,
@@ -632,9 +701,9 @@ export async function sendCheckInDeliveredNotification(params: TriggerNotificati
       channel: "email",
       status: "sent",
       blockedReason: null,
-      messageContent: `[notification:${idempotencyKey}] ${subject} \u2014 sent to ${recipients.length} admin(s)`,
+      messageContent: `${tlTag}[notification:${idempotencyKey}] ${subject} \u2014 sent to ${recipients.length} admin(s)`,
       recipientEmail: recipients.join(", "),
-      recipientName: `${recipients.length} admin(s)`,
+      recipientName: `${tl.overridden ? "[TESTLANE] " : ""}${recipients.length} admin(s)`,
       sentAt: new Date(),
     });
 
