@@ -197,7 +197,21 @@ export function registerOrganizationRoutes(app: Express) {
         return res.json(filtered);
       }
 
-      // Level 3+ (org_admin and below): own org only
+      // Level 3 (org_admin): primary org + any additionalOrgIds (multi-store admins)
+      if (req.user.roleLevel === 3) {
+        const fullUser = await storage.getUser(req.user.id);
+        const additionalOrgIds = fullUser?.additionalOrgIds ?? [];
+        if (Array.isArray(additionalOrgIds) && additionalOrgIds.length > 0) {
+          const accessibleIds = new Set<string>([req.user.organizationId, ...additionalOrgIds]);
+          const allOrgs = await storage.getOrganizations();
+          const filtered = allOrgs
+            .filter(o => accessibleIds.has(o.id))
+            .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
+          return res.json(filtered);
+        }
+      }
+
+      // Level 3+ (no additional orgs) and below: own org only
       const org = await storage.getOrganization(req.user.organizationId);
       return res.json(org ? [{ id: org.id, name: org.name, slug: org.slug }] : []);
     } catch (err) {
