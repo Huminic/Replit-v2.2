@@ -6,6 +6,139 @@ import { storage, db } from "../storage";
 import { updateOrganizationSchema, integrations } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
+// ---------------------------------------------------------------------------
+// Pure helpers — exported for unit tests; no IO.
+// ---------------------------------------------------------------------------
+
+/** Slim org shape used by the pure list resolver (matches what GET /api/organizations returns). */
+export interface OrgListEntry {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+/** Slim org shape the resolver reads from. */
+export interface OrgListSourceOrg {
+  id: string;
+  name: string;
+  slug: string;
+  partnerId?: string | null;
+}
+
+/** Slim user shape (req.user). */
+export interface OrgListUser {
+  id: string;
+  organizationId: string;
+  roleLevel: number;
+}
+
+/** Slim fullUser shape (only the field this resolver reads). */
+export interface OrgListFullUser {
+  additionalOrgIds?: string[] | null;
+}
+
+/**
+ * Resolution discriminator the route handler uses to decide which DB calls
+ * to make and how to map the result. Pure / synchronous.
+ *
+ * - `all-orgs`: super_admin (level 1) — return every org.
+ * - `partner-group`: partner_admin (level 2) — return parent org + all
+ *    partner-group children.
+ * - `multi-store-org-admin`: org_admin (level 3) with non-empty
+ *    additionalOrgIds — return primary + additional orgs.
+ * - `own-org`: any other case — return just the user's own org.
+ */
+export type OrgListResolution =
+  | { kind: "all-orgs" }
+  | { kind: "partner-group"; groupParentId: string }
+  | { kind: "multi-store-org-admin"; accessibleIds: Set<string> }
+  | { kind: "own-org" };
+
+/**
+ * Decide which resolution path applies to this user. Pure — no IO. The route
+ * handler then drives the DB calls accordingly. The decision logic mirrors
+ * the original three-branch route handler exactly.
+ *
+ * For partner_admin (level 2) the resolution determines `groupParentId`:
+ *   - If allOrgs contains children whose partnerId === user.organizationId,
+ *     groupParentId = user.organizationId (user IS the partner-group parent).
+ *   - Otherwise, if the user's own org has a non-null partnerId, groupParentId
+ *     falls back to that partnerId (user is a member of the partner-group).
+ *   - Otherwise groupParentId = user.organizationId (degenerate single-org).
+ *
+ * For org_admin (level 3) the resolution depends on fullUser:
+ *   - If fullUser.additionalOrgIds is a non-empty array, multi-store-org-admin
+ *     with accessibleIds = {primary, ...additional}.
+ *   - Otherwise own-org.
+ */
+export function resolveOrgListPath(
+  user: OrgListUser,
+  allOrgs: OrgListSourceOrg[],
+  fullUser: OrgListFullUser | null | undefined,
+): OrgListResolution {
+  // Level 1 — super_admin: all orgs
+  if (user.roleLevel === 1) {
+    return { kind: "all-orgs" };
+  }
+
+  // Level 2 — partner_admin: partner group orgs only
+  if (user.roleLevel === 2) {
+    let groupParentId = user.organizationId;
+    const children = allOrgs.filter((o) => o.partnerId === groupParentId);
+    if (children.length === 0) {
+      const userOrg = allOrgs.find((o) => o.id === user.organizationId);
+      if (userOrg?.partnerId) {
+        groupParentId = userOrg.partnerId;
+      }
+    }
+    return { kind: "partner-group", groupParentId };
+  }
+
+  // Level 3 — org_admin: primary + additionalOrgIds, else own org
+  if (user.roleLevel === 3) {
+    const additionalOrgIds = fullUser?.additionalOrgIds ?? [];
+    if (Array.isArray(additionalOrgIds) && additionalOrgIds.length > 0) {
+      const accessibleIds = new Set<string>([user.organizationId, ...additionalOrgIds]);
+      return { kind: "multi-store-org-admin", accessibleIds };
+    }
+  }
+
+  // Level 3+ (no additional orgs) and below: own org only
+  return { kind: "own-org" };
+}
+
+/**
+ * Given a resolution and the org dataset, return the slim org list to send
+ * back to the client. Pure — no IO. The own-org case requires the route
+ * handler to fetch a single org by id; this helper handles only the cases
+ * that operate on the allOrgs list.
+ */
+export function applyOrgListResolution(
+  resolution: OrgListResolution,
+  user: OrgListUser,
+  allOrgs: OrgListSourceOrg[],
+): OrgListEntry[] {
+  if (resolution.kind === "all-orgs") {
+    return allOrgs.map((o) => ({ id: o.id, name: o.name, slug: o.slug }));
+  }
+  if (resolution.kind === "partner-group") {
+    return allOrgs
+      .filter((o) => o.id === resolution.groupParentId || o.partnerId === resolution.groupParentId)
+      .map((o) => ({ id: o.id, name: o.name, slug: o.slug }));
+  }
+  if (resolution.kind === "multi-store-org-admin") {
+    return allOrgs
+      .filter((o) => resolution.accessibleIds.has(o.id))
+      .map((o) => ({ id: o.id, name: o.name, slug: o.slug }));
+  }
+  // own-org — caller resolves via storage.getOrganization(user.organizationId)
+  // and maps to a single-entry list (or empty list if not found). The pure
+  // helper cannot answer this case without hitting storage; return [] as a
+  // sentinel and let the caller override.
+  void user;
+  return [];
+}
+
 const createOrgSchema = z.object({
   orgName: z.string().min(1, "Organization name is required").max(200),
   industry: z.string().optional(),
@@ -174,46 +307,37 @@ export function registerOrganizationRoutes(app: Express) {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
 
-      // Level 1 (super_admin): all orgs
-      if (req.user.roleLevel === 1) {
-        const allOrgs = await storage.getOrganizations();
-        return res.json(allOrgs.map(o => ({ id: o.id, name: o.name, slug: o.slug })));
+      // Pure logic lives in resolveOrgListPath() / applyOrgListResolution()
+      // above; this branch only handles IO. Performance characteristics of
+      // the original handler are preserved:
+      //   - super_admin (1) / partner_admin (2): one storage.getOrganizations()
+      //   - org_admin (3) with additionalOrgIds:
+      //       storage.getUser(id) + storage.getOrganizations()
+      //   - org_admin (3) without additionalOrgIds:
+      //       storage.getUser(id) + storage.getOrganization(orgId)  (NO full scan)
+      //   - level 4+: storage.getOrganization(orgId) only
+      const userView: OrgListUser = {
+        id: req.user.id,
+        organizationId: req.user.organizationId,
+        roleLevel: req.user.roleLevel,
+      };
+      const fullUser = req.user.roleLevel === 3 ? await storage.getUser(req.user.id) : null;
+      // For levels 1/2 fetch allOrgs unconditionally. For level 3 fetch only
+      // when additionalOrgIds is non-empty. For level 4+ never fetch allOrgs.
+      const orgAdminHasAdditional =
+        req.user.roleLevel === 3 &&
+        Array.isArray(fullUser?.additionalOrgIds) &&
+        (fullUser?.additionalOrgIds?.length ?? 0) > 0;
+      const allOrgs =
+        req.user.roleLevel <= 2 || orgAdminHasAdditional
+          ? await storage.getOrganizations()
+          : [];
+      const resolution = resolveOrgListPath(userView, allOrgs, fullUser);
+      if (resolution.kind === "own-org") {
+        const org = await storage.getOrganization(req.user.organizationId);
+        return res.json(org ? [{ id: org.id, name: org.name, slug: org.slug }] : []);
       }
-
-      // Level 2 (partner_admin): partner group orgs only
-      if (req.user.roleLevel === 2) {
-        const allOrgs = await storage.getOrganizations();
-        let groupParentId = req.user.organizationId;
-        const children = allOrgs.filter(o => o.partnerId === groupParentId);
-        if (children.length === 0) {
-          const userOrg = allOrgs.find(o => o.id === req.user!.organizationId);
-          if (userOrg?.partnerId) {
-            groupParentId = userOrg.partnerId;
-          }
-        }
-        const filtered = allOrgs
-          .filter(o => o.id === groupParentId || o.partnerId === groupParentId)
-          .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
-        return res.json(filtered);
-      }
-
-      // Level 3 (org_admin): primary org + any additionalOrgIds (multi-store admins)
-      if (req.user.roleLevel === 3) {
-        const fullUser = await storage.getUser(req.user.id);
-        const additionalOrgIds = fullUser?.additionalOrgIds ?? [];
-        if (Array.isArray(additionalOrgIds) && additionalOrgIds.length > 0) {
-          const accessibleIds = new Set<string>([req.user.organizationId, ...additionalOrgIds]);
-          const allOrgs = await storage.getOrganizations();
-          const filtered = allOrgs
-            .filter(o => accessibleIds.has(o.id))
-            .map(o => ({ id: o.id, name: o.name, slug: o.slug }));
-          return res.json(filtered);
-        }
-      }
-
-      // Level 3+ (no additional orgs) and below: own org only
-      const org = await storage.getOrganization(req.user.organizationId);
-      return res.json(org ? [{ id: org.id, name: org.name, slug: org.slug }] : []);
+      return res.json(applyOrgListResolution(resolution, userView, allOrgs));
     } catch (err) {
       return res.status(500).json({ message: "Failed to fetch organizations" });
     }

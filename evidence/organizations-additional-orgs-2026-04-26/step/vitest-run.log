@@ -1,0 +1,35 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/ubuntu/Claude-store/nexxus2.2_replit[39m
+
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[a] org_admin with non-empty additionalOrgIds (multi-store)[2m > [22mresolution kind is multi-store-org-admin with primary + additional in accessibleIds[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[a] org_admin with non-empty additionalOrgIds (multi-store)[2m > [22mapplyOrgListResolution returns primary + additional orgs (slim shape)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[a] org_admin with non-empty additionalOrgIds (multi-store)[2m > [22mprimary org id is included even if not duplicated in additionalOrgIds[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[a] org_admin with non-empty additionalOrgIds (multi-store)[2m > [22morgs not in accessibleIds are filtered out[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[a] org_admin with non-empty additionalOrgIds (multi-store)[2m > [22mduplicate primary id in additionalOrgIds is deduplicated by Set[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[b] org_admin with no additionalOrgIds (single-store)[2m > [22mfullUser missing additionalOrgIds entirely -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[b] org_admin with no additionalOrgIds (single-store)[2m > [22mfullUser with additionalOrgIds=null -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[b] org_admin with no additionalOrgIds (single-store)[2m > [22mfullUser with additionalOrgIds=[] -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[b] org_admin with no additionalOrgIds (single-store)[2m > [22mfullUser missing entirely (null/undefined) -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[b] org_admin with no additionalOrgIds (single-store)[2m > [22mapplyOrgListResolution for own-org returns [] (caller fetches single org)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c1] super_admin (level 1) -> all orgs[2m > [22mresolution kind is all-orgs[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c1] super_admin (level 1) -> all orgs[2m > [22mreturns every org in the system[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c1] super_admin (level 1) -> all orgs[2m > [22msuper_admin's user record carrying additionalOrgIds does NOT change the resolution[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c2] partner_admin (level 2) -> partner-group only[2m > [22muser IS the partner-group parent (children whose partnerId === user.organizationId)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c2] partner_admin (level 2) -> partner-group only[2m > [22mreturns parent + all children, excludes Huminic and unrelated[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c2] partner_admin (level 2) -> partner-group only[2m > [22muser is a member of a partner-group (not the parent) — falls back to org.partnerId[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c2] partner_admin (level 2) -> partner-group only[2m > [22mpartner_admin's additionalOrgIds does NOT leak into result (defense in depth)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel 4 -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel 5 -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel 6 -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel 7 -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel 8 -> own-org[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22m[c3] sales/marketing/service (level 4+) -> own-org[2m > [22mlevel-4 user with additionalOrgIds does NOT trigger multi-store[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22mslim shape contract — id/name/slug only, no partnerId leak[2m > [22mall-orgs result strips partnerId[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22mslim shape contract — id/name/slug only, no partnerId leak[2m > [22mpartner-group result strips partnerId[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts[2m > [22mslim shape contract — id/name/slug only, no partnerId leak[2m > [22mmulti-store result strips partnerId[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m26 passed[39m[22m[90m (26)[39m
+[2m   Start at [22m 04:57:19
+[2m   Duration [22m 818ms[2m (transform 261ms, setup 203ms, import 311ms, tests 12ms, environment 0ms)[22m
+
