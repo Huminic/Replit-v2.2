@@ -99,7 +99,7 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
   if (!summary) return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: '0', change: 0, trend: 'up' as const, icon: Target },
     { id: 'sm-2', label: 'New Leads', value: '0', change: 0, trend: 'up' as const, icon: Users },
-    { id: 'sm-3', label: 'Active Pipeline', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Zap },
+    { id: 'sm-3', label: 'Active Pipeline (14d)', value: String(pipeline?.activePipeline ?? 0), change: 0, trend: 'up' as const, icon: Zap },
     { id: 'sm-4', label: 'Waiting on Response', value: '0', change: 0, trend: 'up' as const, icon: Clock },
     { id: 'sm-5', label: 'Appointments Set', value: '0', change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: '0', change: 0, trend: 'up' as const, icon: TrendingUp },
@@ -111,7 +111,7 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
   return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), icon: Users },
-    { id: 'sm-3', label: 'Active Pipeline', value: String(activePipeline), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
+    { id: 'sm-3', label: 'Active Pipeline (14d)', value: String(activePipeline), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), icon: Zap },
     { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: 0, trend: 'up' as const, icon: Clock },
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: 0, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), icon: TrendingUp },
@@ -120,11 +120,15 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
   ];
 }
 
-/** Maps sales metric labels to pipeline detail API keys where available */
+/** Maps sales metric labels to pipeline detail API keys where available.
+ *  P6: 'Active Pipeline' renamed to 'Active Pipeline (14d)' to disambiguate
+ *  the 14-day operational metric from Insights' 30-day analytical metric.
+ *  This map's key MUST match the label used in buildSalesMetrics — the
+ *  drill-down detail dialog looks up the API key by label. */
 const salesMetricApiKeys: Record<string, string> = {
   'Total Leads (30d)': 'total_leads',
   'New Leads': 'new_leads',
-  'Active Pipeline': 'active_pipeline',
+  'Active Pipeline (14d)': 'active_pipeline',
   'Appointments Set': 'appointments_today',
 };
 

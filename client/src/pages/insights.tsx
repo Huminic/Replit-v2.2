@@ -240,7 +240,14 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     ],
     monthEndForecast: {
       currentSold: soldCount,
-      activePipeline: totalLeads,
+      // Priority 6 (P6) bug-fix: was bound to totalLeads (unfiltered 30-day
+      // total) which caused "Active Pipeline" Pipeline-Health card + detail
+      // panel + rollingForecast gap-analysis line to render 609 instead of
+      // the strict-active count. hotCount is the 30-day isActiveLead-only
+      // count already computed at line ~217 — matches Today's Performance
+      // "Pipeline Active" tile and Library lib-1. See
+      // evidence/active-pipeline-analysis-2026-04-26.md.
+      activePipeline: hotCount,
       historicalWinRate: convRate,
       projectedMonthEnd: dashboardData?.pipelineHealth?.forecast || soldCount,
       monthlyTarget: 50,
@@ -342,7 +349,13 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     gapAnalysis: {
       salesNeeded: Math.max(0, 50 - soldCount),
       daysRemaining: Math.max(0, 30 - new Date().getDate()),
-      activePipeline: totalLeads,
+      // Priority 6 (P6) bug-fix: was totalLeads (unfiltered 30-day total).
+      // Now bound to hotCount (30-day strict-active count) to match the
+      // surrounding "Active Pipeline" labeling. The requiredWinRate /
+      // assessment fields below remain on totalLeads because they reflect
+      // a TOTAL-leads-vs-target ratio (denominator should be all leads,
+      // not just active). See evidence/active-pipeline-analysis-2026-04-26.md.
+      activePipeline: hotCount,
       requiredWinRate: totalLeads > 0 ? `${Math.round(((50 - soldCount) / totalLeads) * 100)}%` : 'N/A',
       baselineWinRate: `${convRate}%`,
       assessment: totalLeads > 0 ? 'Pipeline needs acceleration to meet target' : 'Insufficient data for assessment',
@@ -640,7 +653,9 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <Card data-testid="pipeline-active">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Active Pipeline</p>
+                {/* P6 label disambiguation: "(30d)" suffix clarifies window
+                    vs Sales/Home which use a 14-day pipeline. */}
+                <p className="text-xs text-muted-foreground">Active Pipeline (30d)</p>
                 <p className="text-2xl font-bold text-foreground mt-1">{pipelineHealthData.monthEndForecast.activePipeline}</p>
                 <p className="text-[11px] text-muted-foreground mt-1">leads in play</p>
               </CardContent>
@@ -1247,7 +1262,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
                   <div><span className="text-muted-foreground">Need:</span> <span className="font-medium text-foreground">{rollingForecast.gapAnalysis.salesNeeded} more sales</span></div>
                   <div><span className="text-muted-foreground">Days left:</span> <span className="font-medium text-foreground">{rollingForecast.gapAnalysis.daysRemaining}</span></div>
-                  <div><span className="text-muted-foreground">Pipeline:</span> <span className="font-medium text-foreground">{rollingForecast.gapAnalysis.activePipeline} active</span></div>
+                  <div><span className="text-muted-foreground">Active leads (30d):</span> <span className="font-medium text-foreground">{rollingForecast.gapAnalysis.activePipeline}</span></div>
                   <div><span className="text-muted-foreground">Required win rate:</span> <span className="font-medium text-red-500">{rollingForecast.gapAnalysis.requiredWinRate}</span></div>
                   <div><span className="text-muted-foreground">Baseline:</span> <span className="font-medium text-foreground">{rollingForecast.gapAnalysis.baselineWinRate}</span></div>
                 </div>
@@ -2024,7 +2039,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
               <h4 className="text-sm font-semibold text-foreground mb-2">Month-End Forecast</h4>
               <div className="p-4 rounded-lg border border-border space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Current Sold (MTD)</span><span className="font-medium text-foreground">{pipelineHealthData.monthEndForecast.currentSold}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Active Pipeline</span><span className="font-medium text-foreground">{pipelineHealthData.monthEndForecast.activePipeline}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Active Pipeline (30d)</span><span className="font-medium text-foreground">{pipelineHealthData.monthEndForecast.activePipeline}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Historical Win Rate</span><span className="font-medium text-foreground">{pipelineHealthData.monthEndForecast.historicalWinRate}%</span></div>
                 <div className="border-t border-border pt-2 flex justify-between"><span className="text-muted-foreground">Projected Month-End</span><span className="font-bold text-foreground">{pipelineHealthData.monthEndForecast.projectedMonthEnd} deals</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Monthly Target</span><span className="font-medium text-foreground">{pipelineHealthData.monthEndForecast.monthlyTarget} deals</span></div>
