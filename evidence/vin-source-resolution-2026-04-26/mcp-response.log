@@ -1,0 +1,59 @@
+Calling vin_get_lead_sources for Serra Honda (limit:200)...
+{
+  "top_level_keys": [
+    "count",
+    "items"
+  ],
+  "item_count": 20,
+  "first_item_keys": [
+    "href",
+    "leadSourceId",
+    "leadSourceName"
+  ],
+  "first_3_items": [
+    {
+      "href": "https://api.vinsolutions.com/leadsources/id/3909937?dealerid=21043",
+      "leadSourceId": 3909937,
+      "leadSourceName": "Am Too Lazy To Ask"
+    },
+    {
+      "href": "https://api.vinsolutions.com/leadsources/id/3645600?dealerid=21043",
+      "leadSourceId": 3645600,
+      "leadSourceName": "Annual CU Car Sale"
+    },
+    {
+      "href": "https://api.vinsolutions.com/leadsources/id/98?dealerid=21043",
+      "leadSourceId": 98,
+      "leadSourceName": "AutoTrader"
+    }
+  ],
+  "last_item": {
+    "href": "https://api.vinsolutions.com/leadsources/id/228?dealerid=21043",
+    "leadSourceId": 228,
+    "leadSourceName": "Television"
+  },
+  "has_id_7098": false,
+  "has_id_362": true,
+  "all_ids_returned": [
+    "105",
+    "106",
+    "123",
+    "16359",
+    "228",
+    "319",
+    "32",
+    "33340",
+    "362",
+    "3645600",
+    "3909937",
+    "3909939",
+    "3909943",
+    "6371",
+    "6671",
+    "6745",
+    "8",
+    "9",
+    "96",
+    "98"
+  ]
+}

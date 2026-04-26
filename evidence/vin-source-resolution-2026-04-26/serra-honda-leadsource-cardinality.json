@@ -1,0 +1,44 @@
+{
+  "org": "Serra Honda",
+  "window_days": 30,
+  "total_leads": 608,
+  "distinct_lead_source_values": 59,
+  "distinct_vin_url_ids": 58,
+  "null_lead_source_count": 0,
+  "non_url_lead_source_distinct_count": 1,
+  "sample_top_5_url_ids": [
+    "7098",
+    "362",
+    "3743779",
+    "3750035",
+    "106"
+  ],
+  "sample_top_5_full_rows": [
+    {
+      "lead_source": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+      "count": 111
+    },
+    {
+      "lead_source": "https://api.vinsolutions.com/leadsources/id/362?dealerid=21043",
+      "count": 77
+    },
+    {
+      "lead_source": "https://api.vinsolutions.com/leadsources/id/3743779?dealerid=21043",
+      "count": 54
+    },
+    {
+      "lead_source": "https://api.vinsolutions.com/leadsources/id/3750035?dealerid=21043",
+      "count": 50
+    },
+    {
+      "lead_source": "https://api.vinsolutions.com/leadsources/id/106?dealerid=21043",
+      "count": 41
+    }
+  ],
+  "sample_non_url_rows": [
+    {
+      "lead_source": "AutoTrader",
+      "count": 2
+    }
+  ]
+}
