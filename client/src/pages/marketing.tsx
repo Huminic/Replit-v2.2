@@ -16,7 +16,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, MousePointerClick, Globe, Target } from 'lucide-react';
+import { LayoutDashboard, Bot, BarChart3, Megaphone, Palette, MousePointerClick, Globe, Target, Info } from 'lucide-react';
 import InsightsPage from '@/pages/insights';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -222,6 +222,23 @@ export default function MarketingPage() {
 
   return (
     <div className="flex flex-col h-full" data-testid="marketing-page">
+      {/* Launch readiness 2026-04-27: Marketing is shown in v2.3 preview state — campaign
+         sends are gated via CommGate / outbound governance. Banner copy is asserted by
+         tests/e2e/s99-codex-launch-readiness-readonly.spec.ts; do not remove or rephrase
+         without updating that spec. Keywords required by spec: "v2.3" and "preview". */}
+      <div
+        className="flex items-start gap-2 border-b border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/30 px-6 py-3 text-sm text-amber-900 dark:text-amber-200"
+        role="status"
+        data-testid="marketing-v23-preview-banner"
+      >
+        <Info className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
+        <div>
+          <span className="font-medium">Marketing is in v2.3 preview.</span>{' '}
+          <span className="text-amber-800 dark:text-amber-300">
+            Campaign sends are not yet enabled in this release. Browsing is read-only — outbound actions are disabled.
+          </span>
+        </div>
+      </div>
       {/* I-102: Photo Studio agent has a known FE/FAL integration issue — image generation
          requests may fail on the frontend. Tracked as I-102. Do NOT attempt to fix here. */}
       {activeAgentId ? (
