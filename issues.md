@@ -601,7 +601,7 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 **Discovered:** 2026-04-27 by audit script `evidence/I-NEW-2026-04-26-D/audit-route-dedup.ts` Scenario D (probe), during the Codex VAPI review-note follow-up dispatch.
 **Status:** OPEN — out of scope for the Codex review-note fix.
 **Severity:** Low (real-world VAPI sends `customer.number` in a stable E.164 format; cross-format mixes within one call are not observed in production logs to date).
-**Code:** `server/routes/webhooks.ts:1086` — `customerPhone.replace(/\D/g, "")` and `server/routes/webhooks.ts:1135` (matching write).
+**Code:** `server/routes/webhooks.ts:1101` — `customerPhone.replace(/\D/g, "")` (read site, dedup lookup) and `server/routes/webhooks.ts:1150` (matching write site). Line numbers post-`0d9d683`.
 **Behavior:** The route's phone normalization strips non-digits but does NOT collapse the leading "1" on US numbers. Strings `"+14805550606"` and `"14805550606"` both normalize to `"14805550606"` (11 digits) and dedup correctly against each other. `"(480) 555-0606"` normalizes to `"4805550606"` (10 digits) and produces a different dedup key, so it does NOT dedup against the first two.
 **Impact if hit:** Two conversation rows for one physical call. Same orphan-class symptom as `I-NEW-2026-04-26-D` but via a different mechanism.
 **Compare:** `server/storage.ts:431` (`getConversationByPhone`) already handles the leading-1 case with explicit conditions on `with1`/`without1`/`+with1` variants. The webhook-route dedup map does not.

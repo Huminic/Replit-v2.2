@@ -2,7 +2,7 @@ import { storage } from "./storage";
 import { Resend } from "resend";
 import { callMCP } from "./vendorProxy";
 import { billingService } from "./services/billingService";
-import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
+import type { Organization, Campaign, CampaignRecipient, Conversation } from "@shared/schema";
 import { evaluatePreLaunchSmsGuardWithDefaults } from "./lib/preLaunchSmsGuard";
 
 const DEFAULT_RATE_LIMIT_MAX = 100;
@@ -506,16 +506,128 @@ async function checkCommGate(
   return { allowed: true };
 }
 
+/**
+ * Build the set of phone-string variants used to match a conversation
+ * row's stored `customerPhone` against a recipient's phone, regardless
+ * of which format each side stored. Mirrors the variant set used by
+ * `storage.getConversationByPhone` (`server/storage.ts:431-435`) so
+ * outbound recipient matching and storage lookup agree.
+ *
+ *   raw            "+1 (480) 555-0199"        ← input as-stored
+ *   normalizedPhone "+14805550199"            ← strip everything except digits and leading +
+ *   digitsOnly      "14805550199"             ← drop the +
+ *   without1        "4805550199"              ← strip US leading 1 if 11 digits
+ *   with1           "14805550199"             ← prepend 1 if 10 digits
+ *   plusWith1       "+14805550199"            ← E.164 form
+ *
+ * Returns an empty array when phone is null/empty/contains no digits.
+ */
+export function phoneVariantsForRecipientMatch(
+  phone: string | null | undefined,
+): string[] {
+  if (!phone) return [];
+  const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+  const digitsOnly = normalizedPhone.replace(/\+/g, "");
+  if (digitsOnly.length === 0) return [];
+  const without1 =
+    digitsOnly.startsWith("1") && digitsOnly.length === 11
+      ? digitsOnly.substring(1)
+      : digitsOnly;
+  const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
+  const plusWith1 = "+" + with1;
+  // De-duplicate while preserving deterministic order.
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of [normalizedPhone, digitsOnly, without1, with1, plusWith1]) {
+    if (v && !seen.has(v)) {
+      seen.add(v);
+      out.push(v);
+    }
+  }
+  return out;
+}
+
+/**
+ * Pure conversation-matcher used by getConversationForRecipient.
+ *
+ * Bug-fix history (Priority #2 — campaign disconnect false-block,
+ * Codex launch-readiness eval 2026-04-27):
+ *
+ *   The pre-fix function returned the FIRST conversation matching
+ *   `c.campaignId === campaignId`, ignoring its `recipient` parameter
+ *   entirely. checkCommGate then read `conversation?.campaignDisconnected`
+ *   on whatever conversation came first. If recipient-A's conversation
+ *   in a campaign had `campaignDisconnected=true`, recipient-B in the
+ *   same campaign was wrongly blocked with "Recipient disconnected from
+ *   campaign" — even though recipient-B had never had a conversation
+ *   in that campaign.
+ *
+ * Fixed scoping: campaignId AND (phone match for sms/phone OR email
+ * match for email) before considering a conversation as "this
+ * recipient's conversation in this campaign". A recipient with neither
+ * phone nor email yields undefined → caller treats as first-time send,
+ * does NOT block.
+ *
+ * Phone matching uses `phoneVariantsForRecipientMatch` so a row stored
+ * as `"+14805550199"` matches a recipient typed as `"(480) 555-0199"`,
+ * `"4805550199"`, `"14805550199"`, etc. Mirrors storage.ts:431-447.
+ *
+ * Email matching is case-insensitive on both sides.
+ *
+ * Pure function: takes the conversations slice and the recipient. No
+ * I/O, no DB. The async wrapper does the storage fetch.
+ */
+export function findConversationForRecipient(
+  conversations: Conversation[],
+  recipient: CampaignRecipient,
+  campaignId: string,
+): Conversation | undefined {
+  const phoneVariants = phoneVariantsForRecipientMatch(recipient.phone);
+  const recipientEmail = recipient.email
+    ? recipient.email.trim().toLowerCase()
+    : null;
+
+  // If the recipient has no phone and no email, no conversation can be
+  // matched to them. Returning undefined here is the correct sentinel:
+  // checkCommGate's `if (conversation?.campaignDisconnected)` is false
+  // for undefined, so the recipient is NOT blocked. Anything else (e.g.
+  // returning the first campaign-matching conversation as the pre-fix
+  // bug did) cross-contaminates recipients in the same campaign.
+  if (phoneVariants.length === 0 && !recipientEmail) {
+    return undefined;
+  }
+
+  return conversations.find((c) => {
+    if (c.campaignId !== campaignId) return false;
+    // Phone match — any of the recipient's phone variants equals the
+    // stored customerPhone. The conversation's customerPhone is stored
+    // raw; we don't normalize it here because it could have been stored
+    // in any of the variant forms. Comparing a normalized recipient's
+    // variants against the raw stored value covers the common cases
+    // (storage uses one of these forms in practice).
+    if (c.customerPhone && phoneVariants.includes(c.customerPhone)) {
+      return true;
+    }
+    // Email match (case-insensitive).
+    if (
+      recipientEmail &&
+      c.customerEmail &&
+      c.customerEmail.trim().toLowerCase() === recipientEmail
+    ) {
+      return true;
+    }
+    return false;
+  });
+}
+
 async function getConversationForRecipient(
   organizationId: string,
   recipient: CampaignRecipient,
-  campaignId?: string
-) {
+  campaignId?: string,
+): Promise<Conversation | undefined> {
   if (!campaignId) return undefined;
   const conversations = await storage.getConversations(organizationId, {});
-  return conversations.find(
-    c => c.campaignId === campaignId
-  );
+  return findConversationForRecipient(conversations, recipient, campaignId);
 }
 
 export async function processOutboundSend(request: SendRequest): Promise<SendResult> {
