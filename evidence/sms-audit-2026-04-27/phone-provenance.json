@@ -1,0 +1,672 @@
+{
+  "probed_at": "2026-04-27T02:14:42.683Z",
+  "summary": {
+    "total_phones": 8,
+    "with_warehouse_lead": 7,
+    "with_campaign_recipient": 1,
+    "with_surviving_conversation": 0
+  },
+  "per_phone": [
+    {
+      "name": "Donna Murphy",
+      "phone": "4125199087",
+      "variants": [
+        "4125199087",
+        "14125199087"
+      ],
+      "warehouse_leads_count": 0,
+      "warehouse_leads": [],
+      "campaign_recipients_count": 1,
+      "campaign_recipients": [
+        {
+          "id": "39b2320a-d4f6-4230-9f64-7c6fa654202b",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "campaign_name": "Launch Day Service Test",
+          "csv_filename": "service-campaign-test.csv",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "first_name": "Donna",
+          "last_name": "Murphy",
+          "phone": "4125199087",
+          "email": "donnamurphy582@gmail.com",
+          "vin": null,
+          "vehicle_model": "HR-V",
+          "vehicle_year": "2024",
+          "status": "sent",
+          "sent_at": "2026-04-12T23:43:19.165Z",
+          "created_at": "2026-04-12T23:38:00.575Z"
+        }
+      ],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 1,
+      "outbound_log": [
+        {
+          "id": "4b7cefa3-f32e-43ad-8f93-e806bde1dec5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "recipient_id": "39b2320a-d4f6-4230-9f64-7c6fa654202b",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Donna Murphy",
+          "recipient_phone": "4125199087",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:43:18.987Z",
+          "created_at": "2026-04-12T23:43:19.024Z",
+          "message_content_preview": "Hi Donna, this is Serra Honda Service. Your 2024 HR-V may be due for maintenance. Would you like to schedule an appointment? Reply YES to get started or call us anytime."
+        }
+      ]
+    },
+    {
+      "name": "Lisa Morris",
+      "phone": "5417783509",
+      "variants": [
+        "5417783509",
+        "15417783509"
+      ],
+      "warehouse_leads_count": 2,
+      "warehouse_leads": [
+        {
+          "id": "1a430ec7-2e65-42c5-b3f3-eac2b14539be",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999963024",
+          "data_source": "vin_solutions",
+          "vin_status": "SERVICE_APPOINTMENT_SCHEDULED",
+          "customer_name": "Lisa Morris",
+          "customer_email": "noneyet@gmail.com",
+          "customer_phone": "5417783509",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999963024-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T06:47:00.000Z",
+          "synced_at": "2026-04-13T23:45:08.292Z",
+          "created_at": "2026-04-13T01:54:10.877Z"
+        },
+        {
+          "id": "6e3a9186-ebec-4b20-a47f-c25b6ab1a9da",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "2005453618",
+          "data_source": "vin_solutions",
+          "vin_status": "SERVICE_APPOINTMENT_SCHEDULED",
+          "customer_name": "Lisa Morris",
+          "customer_email": "noneyet@gmail.com",
+          "customer_phone": "5417783509",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/2005453618-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-24T07:18:00.000Z",
+          "synced_at": "2026-04-24T23:57:22.269Z",
+          "created_at": "2026-04-24T02:26:10.691Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "f8427676-d944-4c6b-a259-562c5137f4d3",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:11.840Z",
+          "message_content_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "b154b9e7-c2fa-4f10-ad34-998753fc9c17",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:35.204Z",
+          "message_content_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "5342cc1c-53d4-4a12-9373-14f77c299dd6",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:40.679Z",
+          "created_at": "2026-04-13T01:59:40.716Z",
+          "message_content_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Noah Koger",
+      "phone": "6623046188",
+      "variants": [
+        "6623046188",
+        "16623046188"
+      ],
+      "warehouse_leads_count": 1,
+      "warehouse_leads": [
+        {
+          "id": "0ade11b8-4904-4949-9f19-ecf13d473f03",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999963023",
+          "data_source": "vin_solutions",
+          "vin_status": "SERVICE_APPOINTMENT_SCHEDULED",
+          "customer_name": "Noah Koger",
+          "customer_email": "noah.koger@gmail.com",
+          "customer_phone": "6623046188",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999963023-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T06:47:00.000Z",
+          "synced_at": "2026-04-13T23:45:08.117Z",
+          "created_at": "2026-04-13T01:54:10.701Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "5c762b3f-4936-4929-9fb7-5fbce0afff5c",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:12.454Z",
+          "message_content_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "bc650a6b-40dd-40f2-92c0-600a2b5cb677",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:35.822Z",
+          "message_content_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "3e7d9d1e-30e7-434a-b3a1-2e0458da23cc",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:42.518Z",
+          "created_at": "2026-04-13T01:59:42.556Z",
+          "message_content_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Jennifer Jones",
+      "phone": "2564527205",
+      "variants": [
+        "2564527205",
+        "12564527205"
+      ],
+      "warehouse_leads_count": 1,
+      "warehouse_leads": [
+        {
+          "id": "163713e5-66b5-47cc-8164-328f279907b2",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999904099",
+          "data_source": "vin_solutions",
+          "vin_status": "ACTIVE_ACTIVE_LEAD",
+          "customer_name": "Jennifer Jones",
+          "customer_email": "jennyf_99@yahoo.com",
+          "customer_phone": "2564527205",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/3897777?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999904099-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T00:29:00.000Z",
+          "synced_at": "2026-04-13T23:45:08.642Z",
+          "created_at": "2026-04-13T00:16:39.543Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "748c9fe5-9752-4f56-aca0-6cef098d0882",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:12.986Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "a7e25f3d-28d2-4cc4-8056-c9d207a03392",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:36.355Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "f92634e1-fdd6-4f6d-8062-e715928630b5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:44.373Z",
+          "created_at": "2026-04-13T01:59:44.411Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Jennifer Ueltschey",
+      "phone": "6019517616",
+      "variants": [
+        "6019517616",
+        "16019517616"
+      ],
+      "warehouse_leads_count": 1,
+      "warehouse_leads": [
+        {
+          "id": "da460b43-f0d2-40e8-9922-c39c6ed11d8d",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999886283",
+          "data_source": "vin_solutions",
+          "vin_status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+          "customer_name": "Jennifer Ueltschey",
+          "customer_email": "jueltschey@gmail.com",
+          "customer_phone": "6019517616",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/3743779?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999886283-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-12T22:47:00.000Z",
+          "synced_at": "2026-04-13T23:45:07.587Z",
+          "created_at": "2026-04-13T00:16:39.368Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "82994599-0c79-4e16-9b05-36ccef26fce1",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:13.514Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "033fa392-af10-4874-91b7-d48d297eb338",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:36.903Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "61a42340-77d9-4e45-bbcf-0216bfa38c6b",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:46.229Z",
+          "created_at": "2026-04-13T01:59:46.268Z",
+          "message_content_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Fedor Zanin",
+      "phone": "8594458581",
+      "variants": [
+        "8594458581",
+        "18594458581"
+      ],
+      "warehouse_leads_count": 1,
+      "warehouse_leads": [
+        {
+          "id": "7403c845-a68d-4f22-959c-aa6fd7f351ce",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999907469",
+          "data_source": "vin_solutions",
+          "vin_status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+          "customer_name": "Fedor Zanin",
+          "customer_email": "fedor.zanin@gmail.com",
+          "customer_phone": "8594458581",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/71184?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999907469-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T00:49:00.000Z",
+          "synced_at": "2026-04-13T23:45:07.409Z",
+          "created_at": "2026-04-13T00:16:39.191Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "6b91fde0-12c7-45b9-b49b-446b81d73e80",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:14.041Z",
+          "message_content_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "a1730e8b-20a6-45c1-bb67-f5473e3946fe",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:37.434Z",
+          "message_content_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "ee9676bb-da83-440a-9b1e-28394c008e7e",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:48.154Z",
+          "created_at": "2026-04-13T01:59:48.195Z",
+          "message_content_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Richard Chambliss",
+      "phone": "2567944375",
+      "variants": [
+        "2567944375",
+        "12567944375"
+      ],
+      "warehouse_leads_count": 3,
+      "warehouse_leads": [
+        {
+          "id": "0e46c7e4-b7a7-4a75-9cb8-9438b761537d",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999935111",
+          "data_source": "vin_solutions",
+          "vin_status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+          "customer_name": "Richard Chambliss",
+          "customer_email": "dickchambliss@bellsouth.net",
+          "customer_phone": "2567944375",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/3750035?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999935111-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T03:37:00.000Z",
+          "synced_at": "2026-04-13T23:45:08.467Z",
+          "created_at": "2026-04-13T00:16:39.015Z"
+        },
+        {
+          "id": "69a3d46c-577e-4e39-948e-b97823242094",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "2000275670",
+          "data_source": "vin_solutions",
+          "vin_status": "BAD_DUPLICATE_LEAD",
+          "customer_name": "Richard Chambliss",
+          "customer_email": "dickchambliss@bellsouth.net",
+          "customer_phone": "2567944375",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/3750035?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/2000275670-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-14T00:20:00.000Z",
+          "synced_at": "2026-04-14T23:56:59.603Z",
+          "created_at": "2026-04-14T00:00:11.280Z"
+        },
+        {
+          "id": "20359b2e-58b9-4750-8360-83e0d531579d",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "2000259319",
+          "data_source": "vin_solutions",
+          "vin_status": "BAD_DUPLICATE_LEAD",
+          "customer_name": "Richard Chambliss",
+          "customer_email": "dickchambliss@bellsouth.net",
+          "customer_phone": "2567944375",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/36?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/2000259319-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-14T00:04:00.000Z",
+          "synced_at": "2026-04-14T23:56:59.777Z",
+          "created_at": "2026-04-14T00:00:11.460Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "be2164a3-262b-4514-8e1f-222750b32264",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:14.571Z",
+          "message_content_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "8c420c95-0065-4ad8-aa15-df4335c6fb77",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:37.964Z",
+          "message_content_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "0a05d1a4-b2a5-4fbb-9034-464c15e796c5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:49.996Z",
+          "created_at": "2026-04-13T01:59:50.034Z",
+          "message_content_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    },
+    {
+      "name": "Allie Nix",
+      "phone": "2054102897",
+      "variants": [
+        "2054102897",
+        "12054102897"
+      ],
+      "warehouse_leads_count": 1,
+      "warehouse_leads": [
+        {
+          "id": "ec0e6283-0c82-449f-b652-71fc88bc9f26",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "source_id": "1999959311",
+          "data_source": "vin_solutions",
+          "vin_status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+          "customer_name": "Allie Nix",
+          "customer_email": "tidegirl701@gmail.com",
+          "customer_phone": "2054102897",
+          "lead_source": "https://api.vinsolutions.com/leadsources/id/71184?dealerid=21043",
+          "vehicle_of_interest": "https://api.vinsolutions.com/vehicles/interest/id/1999959311-0",
+          "assigned_salesperson": null,
+          "dealer_name": null,
+          "vin_created_at": "2026-04-13T06:25:00.000Z",
+          "synced_at": "2026-04-13T23:45:07.234Z",
+          "created_at": "2026-04-13T01:28:01.482Z"
+        }
+      ],
+      "campaign_recipients_count": 0,
+      "campaign_recipients": [],
+      "conversations_count": 0,
+      "conversations": [],
+      "outbound_log_count": 3,
+      "outbound_log": [
+        {
+          "id": "f8f13c00-b5ed-4e8d-8f17-cb2b67b21040",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:15.627Z",
+          "message_content_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "969c4271-8cb9-4007-9bbb-76c60ee0ecbf",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:39.028Z",
+          "message_content_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        },
+        {
+          "id": "2c7ecc46-87b2-41d2-a87f-ec1e275fcc38",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "recipient_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:53.969Z",
+          "created_at": "2026-04-13T01:59:54.006Z",
+          "message_content_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:after_hours_followup]"
+        }
+      ]
+    }
+  ]
+}

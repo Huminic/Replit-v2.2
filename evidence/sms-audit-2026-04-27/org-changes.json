@@ -1,0 +1,810 @@
+{
+  "probed_at": "2026-04-27T02:17:28.464Z",
+  "organization_updates_2026_04_01_to_04_15": [
+    {
+      "id": "9b3af89f-4ac6-4a7e-9c3b-5f773097c574",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-04T20:16:49.639Z"
+    },
+    {
+      "id": "6e151ee5-24e6-4bf7-9403-b25bfbd19bea",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-04T20:17:59.333Z"
+    },
+    {
+      "id": "6aacf3ee-1688-4cc0-8e10-9e0707c47acf",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-04T20:18:07.910Z"
+    },
+    {
+      "id": "ef1d425c-9acb-4046-a59b-7371819dc03c",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-04T20:19:18.819Z"
+    },
+    {
+      "id": "8f9fd402-e6d4-46da-9d18-14c993bfdd20",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T01:57:52.967Z"
+    },
+    {
+      "id": "9e2f56c4-e758-43e2-9085-6367e047f989",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T01:59:04.080Z"
+    },
+    {
+      "id": "ca4f70b9-9328-48b3-90bd-8d62b77107fb",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:02:19.285Z"
+    },
+    {
+      "id": "3fd4c034-aa5f-441d-a9c5-f251a4962601",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:03:30.518Z"
+    },
+    {
+      "id": "dffb03f0-d2dc-4d07-871e-665fede8c2cd",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:06:42.296Z"
+    },
+    {
+      "id": "8b1bc600-c097-473a-892b-fdd2e5ee02c8",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:07:53.520Z"
+    },
+    {
+      "id": "dacbb2a3-e583-41f4-9c5d-674834366eb7",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:11:07.950Z"
+    },
+    {
+      "id": "f3f873b4-7b56-4ba5-91c9-5414cddd729f",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:12:19.199Z"
+    },
+    {
+      "id": "bcf39cc1-f75c-4e28-bea1-266036ba5210",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:15:30.675Z"
+    },
+    {
+      "id": "d89721e3-44b0-4423-8bfd-cb124d46c6ba",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:16:41.911Z"
+    },
+    {
+      "id": "2f3299de-fe8e-48c1-94cc-cae87f804745",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:19:54.418Z"
+    },
+    {
+      "id": "53a811e0-b16a-46d2-a304-bf404672ca22",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:21:05.635Z"
+    },
+    {
+      "id": "4904130f-1b2c-4d00-b5cb-21c311831910",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:24:05.842Z"
+    },
+    {
+      "id": "677f78f3-5394-4aab-a6c9-5231ec7c8368",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:25:16.979Z"
+    },
+    {
+      "id": "103fcf35-824e-4229-9880-fa354b2c23bd",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:28:18.062Z"
+    },
+    {
+      "id": "9e7bb435-82f8-4561-a06c-19286ef868b6",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:29:29.216Z"
+    },
+    {
+      "id": "bd7fe2f1-0b0b-4527-bccb-59103da07816",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:32:47.249Z"
+    },
+    {
+      "id": "73892aaa-b5a9-4b1e-865c-7daa14f52a98",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:33:58.466Z"
+    },
+    {
+      "id": "bb84b4e2-732e-4860-8741-12103c766b94",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:37:06.672Z"
+    },
+    {
+      "id": "328d87cd-fab8-4e2c-817e-ef62e633d84a",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:38:17.807Z"
+    },
+    {
+      "id": "f59cf156-33dd-4297-9ad8-b0eff4b641fe",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:50:01.273Z"
+    },
+    {
+      "id": "e2d2bbe3-2a6f-411c-a683-ef7cf08551d5",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:51:12.822Z"
+    },
+    {
+      "id": "8bfd4ce2-3551-4ebd-958a-2779a9ee3890",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:56:48.870Z"
+    },
+    {
+      "id": "e1ad00bc-4357-44d7-8b6a-73daa9be06ec",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T02:58:00.090Z"
+    },
+    {
+      "id": "fc9a21fa-c1c8-4526-abaf-d76a4eedc355",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:03:35.778Z"
+    },
+    {
+      "id": "2fe17458-18fe-4ebe-a44d-8acdbbbc812f",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:04:47.032Z"
+    },
+    {
+      "id": "7977f611-45cf-493a-96e2-0244757305c6",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:05:53.399Z"
+    },
+    {
+      "id": "5b153cf7-c8c6-4c11-9bfa-89a7caa65247",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:07:04.610Z"
+    },
+    {
+      "id": "2a9ecb90-2caa-48fd-b087-6e0225ad2671",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:12:40.033Z"
+    },
+    {
+      "id": "67d5d0a6-f170-4b3a-bd72-ce4d7456bc7b",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:13:51.815Z"
+    },
+    {
+      "id": "4f53835d-519c-47dd-aaf7-4028849acb04",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:21:58.503Z"
+    },
+    {
+      "id": "c8770b58-9bfc-45be-b03f-cbad81721ec4",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:23:10.497Z"
+    },
+    {
+      "id": "00e50de0-1179-4a3e-85db-31b27e6731bb",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:28:46.304Z"
+    },
+    {
+      "id": "c7c61b36-75be-4a6d-bbaf-460d7393f4ea",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:29:58.252Z"
+    },
+    {
+      "id": "5df42bb0-54fd-4257-a3a8-1b58b33eaaa1",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:35:35.486Z"
+    },
+    {
+      "id": "060499b9-a5b8-4ea7-ae27-cbcceb576ac4",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:36:47.034Z"
+    },
+    {
+      "id": "09656c39-4aac-48d5-a525-fc4edf006d65",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:42:23.006Z"
+    },
+    {
+      "id": "82506f0e-f4c6-481e-8f76-eb97afe3560e",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:43:34.548Z"
+    },
+    {
+      "id": "0ecf3d37-7303-4a88-8720-d3b8c3963172",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:49:10.957Z"
+    },
+    {
+      "id": "1624d274-934c-418e-aec2-351cb513f81e",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:50:22.880Z"
+    },
+    {
+      "id": "0a819f0f-e7f5-4890-ad8d-27ebfab69ce6",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:56:20.336Z"
+    },
+    {
+      "id": "70f03323-8261-4daa-9790-b4d11d6995be",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T03:57:32.369Z"
+    },
+    {
+      "id": "9364d58e-15cf-48da-bad5-e2ff40386104",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T04:03:11.766Z"
+    },
+    {
+      "id": "a4e4a752-f774-4102-b0d2-52c3e533407e",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T04:04:22.705Z"
+    },
+    {
+      "id": "0032880c-8736-46e8-92a5-4efd0beaee78",
+      "user_id": "6249dbc6-bdbf-4dae-a962-04ae63002bea",
+      "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "action": "settings_updated",
+      "entity_type": "organization",
+      "entity_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "metadata": {
+        "sections": [
+          "textmagicPhone"
+        ]
+      },
+      "created_at": "2026-04-05T04:10:00.823Z"
+    }
+  ],
+  "trigger_activity_during_sms_window": [
+    {
+      "id": "3b8e4806-a687-42e6-8499-293c5d1f4cdf",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "5fe17d79-f95f-4894-850e-ec41e1161853",
+      "metadata": {
+        "phone": "4125550199",
+        "leadSource": "AutoTrader",
+        "triggerType": "after_hours_followup",
+        "customerName": "AfterHours TestLead"
+      },
+      "created_at": "2026-04-13T01:59:38.921Z"
+    },
+    {
+      "id": "897f28ef-6d49-48c6-9ee9-ce9ed3607cb6",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "1a430ec7-2e65-42c5-b3f3-eac2b14539be",
+      "metadata": {
+        "phone": "5417783509",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Lisa Morris"
+      },
+      "created_at": "2026-04-13T01:59:41.158Z"
+    },
+    {
+      "id": "837157ee-6192-424f-ad16-1bcd63b7e4dd",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "0ade11b8-4904-4949-9f19-ecf13d473f03",
+      "metadata": {
+        "phone": "6623046188",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Noah Koger"
+      },
+      "created_at": "2026-04-13T01:59:42.998Z"
+    },
+    {
+      "id": "62af17e3-0929-45c2-a681-fd9ca43f14c8",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "163713e5-66b5-47cc-8164-328f279907b2",
+      "metadata": {
+        "phone": "2564527205",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/3897777?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Jennifer Jones"
+      },
+      "created_at": "2026-04-13T01:59:44.853Z"
+    },
+    {
+      "id": "185d6b0d-9b38-412b-a825-34926a6ac64e",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "da460b43-f0d2-40e8-9922-c39c6ed11d8d",
+      "metadata": {
+        "phone": "6019517616",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/3743779?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Jennifer Ueltschey"
+      },
+      "created_at": "2026-04-13T01:59:46.724Z"
+    },
+    {
+      "id": "091bd8d6-5357-454f-aee4-7dbb52759813",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "7403c845-a68d-4f22-959c-aa6fd7f351ce",
+      "metadata": {
+        "phone": "8594458581",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/71184?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Fedor Zanin"
+      },
+      "created_at": "2026-04-13T01:59:48.639Z"
+    },
+    {
+      "id": "34fde588-eccb-4be7-8c3e-c46f49b29055",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "0e46c7e4-b7a7-4a75-9cb8-9438b761537d",
+      "metadata": {
+        "phone": "2567944375",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/3750035?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Richard Chambliss"
+      },
+      "created_at": "2026-04-13T01:59:50.477Z"
+    },
+    {
+      "id": "783dff9f-cc3d-4235-af0b-aee630977496",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "bec362ca-08c4-4604-8c4e-2ea4c2d18649",
+      "metadata": {
+        "phone": "4126546500",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/98?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Trigger TestLead"
+      },
+      "created_at": "2026-04-13T01:59:52.571Z"
+    },
+    {
+      "id": "5561d857-3ac1-4d81-b407-8c04f6775c31",
+      "action": "trigger_after_hours_sent",
+      "entity_type": "warehouse_lead",
+      "entity_id": "ec0e6283-0c82-449f-b652-71fc88bc9f26",
+      "metadata": {
+        "phone": "2054102897",
+        "leadSource": "https://api.vinsolutions.com/leadsources/id/71184?dealerid=21043",
+        "triggerType": "after_hours_followup",
+        "customerName": "Allie Nix"
+      },
+      "created_at": "2026-04-13T01:59:54.446Z"
+    }
+  ]
+}
