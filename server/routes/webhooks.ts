@@ -5,6 +5,7 @@ import { storage } from "../storage";
 import { billingService } from "../services/billingService";
 import { callMCP, resolveNexxusOrgId, warmIntegrationCache } from "../vendorProxy";
 import { evaluateAdfTestLaneGuard } from "../services/testLaneGuards";
+import { evaluateVapiInboundGuard } from "../lib/vapiInboundGuard";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -932,6 +933,39 @@ export function registerWebhookRoutes(app: Express) {
       const call = message.call;
       if (!call) {
         return res.status(400).json({ message: "Missing call data in payload" });
+      }
+
+      // Orphan-prevention guard (I-NEW-2026-04-26-D).
+      // Decide BEFORE org resolution / dedup / DB writes whether this
+      // event has enough content to justify a conversation row. Ringing-
+      // only / hangup-before-pickup / failed-connect events arrive as
+      // call-ended (or end-of-call-report) with no transcript / no
+      // summary / no messages array. Creating conversation rows for
+      // these polluted TeamBox state with zero-message voice rows.
+      // TestLane-marked customers (name contains [TESTLANE]/[testlane:/
+      // TestLane) bypass the content requirement so test fixtures can
+      // exercise the create path deterministically.
+      const guardDecision = evaluateVapiInboundGuard({
+        eventType,
+        call,
+        topLevelTranscript: (message as any).transcript,
+        topLevelSummary: (message as any).summary,
+        topLevelArtifact:
+          (message as any).artifact ||
+          ("artifact" in data ? (data as any).artifact : undefined),
+        topLevelMessages:
+          (message as any).messages ||
+          ("messages" in data ? (data as any).messages : undefined),
+      });
+      if (guardDecision.action === "ignore") {
+        console.log(
+          `[VAPI Webhook] Skipped conversation creation: ${guardDecision.reason} (callId=${call.id || "none"}, customer=${call.customer?.number || "none"})`,
+        );
+        return res.json({
+          success: true,
+          skipped: true,
+          reason: guardDecision.reason,
+        });
       }
 
       const vapiCallId = call.id || null;
