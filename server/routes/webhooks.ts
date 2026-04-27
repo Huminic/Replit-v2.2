@@ -999,12 +999,27 @@ export function registerWebhookRoutes(app: Express) {
         summary = artifact.summary;
       }
 
-      // Check messages array (structured transcript from VAPI) — from call, message, artifact, or top-level data
+      // Check messages array (structured transcript from VAPI) — from call, message, artifact, or top-level data.
+      // Filter rationale (Codex review note 2026-04-27, follow-up to I-NEW-2026-04-26-D):
+      // the previous `line.length > 10` filter dropped legitimate short
+      // turns ("yes", "no", "hi", "ok"), which produced an empty folded
+      // transcript and let the route create an orphan conversation row
+      // (the `if (transcript || summary)` branch below would be false).
+      // Replacement: drop only empty/whitespace-only rows and rows whose
+      // content portion is empty (line ends with "role:"). Mirrors the
+      // identical predicate in server/lib/vapiInboundGuard.ts resolveContent
+      // so the guard's CREATE decision and the route's stored transcript
+      // agree on what counts as content.
       const messagesArray = call.messages || (message as any).messages || ("messages" in data ? (data as any).messages : null) || artifact?.messages;
       if (!transcript && messagesArray && Array.isArray(messagesArray) && messagesArray.length > 0) {
         transcript = messagesArray
           .map((m: any) => `${m.role || "unknown"}: ${m.message || m.content || ""}`)
-          .filter((line: string) => line.length > 10)
+          .filter((line: string) => {
+            const trimmed = line.trim();
+            if (trimmed.length === 0) return false;
+            if (trimmed.endsWith(":")) return false;
+            return true;
+          })
           .join("\n");
       }
 

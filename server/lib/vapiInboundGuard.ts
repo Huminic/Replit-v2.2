@@ -240,6 +240,22 @@ function resolveContent(input: VapiInboundGuardInput): {
   // If no transcript yet but we have a messages array, fold it the same
   // way the route does. This makes "messages array present" equivalent
   // to "transcript present" for the purposes of the guard.
+  //
+  // Filter rationale (Codex review note 2026-04-27, follow-up to
+  // I-NEW-2026-04-26-D):
+  //
+  //   The previous filter `line.length > 10` silently dropped legitimate
+  //   short conversation turns ("yes", "no", "hi", "ok"). When EVERY line
+  //   was short, the folded transcript came back empty, the route's
+  //   `if (transcript || summary)` was false, and the route created an
+  //   orphan conversation row with no message content — exactly the bug
+  //   I-NEW-2026-04-26-D was meant to prevent.
+  //
+  //   Replacement: keep any line whose content portion (after the
+  //   "role: " prefix) is non-empty after trimming. This drops genuinely
+  //   empty rows like `{ role: "user", message: "" }` (which fold to
+  //   "user: ") while preserving real one-word turns. The route uses the
+  //   same predicate so guard and route agree on what counts as content.
   if (!transcript && hasMessages) {
     const arr = (callMessages?.length
       ? callMessages
@@ -248,7 +264,16 @@ function resolveContent(input: VapiInboundGuardInput): {
         : artifactMessages) ?? [];
     transcript = arr
       .map((m) => `${m.role || "unknown"}: ${m.message || m.content || ""}`)
-      .filter((line) => line.length > 10)
+      .filter((line) => {
+        const trimmed = line.trim();
+        if (trimmed.length === 0) return false;
+        // Drop lines whose content portion is empty (line ends with the
+        // "role: " prefix and nothing else after trim). Catches rows
+        // where the role is set but message/content was empty or
+        // whitespace-only.
+        if (trimmed.endsWith(":")) return false;
+        return true;
+      })
       .join("\n");
   }
 

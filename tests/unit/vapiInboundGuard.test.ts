@@ -495,4 +495,105 @@ describe("evaluateVapiInboundGuard", () => {
       }
     });
   });
+
+  // ── Codex review-note regression: short legitimate messages ──────────────
+  // Pre-fix bug:
+  //   `nonEmptyMessagesArray()` returned true for any non-empty message
+  //   content, so the guard returned CREATE. The fold-and-filter step
+  //   then dropped any folded line shorter than 11 chars (the
+  //   `line.length > 10` filter), leaving transcript empty. The route's
+  //   `if (transcript || summary)` branch was false and a conversation
+  //   row was created with no message — exactly the orphan case
+  //   I-NEW-2026-04-26-D was meant to prevent.
+  //
+  // Post-fix:
+  //   Filter keeps any line whose content portion is non-empty after
+  //   trimming. Real one-word turns ("yes", "no", "hi", "ok") are
+  //   preserved; empty / whitespace-only content rows still drop.
+  describe("Codex review-note regression — short messages and empty-content rows", () => {
+    it("messages=[{ role:'user', message:'hi' }] → CREATE with transcript='user: hi' (was: empty transcript before fix)", () => {
+      const decision = evaluateVapiInboundGuard(
+        makeEndOfCallPayload({
+          messages: [{ role: "user", message: "hi" }],
+        }),
+      );
+      expect(decision.action).toBe("create");
+      if (decision.action === "create") {
+        expect(decision.transcript).toBe("user: hi");
+        expect(decision.hasTranscript).toBe(true);
+        // Pre-fix this test would have failed: transcript would have
+        // been "" because "user: hi" (8 chars) was dropped by the
+        // `line.length > 10` filter.
+      }
+    });
+
+    it("messages=[{ role:'user', message:'' }, { role:'assistant', message:'' }] → IGNORE (all empty content)", () => {
+      const decision = evaluateVapiInboundGuard(
+        makeEndOfCallPayload({
+          messages: [
+            { role: "user", message: "" },
+            { role: "assistant", message: "" },
+          ],
+        }),
+      );
+      // Both messages have empty content. nonEmptyMessagesArray() rejects
+      // them, so hasMessages=false at the resolveContent boundary and
+      // the guard returns IGNORE rather than reaching the fold step.
+      expect(decision.action).toBe("ignore");
+      if (decision.action === "ignore") {
+        expect(decision.ignoredByEventType).toBe(false);
+      }
+    });
+
+    it("messages=[{ role:'user', message:'  ' }] (whitespace-only) → IGNORE", () => {
+      const decision = evaluateVapiInboundGuard(
+        makeEndOfCallPayload({
+          messages: [{ role: "user", message: "  " }],
+        }),
+      );
+      // Whitespace-only content trims to "" and is rejected by
+      // nonEmptyMessagesArray's nonEmptyString check. hasMessages=false
+      // → IGNORE.
+      expect(decision.action).toBe("ignore");
+    });
+
+    it("messages=[{ role:'user', message:'yes' }, { role:'assistant', message:'goodbye' }] → CREATE with both lines preserved", () => {
+      const decision = evaluateVapiInboundGuard(
+        makeEndOfCallPayload({
+          messages: [
+            { role: "user", message: "yes" },
+            { role: "assistant", message: "goodbye" },
+          ],
+        }),
+      );
+      expect(decision.action).toBe("create");
+      if (decision.action === "create") {
+        expect(decision.transcript).toBe("user: yes\nassistant: goodbye");
+        expect(decision.hasTranscript).toBe(true);
+        // Pre-fix: "user: yes" (9 chars) and "assistant: goodbye"
+        // (18 chars) — only the second survived the `length > 10`
+        // filter. Post-fix: both are preserved.
+      }
+    });
+
+    it("messages=[{ role:'user' /* no message */ }, { role:'assistant', message:'hello there' }] → CREATE with only the populated line", () => {
+      // Mixed shape: one row has no message field (folds to "user: ")
+      // and one row has real content. The empty-content row is dropped
+      // by the new "line ends with ':'" predicate; the real line is
+      // preserved.
+      const decision = evaluateVapiInboundGuard(
+        makeEndOfCallPayload({
+          messages: [
+            { role: "user" },
+            { role: "assistant", message: "hello there" },
+          ],
+        }),
+      );
+      expect(decision.action).toBe("create");
+      if (decision.action === "create") {
+        expect(decision.transcript).toBe("assistant: hello there");
+        expect(decision.hasTranscript).toBe(true);
+      }
+    });
+  });
 });
