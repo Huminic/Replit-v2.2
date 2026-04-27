@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { callMCP } from "./vendorProxy";
 import { billingService } from "./services/billingService";
 import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
+import { evaluatePreLaunchSmsGuardWithDefaults } from "./lib/preLaunchSmsGuard";
 
 const DEFAULT_RATE_LIMIT_MAX = 100;
 const RATE_LIMIT_HOURS = 24;
@@ -181,7 +182,7 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
   }
 
   try {
-    await sendSmsRaw(phone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`);
+    await sendSmsRaw(phone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`, undefined, organizationId);
     stopConfirmationCache.set(cacheKey, Date.now());
     console.log(`[STOP] Confirmation sent to ${phone} for org ${organizationId}`);
 
@@ -206,9 +207,57 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
   }
 }
 
-export async function sendSmsRaw(to: string, content: string, fromNumber?: string): Promise<void> {
+export async function sendSmsRaw(
+  to: string,
+  content: string,
+  fromNumber?: string,
+  organizationId?: string,
+): Promise<void> {
   const phone = to.replace(/[^0-9+]/g, "");
   const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
+
+  // ── PRE-LAUNCH SMS GUARD ────────────────────────────────────────────────
+  // Fail-closed allowlist check. Phase 1 investigation
+  // (evidence/sms-guard-investigation-2026-04-27.md, commit fc59c1c)
+  // identified sendSmsRaw as the only function that calls the SMS provider.
+  // Anything higher (processOutboundSend / sendSms / sendStopConfirmation)
+  // leaves at least one provider-reachable path uncovered — so the guard
+  // sits here. bypassBusinessHours has no effect on this guard.
+  const guardDecision = evaluatePreLaunchSmsGuardWithDefaults(to);
+  if (!guardDecision.allow) {
+    console.warn(
+      `[PreLaunchSmsGuard] BLOCK to=${formattedPhone} mode=${guardDecision.mode} reason=${guardDecision.reason}`,
+    );
+    // Best-effort outbound_log row so the block is visible in audit trail.
+    // Requires organizationId; when the caller didn't supply one, log a
+    // warning but still throw — the throw is the load-bearing safety
+    // signal regardless of audit-row completeness.
+    if (organizationId) {
+      try {
+        await storage.createOutboundLog({
+          organizationId,
+          campaignId: null,
+          recipientId: null,
+          channel: "sms",
+          status: "blocked",
+          blockedReason: guardDecision.reason,
+          messageContent: content,
+          recipientPhone: formattedPhone,
+          sentAt: null,
+        });
+      } catch (logErr: any) {
+        console.error(
+          `[PreLaunchSmsGuard] Failed to write blocked outbound_log row for ${formattedPhone}: ${logErr.message}`,
+        );
+      }
+    } else {
+      console.warn(
+        `[PreLaunchSmsGuard] No organizationId available — block will not be recorded in outbound_log (caller: review sendSmsRaw call site)`,
+      );
+    }
+    throw new Error(guardDecision.reason);
+  }
+  // ── END PRE-LAUNCH SMS GUARD ────────────────────────────────────────────
 
   const mcpParams: Record<string, string> = {
     text: content,
@@ -246,7 +295,7 @@ export async function sendSms(to: string, content: string, organizationId?: stri
     return;
   }
 
-  await sendSmsRaw(to, content, fromNumber);
+  await sendSmsRaw(to, content, fromNumber, organizationId);
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
