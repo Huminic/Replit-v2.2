@@ -1,0 +1,1462 @@
+{
+  "probed_at": "2026-04-27T00:35:17.547Z",
+  "audit_scope": "16 SMS rows in REVIEW_UNKNOWN per restore-assessment-2026-04-27.json",
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "slug": "serra-honda"
+  },
+  "summary": {
+    "total_rows": 16,
+    "rows_with_outbound_log_match": 14,
+    "rows_with_at_least_one_sent": 13,
+    "rows_with_only_blocked": 0,
+    "rows_with_no_outbound_log_record": 2
+  },
+  "per_phone": [
+    {
+      "snapshot_row": {
+        "id": "e4a16515",
+        "name": "+1428670293",
+        "phone": "+1428670293"
+      },
+      "normalized_phone": "1428670293",
+      "match_count": 0,
+      "status_breakdown": {},
+      "matches": []
+    },
+    {
+      "snapshot_row": {
+        "id": "7f7ecaf3",
+        "name": "+1821616232",
+        "phone": "+1821616232"
+      },
+      "normalized_phone": "1821616232",
+      "match_count": 0,
+      "status_breakdown": {},
+      "matches": []
+    },
+    {
+      "snapshot_row": {
+        "id": "9cab0023",
+        "name": "18338096836",
+        "phone": "18338096836"
+      },
+      "normalized_phone": "18338096836",
+      "match_count": 40,
+      "status_breakdown": {
+        "sent": 14,
+        "blocked": 26
+      },
+      "matches": [
+        {
+          "id": "2976df60-2b0b-46fe-b88e-d50c4d4b4072",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T22:06:24.971Z",
+          "created_at": "2026-04-07T22:06:25.014Z",
+          "message_preview": "Hi 18338096836! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?",
+          "message_byte_length": 155
+        },
+        {
+          "id": "b4ce74ee-d4ea-49ec-b0dc-41b01946e1e4",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T22:06:27.211Z",
+          "created_at": "2026-04-07T22:06:27.253Z",
+          "message_preview": "Hi there! Yes, we do have Honda Civics available at Serra Honda. Which trim level or features were you most interested in, and I can check what we have in stock for you?",
+          "message_byte_length": 169
+        },
+        {
+          "id": "93da6dff-fa91-45f3-8bec-30c5386cc38f",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T22:16:12.241Z",
+          "created_at": "2026-04-07T22:16:12.284Z",
+          "message_preview": "Hi there! It looks like this message may have been sent to the wrong thread. I'm Nancy with Serra Honda — did you have any questions about the Civic you were asking about, or would you like to schedul",
+          "message_byte_length": 226
+        },
+        {
+          "id": "b0755498-7072-4a51-be98-a18612630974",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T22:16:52.928Z",
+          "created_at": "2026-04-07T22:16:52.971Z",
+          "message_preview": "Hi! It looks like there may be some crossed wires — I'm Nancy with Serra Honda, happy to help! Were you still looking for information on the Honda Civic?",
+          "message_byte_length": 155
+        },
+        {
+          "id": "61694f88-0885-4e34-ac57-24398ffa578a",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:40:26.748Z",
+          "created_at": "2026-04-12T23:40:26.784Z",
+          "message_preview": "Hey, just a heads up — it looks like these service reminders may be going to the wrong number! I'm Nancy with Serra Honda sales. Were you still interested in learning more about the Civic?",
+          "message_byte_length": 190
+        },
+        {
+          "id": "5ed6e3c7-b67c-474e-bfc0-546da56d0bf9",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:40:53.049Z",
+          "created_at": "2026-04-12T23:40:53.084Z",
+          "message_preview": "It looks like our service team may have the wrong number for Duane! I'm Nancy with Serra Honda sales. Are you still interested in the Honda Civic, or is there anything else I can help you with?",
+          "message_byte_length": 193
+        },
+        {
+          "id": "80164053-e416-4aa2-98b7-511c090a9b26",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:42:26.876Z",
+          "created_at": "2026-04-12T23:42:26.912Z",
+          "message_preview": "These messages seem to be coming from a different system — sorry for the confusion! I'm Nancy with Serra Honda sales. Is there anything I can help you with today?",
+          "message_byte_length": 164
+        },
+        {
+          "id": "a6f07495-b05e-44ba-a06b-4d947855d5f7",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:43:11.345Z",
+          "created_at": "2026-04-12T23:43:11.381Z",
+          "message_preview": "It looks like our service reminders may be misdirected — sorry about that! I'm Nancy with Serra Honda sales. Is there something I can help you with today?",
+          "message_byte_length": 156
+        },
+        {
+          "id": "aea0e371-db10-4a9b-a8c0-3654bd242bbf",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:43:31.279Z",
+          "created_at": "2026-04-12T23:43:31.316Z",
+          "message_preview": "These service reminders keep coming through — I'll flag this for our team to look into! In the meantime, is there anything I can help you with today?",
+          "message_byte_length": 151
+        },
+        {
+          "id": "9136a4e0-7921-40c8-8f18-84bd6c2c61ff",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:52:21.137Z",
+          "created_at": "2026-04-12T23:52:21.177Z",
+          "message_preview": "It looks like this message may have been meant for someone else! I'm Nancy with Serra Honda sales. Could you let me know who I'm speaking with and how I can help you today?",
+          "message_byte_length": 172
+        },
+        {
+          "id": "adc6ad40-f790-4a06-a3c3-322b13ecfab2",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:52:44.534Z",
+          "created_at": "2026-04-12T23:52:44.573Z",
+          "message_preview": "This message seems to be coming through to the wrong line! For service scheduling, please call our service department directly and they'll get you taken care of. Is there anything I can help you with ",
+          "message_byte_length": 218
+        },
+        {
+          "id": "64779268-767b-46fa-8a2d-96d964f75c55",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:52:56.606Z",
+          "created_at": "2026-04-12T23:52:56.647Z",
+          "message_preview": "I think these messages may be getting sent to the wrong number — I'm Nancy on the sales team, not the service scheduler! Please give our service department a call directly and they'll get you set up w",
+          "message_byte_length": 221
+        },
+        {
+          "id": "a02c99d3-c448-4382-a938-81babf4a6490",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:54:21.257Z",
+          "created_at": "2026-04-12T23:54:21.297Z",
+          "message_preview": "I want to make sure you reach the right person! Please call Serra Honda Service directly at our main number and they'll get your appointment scheduled. Can I help you with anything else today?",
+          "message_byte_length": 192
+        },
+        {
+          "id": "d0c6cd3d-f0c2-4c7a-b93f-899561019197",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T00:40:51.862Z",
+          "created_at": "2026-04-13T00:40:51.902Z",
+          "message_preview": "No worries at all, happens to the best of us! You have a great day too! 😊",
+          "message_byte_length": 76
+        },
+        {
+          "id": "3fff123a-bfab-4651-ba75-90d7dfe80cc4",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:50.214Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "ee914b88-bf65-4bce-b880-4c3c1ea93e73",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:51.947Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "c45740c6-996d-4792-88ca-5e518ca962bd",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:53.687Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "7a184e72-25ec-4cc9-a9ca-72481737004a",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:55.410Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "a547a85d-7655-4b76-b020-cf2e4c28abe0",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:57.127Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "65111e0c-6aed-400b-84ae-e5d0be715df0",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:58.590Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "5f6251ae-3abf-4f9b-a7aa-6722296f0ec2",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:59:59.344Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "0c4731fd-8d2c-4546-a142-41ec54e6e278",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:00:00.058Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "590522b2-5abc-46fc-bcef-d8577fc3f1c8",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:00:00.607Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "c226cc8f-fda4-4f83-8f02-f3066317c9d0",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:00:01.817Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "cff0e0a6-ed94-4726-89c1-626e7b201177",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:02:00.615Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "8176141f-6c0a-45ea-af34-e91f5ab7f3d8",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:02:14.958Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "21410e48-0247-45ff-898b-b103b2659976",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (22:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T02:02:14.959Z",
+          "message_preview": "Thank you for reaching out to Serra Honda. Our team is available from 08:00 to 21:00. We'll follow up first thing in the morning.",
+          "message_byte_length": 129
+        },
+        {
+          "id": "8d131951-8264-4ce1-a07a-43808ee3c2ad",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:14.672Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "fe3a65ee-e6fa-47b4-bbc6-2000841726d7",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:15.113Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "bd606bc1-6951-42f7-801c-42ce2fb7f3c0",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:15.550Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "ece5411a-930e-4026-9fbc-1c0562ed7275",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:15.988Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "d3c2b892-e077-4951-97fa-03897066dd61",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:16.427Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "81350e03-f257-4174-9ad0-d2326d84b47a",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:16.865Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "615b9502-c1a3-4623-a6ab-7ab32e5548ef",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:17.303Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "ea813a2c-bc73-4b6c-9f91-b74ef9381377",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:17.740Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "b6427cc2-119e-4e4c-ab90-f95894bbe6d2",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:18.181Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "489061c8-c13e-47dd-a0c3-4cc947bc6315",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:18.618Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "44ff1b1f-72fb-4909-ba32-f0291f1342fe",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:19.056Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "f8299f8f-6359-44b2-afd7-5351cf40462b",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:19.493Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        },
+        {
+          "id": "e7885928-047a-4b77-846a-e7904f4e3c0f",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (4:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": null,
+          "recipient_phone": "18338096836",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-14T08:00:19.930Z",
+          "message_preview": "Follow-up: You messaged us after hours. A team member will be reaching out shortly.",
+          "message_byte_length": 83
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "7b464eac",
+        "name": "4126574001",
+        "phone": "4126574001"
+      },
+      "normalized_phone": "4126574001",
+      "match_count": 2,
+      "status_breakdown": {
+        "sent": 2
+      },
+      "matches": [
+        {
+          "id": "c46c90cd-79cb-42e2-b1fb-8209a0fe3e37",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "d1799d79-3d2b-4107-ab72-20a7fd7efe14",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Duane Wells",
+          "recipient_phone": "4126574001",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T21:16:35.970Z",
+          "created_at": "2026-04-07T21:16:36.009Z",
+          "message_preview": "Hi Duane, this is Nancy from Serra Honda Service. Your vehicle may be due for routine maintenance. Would you like to schedule a service appointment? Reply YES to confirm or call us at (833) 978-5374.",
+          "message_byte_length": 199
+        },
+        {
+          "id": "15d70dbd-a18a-46ee-a23f-84ed6323f02e",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "4126574001",
+          "recipient_email": null,
+          "sent_at": "2026-04-07T22:16:46.775Z",
+          "created_at": "2026-04-07T22:16:46.818Z",
+          "message_preview": "Hi there! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?",
+          "message_byte_length": 149
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "86c68888",
+        "name": "Duane Wells",
+        "phone": "4126572001"
+      },
+      "normalized_phone": "4126572001",
+      "match_count": 2,
+      "status_breakdown": {
+        "sent": 2
+      },
+      "matches": [
+        {
+          "id": "c903ef23-8297-410b-bac1-4bc1687ebaa8",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Duane Wells",
+          "recipient_phone": "4126572001",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:40:18.978Z",
+          "created_at": "2026-04-12T23:40:19.015Z",
+          "message_preview": "Hi Duane, this is Serra Honda Service. Your 2025 Accord may be due for maintenance. Would you like to schedule an appointment? Reply YES to get started or call us anytime.",
+          "message_byte_length": 171
+        },
+        {
+          "id": "0ec0d2e0-2ccb-4f4d-86da-185bb8d0ebd0",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "14126572001",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T00:40:17.999Z",
+          "created_at": "2026-04-13T00:40:18.038Z",
+          "message_preview": "So sorry about that! Wrong number - my apologies for the confusion. Have a great day!",
+          "message_byte_length": 85
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "673b1f74",
+        "name": "Durran Cage",
+        "phone": "7313946907"
+      },
+      "normalized_phone": "7313946907",
+      "match_count": 1,
+      "status_breakdown": {
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "4e454d7b-ea1a-4189-bc89-3c95aa42ac1b",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Durran Cage",
+          "recipient_phone": "7313946907",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:41:18.924Z",
+          "created_at": "2026-04-12T23:41:18.960Z",
+          "message_preview": "Hi Durran, this is Serra Honda Service. Your 2024 CR-V may be due for maintenance. Would you like to schedule an appointment? Reply YES to get started or call us anytime.",
+          "message_byte_length": 170
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "65fd9a93",
+        "name": "Sarita Wells",
+        "phone": "4125375782"
+      },
+      "normalized_phone": "4125375782",
+      "match_count": 2,
+      "status_breakdown": {
+        "sent": 2
+      },
+      "matches": [
+        {
+          "id": "b3770de6-a5a7-491a-a0e2-0cdcff61f3e1",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Sarita Wells",
+          "recipient_phone": "4125375782",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:42:18.902Z",
+          "created_at": "2026-04-12T23:42:18.939Z",
+          "message_preview": "Hi Sarita, this is Serra Honda Service. Your 2025 Pilot may be due for maintenance. Would you like to schedule an appointment? Reply YES to get started or call us anytime.",
+          "message_byte_length": 171
+        },
+        {
+          "id": "aa8cf038-dd19-4797-a8c3-36cdafb13ee8",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": null,
+          "recipient_phone": "14125375782",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:52:49.649Z",
+          "created_at": "2026-04-12T23:52:49.689Z",
+          "message_preview": "Great! What day and time works best for you? We're open Monday through Saturday, 7am to 6pm.",
+          "message_byte_length": 92
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "720d335e",
+        "name": "Donna Murphy",
+        "phone": "4125199087"
+      },
+      "normalized_phone": "4125199087",
+      "match_count": 1,
+      "status_breakdown": {
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "4b7cefa3-f32e-43ad-8f93-e806bde1dec5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Donna Murphy",
+          "recipient_phone": "4125199087",
+          "recipient_email": null,
+          "sent_at": "2026-04-12T23:43:18.987Z",
+          "created_at": "2026-04-12T23:43:19.024Z",
+          "message_preview": "Hi Donna, this is Serra Honda Service. Your 2024 HR-V may be due for maintenance. Would you like to schedule an appointment? Reply YES to get started or call us anytime.",
+          "message_byte_length": 169
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "88e93b64",
+        "name": "Lisa Morris",
+        "phone": "5417783509"
+      },
+      "normalized_phone": "5417783509",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "f8427676-d944-4c6b-a259-562c5137f4d3",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:11.840Z",
+          "message_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        },
+        {
+          "id": "b154b9e7-c2fa-4f10-ad34-998753fc9c17",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:35.204Z",
+          "message_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        },
+        {
+          "id": "5342cc1c-53d4-4a12-9373-14f77c299dd6",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Lisa Morris",
+          "recipient_phone": "5417783509",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:40.679Z",
+          "created_at": "2026-04-13T01:59:40.716Z",
+          "message_preview": "Hi Lisa, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "d0efcbe4",
+        "name": "Noah Koger",
+        "phone": "6623046188"
+      },
+      "normalized_phone": "6623046188",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "5c762b3f-4936-4929-9fb7-5fbce0afff5c",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:12.454Z",
+          "message_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        },
+        {
+          "id": "bc650a6b-40dd-40f2-92c0-600a2b5cb677",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:35.822Z",
+          "message_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        },
+        {
+          "id": "3e7d9d1e-30e7-434a-b3a1-2e0458da23cc",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Noah Koger",
+          "recipient_phone": "6623046188",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:42.518Z",
+          "created_at": "2026-04-13T01:59:42.556Z",
+          "message_preview": "Hi Noah, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger:",
+          "message_byte_length": 221
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "654ee172",
+        "name": "Jennifer Jones",
+        "phone": "2564527205"
+      },
+      "normalized_phone": "2564527205",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "748c9fe5-9752-4f56-aca0-6cef098d0882",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:12.986Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        },
+        {
+          "id": "a7e25f3d-28d2-4cc4-8056-c9d207a03392",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:36.355Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        },
+        {
+          "id": "f92634e1-fdd6-4f6d-8062-e715928630b5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Jennifer Jones",
+          "recipient_phone": "2564527205",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:44.373Z",
+          "created_at": "2026-04-13T01:59:44.411Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "a0b8ed21",
+        "name": "Jennifer Ueltschey",
+        "phone": "6019517616"
+      },
+      "normalized_phone": "6019517616",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "82994599-0c79-4e16-9b05-36ccef26fce1",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:13.514Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        },
+        {
+          "id": "033fa392-af10-4874-91b7-d48d297eb338",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:36.903Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        },
+        {
+          "id": "61a42340-77d9-4e45-bbcf-0216bfa38c6b",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Jennifer Ueltschey",
+          "recipient_phone": "6019517616",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:46.229Z",
+          "created_at": "2026-04-13T01:59:46.268Z",
+          "message_preview": "Hi Jennifer, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trig",
+          "message_byte_length": 225
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "2ddadb04",
+        "name": "Fedor Zanin",
+        "phone": "8594458581"
+      },
+      "normalized_phone": "8594458581",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "6b91fde0-12c7-45b9-b49b-446b81d73e80",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:14.041Z",
+          "message_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        },
+        {
+          "id": "a1730e8b-20a6-45c1-bb67-f5473e3946fe",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:37.434Z",
+          "message_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        },
+        {
+          "id": "ee9676bb-da83-440a-9b1e-28394c008e7e",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Fedor Zanin",
+          "recipient_phone": "8594458581",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:48.154Z",
+          "created_at": "2026-04-13T01:59:48.195Z",
+          "message_preview": "Hi Fedor, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "20de28db",
+        "name": "Richard Chambliss",
+        "phone": "2567944375"
+      },
+      "normalized_phone": "2567944375",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "be2164a3-262b-4514-8e1f-222750b32264",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:14.571Z",
+          "message_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigg",
+          "message_byte_length": 224
+        },
+        {
+          "id": "8c420c95-0065-4ad8-aa15-df4335c6fb77",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:37.964Z",
+          "message_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigg",
+          "message_byte_length": 224
+        },
+        {
+          "id": "0a05d1a4-b2a5-4fbb-9034-464c15e796c5",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Richard Chambliss",
+          "recipient_phone": "2567944375",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:49.996Z",
+          "created_at": "2026-04-13T01:59:50.034Z",
+          "message_preview": "Hi Richard, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigg",
+          "message_byte_length": 224
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "d49c0d9e",
+        "name": "Allie Nix",
+        "phone": "2054102897"
+      },
+      "normalized_phone": "2054102897",
+      "match_count": 3,
+      "status_breakdown": {
+        "blocked": 2,
+        "sent": 1
+      },
+      "matches": [
+        {
+          "id": "f8f13c00-b5ed-4e8d-8f17-cb2b67b21040",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:15.627Z",
+          "message_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        },
+        {
+          "id": "969c4271-8cb9-4007-9bbb-76c60ee0ecbf",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "blocked",
+          "blocked_reason": "Outside business hours (21:00 America/New_York, allowed 8:00-21:00)",
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T01:54:39.028Z",
+          "message_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        },
+        {
+          "id": "2c7ecc46-87b2-41d2-a87f-ec1e275fcc38",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "sent",
+          "blocked_reason": null,
+          "recipient_name": "Allie Nix",
+          "recipient_phone": "2054102897",
+          "recipient_email": null,
+          "sent_at": "2026-04-13T01:59:53.969Z",
+          "created_at": "2026-04-13T01:59:54.006Z",
+          "message_preview": "Hi Allie, thank you for your interest in Serra Honda. We received your inquiry and wanted to reach out. We'll follow up with you during business hours. Reply here if you need anything sooner. [trigger",
+          "message_byte_length": 222
+        }
+      ]
+    },
+    {
+      "snapshot_row": {
+        "id": "0df020c1",
+        "name": "+1125352571",
+        "phone": "+1125352571"
+      },
+      "normalized_phone": "1125352571",
+      "match_count": 1,
+      "status_breakdown": {
+        "failed": 1
+      },
+      "matches": [
+        {
+          "id": "53470d4b-8536-443e-9ef4-9ba838b17955",
+          "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+          "campaign_id": null,
+          "channel": "sms",
+          "status": "failed",
+          "blocked_reason": "textmagic API error: Validation Failed",
+          "recipient_name": null,
+          "recipient_phone": "+1125352571",
+          "recipient_email": null,
+          "sent_at": null,
+          "created_at": "2026-04-13T18:22:23.184Z",
+          "message_preview": "Hi there! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?",
+          "message_byte_length": 149
+        }
+      ]
+    }
+  ],
+  "sent_evidence_phones": [
+    {
+      "id": "9cab0023",
+      "phone": "18338096836",
+      "name": "18338096836",
+      "match_count": 40,
+      "statuses": {
+        "sent": 14,
+        "blocked": 26
+      }
+    },
+    {
+      "id": "7b464eac",
+      "phone": "4126574001",
+      "name": "4126574001",
+      "match_count": 2,
+      "statuses": {
+        "sent": 2
+      }
+    },
+    {
+      "id": "86c68888",
+      "phone": "4126572001",
+      "name": "Duane Wells",
+      "match_count": 2,
+      "statuses": {
+        "sent": 2
+      }
+    },
+    {
+      "id": "673b1f74",
+      "phone": "7313946907",
+      "name": "Durran Cage",
+      "match_count": 1,
+      "statuses": {
+        "sent": 1
+      }
+    },
+    {
+      "id": "65fd9a93",
+      "phone": "4125375782",
+      "name": "Sarita Wells",
+      "match_count": 2,
+      "statuses": {
+        "sent": 2
+      }
+    },
+    {
+      "id": "720d335e",
+      "phone": "4125199087",
+      "name": "Donna Murphy",
+      "match_count": 1,
+      "statuses": {
+        "sent": 1
+      }
+    },
+    {
+      "id": "88e93b64",
+      "phone": "5417783509",
+      "name": "Lisa Morris",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "d0efcbe4",
+      "phone": "6623046188",
+      "name": "Noah Koger",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "654ee172",
+      "phone": "2564527205",
+      "name": "Jennifer Jones",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "a0b8ed21",
+      "phone": "6019517616",
+      "name": "Jennifer Ueltschey",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "2ddadb04",
+      "phone": "8594458581",
+      "name": "Fedor Zanin",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "20de28db",
+      "phone": "2567944375",
+      "name": "Richard Chambliss",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    },
+    {
+      "id": "d49c0d9e",
+      "phone": "2054102897",
+      "name": "Allie Nix",
+      "match_count": 3,
+      "statuses": {
+        "blocked": 2,
+        "sent": 1
+      }
+    }
+  ],
+  "org_wide_sms_volume_week_2026_04_05_to_04_13": [
+    {
+      "day": "2026-04-07T00:00:00.000Z",
+      "status": "blocked",
+      "n": 13
+    },
+    {
+      "day": "2026-04-07T00:00:00.000Z",
+      "status": "failed",
+      "n": 14
+    },
+    {
+      "day": "2026-04-07T00:00:00.000Z",
+      "status": "sent",
+      "n": 30
+    },
+    {
+      "day": "2026-04-08T00:00:00.000Z",
+      "status": "blocked",
+      "n": 2
+    },
+    {
+      "day": "2026-04-12T00:00:00.000Z",
+      "status": "sent",
+      "n": 18
+    },
+    {
+      "day": "2026-04-13T00:00:00.000Z",
+      "status": "blocked",
+      "n": 34
+    },
+    {
+      "day": "2026-04-13T00:00:00.000Z",
+      "status": "failed",
+      "n": 11
+    },
+    {
+      "day": "2026-04-13T00:00:00.000Z",
+      "status": "sent",
+      "n": 11
+    }
+  ]
+}
