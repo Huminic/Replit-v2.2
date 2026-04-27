@@ -609,3 +609,16 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 **Trace:** `evidence/I-NEW-2026-04-26-D/audit-route-dedup-trace.txt` Scenario D.
 
 ---
+
+### I-NEW-2026-04-27-C: Add `jti` nonce to refresh JWT payload (defense-in-depth for token-rotation race)
+**Discovered:** 2026-04-27 during Priority #3 fix (refresh-token rotation race; see `evidence/priority-3-hard-reload-auth/investigation.md`).
+**Status:** OPEN — operator-deferred to v2.3 backlog.
+**Severity:** Low post-fix (the race is now caught and handled gracefully via the unique-violation fallback in `server/lib/refreshTokenRotation.ts`). Pre-fix this was the launch-blocker for hard-reload auth.
+**Code:** `server/auth.ts:73-75` (`generateRefreshToken`) — JWT payload is `{ userId, organizationId, roleId, type: 'refresh' }` only. `iat` is integer seconds (per JWT spec). Two refresh tokens minted in the same second with identical payload are byte-identical strings, which trips the `sessions.refresh_token` UNIQUE constraint when two parallel requests race to insert.
+**Behavior:** The current Priority #3 fix detects the unique-violation (Postgres SQLSTATE 23505) and falls back to the peer's just-created session row (`getMostRecentSessionForUser` within `RECENT_SESSION_WINDOW_MS = 10_000`). This is correct and ships as the launch fix.
+**Defense-in-depth proposal:** Add `jti: crypto.randomUUID()` to the refresh JWT payload at mint time. With a per-token nonce, two simultaneous mints CANNOT produce identical strings — the race becomes impossible by construction rather than handled after the fact.
+**Why deferred:** Adds a JWT-shape change. Existing in-flight refresh tokens issued by older code do not have the `jti` claim — verification must continue to accept tokens with or without it (forward-compat only). Worth doing carefully post-launch, not as a launch hot-fix.
+**Follow-up:** v2.3 backlog. Implementation: extend `TokenPayload` type in `server/auth.ts`, add `jti` only to `generateRefreshToken` (access tokens don't need it — they're not stored), drop a small unit test that two back-to-back refresh JWTs are non-identical.
+**Compare:** `server/lib/refreshTokenRotation.ts` — handles the race; `server/auth.ts:73-75` — where the nonce would be added.
+
+---
