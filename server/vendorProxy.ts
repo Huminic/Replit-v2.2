@@ -600,8 +600,21 @@ export function registerVendorRoutes(app: Express) {
         sold: prevPeriodLeads.filter((l: any) => isSoldLead(l.vinStatus)).length,
       };
 
+      // Priority #6 (Commit A) — tiny-base suppression. Operator decision
+      // 2026-04-27: when `previous < 5` (incl. 0) the percent delta is
+      // mathematically misleading ("bad percentages are worse than missing
+      // percentages"). Two changes vs. the prior implementation:
+      //   1. previous === 0, current > 0  → was 100 (fabricated +100%),
+      //      now 0 (no comparable signal — front-end renders as +0%).
+      //   2. 0 < previous < 5             → was full percent change
+      //      (e.g. prev=14, cur=50 → +257%); now 0.
+      // The numeric `0` return preserves the JSON contract expected by
+      // client/src/pages/sales.tsx (`*Change: number`); a string sentinel
+      // ("—") would require coordinated UI changes — that lands in Commit B.
+      // Negative or non-finite inputs are treated as malformed → 0.
       const pctChange = (current: number, previous: number): number => {
-        if (previous === 0) return current > 0 ? 100 : 0;
+        if (!Number.isFinite(current) || !Number.isFinite(previous)) return 0;
+        if (previous < 5) return 0;
         return Math.round(((current - previous) / previous) * 100);
       };
 

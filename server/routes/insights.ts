@@ -7,6 +7,7 @@ import {
   formatAvgDaysToFirstContact,
 } from "../lib/leadContactMatch";
 import { formatLeadSource, getLeadSourceMap } from "../lib/leadSourceFormat";
+import { computeChange, computeRateChange } from "../lib/metricDelta";
 
 /**
  * Derive a channel category from the lead source string.
@@ -976,24 +977,11 @@ export function registerInsightRoutes(app: Express) {
         ? Math.round((activeLeads.length / projectedClose) * 100) / 100
         : activeLeads.length > 0 ? 999 : 0;
 
-      const computeChange = (current: number, prior: number): { change: string; trend: 'up' | 'down' | 'neutral' } => {
-        if (prior === 0 && current === 0) return { change: "\u2014", trend: "neutral" };
-        if (prior === 0) return { change: `+${current}`, trend: "up" };
-        const pctChange = Math.round(((current - prior) / prior) * 100);
-        if (pctChange > 0) return { change: `+${pctChange}%`, trend: "up" };
-        if (pctChange < 0) return { change: `${pctChange}%`, trend: "down" };
-        return { change: "0%", trend: "neutral" };
-      };
-
-      const computeRateChange = (curNum: number, curDen: number, priorNum: number, priorDen: number): { change: string; trend: 'up' | 'down' | 'neutral' } => {
-        const curRate = curDen > 0 ? (curNum / curDen) * 100 : 0;
-        const priorRate = priorDen > 0 ? (priorNum / priorDen) * 100 : 0;
-        if (priorDen === 0) return { change: "\u2014", trend: "neutral" };
-        const diff = Math.round(curRate - priorRate);
-        if (diff > 0) return { change: `+${diff}pp`, trend: "up" };
-        if (diff < 0) return { change: `${diff}pp`, trend: "down" };
-        return { change: "0pp", trend: "neutral" };
-      };
+      // Priority #6 (Commit A) \u2014 `computeChange` and `computeRateChange`
+      // are now exported from `server/lib/metricDelta.ts` so they can be
+      // unit-tested in isolation. `computeChange` enforces the operator's
+      // tiny-base policy (prior < 5 \u2192 '\u2014' neutral); `computeRateChange`
+      // preserves its original priorDen===0 suppression behavior.
 
       const weeklyTrend = leadsLast7Days.length / 7;
       const priorSevenStart = new Date(sevenDaysAgo);
@@ -1046,7 +1034,12 @@ export function registerInsightRoutes(app: Express) {
       const c6 = computeChange(stagnantLeads.length, priorStagnantLeads.length);
       libMetrics.push({ id: "lib-6", title: "Pipeline Stagnation Index", value: String(stagnantLeads.length), change: c6.change, trend: stagnantLeads.length > priorStagnantLeads.length ? "down" : stagnantLeads.length < priorStagnantLeads.length ? "up" : "neutral", category: "Pipeline" });
 
-      const c7 = computeChange(freshRatio, priorFreshRatio);
+      // Priority #6 (Commit A bonus, operator-authorized 2026-04-27):
+      // lib-7 is a rate (%); a rate-vs-rate delta should be expressed in
+      // percentage points (pp), not relative percent change. Switching from
+      // computeChange to computeRateChange so this renders e.g. "+9pp" not
+      // "+43%" — matches lib-8/14/15/16/27 convention.
+      const c7 = computeRateChange(freshLeads.length, activeLeads.length, priorFreshLeads.length, priorActiveLeads.length);
       libMetrics.push({ id: "lib-7", title: "Fresh Lead Ratio", value: `${freshRatio}%`, change: c7.change, trend: c7.trend, category: "Pipeline" });
 
       const winRate = totalLeads > 0 ? Math.round((soldLeads.length / totalLeads) * 1000) / 10 : 0;

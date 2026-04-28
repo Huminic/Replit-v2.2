@@ -359,8 +359,18 @@ export async function runMetricsRefresh(organizationId: string): Promise<SyncRes
     const activeLeads = curActiveNew + curActiveWaiting + curActiveActive + curActiveAppt;
     const prevActiveLeads = prevActiveNew + prevActiveWaiting + prevActiveActive;
     const lostLeads = curLostNoResponse + curLostNoAgreement + curLostBadCredit + curLostCompleted;
-    const pctChange = (cur: number, prev: number) =>
-      prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
+    // Priority #6 (Commit A) — tiny-base suppression for warehouse-persisted
+    // metrics. Same rationale and trade-offs as vendorProxy.ts:pctChange.
+    // - prev === 0, cur > 0 → was 100 (fabricated +100%), now 0.
+    // - 0 < prev < 5         → was full percent change, now 0.
+    // - non-finite inputs    → 0 (malformed).
+    // Persists into warehouse_metrics; front-end consumes as numeric
+    // *Change. String sentinel ("—") deferred to Commit B.
+    const pctChange = (cur: number, prev: number) => {
+      if (!Number.isFinite(cur) || !Number.isFinite(prev)) return 0;
+      if (prev < 5) return 0;
+      return Math.round(((cur - prev) / prev) * 100);
+    };
 
     const metricsMap: Record<string, string> = {
       totalLeads: String(curTotal),
