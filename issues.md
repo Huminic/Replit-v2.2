@@ -55,6 +55,7 @@ No open issues. I-126 and I-139 verified working in S2.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-130 | Agent pages need favorites and sub-menu bar (Sales, Service, Marketing) | FE | BACKLOGGED (BL-094) | M |
+| I-NEW-2026-04-28-A | **Active Pipeline (14d) tile lacks a 14d-vs-prior-14d delta — currently suppressed.** Tile value is the 14d count from `/api/metrics/pipeline` (server/storage.ts ~line 802); the summary endpoint's `activeLeadsChange` (server/vendorProxy.ts:561-576, 596-598, 635) is a 30d-vs-prior-30d delta — different window from the value. Priority #6 Commit B initially labeled the tile `vs prior 14d` while sourcing the 30d-vs-30d delta (window-mismatch trust violation caught in code-review). Commit-B-followup suppresses the delta entirely (`change: null`) per the operator "missing is better than wrong" principle. Real fix requires a server-side 14d-vs-prior-14d active-leads delta computation — out of scope for Priority #6 (UI-only sprint). Not blocking launch — value is still meaningful, only the delta is suppressed. | BE, FE | OPEN — backlog/low | M |
 
 ---
 

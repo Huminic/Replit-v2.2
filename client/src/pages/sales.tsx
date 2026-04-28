@@ -116,8 +116,10 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
   return [
     { id: 'sm-1', label: 'Total Leads (30d)', value: String(summary.totalLeads), change: summary.totalLeadsChange, trend: t(summary.totalLeadsChange), windowLabel: 'vs last 30d', icon: Target },
     { id: 'sm-2', label: 'New Leads', value: String(summary.newLeads), change: summary.newLeadsChange, trend: t(summary.newLeadsChange), windowLabel: 'vs last 30d', icon: Users },
-    // P6: Active Pipeline is a 14d operational metric — server returns activeLeadsChange comparing prior 14d window.
-    { id: 'sm-3', label: 'Active Pipeline (14d)', value: String(activePipeline), change: summary.activeLeadsChange, trend: t(summary.activeLeadsChange), windowLabel: 'vs prior 14d', icon: Zap },
+    // Active Pipeline value is the 14d count from /api/metrics/pipeline (server/storage.ts ~line 802);
+    // server's activeLeadsChange (vendorProxy.ts:635) is a 30d-vs-prior-30d delta — different window,
+    // so we suppress the delta on this tile until a 14d-vs-prior-14d delta exists. See I-NEW-2026-04-28-A.
+    { id: 'sm-3', label: 'Active Pipeline (14d)', value: String(activePipeline), change: null, trend: 'up' as const, icon: Zap },
     // I-114: change=null — API does not provide a real delta; rendering `+0% vs last 30d` was misleading.
     { id: 'sm-4', label: 'Waiting on Response', value: String(summary.waitingForResponse), change: null, trend: 'up' as const, icon: Clock },
     // I-114: change=null — API does not provide a real delta; rendering `+0% vs last 30d` was misleading.
