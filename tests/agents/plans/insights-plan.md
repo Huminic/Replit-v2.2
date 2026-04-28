@@ -210,7 +210,7 @@ Options: "All Stores" + org list from `GET /api/organizations`.
 | ID | Name | Priority | Existing? | Steps | Expected Result |
 |----|------|----------|-----------|-------|-----------------|
 | TC-INS-030 | Green zone section header visible | P1 | NEW | Verify "Today's Performance" heading with green dot indicator. | Green zone header present |
-| TC-INS-031 | Green zone metric cards render dynamically | P0 | NEW | Verify at least one `green-metric-gz-*` card exists. Check it shows label, value, trend icon. | Dynamic green metric cards with Pipeline Active, Conversion Rate, Total Leads |
+| TC-INS-031 | Green zone metric cards render dynamically | P0 | NEW | Verify at least one `green-metric-gz-*` card exists. Check it shows label, value, trend icon. | Dynamic green metric cards with Total Active Pipeline (30d), Conversion Rate, Total Leads |
 | TC-INS-032 | Green zone card click opens detail dialog | P1 | NEW | Click a `green-metric-gz-*` card. Verify `dialog-green-zone-detail` opens. | Dialog shows selected metric detail |
 
 ### Section 5: Dashboard -- Pipeline Health

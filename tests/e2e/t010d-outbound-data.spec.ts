@@ -426,15 +426,16 @@ test("AC3: KPI consistency across dashboard, /sales, and /insights", async ({
     ).toBe(insights.overview.totalLeads);
   }
 
-  // 7. Green zone pipeline active should match overview hotCount
+  // 7. Green zone "Total Active Pipeline (30d)" should match overview hotCount
+  // Label canonicalized in commit fb97cc3 (Priority #6 Commit C).
   if (insights.greenZone) {
     const pipelineActive = insights.greenZone.find(
-      (g: any) => g.label === "Pipeline Active"
+      (g: any) => g.label === "Total Active Pipeline (30d)"
     );
     if (pipelineActive) {
       expect(
         pipelineActive.value,
-        "Green zone Pipeline Active should match overview hotCount"
+        'Green zone "Total Active Pipeline (30d)" should match overview hotCount'
       ).toBe(insights.overview.hotCount);
     }
 

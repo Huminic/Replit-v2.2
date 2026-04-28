@@ -241,11 +241,12 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     monthEndForecast: {
       currentSold: soldCount,
       // Priority 6 (P6) bug-fix: was bound to totalLeads (unfiltered 30-day
-      // total) which caused "Active Pipeline" Pipeline-Health card + detail
-      // panel + rollingForecast gap-analysis line to render 609 instead of
-      // the strict-active count. hotCount is the 30-day isActiveLead-only
+      // total) which caused the Pipeline-Health card + detail panel +
+      // rollingForecast gap-analysis line to render 609 instead of the
+      // strict-active count. hotCount is the 30-day isActiveLead-only
       // count already computed at line ~217 — matches Today's Performance
-      // "Pipeline Active" tile and Library lib-1. See
+      // and Library lib-1, both labeled "Total Active Pipeline (30d)"
+      // (canonicalized in commit fb97cc3 Priority #6 Commit C). See
       // evidence/active-pipeline-analysis-2026-04-26.md.
       activePipeline: hotCount,
       historicalWinRate: convRate,
