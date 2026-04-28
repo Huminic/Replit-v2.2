@@ -71,7 +71,7 @@ interface MetricTile {
 const metricApiKeys: Record<string, string> = {
   'Active Pipeline (14d)': 'active_pipeline',
   'Appointments Today': 'appointments_today',
-  'Open Escalations': 'open_escalations',
+  'Open Escalations (Open)': 'open_escalations',
   'Outbound Sent 24h': 'outbound_sent',
 };
 
@@ -83,7 +83,7 @@ function buildPipelineTiles(data: PipelineData | undefined): MetricTile[] {
   return [
     { label: 'Active Pipeline (14d)', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
     { label: 'Appointments Today', value: String(at), change: 'live', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Open Escalations', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'Open Escalations (Open)', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
     { label: 'Outbound Sent 24h', value: String(os), change: 'live', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ];
 }
@@ -104,7 +104,7 @@ function buildMetricDetails(data: PipelineData | undefined): Record<string, { br
     'Appointments Today': { description: 'Scheduled appointments for today across all departments', breakdown: [
       { label: 'Total Today', value: String(at) },
     ], highlights: at > 0 ? [at + ' appointment' + (at !== 1 ? 's' : '') + ' scheduled for today'] : ['No appointments scheduled for today'] },
-    'Open Escalations': { description: 'Active escalations requiring team attention in TeamBox', breakdown: [
+    'Open Escalations (Open)': { description: 'Active (open) escalations requiring team attention in TeamBox — no time window, ongoing', breakdown: [
       { label: 'Total Open', value: String(oe), detail: 'Includes VIN push failures, unsent messages, and customer escalations' },
     ], highlights: oe > 0 ? [oe + ' escalation' + (oe !== 1 ? 's' : '') + ' need attention'] : ['No open escalations'] },
     'Outbound Sent 24h': { description: 'Outbound messages sent across all channels in the last 24 hours', breakdown: [

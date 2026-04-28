@@ -234,7 +234,7 @@ export function registerInsightRoutes(app: Express) {
           pendingFinance: allLeads.filter(l => l.vinStatus === "pending_finance" || l.vinStatus === "SOLD_PENDING_FINANCE").length,
         },
         greenZone: [
-          { label: "Pipeline Active", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
+          { label: "Total Active Pipeline (30d)", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
           { label: "Conversion Rate", value: `${conversionRate}%`, status: conversionRate > 10 ? "healthy" : "watch" },
           { label: "Total Leads", value: totalLeads, status: "info" },
         ],
@@ -1019,7 +1019,7 @@ export function registerInsightRoutes(app: Express) {
       const libMetrics: Array<{ id: string; title: string; value: string; change: string; trend: string; category: string }> = [];
 
       const c1 = computeChange(activeLeads.length, priorActiveLeads.length);
-      libMetrics.push({ id: "lib-1", title: "Total Active Pipeline", value: String(activeLeads.length), change: c1.change, trend: c1.trend, category: "Pipeline" });
+      libMetrics.push({ id: "lib-1", title: "Total Active Pipeline (30d)", value: String(activeLeads.length), change: c1.change, trend: c1.trend, category: "Pipeline" });
 
       libMetrics.push({ id: "lib-2", title: "Daily New Lead Volume", value: String(leadsCreatedToday.length), change: "\u2014", trend: "neutral", category: "Pipeline" });
 
@@ -1044,7 +1044,7 @@ export function registerInsightRoutes(app: Express) {
 
       const winRate = totalLeads > 0 ? Math.round((soldLeads.length / totalLeads) * 1000) / 10 : 0;
       const c8 = computeRateChange(soldLeads.length, totalLeads, priorSoldLeads.length, priorTotal);
-      libMetrics.push({ id: "lib-8", title: "Overall Win Rate", value: `${winRate}%`, change: c8.change, trend: c8.trend, category: "Conversion" });
+      libMetrics.push({ id: "lib-8", title: "Lifetime Win Rate", value: `${winRate}%`, change: c8.change, trend: c8.trend, category: "Conversion" });
 
       const internetCloseRate = internetLeads.length > 0 ? Math.round((internetSold.length / internetLeads.length) * 1000) / 10 : 0;
       const c9 = computeRateChange(internetSold.length, internetLeads.length, priorInternetSold.length, priorInternetLeads.length);
