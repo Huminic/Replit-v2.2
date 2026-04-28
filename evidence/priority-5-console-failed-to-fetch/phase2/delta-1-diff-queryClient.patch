@@ -1,0 +1,60 @@
+diff --git a/client/src/lib/queryClient.ts b/client/src/lib/queryClient.ts
+index 309fc0c..23057d4 100644
+--- a/client/src/lib/queryClient.ts
++++ b/client/src/lib/queryClient.ts
+@@ -104,9 +104,17 @@ export const getQueryFn: <T>(options: {
+   on401: UnauthorizedBehavior;
+ }) => QueryFunction<T> =
+   ({ on401: unauthorizedBehavior }) =>
+-  async ({ queryKey }) => {
++  // TanStack Query v5 supplies an AbortSignal on the queryFn context. Threading
++  // it into fetch() lets the browser cancel in-flight requests when an observer
++  // unmounts (e.g. SPA route change). Without this, fast navigation across
++  // routes leaves orphaned fetches that the browser cancels with
++  // net::ERR_ABORTED, surfacing as native TypeError("Failed to fetch") and
++  // (with retry: 3) leaking through QueryCache.onError as launch-log noise.
++  // See evidence/priority-5-console-failed-to-fetch/investigation.md.
++  async ({ queryKey, signal }) => {
+     const url = queryKey[0] as string;
+     const res = await fetchWithAutoRefresh(url, {
++      signal,
+       headers: getAuthHeaders(),
+       credentials: "include",
+     });
+@@ -119,9 +127,36 @@ export const getQueryFn: <T>(options: {
+     return await res.json();
+   };
+ 
++// Predicate for navigation/abort errors that should not be logged as
++// "Query error". TanStack v5 already silently skips its own CancelledError
++// from onError (query-core/build/modern/query.js:215-220), but a fetch that
++// was aborted by other means (browser-driven cancellation when the observer
++// unmounts mid-flight, third-party code that doesn't honor the signal,
++// pagehide/unload races) surfaces as a native TypeError("Failed to fetch")
++// or DOMException("AbortError"), which TanStack does NOT treat as cancelled.
++// This filter is intentionally narrow — it must not swallow real backend
++// failures.
++//   - error.name === "AbortError"           → DOMException from AbortController
++//   - message === "Failed to fetch"         → exact native TypeError text
++//   - /aborted/i.test(message)              → "The user aborted a request",
++//                                             "The operation was aborted"
++// Real backend errors from throwIfResNotOk are formatted as `${status}: ${body}`
++// which always begins with a digit and never matches any of the predicates.
++function isNavigationAbortError(error: unknown): boolean {
++  if (!(error instanceof Error)) return false;
++  if (error.name === "AbortError") return true;
++  const msg = error.message ?? "";
++  if (msg === "Failed to fetch") return true;
++  if (/\baborted\b/i.test(msg)) return true;
++  return false;
++}
++
+ export const queryClient = new QueryClient({
+   queryCache: new QueryCache({
+     onError: (error) => {
++      // Defense in depth: skip residual abort/navigation errors that bypass
++      // TanStack's CancelledError silent-skip. Real errors still log normally.
++      if (isNavigationAbortError(error)) return;
+       console.error('Query error:', error.message);
+     },
+   }),

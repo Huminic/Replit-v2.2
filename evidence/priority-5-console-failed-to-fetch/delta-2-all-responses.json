@@ -1,0 +1,662 @@
+[
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/teambox"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/notifications/unread-count"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/organizations/24d64f99-ba04-4b43-af35-fd06f555ac86"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/favorites"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/users"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/campaigns"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/notifications"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/users"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "(login -> /teambox initial)",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/campaigns"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Home",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/metrics/pipeline"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "Home",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/organizations/24d64f99-ba04-4b43-af35-fd06f555ac86"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/notifications/unread-count"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/favorites"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/teambox"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "TeamBox",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "TeamBox",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/sales"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Sales",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Sales",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/service"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Service",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Service",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Marketing",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/marketing"
+  },
+  {
+    "route": "Marketing",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Marketing",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Marketing",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Marketing",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/insights"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Insights",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Insights",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/settings?section=ai"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BMae-BMc.css"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 304,
+    "url": "https://dev.huminicdev.com/assets/index-BfZEenc1.js"
+  },
+  {
+    "route": "Settings AI",
+    "method": "POST",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/refresh"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/auth/me"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/activity-log?limit=8"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/users"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/roles"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/outbound/status"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/settings/org"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/documents"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/widgets"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/notifications/unread-count"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/organizations/24d64f99-ba04-4b43-af35-fd06f555ac86"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/favorites"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/notifications"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=sales"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/conversations?channel=ai-chat"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=marketing"
+  },
+  {
+    "route": "Settings AI",
+    "method": "GET",
+    "status": 200,
+    "url": "https://dev.huminicdev.com/api/agents?department=service"
+  }
+]
