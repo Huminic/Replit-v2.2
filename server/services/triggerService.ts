@@ -92,6 +92,8 @@ async function hasRecentTriggerSend(
     "trigger_after_hours_sent",
     "trigger_after_hours_deferred",
     "trigger_checkin_sent",
+    "trigger_immediate_sent",
+    "trigger_immediate_queued",
   ];
 
   for (const entry of logs) {
@@ -594,8 +596,8 @@ async function evaluateImmediateNewLeadTrigger(org: Organization): Promise<numbe
         });
         if (result.status === "sent") {
           triggered++;
-          await createTriggerConversation(org, lead, smsAgent, message);
-          storage.createActivityLog({
+          // Activity log is awaited so the next 15-minute cron pass sees the dedup row.
+          await storage.createActivityLog({
             organizationId: org.id,
             action: "trigger_immediate_sent",
             entityType: "warehouse_lead",
@@ -606,7 +608,8 @@ async function evaluateImmediateNewLeadTrigger(org: Organization): Promise<numbe
               customerName: lead.customerName,
               leadSource: lead.leadSource,
             },
-          }).catch(() => {});
+          });
+          await createTriggerConversation(org, lead, smsAgent, message);
           console.log("[TriggerService] Immediate trigger SENT to " + lead.customerPhone);
         } else {
           console.log("[TriggerService] Immediate trigger to " + lead.customerPhone + " was " + result.status + ": " + (result.blockedReason || "no reason"));
@@ -629,8 +632,9 @@ async function evaluateImmediateNewLeadTrigger(org: Organization): Promise<numbe
           },
           executeAt,
         });
-        triggered++;
-        storage.createActivityLog({
+        // Activity log is awaited BEFORE incrementing the counter so the next
+        // 15-minute cron pass sees the dedup row and won't re-enqueue.
+        await storage.createActivityLog({
           organizationId: org.id,
           action: "trigger_immediate_queued",
           entityType: "warehouse_lead",
@@ -643,7 +647,8 @@ async function evaluateImmediateNewLeadTrigger(org: Organization): Promise<numbe
             executeAt: executeAt.toISOString(),
             reason: "after_hours_deferred_to_morning",
           },
-        }).catch(() => {});
+        });
+        triggered++;
         console.log("[TriggerService] Immediate trigger DEFERRED to " + lead.customerPhone + " — queued for " + executeAt.toISOString());
       }
     } catch (leadErr: any) {
