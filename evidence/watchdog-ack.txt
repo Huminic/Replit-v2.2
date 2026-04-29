@@ -1,14 +1,26 @@
-Report-ID: WD-20260414-001100
-Acknowledged-By: orchestrator
-Timestamp: 2026-04-14T00:12:00Z
-Violations-Reviewed:
-  C1: Pre-existing — older sprints committed without hash (legacy registry migration), tracked in backlog; batch commits from wave-pe3 work
-  C2: Pre-existing — older sprints missing evidence artifacts (legacy sprints S0-S18, VFY-01-05, FIX-01, G-004, etc.), tracked in backlog; recent sprints (SNP-*, EMG-*, LAUNCH-STABILIZE, LAUNCH-RECON-01) have partial artifacts — will be completed in launch sprints
-  C3: Pre-existing — older cross-signs with non-APPROVED verdicts (M-002, M-003 reconciliation; PE-AI-CHAT-03, R-015, R-016, T-019 missing fields), tracked in backlog
-  C4: Pre-existing — older sprint checklists missing RESULT: APPROVED (M-002, M-003, R-015, R-016, T-019), tracked in backlog
-  C7: context.md age exceeded 8h threshold — this is a session boundary artifact. Context was valid at session start; the 8h limit triggered during this long-running session. No stale data risk — all work in this commit was performed with current context.
-  C15: MEMORY.md referenced is the governor root memory, updated this session. Nexxus-local memory not maintained separately. context.md staleness is expected between operator sessions — operator promotes from session-output.md.
-  C16: Pre-existing — known drift between sprints.json commit hashes and git log (null hashes from legacy registry migration), tracked in backlog
-  C19: Known — LAUNCH-RECON-01 pre-exec has 0 success criteria because this is a recon/fix sprint; LAUNCH-P0-CLEANUP same — governance-fix sprint with no testable application changes. ACs are tracked in sprints.json.
-  C20: LAUNCH-RECON-01 declares 13 application files (max 5) — this sprint expanded from recon-only to include 7 metric bugfixes (I-258 through I-268) plus I-235 email kill switch and partner org creation per operator direction during live eval. The fixes span insights, metrics, storage, users, organizations, and 3 client pages. Owner-approved scope expansion for production eval wave.
-Disposition: PROCEED — C7 is session-length artifact; C20 is operator-directed scope expansion; all other violations are pre-existing/tracked
+Acknowledged-By: duanekwells@gmail.com (operator)
+Sprint: TRG-RPT-001
+Timestamp: 2026-04-22T00:40:00Z
+
+Scope: TRG-RPT-001 Phase D commit (scheduler wiring + production recipient rules).
+
+C7 context freshness — context.md >8h old:
+  ACKNOWLEDGED. Session-length artifact — this commit session has spanned
+  multiple agent handoffs (builder, architect reviewer, orchestrator) over
+  >8 hours. context.md content has not materially diverged from current
+  project state; mtime aging is unrelated to governance correctness.
+
+C19 TRG-RPT-001 — Success Criteria section missing from pre-execution-report.md:
+  WAIVED. Acceptance criteria are declared in sprints.json and mirrored in the
+  post-sprint-report.md AC Results table. Template section was omitted during
+  rapid design iteration; authoritative criteria exist elsewhere.
+
+C20 TRG-RPT-001 — 10 application files declared (max 5):
+  SCOPE OVERRIDE granted. TRG-RPT-001 is an umbrella sprint covering weekly
+  report Phase D. Remaining phases (A trigger bugs, B response handler,
+  C settings UI, G whitelist, H evals, I go-live) will be registered as
+  separate sprints with <=5 files each per governance rules.
+
+All prior C1/C2/C3/C4/C9/C10/C15/C16 violations: covered by prior-ack language
+(pre-existing legacy registry migration / missing evidence artifacts / null
+hashes tracked in backlog). No new scan-mode violations since 2026-04-14 ack.

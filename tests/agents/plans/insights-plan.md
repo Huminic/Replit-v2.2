@@ -210,7 +210,7 @@ Options: "All Stores" + org list from `GET /api/organizations`.
 | ID | Name | Priority | Existing? | Steps | Expected Result |
 |----|------|----------|-----------|-------|-----------------|
 | TC-INS-030 | Green zone section header visible | P1 | NEW | Verify "Today's Performance" heading with green dot indicator. | Green zone header present |
-| TC-INS-031 | Green zone metric cards render dynamically | P0 | NEW | Verify at least one `green-metric-gz-*` card exists. Check it shows label, value, trend icon. | Dynamic green metric cards with Pipeline Active, Conversion Rate, Total Leads |
+| TC-INS-031 | Green zone metric cards render dynamically | P0 | NEW | Verify at least one `green-metric-gz-*` card exists. Check it shows label, value, trend icon. | Dynamic green metric cards with Total Active Pipeline (30d), Conversion Rate, Total Leads |
 | TC-INS-032 | Green zone card click opens detail dialog | P1 | NEW | Click a `green-metric-gz-*` card. Verify `dialog-green-zone-detail` opens. | Dialog shows selected metric detail |
 
 ### Section 5: Dashboard -- Pipeline Health
@@ -314,7 +314,7 @@ Options: "All Stores" + org list from `GET /api/organizations`.
 | ID | Name | Priority | Existing? | Steps | Expected Result |
 |----|------|----------|-----------|-------|-----------------|
 | TC-INS-150 | Pin to Dashboard removed | P1 | EXISTING (7.5) | Navigate to /insights. Search for "Pin to Dashboard" button or pin icon. | Zero pin-to-dashboard elements found |
-| TC-INS-151 | Lead source labels show meaningful names | P1 | EXISTING (7.6) | Navigate to /insights. Check page text for raw "VIN Source #" patterns. | No raw VIN Source # labels present; all resolved to human-readable names |
+| TC-INS-151 | Lead source labels show meaningful names | P1 | EXISTING (7.6) | Navigate to /insights. Check page text for raw "Source #" fallback patterns (renamed from "VIN Source #" by Fix 7.5 / 2026-04-26). | No raw Source # labels present; all resolved to human-readable names |
 | TC-INS-152 | Report sub-tab resets when category changes | P2 | NEW | Click Loss category, switch to tab2. Then click Channel category. | Sub-tab resets to tab1 when switching report categories |
 | TC-INS-153 | Embedded mode renders without page header | P2 | NEW | Render `<InsightsPage embedded />` (from Sales page Insights tab). Verify no duplicate header. | Embedded mode suppresses standalone page wrapper |
 

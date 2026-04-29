@@ -62,10 +62,16 @@ interface MetricTile {
   iconBg: string;
 }
 
+// P6 follow-up: 'Active Pipeline' renamed to 'Active Pipeline (14d)' to
+// match Sales (sales.tsx). The Home tile sources the same 14d metric from
+// /api/metrics/dashboard. metricApiKeys map keys MUST track the literal
+// label string used in buildPipelineTiles (line ~78) — the drill-down
+// detail dialog at line ~372 looks up the API key via
+// metricApiKeys[selectedMetric.label].
 const metricApiKeys: Record<string, string> = {
-  'Active Pipeline': 'active_pipeline',
+  'Active Pipeline (14d)': 'active_pipeline',
   'Appointments Today': 'appointments_today',
-  'Open Escalations': 'open_escalations',
+  'Open Escalations (Open)': 'open_escalations',
   'Outbound Sent 24h': 'outbound_sent',
 };
 
@@ -75,9 +81,9 @@ function buildPipelineTiles(data: PipelineData | undefined): MetricTile[] {
   const oe = data?.openEscalations ?? 0;
   const os = data?.outboundSent24h ?? 0;
   return [
-    { label: 'Active Pipeline', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
+    { label: 'Active Pipeline (14d)', value: String(ap), change: 'live', trend: 'up', gradient: 'from-emerald-500/15 via-green-500/10 to-teal-500/5', iconBg: 'bg-emerald-500/20' },
     { label: 'Appointments Today', value: String(at), change: 'live', trend: 'up', gradient: 'from-blue-500/15 via-indigo-500/10 to-violet-500/5', iconBg: 'bg-blue-500/20' },
-    { label: 'Open Escalations', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
+    { label: 'Open Escalations (Open)', value: String(oe), change: 'live', trend: oe > 0 ? 'down' : 'up', gradient: 'from-amber-500/15 via-orange-500/10 to-red-500/5', iconBg: 'bg-amber-500/20' },
     { label: 'Outbound Sent 24h', value: String(os), change: 'live', trend: 'up', gradient: 'from-purple-500/15 via-violet-500/10 to-indigo-500/5', iconBg: 'bg-purple-500/20' },
   ];
 }
@@ -89,14 +95,16 @@ function buildMetricDetails(data: PipelineData | undefined): Record<string, { br
   const oe = data?.openEscalations ?? 0;
   const os = data?.outboundSent24h ?? 0;
   return {
-    'Active Pipeline': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
+    // P6 follow-up: key MUST match the tile label at line ~78. Lookup at
+    // line ~572 via metricDetails[selectedMetric.label].
+    'Active Pipeline (14d)': { description: 'Leads created in the last 14 days, excluding Lost, Sold, and Duplicate statuses', breakdown: [
       { label: 'Total Active Leads', value: String(ap) },
       { label: 'Window', value: '14 days', detail: 'Active leads from the last 14 days' },
     ], highlights: ap > 0 ? ['14-day pipeline window ensures freshness'] : ['No active pipeline leads in the current window'] },
     'Appointments Today': { description: 'Scheduled appointments for today across all departments', breakdown: [
       { label: 'Total Today', value: String(at) },
     ], highlights: at > 0 ? [at + ' appointment' + (at !== 1 ? 's' : '') + ' scheduled for today'] : ['No appointments scheduled for today'] },
-    'Open Escalations': { description: 'Active escalations requiring team attention in TeamBox', breakdown: [
+    'Open Escalations (Open)': { description: 'Active (open) escalations requiring team attention in TeamBox — no time window, ongoing', breakdown: [
       { label: 'Total Open', value: String(oe), detail: 'Includes VIN push failures, unsent messages, and customer escalations' },
     ], highlights: oe > 0 ? [oe + ' escalation' + (oe !== 1 ? 's' : '') + ' need attention'] : ['No open escalations'] },
     'Outbound Sent 24h': { description: 'Outbound messages sent across all channels in the last 24 hours', breakdown: [
@@ -620,6 +628,7 @@ export default function MainPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const conversationIdRef = useRef<string | null>(null);
   const [, setLocation] = useLocation();
   const searchString = useSearch();
 
@@ -628,6 +637,7 @@ export default function MainPage() {
     const params = new URLSearchParams(searchString);
     const resumeId = params.get('conversationId');
     if (resumeId) {
+      conversationIdRef.current = resumeId;
       setConversationId(resumeId);
       setMessages([]);
       setInitialized(true);
@@ -650,8 +660,8 @@ export default function MainPage() {
     enabled: !!authUser,
   });
 
-  const findOrCreateConversation = useCallback(async () => {
-    if (!authUser || initialized) return;
+  const findOrCreateConversation = useCallback(async (): Promise<string | null> => {
+    if (!authUser || initialized) return conversationIdRef.current;
 
     // Reuse an existing ai-chat conversation for this user if one exists
     const userEmail = authUser.email;
@@ -660,14 +670,15 @@ export default function MainPage() {
     );
 
     if (match) {
+      conversationIdRef.current = match.id;
       setConversationId(match.id);
       setChatError(null);
       setInitialized(true);
-      return;
+      return match.id;
     }
 
     // Only create if the query has resolved (not still loading)
-    if (existingConversations === undefined) return;
+    if (existingConversations === undefined) return null;
 
     try {
       const res = await apiRequest('POST', '/api/conversations', {
@@ -677,13 +688,16 @@ export default function MainPage() {
         status: 'open',
       });
       const newConv: DbConversation = await res.json();
+      conversationIdRef.current = newConv.id;
       setConversationId(newConv.id);
       setChatError(null);
       queryClient.invalidateQueries({ queryKey: ['/api/conversations?channel=ai-chat'] });
       setInitialized(true);
+      return newConv.id;
     } catch (err) {
       console.error('Failed to create main chat conversation:', err);
       setChatError('Failed to initialize chat. Click to retry.');
+      return null;
     }
   }, [authUser, existingConversations, initialized, personaName]);
 
@@ -738,15 +752,16 @@ export default function MainPage() {
   const handleSend = async () => {
     if (!inputValue.trim()) return;
 
-    if (!conversationId) {
-      // Try to recreate the conversation before giving up
+    let activeConversationId = conversationId || conversationIdRef.current;
+    if (!activeConversationId) {
+      // Conversation not yet initialized — create it and use the returned ID directly
       setChatError(null);
       setInitialized(false);
-      await findOrCreateConversation();
-      // conversationId is set via state, so we can't read it synchronously here.
-      // Show a toast and let the user retry after the conversation initializes.
-      toast({ title: 'Chat initializing', description: 'Please try sending your message again.', variant: 'default' });
-      return;
+      activeConversationId = await findOrCreateConversation();
+      if (!activeConversationId) {
+        toast({ title: 'Chat error', description: 'Could not create conversation. Please refresh the page.', variant: 'destructive' });
+        return;
+      }
     }
 
     const content = inputValue.trim();
@@ -765,7 +780,7 @@ export default function MainPage() {
       setTilesCollapsed(true);
     }
 
-    await streamSend(content);
+    await streamSend(content, activeConversationId);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

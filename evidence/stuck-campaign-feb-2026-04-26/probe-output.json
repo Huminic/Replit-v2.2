@@ -1,0 +1,127 @@
+{
+  "probed_at": "2026-04-26T07:26:56.195Z",
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "name": "Serra Honda",
+    "slug": "serra-honda",
+    "sms_enabled": true,
+    "email_enabled": true,
+    "phone_enabled": true,
+    "outbound_enabled": true,
+    "settings_keys": [
+      "adfBrand",
+      "adfEmail",
+      "timezone",
+      "adfLeadSource",
+      "textmagicPhone",
+      "triggersEnabled",
+      "vapiPhoneNumberId",
+      "checkInDelayMinutes",
+      "checkInTriggerEnabled",
+      "afterHoursTriggerEnabled"
+    ]
+  },
+  "matched_campaigns_count": 1,
+  "matched_campaigns_detail": [
+    {
+      "campaign": {
+        "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+        "name": "Service Reminder - February",
+        "department": "service",
+        "status": "active",
+        "channel": "sms",
+        "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "kill_switch": false,
+        "recipient_count": 16,
+        "sent_count": 0,
+        "replied_count": 0,
+        "csv_filename": "test-recipients.csv",
+        "message_template_len": null,
+        "send_interval_seconds": 60,
+        "execution_status": "idle",
+        "execution_total": 0,
+        "execution_processed": 0,
+        "execution_sent": 0,
+        "execution_failed": 0,
+        "execution_started_at": null,
+        "scheduled_at": null,
+        "created_at": "2026-04-03T05:01:53.856Z",
+        "updated_at": "2026-04-03T14:26:45.955Z"
+      },
+      "recipient_total": 16,
+      "recipient_status_breakdown": [
+        {
+          "status": "pending",
+          "n": 16
+        }
+      ],
+      "recipient_sample": [
+        {
+          "id": "6e5f6e19-3380-40ee-89ed-17fb2ef37fa5",
+          "status": "pending",
+          "sent_at": null,
+          "delivered_at": null,
+          "created_at": "2026-04-03T05:01:58.766Z",
+          "has_phone": true,
+          "has_email": true,
+          "phone_prefix": "20555"
+        },
+        {
+          "id": "1c5494ea-477e-4465-8849-f9adb7f96006",
+          "status": "pending",
+          "sent_at": null,
+          "delivered_at": null,
+          "created_at": "2026-04-03T05:01:58.766Z",
+          "has_phone": true,
+          "has_email": true,
+          "phone_prefix": "20555"
+        },
+        {
+          "id": "5fddce60-183f-4471-87e3-0fdf7b9c7cfd",
+          "status": "pending",
+          "sent_at": null,
+          "delivered_at": null,
+          "created_at": "2026-04-03T05:01:58.766Z",
+          "has_phone": true,
+          "has_email": true,
+          "phone_prefix": "20555"
+        }
+      ],
+      "outbound_log_breakdown": [],
+      "outbound_log_sample": []
+    }
+  ],
+  "other_scheduled_campaigns_for_org": [],
+  "recent_outbound_30d_serra_honda": [
+    {
+      "status": "blocked",
+      "channel": "sms",
+      "n": 178
+    },
+    {
+      "status": "dry_run",
+      "channel": "phone",
+      "n": 2
+    },
+    {
+      "status": "dry_run",
+      "channel": "sms",
+      "n": 2
+    },
+    {
+      "status": "failed",
+      "channel": "sms",
+      "n": 31
+    },
+    {
+      "status": "sent",
+      "channel": "email",
+      "n": 361
+    },
+    {
+      "status": "sent",
+      "channel": "sms",
+      "n": 59
+    }
+  ]
+}

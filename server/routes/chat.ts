@@ -5,6 +5,7 @@ import { storage } from "../storage";
 import { braveWebSearch } from "../braveSearch";
 import { callMCP, resolveNexxusOrgId } from "../vendorProxy";
 import { billingService } from "../services/billingService";
+import { substituteOrgContext } from "../lib/templateSubstitute";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -158,7 +159,17 @@ export function registerChatRoutes(app: Express) {
           agentName = agent.name;
           agentContext = `\n\nYou are specifically acting as the agent "${agent.name}" in the ${agent.department} department.`;
           if (agent.description) agentContext += ` Agent description: ${agent.description}`;
-          if (agent.instructions) agentContext += `\n\nAgent-specific instructions:\n${agent.instructions}`;
+          if (agent.instructions) {
+            // I-269: substitute org-context template variables (currently
+            // {{dealershipName}}) before appending. Runtime placeholders like
+            // {{customerName}} / {{vehicleOfInterest}} stay literal — they
+            // are instructions to Claude about which placeholders to use in
+            // drafted customer templates, not values to substitute here.
+            const resolvedInstructions = substituteOrgContext(agent.instructions, {
+              dealershipName: orgName,
+            });
+            agentContext += `\n\nAgent-specific instructions:\n${resolvedInstructions}`;
+          }
         }
       }
 

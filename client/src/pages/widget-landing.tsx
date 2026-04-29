@@ -128,6 +128,17 @@ export default function WidgetLandingPage() {
           } else { setVideoStatus('error'); }
         } catch { setVideoStatus('error'); }
       })();
+    } else if (queryMode === 'chat' && orgData && !loading && !autoLaunched) {
+      setAutoLaunched(true);
+      setWidgetMode('chat');
+    } else if (queryMode === 'voice' && orgData && !loading && !autoLaunched) {
+      setAutoLaunched(true);
+      setWidgetMode('voice');
+      setCallbackStatus('idle');
+      setCallbackPhone('');
+    } else if (queryMode === 'form' && orgData && !loading && !autoLaunched) {
+      setAutoLaunched(true);
+      setWidgetMode('form');
     }
   }, [queryMode, orgData, loading, autoLaunched, slug]);
 

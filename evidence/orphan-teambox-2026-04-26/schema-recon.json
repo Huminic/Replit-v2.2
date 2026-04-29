@@ -1,0 +1,489 @@
+{
+  "probed_at": "2026-04-26T10:43:11.748Z",
+  "conversations_columns": [
+    {
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "column_name": "customer_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "customer_email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "customer_phone",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "channel",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'chat'::text"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'open'::text"
+    },
+    {
+      "column_name": "agent_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "assigned_to",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "organization_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "campaign_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "source_conversation_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "campaign_disconnected",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "column_name": "unread_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "last_message_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "escalation_sent_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "stale_trigger_processed_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "foreign_keys_touching_conversations": [
+    {
+      "source_table": "conversations",
+      "source_column": "agent_id",
+      "target_table": "agents",
+      "target_column": "id",
+      "on_delete": "SET NULL",
+      "on_update": "NO ACTION",
+      "constraint_name": "conversations_agent_id_agents_id_fk"
+    },
+    {
+      "source_table": "conversations",
+      "source_column": "assigned_to",
+      "target_table": "users",
+      "target_column": "id",
+      "on_delete": "SET NULL",
+      "on_update": "NO ACTION",
+      "constraint_name": "conversations_assigned_to_users_id_fk"
+    },
+    {
+      "source_table": "conversations",
+      "source_column": "campaign_id",
+      "target_table": "campaigns",
+      "target_column": "id",
+      "on_delete": "SET NULL",
+      "on_update": "NO ACTION",
+      "constraint_name": "conversations_campaign_id_campaigns_id_fk"
+    },
+    {
+      "source_table": "conversations",
+      "source_column": "organization_id",
+      "target_table": "organizations",
+      "target_column": "id",
+      "on_delete": "CASCADE",
+      "on_update": "NO ACTION",
+      "constraint_name": "conversations_organization_id_organizations_id_fk"
+    },
+    {
+      "source_table": "messages",
+      "source_column": "conversation_id",
+      "target_table": "conversations",
+      "target_column": "id",
+      "on_delete": "CASCADE",
+      "on_update": "NO ACTION",
+      "constraint_name": "messages_conversation_id_conversations_id_fk"
+    }
+  ],
+  "related_tables_columns": {
+    "appointments": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "title",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "customer_name",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "customer_phone",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "customer_email",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "appointment_type",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "department",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "assigned_user_id",
+        "type": "uuid",
+        "nullable": "YES"
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "start_time",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      },
+      {
+        "column": "end_time",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "notes",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "source",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      }
+    ],
+    "campaign_recipients": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "campaign_id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "first_name",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "last_name",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "phone",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "email",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "vin",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "vehicle_model",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "vehicle_year",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "sent_at",
+        "type": "timestamp without time zone",
+        "nullable": "YES"
+      },
+      {
+        "column": "delivered_at",
+        "type": "timestamp without time zone",
+        "nullable": "YES"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      }
+    ],
+    "messages": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "conversation_id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "role",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "content",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "sender_name",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      }
+    ],
+    "outbound_log": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "campaign_id",
+        "type": "uuid",
+        "nullable": "YES"
+      },
+      {
+        "column": "recipient_id",
+        "type": "uuid",
+        "nullable": "YES"
+      },
+      {
+        "column": "channel",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "blocked_reason",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "message_content",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "sent_at",
+        "type": "timestamp without time zone",
+        "nullable": "YES"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      },
+      {
+        "column": "recipient_name",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "recipient_phone",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "recipient_email",
+        "type": "text",
+        "nullable": "YES"
+      }
+    ],
+    "tasks": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "type",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "title",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "description",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "priority",
+        "type": "text",
+        "nullable": "NO"
+      },
+      {
+        "column": "due_date",
+        "type": "timestamp without time zone",
+        "nullable": "YES"
+      },
+      {
+        "column": "assigned_user_id",
+        "type": "uuid",
+        "nullable": "YES"
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": "NO"
+      },
+      {
+        "column": "tags",
+        "type": "ARRAY",
+        "nullable": "YES"
+      },
+      {
+        "column": "metadata",
+        "type": "text",
+        "nullable": "YES"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamp without time zone",
+        "nullable": "NO"
+      }
+    ]
+  },
+  "soft_conversation_id_columns": [
+    {
+      "table_name": "conversations",
+      "column_name": "source_conversation_id",
+      "data_type": "uuid"
+    },
+    {
+      "table_name": "messages",
+      "column_name": "conversation_id",
+      "data_type": "uuid"
+    }
+  ]
+}

@@ -1,73 +1,13 @@
 import type { Express } from "express";
 import { authenticateToken } from "../auth";
 import { storage } from "../storage";
-import { callMCP, resolveNexxusOrgId } from "../vendorProxy";
 import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
-
-/**
- * Cache for VIN Solutions lead source ID -> name mappings.
- * Keyed by orgId, populated on first request per org.
- */
-const leadSourceCache = new Map<string, { map: Map<string, string>; fetchedAt: number }>();
-const LEAD_SOURCE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
-
-async function getLeadSourceMap(orgId: string): Promise<Map<string, string>> {
-  const cached = leadSourceCache.get(orgId);
-  if (cached && Date.now() - cached.fetchedAt < LEAD_SOURCE_CACHE_TTL_MS) {
-    return cached.map;
-  }
-
-  const map = new Map<string, string>();
-  try {
-    const nexxusOrgId = resolveNexxusOrgId(orgId);
-    const data = await callMCP("vin_get_lead_sources", { orgId: nexxusOrgId });
-    const sources = Array.isArray(data) ? data : (data?.items || data?.leadSources || []);
-    for (const src of sources) {
-      const id = String(src.id || src.sourceId || "");
-      const name = src.name || src.description || "";
-      if (id && name) {
-        map.set(id, name);
-      }
-    }
-    leadSourceCache.set(orgId, { map, fetchedAt: Date.now() });
-  } catch (err) {
-    console.log(`[Insights] Failed to fetch lead source mapping for org ${orgId}: ${err}`);
-    // Return empty map on failure — formatLeadSource will fall back to ID-based label
-  }
-  return map;
-}
-
-/**
- * Transform a raw lead source value into a human-readable label.
- * VIN Solutions stores lead sources as API URLs like:
- *   "https://api.vinsolutions.com/leadsources/id/7098?dealerid=21043"
- * This resolves the numeric ID to a human-readable name via the cached
- * lead source mapping from VIN Solutions. Falls back to "VIN Source #ID"
- * if the mapping is not available.
- * Non-URL values are returned as-is.
- */
-function formatLeadSource(raw: string | null | undefined, sourceMap?: Map<string, string>): string {
-  if (!raw) return "Unknown";
-  // Match VIN Solutions leadsources URL pattern
-  const vinMatch = raw.match(/\/leadsources\/id\/(\d+)/i);
-  if (vinMatch) {
-    const sourceId = vinMatch[1];
-    if (sourceMap && sourceMap.has(sourceId)) {
-      return sourceMap.get(sourceId)!;
-    }
-    return `VIN Source #${sourceId}`;
-  }
-  // If it looks like a generic URL but not a VIN leadsources URL, show domain
-  if (raw.startsWith("http://") || raw.startsWith("https://")) {
-    try {
-      const hostname = new URL(raw).hostname;
-      return hostname;
-    } catch {
-      return raw;
-    }
-  }
-  return raw;
-}
+import {
+  computeAvgDaysToFirstContact,
+  formatAvgDaysToFirstContact,
+} from "../lib/leadContactMatch";
+import { formatLeadSource, getLeadSourceMap } from "../lib/leadSourceFormat";
+import { computeChange, computeRateChange } from "../lib/metricDelta";
 
 /**
  * Derive a channel category from the lead source string.
@@ -294,7 +234,7 @@ export function registerInsightRoutes(app: Express) {
           pendingFinance: allLeads.filter(l => l.vinStatus === "pending_finance" || l.vinStatus === "SOLD_PENDING_FINANCE").length,
         },
         greenZone: [
-          { label: "Pipeline Active", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
+          { label: "Total Active Pipeline (30d)", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
           { label: "Conversion Rate", value: `${conversionRate}%`, status: conversionRate > 10 ? "healthy" : "watch" },
           { label: "Total Leads", value: totalLeads, status: "info" },
         ],
@@ -1037,24 +977,11 @@ export function registerInsightRoutes(app: Express) {
         ? Math.round((activeLeads.length / projectedClose) * 100) / 100
         : activeLeads.length > 0 ? 999 : 0;
 
-      const computeChange = (current: number, prior: number): { change: string; trend: 'up' | 'down' | 'neutral' } => {
-        if (prior === 0 && current === 0) return { change: "\u2014", trend: "neutral" };
-        if (prior === 0) return { change: `+${current}`, trend: "up" };
-        const pctChange = Math.round(((current - prior) / prior) * 100);
-        if (pctChange > 0) return { change: `+${pctChange}%`, trend: "up" };
-        if (pctChange < 0) return { change: `${pctChange}%`, trend: "down" };
-        return { change: "0%", trend: "neutral" };
-      };
-
-      const computeRateChange = (curNum: number, curDen: number, priorNum: number, priorDen: number): { change: string; trend: 'up' | 'down' | 'neutral' } => {
-        const curRate = curDen > 0 ? (curNum / curDen) * 100 : 0;
-        const priorRate = priorDen > 0 ? (priorNum / priorDen) * 100 : 0;
-        if (priorDen === 0) return { change: "\u2014", trend: "neutral" };
-        const diff = Math.round(curRate - priorRate);
-        if (diff > 0) return { change: `+${diff}pp`, trend: "up" };
-        if (diff < 0) return { change: `${diff}pp`, trend: "down" };
-        return { change: "0pp", trend: "neutral" };
-      };
+      // Priority #6 (Commit A) \u2014 `computeChange` and `computeRateChange`
+      // are now exported from `server/lib/metricDelta.ts` so they can be
+      // unit-tested in isolation. `computeChange` enforces the operator's
+      // tiny-base policy (prior < 5 \u2192 '\u2014' neutral); `computeRateChange`
+      // preserves its original priorDen===0 suppression behavior.
 
       const weeklyTrend = leadsLast7Days.length / 7;
       const priorSevenStart = new Date(sevenDaysAgo);
@@ -1092,7 +1019,7 @@ export function registerInsightRoutes(app: Express) {
       const libMetrics: Array<{ id: string; title: string; value: string; change: string; trend: string; category: string }> = [];
 
       const c1 = computeChange(activeLeads.length, priorActiveLeads.length);
-      libMetrics.push({ id: "lib-1", title: "Total Active Pipeline", value: String(activeLeads.length), change: c1.change, trend: c1.trend, category: "Pipeline" });
+      libMetrics.push({ id: "lib-1", title: "Total Active Pipeline (30d)", value: String(activeLeads.length), change: c1.change, trend: c1.trend, category: "Pipeline" });
 
       libMetrics.push({ id: "lib-2", title: "Daily New Lead Volume", value: String(leadsCreatedToday.length), change: "\u2014", trend: "neutral", category: "Pipeline" });
 
@@ -1107,12 +1034,17 @@ export function registerInsightRoutes(app: Express) {
       const c6 = computeChange(stagnantLeads.length, priorStagnantLeads.length);
       libMetrics.push({ id: "lib-6", title: "Pipeline Stagnation Index", value: String(stagnantLeads.length), change: c6.change, trend: stagnantLeads.length > priorStagnantLeads.length ? "down" : stagnantLeads.length < priorStagnantLeads.length ? "up" : "neutral", category: "Pipeline" });
 
-      const c7 = computeChange(freshRatio, priorFreshRatio);
+      // Priority #6 (Commit A bonus, operator-authorized 2026-04-27):
+      // lib-7 is a rate (%); a rate-vs-rate delta should be expressed in
+      // percentage points (pp), not relative percent change. Switching from
+      // computeChange to computeRateChange so this renders e.g. "+9pp" not
+      // "+43%" — matches lib-8/14/15/16/27 convention.
+      const c7 = computeRateChange(freshLeads.length, activeLeads.length, priorFreshLeads.length, priorActiveLeads.length);
       libMetrics.push({ id: "lib-7", title: "Fresh Lead Ratio", value: `${freshRatio}%`, change: c7.change, trend: c7.trend, category: "Pipeline" });
 
       const winRate = totalLeads > 0 ? Math.round((soldLeads.length / totalLeads) * 1000) / 10 : 0;
       const c8 = computeRateChange(soldLeads.length, totalLeads, priorSoldLeads.length, priorTotal);
-      libMetrics.push({ id: "lib-8", title: "Overall Win Rate", value: `${winRate}%`, change: c8.change, trend: c8.trend, category: "Conversion" });
+      libMetrics.push({ id: "lib-8", title: "Lifetime Win Rate", value: `${winRate}%`, change: c8.change, trend: c8.trend, category: "Conversion" });
 
       const internetCloseRate = internetLeads.length > 0 ? Math.round((internetSold.length / internetLeads.length) * 1000) / 10 : 0;
       const c9 = computeRateChange(internetSold.length, internetLeads.length, priorInternetSold.length, priorInternetLeads.length);
@@ -1159,7 +1091,37 @@ export function registerInsightRoutes(app: Express) {
       // I-267: Engagement metric is misleading (always near 100%) — show N/A until a better signal is implemented
       libMetrics.push({ id: "lib-20", title: "Engagement Transition", value: "—", change: "—", trend: "neutral", category: "Response" });
 
-      libMetrics.push({ id: "lib-21", title: "Avg Time to 1st Contact", value: "\u2014", change: "\u2014", trend: "neutral", category: "Response" });
+      // I-260: compute Avg Time to 1st Contact across leads with at least one
+      // matched conversation (phone last-10 digits OR email case-insensitive).
+      // Returns null when no matches \u2014 UI renders "\u2014" + "Data source not
+      // connected" via the existing fallback at insights.tsx:1410-1419.
+      const avgFirstContact = computeAvgDaysToFirstContact(allLeads, allOrgConversations);
+      const priorAvgFirstContact = computeAvgDaysToFirstContact(priorOnlyLeads, allOrgConversations);
+      let lib21Change = "\u2014";
+      let lib21Trend: "up" | "down" | "neutral" = "neutral";
+      if (avgFirstContact && priorAvgFirstContact) {
+        const diff = avgFirstContact.avgDays - priorAvgFirstContact.avgDays;
+        // Lower is better \u2014 "down" means faster contact (improvement).
+        if (Math.abs(diff) < 0.05) {
+          lib21Change = "0%";
+          lib21Trend = "neutral";
+        } else {
+          const pct = priorAvgFirstContact.avgDays > 0
+            ? Math.round((diff / priorAvgFirstContact.avgDays) * 100)
+            : 0;
+          lib21Change = pct > 0 ? `+${pct}%` : `${pct}%`;
+          // Inverted: increase in days is BAD ("down"), decrease is GOOD ("up").
+          lib21Trend = pct > 0 ? "down" : "up";
+        }
+      }
+      libMetrics.push({
+        id: "lib-21",
+        title: "Avg Time to 1st Contact",
+        value: avgFirstContact ? formatAvgDaysToFirstContact(avgFirstContact.avgDays) : "\u2014",
+        change: lib21Change,
+        trend: lib21Trend,
+        category: "Response",
+      });
 
       libMetrics.push({ id: "lib-22", title: "Top Source", value: totalLeads > 0 ? `${topSourceName} (${topSourcePct}%)` : "\u2014", change: "\u2014", trend: "neutral", category: "Lead Source" });
 

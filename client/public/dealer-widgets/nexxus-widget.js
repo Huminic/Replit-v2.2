@@ -419,8 +419,11 @@
 
   // ── Close on outside click ─────────────────────────────────
   document.addEventListener('click', function(e) {
-    if (state !== 'closed' && !container.contains(e.target)) {
-      closeWidget();
+    if (state !== 'closed') {
+      var path = e.composedPath ? e.composedPath() : [e.target];
+      if (path.indexOf(container) === -1) {
+        closeWidget();
+      }
     }
   });
 

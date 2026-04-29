@@ -1,0 +1,2088 @@
+{
+  "classified_at": "2026-04-27T00:10:38.215Z",
+  "policy": "decisions.md 2026-04-27 (supersedes 2026-04-26)",
+  "source_snapshot": "/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/orphan-teambox-2026-04-26/full-serra-honda-delete-preview-2026-04-26.json",
+  "source_snapshot_probed_at": "2026-04-26T16:18:41.427Z",
+  "deletion_commit": "831bbc2",
+  "deletion_executed_at": "2026-04-26T16:18:41.427Z",
+  "snapshot_integrity": {
+    "has_full_conversation_columns": true,
+    "has_per_conversation_message_count": true,
+    "captures_individual_message_rows_with_content": false,
+    "captures_message_role_sender_or_created_at": false,
+    "note": "The DELETE was DELETE FROM conversations WHERE organization_id = $1, which CASCADE-deleted 176 message rows via messages.conversation_id ON DELETE CASCADE. The saved preview JSON only captured the 84 conversations rows + their per-row message_count — NOT the 176 individual messages. Restoring the conversation rows alone would re-create empty threads. Transcript content for any VAPI inbound calls (or other channels) was lost when the CASCADE fired. This is documented as a hard limitation in restore-plan-2026-04-27.md."
+  },
+  "summary": {
+    "total_deleted_rows": 84,
+    "total_cascaded_message_rows": 176,
+    "PRESERVE_REAL_OR_INTEGRATION": 20,
+    "DELETE_PROVEN_TEST": 37,
+    "REVIEW_UNKNOWN": 27,
+    "rows_that_should_not_have_been_deleted": 47
+  },
+  "channel_by_bucket": {
+    "PRESERVE_REAL_OR_INTEGRATION": {
+      "email": 1,
+      "ai-chat": 9,
+      "voice": 7,
+      "agent-chat-1e8607bb-0034-406f-a35b-b2e5f0aa6d0f": 1,
+      "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6": 2
+    },
+    "DELETE_PROVEN_TEST": {
+      "ai-chat": 13,
+      "voice": 6,
+      "sms": 6,
+      "chat": 10,
+      "email": 2
+    },
+    "REVIEW_UNKNOWN": {
+      "sms": 16,
+      "voice": 3,
+      "chat": 4,
+      "ai-chat": 2,
+      "ai-assistant": 2
+    }
+  },
+  "messages_by_bucket": {
+    "PRESERVE_REAL_OR_INTEGRATION": 51,
+    "DELETE_PROVEN_TEST": 52,
+    "REVIEW_UNKNOWN": 73
+  },
+  "buckets": {
+    "PRESERVE_REAL_OR_INTEGRATION": [
+      {
+        "id": "9d8f39f8-ec6f-45e8-bd8c-060360ea8218",
+        "customer_name": "Stephanie Thompson",
+        "customer_phone": null,
+        "customer_email": "steph.t@email.com",
+        "channel": "email",
+        "message_count": 2,
+        "created_at": "2026-04-03T05:01:56.082Z",
+        "campaign_id": null,
+        "reasons": [
+          "real_looking_email_domain (email.com)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "9d8f39f8-ec6f-45e8-bd8c-060360ea8218",
+          "customer_name": "Stephanie Thompson",
+          "customer_email": "steph.t@email.com",
+          "customer_phone": null,
+          "channel": "email",
+          "status": "participating",
+          "agent_id": "83cf2555-f438-4eb7-a4b5-ea0fb0caf442",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-02-19T14:00:00.000Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T05:01:56.082Z",
+          "updated_at": "2026-04-03T05:01:56.082Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "0155306b-419b-4e75-9bdb-db2e69afb528",
+        "customer_name": "Serra Honda Admin",
+        "customer_phone": null,
+        "customer_email": "serra_honda@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-03T14:21:47.697Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "0155306b-419b-4e75-9bdb-db2e69afb528",
+          "customer_name": "Serra Honda Admin",
+          "customer_email": "serra_honda@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-03T14:21:53.686Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T14:21:47.697Z",
+          "updated_at": "2026-04-03T14:21:53.686Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "c7530270-f5f2-40cd-9253-a01ad32a0285",
+        "customer_name": "Serra Honda Admin",
+        "customer_phone": null,
+        "customer_email": "serra_honda@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-03T14:27:46.178Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "c7530270-f5f2-40cd-9253-a01ad32a0285",
+          "customer_name": "Serra Honda Admin",
+          "customer_email": "serra_honda@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-03T14:27:53.114Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T14:27:46.178Z",
+          "updated_at": "2026-04-03T14:27:53.114Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "64c95fad-9198-4073-ba64-087d5a071ab5",
+        "customer_name": "Serra Honda Admin",
+        "customer_phone": null,
+        "customer_email": "serra_honda@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-03T14:30:38.051Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "64c95fad-9198-4073-ba64-087d5a071ab5",
+          "customer_name": "Serra Honda Admin",
+          "customer_email": "serra_honda@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-03T14:30:43.718Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T14:30:38.051Z",
+          "updated_at": "2026-04-03T14:30:43.718Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "12c4a7cf-b298-4170-b9d0-ef17b743a8d6",
+        "customer_name": "Serra Honda Admin",
+        "customer_phone": null,
+        "customer_email": "serra_honda@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-03T14:36:24.036Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "12c4a7cf-b298-4170-b9d0-ef17b743a8d6",
+          "customer_name": "Serra Honda Admin",
+          "customer_email": "serra_honda@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-03T14:36:30.036Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T14:36:24.036Z",
+          "updated_at": "2026-04-03T14:36:30.036Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "14b30016-88f6-46d6-85aa-ba0931db6a51",
+        "customer_name": "James Chen",
+        "customer_phone": null,
+        "customer_email": "orgadmin@serrahonda.com",
+        "channel": "ai-chat",
+        "message_count": 1,
+        "created_at": "2026-04-03T18:25:17.778Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (serrahonda.com)",
+          "has_1_messages"
+        ],
+        "full_row": {
+          "id": "14b30016-88f6-46d6-85aa-ba0931db6a51",
+          "customer_name": "James Chen",
+          "customer_email": "orgadmin@serrahonda.com",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-05T03:37:56.873Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-03T18:25:17.778Z",
+          "updated_at": "2026-04-05T03:38:17.652Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "656700fd-fc39-489c-b3dc-2427621e9dba",
+        "customer_name": "Duane K. Wells",
+        "customer_phone": null,
+        "customer_email": "duane.wells@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-07T06:59:38.141Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "656700fd-fc39-489c-b3dc-2427621e9dba",
+          "customer_name": "Duane K. Wells",
+          "customer_email": "duane.wells@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-07T06:59:58.229Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T06:59:38.141Z",
+          "updated_at": "2026-04-07T06:59:58.230Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "cc2687eb-1224-4c12-8831-c8a33e1adb0f",
+        "customer_name": "Duane K. Wells",
+        "customer_phone": null,
+        "customer_email": "duane.wells@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-07T07:12:23.688Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "cc2687eb-1224-4c12-8831-c8a33e1adb0f",
+          "customer_name": "Duane K. Wells",
+          "customer_email": "duane.wells@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-08T17:27:42.112Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T07:12:23.688Z",
+          "updated_at": "2026-04-08T17:27:42.112Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "7b8a6f9a-03a0-4250-b349-cf1c1d2da673",
+        "customer_name": "Serra Honda Admin",
+        "customer_phone": null,
+        "customer_email": "serra_honda@huminic.ai",
+        "channel": "ai-chat",
+        "message_count": 18,
+        "created_at": "2026-04-07T08:25:08.187Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_18_messages"
+        ],
+        "full_row": {
+          "id": "7b8a6f9a-03a0-4250-b349-cf1c1d2da673",
+          "customer_name": "Serra Honda Admin",
+          "customer_email": "serra_honda@huminic.ai",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-26T05:15:09.319Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T08:25:08.187Z",
+          "updated_at": "2026-04-26T05:15:09.319Z",
+          "message_count": 18
+        }
+      },
+      {
+        "id": "d4a2fc69-3c20-4796-9196-cd2a49702e10",
+        "customer_name": "+18392729080",
+        "customer_phone": "+18392729080",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-07T21:19:45.200Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+18392729080, msgs=1)"
+        ],
+        "full_row": {
+          "id": "d4a2fc69-3c20-4796-9196-cd2a49702e10",
+          "customer_name": "+18392729080",
+          "customer_email": null,
+          "customer_phone": "+18392729080",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-07T21:19:45.160Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T21:19:45.200Z",
+          "updated_at": "2026-04-07T21:19:45.200Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "93b848e9-d4a7-4a48-bce8-05bb2a4ccb8f",
+        "customer_name": "Duane K. Wells",
+        "customer_phone": null,
+        "customer_email": "duane.wells@huminic.ai",
+        "channel": "agent-chat-1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+        "message_count": 1,
+        "created_at": "2026-04-08T17:54:56.868Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (huminic.ai)",
+          "has_1_messages"
+        ],
+        "full_row": {
+          "id": "93b848e9-d4a7-4a48-bce8-05bb2a4ccb8f",
+          "customer_name": "Duane K. Wells",
+          "customer_email": "duane.wells@huminic.ai",
+          "customer_phone": null,
+          "channel": "agent-chat-1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-08T17:54:57.398Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-08T17:54:56.868Z",
+          "updated_at": "2026-04-08T17:54:57.398Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "e0d17104-1f1b-4e6c-9468-7cd13feea5fa",
+        "customer_name": "Callback Request",
+        "customer_phone": "+14804618789",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-13T18:23:55.779Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+14804618789, msgs=1)"
+        ],
+        "full_row": {
+          "id": "e0d17104-1f1b-4e6c-9468-7cd13feea5fa",
+          "customer_name": "Callback Request",
+          "customer_email": null,
+          "customer_phone": "+14804618789",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T18:23:55.741Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T18:23:55.779Z",
+          "updated_at": "2026-04-13T18:23:55.779Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "35effbd6-04a5-40da-b8d9-07be74f6881c",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+18392729080",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-13T20:31:56.162Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+18392729080, msgs=1)"
+        ],
+        "full_row": {
+          "id": "35effbd6-04a5-40da-b8d9-07be74f6881c",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+18392729080",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T20:31:56.123Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T20:31:56.162Z",
+          "updated_at": "2026-04-13T20:31:56.162Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "60159eb9-f5d5-49eb-bc22-a9bc988f1227",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+18392729080",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-13T20:39:57.056Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+18392729080, msgs=1)"
+        ],
+        "full_row": {
+          "id": "60159eb9-f5d5-49eb-bc22-a9bc988f1227",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+18392729080",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T20:39:57.019Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T20:39:57.056Z",
+          "updated_at": "2026-04-13T20:39:57.056Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "fe0da827-b12a-4c80-9af1-ad993f071941",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+19012038267",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-16T03:56:49.594Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+19012038267, msgs=1)"
+        ],
+        "full_row": {
+          "id": "fe0da827-b12a-4c80-9af1-ad993f071941",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+19012038267",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-16T03:56:49.557Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-16T03:56:49.594Z",
+          "updated_at": "2026-04-16T03:56:49.594Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "fedfa94d-95f9-4fc6-93a0-dafaf9aea7f6",
+        "customer_name": "Durran Cage",
+        "customer_phone": null,
+        "customer_email": "durran@cageautomotive.com",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-16T10:33:46.726Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (cageautomotive.com)",
+          "has_2_messages"
+        ],
+        "full_row": {
+          "id": "fedfa94d-95f9-4fc6-93a0-dafaf9aea7f6",
+          "customer_name": "Durran Cage",
+          "customer_email": "durran@cageautomotive.com",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-16T10:35:01.912Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-16T10:33:46.726Z",
+          "updated_at": "2026-04-16T10:35:01.912Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "098545b7-df2d-4c12-8a31-da01b46bdfc0",
+        "customer_name": "Victoria Whitley ",
+        "customer_phone": null,
+        "customer_email": "victoria@misscommunicationconsulting.com",
+        "channel": "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+        "message_count": 7,
+        "created_at": "2026-04-17T16:41:28.615Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (misscommunicationconsulting.com)",
+          "has_7_messages"
+        ],
+        "full_row": {
+          "id": "098545b7-df2d-4c12-8a31-da01b46bdfc0",
+          "customer_name": "Victoria Whitley ",
+          "customer_email": "victoria@misscommunicationconsulting.com",
+          "customer_phone": null,
+          "channel": "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+          "status": "open",
+          "agent_id": "d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-17T16:44:05.129Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-17T16:41:28.615Z",
+          "updated_at": "2026-04-17T16:44:05.129Z",
+          "message_count": 7
+        }
+      },
+      {
+        "id": "d3f6f72d-4639-4c28-8fe8-4bc3e6c94420",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+12058736196",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-19T14:34:48.664Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+12058736196, msgs=1)"
+        ],
+        "full_row": {
+          "id": "d3f6f72d-4639-4c28-8fe8-4bc3e6c94420",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+12058736196",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-19T14:34:48.627Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-19T14:34:48.664Z",
+          "updated_at": "2026-04-19T14:34:48.664Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "4bb943a4-7958-44c4-b45c-4337c4342494",
+        "customer_name": "WIRELESS CALLER",
+        "customer_phone": "+12028781951",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-19T22:12:14.928Z",
+        "campaign_id": null,
+        "reasons": [
+          "vapi_inbound_voice_with_real_phone (channel=voice, phone=+12028781951, msgs=1)"
+        ],
+        "full_row": {
+          "id": "4bb943a4-7958-44c4-b45c-4337c4342494",
+          "customer_name": "WIRELESS CALLER",
+          "customer_email": null,
+          "customer_phone": "+12028781951",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-19T22:12:14.890Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-19T22:12:14.928Z",
+          "updated_at": "2026-04-19T22:12:14.928Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "2037d172-ce8d-4677-86e7-178e80cc0086",
+        "customer_name": "Shelby  Dew",
+        "customer_phone": null,
+        "customer_email": "sdew@serrahonda.net",
+        "channel": "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+        "message_count": 1,
+        "created_at": "2026-04-21T13:57:37.462Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (serrahonda.net)",
+          "has_1_messages"
+        ],
+        "full_row": {
+          "id": "2037d172-ce8d-4677-86e7-178e80cc0086",
+          "customer_name": "Shelby  Dew",
+          "customer_email": "sdew@serrahonda.net",
+          "customer_phone": null,
+          "channel": "agent-chat-d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+          "status": "open",
+          "agent_id": "d2d3c1ac-76ad-4a3f-9fba-b2fac2113cf6",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-21T13:57:37.981Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-21T13:57:37.462Z",
+          "updated_at": "2026-04-21T13:57:37.981Z",
+          "message_count": 1
+        }
+      }
+    ],
+    "REVIEW_UNKNOWN": [
+      {
+        "id": "e4a16515-1ea4-4cf1-850d-9494ed6d1c70",
+        "customer_name": "+1428670293",
+        "customer_phone": "+1428670293",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-05T04:10:01.321Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=+1428670293, msgs=1)"
+        ],
+        "full_row": {
+          "id": "e4a16515-1ea4-4cf1-850d-9494ed6d1c70",
+          "customer_name": "+1428670293",
+          "customer_email": null,
+          "customer_phone": "+1428670293",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-05T04:10:00.000Z",
+          "escalation_sent_at": "2026-04-05T04:42:22.032Z",
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-05T04:10:01.321Z",
+          "updated_at": "2026-04-05T04:10:01.321Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "7f7ecaf3-2b88-4c58-bdbf-f05a541e3812",
+        "customer_name": "+1821616232",
+        "customer_phone": "+1821616232",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-05T04:10:35.402Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=+1821616232, msgs=1)"
+        ],
+        "full_row": {
+          "id": "7f7ecaf3-2b88-4c58-bdbf-f05a541e3812",
+          "customer_name": "+1821616232",
+          "customer_email": null,
+          "customer_phone": "+1821616232",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-05T04:10:35.000Z",
+          "escalation_sent_at": "2026-04-05T04:42:22.734Z",
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-05T04:10:35.402Z",
+          "updated_at": "2026-04-05T04:10:35.402Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "882cdab6-c5ba-48c6-a30c-0f4573db591a",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+18392729080",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 0,
+        "created_at": "2026-04-07T07:58:21.161Z",
+        "campaign_id": null,
+        "reasons": [
+          "voice_zero_msgs_real_phone (possible real call w/ failed transcript, NEEDS_REVIEW per VAPI policy)"
+        ],
+        "full_row": {
+          "id": "882cdab6-c5ba-48c6-a30c-0f4573db591a",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+18392729080",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-07T07:58:21.117Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T07:58:21.161Z",
+          "updated_at": "2026-04-07T07:58:21.161Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "b9fb9009-d105-49f7-962d-44b89fe96bf6",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+18392729080",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 0,
+        "created_at": "2026-04-07T08:02:35.432Z",
+        "campaign_id": null,
+        "reasons": [
+          "voice_zero_msgs_real_phone (possible real call w/ failed transcript, NEEDS_REVIEW per VAPI policy)"
+        ],
+        "full_row": {
+          "id": "b9fb9009-d105-49f7-962d-44b89fe96bf6",
+          "customer_name": "Unknown Caller",
+          "customer_email": null,
+          "customer_phone": "+18392729080",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-07T08:02:35.388Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T08:02:35.432Z",
+          "updated_at": "2026-04-07T08:02:35.432Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "9dc57c92-fd86-41ec-a097-d38871066483",
+        "customer_name": "Website Visitor",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 3,
+        "created_at": "2026-04-07T08:11:46.403Z",
+        "campaign_id": null,
+        "reasons": [
+          "chat_with_messages_no_content_to_inspect (msgs=3)"
+        ],
+        "full_row": {
+          "id": "9dc57c92-fd86-41ec-a097-d38871066483",
+          "customer_name": "Website Visitor",
+          "customer_email": null,
+          "customer_phone": null,
+          "channel": "chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 2,
+          "last_message_at": "2026-04-07T08:11:51.655Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T08:11:46.403Z",
+          "updated_at": "2026-04-07T08:11:51.655Z",
+          "message_count": 3
+        }
+      },
+      {
+        "id": "9cab0023-81c5-400b-8d73-4b41bcb01cf6",
+        "customer_name": "18338096836",
+        "customer_phone": "18338096836",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 37,
+        "created_at": "2026-04-07T22:06:23.546Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=18338096836, msgs=37)"
+        ],
+        "full_row": {
+          "id": "9cab0023-81c5-400b-8d73-4b41bcb01cf6",
+          "customer_name": "18338096836",
+          "customer_email": null,
+          "customer_phone": "18338096836",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 28,
+          "last_message_at": "2026-04-13T02:02:14.394Z",
+          "escalation_sent_at": "2026-04-13T02:33:27.183Z",
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T22:06:23.546Z",
+          "updated_at": "2026-04-13T02:02:15.632Z",
+          "message_count": 37
+        }
+      },
+      {
+        "id": "7b464eac-ce57-4db2-80d2-df7181a86c69",
+        "customer_name": "4126574001",
+        "customer_phone": "4126574001",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 2,
+        "created_at": "2026-04-07T22:16:44.988Z",
+        "campaign_id": "d1799d79-3d2b-4107-ab72-20a7fd7efe14",
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=4126574001, msgs=2)"
+        ],
+        "full_row": {
+          "id": "7b464eac-ce57-4db2-80d2-df7181a86c69",
+          "customer_name": "4126574001",
+          "customer_email": null,
+          "customer_phone": "4126574001",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": "d1799d79-3d2b-4107-ab72-20a7fd7efe14",
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-07T22:16:44.413Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-07T22:16:44.988Z",
+          "updated_at": "2026-04-07T22:16:44.988Z",
+          "message_count": 2
+        }
+      },
+      {
+        "id": "86c68888-5d99-462c-9a3b-8f9493039138",
+        "customer_name": "Duane Wells",
+        "customer_phone": "4126572001",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 3,
+        "created_at": "2026-04-12T23:40:19.370Z",
+        "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=4126572001, msgs=3)"
+        ],
+        "full_row": {
+          "id": "86c68888-5d99-462c-9a3b-8f9493039138",
+          "customer_name": "Duane Wells",
+          "customer_email": null,
+          "customer_phone": "4126572001",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T00:40:18.267Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-12T23:40:19.370Z",
+          "updated_at": "2026-04-13T00:40:18.267Z",
+          "message_count": 3
+        }
+      },
+      {
+        "id": "673b1f74-3ccc-4230-9f67-30bf8fb7d123",
+        "customer_name": "Durran Cage",
+        "customer_phone": "7313946907",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-12T23:41:19.316Z",
+        "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=7313946907, msgs=1)"
+        ],
+        "full_row": {
+          "id": "673b1f74-3ccc-4230-9f67-30bf8fb7d123",
+          "customer_name": "Durran Cage",
+          "customer_email": null,
+          "customer_phone": "7313946907",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-12T23:41:19.281Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-12T23:41:19.316Z",
+          "updated_at": "2026-04-12T23:41:19.316Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "65fd9a93-427c-4e72-b749-edca15566ee8",
+        "customer_name": "Sarita Wells",
+        "customer_phone": "4125375782",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 3,
+        "created_at": "2026-04-12T23:42:19.295Z",
+        "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=4125375782, msgs=3)"
+        ],
+        "full_row": {
+          "id": "65fd9a93-427c-4e72-b749-edca15566ee8",
+          "customer_name": "Sarita Wells",
+          "customer_email": null,
+          "customer_phone": "4125375782",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-12T23:52:49.923Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-12T23:42:19.295Z",
+          "updated_at": "2026-04-12T23:52:49.923Z",
+          "message_count": 3
+        }
+      },
+      {
+        "id": "720d335e-05b4-4910-9154-1507a5508f03",
+        "customer_name": "Donna Murphy",
+        "customer_phone": "4125199087",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-12T23:43:19.376Z",
+        "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=4125199087, msgs=1)"
+        ],
+        "full_row": {
+          "id": "720d335e-05b4-4910-9154-1507a5508f03",
+          "customer_name": "Donna Murphy",
+          "customer_email": null,
+          "customer_phone": "4125199087",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": "35651dbd-570a-4a1f-822d-a0bfa239fd9a",
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-12T23:43:19.339Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-12T23:43:19.376Z",
+          "updated_at": "2026-04-12T23:43:19.376Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "88e93b64-f51e-41ac-b00e-2881152f9eba",
+        "customer_name": "Lisa Morris",
+        "customer_phone": "5417783509",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:40.981Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=5417783509, msgs=1)"
+        ],
+        "full_row": {
+          "id": "88e93b64-f51e-41ac-b00e-2881152f9eba",
+          "customer_name": "Lisa Morris",
+          "customer_email": null,
+          "customer_phone": "5417783509",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:40.944Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:40.981Z",
+          "updated_at": "2026-04-13T01:59:40.981Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "d0efcbe4-d343-4231-8a96-ed26c0878ea8",
+        "customer_name": "Noah Koger",
+        "customer_phone": "6623046188",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:42.822Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=6623046188, msgs=1)"
+        ],
+        "full_row": {
+          "id": "d0efcbe4-d343-4231-8a96-ed26c0878ea8",
+          "customer_name": "Noah Koger",
+          "customer_email": null,
+          "customer_phone": "6623046188",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:42.785Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:42.822Z",
+          "updated_at": "2026-04-13T01:59:42.822Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "654ee172-a1f8-41d1-b324-f68826e07fa5",
+        "customer_name": "Jennifer Jones",
+        "customer_phone": "2564527205",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:44.677Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=2564527205, msgs=1)"
+        ],
+        "full_row": {
+          "id": "654ee172-a1f8-41d1-b324-f68826e07fa5",
+          "customer_name": "Jennifer Jones",
+          "customer_email": null,
+          "customer_phone": "2564527205",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:44.639Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:44.677Z",
+          "updated_at": "2026-04-13T01:59:44.677Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "a0b8ed21-ee1c-4bfc-8dbb-c6ac06f61c12",
+        "customer_name": "Jennifer Ueltschey",
+        "customer_phone": "6019517616",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:46.547Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=6019517616, msgs=1)"
+        ],
+        "full_row": {
+          "id": "a0b8ed21-ee1c-4bfc-8dbb-c6ac06f61c12",
+          "customer_name": "Jennifer Ueltschey",
+          "customer_email": null,
+          "customer_phone": "6019517616",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:46.509Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:46.547Z",
+          "updated_at": "2026-04-13T01:59:46.547Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "2ddadb04-97f2-452f-a092-b09b60200437",
+        "customer_name": "Fedor Zanin",
+        "customer_phone": "8594458581",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:48.463Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=8594458581, msgs=1)"
+        ],
+        "full_row": {
+          "id": "2ddadb04-97f2-452f-a092-b09b60200437",
+          "customer_name": "Fedor Zanin",
+          "customer_email": null,
+          "customer_phone": "8594458581",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:48.425Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:48.463Z",
+          "updated_at": "2026-04-13T01:59:48.463Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "20de28db-c35f-4db6-b5ae-2b49dad4e060",
+        "customer_name": "Richard Chambliss",
+        "customer_phone": "2567944375",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:50.301Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=2567944375, msgs=1)"
+        ],
+        "full_row": {
+          "id": "20de28db-c35f-4db6-b5ae-2b49dad4e060",
+          "customer_name": "Richard Chambliss",
+          "customer_email": null,
+          "customer_phone": "2567944375",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:50.263Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:50.301Z",
+          "updated_at": "2026-04-13T01:59:50.301Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "d49c0d9e-f65a-4ee8-a303-8fa20da457c1",
+        "customer_name": "Allie Nix",
+        "customer_phone": "2054102897",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:54.270Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=2054102897, msgs=1)"
+        ],
+        "full_row": {
+          "id": "d49c0d9e-f65a-4ee8-a303-8fa20da457c1",
+          "customer_name": "Allie Nix",
+          "customer_email": null,
+          "customer_phone": "2054102897",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": "e3559aa2-571f-4956-b649-2945b4de5250",
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": "2026-04-13T01:59:54.233Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T01:59:54.270Z",
+          "updated_at": "2026-04-13T01:59:54.270Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "0df020c1-2878-4c25-887f-86d9dde0e5de",
+        "customer_name": "+1125352571",
+        "customer_phone": "+1125352571",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T18:22:22.286Z",
+        "campaign_id": null,
+        "reasons": [
+          "sms_with_real_phone_and_messages (channel=sms, phone=+1125352571, msgs=1)"
+        ],
+        "full_row": {
+          "id": "0df020c1-2878-4c25-887f-86d9dde0e5de",
+          "customer_name": "+1125352571",
+          "customer_email": null,
+          "customer_phone": "+1125352571",
+          "channel": "sms",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T18:22:21.000Z",
+          "escalation_sent_at": "2026-04-13T18:55:17.578Z",
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T18:22:22.286Z",
+          "updated_at": "2026-04-13T18:22:22.286Z",
+          "message_count": 1
+        }
+      },
+      {
+        "id": "1028279a-702a-4a4d-87b8-b2fdabd4120f",
+        "customer_name": "Website Visitor",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 5,
+        "created_at": "2026-04-13T18:23:42.832Z",
+        "campaign_id": null,
+        "reasons": [
+          "chat_with_messages_no_content_to_inspect (msgs=5)"
+        ],
+        "full_row": {
+          "id": "1028279a-702a-4a4d-87b8-b2fdabd4120f",
+          "customer_name": "Website Visitor",
+          "customer_email": null,
+          "customer_phone": null,
+          "channel": "chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 3,
+          "last_message_at": "2026-04-13T18:23:56.537Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T18:23:42.832Z",
+          "updated_at": "2026-04-13T18:23:56.537Z",
+          "message_count": 5
+        }
+      },
+      {
+        "id": "54684569-5c81-48c4-828d-8a2c97df9e12",
+        "customer_name": "Callback Request",
+        "customer_phone": "+14804618789",
+        "customer_email": "",
+        "channel": "voice",
+        "message_count": 0,
+        "created_at": "2026-04-13T18:23:54.610Z",
+        "campaign_id": null,
+        "reasons": [
+          "voice_zero_msgs_real_phone (possible real call w/ failed transcript, NEEDS_REVIEW per VAPI policy)"
+        ],
+        "full_row": {
+          "id": "54684569-5c81-48c4-828d-8a2c97df9e12",
+          "customer_name": "Callback Request",
+          "customer_email": "",
+          "customer_phone": "+14804618789",
+          "channel": "voice",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 1,
+          "last_message_at": "2026-04-13T18:23:54.571Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-13T18:23:54.610Z",
+          "updated_at": "2026-04-13T18:23:54.610Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "fe7717b8-c912-4ad1-ac5e-ef192460d3f8",
+        "customer_name": "Website Visitor",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 5,
+        "created_at": "2026-04-14T19:36:51.732Z",
+        "campaign_id": null,
+        "reasons": [
+          "chat_with_messages_no_content_to_inspect (msgs=5)"
+        ],
+        "full_row": {
+          "id": "fe7717b8-c912-4ad1-ac5e-ef192460d3f8",
+          "customer_name": "Website Visitor",
+          "customer_email": null,
+          "customer_phone": null,
+          "channel": "chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 3,
+          "last_message_at": "2026-04-14T19:36:59.999Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-14T19:36:51.732Z",
+          "updated_at": "2026-04-14T19:36:59.999Z",
+          "message_count": 5
+        }
+      },
+      {
+        "id": "ea22cb64-60be-460b-bc25-6f1c227afc67",
+        "customer_name": "Website Visitor",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 3,
+        "created_at": "2026-04-14T19:36:54.963Z",
+        "campaign_id": null,
+        "reasons": [
+          "chat_with_messages_no_content_to_inspect (msgs=3)"
+        ],
+        "full_row": {
+          "id": "ea22cb64-60be-460b-bc25-6f1c227afc67",
+          "customer_name": "Website Visitor",
+          "customer_email": null,
+          "customer_phone": null,
+          "channel": "chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 2,
+          "last_message_at": "2026-04-14T19:36:58.204Z",
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-14T19:36:54.963Z",
+          "updated_at": "2026-04-14T19:36:58.204Z",
+          "message_count": 3
+        }
+      },
+      {
+        "id": "f2f1537b-7760-4527-961b-b9fd5cf8ac3f",
+        "customer_name": "Victoria Cage",
+        "customer_phone": null,
+        "customer_email": "victoria@misscommunicationconsulting.com",
+        "channel": "ai-chat",
+        "message_count": 0,
+        "created_at": "2026-04-16T15:15:31.421Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (misscommunicationconsulting.com)",
+          "zero_messages_but_real_user_email"
+        ],
+        "full_row": {
+          "id": "f2f1537b-7760-4527-961b-b9fd5cf8ac3f",
+          "customer_name": "Victoria Cage",
+          "customer_email": "victoria@misscommunicationconsulting.com",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": null,
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-16T15:15:31.421Z",
+          "updated_at": "2026-04-16T15:15:31.421Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "8305b5b6-a781-45b9-ad14-136ec34d4257",
+        "customer_name": "Shelby  Dew",
+        "customer_phone": null,
+        "customer_email": "sdew@serrahonda.net",
+        "channel": "ai-chat",
+        "message_count": 0,
+        "created_at": "2026-04-21T13:52:35.273Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (serrahonda.net)",
+          "zero_messages_but_real_user_email"
+        ],
+        "full_row": {
+          "id": "8305b5b6-a781-45b9-ad14-136ec34d4257",
+          "customer_name": "Shelby  Dew",
+          "customer_email": "sdew@serrahonda.net",
+          "customer_phone": null,
+          "channel": "ai-chat",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": null,
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-21T13:52:35.273Z",
+          "updated_at": "2026-04-21T13:52:35.273Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "f59d0587-7128-4520-817b-6fb8267dd8b6",
+        "customer_name": "Shelby  Dew",
+        "customer_phone": null,
+        "customer_email": "sdew@serrahonda.net",
+        "channel": "ai-assistant",
+        "message_count": 0,
+        "created_at": "2026-04-21T13:57:10.289Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (serrahonda.net)",
+          "zero_messages_but_real_user_email"
+        ],
+        "full_row": {
+          "id": "f59d0587-7128-4520-817b-6fb8267dd8b6",
+          "customer_name": "Shelby  Dew",
+          "customer_email": "sdew@serrahonda.net",
+          "customer_phone": null,
+          "channel": "ai-assistant",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": null,
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-21T13:57:10.289Z",
+          "updated_at": "2026-04-21T13:57:10.289Z",
+          "message_count": 0
+        }
+      },
+      {
+        "id": "20570ba2-18c7-4a11-8d4c-623c7737f900",
+        "customer_name": "Shelby  Dew",
+        "customer_phone": null,
+        "customer_email": "sdew@serrahonda.net",
+        "channel": "ai-assistant",
+        "message_count": 0,
+        "created_at": "2026-04-21T13:57:10.290Z",
+        "campaign_id": null,
+        "reasons": [
+          "internal_user_email_domain (serrahonda.net)",
+          "zero_messages_but_real_user_email"
+        ],
+        "full_row": {
+          "id": "20570ba2-18c7-4a11-8d4c-623c7737f900",
+          "customer_name": "Shelby  Dew",
+          "customer_email": "sdew@serrahonda.net",
+          "customer_phone": null,
+          "channel": "ai-assistant",
+          "status": "open",
+          "agent_id": null,
+          "assigned_to": null,
+          "campaign_id": null,
+          "source_conversation_id": null,
+          "campaign_disconnected": false,
+          "unread_count": 0,
+          "last_message_at": null,
+          "escalation_sent_at": null,
+          "stale_trigger_processed_at": null,
+          "created_at": "2026-04-21T13:57:10.290Z",
+          "updated_at": "2026-04-21T13:57:10.290Z",
+          "message_count": 0
+        }
+      }
+    ],
+    "DELETE_PROVEN_TEST": [
+      {
+        "id": "3dc91fa9-78d1-4589-a2d6-149ff19dc73e",
+        "customer_name": "Duane Wells",
+        "customer_phone": null,
+        "customer_email": "duanekwells@gmail.com",
+        "channel": "ai-chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T07:07:53.477Z",
+        "reasons": [
+          "email_operator_personal ('duanekwells@gmail.com')"
+        ]
+      },
+      {
+        "id": "820388e4-220d-4640-be1c-bd5000750c53",
+        "customer_name": "Test Probe",
+        "customer_phone": "+15551234567",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-07T07:55:29.714Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Probe')",
+          "phone_555_npa ('+15551234567')"
+        ]
+      },
+      {
+        "id": "fc02895c-8227-4199-a1d6-70119c7649dd",
+        "customer_name": "Test Caller",
+        "customer_phone": "+15559999999",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-07T18:43:47.360Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Caller')",
+          "phone_555_npa ('+15559999999')"
+        ]
+      },
+      {
+        "id": "e53d821b-556c-4668-a7e7-c431f9a74d5a",
+        "customer_name": "+15551234567",
+        "customer_phone": "+15551234567",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 5,
+        "created_at": "2026-04-07T18:43:48.901Z",
+        "reasons": [
+          "phone_555_npa ('+15551234567')"
+        ]
+      },
+      {
+        "id": "bcdd9e08-1c18-4b3f-9e49-34908ea03dff",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T18:44:37.674Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "f4317d12-72c0-4794-b126-2a46539b6a89",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T18:44:38.346Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "63b92cda-ca21-48e0-820c-81bc38cb09ff",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T18:44:39.016Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "12b2f546-24d3-4ed5-abfc-eb19b7bed6d4",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T18:44:39.682Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "9117dbad-cdd4-4a11-acf4-1597115333fb",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-07T18:44:41.006Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "393fb595-af91-46e3-a09a-f672f58a1a68",
+        "customer_name": "Duane Wells",
+        "customer_phone": "4126546500",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-07T22:16:05.723Z",
+        "reasons": [
+          "phone_operator ('4126546500')"
+        ]
+      },
+      {
+        "id": "abe10cb7-4a3c-4008-a138-09b68deb540b",
+        "customer_name": "Duane Wells",
+        "customer_phone": "4126546500",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 8,
+        "created_at": "2026-04-12T23:39:17.406Z",
+        "reasons": [
+          "phone_operator ('4126546500')"
+        ]
+      },
+      {
+        "id": "77290b69-4843-4eb0-bebc-14ac51b3cc0e",
+        "customer_name": "AfterHours TestLead",
+        "customer_phone": "4125550199",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 1,
+        "created_at": "2026-04-13T01:59:38.741Z",
+        "reasons": [
+          "phone_555_nxx ('4125550199')"
+        ]
+      },
+      {
+        "id": "e967fc83-42e1-478a-bdc1-a9cdfa67198d",
+        "customer_name": "+15554457779",
+        "customer_phone": "+15554457779",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 2,
+        "created_at": "2026-04-13T18:21:21.467Z",
+        "reasons": [
+          "phone_555_npa ('+15554457779')"
+        ]
+      },
+      {
+        "id": "804e807f-e87b-44cc-85ba-cb7ca9c6d673",
+        "customer_name": "WF Email Test wf-email-1776104555419",
+        "customer_phone": "+15554555466",
+        "customer_email": "wf-resend-wf-email-1776104555419@example.com",
+        "channel": "email",
+        "message_count": 1,
+        "created_at": "2026-04-13T18:22:35.772Z",
+        "reasons": [
+          "name_matches_test_regex ('WF Email Test wf-email-1776104555419')",
+          "phone_555_npa ('+15554555466')",
+          "email_workflow_test_fixture ('wf-resend-wf-email-1776104555419@example.com')"
+        ]
+      },
+      {
+        "id": "0eb3c3f5-c262-41fb-a4c0-2c39013b228d",
+        "customer_name": "WF-SvcAgent-wf-svc-agent-1776104558032-yio6qz",
+        "customer_phone": "+14804558032",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-13T18:22:39.239Z",
+        "reasons": [
+          "name_matches_sprint_or_workflow_prefix ('WF-SvcAgent-wf-svc-agent-1776104558032-yio6qz')"
+        ]
+      },
+      {
+        "id": "e3ed2017-00ea-4596-a285-d384c89f98fc",
+        "customer_name": "S-1.AC3 Message Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:35:51.960Z",
+        "reasons": [
+          "name_matches_test_regex ('S-1.AC3 Message Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-1.AC3 Message Test')"
+        ]
+      },
+      {
+        "id": "634e8695-4934-4ca0-8eb3-cb877c35c01e",
+        "customer_name": "S-4 Recall Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:35:54.809Z",
+        "reasons": [
+          "name_matches_test_regex ('S-4 Recall Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-4 Recall Test')"
+        ]
+      },
+      {
+        "id": "7e798129-b605-4511-8799-9a3d455a4a38",
+        "customer_name": "S-1 Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:35:55.880Z",
+        "reasons": [
+          "name_matches_test_regex ('S-1 Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-1 Test')"
+        ]
+      },
+      {
+        "id": "12ee105c-9d0b-4d82-8457-b7440d8952ca",
+        "customer_name": "S-1 Multi-turn",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 4,
+        "created_at": "2026-04-14T19:36:05.120Z",
+        "reasons": [
+          "name_matches_sprint_or_workflow_prefix ('S-1 Multi-turn')"
+        ]
+      },
+      {
+        "id": "ce03b900-eb44-4815-a37d-28d86e2674bc",
+        "customer_name": "S-1 Tone Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:36:11.079Z",
+        "reasons": [
+          "name_matches_test_regex ('S-1 Tone Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-1 Tone Test')"
+        ]
+      },
+      {
+        "id": "a39a13c3-9c98-4c28-9fe7-aec7c6f385d1",
+        "customer_name": "S-4 Appointment Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:36:14.597Z",
+        "reasons": [
+          "name_matches_test_regex ('S-4 Appointment Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-4 Appointment Test')"
+        ]
+      },
+      {
+        "id": "b60ad46e-bfac-4641-8b66-4a9fbc0094ab",
+        "customer_name": "WF Email Test wf-email-1776195383455",
+        "customer_phone": "+15555383743",
+        "customer_email": "wf-resend-wf-email-1776195383455@example.com",
+        "channel": "email",
+        "message_count": 1,
+        "created_at": "2026-04-14T19:36:24.094Z",
+        "reasons": [
+          "name_matches_test_regex ('WF Email Test wf-email-1776195383455')",
+          "phone_555_npa ('+15555383743')",
+          "email_workflow_test_fixture ('wf-resend-wf-email-1776195383455@example.com')"
+        ]
+      },
+      {
+        "id": "fa688267-c46d-4657-ab90-fcb6e73f2243",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-14T19:36:38.197Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "60d808a2-1d44-4fc1-ac01-a05b80610564",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-14T19:36:38.854Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "f5c1f1a3-d806-4ffa-b891-4cec877c47de",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-14T19:36:39.531Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "94054088-afaa-4b87-8f34-f5fed845e1cb",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-14T19:36:40.185Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "32e2e8f5-0dfe-44f1-8900-d823debd75a6",
+        "customer_name": "Test Customer",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "chat",
+        "message_count": 0,
+        "created_at": "2026-04-14T19:36:41.511Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Customer')"
+        ]
+      },
+      {
+        "id": "216496db-f9c8-4450-8739-b376db7bef2e",
+        "customer_name": "Test Caller",
+        "customer_phone": "+15559999999",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-14T19:36:44.434Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Caller')",
+          "phone_555_npa ('+15559999999')"
+        ]
+      },
+      {
+        "id": "b40a30a0-f630-44b7-b480-7641e94597e9",
+        "customer_name": "+15555392484",
+        "customer_phone": "+15555392484",
+        "customer_email": null,
+        "channel": "sms",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:36:55.414Z",
+        "reasons": [
+          "phone_555_npa ('+15555392484')"
+        ]
+      },
+      {
+        "id": "62a30f10-56e2-49c8-805a-108922e3c6a3",
+        "customer_name": "S-4 Recall Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:37:24.127Z",
+        "reasons": [
+          "name_matches_test_regex ('S-4 Recall Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-4 Recall Test')"
+        ]
+      },
+      {
+        "id": "b2b6b672-6df6-4cc3-ad54-0351fde33286",
+        "customer_name": "S-4 Appointment Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:37:42.373Z",
+        "reasons": [
+          "name_matches_test_regex ('S-4 Appointment Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-4 Appointment Test')"
+        ]
+      },
+      {
+        "id": "27b462fc-30bc-4a8a-adf6-001decf1787a",
+        "customer_name": "S-3 Data Guru Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:40:12.199Z",
+        "reasons": [
+          "name_matches_test_regex ('S-3 Data Guru Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-3 Data Guru Test')"
+        ]
+      },
+      {
+        "id": "57cd0644-5de4-41f3-ba91-c41bc443afbf",
+        "customer_name": "S-3 Coach Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:40:26.265Z",
+        "reasons": [
+          "name_matches_test_regex ('S-3 Coach Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-3 Coach Test')"
+        ]
+      },
+      {
+        "id": "18145f5f-7a57-482c-b4c9-ff59a229ff40",
+        "customer_name": "S-3 Writer Test",
+        "customer_phone": null,
+        "customer_email": null,
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-14T19:40:38.061Z",
+        "reasons": [
+          "name_matches_test_regex ('S-3 Writer Test')",
+          "name_matches_sprint_or_workflow_prefix ('S-3 Writer Test')"
+        ]
+      },
+      {
+        "id": "4c8cab2b-d701-48aa-ab3f-72fc32311c9d",
+        "customer_name": "Test Weaver",
+        "customer_phone": null,
+        "customer_email": "neoweaver@gmail.com",
+        "channel": "ai-chat",
+        "message_count": 2,
+        "created_at": "2026-04-15T20:58:52.054Z",
+        "reasons": [
+          "name_matches_test_regex ('Test Weaver')"
+        ]
+      },
+      {
+        "id": "4915fc89-a271-45f5-8ac3-ff8143bd66b4",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+15550000001",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 0,
+        "created_at": "2026-04-16T03:55:24.899Z",
+        "reasons": [
+          "phone_555_npa ('+15550000001')"
+        ]
+      },
+      {
+        "id": "7e99e14d-f7ce-4fdb-a3ed-a8a7e3ed2119",
+        "customer_name": "Unknown Caller",
+        "customer_phone": "+15550000002",
+        "customer_email": null,
+        "channel": "voice",
+        "message_count": 1,
+        "created_at": "2026-04-16T03:55:59.677Z",
+        "reasons": [
+          "phone_555_npa ('+15550000002')"
+        ]
+      }
+    ]
+  }
+}

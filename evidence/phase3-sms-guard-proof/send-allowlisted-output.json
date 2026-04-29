@@ -1,0 +1,62 @@
+{
+  "delta": 1,
+  "delta_label": "allowlisted SMS via sendSmsRaw",
+  "probed_at": "2026-04-27T06:22:56.313Z",
+  "finished_at": "2026-04-27T06:22:58.730Z",
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "slug": "serra-honda",
+    "name": "Serra Honda"
+  },
+  "target": {
+    "phone": "+14126546500",
+    "allowlist_category": "internal_operator"
+  },
+  "message_content": "[testlane:phase3-allowlisted-2026-04-27] Phase 3 SMS guard live proof — allowlisted send via sendSmsRaw. Internal validation; ignore.",
+  "chokepoint_called": "sendSmsRaw",
+  "deviation_from_original_spec": {
+    "original_spec": "processOutboundSend → sendSms → sendSmsRaw",
+    "actual": "direct sendSmsRaw — bypasses processOutboundSend's test-lane guard, exercises prelaunch guard in isolation",
+    "reason": "First attempt with processOutboundSend was blocked by the test-lane guard with reason 'Request has test-lane marker but TESTLANE_MODE is not true (fail-closed)'. Root cause: the running PM2 process has TESTLANE_MODE=true (--update-env post-restart) but THIS tsx script process loads .env via dotenv/config and TESTLANE_MODE is not set there to true. The blocked attempt is captured as outbound_log row id 7bf57402-7dc4-4e32-9cc1-3b3909657a61 (status=blocked) and is part of the audit trail. Direct sendSmsRaw is a cleaner test of the prelaunch guard and mirrors Delta 2's structure for an A/B pair on the same code path.",
+    "audit_trail_outbound_log_id_for_first_blocked_attempt": "7bf57402-7dc4-4e32-9cc1-3b3909657a61"
+  },
+  "send_duration_ms": 909,
+  "provider_threw": false,
+  "provider_error": null,
+  "audit_outbound_log_row": {
+    "id": "9f92cc90-96f7-460d-a4b0-462c1d4a2f2f",
+    "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "channel": "sms",
+    "status": "sent",
+    "blocked_reason": null,
+    "recipient_name": "Phase3 Delta1 (allowlisted)",
+    "recipient_phone": "+14126546500",
+    "sent_at": "2026-04-27T06:22:58.012Z",
+    "created_at": "2026-04-27T06:22:58.012Z"
+  },
+  "counts": {
+    "outbound_log_sms_before": 274,
+    "outbound_log_sms_after": 275,
+    "delta": 1
+  },
+  "new_outbound_log_rows_since_probe_start": [
+    {
+      "id": "9f92cc90-96f7-460d-a4b0-462c1d4a2f2f",
+      "channel": "sms",
+      "status": "sent",
+      "blocked_reason": null,
+      "recipient_name": "Phase3 Delta1 (allowlisted)",
+      "recipient_phone": "+14126546500",
+      "sent_at": "2026-04-27T06:22:58.012Z",
+      "created_at": "2026-04-27T06:22:58.012Z",
+      "message_preview": "[phase3-delta1-audit] [testlane:phase3-allowlisted-2026-04-27] Phase 3 SMS guard live proof — allowlisted send via sendSmsRaw. Internal validation; ignore."
+    }
+  ],
+  "expectations": {
+    "provider_did_not_throw": true,
+    "audit_row_status_is_sent": true,
+    "counts_delta_at_least_1": true,
+    "recipient_is_operator_phone": true
+  },
+  "note": "If provider_did_not_throw=true and audit_row_status_is_sent=true, the prelaunch guard correctly ALLOWED an allowlisted recipient through to the SMS provider, and operator should have received a real SMS to +14126546500. The provider message-id is logged by sendSmsRaw to stdout via console.log; check the script output for the [TextMagic/MCP] line."
+}

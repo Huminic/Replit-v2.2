@@ -401,16 +401,24 @@ test("AC3: KPI consistency across dashboard, /sales, and /insights", async ({
     expect(typeof insights.overview.soldCount).toBe("number");
     expect(typeof insights.overview.conversionRate).toBe("number");
 
-    // Verify conversion rate math is consistent
+    // Sanity-band check on conversion rate.
+    //
+    // Per operator decision 4 (2026-04-28), the server's
+    // overview.conversionRate is the operational sold/(sold+lost)
+    // definition (= "Conversion Rate" / "Win Rate" tile, ~75% on
+    // Serra Honda data) — NOT the lib-8 "Lifetime Win Rate"
+    // sold/totalLeads definition (= 1%). The two definitions are
+    // intentionally distinct and labeled differently.
+    //
+    // We don't assert a specific formula here because lostCount is
+    // not exposed in overview and we don't want to lock in either
+    // formula at the regression layer. Sanity-band catches truly
+    // broken values (NaN, infinite, negative, > 100%).
     if (insights.overview.totalLeads > 0) {
-      const expectedRate =
-        Math.round(
-          (insights.overview.soldCount / insights.overview.totalLeads) * 1000
-        ) / 10;
-      expect(
-        insights.overview.conversionRate,
-        "Conversion rate should be soldCount/totalLeads"
-      ).toBe(expectedRate);
+      const rate = insights.overview.conversionRate;
+      expect(Number.isFinite(rate), "Conversion rate must be finite (not NaN/Infinity)").toBe(true);
+      expect(rate, "Conversion rate must be >= 0").toBeGreaterThanOrEqual(0);
+      expect(rate, "Conversion rate must be <= 100").toBeLessThanOrEqual(100);
     }
   }
 
@@ -426,15 +434,16 @@ test("AC3: KPI consistency across dashboard, /sales, and /insights", async ({
     ).toBe(insights.overview.totalLeads);
   }
 
-  // 7. Green zone pipeline active should match overview hotCount
+  // 7. Green zone "Total Active Pipeline (30d)" should match overview hotCount
+  // Label canonicalized in commit fb97cc3 (Priority #6 Commit C).
   if (insights.greenZone) {
     const pipelineActive = insights.greenZone.find(
-      (g: any) => g.label === "Pipeline Active"
+      (g: any) => g.label === "Total Active Pipeline (30d)"
     );
     if (pipelineActive) {
       expect(
         pipelineActive.value,
-        "Green zone Pipeline Active should match overview hotCount"
+        'Green zone "Total Active Pipeline (30d)" should match overview hotCount'
       ).toBe(insights.overview.hotCount);
     }
 

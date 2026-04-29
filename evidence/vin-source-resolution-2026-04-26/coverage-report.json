@@ -1,0 +1,110 @@
+{
+  "org": "Serra Honda",
+  "window_days": 30,
+  "total_leads": 608,
+  "null_or_non_url_lead_count": 2,
+  "db_distinct_ids": 58,
+  "mcp_distinct_ids": 20,
+  "resolved_id_count": 14,
+  "resolved_lead_count": 197,
+  "resolved_lead_pct": 32.4,
+  "unresolved_id_count": 44,
+  "unresolved_lead_count": 409,
+  "unresolved_lead_pct": 67.3,
+  "orphan_mcp_id_count": 6,
+  "orphan_mcp_id_sample": [
+    {
+      "id": "96",
+      "name": "CarFAX"
+    },
+    {
+      "id": "8",
+      "name": "Cars.com"
+    },
+    {
+      "id": "9",
+      "name": "Email"
+    },
+    {
+      "id": "319",
+      "name": "Radio"
+    },
+    {
+      "id": "105",
+      "name": "Service Dept"
+    },
+    {
+      "id": "228",
+      "name": "Television"
+    }
+  ],
+  "top_10_unresolved_by_lead_count": [
+    {
+      "id": "7098",
+      "count": 111
+    },
+    {
+      "id": "3743779",
+      "count": 54
+    },
+    {
+      "id": "3750035",
+      "count": 50
+    },
+    {
+      "id": "36",
+      "count": 21
+    },
+    {
+      "id": "3897825",
+      "count": 21
+    },
+    {
+      "id": "3897777",
+      "count": 19
+    },
+    {
+      "id": "13",
+      "count": 17
+    },
+    {
+      "id": "3819124",
+      "count": 17
+    },
+    {
+      "id": "153102",
+      "count": 16
+    },
+    {
+      "id": "3599907",
+      "count": 10
+    }
+  ],
+  "top_5_resolved_with_names": [
+    {
+      "id": "362",
+      "name": "Dealers WebSite",
+      "lead_count": 77
+    },
+    {
+      "id": "106",
+      "name": "Repeat Customer",
+      "lead_count": 41
+    },
+    {
+      "id": "6371",
+      "name": "Local Customer",
+      "lead_count": 24
+    },
+    {
+      "id": "123",
+      "name": "Referral",
+      "lead_count": 14
+    },
+    {
+      "id": "33340",
+      "name": "Cargurus",
+      "lead_count": 12
+    }
+  ]
+}

@@ -29,6 +29,7 @@ export interface TriggerRunSummary {
   orgsEvaluated: number;
   afterHoursTriggered: number;
   checkInTriggered: number;
+  immediateTriggered: number;
   errors: number;
 }
 
@@ -41,9 +42,13 @@ const AFTER_HOURS_WINDOW_MINUTES = 30; // look back 30 min for recently-synced l
 const AFTER_HOURS_MAX_AGE_HOURS = 4; // ignore leads older than 4h (avoids re-sync false positives)
 const DEFAULT_CHECKIN_DELAY_MINUTES = 1440; // 24 hours
 const CONVERSATION_RECENCY_HOURS = 2; // skip leads with a conversation in the last 2h
+const IMMEDIATE_WINDOW_MINUTES = 30; // sweep direct-VIN leads synced in the last 30 min
+const IMMEDIATE_MAX_AGE_HOURS = 4; // ignore leads older than 4h
+const IMMEDIATE_MORNING_HOUR = 7; // queue after-hours immediate sends to next-day 7 AM local
 
 const TRIGGER_TYPE_AFTER_HOURS = "after_hours_followup";
 const TRIGGER_TYPE_CHECKIN = "24h_checkin";
+const TRIGGER_TYPE_IMMEDIATE = "immediate_new_lead";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -59,8 +64,12 @@ function getBusinessHoursInfo(org: Organization): { within: boolean; currentHour
   const start = parseInt(settings.businessHoursStart || "8", 10);
   const end = parseInt(settings.businessHoursEnd || "21", 10);
 
-  const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
-  const currentHour = new Date(nowStr).getHours();
+  // Use Intl.DateTimeFormat with hour12=false to avoid the "24:xx" midnight artifact some
+  // Node versions emit via toLocaleString, which produced NaN when re-parsed.
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", hour12: false }).formatToParts(new Date());
+  const hourPart = parts.find(p => p.type === "hour");
+  let currentHour = hourPart ? parseInt(hourPart.value, 10) : NaN;
+  if (Number.isNaN(currentHour) || currentHour === 24) currentHour = 0;
 
   return { within: currentHour >= start && currentHour < end, currentHour, start, end, tz };
 }
@@ -83,6 +92,8 @@ async function hasRecentTriggerSend(
     "trigger_after_hours_sent",
     "trigger_after_hours_deferred",
     "trigger_checkin_sent",
+    "trigger_immediate_sent",
+    "trigger_immediate_queued",
   ];
 
   for (const entry of logs) {
@@ -459,6 +470,196 @@ async function evaluateCheckInTrigger(org: Organization): Promise<number> {
 }
 
 // ---------------------------------------------------------------------------
+// Trigger 3: Immediate VIN-Lead Follow-Up (default OFF; per-org enabled)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute the next 7 AM moment in the org's local timezone, expressed as a UTC Date.
+ * If we are currently before 7 AM local, that's today; otherwise tomorrow.
+ */
+function nextLocalMorningSendAt(tz: string, hour: number = IMMEDIATE_MORNING_HOUR): Date {
+  // Resolve current local hour without engine-specific toLocaleString quirks.
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const parts = fmt.formatToParts(new Date());
+  const get = (t: string) => parseInt(parts.find(p => p.type === t)?.value || "0", 10);
+  const localY = get("year");
+  const localM = get("month");
+  const localD = get("day");
+  const localH = get("hour") === 24 ? 0 : get("hour");
+
+  // Build a UTC Date that represents <localY>-<localM>-<localD> hour:00 in tz.
+  // Approach: compute the offset between UTC and tz at "now," then compose.
+  const nowMs = Date.now();
+  const tzOffsetMin = (() => {
+    // localTimeAsUtc - actualUtcNow → offset from UTC to tz in minutes (signed)
+    const composed = Date.UTC(localY, localM - 1, localD, localH, get("minute"), get("second"));
+    return Math.round((composed - nowMs) / 60000);
+  })();
+
+  let targetDay = localD;
+  if (localH >= hour) targetDay = localD + 1; // already past the morning hour today → tomorrow
+  const targetUtcMs = Date.UTC(localY, localM - 1, targetDay, hour, 0, 0) - tzOffsetMin * 60000;
+  return new Date(targetUtcMs);
+}
+
+async function evaluateImmediateNewLeadTrigger(org: Organization): Promise<number> {
+  const settings = (org.settings as Record<string, any>) || {};
+
+  // Per-org enable check — default OFF. Operator must explicitly opt in per-org.
+  if (!settings.immediateTriggerEnabled) {
+    console.log("[TriggerService] Org " + org.name + ": immediateTriggerEnabled is false, skipping immediate trigger");
+    return 0;
+  }
+
+  const bh = getBusinessHoursInfo(org);
+  console.log("[TriggerService] Org " + org.name + ": evaluating immediate trigger (currentHour=" + bh.currentHour + " window " + bh.start + "-" + bh.end + " " + bh.tz + ")");
+
+  // Pull recently-synced leads (same window pattern as after-hours).
+  const syncWindow = new Date(Date.now() - IMMEDIATE_WINDOW_MINUTES * 60 * 1000);
+  const maxAgeWindow = new Date(Date.now() - IMMEDIATE_MAX_AGE_HOURS * 60 * 60 * 1000);
+
+  const recentLeads = await storage.getWarehouseLeads(org.id, {
+    activityAfter: syncWindow,
+    limit: 50,
+  });
+
+  // Filter: direct VIN data source AND recently created (not just re-synced).
+  const eligibleLeads = recentLeads.filter(lead => {
+    if (lead.dataSource && lead.dataSource !== "vin_solutions") return false;
+    const createdTime = lead.vinCreatedAt || lead.syncedAt || lead.createdAt;
+    if (!createdTime) return false;
+    return new Date(createdTime).getTime() >= maxAgeWindow.getTime();
+  });
+
+  if (eligibleLeads.length === 0) {
+    console.log("[TriggerService] Org " + org.name + ": no eligible direct-VIN leads in last " + IMMEDIATE_WINDOW_MINUTES + " minutes for immediate trigger");
+    return 0;
+  }
+
+  console.log("[TriggerService] Org " + org.name + ": " + eligibleLeads.length + " eligible direct-VIN lead(s), evaluating immediate trigger");
+
+  const smsAgent = await findSmsAgent(org.id);
+  let triggered = 0;
+
+  for (const lead of eligibleLeads) {
+    try {
+      if (!lead.customerPhone) {
+        console.log("[TriggerService] Skipping immediate-trigger lead " + lead.id + " — no phone number");
+        continue;
+      }
+
+      // Test whitelist (mirrors check-in/after-hours behavior)
+      const testPhones = settings.triggerTestPhones as string[] | undefined;
+      if (testPhones && testPhones.length > 0 && !testPhones.includes(lead.customerPhone)) {
+        console.log("[TriggerService] Skipping " + lead.customerPhone + " — not in test whitelist (immediate trigger)");
+        continue;
+      }
+
+      // Skip if a conversation already exists in the last 2h (already engaged)
+      const recentConv = await hasRecentConversation(org.id, lead.customerPhone, CONVERSATION_RECENCY_HOURS);
+      if (recentConv) {
+        console.log("[TriggerService] Skipping immediate-trigger lead " + lead.id + " (" + lead.customerPhone + ") — recent conversation exists");
+        continue;
+      }
+
+      // Dedup: don't fire immediate trigger twice for the same phone in 24h
+      const alreadySent = await hasRecentTriggerSend(org.id, lead.customerPhone, TRIGGER_TYPE_IMMEDIATE, 24);
+      if (alreadySent) {
+        console.log("[TriggerService] Skipping immediate-trigger lead " + lead.id + " (" + lead.customerPhone + ") — already triggered in last 24h");
+        continue;
+      }
+
+      const custFirstName = firstName(lead.customerName);
+      const vehicleInfo = lead.vehicleOfInterest && lead.vehicleOfInterest !== "No data"
+        ? " regarding your " + lead.vehicleOfInterest
+        : "";
+      const message = "Hi " + custFirstName + ", this is " + org.name + ". Thanks for your interest" + vehicleInfo + ". Is there a day or time that works for you to swing by? Happy to help line that up.";
+
+      if (bh.within) {
+        // Inside business hours — send immediately
+        console.log("[TriggerService] Immediate trigger: sending now to " + lead.customerPhone);
+        const result = await processOutboundSend({
+          organizationId: org.id,
+          channel: "sms",
+          to: lead.customerPhone,
+          messageContent: message,
+          recipientName: lead.customerName || undefined,
+        });
+        if (result.status === "sent") {
+          triggered++;
+          // Activity log is awaited so the next 15-minute cron pass sees the dedup row.
+          await storage.createActivityLog({
+            organizationId: org.id,
+            action: "trigger_immediate_sent",
+            entityType: "warehouse_lead",
+            entityId: lead.id,
+            metadata: {
+              triggerType: TRIGGER_TYPE_IMMEDIATE,
+              phone: lead.customerPhone,
+              customerName: lead.customerName,
+              leadSource: lead.leadSource,
+            },
+          });
+          await createTriggerConversation(org, lead, smsAgent, message);
+          console.log("[TriggerService] Immediate trigger SENT to " + lead.customerPhone);
+        } else {
+          console.log("[TriggerService] Immediate trigger to " + lead.customerPhone + " was " + result.status + ": " + (result.blockedReason || "no reason"));
+        }
+      } else {
+        // Outside business hours — queue for next 7 AM local TZ. The check-in
+        // trigger does NOT cover direct-VIN immediate leads with the same urgency,
+        // so we explicitly schedule a send rather than rely on the check-in window.
+        const executeAt = nextLocalMorningSendAt(bh.tz, IMMEDIATE_MORNING_HOUR);
+        await storage.createScheduledAction({
+          organizationId: org.id,
+          actionType: "queued_immediate_trigger_sms",
+          payload: {
+            channel: "sms",
+            to: lead.customerPhone,
+            leadId: lead.id,
+            customerName: lead.customerName,
+            messageContent: message,
+            recipientName: lead.customerName,
+          },
+          executeAt,
+        });
+        // Activity log is awaited BEFORE incrementing the counter so the next
+        // 15-minute cron pass sees the dedup row and won't re-enqueue.
+        await storage.createActivityLog({
+          organizationId: org.id,
+          action: "trigger_immediate_queued",
+          entityType: "warehouse_lead",
+          entityId: lead.id,
+          metadata: {
+            triggerType: TRIGGER_TYPE_IMMEDIATE,
+            phone: lead.customerPhone,
+            customerName: lead.customerName,
+            leadSource: lead.leadSource,
+            executeAt: executeAt.toISOString(),
+            reason: "after_hours_deferred_to_morning",
+          },
+        });
+        triggered++;
+        console.log("[TriggerService] Immediate trigger DEFERRED to " + lead.customerPhone + " — queued for " + executeAt.toISOString());
+      }
+    } catch (leadErr: any) {
+      console.error("[TriggerService] Error processing immediate trigger for lead " + lead.id + ":", leadErr.message);
+    }
+  }
+
+  return triggered;
+}
+
+// ---------------------------------------------------------------------------
 // Conversation creation helper
 // ---------------------------------------------------------------------------
 
@@ -527,6 +728,7 @@ export async function runTriggerEvaluation(): Promise<TriggerRunSummary> {
     orgsEvaluated: 0,
     afterHoursTriggered: 0,
     checkInTriggered: 0,
+    immediateTriggered: 0,
     errors: 0,
   };
 
@@ -581,6 +783,15 @@ export async function runTriggerEvaluation(): Promise<TriggerRunSummary> {
         console.error("[TriggerService] Check-in trigger failed for org " + org.name + ":", err.message);
         summary.errors++;
       }
+
+      // Trigger 3: Immediate VIN-Lead Follow-Up (default OFF; per-org enabled)
+      try {
+        const immediateCount = await evaluateImmediateNewLeadTrigger(org);
+        summary.immediateTriggered += immediateCount;
+      } catch (err: any) {
+        console.error("[TriggerService] Immediate trigger failed for org " + org.name + ":", err.message);
+        summary.errors++;
+      }
     } catch (orgErr: any) {
       console.error("[TriggerService] Error evaluating org " + org.name + ":", orgErr.message);
       summary.errors++;
@@ -592,6 +803,7 @@ export async function runTriggerEvaluation(): Promise<TriggerRunSummary> {
     "orgs: " + summary.orgsEvaluated + ", " +
     "after-hours: " + summary.afterHoursTriggered + ", " +
     "check-ins: " + summary.checkInTriggered + ", " +
+    "immediate: " + summary.immediateTriggered + ", " +
     "errors: " + summary.errors
   );
 

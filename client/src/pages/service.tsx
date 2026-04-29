@@ -362,10 +362,12 @@ export default function ServicePage() {
             <Download className="h-3.5 w-3.5" />
             CSV Template
           </a>
-          <Button size="sm" variant="outline" data-testid="button-upload-csv" onClick={() => { setCsvUploadCampaignId('bulk'); csvInputRef.current?.click(); }}>
-            <Upload className="h-4 w-4 mr-1.5" />
-            Upload CSV
-          </Button>
+          {/* I-270: top-level "Upload CSV" button hidden — used to set
+              csvUploadCampaignId='bulk' which sent the upload to
+              /api/campaigns/bulk/upload-csv (a non-existent endpoint, returns
+              404). Per-campaign upload still works via the upload icon in
+              each campaign row. Re-enable this button when a bulk endpoint
+              is implemented. issues.md I-270. */}
           <Button size="sm" data-testid="button-new-campaign" onClick={() => setNewCampaignOpen(true)}>
             New Campaign
           </Button>

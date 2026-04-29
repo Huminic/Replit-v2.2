@@ -1,0 +1,193 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit(evidence/**)",
+      "Edit(sprints.json)",
+      "Edit(plan.md)",
+      "Edit(issues.md)",
+      "Edit(acceptance_criteria.md)",
+      "Edit(agent-instructions.json)",
+      "Edit(tasks.md)",
+      "Write(evidence/**)",
+      "Write(tasks.md)",
+      "Write(plan.md)",
+      "Bash(npx tsc *)",
+      "Bash(npx playwright *)",
+      "Bash(npm run build)",
+      "Bash(npm run dev *)",
+      "Bash(npm test *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(pwd)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git branch *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(test *)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(psql *)",
+      "Bash(md5sum *)",
+      "Bash(stat *)",
+      "Bash(date *)",
+      "Bash(bash scripts/watchdog.sh *)",
+      "Bash(bash scripts/enforcer-checklist.sh *)",
+      "Bash(bash scripts/check-file-scope.sh *)",
+      "Bash(pm2 logs *)",
+      "Bash(pm2 list *)",
+      "Bash(pm2 status *)",
+      "Bash(curl *)"
+    ],
+    "deny": [
+      "Edit(CLAUDE.md)",
+      "Edit(harness.md)",
+      "Edit(scripts/pre-commit.sh)",
+      "Edit(scripts/watchdog.sh)",
+      "Edit(.claude/**)",
+      "Edit(.ghost/**)",
+      "Write(CLAUDE.md)",
+      "Write(harness.md)",
+      "Write(scripts/pre-commit.sh)",
+      "Write(scripts/watchdog.sh)",
+      "Write(.claude/**)",
+      "Write(.ghost/**)",
+      "Bash(rm -rf *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(git checkout -- *)",
+      "Bash(pm2 delete *)",
+      "Bash(pm2 stop *)",
+      "Bash(git clean *)",
+      "Bash(git stash drop *)",
+      "Bash(git branch -D *)",
+      "Bash(git rebase *)",
+      "Bash(git cherry-pick *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/build-context.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/context-inject.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/governance-inject.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/memory-write-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/sprint-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/plan-protection.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/file-boundary.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/commit-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/branch-enforcement.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/memory-read-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/context-check.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/captain-check.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/template-validator.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ]
+    },
+    "nexxus-integrations": {
+      "url": "http://0.0.0.0:4002/mcp",
+      "headers": {
+        "Authorization": "Bearer 8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4="
+      }
+    },
+    "lago-billing": {
+      "url": "http://0.0.0.0:4004/mcp"
+    }
+  }
+}

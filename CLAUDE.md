@@ -1,84 +1,44 @@
 # Nexxus Connect v2.2
 
-## What This Is
-CRM/AI platform for automotive dealerships. Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Supabase).
+CRM/AI platform for automotive dealerships.
 
-## Memory Protocol (overrides global auto memory)
+**Stack:** Express 5 + React 18 + Vite 7 + Drizzle ORM + TypeScript 5.6 + PostgreSQL (Supabase)
 
-This project uses a two-file memory system. **Ignore all global auto memory instructions.** Do not read MEMORY.md. Do not create memory files. Do not write to session-state.md.
+Global values and rules: `~/.claude/CLAUDE.md`.
+Governance file standards: `~/Claude-store/sysadmin/governance-framework/file-standards.md`.
 
-### On start — read ONE file:
+## Memory (two-file protocol)
 
+Read on start:
 `~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/context.md`
 
-This is the single source of truth. It contains sprint status, architecture decisions, infrastructure state, open issues, and operational rules. Treat it as authoritative but **verify claims about running services, file paths, and infrastructure before acting on them.**
-
-### On finish — write ONE file:
-
+Write on finish:
 `~/.claude/projects/-home-ubuntu-Claude-store-nexxus2-2-replit/memory/session-output.md`
 
-**Overwrite completely** at the end of every conversation or after significant milestones. Structure:
+**Agents never write to context.md.** Only the operator promotes content from session-output.md into context.md. If context.md looks wrong, say so in session-output.md under "What Next Agent Should Know" — do not fix it yourself.
 
-```
-# Session Output
+Before acting on any claim in context.md about file paths, running services, or infrastructure: verify. "context.md says X" is not "X is true now."
 
-**Date:** YYYY-MM-DD
-**Sprint:** current sprint ID and step
-
-## What Was Done
-- bullet list of concrete changes (files, commits, deployments)
-
-## Decisions Made
-- only new decisions not already in context.md
-
-## Current State
-- what's running, what's broken, what changed
-
-## Blockers
-- anything preventing next steps
-
-## What Next Agent Should Know
-- context that won't survive compaction
-- things that were tried and failed
-- anything surprising or non-obvious
-```
-
-### Promotion rule:
-
-**Agents NEVER write to context.md.** Only the operator promotes content from session-output.md into context.md. If you believe context.md is stale or wrong, say so in session-output.md under "What Next Agent Should Know" — do not fix it yourself.
-
-### Verification rule:
-
-Before acting on any claim in context.md about:
-- File paths → check the file exists
-- Running services → check with `pm2 list`, `docker ps`, `curl`
-- Sprint status → check sprints.json
-- Infrastructure → check via sysadmin tools
-
-"context.md says X" is not the same as "X is true now."
-
-## How to Commit
-```bash
-COMMIT_ROLE=<role> COMMIT_SPRINT=<sprint-id> git commit -m "message"
-```
-Roles: frontend, backend, test, integration, scribe, enforcer, architect, orchestrator
-
-## Runtime Environment
+## Runtime
 
 | Item | Value |
-|------|-------|
+|---|---|
 | Dev URL | https://dev.huminicdev.com |
 | Production URL | https://live.huminic.app |
 | PM2 process | nexxus-app (port 5000) |
-| Database | Supabase PostgreSQL (aws-0-us-west-2.pooler.supabase.com) |
-| Test password | NexxusTest2026 (all test accounts) |
-| Dev server | npm run dev (local testing only) |
-| Build + deploy | npm run build && pm2 restart nexxus-app (GATED — committed sprint required) |
+| Database | Supabase PostgreSQL |
+| Dev server | `npm run dev` |
+| Build + deploy | `npm run build && pm2 restart nexxus-app` (confirm with operator first) |
 
-### Test Accounts (all use password: NexxusTest2026)
+### Required env vars
+
+`ANTHROPIC_API_KEY`, `BRAVE_API_KEY`, `APP_BASE_URL`, `VIN_SAFE_MCP_TOKEN`, `DATABASE_URL`, `VINSOLUTIONS_API_KEY`, `OPENAI_API_KEY`, `FAL_KEY`, `RESEND_API_KEY`. Missing env = silent feature failures.
+
+### Test accounts (password: `NexxusTest2026`)
+
 | Email | Role | Org |
-|-------|------|-----|
-| duane.wells@huminic.ai | super_admin | Huminic (NOTE: currently on Tony Serra Ford — S-0 must fix to Huminic) |
+|---|---|---|
+| duane.wells@huminic.ai | super_admin | Huminic |
 | duanekwells@gmail.com | partner_admin | Cage Automotive |
 | serra_honda@huminic.ai | org_admin | Serra Honda |
 | serra_nissan@huminic.ai | org_admin | Serra Nissan |
@@ -86,245 +46,241 @@ Roles: frontend, backend, test, integration, scribe, enforcer, architect, orches
 | columbia_hyundai@huminic.ai | org_admin | Hyundai of Columbia |
 | columbia_ford@huminic.ai | org_admin | Ford of Columbia |
 
-### Required .env Variables
-ANTHROPIC_API_KEY, BRAVE_API_KEY, APP_BASE_URL, VIN_SAFE_MCP_TOKEN, DATABASE_URL, VINSOLUTIONS_API_KEY, OPENAI_API_KEY, FAL_KEY, RESEND_API_KEY — all must be set. If any are missing, features depending on them will fail silently.
+## Work protocol
 
-## Reading Order for Sprint Work (CRITICAL)
+1. Pick an item from `backlog.md`.
+2. Use plan mode for non-trivial work.
+3. Keep edits scoped to the item's declared files.
+4. At the end of non-trivial work, dispatch a fresh agent via `Agent` tool with `subagent_type: code-reviewer` to verify claims against files.
+5. Write `session-output.md` before finishing the session.
 
-Before starting ANY sprint, read these files in this order:
-1. **sprints.json** → Find your sprint → Get components, acceptance criteria, files to modify, UI permissions
-2. **plan.md Section 0** → Sprint Execution Protocol (test/fix/retest loop, escalation rules, visual inspection gates)
-3. **plan.md sprint section** → Understand HOW to implement (exact code changes, SPEC sections, API shapes)
-4. **Source files** listed in the sprint's `filesModified` → Read BEFORE writing. Understand existing code.
-5. If the sprint references **agent-instructions.json**, read it.
-6. If the sprint resolves issues, check **issues.md** for context.
-7. Read **plan.md Section 3e** (Hard-Won Lessons) — mistakes that must not be repeated.
+Commit with a plain message. No `COMMIT_ROLE`, no `COMMIT_SPRINT`, no `[skip-ghost]`.
 
-## Sprint Pre-Flight Checklist (CRITICAL — do this BEFORE every sprint)
+## Agent filesystem boundary (CRITICAL)
 
-Before writing any code for a sprint, complete this checklist:
+**Incident REM-8-DT (2026-03-19):** a builder sub-agent rewrote `central-mcp/src/connectors/vin-connector.ts` without authorization. central-mcp had no git repo; the change could not be reverted.
 
-1. **Scan ACs:** Read every acceptance criterion for this sprint in sprints.json. Identify any that are ambiguous, reference unknown values, or assume something you can't verify. If found → ASK the owner before proceeding.
-2. **Scan components:** Read every component description. Identify any that reference files you haven't read, APIs you haven't checked, or features you're unsure exist. If found → READ the file/API first.
-3. **Scan test references:** Check which test files cover this sprint. Read the existing tests to understand what's already verified vs what's new.
-4. **Check for assumptions:** Look for words like "should," "probably," "likely," "assumed" in the sprint description. These are red flags. Verify each one against the code.
-5. **Clean worktree:** Run `git status` — no uncommitted changes from previous work. If dirty → stash or commit first.
-6. **Update session state:** Write current sprint ID to session-state.md before starting.
-7. **Verify pre-requisites:** If the sprint depends on other sprints (check `dependsOn`), verify those are committed with hashes.
-8. **Role:** You are the ORCHESTRATOR. You do NOT write application code directly. Delegate to builder sub-agents. You manage the sprint lifecycle, evidence, and governance.
-9. **Write pre-execution-report.md** with ALL required sections:
-   - `## Objective`
-   - `## Declared Files`
-   - `## UI Changes` (if uiPermissions is DECLARED)
-   - `## Acceptance Criteria` (copy from sprints.json)
-   - `## Test Plan` — list EVERY test file to write and run, EVERY cross-test, and the EXACT npx playwright test commands
-10. **GHOST GATE (file-based):** After writing the pre-exec, STOP. The ghost agent will:
-    - Read evidence/S-[X]/pre-execution-report.md
-    - Diff it against sprints.json (components, ACs, files, UI permissions)
-    - Write a `## Ghost Entry Gate` section AT THE BOTTOM of the same pre-execution-report.md with its verdict
-    - If APPROVED: you will see "ENTRY GATE: APPROVED" in the file — you may begin implementation
-    - If REJECTED: you will see "ENTRY GATE: REJECTED" with reasons — fix and resubmit
-    - Do NOT start coding until the file contains "ENTRY GATE: APPROVED"
-    - Check: `grep "ENTRY GATE: APPROVED" evidence/S-[X]/pre-execution-report.md`
+Builder and sub-agents MUST NOT modify files outside `/home/ubuntu/Claude-store/nexxus2.2_replit/`. If a blocker exists in another project, STOP and report it. Do not fix it.
 
-If ANY checklist item reveals an issue → STOP and resolve it before proceeding. Do not start implementation with unresolved questions.
+This is enforced by `~/.claude/hooks/file-boundary.sh` (narrowed form, shape B).
 
-## Sprint Completion Protocol (CRITICAL — do this AFTER every sprint)
+## VIN Solutions Safe MCP (CRITICAL)
 
-After all tests pass and before committing:
+**All VIN Solutions writes go through vin-safe-mcp, never central-mcp.**
 
-1. **Write post-sprint-report.md** with ALL required sections:
-   - `## AC Results` — table with EVERY AC from sprints.json: ID, PASS/FAIL, evidence reference
-   - `## Test Execution` — the EXACT npx playwright test commands run, copy-pasted terminal output with pass/fail counts
-   - `## Cross-Test Results` — same format for cross-tests (or "N/A — no cross-tests for this sprint")
-   - If ANY AC is FAIL → STOP and escalate to owner. Do NOT commit with known failures.
-2. **Commit through harness** (all gates must pass)
-3. **GHOST GATE (file-based):** After committing, STOP. The ghost agent will:
-   - Read evidence/S-[X]/post-sprint-report.md
-   - Verify test execution, AC results, cross-test results
-   - Run the 11-question gate checklist
-   - Write a `## Ghost Exit Gate` section AT THE BOTTOM of the same post-sprint-report.md with its verdict
-   - If CLEARED: you will see "EXIT GATE: CLEARED" in the file — you may start next sprint's pre-exec
-   - If NOT CLEARED: you will see "EXIT GATE: NOT CLEARED" with reasons — fix and resubmit
-   - Do NOT start the next sprint until the file contains "EXIT GATE: CLEARED"
-   - Check: `grep "EXIT GATE: CLEARED" evidence/S-[X]/post-sprint-report.md`
+| | Value |
+|---|---|
+| URL | http://0.0.0.0:4003/mcp |
+| REST | http://0.0.0.0:4003/api/tool/{tool_name} |
+| Auth | `Bearer 8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=` |
+| Process | vin-safe-mcp (PM2, port 4003) |
 
-sprints.json is the single source of truth for what to build and what "done" means. plan.md provides implementation details. acceptance_criteria.md is a human-readable summary — do NOT use it as primary reference.
+Central MCP (port 4002) handles all other providers (VAPI, TextMagic, Tavus, Resend, FlexPrice, etc.) and VIN Solutions READ operations only.
 
-## Governance
+### Write flow — MANDATORY
 
-Work goes through a gated process: register sprint → declare files → do work → prove it → commit through hook.
+`prepare → review → execute → verify`. No shortcuts.
 
-- **sprints.json** — Sprint registry v5.0. 11 sprints (S-0 through S-10), organized by page. Each sprint contains inline acceptance criteria with test references and evidence types. One sprint in_progress at a time.
-- **plan.md** — Implementation plan. Per-sprint details including exact code changes (SPEC sections), API response shapes, test templates, and autonomous agent specifications.
-- **harness.md** — Pre-commit gates, watchdog checks, ghost handshake.
-- **scripts/pre-commit.sh** — Pre-commit hook. Source of truth for what blocks a commit.
-- **scripts/watchdog.sh** — Watchdog scanner (C1-C18). Detects governance violations.
-- **evidence/{sprint-id}/** — Per-sprint artifacts.
-
-**NOTE:** The old plan/ directory (plan/01-auth-security.md through plan/15-launch.md) is HISTORICAL REFERENCE ONLY. Do NOT follow those files. plan.md is the active plan.
-
-## UI Protection
-Frontend UI (client/src/pages/, client/src/components/) must not be modified without explicit permission. Each sprint in sprints.json has a `uiPermissions` field that declares exactly what UI elements may be modified. If `uiPermissions` says "NONE", do not touch any UI. If it lists specific elements, modify ONLY those.
-
-## Operational Rules (consolidated from operator feedback)
-
-### Testing
-- **5-layer framework:** L1 unauthenticated → L2 authenticated → L3 visual → L4 usability → L5 admin walkthrough (human only). L5 cannot be self-approved.
-- **No test shortcuts.** No dryRun=true, no mock webhooks, no time-of-day dependencies. Tests must exercise real services. API cost is acceptable.
-- **User story gate (PRE-08).** Before any L2+ testing, user-defined expected behavior must exist for every component. Without it, sprint is BLOCKED.
-- **Playwright CLI for automated tests.** MCP Playwright for interactive inspection only.
-
-## Project Documents
-
-- **plan.md** — Active implementation plan. 11 sprints organized by page. Contains SPEC sections with exact code changes, API shapes, and test templates for autonomous execution.
-- **sprints.json** — Sprint registry with inline acceptance criteria. Source of truth for "what to build" and "what done means."
-- **issues.md** — Open issues. Every bug, gap, and defect with Background, Outcome, and Acceptance Criteria.
-- **agent-instructions.json** — Pre-written agent persona instructions. Used by S-0.3b to seed the agents table.
-- **acceptance_criteria.md** — Human-readable summary of acceptance criteria. NOT the source of truth — sprints.json is.
-- **backlog.md** — Items not blocking launch.
-- **user-stories.md** — User story library (US-001 through US-030). Authored by project owner. Do not edit.
-
-## Where Things Are
-- **Third-party comms**: Route through central-mcp at localhost:4002 via callMCP() in server/vendorProxy.ts (READ operations and non-VIN providers)
-- **VIN Solutions writes**: Route through vin-safe-mcp at localhost:4003 (see VIN Safe MCP section below)
-- **Infrastructure authority**: /home/ubuntu/Claude-store/sysadmin/
-- **User stories**: user-stories.md
-- **Old plan files**: plan/ directory (historical only — do NOT follow)
-- **Backups of old governance**: .ghost/backups/2026-03-23-phase-reset/
-
-## Action Protocol (CRITICAL)
-Do NOT take action (edit files, run commands, dispatch agents) unless the user explicitly directs it. When the user asks a question or presents information, RESPOND with analysis and options — do NOT jump into execution. Wait for explicit instruction before proceeding.
-
-## Agent Filesystem Boundaries (CRITICAL)
-Builder agents MUST NOT modify files outside this project directory (`/home/ubuntu/Claude-store/nexxus2.2_replit/`). This includes:
-- `/home/ubuntu/Claude-store/central-mcp/` — MCP server (separate project)
-- `/home/ubuntu/Claude-store/sysadmin/` — infrastructure authority
-- `/home/ubuntu/Live-Store/` — old app (read-only reference)
-- Any other project under `/home/ubuntu/Claude-store/`
-
-If a builder agent encounters a blocker in an external project, it must STOP and report the blocker. It must NOT fix it.
-
-**Incident:** REM-8-DT (2026-03-19) — a builder agent rewrote `central-mcp/src/connectors/vin-connector.ts` without authorization. central-mcp had no git repo, so no backup or revert was possible. This rule exists to prevent recurrence.
-
-## VIN Solutions — Safe MCP Server (CRITICAL)
-
-**IMPORTANT:** All VIN Solutions write operations (creating contacts, leads, updating records) MUST go through the VIN Safe MCP server, NOT the central-mcp server.
-
-### Connection Details
-
-- **URL:** http://0.0.0.0:4003/mcp
-- **REST API:** http://0.0.0.0:4003/api/tool/{tool_name}
-- **Authorization:** Bearer 8NCVZ8ZCgHtab6A+FxHsgOKcgir89KvOR+wMIpYFLp4=
-- **Server:** vin-safe-mcp (PM2 process, port 4003)
-
-Central MCP (port 4002) is still used for all other providers (VAPI, TextMagic, Tavus, Resend, FlexPrice, etc.) and for VIN Solutions READ operations. The safe server is specifically for VIN WRITES.
-
-### Write Flow — MANDATORY
-
-VIN Solutions writes follow a prepare → review → execute → verify flow. There are no shortcuts.
-
-**Step 1: Prepare**
-Call `vin_safe_prepare_lead` with the contact details. This resolves the dealer, user, and lead source WITHOUT creating anything.
-
-**Step 2: Review**
-The tool returns a full preview. Present to user. Do NOT proceed without explicit approval.
-
-**Step 3: Execute**
-Call `vin_safe_execute_lead` with the approval token and `user_confirmed: true`.
-
-**Step 4: Verify**
-The tool returns `VERIFIED_CORRECT` or `ASSIGNMENT_MISMATCH`. If mismatch, STOP.
+1. **Prepare** — call `vin_safe_prepare_lead`. Resolves dealer/user/lead source without creating anything.
+2. **Review** — show the full preview to the operator. Do not proceed without explicit approval.
+3. **Execute** — call `vin_safe_execute_lead` with approval token and `user_confirmed: true`.
+4. **Verify** — expect `VERIFIED_CORRECT` or `ASSIGNMENT_MISMATCH`. If mismatch: STOP.
 
 ### Rules
 
-1. **NEVER create VIN contacts or leads through central-mcp.** Use vin-safe-mcp only.
-2. **NEVER set user_confirmed: true without showing the preview to the user first.**
-3. **NEVER batch-insert leads.** Process one at a time.
-4. **If prepare fails, STOP and report.** Do not work around it.
-5. **If verification returns ASSIGNMENT_MISMATCH, STOP immediately.**
+- Never create VIN contacts or leads through central-mcp.
+- Never set `user_confirmed: true` without showing the preview first.
+- Never batch-insert leads; one at a time.
+- If prepare fails, STOP and report.
+- If verification returns `ASSIGNMENT_MISMATCH`, STOP immediately.
+- Do not modify vin-safe-mcp code. It is managed by the central-mcp project owner.
 
-### Available Tools (port 4003)
+## Action classification
 
-| Tool | Purpose | Writes? |
-|------|---------|---------|
-| vin_health_check | Verify connectivity | No |
-| vin_get_dealer_id | Resolve org UUID → dealer ID | No |
-| vin_list_users | List all users at a dealer | No |
-| vin_resolve_user_id | Show who the default user resolves to | No |
-| vin_list_lead_sources | List lead sources at a dealer | No |
-| vin_api_read | Generic GET to any VIN endpoint | No |
-| vin_safe_prepare_lead | Prepare lead creation — full preview | No |
-| vin_safe_execute_lead | Execute prepared lead with verification | Yes (approval-gated) |
-
-### DO NOT modify vin-safe-mcp code
-This server is managed by the central-mcp project owner. Document blockers, do not fix.
-
-## Action Classification (CRITICAL)
-
-Every action falls into one of three categories:
-
-**SAFE (do freely):**
+**Safe (do freely):**
 - Read any file
-- Write to evidence/ directories
-- Write test files in tests/
-- Run dev server (npm run dev)
-- Run single test files (npx playwright test <file>)
-- Update session state and memory
-- Read database (SELECT queries)
+- Write to `evidence/` and `tests/`
+- Run dev server (`npm run dev`), single test files
 
-**GATED (requires committed sprint):**
-- Modify application code (server/, client/src/, shared/)
-- npm run build
-- pm2 restart
-- Database schema changes (migrations)
+**Confirm with operator first:**
+- Modify application code (`server/`, `client/src/`, `shared/`)
+- `npm run build`, `pm2 restart`
+- Database schema changes / migrations
 
-**IRREVERSIBLE (requires explicit owner approval):**
-- Any API call that creates or modifies external data (VIN Solutions, VAPI, TextMagic, Tavus, Resend)
-- Any email send to real addresses
-- Any SMS send to real numbers
-- Any production deployment to live.huminic.app
-- Any database migration on production
-- Any git push or force-push
+**Irreversible — require explicit operator "go":**
+- Any VIN Solutions / VAPI / TextMagic / Tavus / Resend / FlexPrice write
+- Any email or SMS send to real addresses or numbers
+- Any production deploy to `live.huminic.app`
+- Any migration on production
+- Any git push or force push
 
-If you are about to take an IRREVERSIBLE action, STOP and present exactly what you intend to do. Wait for the owner to say "go."
+## Deployment actions
 
-## Deployment Actions Rule (CRITICAL)
+`npm run build`, `pm2 restart`, `pm2 reload` — run ONLY after code is committed and the operator confirms. Use `npm run dev` for local testing.
 
-npm run build, pm2 restart, pm2 reload — these are GATED deployment actions.
-- Run AFTER code is committed through the pre-commit hook
-- ONLY when COMMIT_SPRINT is set and the sprint is committed
-- NOT during investigation, debugging, or "let me check if this works"
-- Use npm run dev for local testing
+## CommGate
 
-## CommGate Rule (CRITICAL)
+All outbound communication respects CommGate flags on the organization:
+- Test payloads MUST NOT trigger real sends to real people.
+- If CommGate is disabled, sends are logged with status `blocked`.
+- Never bypass CommGate, even for "quick tests."
 
-All outbound communications must respect CommGate flags on the organization.
-- Test payloads MUST NOT trigger real sends to real people
-- If CommGate is disabled, sends are logged with status "blocked"
-- Never bypass CommGate, even for "quick tests"
+## Decision log
 
-## Decision Log
+Stop and ask the operator when a decision affects:
+- what a user sees (UI behavior, error messages, displayed data)
+- what gets sent externally (email content, SMS text, API payloads)
+- what gets stored permanently (schema, data transformations)
 
-When making implementation decisions during a sprint:
+Document non-trivial decisions inline in the backlog item or in a commit message.
 
-**STOP and ask the owner if:**
-- The decision affects what a user sees (UI behavior, error messages, data display)
-- The decision affects what gets sent externally (email content, SMS text, API payloads)
-- The decision affects what gets stored permanently (database schema, data transformations)
+## UI protection
 
-**Proceed and document if:**
-- The decision only affects internal code structure
-- Both approaches produce identical external behavior
+Frontend (`client/src/pages/`, `client/src/components/`) does not change without explicit permission. When in doubt, STOP and ask.
 
-Document non-trivial decisions in evidence/{sprint}/decisions.md.
+## Infrastructure
 
-## Emergency Sprint Rule
+See `~/Claude-store/sysadmin/CLAUDE.md`. Use the safe wrappers for DNS, ports, monitoring.
 
-Emergency sprints (EMG- prefix) may be registered when production is broken.
-Requirements still apply: register in sprints.json, write pre-exec, commit through hook.
-May skip: ghost pre-review, dry-run, scope limit.
+## Legacy artifacts
 
-## Mid-Sprint Scope Change
+Previous harness files (pre-2026-04-23) are preserved in `legacy-artifacts/` for reference only. Do not follow them; they were deprecated as part of the subtractive harness revision. See `legacy-artifacts/README.md` for the index.
 
-If scope changes significantly: park the sprint (set status "parked", add reason), register new sprint with corrected scope. Small additions (1-2 files) can be handled by updating declared files in pre-exec.
+## Harness — agent team workflow (2026-04-25)
+
+Project-level Claude Code harness lives at:
+- hooks: `~/Claude-store/sysadmin/harness/hooks/` (referenced by `.claude/settings.json`)
+- agents: `~/Claude-store/sysadmin/harness/agents-common/` (symlinked into `.claude/agents/`)
+- commands: `~/Claude-store/sysadmin/harness/commands-common/` (symlinked into `.claude/commands/`)
+
+### Mandatory before any non-trivial work
+
+1. Run `/preflight` and present pre-flight confirmations to the operator. Wait for explicit "go".
+2. For launch-affecting work, also run `/launch-check`.
+3. Dispatch `harness-orchestrator` (not the legacy `orchestrator`).
+4. Subagents:
+   - `scope-guardian` — verifies scope before completion
+   - `harness-backend` / `harness-frontend` — implementation
+   - `qa-evaluator` — produces two deltas of proof
+   - `code-reviewer` — independent diff review
+   - `integration-safety` — external-provider boundary safety
+   - `nexxus-launch-captain` — launch readiness (Monday Apr 27, 2026 9 AM ET)
+   - `nexxus-e2e-evaluator` — Playwright/MCP end-to-end recorded evidence
+
+### Hard requirements before completion
+
+- `/verify-scope` returns `PASS`.
+- `/proof` returns `PASS` with two independent deltas of evidence.
+- `/handoff` writes `.claude/session.md` and `memory/session-output.md`.
+
+### Bypass markers (when operator has explicitly authorized)
+
+- Bash blocked action: append `# APPROVED: <reason>` to the command.
+- Edit blocked file: `mkdir -p .claude/state/scope && touch .claude/state/scope/<basename>.ok` before retrying. Marker auto-clears on first use.
+- Stop hook escape: `touch .claude/state/skip-stop-check` (one-shot, auto-clears; use only after explicit operator approval).
+
+### Completion gates (machine-checked by Stop hook)
+
+If this session edits any non-handoff file, the Stop hook BLOCKS until ALL these markers exist for the current session:
+
+| Marker | Required when | How to write |
+|---|---|---|
+| `verify-scope` | always | `mark-complete.sh verify-scope` after `scope-guardian` returns PASS |
+| `proof` | always | `mark-complete.sh proof <evidence-path>` after `qa-evaluator` returns PASS with TWO deltas |
+| `code-review` | always | `mark-complete.sh code-review` after `code-reviewer` returns APPROVE |
+| `integration-safety` | external-provider files touched (`integrations`, `providers`, `safe-mcp`, `central-mcp`, `commgate`, `outbound`, `webhooks`, `signalwire`, `textmagic`, `resend`, `vapi`, `tavus`, `lago`, `coolify`) | `mark-complete.sh integration-safety` after `integration-safety` returns PASS |
+| `launch-check` | launch-affecting files touched (triggers, appointments, outbound, reports, widget, conversations, sms, voice, adf, scheduler, schema) | `mark-complete.sh launch-check` after `nexxus-launch-captain` returns GO with operator authorization |
+
+`mark-complete.sh` is at `/home/ubuntu/Claude-store/sysadmin/harness/bin/mark-complete.sh`.
+
+Markers must reflect actual subagent verdicts for THIS session. Writing a marker preemptively, on a FAIL/BLOCK verdict, or recycled from a prior session is a discipline violation.
+
+Plus: handoff (`/handoff`) must update `.claude/session.md` or `memory/session-output.md` after first edit.
+
+### Two deltas of proof — minimum, NOT maximum
+
+Every completed task requires:
+- Delta 1: a runnable test/eval result (command + pass/fail + path).
+- Delta 2: an independent observation (Playwright screenshot, log entry, DB row, network capture).
+
+A single test run is one delta. You always need two. Higher testing levels (sprint / phase / pre-prod) require MORE evidence — see Testing Doctrine.
+
+### Testing doctrine — required reading
+
+`~/Claude-store/sysadmin/harness/TESTING_DOCTRINE.md` is the authoritative testing policy. Five levels (step / sprint / phase / pre-prod / post-prod), each with explicit scope, required tests, GUI requirement, and evidence layout. Completion claim must specify the testing level via `mark-complete.sh testing-level <level> [evidence-path]`. GUI testing via Playwright or Playwright MCP is MANDATORY at sprint-level and above for any user-facing change.
+
+Nexxus eval entry points discovered 2026-04-26:
+- `npm run test:e2e` (43 specs across 13 Playwright projects in `tests/e2e/`)
+- `npm run test:e2e:list`
+- `npx playwright test --project=workflow` (15 wf-*.spec.ts)
+- `npx playwright test --project=visual` (timeout 180s)
+- `node tests/pe-insights-03-eval.js` (Insights eval)
+- `npx tsx server/comms-test.ts <fn>` (allowlisted-recipient comms)
+
+Playwright MCP agents available (all real files in `.claude/agents/`): `playwright-test-planner`, `playwright-test-generator`, `playwright-test-healer`. Plus harness symlinks `nexxus-e2e-evaluator` and `qa-evaluator`.
+
+### TEST-SAFETY MODEL (NEXXUS) — verified 2026-04-25
+
+**Dev and live SHARE the same Supabase database.** Any mutating test fired from dev hits the live database. All 7 named org_admin accounts are real dealership admins. All 7 orgs have outbound flags enabled. `OUTBOUND_LIVE_ENABLED=true` and `ADF_MODE=live` on both deployments.
+
+The model is **NOT "block all real sends"**. The model IS:
+
+> **Allow real provider sends ONLY to approved internal/test destinations.**
+> **Block any send whose recipient is a real customer or unapproved external party.**
+
+### Autonomy ALLOWED after preflight (no per-action approval needed)
+
+- Edit code within approved Nexxus launch/test scope (server/, harness/, evidence/, tests/) — UI files still require per-file scope marker
+- Configure `TESTLANE_*` env vars in `.env` (operator's own `.env`)
+- `pm2 restart nexxus-app` or `pm2 reload nexxus-app --update-env` (DEV ONLY) after presenting exact command + reason
+- Run autonomous test scripts (`npx tsx server/comms-test.ts <fn>`) that target ONLY allowlisted destinations
+- Check Resend / TextMagic / VAPI / Tavus logs / dashboards for proof
+- Use Playwright MCP for full workflow testing on `localhost:5000`, `dev.huminicdev.com`, `live.huminic.app`
+- Create test records clearly marked `[TESTLANE]` (campaigns, conversations, recipients, leads)
+- Run `harness/bin/test-lane-reset.sh` DRY-RUN
+- Run `harness/bin/test-lane-reset.sh --execute` when `TESTLANE_RESET_APPROVED=yes` is set
+
+### STILL REQUIRES EXPLICIT APPROVAL
+
+- Production deploy (`npm run build && pm2 restart nexxus-app` past dev — anything affecting `live.huminic.app`)
+- Migration / schema change
+- VIN `execute` write after `prepare → review`
+- Adding or changing real customer recipients
+- Enabling service campaigns for stores OTHER than `serra-honda`
+- Sending to any non-allowlisted phone/email
+- Changing live Coolify env (`phqqzjj5pal13wlp39m5ohx6-…` container)
+- Restarting live Coolify container (any `docker restart` / `docker compose restart`)
+- Force push or push to main
+- Broad UI redesign (anything beyond approved per-file scope markers)
+
+### Hard preconditions for any mutating action
+
+1. Run `/home/ubuntu/Claude-store/sysadmin/harness/bin/test-safety-check.sh` and present the report. (`/preflight` does this automatically.)
+2. Present a destination-classification table per `/preflight` (every send/call enumerated with category from the allowlist).
+3. Verify each target via `test-orgs-allowlist-check.sh recipient <target>` (exit 0 + category) and `test-orgs-allowlist-check.sh org <slug>`.
+4. If env changes are needed, present exact env vars + exact PM2 restart command + reason.
+5. If the action requires explicit-approval per the list above, get operator chat confirmation.
+
+Read-only login as a real org_admin (`serra_honda@huminic.ai` etc.) is acceptable. Mutating actions under those identities require per-action operator approval in chat.
+
+### Service-campaign launch rule (NEXXUS) — operator decision 2026-04-25
+
+Service-campaign capability may be IMPLEMENTED for all stores in code (Sprint 2.2), but **only `serra-honda`** ships it ENABLED for Monday Apr 27 launch. For all other orgs, service module flags (sms / phone / email / outbound at the per-module level) must default OFF until the operator authorizes per-store. Pre-launch verification requires two deltas of proof (DB snapshot + UI walk-through).
+
+### Minimal-UI-change rule (NEXXUS) — BLOCKED by hook
+
+UI changes require explicit operator approval. The hook `edit-scope-guard.sh` BLOCKS edits to:
+
+- `client/src/pages/**`
+- `client/src/components/**`
+- `client/src/styles/**`
+- `client/src/layouts/**`
+
+Per-file bypass: `mkdir -p .claude/state/scope && touch .claude/state/scope/<basename>.ok` (one-shot, auto-clears).
+
+The only pre-approved UI change categories per `plan.md` are:
+
+- TeamBox section access (Sales / Service / Marketing submenus, only if data model supports)
+- metric revision so visible metrics answer useful dealership questions
+
+All other UI changes require additional operator approval, captured in `decisions.md` before work starts AND a per-file `.claude/state/scope/<basename>.ok` marker for each file.

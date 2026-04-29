@@ -13,6 +13,7 @@ import {
   clearRefreshCookie,
   getRefreshTokenFromCookie,
 } from "../auth";
+import { rotateRefreshToken } from "../lib/refreshTokenRotation";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -199,102 +200,38 @@ export function registerAuthRoutes(app: Express) {
       // Read refresh token from httpOnly cookie (primary) or body (legacy fallback)
       const refreshToken = getRefreshTokenFromCookie(req) || req.body?.refreshToken;
 
-      if (!refreshToken) {
-        return res.status(400).json({ message: "Refresh token required" });
-      }
-
-      const session = await storage.getSessionByRefreshToken(refreshToken);
-      if (!session || session.expiresAt < new Date()) {
-        // Check for concurrent rotation — another refresh may have already succeeded
-        try {
-          const decoded = verifyToken(refreshToken, 'refresh') as { userId: string };
-          if (decoded?.userId) {
-            const recentSession = await storage.getMostRecentSessionForUser(decoded.userId);
-            if (recentSession && (Date.now() - new Date(recentSession.createdAt).getTime()) < 10000) {
-              // Concurrent refresh already rotated. Return current session tokens.
-              const user = await storage.getUser(decoded.userId);
-              if (user) {
-                const role = await storage.getRole(user.roleId);
-                const org = await storage.getOrganization(user.organizationId);
-                const tokenPayload = {
-                  userId: user.id,
-                  organizationId: user.organizationId,
-                  roleId: user.roleId,
-                };
-                const newAccessToken = generateAccessToken(tokenPayload);
-                setRefreshCookie(res, recentSession.refreshToken);
-                return res.json({
-                  accessToken: newAccessToken,
-                  expiresIn: getAccessTokenExpirySeconds(),
-                  user: role && org ? {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    role: { id: role.id, name: role.name, level: role.level },
-                    organization: { id: org.id, name: org.name },
-                  } : undefined,
-                });
-              }
-            }
-          }
-        } catch {
-          // Token decode failed — fall through to normal 401
-        }
-        clearRefreshCookie(res);
-        return res.status(401).json({ message: "Invalid or expired refresh token" });
-      }
-
-      try {
-        verifyToken(refreshToken, 'refresh');
-      } catch {
-        await storage.deleteSession(session.id);
-        clearRefreshCookie(res);
-        return res.status(401).json({ message: "Invalid refresh token" });
-      }
-
-      const user = await storage.getUser(session.userId);
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-
-      const role = await storage.getRole(user.roleId);
-      const org = await storage.getOrganization(user.organizationId);
-
-      // Token rotation: delete old session, create new one
-      await storage.deleteSession(session.id);
-
-      const tokenPayload = {
-        userId: user.id,
-        organizationId: user.organizationId,
-        roleId: user.roleId,
-      };
-
-      const newAccessToken = generateAccessToken(tokenPayload);
-      const newRefreshToken = generateRefreshToken(tokenPayload);
-
-      await storage.createSession({
-        userId: user.id,
-        refreshToken: newRefreshToken,
-        expiresAt: getRefreshTokenExpiryDate(),
+      // Rotation logic — including the concurrent-rotation fallback for
+      // the unique-violation race documented in
+      // server/lib/refreshTokenRotation.ts (Priority #3 fix). The route
+      // is a thin Express adapter over the pure helper so the race can
+      // be unit-tested without HTTP/DB scaffolding.
+      const result = await rotateRefreshToken(refreshToken, {
+        storage,
+        generateAccessToken,
+        generateRefreshToken,
+        verifyRefreshToken: (t) => verifyToken(t, 'refresh') as { userId: string },
+        getRefreshTokenExpiryDate,
+        getAccessTokenExpirySeconds,
       });
 
-      // Set new refresh token as httpOnly cookie
-      setRefreshCookie(res, newRefreshToken);
+      if (result.kind === "ok") {
+        setRefreshCookie(res, result.refreshToken);
+        return res.json({
+          accessToken: result.accessToken,
+          expiresIn: result.expiresIn,
+          user: result.user,
+        });
+      }
 
-      return res.json({
-        accessToken: newAccessToken,
-        expiresIn: getAccessTokenExpirySeconds(),
-        user: role && org ? {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: { id: role.id, name: role.name, level: role.level },
-          organization: { id: org.id, name: org.name },
-        } : undefined,
-      });
+      if (result.cookie === "clear") {
+        clearRefreshCookie(res);
+      }
+      return res.status(result.status).json({ message: result.message });
     } catch (err) {
+      // Loud catch — pre-fix this swallowed the underlying error and made
+      // the unique-violation race invisible. Log the actual exception so
+      // future failures don't require trace-archaeology to diagnose.
+      console.error("[auth/refresh] unhandled error:", err);
       return res.status(500).json({ message: "Token refresh failed" });
     }
   });

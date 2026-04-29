@@ -1,0 +1,52 @@
+{
+  "delta": 2,
+  "delta_label": "non-allowlisted block via sendSmsRaw",
+  "probed_at": "2026-04-27T06:23:47.101Z",
+  "finished_at": "2026-04-27T06:23:49.458Z",
+  "org": {
+    "id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "slug": "serra-honda",
+    "name": "Serra Honda"
+  },
+  "target": {
+    "phone": "+15417783509",
+    "allowlist_category": null,
+    "provenance": "Lisa Morris — INC-001 real Honda customer with vin_solutions warehouse_lead (vin_status=SERVICE_APPOINTMENT_SCHEDULED, leadsources/id/7098). Real person; deliberately chosen to ensure the guard would fire on a real-customer phone."
+  },
+  "message_content": "[phase3-block-sim-2026-04-27] Phase 3 SMS guard non-allowlisted block proof. Guard short-circuits before provider call. NOT SENT.",
+  "chokepoint_called": "sendSmsRaw",
+  "send_duration_ms": 439,
+  "threw": true,
+  "error_message": "prelaunch-sms-lock: recipient not on allowlist",
+  "error_contains_prelaunch_sms_lock": true,
+  "error_contains_allowlist": true,
+  "counts": {
+    "outbound_log_sms_before": 275,
+    "outbound_log_sms_after": 276,
+    "delta_total": 1,
+    "target_phone_sms_before": 3,
+    "target_phone_sms_after": 4,
+    "delta_target_phone": 1
+  },
+  "new_outbound_log_rows_since_probe_start": [
+    {
+      "id": "7a62e939-739a-4751-909a-fd695e6e4715",
+      "channel": "sms",
+      "status": "blocked",
+      "blocked_reason": "prelaunch-sms-lock: recipient not on allowlist",
+      "recipient_name": null,
+      "recipient_phone": "+15417783509",
+      "sent_at": null,
+      "created_at": "2026-04-27T06:23:48.153Z",
+      "message_preview": "[phase3-block-sim-2026-04-27] Phase 3 SMS guard non-allowlisted block proof. Guard short-circuits before provider call. NOT SENT."
+    }
+  ],
+  "sent_rows_for_target_phone_since_probe": [],
+  "expectations": {
+    "send_did_throw": true,
+    "throw_message_mentions_prelaunch_sms_lock": true,
+    "no_sent_row_for_target_phone": true,
+    "blocked_row_written_by_guard": true
+  },
+  "note": "Critical safety property: sent_rows_for_target_phone_since_probe MUST be an empty array. If it has any rows, the guard failed and a real SMS reached Lisa Morris's phone. Operator surfacing required immediately."
+}

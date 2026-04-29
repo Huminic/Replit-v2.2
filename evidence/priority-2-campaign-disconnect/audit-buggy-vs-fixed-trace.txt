@@ -1,0 +1,101 @@
+[VendorProxy] Failed to parse NEXXUS_ORG_MAP env var: SyntaxError: Expected property name or '}' in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at loadNexxusOrgMap (/home/ubuntu/Claude-store/nexxus2.2_replit/server/vendorProxy.ts:14:19)
+    at <anonymous> (/home/ubuntu/Claude-store/nexxus2.2_replit/server/vendorProxy.ts:23:48)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Audit — Priority #2 campaign disconnect false-block.
+Source under audit: server/outbound.ts findConversationForRecipient.
+Caller: server/outbound.ts checkCommGate line 478-483 reads
+  conversation?.campaignDisconnected and blocks with 'Recipient
+  disconnected from campaign' if true.
+
+========================================================================
+Scenario A — pre-fix BUGGY behavior (recipient param ignored)
+========================================================================
+Each recipient gets the FIRST conversation matching the campaign,
+regardless of which recipient that conversation actually belongs to.
+
+rcpt-1 (Alice, phone=+14805550001): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+rcpt-2 (Bob, phone=+14805550002): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+rcpt-3 (Carol, phone=+14805550003): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+rcpt-4 (Dave, phone=+14805550004): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+rcpt-5 (Eve, phone=+14805550005): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+
+Buggy: 5/5 recipients would be blocked.
+Expected: 5/5 (because the FIRST campaign-matching conversation is
+Bob's disconnected row, and the buggy function returns it for everyone).
+DEMONSTRATED — the bug returns the disconnected row for all five recipients.
+
+========================================================================
+Scenario B — post-fix behavior (recipient identity scoped)
+========================================================================
+Each recipient is matched by campaignId AND (phone variants OR email).
+
+rcpt-1 (Alice, phone=+14805550001): <undefined>  (caller treats as: not blocked, first send)
+rcpt-2 (Bob, phone=+14805550002): conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+rcpt-3 (Carol, phone=+14805550003): <undefined>  (caller treats as: not blocked, first send)
+rcpt-4 (Dave, phone=+14805550004): conv-dave  customerPhone=+14805550004  campaignDisconnected=false  → caller WOULD block: no
+rcpt-5 (Eve, phone=+14805550005): <undefined>  (caller treats as: not blocked, first send)
+
+Fixed: 1/5 recipients would be blocked.
+Expected: 1/5 (only Bob, whose row is genuinely disconnected).
+PASS — only Bob is blocked; Alice, Carol, Dave, Eve are NOT cross-blocked.
+
+========================================================================
+Scenario C — phone format variance (recipient typed differently than stored)
+========================================================================
+Verify the recipient->conversation match still finds Dave when the
+recipient's phone is typed as '(480) 555-0004' or '4805550004' or
+'14805550004' but the stored row is '+14805550004'.
+
+E.164 (matches stored exactly)       → conv-dave
+11-digit, no plus                    → conv-dave
+10-digit, no leading 1               → conv-dave
+human formatted                      → conv-dave
+
+Phone variants matched: 4/4
+PASS — all four phone formats match Dave's stored '+14805550004' row.
+
+phoneVariantsForRecipientMatch('(480) 555-0004') = ["4805550004","14805550004","+14805550004"]
+
+========================================================================
+Scenario D — email-channel recipient (no phone)
+========================================================================
+alice@example.com → conv-alice-email  customerPhone=null  campaignDisconnected=true  → caller WOULD block: YES
+PASS — email recipient correctly matched to her own row only.
+bob@example.com   → conv-bob-email  customerPhone=null  campaignDisconnected=false  → caller WOULD block: no
+PASS — Bob is NOT cross-blocked by Alice's disconnected email row.
+
+========================================================================
+Scenario E — recipient with neither phone nor email (degenerate input)
+========================================================================
+Pre-fix behavior would have returned the first campaign-matching
+conversation. Post-fix returns undefined → caller treats as not blocked.
+Buggy: conv-bob  customerPhone=+14805550002  campaignDisconnected=true  → caller WOULD block: YES
+Fixed: <undefined>  (caller treats as: not blocked, first send)
+PASS — null-identity recipient is no longer cross-blocked by an unrelated disconnected row.
+
+========================================================================
+Scenario F — same phone in TWO campaigns (no cross-campaign leak)
+========================================================================
+Same recipient appears in both camp-A (disconnected) and camp-B (active).
+Match must scope by campaignId — disconnect on A must NOT leak to B.
+
+camp-A: conv-camp-A  customerPhone=+14805550199  campaignDisconnected=true  → caller WOULD block: YES
+camp-B: conv-camp-B  customerPhone=+14805550199  campaignDisconnected=false  → caller WOULD block: no
+PASS — campaignId scoping isolates disconnect state per campaign.
+
+========================================================================
+Summary
+========================================================================
+Pre-fix bug shape (Scenario A): the function ignored its recipient
+parameter and returned the first campaign-matching conversation,
+letting one disconnected recipient block all other recipients in the
+same campaign. Post-fix (Scenario B): scoping by phone variants OR
+email isolates each recipient. Format variance (C), email-only (D),
+null-identity (E), and cross-campaign (F) all behave correctly.
+
+This is the route-level evidence that complements the unit suite
+in tests/unit/getConversationForRecipient.test.ts (24 cases).

@@ -1,0 +1,64 @@
+Audit — route-level VAPI inbound dedup behavior (Codex review note follow-up).
+Mirrors server/routes/webhooks.ts:886-1138.
+Branches under audit:
+  - call-id dedup        (line 1060-1081)
+  - phone+window dedup   (line 1085-1115)
+  - createConversation   (line 1117)
+Window: 60000ms.
+
+========================================================================
+Scenario A — same call.id replayed
+========================================================================
+Event 1 outcome: create_called conv-001
+Event 2 outcome: deduplicated_by_call_id conv-001
+createConversation call count: 1
+PASS — second event short-circuited by call-id dedup.
+
+========================================================================
+Scenario B — DIFFERENT call.ids, SAME phone + SAME assistant, within 60s window
+========================================================================
+Event 1 outcome: create_called conv-001
+Event 2 outcome: deduplicated_by_phone_window conv-001
+createConversation call count: 1
+PASS — second event short-circuited by phone+assistant window dedup; only one conversation created.
+
+========================================================================
+Scenario B' — DIFFERENT call.ids, SAME phone + SAME assistant, OUTSIDE 60s window
+========================================================================
+Event 1 outcome: create_called conv-001
+Event 2 outcome: create_called conv-002
+createConversation call count: 2
+PASS — outside-window events correctly create distinct conversations (window boundary respected).
+
+========================================================================
+Scenario C — DIFFERENT call.ids, DIFFERENT phones
+========================================================================
+Event 1 outcome: create_called conv-001
+Event 2 outcome: create_called conv-002
+createConversation call count: 2
+PASS — distinct phones produce distinct conversations.
+
+========================================================================
+Scenario D (probe) — phone normalization across formats
+========================================================================
+Event 1 ('+14805550606')      outcome: create_called conv-001
+Event 2 ('14805550606')       outcome: deduplicated_by_phone_window conv-001
+Event 3 ('(480) 555-0606')    outcome: create_called conv-002
+createConversation call count: 2
+INFO (probe; out of dispatch scope) — `replace(/\D/g, '')` produces
+different keys for E.164-with-leading-1 vs 10-digit-no-1. Specifically:
+  '+14805550606' and '14805550606' both normalize to '14805550606' (11 chars)
+  '(480) 555-0606' normalizes to '4805550606' (10 chars)
+If VAPI mixes formats across events for the same physical call, the
+phone+window dedup will miss the 10-vs-11-digit pair. Real-world VAPI
+always sends customer.number in a consistent E.164 format, so this is
+expected to be a low-likelihood edge in production. Recording to
+issues.md so it is not lost; OUT OF SCOPE for the Codex review-note fix.
+
+========================================================================
+Summary
+========================================================================
+All scenarios mirror the production branches at the cited line numbers.
+Same-phone-different-callid case (Scenario B) confirms the route's
+phone+window dedup short-circuits BEFORE storage.createConversation.
+This is the route-level coverage Codex flagged as missing from pure-helper tests.

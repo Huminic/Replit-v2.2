@@ -1,0 +1,277 @@
+[dotenv@17.3.1] injecting env (29) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+Running 1 test using 1 worker
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+  ✘  1 [sprint] › tests/e2e/s99-codex-launch-readiness-readonly.spec.ts:45:3 › Codex launch readiness read-only evaluation › authenticated deep links stay authenticated and render key surfaces (18.3s)
+
+
+  1) [sprint] › tests/e2e/s99-codex-launch-readiness-readonly.spec.ts:45:3 › Codex launch readiness read-only evaluation › authenticated deep links stay authenticated and render key surfaces 
+
+    Error: critical console/page errors
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 4[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   "Query error: Failed to fetch",[39m
+    [31m+   "Query error: Failed to fetch",[39m
+    [31m+ ][39m
+
+      71 |     }
+      72 |
+    > 73 |     expect(criticalConsole, "critical console/page errors").toEqual([]);
+         |                                                             ^
+      74 |   });
+      75 |
+      76 |   test("hard reloads preserve auth on launch-critical routes", async ({ page }) => {
+        at /home/ubuntu/Claude-store/nexxus2.2_replit/tests/e2e/s99-codex-launch-readiness-readonly.spec.ts:73:61
+
+    attachment #1: home.txt (text/plain) ───────────────────────────────────────────────────────────
+    Nexxus Connect™
+    Serra Honda
+    675
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    AI KEY METRICS
+    
+    Active Pipeline (14d)
+    
+    0
+    
+    live
+    
+    Appointments Today
+    
+    0
+    
+    live
+    
+    Open Escalations
+    
+    0
+    
+    live
+    
+    Outbound Sent 24h
+    
+    0
+    
+    live
+    Try asking...
+    Show me team activity this week
+    What are the top escalat...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: teambox.txt (text/plain) ────────────────────────────────────────────────────────
+    Nexxus Connect™
+    Serra Honda
+    675
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    TeamBox
+    Conversations
+    Phone
+    Video
+    All
+    SMS
+    Email
+    Web Chat
+    WhatsApp
+    Voice
+    Conversations
+    Workflows
+    
+    STATUS
+    
+    All
+    Open
+    Assigned to me
+    Participating
+    Automated
+    Scheduled
+    Followup
+    Pending
+    
+    CHANNEL
+    
+    All
+    SMS
+    Ema...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: sales.txt (text/plain) ──────────────────────────────────────────────────────────
+    Nexxus Connect™
+    Serra Honda
+    675
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    Sales
+    Dashboard
+    Agents
+    Insights
+    Calendar
+    Sales Dashboard
+    
+    Real-time sales pipeline and performance metrics
+    
+    Total Leads (30d)
+    
+    0
+    
+    0%
+    vs last 30d
+    
+    New Leads
+    
+    0
+    
+    0%
+    vs last 30d
+    
+    Active Pipeline (14d)
+    
+    0
+    ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: service.txt (text/plain) ────────────────────────────────────────────────────────
+    Nexxus Connect™
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    Service
+    Campaigns
+    Agents
+    Insights
+    Calendar
+    Service Campaigns
+    CSV Template
+    New Campaign
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: marketing.txt (text/plain) ──────────────────────────────────────────────────────
+    Nexxus Connect™
+    Serra Honda
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    Marketing is in v2.3 preview. Campaign sends are not yet enabled in this release. Browsing is read-only — outbound actions are disabled.
+    Marketing
+    Dashboard
+    Agents
+    Studio
+    Insights
+    Marketing Dashboard
+    
+    Camp...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: insights.txt (text/plain) ───────────────────────────────────────────────────────
+    Nexxus Connect™
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    Insights
+    
+    Analytics, reports, and AI-generated intelligence
+    
+    Dashboard
+    Reports
+    Library
+    Hunches
+    Activity
+    Immediate Action Required
+    Last updated: —
+    
+    Hot Leads Going Cold
+    
+    0
+    
+    Leads aging 14-21 days without close
+    
+    New Lea...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: settings-ai.txt (text/plain) ────────────────────────────────────────────────────
+    Nexxus Connect™
+    SHA
+    AI Chat
+    TeamBox
+    Sales
+    Service
+    Insights
+    Marketing
+    System
+    Logout
+    System Settings
+    
+    Configure your organization and application settings
+    
+    Back
+    System Prompt
+    Agent Behavior
+    Hunches
+    AI Model
+    Select the preferred AI model for chat responses
+    Claude (Anthropic)
+    System Prompt
+    Organization-...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/s99-codex-launch-readiness-c981f-ted-and-render-key-surfaces-sprint/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/s99-codex-launch-readiness-c981f-ted-and-render-key-surfaces-sprint/error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/s99-codex-launch-readiness-c981f-ted-and-render-key-surfaces-sprint/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/s99-codex-launch-readiness-c981f-ted-and-render-key-surfaces-sprint/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+

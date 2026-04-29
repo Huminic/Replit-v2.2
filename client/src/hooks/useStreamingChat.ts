@@ -11,7 +11,7 @@ interface UseStreamingChatOptions {
 }
 
 interface UseStreamingChatReturn {
-  sendMessage: (content: string) => Promise<void>;
+  sendMessage: (content: string, overrideConversationId?: string) => Promise<void>;
   abortStream: () => void;
   retry: () => void;
   isStreaming: boolean;
@@ -58,6 +58,12 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext, o
   const [error, setError] = useState<string | null>(null);
   const [lastFailedContent, setLastFailedContent] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Keep a ref so sendMessage always reads the latest conversationId,
+  // even if called before React re-renders with the updated state.
+  const conversationIdRef = useRef(conversationId);
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+  }, [conversationId]);
 
   useEffect(() => {
     return () => {
@@ -75,8 +81,9 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext, o
     }
   }, []);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!conversationId) return;
+  const sendMessage = useCallback(async (content: string, overrideConversationId?: string) => {
+    const activeConversationId = overrideConversationId || conversationIdRef.current;
+    if (!activeConversationId) return;
 
     if (abortRef.current) {
       abortRef.current.abort();
@@ -93,7 +100,7 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext, o
 
     try {
       const accessToken = getAccessToken();
-      const response = await fetch(`/api/chat/${conversationId}/stream`, {
+      const response = await fetch(`/api/chat/${activeConversationId}/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,13 +138,13 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext, o
         parseSSELines([buffer], accumulated, setStreamingContent, setStatusMessage);
       }
 
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations', activeConversationId, 'messages'] });
       if (onComplete && accumulated.text) {
         onComplete(accumulated.text);
       }
     } catch (err: any) {
       if (err.name === 'AbortError') {
-        queryClient.invalidateQueries({ queryKey: ['/api/conversations', conversationId, 'messages'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/conversations', activeConversationId, 'messages'] });
         return;
       }
       console.error('Streaming chat error:', err);
@@ -149,7 +156,7 @@ export function useStreamingChat({ conversationId, agentId, mode, pageContext, o
       setStatusMessage(null);
       abortRef.current = null;
     }
-  }, [conversationId, agentId, mode, pageContext, onComplete]);
+  }, [agentId, mode, pageContext, onComplete]);
 
   const retry = useCallback(() => {
     if (lastFailedContent) {

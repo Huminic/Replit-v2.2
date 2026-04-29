@@ -1,0 +1,25 @@
+        slug         | tz 
+---------------------+----
+ ford-of-columbia    | 
+ hyundai-of-columbia | 
+ serra-honda         | 
+ serra-nissan        | 
+ tony-serra-ford     | 
+(5 rows)
+
+=== UPDATES ===
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+=== AFTER ===
+        slug         |        tz        
+---------------------+------------------
+ ford-of-columbia    | America/New_York
+ hyundai-of-columbia | America/New_York
+ serra-honda         | America/Chicago
+ serra-nissan        | America/Chicago
+ tony-serra-ford     | America/Chicago
+(5 rows)
+

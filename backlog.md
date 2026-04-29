@@ -1,147 +1,202 @@
-# Nexxus Connect v2.2 — Backlog
+# Nexxus v2.2 — Backlog
 
-Not blocking launch. Consolidated from prior issues and QA findings.
+Per standards at `~/Claude-store/sysadmin/governance-framework/file-standards.md`:
 
----
-
-## Security
-
-| ID | Item | Source |
-|----|------|--------|
-| ~~BL-001~~ | ~~Promoted to I-053~~ | — |
-| BL-002 | getUnansweredConversations returns cross-org conversations (internal scheduler, by design) | QA-S19 |
-
-## Features
-
-| ID | Item | Source |
-|----|------|--------|
-| BL-003 | Org Admin multi-org Option B (join table) — proper architecture for scale | User requirement |
-| BL-004 | Multi-org reporting for Org Admins across stores | User feedback |
-| BL-005 | Billing usage alerts (80/90/99% thresholds) | User requirement |
-| BL-006 | Second VAPI service agent per dealership | User requirement |
-| BL-007 | Campaign channel configurability (email/text/phone combo per campaign) | User requirement |
-| BL-008 | Inbound email handling (currently outbound only) | User requirement |
-| ~~BL-009~~ | ~~Promoted to I-060~~ | — |
-| BL-010 | Competitive intelligence alerts (US-008) | User stories |
-| BL-011 | Escalation management with sentiment detection (US-019) | User stories |
-| BL-012 | Tavus duplicate personas cleanup (3 dealers have duplicates) | QA-S20 |
-| ~~BL-013~~ | ~~Promoted to I-059~~ | — |
-
-## Tech Debt
-
-| ID | Item | Source |
-|----|------|--------|
-| BL-014 | Remaining as-any casts: campaigns.ts, sms.ts, settings.ts, organizations.ts, users.ts, public.ts, metrics.ts, insights.ts, documents.ts, chat.ts | QA-S1 through QA-S6 |
-| BL-015 | Duplicate security headers (Helmet + Caddy both emit) | QA-S1 |
-| BL-016 | Conflicting x-xss-protection values (0 vs 1;mode=block) | QA-S1 |
-| ~~BL-017~~ | ~~Promoted to I-058~~ | — |
-| BL-018 | Secure cookie conditional on NODE_ENV | QA-S1 |
-| BL-019 | No req.on('close') handler in SSE stream | QA-S2 |
-| BL-020 | No GET /api/documents/:id endpoint (no UI uses it) | QA-S2 |
-| BL-021 | No res.flush() after individual SSE writes | QA-S2 |
-| ~~BL-022~~ | ~~Promoted to I-054~~ | — |
-| BL-023 | Store leadType from VIN sync for exact channel mapping | FIX-S9 |
-| BL-024 | Thinking cards vs pulsing icon in chat (SSE status events exist, frontend shows icon not cards) | QA-S10 |
-| BL-025 | Dead code: vapiGet, vapiPost, tavusGet, tavusPost functions in vendorProxy.ts (replaced by callMCP) | I-039 |
-| BL-026 | Dead code: Resend import and getResendClient() in outbound.ts (only auth.ts uses Resend directly) | I-039 |
-
-## UX / Usability
-
-| ID | Item | Source |
-|----|------|--------|
-| ~~BL-027~~ | ~~Promoted to I-056~~ | — |
-| ~~BL-028~~ | ~~Promoted to I-055~~ | — |
-| BL-029 | Login failure should show reset password link in UI | AUTH audit |
-| ~~BL-030~~ | ~~Promoted to I-057~~ | — |
-| BL-031 | Partner Admin transient 500 on login — not reproducible | QA-S9 |
-| BL-032 | Post-sprint report overcounts (P4-S2: 26 claimed, 24 actual; P4-S4: 6 claimed, 7 actual) | QA-S3/S5 |
-
-## R-2 Scan Findings (MINOR)
-
-### Backend
-| ID | Item | Source |
-|----|------|--------|
-| BL-033 | N+1 query: campaigns.ts:144-147 fetches all recipients then all conversations | R-2 backend |
-| BL-034 | N+1 notifications: campaigns.ts for-loop createNotification per user — batch with Promise.all | R-2 backend |
-| BL-035 | Inefficient conversation cleanup: conversations.ts:42-51 fetches ALL ai-chat convos | R-2 backend |
-| BL-036 | Duplicate phone formatting: outbound.ts has same normalize logic in 2 functions | R-2 backend |
-| BL-037 | Inline CSV parser: campaigns.ts:26-62 custom parseCSVLine instead of csv-parse lib | R-2 backend |
-| BL-038 | Slug generation race condition: organizations.ts:79 check-then-create gap | R-2 backend |
-| BL-039 | Exception swallowing: multiple .catch blocks log but don't surface errors | R-2 backend |
-| BL-040 | Duplicate lead source classification: insights.ts repeated string matching | R-2 backend |
-| BL-041 | Repeated error catch pattern: billing.ts has 7 identical catch blocks | R-2 backend |
-| BL-042 | comms-test.ts in production server/ directory | R-2 backend |
-| BL-043 | Legacy server/replit_integrations/batch/ directory still exists | R-2 backend |
-| BL-044 | Weak cache invalidation in billingService.ts — no TTL validation | R-2 backend |
-
-### Frontend
-| ID | Item | Source |
-|----|------|--------|
-| BL-045 | insights.tsx: 10+ list renders using key={i} instead of unique IDs | R-2 frontend |
-| BL-046 | AgentConfigPane.tsx: 12x `as any` on agent triggers/tools/settings | R-2 frontend |
-| BL-047 | settings.tsx: 39 useState hooks in single 3898-line component | R-2 frontend |
-| BL-048 | 13 files with console.error() without user-facing toast feedback | R-2 frontend |
-| BL-049 | Missing React.memo() on sub-components (ThinkingCard, PhoneCell, etc.) | R-2 frontend |
-| BL-050 | Phone formatting logic duplicated 3x across files | R-2 frontend |
-
-### Infrastructure
-| ID | Item | Source |
-|----|------|--------|
-| BL-051 | 10+ unused npm packages (framer-motion, next-themes, react-icons, etc.) | R-2 infra |
-| BL-052 | 7 ghost entries in build allowlist (packages not installed) | R-2 infra |
-| BL-053 | nanoid used but not declared in package.json (transitive dep) | R-2 infra |
-| BL-054 | Test/dev packages (vitest, playwright, @types/*) in dependencies not devDependencies | R-2 infra |
-| BL-055 | Page file naming inconsistency (PascalCase vs kebab-case) | R-2 infra |
-| BL-056 | No Vite chunk splitting — entire client ships as one bundle | R-2 infra |
-| BL-057 | No server source maps for production debugging | R-2 infra |
-| BL-058 | @tailwindcss/vite installed but project uses Tailwind v3 via PostCSS | R-2 infra |
-| BL-059 | npm audit: 5 vulnerabilities (3 HIGH in transitive deps) | R-2 infra |
-
-| BL-060 | Resend welcome/invite email for existing users (no endpoint to retry blocked/failed emails) | E2E-1 |
-| BL-061 | Date range selection for analytics — allow users to filter dashboard metrics, insights, and reports by custom date range (day/week/month/quarter/custom) | User requirement |
-| BL-062 | Route all remaining direct API key usage through MCP — VAPI_PRIVATE_KEY (vendorProxy.ts proxy routes), TAVUS_API_KEY (vendorProxy.ts), RESEND_API_KEY (auth.ts, users.ts, conversations.ts, scheduler.ts), FLEXPRICE_API_KEY (billingService.ts). Keys should only exist in central-mcp, not in app .env | REM-8 audit |
-
-## Deferred from Operator Manifest (2026-03-26)
-
-| ID | Item | Source |
-|----|------|--------|
-| BL-063 | My Work page — hide and defer | Operator manifest |
-| BL-064 | Copilot chat popout in System settings (right-side panel for AI-assisted config) | Operator manifest |
-
-## E-013 Audit Findings — Not Blocking Launch (2026-03-26)
-
-| ID | Item | Source |
-|----|------|--------|
-| BL-065 | Thinking cards in AI Chat — show reasoning/tool-use steps (BL-024 already tracks this) | E-013 S-1 audit |
-| BL-066 | Like/dislike feedback buttons on AI chat responses | E-013 S-1 audit |
-| BL-067 | Landing page org-specific branding (colors, not hardcoded WIDGET_TEAL/GUNMETAL_BLUE) | E-013 S-9 audit |
-| BL-068 | Widget appearance uses org config from settings (not hardcoded) | E-013 S-10 audit |
-| BL-069 | Role Switcher dev tool needs production gate (remove or restrict) | E-013 S-8 audit |
-| BL-070 | Knowledge Base Web Pages — real URL crawling (currently demo-only toast) | E-013 S-7 audit |
-| BL-071 | Knowledge Base Databases — placeholder ("Future: connect external databases") | E-013 S-7 audit |
-| BL-072 | Agent Behavior save in AI Config is demo-only (shows toast, doesn't persist) | E-013 S-7 audit |
-| BL-073 | Contact phone on Profile page is hardcoded "+1 (555) 123-4567" | E-013 S-8 audit |
-| BL-074 | Notification data source verification — may be client-side mock vs real API | E-013 S-8 audit |
+- Plain markdown. One item per entry. Four fields: Objective, Scope, Done looks like, Constraints.
+- No IDs, statuses, dependsOn, filesModified, UI permissions, execution steps.
+- Captain organizes. Grouping by tier, theme, or urgency is captain's call.
+- Items leave the backlog when they ship (move to session-output.md) or when operator removes them.
 
 ---
 
-**Last updated:** 2026-03-26 (E-013 backlog additions)
-**Total:** 66 items
-| BL-078 | Mobile responsive — sidebar doesn't collapse at 375px, all pages overflow. No responsive breakpoints. | T-013 verification |
-| BL-079 | AI Chat task creation — /api/tasks endpoint exists but createTask not in chat tool schema (server/routes/chat.ts). AI cannot create tasks from conversation. | T-022a verification |
-| BL-080 | Nancy (service agent) can't persist appointments — no createAppointment tool in chat function schema. Confirms conversationally but no DB write. | T-022c verification |
-| BL-081 | Session instability — /api/auth/refresh failures during department navigation. Aggressive session management causes re-auth during testing. | T-022c verification |
-| BL-082 | Kill switch is block-and-drop by design — messages silently blocked, not queued for retry. Accepted by operator. | T-018 / operator directive |
-| BL-083 | Walk-in auto-followup trigger (US-005, S-9.AC7) — not implemented, backlogged | T-017b / operator directive |
-| BL-084 | Tasks feature — stub or remove from chat tools and TeamBox, not part of customer criteria | Operator directive |
-| BL-085 | AI Chat Active Pipeline drill-down — vehicle field shows raw VIN API URLs instead of human-readable vehicle names (intentional — syncing contacts too many API calls) | VFY-01 verification |
-| BL-086 | AI Chat Active Pipeline drill-down — many leads display as "AI Lead" or "--" instead of real customer names (expected for anonymous inbound — use firstName + "Lead" pattern) | VFY-01 verification |
-| BL-087 | Add tasks feature back to TeamBox when ready (removed in BL-084) | Operator directive |
-| BL-088 | SMS number-per-agent routing — currently one number per org, first matching agent wins. Need routing by number so sales and service agents get their own inbound SMS streams | FIX-08 / launch gap |
-| BL-089 | TextMagic number assignment for Tony Serra Ford, Ford of Columbia, Hyundai of Columbia — 1 number unassigned (+18338096836), may need to purchase more | FIX-08 |
-| BL-090 | Resend function for errored outgoing campaign messages (kill switch is block-and-drop by design) | Operator directive |
-| BL-091 | WhatsApp channel support — filter chip removed from TeamBox, add back when channel is implemented | S3 / Operator directive |
-| BL-092 | "Send to CRM" button — manual VIN lead creation from TeamBox conversations (I-174) | S3 / Operator directive |
-| BL-093 | Management page — hidden from all roles except super_admin. Revisit: User Chats feature (I-116), Hunch transitions (I-169), and role access when ready. | S9 / Operator directive |
-| BL-094 | Agent favorites + sub-menu bar on Sales/Service/Marketing agent tabs (I-130) | S10 / Operator directive |
-| BL-095 | Walk-in followup agent endpoint auth test (I-189) — deferred, walk-in feature not in scope | Operator directive |
+## Phase 1 — Preflight And Governance Reset
+
+### Sprint 1.1 — Governance Reconciliation
+
+- **Objective:** Reconcile governance files so planning starts from approved constraints, not stale or overbuilt scope.
+- **Scope:** `CLAUDE.md`, `hardwonknowledge.md`, `workflownotes.md`, `decisions.md`, `plan.md`, `backlog.md`, `issues.md`, current strategy docs, and relevant evidence files.
+- **Done looks like:** A short governance reconciliation note identifies authoritative files, stale files, contradictions, approved constraints, and planning inputs that are not approved scope.
+- **Constraints:** No application-code edits. Do not treat prior `plan.md` or `backlog.md` content as approved just because it exists.
+
+### Sprint 1.2 — UI Truth Inventory
+
+- **Objective:** Use the visible UI as the source of truth and classify every visible promise as working, broken, misleading, unfinished, gated, or deferred.
+- **Scope:** Authenticated app pages, public widget/landing routes, role-visible navigation, submenus, module tiles, primary buttons, empty states, and visible metrics.
+- **Done looks like:** `evidence/preflight-ui-truth-YYYY-MM-DD.md` lists each screen, visible promises, primary actions, broken or misleading UI, and fix/hide/gate/defer recommendation.
+- **Constraints:** Read-only. Use Playwright/browser evidence where possible. No UI redesign recommendations beyond classification unless tied to approved TeamBox segmentation or metrics revision.
+
+### Sprint 1.3 — End-To-End Workflow Validation
+
+- **Objective:** Verify the customer-critical workflows from the UI through backend evidence.
+- **Scope:** Triggers and replies, service campaigns, TeamBox conversation handling, push-to-VIN path, widget actions, appointment/admin notification flow, main chat, agent chat, and reports.
+- **Done looks like:** `evidence/preflight-e2e-workflows-YYYY-MM-DD.md` records expected path, actual path, pass/fail, screenshots/log evidence, broken step, and acceptance test for each workflow.
+- **Constraints:** No real external sends without explicit operator approval. Use test/whitelist paths for SMS/email/voice.
+
+### Sprint 1.4 — Metrics Audit
+
+- **Objective:** Identify which visible metrics help dealership users make decisions and which should be revised, removed, hidden, or gated.
+- **Scope:** Main dashboard, Sales, Service, Marketing, Management, Insights, weekly reports, and any metric tiles/dialogs visible in the UI.
+- **Done looks like:** `evidence/preflight-metrics-audit-YYYY-MM-DD.md` maps each metric to location, business question, data source, current calculation, usefulness verdict, and recommended action.
+- **Constraints:** Do not invent unsupported metrics. A metric stays prominent only if it answers a real dealership question from supportable data.
+
+### Sprint 1.5 — TeamBox Placement And Segmentation Audit
+
+- **Objective:** Determine the safest way to expose relevant TeamBox messages inside Sales, Service, and Marketing sections without broad redesign.
+- **Scope:** TeamBox, Sales, Service, Marketing, current conversation data model, filters, customer info panel, push-to-VIN action, submenus, and existing TeamBox evidence.
+- **Done looks like:** `evidence/preflight-teambox-placement-YYYY-MM-DD.md` recommends unified-only, section-filtered, or hybrid access; lists data requirements and exact UI surfaces affected.
+- **Constraints:** Planning only. TeamBox remains the system of record unless operator decides otherwise. No schema change is approved by this audit alone.
+
+### Sprint 1.6 — Data And MCP Nuance Map
+
+- **Objective:** Document integration boundaries, MCP proxy behavior, and data-source nuances that must govern finishing work.
+- **Scope:** `server/vendorProxy.ts`, VIN-safe MCP rules from `CLAUDE.md`, `server/sync.ts`, webhook routes, trigger/outbound services, CRM YAML/API file location, warehouse tables, and imported CRM data paths.
+- **Done looks like:** `docs/strategy/v2.2-codebase-nuance-map.md` explains safe/unsafe integration actions, data freshness, known hardcoded behavior, and do-not-touch boundaries.
+- **Constraints:** Read-only. Do not call write-capable external tools. Do not modify central MCP or vin-safe-mcp code.
+
+### Sprint 1.7 — Bug And Issue Reconciliation
+
+- **Objective:** Reconcile UI/workflow findings with `issues.md`, existing evidence, and customer-call strategy into a finish list.
+- **Scope:** Preflight findings, `issues.md`, `docs/strategy/customer-call-strategy-2026-04-24.md`, existing plan/backlog history, and relevant test failures.
+- **Done looks like:** A planning summary groups items into must-fix, should-fix, quick-win, hide/gate/defer, blocked, and operator-decision buckets.
+- **Constraints:** Findings do not become execution scope until promoted into the plan by operator decision.
+
+### Sprint 1.8 — Test And Eval Plan
+
+- **Objective:** Define the tests and manual evals required to prove v2.2 is finished.
+- **Scope:** TypeScript check, targeted Playwright specs, service campaign E2E, widget E2E, TeamBox filtered access, metrics calculations, trigger/reply tests, and Durran/operator manual smoke checklist.
+- **Done looks like:** `docs/strategy/v2.2-test-eval-plan.md` lists automated tests, manual checks, data setup, acceptance evidence, and gaps.
+- **Constraints:** Planning only. Do not run real external sends while drafting the plan.
+
+## Phase 2 — Critical Workflow Closure
+
+### Sprint 2.1 — Trigger And Reply Reliability
+
+- **Objective:** Make outbound triggers and replies trustworthy from send timing through conversation capture.
+- **Scope:** Trigger scheduler, legal send windows, test whitelist behavior, SMS reply webhook, conversation creation, audit logs, and admin visibility.
+- **Done looks like:** Approved trigger scenarios pass in test/whitelist mode and Durran can verify replies using the testing guide.
+- **Constraints:** No real-customer sends without explicit operator approval.
+
+### Sprint 2.2 — Service Campaign Readiness
+
+- **Objective:** Make service campaigns ready to run, test, and explain to the partner/customer.
+- **Scope:** Service campaign creation, CSV/template path, recipient handling, send execution, reply routing, campaign status, and TeamBox/service handoff.
+- **Done looks like:** A controlled service campaign can be walked end to end with evidence and known limitations documented.
+- **Constraints:** Controlled test audience unless operator approves a live send.
+
+### Sprint 2.3 — Widget And Public Action Verification
+
+- **Objective:** Verify the customer-facing widget actions end to end.
+- **Scope:** Public widget landing routes, chat, callback, form, video, voice where enabled, CORS/embed behavior, and dealer-specific configuration.
+- **Done looks like:** Each widget action has browser evidence and backend evidence showing pass/fail and required fixes.
+- **Constraints:** Do not change widget UI beyond bug fixes unless operator approves.
+
+### Sprint 2.4 — Appointment And Admin Notification Path
+
+- **Objective:** Ensure appointment intent creates the right in-platform record and notifies the right people.
+- **Scope:** Appointment intent detection, appointment storage, calendar display, admin notification email, and audit evidence.
+- **Done looks like:** A test appointment intent appears in the calendar and produces the approved admin notification behavior.
+- **Constraints:** VIN does not receive appointments unless a separate approved path exists.
+
+### Sprint 2.5 — TeamBox Customer-Message Workflow
+
+- **Objective:** Make customer-message handling understandable and usable across relevant sections.
+- **Scope:** TeamBox list/thread, assignment/takeover, reply, push-to-VIN clarity, section access if approved, and notification entry points.
+- **Done looks like:** A staff user can find, understand, and act on relevant customer conversations without unnecessary navigation confusion.
+- **Constraints:** No broad redesign. Section access is limited to approved TeamBox segmentation work.
+
+### Sprint 2.6 — Durran Testing Package And User Guide
+
+- **Objective:** Give Durran and the operator practical material to test and review the system.
+- **Scope:** Trigger scenarios, replies, service campaigns, widgets, appointment path, conversation flow, expected outputs, and known limitations.
+- **Done looks like:** Durran can run the guide asynchronously and report pass/fail without needing code knowledge.
+- **Constraints:** Customer/partner-readable language only.
+
+## Phase 3 — Metrics And Customer Value
+
+### Sprint 3.1 — Remove Or Gate Irrelevant Metrics
+
+- **Objective:** Remove, hide, or gate visible metrics that do not answer useful dealership questions.
+- **Scope:** Metrics identified by Sprint 1.4.
+- **Done looks like:** Misleading or meaningless metrics are no longer prominent in the UI.
+- **Constraints:** No replacement metric ships without supportable data.
+
+### Sprint 3.2 — Revise Dashboard And Department Metrics
+
+- **Objective:** Replace approved metrics with decision-oriented metrics tied to real data.
+- **Scope:** Main dashboard, Sales, Service, Marketing, Management, and metric detail dialogs.
+- **Done looks like:** Each revised metric states or implies a useful action question and matches backend calculations.
+- **Constraints:** Keep UI changes tightly scoped to metrics.
+
+### Sprint 3.3 — Repair Or Defer Service Insights
+
+- **Objective:** Resolve service insights that are broken, misleading, or not service-specific.
+- **Scope:** Service page insights, shared Insights embed behavior, service campaign metrics, and service-specific data sources.
+- **Done looks like:** Service insights are either useful and verified or explicitly hidden/deferred.
+- **Constraints:** Do not present sales metrics as service insight.
+
+### Sprint 3.4 — CRM/Warehouse Question Map
+
+- **Objective:** Map CRM and warehouse data to dealership questions worth answering.
+- **Scope:** Warehouse leads, imported CRM export, CRM YAML/API capability file, reports, lead-source data, service opportunities, and marketing-source performance.
+- **Done looks like:** A matrix shows question, available data, missing data, source, freshness, and buildability.
+- **Constraints:** Analysis output does not automatically authorize new features.
+
+## Phase 4 — Focused UX Friction And Quick Wins
+
+### Sprint 4.1 — TeamBox Section Access
+
+- **Objective:** Add approved section access to relevant TeamBox messages from Sales, Service, and/or Marketing submenus.
+- **Scope:** Shared conversation workbench, department filters if supportable, submenu placement, and role/section visibility.
+- **Done looks like:** Users in a section can access relevant messages without leaving their section workflow, while the global TeamBox remains available.
+- **Constraints:** No parallel TeamBox implementations. Reuse shared components where possible.
+
+### Sprint 4.2 — Push-To-VIN Clarity
+
+- **Objective:** Make the push-to-VIN action understandable and harder to misuse.
+- **Scope:** Button wording, context panel, disabled states, confirmation copy, and success/failure feedback.
+- **Done looks like:** A user can tell what push-to-VIN does, when to use it, and whether it succeeded.
+- **Constraints:** VIN write safety rules still apply.
+
+### Sprint 4.3 — Module Visibility And Gating
+
+- **Objective:** Prevent unfinished or unpaid modules from confusing users.
+- **Scope:** Marketing, agents, hunches, insights, billing/module-gated areas, empty states, and navigation visibility.
+- **Done looks like:** Visible modules are either functional, clearly gated, or hidden/deferred.
+- **Constraints:** Do not imply paid module availability where access is limited.
+
+### Sprint 4.4 — Notification Entry-Point Strategy
+
+- **Objective:** Define and implement only the approved notifications that help users know when to log in.
+- **Scope:** In-app notifications, email notifications, TeamBox unread states, urgent escalations, and opt-out behavior.
+- **Done looks like:** Notifications are tied to an owner, urgency, channel, and action.
+- **Constraints:** Avoid noisy generic notifications.
+
+## Phase 5 — Hardening, Release, And Closeout
+
+### Sprint 5.1 — Regression And Playwright Coverage
+
+- **Objective:** Prove critical workflows continue to work after finishing changes.
+- **Scope:** Targeted Playwright specs, API checks, and manual smoke checklist.
+- **Done looks like:** Critical flows have repeatable verification and evidence artifacts.
+- **Constraints:** Prefer targeted tests over broad brittle sweeps.
+
+### Sprint 5.2 — Security/Bug Hardening
+
+- **Objective:** Fix or explicitly defer critical bugs and security issues found during preflight.
+- **Scope:** Items promoted from Sprint 1.7.
+- **Done looks like:** Promoted bugs have fixes and verification evidence, or clear deferral rationale.
+- **Constraints:** Security-sensitive paths require careful review.
+
+### Sprint 5.3 — Customer-Facing Handoff
+
+- **Objective:** Prepare customer/partner materials that explain how to use and test the finished system.
+- **Scope:** User guide, testing guide, known limitations, support/escalation path, and approved workflow descriptions.
+- **Done looks like:** Durran/operator can use the materials without internal engineering context.
+- **Constraints:** Do not document unshipped features as available.
+
+### Sprint 5.4 — v2.2 Closeout And v2.3 Seed List
+
+- **Objective:** Close v2.2 cleanly and preserve deferred product-market-fit opportunities for v2.3 planning.
+- **Scope:** Closeout report, final verification evidence, deferrals, quick-win leftovers, and v2.3 candidate list.
+- **Done looks like:** v2.2 has a clear final state and v2.3 starts from a clean seed list.
+- **Constraints:** Do not let deferred ideas leak back into v2.2 without operator approval.

@@ -42,6 +42,11 @@ No open issues. I-126 and I-139 verified working in S2.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-174 | "Send to CRM" button — manual VIN lead creation from conversations (form + SMS channels) | BE, FE | BACKLOGGED (BL-092) | H |
+| I-NEW-2026-04-26-B | **Test Customer auto-create source** — chat-init code path creates a `Test Customer` conversation row before the user types or identifies. Surfaced during Priority 9 cleanup: 11 such rows accumulated for Serra Honda over 18 days, all with no phone/email and 0 messages. Investigate `client/src/pages/widget-landing.tsx` and `server/routes/conversations.ts` create paths. Likely fix: defer conversation row creation until first real message OR mark/skip these in TeamBox list. | BE, FE | OPEN | M |
+| I-NEW-2026-04-26-C | **Shelby Dew duplicate-init race** — three `ai-chat` / `ai-assistant` conversation rows created within ~1ms of each other for `sdew@serrahonda.net` when chat is opened. Suggests a duplicate-create race in the conversation init flow (or two channels independently creating from one event). Reproduce by opening chat as Shelby Dew and watching the conversations table. **Priority bumped 2026-04-27:** this bug created ambiguous-classifier rows that were swept into the over-broad cleanup (`831bbc2`). Fix prevents future similar ambiguity. | BE | OPEN — PRIORITY-BUMP | S |
+| I-NEW-2026-04-26-D | **Voice channel without thread** — voice integration creates a conversation row before/independent of any message arriving. Surfaced during Priority 9 cleanup: 4 zero-message voice-channel rows for Serra Honda (and 50/18/4 voice rows on Hyundai of Columbia / Ford of Columbia / Serra Nissan respectively, many likely the same pattern). Investigate VAPI / voice-call webhook conversation-creation timing — the row should be created on first transcript chunk, not on call-init. **Priority bumped 2026-04-27:** confirmed creating real-customer voice rows from VAPI inbound (per `restore-assessment-2026-04-27.json`); produced 7 PRESERVE rows that were lost in the over-broad cleanup (`831bbc2`). Fix prevents future similar ambiguity. **RESOLVED 2026-04-27** in commit `66cc93b`: fail-closed VAPI inbound webhook guard at `server/lib/vapiInboundGuard.ts` invoked from `server/routes/webhooks.ts` rejects no-content / placeholder VAPI events; TestLane bypass preserved; existing orphans not touched (forward-only per corrected 2026-04-27 retention policy). Verifiers: scope-guardian PASS, code-reviewer APPROVE, qa-evaluator PASS (27/27 unit + full-suite 344/348 + runtime decision trace), integration-safety PASS, nexxus-launch-captain GO. Evidence: `evidence/I-NEW-2026-04-26-D/`. | BE | RESOLVED — verified | M |
+| I-NEW-2026-04-27-INCIDENT | **2026-04-26 over-broad Serra Honda conversation cleanup — accepted loss; policy corrected.** Commit `831bbc2` deleted 84 conversations + 176 cascaded messages on Serra Honda based on the prior 2026-04-26 data retention rule that was later (2026-04-27) corrected. Per the corrected policy, 47 of those 84 rows should have been preserved (20 PRESERVE_REAL_OR_INTEGRATION + 27 REVIEW_UNKNOWN); 51 message rows lost in raw form (cascade-deleted; preview JSON did not capture message bodies). Operator decision: accept loss; provider-side logs (VAPI / Resend / third-party) provide recent-call recovery if needed; PITR not pursued. Full incident write-up at `evidence/incident-2026-04-26-overbroad-cleanup.md`. Restore-assessment evidence at `evidence/orphan-teambox-2026-04-26/restore-assessment-2026-04-27.json`. Corrected policy at `decisions.md` (2026-04-27 row, supersedes 2026-04-26 row). Lesson: operator framing informs but every cleanup needs row-level evidence-based classification before execution. | OPS, GOV | RESOLVED — accepted loss, policy corrected | n/a |
+| I-NEW-2026-04-27-SMS-AUDIT | **15 SMS conversation rows to real-looking US phones found in restore-assessment** — restore-classify of the deleted Serra Honda rows surfaced 15 SMS conversations with phones to real-looking US numbers (412/541/256/601/859/205 area codes) and real-looking customer names. Per 2026-04-27 integration-status policy, TextMagic/SMS is NOT in customer use yet; only test numbers should appear. Investigate independent of the cleanup question: were these real customer SMS sends pre-launch (compliance/audit issue), or test/fixture data using real-looking numbers? If real sends, surface to operator immediately. Source: `evidence/orphan-teambox-2026-04-26/restore-assessment-2026-04-27.json` (REVIEW_UNKNOWN bucket). | BE, OPS | OPEN | M |
 
 ---
 
@@ -50,12 +55,17 @@ No open issues. I-126 and I-139 verified working in S2.
 | ID | Issue | Dim | Status | Effort |
 |----|-------|-----|--------|--------|
 | I-130 | Agent pages need favorites and sub-menu bar (Sales, Service, Marketing) | FE | BACKLOGGED (BL-094) | M |
+| I-NEW-2026-04-28-A | **Active Pipeline (14d) tile lacks a 14d-vs-prior-14d delta — currently suppressed.** Tile value is the 14d count from `/api/metrics/pipeline` (server/storage.ts ~line 802); the summary endpoint's `activeLeadsChange` (server/vendorProxy.ts:561-576, 596-598, 635) is a 30d-vs-prior-30d delta — different window from the value. Priority #6 Commit B initially labeled the tile `vs prior 14d` while sourcing the 30d-vs-30d delta (window-mismatch trust violation caught in code-review). Commit-B-followup suppresses the delta entirely (`change: null`) per the operator "missing is better than wrong" principle. Real fix requires a server-side 14d-vs-prior-14d active-leads delta computation — out of scope for Priority #6 (UI-only sprint). Not blocking launch — value is still meaningful, only the delta is suppressed. | BE, FE | OPEN — backlog/low | M |
 
 ---
 
 ## Service (/service)
 
-No open issues. I-113 and I-132 resolved in S4.
+| ID | Issue | Dim | Status | Effort |
+|----|-------|-----|--------|--------|
+| I-NEW-2026-04-26 | **service.tsx should reflect execution_status, not only status** — `client/src/pages/service.tsx:412-413` shows `campaign.status` as the user-facing label, but the actual scheduler state lives in `campaign.execution_status`. CSV uploads create campaigns with `status='active'` and `execution_status='idle'` simultaneously, causing admins to see "active" for never-started campaigns. Surfaced during Priority 8 archaeology of stuck campaign `30267ae2-5d81-4c21-b0bf-ad96e4eb31ec`. Concurrent minor defect: `campaignStatusColors` map at `service.tsx:74-80` has no `'archived'` key — after the operator-approved archive, the indicator dot renders unstyled. The list itself does not filter by status either (server `getCampaigns()` at `storage.ts:477-481` returns all rows; UI at `service.tsx:397` maps unconditionally), so archived rows still appear in the campaigns list. Fix: display `execution_status` (or a derived state) as the primary label, OR enforce `status` matches `execution_status` at upload time. Optionally also: add `'archived'` to `campaignStatusColors` and filter archived rows out of the active campaigns list. | FE | OPEN | E |
+
+I-113 and I-132 resolved in S4.
 
 ---
 
@@ -300,6 +310,7 @@ New bugs discovered during SNP-001 research audit (2026-04-08).
 | I-274 | **Trigger service has no test-mode whitelist.** When `triggersEnabled=true` for an org, the trigger fires for ALL qualifying leads. No way to restrict to specific test phone numbers. Fix: add `triggerTestPhones` array to org settings; if set, only send to those numbers. File: `server/services/triggerService.ts`. | BE | CLOSED (LAUNCH-RECON-01, 8acc270) | E |
 | I-275 | **VIN sync contact resolution limited to 10 per cycle.** `resolveLeadContacts()` in `server/sync.ts` caps at 10 contact fetches per sync cycle to avoid rate limiting. For orgs with many new leads, full contact resolution may take multiple sync cycles. Consider increasing or making configurable. | BE | OPEN | E |
 | I-276 | **VIN sync stores leadSource as raw API URL.** `transformVinLead()` stores `raw.leadSource` which is often a URL like `https://api.vinsolutions.com/leadsources/id/7098`. Channel classification in insights.ts uses string matching against human-readable names. Fix: resolve leadSource URLs to names during sync using `vin_list_lead_sources`. Related to I-261. | BE, DT | OPEN | H |
+| I-279 | **vin_get_lead_sources returns only a subset of lead sources.** For Ford of Columbia, 15 of 49 distinct source IDs referenced by this week's leads are resolved — missing includes ID 7098 (top source, 122 leads). For Hyundai of Columbia: 20/61 resolved. Serra Honda: 16/30. Serra Nissan: 0/26. Tony Serra Ford: 20/23. Tried `limit:200, pageSize:200` — response `count: 15`. Hypotheses: (a) VIN API only returns currently-active sources and older/deactivated sources aren't surfaced; (b) undocumented MCP or VIN API filter. Until resolved, weekly report falls back to "VIN Source #{id}" for unresolved entries and flags via `sourceResolutionFailed`. Investigation needed with VIN Solutions or central-mcp maintainer. | BE, DATA | OPEN | M |
 
 ---
 
@@ -584,3 +595,31 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 ---
 
 *Section written: 2026-04-08. All items require proper sprint registration and ghost gate review before post-demo resolution.*
+
+---
+
+### I-NEW-2026-04-27-A: VAPI phone+window dedup miss when number format changes between events
+**Discovered:** 2026-04-27 by audit script `evidence/I-NEW-2026-04-26-D/audit-route-dedup.ts` Scenario D (probe), during the Codex VAPI review-note follow-up dispatch.
+**Status:** OPEN — out of scope for the Codex review-note fix.
+**Severity:** Low (real-world VAPI sends `customer.number` in a stable E.164 format; cross-format mixes within one call are not observed in production logs to date).
+**Code:** `server/routes/webhooks.ts:1101` — `customerPhone.replace(/\D/g, "")` (read site, dedup lookup) and `server/routes/webhooks.ts:1150` (matching write site). Line numbers post-`0d9d683`.
+**Behavior:** The route's phone normalization strips non-digits but does NOT collapse the leading "1" on US numbers. Strings `"+14805550606"` and `"14805550606"` both normalize to `"14805550606"` (11 digits) and dedup correctly against each other. `"(480) 555-0606"` normalizes to `"4805550606"` (10 digits) and produces a different dedup key, so it does NOT dedup against the first two.
+**Impact if hit:** Two conversation rows for one physical call. Same orphan-class symptom as `I-NEW-2026-04-26-D` but via a different mechanism.
+**Compare:** `server/storage.ts:431` (`getConversationByPhone`) already handles the leading-1 case with explicit conditions on `with1`/`without1`/`+with1` variants. The webhook-route dedup map does not.
+**Follow-up:** Apply the same digits-only-with-leading-1-stripped normalization in the route's `phoneKey` construction, or extract a shared `normalizeUsPhoneForDedup()` helper so route + storage agree. Add a regression test covering the 10-vs-11-digit pair.
+**Trace:** `evidence/I-NEW-2026-04-26-D/audit-route-dedup-trace.txt` Scenario D.
+
+---
+
+### I-NEW-2026-04-27-C: Add `jti` nonce to refresh JWT payload (defense-in-depth for token-rotation race)
+**Discovered:** 2026-04-27 during Priority #3 fix (refresh-token rotation race; see `evidence/priority-3-hard-reload-auth/investigation.md`).
+**Status:** OPEN — operator-deferred to v2.3 backlog.
+**Severity:** Low post-fix (the race is now caught and handled gracefully via the unique-violation fallback in `server/lib/refreshTokenRotation.ts`). Pre-fix this was the launch-blocker for hard-reload auth.
+**Code:** `server/auth.ts:73-75` (`generateRefreshToken`) — JWT payload is `{ userId, organizationId, roleId, type: 'refresh' }` only. `iat` is integer seconds (per JWT spec). Two refresh tokens minted in the same second with identical payload are byte-identical strings, which trips the `sessions.refresh_token` UNIQUE constraint when two parallel requests race to insert.
+**Behavior:** The current Priority #3 fix detects the unique-violation (Postgres SQLSTATE 23505) and falls back to the peer's just-created session row (`getMostRecentSessionForUser` within `RECENT_SESSION_WINDOW_MS = 10_000`). This is correct and ships as the launch fix.
+**Defense-in-depth proposal:** Add `jti: crypto.randomUUID()` to the refresh JWT payload at mint time. With a per-token nonce, two simultaneous mints CANNOT produce identical strings — the race becomes impossible by construction rather than handled after the fact.
+**Why deferred:** Adds a JWT-shape change. Existing in-flight refresh tokens issued by older code do not have the `jti` claim — verification must continue to accept tokens with or without it (forward-compat only). Worth doing carefully post-launch, not as a launch hot-fix.
+**Follow-up:** v2.3 backlog. Implementation: extend `TokenPayload` type in `server/auth.ts`, add `jti` only to `generateRefreshToken` (access tokens don't need it — they're not stored), drop a small unit test that two back-to-back refresh JWTs are non-identical.
+**Compare:** `server/lib/refreshTokenRotation.ts` — handles the race; `server/auth.ts:73-75` — where the nonce would be added.
+
+---

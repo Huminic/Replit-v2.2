@@ -1,0 +1,33 @@
+{
+  "total_tools": 96,
+  "lead_source_related_tools": [
+    {
+      "name": "vin_get_lead_sources",
+      "description": "List available lead sources for a dealership. Returns items with href fields needed for vin_create_lead. orgId is a Nexxus UUID."
+    }
+  ],
+  "all_vin_tool_names": [
+    "vin_add_vehicle_of_interest",
+    "vin_create_contact",
+    "vin_create_lead",
+    "vin_create_lead_with_contact",
+    "vin_decode_vin",
+    "vin_get_contact",
+    "vin_get_lead",
+    "vin_get_lead_sources",
+    "vin_get_lead_statuses",
+    "vin_get_lead_types",
+    "vin_get_trade_vehicles",
+    "vin_get_vehicles_of_interest",
+    "vin_list_dealers",
+    "vin_list_users",
+    "vin_provision_dealer",
+    "vin_query_leads",
+    "vin_refresh_token",
+    "vin_search_contacts",
+    "vin_search_vehicle_catalog",
+    "vin_token_status",
+    "vin_update_contact",
+    "vin_update_lead"
+  ]
+}

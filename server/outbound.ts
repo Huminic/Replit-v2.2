@@ -2,7 +2,8 @@ import { storage } from "./storage";
 import { Resend } from "resend";
 import { callMCP } from "./vendorProxy";
 import { billingService } from "./services/billingService";
-import type { Organization, Campaign, CampaignRecipient } from "@shared/schema";
+import type { Organization, Campaign, CampaignRecipient, Conversation } from "@shared/schema";
+import { evaluatePreLaunchSmsGuardWithDefaults } from "./lib/preLaunchSmsGuard";
 
 const DEFAULT_RATE_LIMIT_MAX = 100;
 const RATE_LIMIT_HOURS = 24;
@@ -33,11 +34,134 @@ export interface SendRequest {
   /** When true, skip the business-hours TCPA check in CommGate.
    *  Used by the after-hours trigger which is explicitly designed to send outside business hours. */
   bypassBusinessHours?: boolean;
+  /** Test-lane session id. When set together with TESTLANE_MODE=true, the
+   *  recipient is hard-routed to operator-controlled test addresses
+   *  (TESTLANE_SMS_TO / TESTLANE_EMAIL_TO / TESTLANE_VOICE_TO). The session
+   *  id is embedded in messageContent as [testlane:<sid>] for audit. Two-way
+   *  fail-closed: TESTLANE_MODE without a marker is blocked, and a marker
+   *  without TESTLANE_MODE is blocked. */
+  testLaneSessionId?: string;
 }
 
 export interface SendResult {
   status: "sent" | "blocked" | "failed" | "dry_run";
   blockedReason?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Test-lane guard (pure helper, exported for unit tests)
+// ---------------------------------------------------------------------------
+
+/**
+ * Inputs the test-lane guard reads from request/campaign/recipient.
+ * Subset of the full SendRequest + minimal storage shapes — kept narrow so the
+ * guard is unit-testable without mocking storage / DB.
+ */
+export interface OutboundTestLaneGuardInput {
+  channel: "sms" | "email" | "phone";
+  to: string;
+  messageContent: string;
+  recipientName?: string;
+  testLaneSessionId?: string;
+  campaignName?: string | null;
+  recipientFirstName?: string | null;
+}
+
+/**
+ * Pure result from the outbound test-lane guard.
+ *
+ * - `pass`: nothing to override; the caller proceeds with original recipient.
+ * - `override`: hard-route the request to TESTLANE_*_TO; replace
+ *   `messageContent` and `recipientName` with the patched values.
+ * - `blocked`: caller MUST NOT send; log reason via existing logAttempt path.
+ *
+ * Two-way fail-closed:
+ *   TESTLANE_MODE=true + no marker         -> blocked
+ *   TESTLANE_MODE!=true + marker present   -> blocked (defensive)
+ *   TESTLANE_MODE=true + marker + missing TESTLANE_*_TO for channel -> blocked
+ *   TESTLANE_MODE=true + marker + env set  -> override
+ *   else                                   -> pass
+ */
+export type OutboundTestLaneGuardResult =
+  | { kind: "pass" }
+  | {
+      kind: "override";
+      sid: string;
+      to: string;
+      messageContent: string;
+      recipientName: string;
+    }
+  | { kind: "blocked"; reason: string };
+
+/**
+ * Pure evaluation of the outbound test-lane guard. Reads process.env at call
+ * time (so tests can mutate process.env around the call); does no IO.
+ */
+export function evaluateOutboundTestLaneGuard(
+  input: OutboundTestLaneGuardInput,
+): OutboundTestLaneGuardResult {
+  const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const requestHasMarker =
+    !!input.testLaneSessionId ||
+    (input.messageContent || "").includes("[TESTLANE]") ||
+    (input.messageContent || "").includes("[testlane:") ||
+    (input.campaignName || "").startsWith("[TESTLANE]") ||
+    (input.recipientFirstName || "").toLowerCase() === "testlane";
+
+  if (testLaneEnv && !requestHasMarker) {
+    return {
+      kind: "blocked",
+      reason:
+        "TESTLANE_MODE=true but request lacks test-lane marker (no testLaneSessionId, no [TESTLANE]/[testlane:] in content/campaign/recipient)",
+    };
+  }
+  if (!testLaneEnv && requestHasMarker) {
+    return {
+      kind: "blocked",
+      reason:
+        "Request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)",
+    };
+  }
+  if (!testLaneEnv && !requestHasMarker) {
+    return { kind: "pass" };
+  }
+  // testLaneEnv && requestHasMarker -> override
+  const sid = input.testLaneSessionId || "unknown";
+  let envVar: string | undefined;
+  let envName: string;
+  if (input.channel === "sms") {
+    envVar = process.env.TESTLANE_SMS_TO;
+    envName = "TESTLANE_SMS_TO";
+  } else if (input.channel === "email") {
+    envVar = process.env.TESTLANE_EMAIL_TO;
+    envName = "TESTLANE_EMAIL_TO";
+  } else if (input.channel === "phone") {
+    envVar = process.env.TESTLANE_VOICE_TO;
+    envName = "TESTLANE_VOICE_TO";
+  } else {
+    return {
+      kind: "blocked",
+      reason: `TESTLANE_MODE on but unsupported channel "${input.channel as string}" (fail-closed)`,
+    };
+  }
+  if (!envVar) {
+    return {
+      kind: "blocked",
+      reason: `TESTLANE_MODE on but ${envName} unset (fail-closed)`,
+    };
+  }
+  const sidTag = `[testlane:${sid}]`;
+  const newMessageContent = input.messageContent.includes(sidTag)
+    ? input.messageContent
+    : `${sidTag} ${input.messageContent}`;
+  const newRecipientName = `[TESTLANE] ${input.recipientName || "test"}`.trim();
+  return {
+    kind: "override",
+    sid,
+    to: envVar,
+    messageContent: newMessageContent,
+    recipientName: newRecipientName,
+  };
 }
 
 const stopConfirmationCache = new Map<string, number>();
@@ -58,7 +182,7 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
   }
 
   try {
-    await sendSmsRaw(phone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`);
+    await sendSmsRaw(phone, `You have been unsubscribed from ${orgName} messages. Reply START to re-subscribe.`, undefined, organizationId);
     stopConfirmationCache.set(cacheKey, Date.now());
     console.log(`[STOP] Confirmation sent to ${phone} for org ${organizationId}`);
 
@@ -83,9 +207,57 @@ export async function sendStopConfirmation(phone: string, orgName: string, organ
   }
 }
 
-export async function sendSmsRaw(to: string, content: string, fromNumber?: string): Promise<void> {
+export async function sendSmsRaw(
+  to: string,
+  content: string,
+  fromNumber?: string,
+  organizationId?: string,
+): Promise<void> {
   const phone = to.replace(/[^0-9+]/g, "");
   const formattedPhone = phone.startsWith("+") ? phone : phone.startsWith("1") ? `+${phone}` : `+1${phone}`;
+
+  // ── PRE-LAUNCH SMS GUARD ────────────────────────────────────────────────
+  // Fail-closed allowlist check. Phase 1 investigation
+  // (evidence/sms-guard-investigation-2026-04-27.md, commit fc59c1c)
+  // identified sendSmsRaw as the only function that calls the SMS provider.
+  // Anything higher (processOutboundSend / sendSms / sendStopConfirmation)
+  // leaves at least one provider-reachable path uncovered — so the guard
+  // sits here. bypassBusinessHours has no effect on this guard.
+  const guardDecision = evaluatePreLaunchSmsGuardWithDefaults(to);
+  if (!guardDecision.allow) {
+    console.warn(
+      `[PreLaunchSmsGuard] BLOCK to=${formattedPhone} mode=${guardDecision.mode} reason=${guardDecision.reason}`,
+    );
+    // Best-effort outbound_log row so the block is visible in audit trail.
+    // Requires organizationId; when the caller didn't supply one, log a
+    // warning but still throw — the throw is the load-bearing safety
+    // signal regardless of audit-row completeness.
+    if (organizationId) {
+      try {
+        await storage.createOutboundLog({
+          organizationId,
+          campaignId: null,
+          recipientId: null,
+          channel: "sms",
+          status: "blocked",
+          blockedReason: guardDecision.reason,
+          messageContent: content,
+          recipientPhone: formattedPhone,
+          sentAt: null,
+        });
+      } catch (logErr: any) {
+        console.error(
+          `[PreLaunchSmsGuard] Failed to write blocked outbound_log row for ${formattedPhone}: ${logErr.message}`,
+        );
+      }
+    } else {
+      console.warn(
+        `[PreLaunchSmsGuard] No organizationId available — block will not be recorded in outbound_log (caller: review sendSmsRaw call site)`,
+      );
+    }
+    throw new Error(guardDecision.reason);
+  }
+  // ── END PRE-LAUNCH SMS GUARD ────────────────────────────────────────────
 
   const mcpParams: Record<string, string> = {
     text: content,
@@ -123,7 +295,7 @@ export async function sendSms(to: string, content: string, organizationId?: stri
     return;
   }
 
-  await sendSmsRaw(to, content, fromNumber);
+  await sendSmsRaw(to, content, fromNumber, organizationId);
 }
 
 export async function sendEmail(to: string, content: string): Promise<void> {
@@ -334,16 +506,128 @@ async function checkCommGate(
   return { allowed: true };
 }
 
+/**
+ * Build the set of phone-string variants used to match a conversation
+ * row's stored `customerPhone` against a recipient's phone, regardless
+ * of which format each side stored. Mirrors the variant set used by
+ * `storage.getConversationByPhone` (`server/storage.ts:431-435`) so
+ * outbound recipient matching and storage lookup agree.
+ *
+ *   raw            "+1 (480) 555-0199"        ← input as-stored
+ *   normalizedPhone "+14805550199"            ← strip everything except digits and leading +
+ *   digitsOnly      "14805550199"             ← drop the +
+ *   without1        "4805550199"              ← strip US leading 1 if 11 digits
+ *   with1           "14805550199"             ← prepend 1 if 10 digits
+ *   plusWith1       "+14805550199"            ← E.164 form
+ *
+ * Returns an empty array when phone is null/empty/contains no digits.
+ */
+export function phoneVariantsForRecipientMatch(
+  phone: string | null | undefined,
+): string[] {
+  if (!phone) return [];
+  const normalizedPhone = phone.replace(/[^0-9+]/g, "");
+  const digitsOnly = normalizedPhone.replace(/\+/g, "");
+  if (digitsOnly.length === 0) return [];
+  const without1 =
+    digitsOnly.startsWith("1") && digitsOnly.length === 11
+      ? digitsOnly.substring(1)
+      : digitsOnly;
+  const with1 = digitsOnly.length === 10 ? "1" + digitsOnly : digitsOnly;
+  const plusWith1 = "+" + with1;
+  // De-duplicate while preserving deterministic order.
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of [normalizedPhone, digitsOnly, without1, with1, plusWith1]) {
+    if (v && !seen.has(v)) {
+      seen.add(v);
+      out.push(v);
+    }
+  }
+  return out;
+}
+
+/**
+ * Pure conversation-matcher used by getConversationForRecipient.
+ *
+ * Bug-fix history (Priority #2 — campaign disconnect false-block,
+ * Codex launch-readiness eval 2026-04-27):
+ *
+ *   The pre-fix function returned the FIRST conversation matching
+ *   `c.campaignId === campaignId`, ignoring its `recipient` parameter
+ *   entirely. checkCommGate then read `conversation?.campaignDisconnected`
+ *   on whatever conversation came first. If recipient-A's conversation
+ *   in a campaign had `campaignDisconnected=true`, recipient-B in the
+ *   same campaign was wrongly blocked with "Recipient disconnected from
+ *   campaign" — even though recipient-B had never had a conversation
+ *   in that campaign.
+ *
+ * Fixed scoping: campaignId AND (phone match for sms/phone OR email
+ * match for email) before considering a conversation as "this
+ * recipient's conversation in this campaign". A recipient with neither
+ * phone nor email yields undefined → caller treats as first-time send,
+ * does NOT block.
+ *
+ * Phone matching uses `phoneVariantsForRecipientMatch` so a row stored
+ * as `"+14805550199"` matches a recipient typed as `"(480) 555-0199"`,
+ * `"4805550199"`, `"14805550199"`, etc. Mirrors storage.ts:431-447.
+ *
+ * Email matching is case-insensitive on both sides.
+ *
+ * Pure function: takes the conversations slice and the recipient. No
+ * I/O, no DB. The async wrapper does the storage fetch.
+ */
+export function findConversationForRecipient(
+  conversations: Conversation[],
+  recipient: CampaignRecipient,
+  campaignId: string,
+): Conversation | undefined {
+  const phoneVariants = phoneVariantsForRecipientMatch(recipient.phone);
+  const recipientEmail = recipient.email
+    ? recipient.email.trim().toLowerCase()
+    : null;
+
+  // If the recipient has no phone and no email, no conversation can be
+  // matched to them. Returning undefined here is the correct sentinel:
+  // checkCommGate's `if (conversation?.campaignDisconnected)` is false
+  // for undefined, so the recipient is NOT blocked. Anything else (e.g.
+  // returning the first campaign-matching conversation as the pre-fix
+  // bug did) cross-contaminates recipients in the same campaign.
+  if (phoneVariants.length === 0 && !recipientEmail) {
+    return undefined;
+  }
+
+  return conversations.find((c) => {
+    if (c.campaignId !== campaignId) return false;
+    // Phone match — any of the recipient's phone variants equals the
+    // stored customerPhone. The conversation's customerPhone is stored
+    // raw; we don't normalize it here because it could have been stored
+    // in any of the variant forms. Comparing a normalized recipient's
+    // variants against the raw stored value covers the common cases
+    // (storage uses one of these forms in practice).
+    if (c.customerPhone && phoneVariants.includes(c.customerPhone)) {
+      return true;
+    }
+    // Email match (case-insensitive).
+    if (
+      recipientEmail &&
+      c.customerEmail &&
+      c.customerEmail.trim().toLowerCase() === recipientEmail
+    ) {
+      return true;
+    }
+    return false;
+  });
+}
+
 async function getConversationForRecipient(
   organizationId: string,
   recipient: CampaignRecipient,
-  campaignId?: string
-) {
+  campaignId?: string,
+): Promise<Conversation | undefined> {
   if (!campaignId) return undefined;
   const conversations = await storage.getConversations(organizationId, {});
-  return conversations.find(
-    c => c.campaignId === campaignId
-  );
+  return findConversationForRecipient(conversations, recipient, campaignId);
 }
 
 export async function processOutboundSend(request: SendRequest): Promise<SendResult> {
@@ -360,6 +644,34 @@ export async function processOutboundSend(request: SendRequest): Promise<SendRes
   const recipient = request.recipientId
     ? await storage.getRecipient(request.recipientId)
     : undefined;
+
+  // ── TEST LANE GUARD ─────────────────────────────────────────────────────────
+  // Two-way fail-closed: TESTLANE_MODE and per-request marker must agree.
+  // If both are present, hard-route the recipient to operator-controlled test
+  // addresses and tag messageContent with [testlane:<sid>].
+  // If only one is present, BLOCK the send (do not rewrite, do not pass through).
+  // Pure logic lives in evaluateOutboundTestLaneGuard() above; this branch
+  // only handles IO (logAttempt) and request mutation.
+  const _tlGuard = evaluateOutboundTestLaneGuard({
+    channel: request.channel,
+    to: request.to,
+    messageContent: request.messageContent,
+    recipientName: request.recipientName,
+    testLaneSessionId: request.testLaneSessionId,
+    campaignName: campaign?.name ?? null,
+    recipientFirstName: recipient?.firstName ?? null,
+  });
+  if (_tlGuard.kind === "blocked") {
+    await logAttempt(request, "blocked", _tlGuard.reason);
+    return { status: "blocked", blockedReason: _tlGuard.reason };
+  }
+  if (_tlGuard.kind === "override") {
+    request.to = _tlGuard.to;
+    request.messageContent = _tlGuard.messageContent;
+    request.recipientName = _tlGuard.recipientName;
+    console.log(`[TestLane] processOutboundSend hard-routed channel=${request.channel} to=${request.to} sid=${_tlGuard.sid}`);
+  }
+  // ── END TEST LANE GUARD ─────────────────────────────────────────────────────
 
   const gateResult = await checkCommGate(org, campaign, recipient, request.channel, request.to, request.bypassBusinessHours || false);
 
@@ -517,16 +829,33 @@ export function getAllExecutionStatuses(): Record<string, Omit<CampaignExecution
   return result;
 }
 
-function substituteTemplate(template: string, recipient: CampaignRecipient, dealershipName: string): string {
+function substituteTemplate(
+  template: string,
+  recipient: CampaignRecipient,
+  dealershipName: string,
+  orgSettings: Record<string, any> = {},
+): string {
   const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
+  const repName = (orgSettings.defaultRepName as string) || `the ${dealershipName} team`;
+  const dealershipPhone = (orgSettings.dealershipPhone as string) || (orgSettings.textmagicPhone as string) || "";
+  const vehicleOfInterest = [recipient.vehicleYear, recipient.vehicleModel].filter(Boolean).join(" ").trim();
+
   return template
+    // Existing double-brace tokens
     .replace(/\{\{customerName\}\}/g, customerName)
     .replace(/\{\{firstName\}\}/g, recipient.firstName || "valued customer")
     .replace(/\{\{lastName\}\}/g, recipient.lastName || "")
     .replace(/\{\{dealershipName\}\}/g, dealershipName || "our dealership")
     .replace(/\{\{vehicleYear\}\}/g, recipient.vehicleYear || "")
     .replace(/\{\{vehicleModel\}\}/g, recipient.vehicleModel || "")
-    .replace(/\{\{vin\}\}/g, recipient.vin || "");
+    .replace(/\{\{vin\}\}/g, recipient.vin || "")
+    // Single-brace tokens (must run AFTER double-brace; supports service campaign templates)
+    .replace(/\{firstName\}/g, recipient.firstName || "valued customer")
+    .replace(/\{lastName\}/g, recipient.lastName || "")
+    .replace(/\{dealershipName\}/g, dealershipName || "our dealership")
+    .replace(/\{repName\}/g, repName)
+    .replace(/\{phone\}/g, dealershipPhone)
+    .replace(/\{vehicleOfInterest\}/g, vehicleOfInterest);
 }
 
 export async function startCampaignExecution(
@@ -631,7 +960,7 @@ export async function startCampaignExecution(
       return;
     }
 
-    const messageContent = substituteTemplate(template, recipient, dealershipName);
+    const messageContent = substituteTemplate(template, recipient, dealershipName, (org.settings as Record<string, any>) || {});
 
     const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
     const result = await processOutboundSend({

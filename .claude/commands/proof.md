@@ -1,0 +1,1 @@
+/home/ubuntu/Claude-store/sysadmin/harness/commands-common/proof.md

@@ -1,0 +1,73 @@
+{
+  "probed_at": "2026-04-26T10:35:50.905Z",
+  "campaign_id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+  "step": 1,
+  "operator_approval_scope": "single campaign id only — no other rows touched",
+  "before_row_full": {
+    "id": "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec",
+    "name": "Service Reminder - February",
+    "department": "service",
+    "status": "active",
+    "channel": "sms",
+    "organization_id": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "kill_switch": false,
+    "recipient_count": 16,
+    "sent_count": 0,
+    "replied_count": 0,
+    "csv_filename": "test-recipients.csv",
+    "message_template": null,
+    "send_interval_seconds": 60,
+    "execution_status": "idle",
+    "execution_total": 0,
+    "execution_processed": 0,
+    "execution_sent": 0,
+    "execution_failed": 0,
+    "execution_started_at": null,
+    "scheduled_at": null,
+    "created_at": "2026-04-03T05:01:53.856Z",
+    "updated_at": "2026-04-03T14:26:45.955Z"
+  },
+  "recipient_count": 16,
+  "outbound_log_count": 0,
+  "proposed_update_sql": "UPDATE campaigns\nSET status = 'archived',\n    kill_switch = true,\n    updated_at = now()\nWHERE id = $1\nRETURNING *;",
+  "proposed_update_params": [
+    "30267ae2-5d81-4c21-b0bf-ad96e4eb31ec"
+  ],
+  "delta": {
+    "status": {
+      "before": "active",
+      "after_proposed": "archived"
+    },
+    "execution_status": {
+      "before": "idle",
+      "after_proposed": "idle",
+      "note": "UNCHANGED per operator instruction"
+    },
+    "kill_switch": {
+      "before": false,
+      "after_proposed": true
+    },
+    "updated_at": {
+      "before": "2026-04-03T14:26:45.955Z",
+      "after_proposed": "now() (set by db on UPDATE execution)"
+    }
+  },
+  "archaeology_match": {
+    "campaign_exists": true,
+    "org_id_matches": true,
+    "name_matches": true,
+    "status_matches_archaeology": true,
+    "execution_status_matches_archaeology": true,
+    "scheduled_at_is_null": true,
+    "execution_started_at_is_null": true,
+    "kill_switch_is_false": true,
+    "sent_count_is_zero": true,
+    "replied_count_is_zero": true,
+    "recipient_count_is_16": true,
+    "outbound_log_count_is_0": true,
+    "csv_filename_matches": true,
+    "message_template_is_null": true
+  },
+  "all_archaeology_assertions_pass": true,
+  "decision_gate": "PROCEED — preview matches archaeology; operator's contingent approval applies. Step 2 (UPDATE execution) is authorized."
+}

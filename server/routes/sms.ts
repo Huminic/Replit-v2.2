@@ -531,13 +531,37 @@ Do NOT mention that you are an AI unless directly asked. Do not use markdown for
 
           const responseText = textBlock.text.trim();
 
-          // Send the AI response via SMS
+          // Forward internal testLaneSessionId when the conversation/campaign indicates Test Lane, so the outbound guard recognizes the auto-reply without polluting the customer-facing SMS text.
+          let testLaneSessionId: string | undefined;
+          {
+            const convCustomerName = (freshConversation.customerName || "").trim();
+            const convFirstWord = convCustomerName.split(/\s+/)[0] || "";
+            const convHasMarker =
+              convCustomerName.toLowerCase().includes("[testlane]") ||
+              convFirstWord.toLowerCase() === "testlane";
+            let campaignHasMarker = false;
+            if (!convHasMarker && freshConversation.campaignId) {
+              try {
+                const linkedCampaign = await storage.getCampaign(freshConversation.campaignId);
+                if (linkedCampaign?.name?.toLowerCase().includes("[testlane]")) {
+                  campaignHasMarker = true;
+                }
+              } catch {
+                // fail-closed: if lookup fails, do not infer Test Lane context
+              }
+            }
+            if (convHasMarker || campaignHasMarker) {
+              testLaneSessionId = `auto-reply-${conversation.id}`;
+            }
+          }
+
           const { processOutboundSend } = await import("../outbound");
           const sendResult = await processOutboundSend({
             organizationId,
             channel: "sms",
             to: normalizedPhone,
             messageContent: responseText,
+            testLaneSessionId,
           });
 
           if (sendResult.status === "sent") {

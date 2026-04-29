@@ -1,0 +1,26 @@
+{
+  "item_count": 30,
+  "source_field_object_count": 0,
+  "source_field_with_name": 0,
+  "source_field_string_count": 0,
+  "source_field_null_count": 30,
+  "leadSource_url_count": 30,
+  "sample_source_shapes": [],
+  "first_item_keys": [
+    "coBuyerContact",
+    "contact",
+    "createdUtc",
+    "dealerId",
+    "href",
+    "isHot",
+    "isOnShowroom",
+    "leadGroupCategory",
+    "leadId",
+    "leadSource",
+    "leadStatus",
+    "leadStatusType",
+    "leadType",
+    "tradeVehicles",
+    "vehiclesOfInterest"
+  ]
+}
