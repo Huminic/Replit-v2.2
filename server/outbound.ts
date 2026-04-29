@@ -829,16 +829,33 @@ export function getAllExecutionStatuses(): Record<string, Omit<CampaignExecution
   return result;
 }
 
-function substituteTemplate(template: string, recipient: CampaignRecipient, dealershipName: string): string {
+function substituteTemplate(
+  template: string,
+  recipient: CampaignRecipient,
+  dealershipName: string,
+  orgSettings: Record<string, any> = {},
+): string {
   const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
+  const repName = (orgSettings.defaultRepName as string) || `the ${dealershipName} team`;
+  const dealershipPhone = (orgSettings.dealershipPhone as string) || (orgSettings.textmagicPhone as string) || "";
+  const vehicleOfInterest = [recipient.vehicleYear, recipient.vehicleModel].filter(Boolean).join(" ").trim();
+
   return template
+    // Existing double-brace tokens
     .replace(/\{\{customerName\}\}/g, customerName)
     .replace(/\{\{firstName\}\}/g, recipient.firstName || "valued customer")
     .replace(/\{\{lastName\}\}/g, recipient.lastName || "")
     .replace(/\{\{dealershipName\}\}/g, dealershipName || "our dealership")
     .replace(/\{\{vehicleYear\}\}/g, recipient.vehicleYear || "")
     .replace(/\{\{vehicleModel\}\}/g, recipient.vehicleModel || "")
-    .replace(/\{\{vin\}\}/g, recipient.vin || "");
+    .replace(/\{\{vin\}\}/g, recipient.vin || "")
+    // Single-brace tokens (must run AFTER double-brace; supports service campaign templates)
+    .replace(/\{firstName\}/g, recipient.firstName || "valued customer")
+    .replace(/\{lastName\}/g, recipient.lastName || "")
+    .replace(/\{dealershipName\}/g, dealershipName || "our dealership")
+    .replace(/\{repName\}/g, repName)
+    .replace(/\{phone\}/g, dealershipPhone)
+    .replace(/\{vehicleOfInterest\}/g, vehicleOfInterest);
 }
 
 export async function startCampaignExecution(
@@ -943,7 +960,7 @@ export async function startCampaignExecution(
       return;
     }
 
-    const messageContent = substituteTemplate(template, recipient, dealershipName);
+    const messageContent = substituteTemplate(template, recipient, dealershipName, (org.settings as Record<string, any>) || {});
 
     const customerName = [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || "valued customer";
     const result = await processOutboundSend({
