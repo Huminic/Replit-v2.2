@@ -66,12 +66,25 @@ const allowedOrigins = new Set([appBaseUrl, 'http://localhost:5000', 'http://loc
 const widgetCors = cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] });
 app.use('/api/widget', widgetCors);
 app.use('/widget', widgetCors);
+// Self-hosted dealer-widget bundles + widget landing/preview routes need permissive CORS
+// from any dealer-site origin (e.g. serrahonda.net loading live.huminic.app/dealer-widgets/serra-honda.js).
+app.use('/dealer-widgets', widgetCors);
+app.use('/dealer-handoff', widgetCors);
+app.use('/w', widgetCors);
+app.use('/p', widgetCors);
 
 // General CORS for all other routes — rejects unknown origins.
 // Widget paths are excluded above so the permissive policy isn't overridden.
 app.use((req, res, next) => {
   // Skip general CORS for widget paths — already handled above
-  if (req.path.startsWith('/api/widget') || req.path.startsWith('/widget')) {
+  if (
+    req.path.startsWith('/api/widget') ||
+    req.path.startsWith('/widget') ||
+    req.path.startsWith('/dealer-widgets') ||
+    req.path.startsWith('/dealer-handoff') ||
+    req.path.startsWith('/w/') ||
+    req.path.startsWith('/p/')
+  ) {
     return next();
   }
   cors({
