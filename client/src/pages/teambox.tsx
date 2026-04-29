@@ -193,6 +193,10 @@ export default function TeamboxPage() {
       return res.json();
     },
     enabled: !!selectedConversationId,
+    // Right-pane stays current with inbound replies and AI auto-replies without a manual refresh.
+    refetchInterval: 5000,
+    refetchOnWindowFocus: 'always',
+    staleTime: 0,
   });
 
   useEffect(() => {
