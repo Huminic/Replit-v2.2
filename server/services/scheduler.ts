@@ -92,6 +92,37 @@ async function processScheduledActions() {
             log(`Queued SMS to ${p.to} failed: ${qErr.message}`, "scheduler");
           }
         }
+
+        if (action.actionType === 'queued_immediate_trigger_sms') {
+          const p = action.payload as any;
+          try {
+            const { processOutboundSend } = await import("../outbound");
+            const result = await processOutboundSend({
+              organizationId: action.organizationId,
+              channel: p.channel || "sms",
+              to: p.to,
+              messageContent: p.messageContent,
+              recipientName: p.recipientName,
+            });
+            log(`Processed queued immediate trigger SMS to ${p.to}: ${result.status}${result.blockedReason ? ' — ' + result.blockedReason : ''}`, "scheduler");
+            if (result.status === 'sent') {
+              await storage.createActivityLog({
+                organizationId: action.organizationId,
+                action: "trigger_immediate_sent",
+                entityType: "warehouse_lead",
+                entityId: p.leadId,
+                metadata: {
+                  triggerType: "immediate_new_lead",
+                  phone: p.to,
+                  customerName: p.customerName,
+                  source: "scheduled_morning_send",
+                },
+              }).catch(() => {});
+            }
+          } catch (qErr: any) {
+            log(`Queued immediate trigger SMS to ${p.to} failed: ${qErr.message}`, "scheduler");
+          }
+        }
         await storage.markScheduledActionExecuted(action.id);
       } catch (actErr: any) {
         log(`Scheduled action ${action.id} failed: ${actErr.message}`, "scheduler");
