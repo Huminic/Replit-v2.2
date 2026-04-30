@@ -52,8 +52,27 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: success()
+    timeout-minutes: 15
+
+    env:
+      HEALTH_URL: https://live.huminic.app/api/health
+      WIDGET_URL: https://live.huminic.app/dealer-widgets/nexxus-widget.js
 
     steps:
+      - name: Capture pre-deploy uptime
+        id: pre
+        run: |
+          # Pre-deploy uptime baseline. /api/health emits uptime as a float
+          # (process.uptime()), so we floor to int via `| floor`. Bash's `-lt`
+          # is an integer comparator and would crash on a float string.
+          # If the live site is already down, PRE_UPTIME=0 — handled in the
+          # poll loop below (recovery-deploy success criterion drops the
+          # uptime-regression check when the baseline is 0).
+          PRE_UPTIME=$(curl -sS --max-time 10 "$HEALTH_URL" 2>/dev/null | jq -r '(.uptime // 0) | floor' 2>/dev/null || echo 0)
+          if [ -z "$PRE_UPTIME" ] || [ "$PRE_UPTIME" = "null" ]; then PRE_UPTIME=0; fi
+          echo "Pre-deploy uptime: ${PRE_UPTIME}s"
+          echo "pre_uptime=$PRE_UPTIME" >> $GITHUB_OUTPUT
+
       - name: Trigger Coolify deployment
         run: |
           RESPONSE=$(curl -s -o /tmp/coolify-response.txt -w '%{http_code}' -X POST \
@@ -69,12 +88,66 @@ jobs:
           fi
 
       - name: Verify deployment
+        # I-NEW-2026-04-29-D fix. The previous step did `curl "${APP_BASE_URL}/"`
+        # with a 60s fixed sleep — when APP_BASE_URL was empty or Coolify took
+        # longer than 60s, this would fail (or pass) without distinguishing
+        # silent-no-op from real-failure. Replaced with a real polling loop:
+        #
+        # Normal-deploy success: uptime drops below pre-deploy value AND widget URL 200.
+        # Recovery-deploy success (PRE_UPTIME=0, live was down): uptime > 0 AND < 600 AND widget 200.
+        # In both cases CURRENT_UPTIME < 600 ensures we see a freshly-restarted container.
         run: |
-          echo "Waiting 60s for deployment..."
-          sleep 60
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${{ secrets.APP_BASE_URL }}/" || echo "000")
-          echo "Production status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "ERROR: Production returned $STATUS after deploy"
+          PRE_UPTIME='${{ steps.pre.outputs.pre_uptime }}'
+          echo "Polling for container restart + widget readiness (max 10 min). Pre-deploy uptime: ${PRE_UPTIME}s"
+          DEPLOYED=false
+          CURRENT_UPTIME=$PRE_UPTIME
+          WIDGET_STATUS=000
+          for i in $(seq 1 30); do
+            sleep 20
+            CURRENT_UPTIME=$(curl -sS --max-time 10 "$HEALTH_URL" 2>/dev/null | jq -r '(.uptime // 0) | floor' 2>/dev/null || echo 0)
+            if [ -z "$CURRENT_UPTIME" ] || [ "$CURRENT_UPTIME" = "null" ]; then CURRENT_UPTIME=0; fi
+            WIDGET_STATUS=$(curl -s --max-time 10 -o /dev/null -w '%{http_code}' \
+              -H "Origin: https://www.serrahonda.net" "$WIDGET_URL" 2>/dev/null || echo 000)
+            echo "[poll $i/30] uptime=${CURRENT_UPTIME}s widget_http=$WIDGET_STATUS pre=${PRE_UPTIME}s"
+            # Two acceptance modes:
+            #   normal: uptime regressed AND below 600s AND widget 200
+            #   recovery (pre was 0): uptime > 0 AND below 600s AND widget 200
+            if [ "$CURRENT_UPTIME" -lt 600 ] && [ "$WIDGET_STATUS" = "200" ]; then
+              if [ "$PRE_UPTIME" -eq 0 ] && [ "$CURRENT_UPTIME" -gt 0 ]; then
+                DEPLOYED=true
+                echo "Deploy CONFIRMED (recovery mode) — site recovered (uptime ${CURRENT_UPTIME}s) and widget 200."
+                break
+              fi
+              if [ "$PRE_UPTIME" -gt 0 ] && [ "$CURRENT_UPTIME" -lt "$PRE_UPTIME" ]; then
+                DEPLOYED=true
+                echo "Deploy CONFIRMED — container restarted (uptime ${CURRENT_UPTIME}s < pre ${PRE_UPTIME}s) and widget 200."
+                break
+              fi
+            fi
+          done
+          if [ "$DEPLOYED" = "false" ]; then
+            echo "ERROR: Deploy did NOT confirm within 10 minutes."
+            echo "  - PRE_UPTIME=${PRE_UPTIME}s"
+            echo "  - CURRENT_UPTIME=${CURRENT_UPTIME}s (must be < 600 AND ((pre=0 AND cur>0) OR cur<pre))"
+            echo "  - WIDGET_STATUS=$WIDGET_STATUS (must be 200)"
+            echo "Likely causes: Coolify webhook returned success but did not actually rebuild,"
+            echo "OR Coolify is still rebuilding (build > 10 min)."
             exit 1
           fi
+
+      - name: Notify on failure
+        # I-NEW-2026-04-29-F. Sends a Slack message when the deploy job fails.
+        # If SLACK_WEBHOOK_URL is unset, this step no-ops gracefully — the
+        # secret can be added later without further deploy.yml changes.
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL not configured — skipping notification."
+            exit 0
+          fi
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          RUN_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(printf '{"text":":x: Nexxus deploy failed for commit %s","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"*:x: Nexxus deploy failed*\\nCommit: `%s`\\nRun: <%s|view in GitHub Actions>"}}]}' "$SHORT_SHA" "$SHORT_SHA" "$RUN_LINK")
+          curl -sS -X POST -H 'Content-Type: application/json' --max-time 10 --data "$PAYLOAD" "$SLACK_WEBHOOK_URL" || echo "Slack notification request failed (non-fatal)."

@@ -1,0 +1,9 @@
+PASS  normal-deploy success  pre=1279021 cur=45 widget=200 -> confirmed
+PASS  recovery from down  pre=0 cur=45 widget=200 -> confirmed
+PASS  still old container  pre=1279021 cur=1279100 widget=200 -> not_confirmed
+PASS  container restarted but widget 500  pre=1279021 cur=45 widget=500 -> not_confirmed
+PASS  uptime > 600 (stale container with old uptime overflow)  pre=1279021 cur=700 widget=200 -> not_confirmed
+PASS  pre=0 cur=0 widget 500 (still down)  pre=0 cur=0 widget=500 -> not_confirmed
+PASS  pre=0 cur=0 widget 200 (broken — no uptime change)  pre=0 cur=0 widget=200 -> not_confirmed
+
+All simulated cases pass.
