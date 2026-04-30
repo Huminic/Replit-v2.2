@@ -1,0 +1,30 @@
+{
+  "base": "http://localhost:5000",
+  "timestamp": "2026-04-30T13:52:15.477Z",
+  "evidence": [
+    {
+      "step": "login-as-super_admin",
+      "url": "http://localhost:5000/"
+    },
+    {
+      "step": "super_admin-on-management-after-3s",
+      "url": "http://localhost:5000/management"
+    },
+    {
+      "step": "after-logout",
+      "url": "http://localhost:5000/login"
+    },
+    {
+      "step": "unauth-direct-management",
+      "url": "http://localhost:5000/login"
+    },
+    {
+      "step": "org_admin-on-management-after-3s",
+      "url": "http://localhost:5000/"
+    },
+    {
+      "step": "org_admin-on-sales-after-3s",
+      "url": "http://localhost:5000/sales"
+    }
+  ]
+}
