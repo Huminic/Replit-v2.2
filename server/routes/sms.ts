@@ -157,7 +157,15 @@ ${transcript}`,
 
 export function registerSmsRoutes(app: Express) {
   app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
-    // I-236: in production, unset secret rejects with 503; dev warns and accepts.
+    // I-236 + I-NEW-2026-04-30-E: TextMagic does not reliably sign its webhooks.
+    // After chunk 2B's I-236 strict-rejection landed in production with the env
+    // var unset, real TextMagic webhooks 503'd. Setting any value in the env
+    // then made strict-match reject all real (unsigned) TextMagic webhooks 401.
+    // Resolution: relaxed verify — if a signing header IS present and
+    // non-empty, it MUST match. If absent (TextMagic's default), accept.
+    // Zero-NEW-vulnerability: matches the months-of-prior behavior. Track
+    // this debt at I-NEW-2026-04-30-E for proper signing once TextMagic dash
+    // config is verified.
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
     if (!textmagicSecret) {
       if (process.env.NODE_ENV === "production") {
@@ -168,9 +176,12 @@ export function registerSmsRoutes(app: Express) {
     } else {
       const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
       const providedSecret = typeof headerSecret === "string" ? headerSecret : "";
-      if (providedSecret !== textmagicSecret) {
-        console.warn("[TextMagic Webhook] Invalid secret — rejecting request");
+      if (providedSecret && providedSecret !== textmagicSecret) {
+        console.warn("[TextMagic Webhook] Invalid signing header — rejecting request");
         return res.status(401).json({ message: "Unauthorized" });
+      }
+      if (!providedSecret) {
+        console.warn("[TextMagic Webhook] No signing header present despite TEXTMAGIC_WEBHOOK_SECRET set — accepting (TextMagic-unsigned-webhook fallback; see I-NEW-2026-04-30-E)");
       }
     }
 
