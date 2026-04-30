@@ -310,7 +310,11 @@ export function registerPublicRoutes(app: Express) {
         senderName: "Website Visitor",
       });
 
-      const existingMessages = await storage.getMessages(conversation.id);
+      // I-252: bound the message history sent to Claude to the last 20 entries
+      // to avoid context-window overflow on long widget conversations. Matches
+      // the slice(-20) pattern in chat.ts:124. The user's just-stored message
+      // is always at the tail, so the cap covers ~10 turns of recent history.
+      const existingMessages = (await storage.getMessages(conversation.id)).slice(-20);
       const claudeMessages = existingMessages.map(m => ({
         role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
         content: m.content,

@@ -79,7 +79,17 @@ ${params.transcript}`,
       let rawText = textBlock.text.trim();
       const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (jsonMatch) rawText = jsonMatch[1].trim();
-      analysisData = JSON.parse(rawText);
+      // I-253: malformed Claude output (truncated by max_tokens, partial
+      // markdown fence) previously threw inside the outer try/catch and
+      // silently dropped the appointment-creation. Catch explicitly so the
+      // log message identifies the JSON-parse cause, and the function returns
+      // cleanly (no appointment created — caller already tolerates this).
+      try {
+        analysisData = JSON.parse(rawText);
+      } catch (parseErr: any) {
+        console.warn(`[AI-Analysis] Failed to parse Claude JSON for ${params.source} conversation ${params.conversationId}: ${parseErr?.message || parseErr}. Raw preview: ${rawText.slice(0, 200)}`);
+        analysisData = null;
+      }
     }
 
     if (!analysisData) {

@@ -658,6 +658,16 @@ Do NOT mention that you are an AI unless directly asked. Do not use markdown for
             }
           }
 
+          // I-254 fix: re-check assignedTo IMMEDIATELY before send. The
+          // earlier check at the top of this IIFE (line ~582) leaves a
+          // ~1-3 second race window during which a human may take over.
+          // The freshConversation snapshot is stale at this point.
+          const conversationAtSend = await storage.getConversation(conversation.id);
+          if (conversationAtSend?.assignedTo) {
+            console.log(`[SMS AI] AI paused (race-window check) — human takeover detected during AI processing (conversation ${conversation.id}, assignedTo: ${conversationAtSend.assignedTo})`);
+            return;
+          }
+
           const { processOutboundSend } = await import("../outbound");
           const sendResult = await processOutboundSend({
             organizationId,
