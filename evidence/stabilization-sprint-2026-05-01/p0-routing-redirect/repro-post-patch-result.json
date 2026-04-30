@@ -1,0 +1,257 @@
+{
+  "base": "http://localhost:5000",
+  "holdSeconds": 30,
+  "timestamp": "2026-04-30T13:51:33.476Z",
+  "accounts": [
+    {
+      "account": "super_admin",
+      "email": "duane.wells@huminic.ai",
+      "results": [
+        {
+          "route": "teambox",
+          "requested": "/teambox",
+          "finalUrl": "/teambox",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 18,
+              "url": "http://localhost:5000/teambox",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/teambox",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "sales",
+          "requested": "/sales",
+          "finalUrl": "/sales",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 18,
+              "url": "http://localhost:5000/sales",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 18,
+              "url": "http://localhost:5000/sales",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "insights",
+          "requested": "/insights",
+          "finalUrl": "/insights",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 36,
+              "url": "http://localhost:5000/insights",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 36,
+              "url": "http://localhost:5000/insights",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "marketing",
+          "requested": "/marketing",
+          "finalUrl": "/marketing",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 17,
+              "url": "http://localhost:5000/marketing",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 17,
+              "url": "http://localhost:5000/marketing",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "management",
+          "requested": "/management",
+          "finalUrl": "/management",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/management",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/management",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "marketing-deeplink-agents",
+          "requested": "/marketing?tab=agents",
+          "finalUrl": "/marketing?tab=agents",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 18,
+              "url": "http://localhost:5000/marketing?tab=agents",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/marketing?tab=agents",
+              "reason": "goto-commit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "account": "org_admin",
+      "email": "serra_honda@huminic.ai",
+      "results": [
+        {
+          "route": "teambox",
+          "requested": "/teambox",
+          "finalUrl": "/teambox",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/teambox",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 19,
+              "url": "http://localhost:5000/teambox",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "sales",
+          "requested": "/sales",
+          "finalUrl": "/sales",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 28,
+              "url": "http://localhost:5000/sales",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 28,
+              "url": "http://localhost:5000/sales",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "insights",
+          "requested": "/insights",
+          "finalUrl": "/insights",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 16,
+              "url": "http://localhost:5000/insights",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 16,
+              "url": "http://localhost:5000/insights",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "marketing",
+          "requested": "/marketing",
+          "finalUrl": "/marketing",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 48,
+              "url": "http://localhost:5000/marketing",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 48,
+              "url": "http://localhost:5000/marketing",
+              "reason": "goto-commit"
+            }
+          ]
+        },
+        {
+          "route": "management",
+          "requested": "/management",
+          "finalUrl": "/",
+          "holdSeconds": 30,
+          "stable": false,
+          "observations": [
+            {
+              "tMs": 14,
+              "url": "http://localhost:5000/management",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 14,
+              "url": "http://localhost:5000/management",
+              "reason": "goto-commit"
+            },
+            {
+              "tMs": 1372,
+              "url": "http://localhost:5000/",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 1619,
+              "url": "http://localhost:5000/",
+              "reason": "poll-change"
+            }
+          ]
+        },
+        {
+          "route": "marketing-deeplink-agents",
+          "requested": "/marketing?tab=agents",
+          "finalUrl": "/marketing?tab=agents",
+          "holdSeconds": 30,
+          "stable": true,
+          "observations": [
+            {
+              "tMs": 23,
+              "url": "http://localhost:5000/marketing?tab=agents",
+              "reason": "framenavigated"
+            },
+            {
+              "tMs": 23,
+              "url": "http://localhost:5000/marketing?tab=agents",
+              "reason": "goto-commit"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

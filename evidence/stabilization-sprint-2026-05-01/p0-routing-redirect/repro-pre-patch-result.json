@@ -1,0 +1,167 @@
+{
+  "base": "http://localhost:5000",
+  "email": "duane.wells@huminic.ai",
+  "holdSeconds": 10,
+  "timestamp": "2026-04-30T13:42:11.209Z",
+  "results": [
+    {
+      "route": "teambox",
+      "requested": "/teambox",
+      "finalUrl": "/teambox",
+      "holdSeconds": 10,
+      "stable": true,
+      "observations": [
+        {
+          "tMs": 16,
+          "url": "http://localhost:5000/teambox",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 16,
+          "url": "http://localhost:5000/teambox",
+          "reason": "goto-commit"
+        }
+      ]
+    },
+    {
+      "route": "sales",
+      "requested": "/sales",
+      "finalUrl": "/sales",
+      "holdSeconds": 10,
+      "stable": true,
+      "observations": [
+        {
+          "tMs": 25,
+          "url": "http://localhost:5000/sales",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 25,
+          "url": "http://localhost:5000/sales",
+          "reason": "goto-commit"
+        }
+      ]
+    },
+    {
+      "route": "insights",
+      "requested": "/insights",
+      "finalUrl": "/insights",
+      "holdSeconds": 10,
+      "stable": true,
+      "observations": [
+        {
+          "tMs": 23,
+          "url": "http://localhost:5000/insights",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 23,
+          "url": "http://localhost:5000/insights",
+          "reason": "goto-commit"
+        }
+      ]
+    },
+    {
+      "route": "marketing",
+      "requested": "/marketing",
+      "finalUrl": "/marketing",
+      "holdSeconds": 10,
+      "stable": true,
+      "observations": [
+        {
+          "tMs": 23,
+          "url": "http://localhost:5000/marketing",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 23,
+          "url": "http://localhost:5000/marketing",
+          "reason": "goto-commit"
+        }
+      ]
+    },
+    {
+      "route": "management",
+      "requested": "/management",
+      "finalUrl": "/",
+      "holdSeconds": 10,
+      "stable": false,
+      "observations": [
+        {
+          "tMs": 15,
+          "url": "http://localhost:5000/management",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 16,
+          "url": "http://localhost:5000/management",
+          "reason": "goto-commit"
+        },
+        {
+          "tMs": 1402,
+          "url": "http://localhost:5000/",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 1636,
+          "url": "http://localhost:5000/",
+          "reason": "poll-change"
+        }
+      ]
+    },
+    {
+      "route": "marketing-deeplink-agents",
+      "requested": "/marketing?tab=agents",
+      "finalUrl": "/marketing?tab=agents",
+      "holdSeconds": 10,
+      "stable": true,
+      "observations": [
+        {
+          "tMs": 41,
+          "url": "http://localhost:5000/marketing?tab=agents",
+          "reason": "framenavigated"
+        },
+        {
+          "tMs": 41,
+          "url": "http://localhost:5000/marketing?tab=agents",
+          "reason": "goto-commit"
+        }
+      ]
+    }
+  ],
+  "consoleErrorCount": 1,
+  "consoleSamples": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    }
+  ]
+}
