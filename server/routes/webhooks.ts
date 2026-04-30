@@ -914,8 +914,17 @@ setInterval(() => {
 export function registerWebhookRoutes(app: Express) {
   app.post("/api/webhooks/vapi", async (req, res) => {
     try {
+      // I-236: in production, an unset webhook secret previously caused us to
+      // accept any unauthenticated request. Now we reject with 503 so operators
+      // see the misconfiguration. In dev we log a warning but accept.
       const vapiSecret = process.env.VAPI_WEBHOOK_SECRET;
-      if (vapiSecret) {
+      if (!vapiSecret) {
+        if (process.env.NODE_ENV === "production") {
+          console.error("[VAPI Webhook] VAPI_WEBHOOK_SECRET unset in production — rejecting request");
+          return res.status(503).json({ message: "Webhook secret not configured" });
+        }
+        console.warn("[VAPI Webhook] VAPI_WEBHOOK_SECRET unset — accepting in dev only (set the env var before going live)");
+      } else {
         const headerSecret = req.headers["x-vapi-secret"] || req.headers["authorization"];
         const providedSecret = typeof headerSecret === "string" ? headerSecret.replace(/^Bearer\s+/i, "") : "";
         if (providedSecret !== vapiSecret) {
@@ -1485,8 +1494,15 @@ export function registerWebhookRoutes(app: Express) {
 
   app.post("/api/webhooks/tavus", async (req, res) => {
     try {
+      // I-236: in production, unset secret rejects with 503; dev warns and accepts.
       const tavusWebhookSecret = process.env.TAVUS_WEBHOOK_SECRET;
-      if (tavusWebhookSecret) {
+      if (!tavusWebhookSecret) {
+        if (process.env.NODE_ENV === "production") {
+          console.error("[Tavus Webhook] TAVUS_WEBHOOK_SECRET unset in production — rejecting request");
+          return res.status(503).json({ message: "Webhook secret not configured" });
+        }
+        console.warn("[Tavus Webhook] TAVUS_WEBHOOK_SECRET unset — accepting in dev only");
+      } else {
         const headerSecret = req.headers["x-tavus-secret"] || req.headers["x-webhook-secret"];
         if (headerSecret !== tavusWebhookSecret) {
           return res.status(401).json({ message: "Invalid webhook secret" });

@@ -2,6 +2,7 @@ import type { Express } from "express";
 import multer from "multer";
 import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
+import { substituteOrgContext } from "../lib/templateSubstitute";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -156,8 +157,15 @@ ${transcript}`,
 
 export function registerSmsRoutes(app: Express) {
   app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
+    // I-236: in production, unset secret rejects with 503; dev warns and accepts.
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
-    if (textmagicSecret) {
+    if (!textmagicSecret) {
+      if (process.env.NODE_ENV === "production") {
+        console.error("[TextMagic Webhook] TEXTMAGIC_WEBHOOK_SECRET unset in production — rejecting request");
+        return res.status(503).json({ message: "Webhook secret not configured" });
+      }
+      console.warn("[TextMagic Webhook] TEXTMAGIC_WEBHOOK_SECRET unset — accepting in dev only");
+    } else {
       const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
       const providedSecret = typeof headerSecret === "string" ? headerSecret : "";
       if (providedSecret !== textmagicSecret) {
@@ -594,7 +602,24 @@ export function registerSmsRoutes(app: Express) {
             a => a.status === "active" && a.type === "ai" &&
               (a.channels?.includes("sms") || a.channels?.includes("voice"))
           );
-          if (!smsAgent) return;
+          if (!smsAgent) {
+            // I-256: previously this returned silently — customers texting in
+            // got no reply and operators had no signal that AI was disabled
+            // for the org. Now we log a warning AND record an activity-log
+            // entry so admins can detect the misconfiguration in the audit log.
+            console.warn(`[SMS AI] No active SMS-capable AI agent for org ${organizationId}; inbound SMS from ${normalizedPhone} will not get an AI reply.`);
+            storage.createActivityLog({
+              organizationId,
+              action: "sms_ai_no_active_agent",
+              entityType: "conversation",
+              entityId: conversation.id,
+              metadata: {
+                customerPhone: normalizedPhone,
+                reason: "no_active_sms_agent",
+              },
+            }).catch(() => {});
+            return;
+          }
 
           // Build message context from conversation history
           const history = await storage.getMessages(conversation.id);
@@ -602,7 +627,14 @@ export function registerSmsRoutes(app: Express) {
 
           const orgName = org.name || "our dealership";
           const agentName = smsAgent.name || "Assistant";
-          const agentInstructions = smsAgent.instructions || "";
+          // I-269: agent.instructions can contain {{dealershipName}} (and other
+          // placeholders) that must be substituted before being added to the
+          // prompt. Without this, Claude saw the literal "{{dealershipName}}"
+          // string. Mirrors chat.ts:168.
+          const rawInstructions = smsAgent.instructions || "";
+          const agentInstructions = rawInstructions
+            ? substituteOrgContext(rawInstructions, { dealershipName: orgName })
+            : "";
 
           const systemPrompt = `You are ${agentName}, an AI assistant for ${orgName} (automotive dealership). You are responding to an inbound SMS from a customer.
 

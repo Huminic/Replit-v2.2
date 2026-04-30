@@ -15,8 +15,8 @@
 | # | Chunk | Status | Files | External writes | Effort | Started | Committed |
 |---|---|---|---|---|---|---|---|
 | 1A | Customer-meeting features (daily recap + SMS appt-intent email) | **DONE** | 7 (within ≤6 + 1 new test file) | Email (allowlist) | ~2.5h | 2026-04-30 | `5d04049` |
-| 2A | Scheduler/outbound hardening (I-248, I-252, I-253, I-254) | **DONE** | 6 | None | ~1h | 2026-04-30 | pending commit |
-| 2B | Auth/config hardening (I-236, I-237, I-269, I-256) | pending | ≤6 | None | 1h | — | — |
+| 2A | Scheduler/outbound hardening (I-248, I-252, I-253, I-254) | **DONE** | 6 | None | ~1h | 2026-04-30 | `50c5377` |
+| 2B | Auth/config hardening (I-236, I-237, I-269, I-256) | **DONE** | 3 | None | ~30min | 2026-04-30 | pending commit |
 | 3 | Deploy pipeline (I-NEW-...-D, I-NEW-...-F) | pending | 1 (deploy.yml) | None | 1-1.5h | — | — |
 
 ## Per-chunk pipeline (every chunk)
