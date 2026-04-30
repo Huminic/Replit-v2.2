@@ -1,0 +1,34 @@
+Target org: Serra Honda (24d64f99-ba04-4b43-af35-fd06f555ac86)
+[VendorProxy] Failed to parse NEXXUS_ORG_MAP env var: SyntaxError: Expected property name or '}' in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at loadNexxusOrgMap (/home/ubuntu/Claude-store/nexxus2.2_replit/server/vendorProxy.ts:14:19)
+    at <anonymous> (/home/ubuntu/Claude-store/nexxus2.2_replit/server/vendorProxy.ts:23:48)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async <anonymous> (/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-04-30/1A/e2e-fire.ts:36:35)
+
+--- Test 1: daily recap (test-lane) ---
+[DailyRecap] Sending recap to 1 admin(s) for org "Serra Honda" (TEST LANE -> duanewells@icloud.com)
+daily recap result: { ok: true, recipientCount: 1 }
+
+--- Test 2: SMS appointment-intent (test-lane) ---
+[SmsApptIntent] Sending notification to 1 admin(s) for org "Serra Honda" (TEST LANE -> duanewells@icloud.com)
+sms appt-intent result: { ok: true, recipientCount: 1 }
+
+--- Verification: outbound_log rows ---
+[
+  {
+    "created_at": "2026-04-30 01:13:28.314211",
+    "channel": "email",
+    "status": "sent",
+    "message_content": "[testlane:1A-2026-04-30] [notification:sms_appt_[testlane:1A-2026-04-30]-conv-fixture_2026-04-30] [testlane:1A-2026-04-30] 📅 Serra Honda — Customer wants an appointment (SMS) — sent to 1 admin(s)",
+    "recipient_email": "duanewells@icloud.com"
+  },
+  {
+    "created_at": "2026-04-30 01:13:26.332898",
+    "channel": "email",
+    "status": "sent",
+    "message_content": "[testlane:1A-2026-04-30] [notification:daily_recap_24d64f99-ba04-4b43-af35-fd06f555ac86_2026-04-30] [testlane:1A-2026-04-30] 📊 Serra Honda — Daily Recap (2026-04-30) — sent to 1 admin(s)",
+    "recipient_email": "duanewells@icloud.com"
+  }
+]

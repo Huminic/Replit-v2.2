@@ -2,6 +2,7 @@ import { storage } from "../storage";
 import { startCampaignExecution, processOutboundSend } from "../outbound";
 import { generateHunchesForOrg } from "./hunchService";
 import { sendWeeklyReportProduction } from "./weeklyReportService";
+import { runDailyRecapScheduler } from "./dailyRecapService";
 import { log } from "../index";
 import type { Organization, Agent } from "@shared/schema";
 
@@ -851,6 +852,15 @@ export function startSchedulers() {
   setInterval(() => {
     runWeeklyReportScheduler().catch((err) => {
       log(`Weekly report scheduler tick failed: ${err}`, "weekly-report");
+    });
+  }, 5 * 60 * 1000);
+
+  // Daily recap (I-NEW-2026-04-29-H) — check every 5min, runs per store at
+  // settings.dailyRecapHour local (default 18 / 6 PM) when settings.dailyRecapEnabled === true.
+  // Default OFF per-org. Protected by per-org per-day scheduler_locks row.
+  setInterval(() => {
+    runDailyRecapScheduler().catch((err) => {
+      log(`Daily recap scheduler tick failed: ${err}`, "daily-recap");
     });
   }, 5 * 60 * 1000);
 

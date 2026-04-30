@@ -1,0 +1,36 @@
+=== Live smoke test — 2026-04-29 20:06 UTC ===
+(post-Coolify rebuild — container self-recovered after PR #1 merge)
+
+Health: {"status":"ok","version":"2.2.0","uptime":4122,"environment":"production"}
+(uptime ~68 min, fresh container — was 14.8 days at compaction time)
+
+=== All 5 dealer widgets (foreign Origin: https://www.example-dealer-site.com) ===
+serra-honda: HTTP 200
+ford-of-columbia: HTTP 200
+hyundai-of-columbia: HTTP 200
+tony-serra-ford: HTTP 200
+serra-nissan: HTTP 200
+
+=== Universal widget (foreign Origin: https://www.serrahonda.net) ===
+nexxus-widget.js: HTTP 200
+Body confirmed: contains 'window.nexxusWidgetConfig', 'nexxus-widget-container'
+(commit 2457a0c CORS fix is LIVE)
+
+=== Widget iframe pages /p/<slug>?mode=chat ===
+/p/serra-honda: HTTP 200
+/p/ford-of-columbia: HTTP 200
+/p/hyundai-of-columbia: HTTP 200
+/p/tony-serra-ford: HTTP 200
+/p/serra-nissan: HTTP 200
+
+=== App routes ===
+/: 200, /login: 200, /teambox: 200, /insights: 200, /service: 200, /sales: 200, /marketing: 200, /home: 200
+
+=== Auth API ===
+POST /api/auth/login {} → 400 {"message":"Email and password are required"} (proper error, not 5xx)
+
+=== Verdict ===
+LIVE deploy verified successful.
+- All 8 morning commits applied (CORS fix, immediate-trigger fix, getBusinessHoursInfo midnight fix, AI auto-reply marker fix, single-brace placeholder, Trigger 1 dedup)
+- Widget URL serving correct CORS headers from any origin
+- Dealer.com email is safe to send

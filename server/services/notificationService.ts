@@ -50,12 +50,27 @@ export function applyTestLaneRecipientOverride(
   params: TriggerNotificationParams,
   recipients: string[]
 ): { ok: true; recipients: string[]; overridden?: boolean; sid?: string } | { ok: false; reason: string } {
+  const markerText = `${params.customerName || ""} ${params.messageSent || ""}`;
+  return applyTestLaneOverrideRaw({ sessionId: params.testLaneSessionId, markerText }, recipients);
+}
+
+/**
+ * Type-safe variant for non-trigger callers (daily recap, SMS appt-intent).
+ * Same two-way fail-closed semantics, but accepts only the fields the gate
+ * actually inspects: an optional session id and an arbitrary marker-text
+ * string. Avoids forcing callers to construct a fake `TriggerNotificationParams`
+ * with a misleading `triggerType` literal.
+ */
+export function applyTestLaneOverrideRaw(
+  params: { sessionId?: string; markerText?: string },
+  recipients: string[]
+): { ok: true; recipients: string[]; overridden?: boolean; sid?: string } | { ok: false; reason: string } {
   const testLaneEnv = process.env.TESTLANE_MODE === "true";
+  const m = params.markerText || "";
   const requestHasMarker =
-    !!params.testLaneSessionId ||
-    (params.customerName || "").includes("[TESTLANE]") ||
-    (params.messageSent || "").includes("[TESTLANE]") ||
-    (params.messageSent || "").includes("[testlane:");
+    !!params.sessionId ||
+    m.includes("[TESTLANE]") ||
+    m.includes("[testlane:");
 
   if (!testLaneEnv && !requestHasMarker) {
     return { ok: true, recipients };
@@ -66,13 +81,26 @@ export function applyTestLaneRecipientOverride(
   if (!testLaneEnv && requestHasMarker) {
     return { ok: false, reason: "Notification request has test-lane marker but TESTLANE_MODE is not 'true' (fail-closed)" };
   }
-  // testLaneEnv && requestHasMarker -> override
   const t = process.env.TESTLANE_EMAIL_TO;
   if (!t) {
     return { ok: false, reason: "TESTLANE_MODE on but TESTLANE_EMAIL_TO unset (fail-closed)" };
   }
-  const sid = params.testLaneSessionId || "unknown";
+  const sid = params.sessionId || "unknown";
   return { ok: true, recipients: [t], overridden: true, sid };
+}
+
+/**
+ * HTML-escape user/LLM-controlled content before interpolation into email
+ * bodies. Email clients strip JS so this is XSS-defense-in-depth (a phishing
+ * `<a href>` rendered as a link is the realistic concern, not script execution).
+ */
+function escapeHtml(input: string): string {
+  return String(input)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 // ---------------------------------------------------------------------------
@@ -808,5 +836,335 @@ export async function sendCheckInDeliveredNotification(params: TriggerNotificati
     console.log(`[TriggerNotify] Check-in notification sent to ${recipients.length} admin(s) for org "${org.name}"`);
   } catch (err: any) {
     console.error(`[TriggerNotify] Failed to send check-in notification for org ${params.orgId}:`, err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Daily Recap email (I-NEW-2026-04-29-H)
+// ---------------------------------------------------------------------------
+
+interface DailyRecapEmailData {
+  orgId: string;
+  orgName: string;
+  date: string;
+  newSalesLeads: number;
+  newServiceLeads: number;
+  customerReplies: number;
+  appointmentsCreated: number;
+  callsReceived: number;
+  unansweredConversations: number;
+  triggerSends: { afterHoursDeferred: number; checkIn: number; immediate: number };
+  smsOutSent: number;
+  smsBlocked: number;
+  emailSent: number;
+}
+
+function generateDailyRecapHTML(data: DailyRecapEmailData): string {
+  const triggerTotal =
+    data.triggerSends.afterHoursDeferred + data.triggerSends.checkIn + data.triggerSends.immediate;
+
+  const details: Array<{ label: string; value: string }> = [
+    { label: "New sales leads", value: String(data.newSalesLeads) },
+    { label: "New service leads", value: String(data.newServiceLeads) },
+    { label: "Customer replies", value: String(data.customerReplies) },
+    { label: "Calls received", value: String(data.callsReceived) },
+    { label: "Appointments created", value: String(data.appointmentsCreated) },
+    { label: "Currently unanswered (>30 min)", value: String(data.unansweredConversations) },
+    { label: "SMS sent", value: String(data.smsOutSent) },
+    { label: "SMS blocked", value: String(data.smsBlocked) },
+    { label: "Emails sent", value: String(data.emailSent) },
+    {
+      label: "Trigger activity",
+      value: `${triggerTotal} (after-hours: ${data.triggerSends.afterHoursDeferred}, 24h check-in: ${data.triggerSends.checkIn}, immediate: ${data.triggerSends.immediate})`,
+    },
+  ];
+
+  // org name is admin-controlled in DB but escape defensively.
+  const safeOrg = escapeHtml(data.orgName);
+  const summaryLine =
+    data.newSalesLeads + data.customerReplies + data.callsReceived === 0
+      ? `Quiet day at <strong>${safeOrg}</strong>. No new sales leads, replies, or calls were logged.`
+      : `Here’s today’s wrap-up for <strong>${safeOrg}</strong> covering activity through end-of-business.`;
+
+  return generateNotificationEmailHTML({
+    gradientStart: "#0d9488",
+    gradientEnd: "#134e4a",
+    headerEmoji: "&#128202;",
+    headerTitle: `Daily Recap — ${escapeHtml(data.date)}`,
+    orgName: safeOrg,
+    summaryText: summaryLine,
+    highlightBox: data.unansweredConversations > 0
+      ? {
+          label: "Needs attention",
+          content: `${data.unansweredConversations} conversation${data.unansweredConversations === 1 ? " is" : "s are"} currently unanswered for more than 30 minutes.`,
+        }
+      : null,
+    details,
+    footerNote:
+      "Daily recap is configurable per org via <code>settings.dailyRecapEnabled</code> and <code>settings.dailyRecapHour</code>. Reply to this email for support.",
+  });
+}
+
+export interface SendDailyRecapEmailParams {
+  orgId: string;
+  data: DailyRecapEmailData;
+  testLaneSessionId?: string;
+}
+
+export interface SendDailyRecapEmailResult {
+  ok: boolean;
+  recipientCount?: number;
+  reason?: string;
+}
+
+/**
+ * Send the daily recap email to all admin recipients for the org.
+ * Non-blocking-style — errors are returned in the result, never thrown.
+ *
+ * Test-lane semantics mirror sendAIFollowUpNotification: the `testLaneSessionId`
+ * triggers two-way fail-closed override; subject + outbound-log entry are tagged
+ * with `[testlane:<sid>]`.
+ */
+export async function sendDailyRecapEmail(
+  params: SendDailyRecapEmailParams,
+): Promise<SendDailyRecapEmailResult> {
+  try {
+    const org = await storage.getOrganization(params.orgId);
+    if (!org) return { ok: false, reason: "org_not_found" };
+
+    if (!org.outboundEnabled || !org.emailEnabled) {
+      return { ok: false, reason: "commgate_blocked" };
+    }
+
+    // Idempotency: one daily-recap email per org per local-date
+    const idempotencyKey = `daily_recap_${params.orgId}_${params.data.date}`;
+    const existingLogs = await storage.getOutboundLogs(params.orgId, {});
+    const alreadySent = existingLogs.some(
+      (log) =>
+        log.channel === "email" &&
+        log.status === "sent" &&
+        log.messageContent?.includes(`[notification:${idempotencyKey}]`),
+    );
+    if (alreadySent) return { ok: false, reason: "duplicate" };
+
+    const adminRecipients = await resolveAdminRecipients(params.orgId);
+    if (adminRecipients.length === 0) return { ok: false, reason: "no_recipients" };
+
+    const tl = applyTestLaneOverrideRaw(
+      {
+        sessionId: params.testLaneSessionId,
+        markerText: params.testLaneSessionId ? `[testlane:${params.testLaneSessionId}]` : "",
+      },
+      adminRecipients,
+    );
+    if (!tl.ok) return { ok: false, reason: tl.reason };
+
+    const recipients = tl.recipients;
+    const tlTag = tl.overridden ? `[testlane:${tl.sid}] ` : "";
+
+    const subject = `${tlTag}\u{1F4CA} ${org.name} — Daily Recap (${params.data.date})`;
+    const htmlBody = generateDailyRecapHTML(params.data);
+
+    console.log(
+      `[DailyRecap] Sending recap to ${recipients.length} admin(s) for org "${org.name}"${tl.overridden ? ` (TEST LANE -> ${recipients.join(",")})` : ""}`,
+    );
+
+    await callMCP("resend_send_email", {
+      from: FROM_ADDRESS,
+      to: recipients.join(","),
+      subject,
+      html: htmlBody,
+    });
+
+    await storage.createOutboundLog({
+      organizationId: params.orgId,
+      campaignId: null,
+      recipientId: null,
+      channel: "email",
+      status: "sent",
+      blockedReason: null,
+      messageContent: `${tlTag}[notification:${idempotencyKey}] ${subject} — sent to ${recipients.length} admin(s)`,
+      recipientEmail: recipients.join(", "),
+      recipientName: `${tl.overridden ? "[TESTLANE] " : ""}${recipients.length} admin(s)`,
+      sentAt: new Date(),
+    });
+
+    return { ok: true, recipientCount: recipients.length };
+  } catch (err: any) {
+    console.error(`[DailyRecap] Failed for org ${params.orgId}:`, err?.message || err);
+    return { ok: false, reason: `error:${err?.message || String(err)}` };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SMS Appointment-Intent email (Sprint 2.4 gap — VAPI parity for SMS)
+// ---------------------------------------------------------------------------
+
+export interface SmsAppointmentIntentNotificationParams {
+  orgId: string;
+  customerName: string;
+  customerPhone: string;
+  conversationId: string;
+  /** First ~200 chars of the customer message that triggered detection */
+  messagePreview: string;
+  /** Optional AI-generated summary or intent description */
+  summary?: string | null;
+  /** Optional appointment hints from the classifier */
+  preferredDate?: string | null;
+  preferredTime?: string | null;
+  vehicleOfInterest?: string | null;
+  testLaneSessionId?: string;
+}
+
+function generateSmsAppointmentIntentHTML(params: {
+  orgName: string;
+  customerName: string;
+  customerPhone: string;
+  conversationId: string;
+  messagePreview: string;
+  summary?: string | null;
+  preferredDate?: string | null;
+  preferredTime?: string | null;
+  vehicleOfInterest?: string | null;
+  timestamp: string;
+}): string {
+  // Both customer-controlled fields (customerName, customerPhone,
+  // messagePreview) and LLM-controlled fields (summary, preferredDate,
+  // preferredTime, vehicleOfInterest) are escaped — see I-NEW-2026-04-30
+  // (I-NEW-2026-04-30-A prompt-injection acceptance for SMS classifier) for the threat model.
+  const safeName = escapeHtml(params.customerName || params.customerPhone);
+  const safePhone = escapeHtml(params.customerPhone);
+  const details: Array<{ label: string; value: string }> = [
+    { label: "Customer", value: safeName },
+    { label: "Phone", value: safePhone },
+    { label: "Channel", value: "SMS" },
+  ];
+  if (params.vehicleOfInterest && params.vehicleOfInterest !== "No data") {
+    details.push({ label: "Vehicle", value: escapeHtml(params.vehicleOfInterest) });
+  }
+  if (params.preferredDate) {
+    details.push({ label: "Preferred date", value: escapeHtml(params.preferredDate) });
+  }
+  if (params.preferredTime) {
+    details.push({ label: "Preferred time", value: escapeHtml(params.preferredTime) });
+  }
+  details.push({ label: "Conversation", value: escapeHtml(params.conversationId) });
+  details.push({ label: "Detected at", value: escapeHtml(params.timestamp) });
+
+  const summaryLine = params.summary
+    ? escapeHtml(params.summary)
+    : `<strong>${safeName}</strong> indicated they want to schedule an appointment via SMS. Open TeamBox to confirm a time.`;
+
+  return generateNotificationEmailHTML({
+    gradientStart: "#7c3aed",
+    gradientEnd: "#5b21b6",
+    headerEmoji: "&#128197;",
+    headerTitle: "Customer wants an appointment (SMS)",
+    orgName: escapeHtml(params.orgName),
+    summaryText: summaryLine,
+    highlightBox: { label: "Customer message", content: escapeHtml(params.messagePreview) },
+    details,
+    footerNote:
+      "Open TeamBox to confirm or reschedule. The AI assistant will continue replying until a human takes over.",
+  });
+}
+
+/**
+ * Send "Customer wants an appointment" notification to org admins after the AI
+ * detects appointment intent in an SMS conversation. Mirrors the VAPI/Tavus
+ * sendLeadNotificationEmail pattern for parity (Sprint 2.4 gap).
+ */
+export async function sendSmsAppointmentIntentNotification(
+  params: SmsAppointmentIntentNotificationParams,
+): Promise<{ ok: boolean; reason?: string; recipientCount?: number }> {
+  try {
+    const org = await storage.getOrganization(params.orgId);
+    if (!org) return { ok: false, reason: "org_not_found" };
+
+    if (!org.outboundEnabled || !org.emailEnabled) {
+      return { ok: false, reason: "commgate_blocked" };
+    }
+
+    // Idempotency: one notification per (conversation, calendar-day) — repeated
+    // appointment-intent classifications on the same conversation in a day are a
+    // single notification.
+    const today = new Date().toISOString().slice(0, 10);
+    const idempotencyKey = `sms_appt_${params.conversationId}_${today}`;
+    const existingLogs = await storage.getOutboundLogs(params.orgId, {});
+    const alreadySent = existingLogs.some(
+      (log) =>
+        log.channel === "email" &&
+        log.status === "sent" &&
+        log.messageContent?.includes(`[notification:${idempotencyKey}]`),
+    );
+    if (alreadySent) return { ok: false, reason: "duplicate" };
+
+    const adminRecipients = await resolveAdminRecipients(params.orgId);
+    if (adminRecipients.length === 0) return { ok: false, reason: "no_recipients" };
+
+    const tl = applyTestLaneOverrideRaw(
+      {
+        sessionId: params.testLaneSessionId,
+        markerText: `${params.customerName || ""} ${params.messagePreview || ""}${params.testLaneSessionId ? ` [testlane:${params.testLaneSessionId}]` : ""}`,
+      },
+      adminRecipients,
+    );
+    if (!tl.ok) return { ok: false, reason: tl.reason };
+
+    const recipients = tl.recipients;
+    const tlTag = tl.overridden ? `[testlane:${tl.sid}] ` : "";
+
+    const timestamp = new Date().toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const subject = `${tlTag}\u{1F4C5} ${org.name} — Customer wants an appointment (SMS)`;
+    const htmlBody = generateSmsAppointmentIntentHTML({
+      orgName: org.name,
+      customerName: params.customerName,
+      customerPhone: params.customerPhone,
+      conversationId: params.conversationId,
+      messagePreview: params.messagePreview,
+      summary: params.summary,
+      preferredDate: params.preferredDate,
+      preferredTime: params.preferredTime,
+      vehicleOfInterest: params.vehicleOfInterest,
+      timestamp,
+    });
+
+    console.log(
+      `[SmsApptIntent] Sending notification to ${recipients.length} admin(s) for org "${org.name}"${tl.overridden ? ` (TEST LANE -> ${recipients.join(",")})` : ""}`,
+    );
+
+    await callMCP("resend_send_email", {
+      from: FROM_ADDRESS,
+      to: recipients.join(","),
+      subject,
+      html: htmlBody,
+    });
+
+    await storage.createOutboundLog({
+      organizationId: params.orgId,
+      campaignId: null,
+      recipientId: null,
+      channel: "email",
+      status: "sent",
+      blockedReason: null,
+      messageContent: `${tlTag}[notification:${idempotencyKey}] ${subject} — sent to ${recipients.length} admin(s)`,
+      recipientEmail: recipients.join(", "),
+      recipientName: `${tl.overridden ? "[TESTLANE] " : ""}${recipients.length} admin(s)`,
+      sentAt: new Date(),
+    });
+
+    return { ok: true, recipientCount: recipients.length };
+  } catch (err: any) {
+    console.error(`[SmsApptIntent] Failed for org ${params.orgId}:`, err?.message || err);
+    return { ok: false, reason: `error:${err?.message || String(err)}` };
   }
 }

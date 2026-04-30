@@ -412,18 +412,42 @@ function getOrgRateLimit(org: Organization): number {
  * Check if the current time is within the org's configured business hours.
  * Uses the org's timezone setting (defaults to America/New_York).
  * Business hours default to 08:00–21:00 (TCPA safe window).
+ *
+ * I-248 fix: an invalid timezone string previously caused
+ * `toLocaleString({timeZone: badTz})` to throw OR produce a string that
+ * `new Date()` parsed as Invalid Date — `getHours()` then returned NaN, and
+ * `currentHour >= start` evaluated to false, permanently blocking ALL SMS
+ * outbound for that org with no error logged. We now use Intl.DateTimeFormat
+ * with hour12:false (mirrors getLocalTimeInTz pattern in scheduler.ts) and
+ * fall back to America/New_York on any failure.
  */
-function isWithinBusinessHours(org: Organization): { within: boolean; currentHour: number; start: number; end: number; tz: string } {
+export function isWithinBusinessHours(org: Organization): { within: boolean; currentHour: number; start: number; end: number; tz: string } {
   const settings = (org.settings as Record<string, any>) || {};
-  const tz = settings.timezone || "America/New_York";
-  const start = parseInt(settings.businessHoursStart || "8", 10);
-  const end = parseInt(settings.businessHoursEnd || "21", 10);
+  const FALLBACK_TZ = "America/New_York";
+  const requestedTz = (settings.timezone || FALLBACK_TZ) as string;
+  let effectiveTz = requestedTz;
 
-  // Get current hour in the org's timezone
-  const nowStr = new Date().toLocaleString("en-US", { timeZone: tz, hour12: false });
-  const currentHour = new Date(nowStr).getHours();
+  // Validate by running a cheap format — throws for bad TZ strings.
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: effectiveTz }).format(new Date());
+  } catch {
+    console.warn(`[outbound] Org ${org.name} has invalid timezone "${requestedTz}"; falling back to ${FALLBACK_TZ}`);
+    effectiveTz = FALLBACK_TZ;
+  }
 
-  return { within: currentHour >= start && currentHour < end, currentHour, start, end, tz };
+  // Validate hour bounds; reject NaN / out-of-range and fall back to defaults.
+  const startRaw = parseInt(settings.businessHoursStart || "8", 10);
+  const endRaw = parseInt(settings.businessHoursEnd || "21", 10);
+  const start = Number.isInteger(startRaw) && startRaw >= 0 && startRaw <= 23 ? startRaw : 8;
+  const end = Number.isInteger(endRaw) && endRaw >= 0 && endRaw <= 24 ? endRaw : 21;
+
+  // Read current hour via Intl, with hour=24 normalization.
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: effectiveTz, hour: "numeric", hour12: false }).formatToParts(new Date());
+  const hourPart = parts.find(p => p.type === "hour");
+  let currentHour = hourPart ? parseInt(hourPart.value, 10) : NaN;
+  if (Number.isNaN(currentHour) || currentHour === 24) currentHour = 0;
+
+  return { within: currentHour >= start && currentHour < end, currentHour, start, end, tz: effectiveTz };
 }
 
 async function checkCommGate(

@@ -1,0 +1,953 @@
+
+================================================================
+STEP: 0. Pre-flight
+================================================================
+[2026-04-29 18:54:27 UTC] Repo: /home/ubuntu/Claude-store/nexxus2.2_replit
+[2026-04-29 18:54:27 UTC] Branch: wave-pe3
+[2026-04-29 18:54:27 UTC] wave-pe3 HEAD: 66d80ff4abf2f4f5c34103add73bc803846b683e
+[2026-04-29 18:54:27 UTC] origin/main HEAD: f4166227f58baac0bb8a4292276f3e83a420e0b6
+[2026-04-29 18:54:28 UTC] Live health pre-deploy: {"status":"ok","version":"2.2.0","uptime":1278809,"timestamp":"2026-04-29T18:54:28.095Z","environment":"production"}
+[2026-04-29 18:54:28 UTC] Live widget URL pre-deploy: HTTP 500
+[2026-04-29 18:54:28 UTC] gh CLI authenticated: OK
+
+================================================================
+STEP: 1. Push wave-pe3 to origin
+================================================================
+remote: 
+remote: Create a pull request for 'wave-pe3' on GitHub by visiting:        
+remote:      https://github.com/Huminic/Replit-v2.2/pull/new/wave-pe3        
+remote: 
+To https://github.com/Huminic/Replit-v2.2.git
+ * [new branch]      wave-pe3 -> wave-pe3
+[2026-04-29 18:54:30 UTC] wave-pe3 pushed: 66d80ff4abf2f4f5c34103add73bc803846b683e
+
+================================================================
+STEP: 2. Create PR via gh
+================================================================
+https://github.com/Huminic/Replit-v2.2/pull/1
+[2026-04-29 18:54:32 UTC] PR URL: https://github.com/Huminic/Replit-v2.2/pull/1
+
+================================================================
+STEP: 3. Merge PR (creates merge commit on main → triggers deploy.yml)
+================================================================
+[2026-04-29 18:54:36 UTC] PR merged. main HEAD now: 87ce20d7ab27b3784191e06a9f5b36f06e2e1155
+
+================================================================
+STEP: 4. Watch GitHub Actions deploy.yml run
+================================================================
+[2026-04-29 18:54:36 UTC] Waiting 8s for run to register...
+[2026-04-29 18:54:44 UTC] deploy.yml run ID: 25127863978
+[2026-04-29 18:54:44 UTC] Watching run 25127863978 (this takes 5-10 min: tsc + build + Playwright + Coolify webhook)...
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  * Checkout
+  * Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  * Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  * Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  * TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push less than a minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  * Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  * Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  * Run tests
+  * Post Setup Node.js
+  * Post Checkout
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+* build-and-test (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 1 minute ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+* deploy (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  * Verify deployment
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+X deploy in 1m3s (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  X Verify deployment
+  ✓ Complete job
+X main Deploy Nexxus Connect · 25127863978
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ build-and-test in 1m34s (ID 73645770788)
+  ✓ Set up job
+  ✓ Checkout
+  ✓ Setup Node.js
+  ✓ Install dependencies
+  ✓ TypeScript check
+  ✓ Build
+  ✓ Install Playwright browsers
+  ✓ Run tests
+  ✓ Post Setup Node.js
+  ✓ Post Checkout
+  ✓ Complete job
+X deploy in 1m3s (ID 73646075973)
+  ✓ Set up job
+  ✓ Trigger Coolify deployment
+  X Verify deployment
+  ✓ Complete job
+[2026-04-29 18:57:33 UTC] CI run conclusion: failure (watch exit 1)
+[2026-04-29 18:57:33 UTC] FAIL: CI did not pass; deploy webhook likely not fired
+[2026-04-29 18:57:33 UTC] Inspect run: gh run view 25127863978 --log-failed

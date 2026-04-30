@@ -2,6 +2,7 @@ import type { Express } from "express";
 import multer from "multer";
 import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
+import { substituteOrgContext } from "../lib/templateSubstitute";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -51,10 +52,120 @@ function looksLikePhoneNumber(name: string): boolean {
   return /^\d{7,15}$/.test(stripped);
 }
 
+/**
+ * Classify the latest customer SMS for appointment intent.
+ *
+ * Mirrors the prompt structure used by analyzeTranscriptWithClaude in
+ * server/routes/webhooks.ts (which runs against VAPI/Tavus transcripts).
+ * Returns null on any failure — caller treats null as "no intent detected".
+ *
+ * Cheap by design: only the last few messages are sent to Claude.
+ * Sprint 2.4 gap (VAPI parity for SMS).
+ *
+ * SECURITY NOTE — accepted prompt-injection risk (I-NEW-2026-04-30-A):
+ * The customer-controlled SMS body (`params.customerMessage`) is interpolated
+ * directly into the Claude prompt with no marker delimiters or input
+ * sanitization. A hostile customer could craft a message that flips
+ * `appointmentIntent: true` or forges `vehicleOfInterest` / `summary` /
+ * `preferredDate`. The blast radius is bounded — the only downstream effect
+ * is an admin notification email (no SMS reply, no DB writes beyond a log
+ * row, no VIN action). Hardening (delimited prompt + post-classification
+ * sanitization) is tracked in issues.md.
+ */
+async function classifySmsAppointmentIntent(params: {
+  conversationId: string;
+  customerMessage: string;
+  recentMessages: Array<{ role: string; content: string }>;
+  orgName: string;
+  agentName: string;
+}): Promise<{
+  appointmentIntent: boolean;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  vehicleOfInterest: string | null;
+  summary: string | null;
+} | null> {
+  try {
+    if (!params.customerMessage || params.customerMessage.trim().length < 3) return null;
+
+    // Build a transcript-style block from the last messages (max 10) so the
+    // model sees the surrounding context, not just the latest line.
+    const transcript = params.recentMessages
+      .slice(-10)
+      .map((m) => (m.role === "user" ? `Customer: ${m.content}` : `Agent: ${m.content}`))
+      .join("\n");
+
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const anthropic = new Anthropic({
+      apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+    });
+
+    const aiResponse = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: `Analyze this dealership SMS conversation for ${params.orgName} and extract the following as JSON:
+{
+  "appointmentIntent": boolean,
+  "preferredDate": string | null,
+  "preferredTime": string | null,
+  "vehicleOfInterest": string | null,
+  "summary": string | null
+}
+
+appointmentIntent: did the customer express interest in scheduling a visit, test drive, service appointment, or callback at a specific time? Set to false for general questions about hours, inventory, or pricing without a clear scheduling ask.
+preferredDate: any mentioned date preference (e.g. "tomorrow", "Thursday", "next week").
+preferredTime: any mentioned time preference (e.g. "afternoon", "3pm", "after work").
+vehicleOfInterest: make/model/year if mentioned.
+summary: 1-sentence summary of what the customer is asking for, or null if appointmentIntent is false.
+
+Return ONLY the JSON object, no other text.
+
+Conversation:
+${transcript}`,
+        },
+      ],
+    });
+
+    const textBlock = aiResponse.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") return null;
+    let rawText = textBlock.text.trim();
+    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) rawText = jsonMatch[1].trim();
+    let parsed: any;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch {
+      return null;
+    }
+    if (typeof parsed !== "object" || parsed === null) return null;
+
+    return {
+      appointmentIntent: Boolean(parsed.appointmentIntent),
+      preferredDate: typeof parsed.preferredDate === "string" ? parsed.preferredDate : null,
+      preferredTime: typeof parsed.preferredTime === "string" ? parsed.preferredTime : null,
+      vehicleOfInterest: typeof parsed.vehicleOfInterest === "string" ? parsed.vehicleOfInterest : null,
+      summary: typeof parsed.summary === "string" ? parsed.summary : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function registerSmsRoutes(app: Express) {
   app.post("/api/webhooks/textmagic", upload.none(), async (req, res) => {
+    // I-236: in production, unset secret rejects with 503; dev warns and accepts.
     const textmagicSecret = process.env.TEXTMAGIC_WEBHOOK_SECRET;
-    if (textmagicSecret) {
+    if (!textmagicSecret) {
+      if (process.env.NODE_ENV === "production") {
+        console.error("[TextMagic Webhook] TEXTMAGIC_WEBHOOK_SECRET unset in production — rejecting request");
+        return res.status(503).json({ message: "Webhook secret not configured" });
+      }
+      console.warn("[TextMagic Webhook] TEXTMAGIC_WEBHOOK_SECRET unset — accepting in dev only");
+    } else {
       const headerSecret = req.headers["x-textmagic-secret"] || req.headers["x-tm-signature"] || "";
       const providedSecret = typeof headerSecret === "string" ? headerSecret : "";
       if (providedSecret !== textmagicSecret) {
@@ -491,7 +602,24 @@ export function registerSmsRoutes(app: Express) {
             a => a.status === "active" && a.type === "ai" &&
               (a.channels?.includes("sms") || a.channels?.includes("voice"))
           );
-          if (!smsAgent) return;
+          if (!smsAgent) {
+            // I-256: previously this returned silently — customers texting in
+            // got no reply and operators had no signal that AI was disabled
+            // for the org. Now we log a warning AND record an activity-log
+            // entry so admins can detect the misconfiguration in the audit log.
+            console.warn(`[SMS AI] No active SMS-capable AI agent for org ${organizationId}; inbound SMS from ${normalizedPhone} will not get an AI reply.`);
+            storage.createActivityLog({
+              organizationId,
+              action: "sms_ai_no_active_agent",
+              entityType: "conversation",
+              entityId: conversation.id,
+              metadata: {
+                customerPhone: normalizedPhone,
+                reason: "no_active_sms_agent",
+              },
+            }).catch(() => {});
+            return;
+          }
 
           // Build message context from conversation history
           const history = await storage.getMessages(conversation.id);
@@ -499,7 +627,14 @@ export function registerSmsRoutes(app: Express) {
 
           const orgName = org.name || "our dealership";
           const agentName = smsAgent.name || "Assistant";
-          const agentInstructions = smsAgent.instructions || "";
+          // I-269: agent.instructions can contain {{dealershipName}} (and other
+          // placeholders) that must be substituted before being added to the
+          // prompt. Without this, Claude saw the literal "{{dealershipName}}"
+          // string. Mirrors chat.ts:168.
+          const rawInstructions = smsAgent.instructions || "";
+          const agentInstructions = rawInstructions
+            ? substituteOrgContext(rawInstructions, { dealershipName: orgName })
+            : "";
 
           const systemPrompt = `You are ${agentName}, an AI assistant for ${orgName} (automotive dealership). You are responding to an inbound SMS from a customer.
 
@@ -555,6 +690,16 @@ Do NOT mention that you are an AI unless directly asked. Do not use markdown for
             }
           }
 
+          // I-254 fix: re-check assignedTo IMMEDIATELY before send. The
+          // earlier check at the top of this IIFE (line ~582) leaves a
+          // ~1-3 second race window during which a human may take over.
+          // The freshConversation snapshot is stale at this point.
+          const conversationAtSend = await storage.getConversation(conversation.id);
+          if (conversationAtSend?.assignedTo) {
+            console.log(`[SMS AI] AI paused (race-window check) — human takeover detected during AI processing (conversation ${conversation.id}, assignedTo: ${conversationAtSend.assignedTo})`);
+            return;
+          }
+
           const { processOutboundSend } = await import("../outbound");
           const sendResult = await processOutboundSend({
             organizationId,
@@ -574,6 +719,40 @@ Do NOT mention that you are an AI unless directly asked. Do not use markdown for
             });
             await storage.updateConversation(conversation.id, { lastMessageAt: new Date() });
             console.log(`[SMS AI] Response sent to ${normalizedPhone} via agent ${agentName}`);
+
+            // Sprint 2.4 gap — VAPI parity: after the AI auto-replies, classify
+            // the customer's latest message for appointment intent. If detected,
+            // fire an admin-notification email matching the VAPI lead-email
+            // pattern. Fire-and-forget — never block the SMS reply path.
+            (async () => {
+              try {
+                const intent = await classifySmsAppointmentIntent({
+                  conversationId: conversation.id,
+                  customerMessage: content,
+                  recentMessages,
+                  orgName,
+                  agentName,
+                });
+                if (intent && intent.appointmentIntent) {
+                  const { sendSmsAppointmentIntentNotification } = await import("../services/notificationService");
+                  await sendSmsAppointmentIntentNotification({
+                    orgId: organizationId,
+                    customerName: freshConversation.customerName || normalizedPhone,
+                    customerPhone: normalizedPhone,
+                    conversationId: conversation.id,
+                    messagePreview: content.length > 200 ? content.slice(0, 200) + "..." : content,
+                    summary: intent.summary,
+                    preferredDate: intent.preferredDate,
+                    preferredTime: intent.preferredTime,
+                    vehicleOfInterest: intent.vehicleOfInterest,
+                    testLaneSessionId,
+                  });
+                  console.log(`[SMS AI] Appointment-intent notification fired for ${normalizedPhone}`);
+                }
+              } catch (intentErr: any) {
+                console.error(`[SMS AI] Appointment-intent classify/notify failed for ${normalizedPhone}:`, intentErr?.message || intentErr);
+              }
+            })();
           } else {
             console.log(`[SMS AI] Response blocked for ${normalizedPhone}: ${sendResult.blockedReason}`);
           }

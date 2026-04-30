@@ -1,0 +1,392 @@
+=== ORG TRIGGER POSTURE ===
+[
+  {
+    "name": "Cage Automotive",
+    "slug": "cage-automotive",
+    "ob": true,
+    "sms": true,
+    "trigs": null,
+    "afh": null,
+    "chk": null,
+    "imm": null,
+    "dlay": null,
+    "phones": null,
+    "bhs": null,
+    "bhe": null,
+    "tz": null,
+    "vinsrc": null
+  },
+  {
+    "name": "Ford of Columbia",
+    "slug": "ford-of-columbia",
+    "ob": true,
+    "sms": true,
+    "trigs": null,
+    "afh": null,
+    "chk": null,
+    "imm": null,
+    "dlay": null,
+    "phones": null,
+    "bhs": null,
+    "bhe": null,
+    "tz": "America/New_York",
+    "vinsrc": "Dealer Website"
+  },
+  {
+    "name": "Hyundai of Columbia",
+    "slug": "hyundai-of-columbia",
+    "ob": true,
+    "sms": true,
+    "trigs": null,
+    "afh": null,
+    "chk": null,
+    "imm": null,
+    "dlay": null,
+    "phones": null,
+    "bhs": null,
+    "bhe": null,
+    "tz": "America/New_York",
+    "vinsrc": "Dealer .Com (Our Website)"
+  },
+  {
+    "name": "Serra Honda",
+    "slug": "serra-honda",
+    "ob": true,
+    "sms": true,
+    "trigs": "true",
+    "afh": "false",
+    "chk": "true",
+    "imm": null,
+    "dlay": "1440",
+    "phones": "[\"+14126546500\"]",
+    "bhs": null,
+    "bhe": null,
+    "tz": "America/Chicago",
+    "vinsrc": null
+  },
+  {
+    "name": "Serra Nissan",
+    "slug": "serra-nissan",
+    "ob": true,
+    "sms": true,
+    "trigs": null,
+    "afh": null,
+    "chk": null,
+    "imm": null,
+    "dlay": null,
+    "phones": null,
+    "bhs": null,
+    "bhe": null,
+    "tz": "America/Chicago",
+    "vinsrc": null
+  },
+  {
+    "name": "Tony Serra Ford",
+    "slug": "tony-serra-ford",
+    "ob": true,
+    "sms": true,
+    "trigs": null,
+    "afh": null,
+    "chk": null,
+    "imm": null,
+    "dlay": null,
+    "phones": null,
+    "bhs": null,
+    "bhe": null,
+    "tz": "America/Chicago",
+    "vinsrc": null
+  }
+]
+
+=== LEADS LAST 14 DAYS ===
+[
+  {
+    "org": "Hyundai of Columbia",
+    "leads_14d": 1537,
+    "with_phone": 123,
+    "with_email": 119,
+    "service_src": 0,
+    "oldest": "2026-04-15 20:46:11.187",
+    "newest": "2026-04-29 20:14:10.311"
+  },
+  {
+    "org": "Ford of Columbia",
+    "leads_14d": 1079,
+    "with_phone": 121,
+    "with_email": 131,
+    "service_src": 0,
+    "oldest": "2026-04-15 23:56:22.816",
+    "newest": "2026-04-29 20:13:47.062"
+  },
+  {
+    "org": "Serra Honda",
+    "leads_14d": 349,
+    "with_phone": 135,
+    "with_email": 126,
+    "service_src": 0,
+    "oldest": "2026-04-15 23:57:05.442",
+    "newest": "2026-04-29 20:14:21.879"
+  },
+  {
+    "org": "Serra Nissan",
+    "leads_14d": 235,
+    "with_phone": 75,
+    "with_email": 63,
+    "service_src": 0,
+    "oldest": "2026-04-15 23:56:15.469",
+    "newest": "2026-04-29 20:13:22.407"
+  },
+  {
+    "org": "Tony Serra Ford",
+    "leads_14d": 177,
+    "with_phone": 67,
+    "with_email": 56,
+    "service_src": 0,
+    "oldest": "2026-04-15 23:56:08.81",
+    "newest": "2026-04-29 20:13:28.812"
+  }
+]
+
+=== TRIGGER ACTIVITY 14d ===
+[
+  {
+    "org": "Serra Honda",
+    "action": "trigger_checkin_sent",
+    "cnt": 1
+  },
+  {
+    "org": "Serra Honda",
+    "action": "trigger_immediate_sent",
+    "cnt": 1
+  }
+]
+
+=== OUTBOUND_LOG 14d ===
+[
+  {
+    "org": "Ford of Columbia",
+    "channel": "email",
+    "status": "sent",
+    "cnt": 12
+  },
+  {
+    "org": "Huminic",
+    "channel": "sms",
+    "status": "blocked",
+    "cnt": 10
+  },
+  {
+    "org": "Hyundai of Columbia",
+    "channel": "email",
+    "status": "sent",
+    "cnt": 38
+  },
+  {
+    "org": "Serra Honda",
+    "channel": "email",
+    "status": "sent",
+    "cnt": 14
+  },
+  {
+    "org": "Serra Honda",
+    "channel": "sms",
+    "status": "blocked",
+    "cnt": 137
+  },
+  {
+    "org": "Serra Honda",
+    "channel": "sms",
+    "status": "dry_run",
+    "cnt": 2
+  },
+  {
+    "org": "Serra Honda",
+    "channel": "sms",
+    "status": "sent",
+    "cnt": 6
+  },
+  {
+    "org": "Serra Nissan",
+    "channel": "email",
+    "status": "sent",
+    "cnt": 4
+  },
+  {
+    "org": "Tony Serra Ford",
+    "channel": "email",
+    "status": "sent",
+    "cnt": 3
+  }
+]
+
+=== CAMPAIGNS 14d ===
+[
+  {
+    "org": "Serra Honda",
+    "campaign": "[TESTLANE] Morning Validation 2026-04-29",
+    "department": "service",
+    "status": "completed",
+    "created": "2026-04-29 13:25:20.305995",
+    "kill_switch": false
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "[TESTLANE] Morning Validation 2026-04-29",
+    "department": "service",
+    "status": "draft",
+    "created": "2026-04-29 13:24:41.549406",
+    "kill_switch": false
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "S11 Demo Smoke Test",
+    "department": "service",
+    "status": "active",
+    "created": "2026-04-29 06:30:07.878392",
+    "kill_switch": false
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "S-4 Test Campaign",
+    "department": "service",
+    "status": "draft",
+    "created": "2026-04-29 06:29:12.010995",
+    "kill_switch": false
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "[TESTLANE] Service-Round-Trip 2026-04-28",
+    "department": "service",
+    "status": "completed",
+    "created": "2026-04-28 16:23:41.765536",
+    "kill_switch": false
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC2-MergeFields-t010d-1777358871920",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:48:00.355224",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC1-CommGate-Block-t010d-1777358871920",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:47:52.474361",
+    "kill_switch": true
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "S11 Demo Smoke Test",
+    "department": "service",
+    "status": "active",
+    "created": "2026-04-28 06:44:24.493119",
+    "kill_switch": false
+  },
+  {
+    "org": "Serra Honda",
+    "campaign": "S-4 Test Campaign",
+    "department": "service",
+    "status": "draft",
+    "created": "2026-04-28 06:43:30.878323",
+    "kill_switch": false
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC2-MergeFields-t010d-1777357766548",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:29:35.958974",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC1-CommGate-Block-t010d-1777357766548",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:29:27.754138",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC2-MergeFields-t010d-1777356167700",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:02:56.784578",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC1-CommGate-Block-t010d-1777356167700",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 06:02:48.244119",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC2-MergeFields-t010d-1777355938598",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 05:59:08.297542",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC1-CommGate-Block-t010d-1777355938598",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 05:58:59.255997",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC2-MergeFields-t010d-1777354063743",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 05:27:53.280819",
+    "kill_switch": true
+  },
+  {
+    "org": "Huminic",
+    "campaign": "AC1-CommGate-Block-t010d-1777354063743",
+    "department": "sales",
+    "status": "stopped",
+    "created": "2026-04-28 05:27:44.89036",
+    "kill_switch": true
+  }
+]
+
+=== APPOINTMENTS 14d ===
+[
+  {
+    "org": "Ford of Columbia",
+    "appointment_type": "sales",
+    "status": "pending",
+    "source": "vapi",
+    "cnt": 3
+  },
+  {
+    "org": "Hyundai of Columbia",
+    "appointment_type": "sales",
+    "status": "pending",
+    "source": "vapi",
+    "cnt": 9
+  },
+  {
+    "org": "Serra Honda",
+    "appointment_type": "sales",
+    "status": "pending",
+    "source": "tavus",
+    "cnt": 1
+  },
+  {
+    "org": "Serra Honda",
+    "appointment_type": "sales",
+    "status": "pending",
+    "source": "vapi",
+    "cnt": 2
+  }
+]

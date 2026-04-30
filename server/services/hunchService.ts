@@ -70,8 +70,16 @@ Return ONLY the JSON array, no other text.`,
     let rawText = textBlock.text.trim();
     const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (jsonMatch) rawText = jsonMatch[1].trim();
-    hunchData = JSON.parse(rawText);
-    if (!Array.isArray(hunchData)) hunchData = [hunchData];
+    // I-253: malformed Claude output (truncated by max_tokens, partial markdown
+    // fence, etc.) previously crashed the weekly hunch run for the org with no
+    // recovery. Catch + log + skip — the next scheduled run will retry.
+    try {
+      hunchData = JSON.parse(rawText);
+      if (!Array.isArray(hunchData)) hunchData = [hunchData];
+    } catch (parseErr: any) {
+      console.warn(`[hunchService] Org ${orgId}: failed to parse Claude JSON output (${parseErr?.message || parseErr}); skipping this run. Raw preview: ${rawText.slice(0, 200)}`);
+      hunchData = [];
+    }
   }
 
   const batchId = crypto.randomUUID();
