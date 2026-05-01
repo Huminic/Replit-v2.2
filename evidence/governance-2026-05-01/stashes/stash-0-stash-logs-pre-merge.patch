@@ -1,0 +1,163 @@
+diff --git a/evidence/LAUNCH-RECON-01/workflow-audit.log b/evidence/LAUNCH-RECON-01/workflow-audit.log
+index 1741941..e5210d8 100644
+--- a/evidence/LAUNCH-RECON-01/workflow-audit.log
++++ b/evidence/LAUNCH-RECON-01/workflow-audit.log
+@@ -941,3 +941,5 @@
+ [2026-04-14T02:39:29Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-RECON-01 result=PASS detail="All 7 gates passed"
+ [2026-04-14T02:39:31Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
+ [2026-04-14T02:39:51Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-RECON-01 result=PASS detail="All 7 gates passed"
++[2026-04-29T15:54:25Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-29T15:54:35Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
+diff --git a/evidence/watchdog-alerts.log b/evidence/watchdog-alerts.log
+index 335ca85..e6f89ef 100644
+--- a/evidence/watchdog-alerts.log
++++ b/evidence/watchdog-alerts.log
+@@ -3621,3 +3621,148 @@
+ [2026-04-14T02:37:32Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023717)
+ [2026-04-14T02:38:42Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023826)
+ [2026-04-14T02:38:48Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-023832)
++[2026-04-29T15:53:34Z] ALERT: C8 ORPHAN_EVIDENCE I-NEW-2026-04-26-D has evidence but is not in sprints.json
++[2026-04-29T15:53:34Z] ALERT: C8 ORPHAN_EVIDENCE I-NEW-2026-04-26-D has evidence but is not in sprints.json
++[2026-04-29T15:53:34Z] ALERT: C8 ORPHAN_EVIDENCE I-NEW-2026-04-26-D has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE active-pipeline-analysis-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE harness-fix-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE TRG-RPT-001 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE harness-fix-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:35Z] ALERT: C8 ORPHAN_EVIDENCE harness-fix-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE incident-2026-04-26-overbroad-cleanup.md has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE launch-critical-fix-list-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE marketing-v23-gate-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE harness-fix-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE harness-fix-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE organizations-additional-orgs-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE marketing-v23-gate-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE organizations-additional-orgs-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE organizations-additional-orgs-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:36Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-analysis-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE orphan-teambox-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-e2e-workflows-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE phase3-sms-guard-proof has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:37Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE priority-2-campaign-disconnect has evidence but is not in sprints.json
++[2026-04-29T15:53:38Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE preflight-ui-truth-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-2-campaign-disconnect has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-2-campaign-disconnect has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-3-hard-reload-auth has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-2-campaign-disconnect has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-3-hard-reload-auth has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-3-hard-reload-auth has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-6-metrics-polish has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE priority-5-console-failed-to-fetch has evidence but is not in sprints.json
++[2026-04-29T15:53:39Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27.md has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE priority-6-metrics-polish has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-guard-investigation-2026-04-27.md has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE sms-audit-2026-04-27 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-analysis-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:40Z] ALERT: C8 ORPHAN_EVIDENCE teambox-first-principles-2026-04-24.md has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE test-lane-guards-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE stuck-campaign-feb-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE v2.2-inventory-2026-04-24.md has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE test-lane-guards-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE test-lane-guards-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-analysis-2026-04-26.md has evidence but is not in sprints.json
++[2026-04-29T15:53:41Z] ALERT: C8 ORPHAN_EVIDENCE vin-source-resolution-2026-04-26 has evidence but is not in sprints.json
++[2026-04-29T15:53:42Z] ALERT: C12 GOVERNANCE_FILE_CHANGED CLAUDE.md (DELETE)
++[2026-04-29T15:53:43Z] ALERT: C8 ORPHAN_EVIDENCE template-violations.log has evidence but is not in sprints.json
++[2026-04-29T15:53:43Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
++[2026-04-29T15:53:43Z] ALERT: C12 GOVERNANCE_FILE_CHANGED sprints.json (CREATE)

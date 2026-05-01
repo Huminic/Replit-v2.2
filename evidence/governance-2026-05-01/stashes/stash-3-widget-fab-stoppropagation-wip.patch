@@ -1,0 +1,110 @@
+diff --git a/client/public/dealer-widgets/nexxus-widget.js b/client/public/dealer-widgets/nexxus-widget.js
+index d567387..a5cd037 100644
+--- a/client/public/dealer-widgets/nexxus-widget.js
++++ b/client/public/dealer-widgets/nexxus-widget.js
+@@ -375,19 +375,27 @@
+   }
+ 
+   // ── Show / Hide Logic ─────────────────────────────────────
++  var hideTimer = null;
++
+   function showPanel() {
++    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
++    panel.style.transition = 'none';
+     panel.style.display = 'block';
+-    // Force reflow for animation
+-    panel.offsetHeight;
++    panel.style.opacity = '0';
++    panel.style.transform = 'translateY(8px)';
++    void panel.getBoundingClientRect();
++    panel.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+     panel.style.opacity = '1';
+     panel.style.transform = 'translateY(0)';
+   }
+ 
+   function hidePanel() {
++    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+     panel.style.opacity = '0';
+     panel.style.transform = 'translateY(8px)';
+-    setTimeout(function() {
++    hideTimer = setTimeout(function() {
+       panel.style.display = 'none';
++      hideTimer = null;
+     }, 200);
+   }
+ 
+@@ -418,9 +426,17 @@
+   });
+ 
+   // ── Close on outside click ─────────────────────────────────
++  // NOTE: We use composedPath() instead of container.contains(e.target) because
++  // the FAB click handler replaces the FAB innerHTML (swapping chat/close icon),
++  // which orphans the original click target SVG. An orphaned node fails the
++  // contains() check, causing the menu to immediately close after opening.
++  // composedPath() is captured at event dispatch time, before any DOM mutation.
+   document.addEventListener('click', function(e) {
+-    if (state !== 'closed' && !container.contains(e.target)) {
+-      closeWidget();
++    if (state !== 'closed') {
++      var path = e.composedPath ? e.composedPath() : [];
++      if (path.indexOf(container) === -1) {
++        closeWidget();
++      }
+     }
+   });
+ 
+diff --git a/evidence/LAUNCH-RECON-01/workflow-audit.log b/evidence/LAUNCH-RECON-01/workflow-audit.log
+index 032f112..55da9d0 100644
+--- a/evidence/LAUNCH-RECON-01/workflow-audit.log
++++ b/evidence/LAUNCH-RECON-01/workflow-audit.log
+@@ -825,3 +825,28 @@
+ [2026-04-14T00:25:10Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
+ [2026-04-14T00:25:15Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
+ [2026-04-14T00:25:36Z] PRE-COMMIT role=orchestrator sprint=LAUNCH-RECON-01 result=PASS detail="All 7 gates passed"
++[2026-04-14T00:26:18Z] TOOL=Agent step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:26:58Z] TOOL=Edit step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:27:03Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:27:04Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:27:15Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:27:18Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:28:07Z] TOOL=Agent step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:28:18Z] TOOL=Edit step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:28:27Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:28:33Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:28:52Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:30:21Z] TOOL=Agent step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:30:44Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:33:49Z] TOOL=Edit step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:33:53Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:34:08Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:34:23Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:34:30Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:34:49Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:35:08Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:35:13Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:36:18Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:36:21Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T00:37:22Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
++[2026-04-14T01:41:01Z] TOOL=Bash step=1 sprint=LAUNCH-RECON-01
+diff --git a/evidence/watchdog-alerts.log b/evidence/watchdog-alerts.log
+index bee0cd2..4bb2f9c 100644
+--- a/evidence/watchdog-alerts.log
++++ b/evidence/watchdog-alerts.log
+@@ -3610,3 +3610,4 @@
+ [2026-04-14T00:24:24Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt.tmp.4022179.1776126264315 has evidence but is not in sprints.json
+ [2026-04-14T00:24:24Z] ALERT: C8 ORPHAN_EVIDENCE watchdog-ack.txt has evidence but is not in sprints.json
+ [2026-04-14T00:24:50Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-002434)
++[2026-04-14T00:25:31Z] Previous ack (WD-20260414-001100) invalidated by new report (WD-20260414-002515)
+diff --git a/evidence/watchdog-report.txt b/evidence/watchdog-report.txt
+index 49cae12..0c70cf5 100644
+--- a/evidence/watchdog-report.txt
++++ b/evidence/watchdog-report.txt
+@@ -1,6 +1,6 @@
+ === WATCHDOG SCAN ===
+-Report-ID: WD-20260414-002434
+-Timestamp: 2026-04-14T00:24:34Z
++Report-ID: WD-20260414-002515
++Timestamp: 2026-04-14T00:25:15Z
+ Project: nexxus2.2_replit
+ Branch: wave-pe3
+ HEAD: 513e857
