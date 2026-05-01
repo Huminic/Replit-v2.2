@@ -1,0 +1,47 @@
+{
+  "base": "http://localhost:5000",
+  "email": "serra_honda@huminic.ai",
+  "timestamp": "2026-04-30T13:40:52.295Z",
+  "records": [
+    {
+      "label": "click-Sales-from-root",
+      "events": [
+        {
+          "tMs": 361,
+          "url": "http://localhost:5000/sales"
+        }
+      ],
+      "finalUrl": "http://localhost:5000/sales"
+    },
+    {
+      "label": "click-Marketing-from-teambox",
+      "events": [
+        {
+          "tMs": 364,
+          "url": "http://localhost:5000/marketing"
+        }
+      ],
+      "finalUrl": "http://localhost:5000/marketing"
+    },
+    {
+      "label": "click-Insights-from-root",
+      "events": [
+        {
+          "tMs": 365,
+          "url": "http://localhost:5000/insights"
+        }
+      ],
+      "finalUrl": "http://localhost:5000/insights"
+    },
+    {
+      "label": "hover-Sales-then-mouse-down",
+      "events": [],
+      "finalUrl": "http://localhost:5000/teambox"
+    },
+    {
+      "label": "hover-Sales-then-click-panel",
+      "events": [],
+      "finalUrl": "http://localhost:5000/teambox"
+    }
+  ]
+}

@@ -311,7 +311,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const unreadNotificationCount = unreadCountData?.count ?? notifications.filter(n => !n.read).length;
 
-  if (!authAppUser) {
+  // I-NEW-2026-05-01-A: do not render children until currentRole has been
+  // synced from authUser. The useState initializer above seeds currentRole
+  // to a default ('org_admin') before the auth role hydrates, which causes
+  // any RBAC-gated route effect (e.g. management.tsx redirecting non-
+  // super_admin to '/') to fire on the first render and silently bounce
+  // users off the page. Holding the loading splash one extra render frame
+  // lets the [authUser] effect promote currentRole BEFORE children mount.
+  if (!authAppUser || !roleInitialized) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-muted-foreground text-sm">Loading...</div>
