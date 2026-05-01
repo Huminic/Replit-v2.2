@@ -1,0 +1,1495 @@
+{
+  "insightsDashboard": {
+    "status": 200,
+    "body": {
+      "overview": {
+        "totalLeads": 612,
+        "hotCount": 339,
+        "newCount": 38,
+        "soldCount": 6,
+        "conversionRate": 100,
+        "metricsFromWarehouse": {
+          "total_leads": "612",
+          "new_leads": "38",
+          "active_leads": "339",
+          "hot_leads": "339",
+          "sold_leads": "6",
+          "lost_leads": "0",
+          "bad_leads": "100",
+          "conversion_rate": "100",
+          "computed_from": "warehouse_leads"
+        }
+      },
+      "redZone": {
+        "hotLeadsGoingCold": [
+          {
+            "id": "802b568e-1fe9-4cbc-9498-e40e4639c8f1",
+            "leadId": "1993008765",
+            "daysOld": 29,
+            "type": "Internet",
+            "source": "Source #3743779",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993008765-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Jonathan Benson",
+            "customerPhone": "2053890549",
+            "customerEmail": "gon2extreme@yahoo.com"
+          },
+          {
+            "id": "2adbf351-4ad7-41fc-a0e9-c74a07baba45",
+            "leadId": "1992203980",
+            "daysOld": 29,
+            "type": "Internet",
+            "source": "Source #3750033",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1992203980-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Julius Smith",
+            "customerPhone": null,
+            "customerEmail": "juliussmith.2019@gmail.com"
+          },
+          {
+            "id": "d0f0bcfa-9365-4966-851b-d95451525f47",
+            "leadId": "1992757393",
+            "daysOld": 29,
+            "type": "Internet",
+            "source": "Source #3842161",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1992757393-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Milton Ragland",
+            "customerPhone": "2565890883",
+            "customerEmail": "raglandmilton6@gmail.com"
+          },
+          {
+            "id": "40fa534d-c471-4ad9-bd59-5b8824970fe1",
+            "leadId": "1993632473",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3577440",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993632473-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Zach Archer",
+            "customerPhone": "9013402109",
+            "customerEmail": "zacharcher3@gmail.com"
+          },
+          {
+            "id": "32a53ee3-615a-4c14-a775-0bba0e95506b",
+            "leadId": "1993453930",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3897825",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993453930-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Malory Kelley-Colley",
+            "customerPhone": "2563077839",
+            "customerEmail": "malorykelleylov@gmail.com"
+          },
+          {
+            "id": "47997717-319d-466a-8ca3-82696060aee4",
+            "leadId": "1993243301",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3897825",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993243301-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Jordan Leonard",
+            "customerPhone": "2564969346",
+            "customerEmail": "jordankazia08@gmail.com"
+          },
+          {
+            "id": "32ef3f74-e355-4294-ac04-133be572ef86",
+            "leadId": "1993360163",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993360163-0",
+            "status": "ACTIVE_ACTIVE_LEAD",
+            "isHot": true,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "081f3f30-20e3-43be-9a07-fba563c19631",
+            "leadId": "1993437014",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993437014-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "a34787eb-ae27-48b8-b2d0-745e7b2a4956",
+            "leadId": "1993440684",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Repeat Customer",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993440684-0",
+            "status": "ACTIVE_ACTIVE_LEAD",
+            "isHot": true,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "ebf1c178-d14f-4467-b7ea-f6b0dd0c6358",
+            "leadId": "1993470287",
+            "daysOld": 28,
+            "type": "Internet",
+            "source": "Source #3819124",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993470287-0",
+            "status": "ACTIVE_ACTIVE_LEAD",
+            "isHot": true,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "9529635b-e5b8-4b80-bd11-4a6d11062b6d",
+            "leadId": "1993787279",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3897777",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993787279-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Destin Washington",
+            "customerPhone": "2054328693",
+            "customerEmail": "destin.washington@gmail.com"
+          },
+          {
+            "id": "8ae330d9-4e03-4f72-a21a-a2c2a5c08f9e",
+            "leadId": "1993894784",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #13",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993894784-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Keunsik Cho",
+            "customerPhone": "3343128469",
+            "customerEmail": "kcho@hotmail.com"
+          },
+          {
+            "id": "a08a01cf-3c59-4426-9654-805ac9e8730f",
+            "leadId": "1993759765",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993759765-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Monica Johnson",
+            "customerPhone": "2562529198",
+            "customerEmail": "monkmonk4216@gmail.com"
+          },
+          {
+            "id": "395914d4-d461-4c78-9d1d-d541a7b32e7a",
+            "leadId": "1994045410",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1994045410-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Whitney Kirby",
+            "customerPhone": "2569544090",
+            "customerEmail": "whitneyk0117@gmail.com"
+          },
+          {
+            "id": "053999c5-a51a-4777-9b44-c81aa06a6723",
+            "leadId": "1994045513",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #13",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1994045513-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Rick Sims",
+            "customerPhone": "2059372427",
+            "customerEmail": "rsims20770@gmail.com"
+          },
+          {
+            "id": "76873f2f-b901-424b-a888-73eaa28f09b1",
+            "leadId": "1993946166",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3897777",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993946166-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": "Destin Washington",
+            "customerPhone": "2054328693",
+            "customerEmail": "destin.washington@gmail.com"
+          },
+          {
+            "id": "26bbad46-5690-47b6-a63a-706089b66afa",
+            "leadId": "1993665996",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #13",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993665996-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "a56bae31-c59a-49ef-8bee-6489dc307c74",
+            "leadId": "1993747291",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993747291-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "aad59d01-95bc-45cb-9974-421cf92b34e6",
+            "leadId": "1993811948",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993811948-0",
+            "status": "ACTIVE_WAITING_FOR_PROSPECT_RESPONSE",
+            "isHot": false,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "523a178d-0e8c-4f77-859b-a6e3e36c2508",
+            "leadId": "1993848828",
+            "daysOld": 27,
+            "type": "Internet",
+            "source": "Repeat Customer",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993848828-0",
+            "status": "ACTIVE_ACTIVE_LEAD",
+            "isHot": true,
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          }
+        ],
+        "newLeadsNoContact": [
+          {
+            "id": "65801aa7-125e-481c-8971-9ecc937ec1b6",
+            "leadId": "1993212374",
+            "hoursOld": 689,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993212374-0",
+            "customerName": "Video Visitor",
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "f5676ab7-a309-4506-a7fc-9d6486bfcbc5",
+            "leadId": "1993212059",
+            "hoursOld": 689,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993212059-0",
+            "customerName": "Video Visitor",
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "1cb1f338-d905-4933-8a4a-f9c0fe0d2450",
+            "leadId": "1993603520",
+            "hoursOld": 673,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1993603520-0",
+            "customerName": "Video Visitor",
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "bcc818dc-46af-4561-acbe-7af1ab88c23a",
+            "leadId": "1996053361",
+            "hoursOld": 593,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1996053361-0",
+            "customerName": "WFPipeline Test386992",
+            "customerPhone": "5553869921",
+            "customerEmail": null
+          },
+          {
+            "id": "9f1347e4-1dd0-4c8f-93e7-7cf03b903b1b",
+            "leadId": "1996052782",
+            "hoursOld": 593,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1996052782-0",
+            "customerName": "WFPipeline Test467791",
+            "customerPhone": "5554677911",
+            "customerEmail": null
+          },
+          {
+            "id": "a539af80-4ec3-4bd8-8a55-f08677dce924",
+            "leadId": "1996110889",
+            "hoursOld": 584,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1996110889-0",
+            "customerName": "WFPipeline Test785534",
+            "customerPhone": "5557855341",
+            "customerEmail": null
+          },
+          {
+            "id": "62e253e1-5193-442d-9b18-bcaeab6db52c",
+            "leadId": "1997219697",
+            "hoursOld": 531,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1997219697-0",
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "0875578c-8c2a-4fb5-952f-558988065742",
+            "leadId": "1997618345",
+            "hoursOld": 512,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1997618345-0",
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "ad320515-663e-4565-a824-88e1e87d4b72",
+            "leadId": "1997618270",
+            "hoursOld": 512,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1997618270-0",
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "5ee1fe0b-6403-495d-ae74-e09882d3c3df",
+            "leadId": "1999086572",
+            "hoursOld": 467,
+            "type": "Internet",
+            "source": "Source #3898008",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999086572-0",
+            "customerName": "Latoya Catlin",
+            "customerPhone": "2565891637",
+            "customerEmail": "pruitttrice@gmail.com"
+          },
+          {
+            "id": "42a3b7bf-e1d9-4d7c-92ed-efbf611d9a22",
+            "leadId": "1999765234",
+            "hoursOld": 432,
+            "type": "Internet",
+            "source": "Source #3897825",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999765234-0",
+            "customerName": "Robert Mckethern",
+            "customerPhone": "3349128937",
+            "customerEmail": "robmck04@gmail.com"
+          },
+          {
+            "id": "59609bdf-adcc-4cc9-817d-2a0ee558e9ec",
+            "leadId": "1999764242",
+            "hoursOld": 432,
+            "type": "Internet",
+            "source": "Source #3897825",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999764242-0",
+            "customerName": null,
+            "customerPhone": null,
+            "customerEmail": null
+          },
+          {
+            "id": "5dd6007a-eadf-459a-9bec-db2f702a71f7",
+            "leadId": "1999811704",
+            "hoursOld": 429,
+            "type": "Internet",
+            "source": "Source #3750035",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999811704-0",
+            "customerName": "Kassie Bryant",
+            "customerPhone": "2054014181",
+            "customerEmail": "kassiej512@gmail.com"
+          },
+          {
+            "id": "969699dd-c465-4a13-8afa-ffd6da1a2518",
+            "leadId": "1999808092",
+            "hoursOld": 429,
+            "type": "Internet",
+            "source": "Source #3819124",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999808092-0",
+            "customerName": "Brenda Mcmanus",
+            "customerPhone": "2567948288",
+            "customerEmail": "bhmcmanus713@gmail.com"
+          },
+          {
+            "id": "bec362ca-08c4-4604-8c4e-2ea4c2d18649",
+            "leadId": "1999952740",
+            "hoursOld": 408,
+            "type": "Internet",
+            "source": "AutoTrader",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/1999952740-0",
+            "customerName": "Trigger TestLead",
+            "customerPhone": "4126546500",
+            "customerEmail": "triggertest@example.com"
+          },
+          {
+            "id": "c03caea3-bc71-4763-a9c8-3197c4ac889d",
+            "leadId": "2000217301",
+            "hoursOld": 390,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/2000217301-0",
+            "customerName": "WF-VAPI-wf-vapi-1776104577025-tixor6 Lead",
+            "customerPhone": "4804577025",
+            "customerEmail": null
+          },
+          {
+            "id": "fb06d602-b261-4b89-8bdf-fb9c5e2746bb",
+            "leadId": "2000217247",
+            "hoursOld": 390,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/2000217247-0",
+            "customerName": "TeamBox-Seed-teambox-seed-1776104571010-yviwha Lead",
+            "customerPhone": "4804571010",
+            "customerEmail": null
+          },
+          {
+            "id": "b9786516-5a80-4760-9ea1-32863829f368",
+            "leadId": "2000217359",
+            "hoursOld": 390,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/2000217359-0",
+            "customerName": "WFPipeline Test586865",
+            "customerPhone": "5555868651",
+            "customerEmail": null
+          },
+          {
+            "id": "875aab5b-ec3d-47a6-bcc4-ebf7ae9851cf",
+            "leadId": "2000217194",
+            "hoursOld": 390,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/2000217194-0",
+            "customerName": "Takeover-Seed-takeover-seed-1776104562889-qz4k4o Lead",
+            "customerPhone": "4804562889",
+            "customerEmail": null
+          },
+          {
+            "id": "2fbea3bc-160c-4bfe-aec8-cd33974a67d9",
+            "leadId": "2000217161",
+            "hoursOld": 390,
+            "type": "Internet",
+            "source": "Dealers WebSite",
+            "vehicle": "https://api.vinsolutions.com/vehicles/interest/id/2000217161-0",
+            "customerName": "WF-SvcAgent-wf-svc-agent-1776104558032-yio6qz Lead",
+            "customerPhone": "4804558032",
+            "customerEmail": null
+          }
+        ],
+        "showroomNotClosed": []
+      },
+      "yellowZone": {
+        "staleLeads": 441,
+        "pendingFinance": 0
+      },
+      "greenZone": [
+        {
+          "label": "Total Active Pipeline (30d)",
+          "value": 339,
+          "status": "healthy"
+        },
+        {
+          "label": "Conversion Rate",
+          "value": "100%",
+          "status": "healthy"
+        },
+        {
+          "label": "Total Leads",
+          "value": 612,
+          "status": "info"
+        }
+      ],
+      "pipelineHealth": {
+        "velocity": null,
+        "freshness": "Stale",
+        "freshnessPct": 29,
+        "forecast": 6
+      },
+      "topLeadSources": [
+        {
+          "source": "Source #7098",
+          "leads": 127,
+          "rate": 21,
+          "grade": "A+",
+          "rank": 1,
+          "volume": 127,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 0,
+          "trend": "flat",
+          "gradeColor": "green"
+        },
+        {
+          "source": "Source #3750035",
+          "leads": 56,
+          "rate": 9,
+          "grade": "A",
+          "rank": 2,
+          "volume": 56,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 16.1,
+          "trend": "flat",
+          "gradeColor": "green"
+        },
+        {
+          "source": "Source #3743779",
+          "leads": 56,
+          "rate": 9,
+          "grade": "A",
+          "rank": 3,
+          "volume": 56,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 48.2,
+          "trend": "flat",
+          "gradeColor": "green"
+        },
+        {
+          "source": "Repeat Customer",
+          "leads": 44,
+          "rate": 7,
+          "grade": "B",
+          "rank": 4,
+          "volume": 44,
+          "winRate": 6.8,
+          "quality": "Low",
+          "badPct": 0,
+          "trend": "flat",
+          "gradeColor": "blue"
+        },
+        {
+          "source": "Dealers WebSite",
+          "leads": 36,
+          "rate": 6,
+          "grade": "B",
+          "rank": 5,
+          "volume": 36,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 13.9,
+          "trend": "flat",
+          "gradeColor": "blue"
+        },
+        {
+          "source": "Local Customer",
+          "leads": 33,
+          "rate": 5,
+          "grade": "C",
+          "rank": 6,
+          "volume": 33,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 12.1,
+          "trend": "flat",
+          "gradeColor": "yellow"
+        },
+        {
+          "source": "Source #3897825",
+          "leads": 23,
+          "rate": 4,
+          "grade": "C",
+          "rank": 7,
+          "volume": 23,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 17.4,
+          "trend": "flat",
+          "gradeColor": "yellow"
+        },
+        {
+          "source": "Source #36",
+          "leads": 23,
+          "rate": 4,
+          "grade": "C",
+          "rank": 8,
+          "volume": 23,
+          "winRate": 0,
+          "quality": "Low",
+          "badPct": 21.7,
+          "trend": "flat",
+          "gradeColor": "yellow"
+        }
+      ],
+      "channelPerformance": [
+        {
+          "channel": "Website",
+          "volume": 608,
+          "conversion": 1,
+          "pctTotal": 99.3,
+          "winRate": 1,
+          "lossRate": 0,
+          "badRate": 16.4,
+          "hotPct": 55.4
+        },
+        {
+          "channel": "Other",
+          "volume": 4,
+          "conversion": 0,
+          "pctTotal": 0.7,
+          "winRate": 0,
+          "lossRate": 0,
+          "badRate": 0,
+          "hotPct": 50
+        }
+      ],
+      "dailyTrend": [
+        {
+          "date": "Fri",
+          "leads": 27,
+          "conversions": 0
+        },
+        {
+          "date": "Sat",
+          "leads": 37,
+          "conversions": 0
+        },
+        {
+          "date": "Sun",
+          "leads": 9,
+          "conversions": 0
+        },
+        {
+          "date": "Mon",
+          "leads": 18,
+          "conversions": 0
+        },
+        {
+          "date": "Tue",
+          "leads": 25,
+          "conversions": 1
+        },
+        {
+          "date": "Wed",
+          "leads": 27,
+          "conversions": 0
+        },
+        {
+          "date": "Thu",
+          "leads": 31,
+          "conversions": 0
+        }
+      ]
+    }
+  },
+  "insightsLibrary": {
+    "status": 200,
+    "body": [
+      {
+        "id": "lib-1",
+        "title": "Total Active Pipeline (30d)",
+        "value": "339",
+        "change": "+135%",
+        "trend": "up",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-2",
+        "title": "Daily New Lead Volume",
+        "value": "4",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-3",
+        "title": "Weekly Lead Trend",
+        "value": "24.9/day",
+        "change": "+31%",
+        "trend": "up",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-4",
+        "title": "MoM Lead Growth",
+        "value": "35%",
+        "change": "—",
+        "trend": "up",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-5",
+        "title": "Lead Velocity Rate",
+        "value": "20.4/day",
+        "change": "+38%",
+        "trend": "up",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-6",
+        "title": "Pipeline Stagnation Index",
+        "value": "237",
+        "change": "—",
+        "trend": "down",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-7",
+        "title": "Fresh Lead Ratio",
+        "value": "31%",
+        "change": "+13pp",
+        "trend": "up",
+        "category": "Pipeline"
+      },
+      {
+        "id": "lib-8",
+        "title": "Lifetime Win Rate",
+        "value": "1%",
+        "change": "-2pp",
+        "trend": "down",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-9",
+        "title": "Internet Close Rate",
+        "value": "0%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-10",
+        "title": "Walk-In Close Rate",
+        "value": "0%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-11",
+        "title": "Service-to-Sales",
+        "value": "—",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-12",
+        "title": "Hot Lead Conversion",
+        "value": "0%",
+        "change": "0pp",
+        "trend": "neutral",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-13",
+        "title": "Showroom Conversion",
+        "value": "0%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-14",
+        "title": "Loss Rate",
+        "value": "0%",
+        "change": "-8pp",
+        "trend": "down",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-15",
+        "title": "Bad Lead Rate",
+        "value": "16.3%",
+        "change": "-18pp",
+        "trend": "down",
+        "category": "Conversion"
+      },
+      {
+        "id": "lib-16",
+        "title": "Contact Rate",
+        "value": "1%",
+        "change": "+1pp",
+        "trend": "up",
+        "category": "Response"
+      },
+      {
+        "id": "lib-17",
+        "title": "New Lead Aging",
+        "value": "15.8 days",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Response"
+      },
+      {
+        "id": "lib-18",
+        "title": "Response Gap (>24h)",
+        "value": "33",
+        "change": "—",
+        "trend": "down",
+        "category": "Response"
+      },
+      {
+        "id": "lib-19",
+        "title": "Waiting Lead Volume",
+        "value": "161",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Response"
+      },
+      {
+        "id": "lib-20",
+        "title": "Engagement Transition",
+        "value": "—",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Response"
+      },
+      {
+        "id": "lib-21",
+        "title": "Avg Time to 1st Contact",
+        "value": "5.2 days",
+        "change": "-83%",
+        "trend": "up",
+        "category": "Response"
+      },
+      {
+        "id": "lib-22",
+        "title": "Top Source",
+        "value": "Source #7098 (21%)",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Lead Source"
+      },
+      {
+        "id": "lib-23",
+        "title": "Source Win Rate",
+        "value": "0%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Lead Source"
+      },
+      {
+        "id": "lib-24",
+        "title": "Source Diversity Score",
+        "value": "0.92",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Lead Source"
+      },
+      {
+        "id": "lib-25",
+        "title": "Concentration Risk",
+        "value": "21%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Lead Source"
+      },
+      {
+        "id": "lib-26",
+        "title": "Source Quality Score",
+        "value": "1%",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Lead Source"
+      },
+      {
+        "id": "lib-27",
+        "title": "Digital Lead %",
+        "value": "0%",
+        "change": "0pp",
+        "trend": "neutral",
+        "category": "Channel"
+      },
+      {
+        "id": "lib-28",
+        "title": "Walk-In Traffic",
+        "value": "0",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Channel"
+      },
+      {
+        "id": "lib-29",
+        "title": "Phone Inquiries",
+        "value": "0",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Channel"
+      },
+      {
+        "id": "lib-30",
+        "title": "Referral Leads",
+        "value": "0",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Channel"
+      },
+      {
+        "id": "lib-31",
+        "title": "Sales Velocity",
+        "value": "0.3/day",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Composite"
+      },
+      {
+        "id": "lib-32",
+        "title": "Digital Maturity Score",
+        "value": "0",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Composite"
+      },
+      {
+        "id": "lib-33",
+        "title": "Projected Month Close",
+        "value": "6",
+        "change": "—",
+        "trend": "neutral",
+        "category": "Forecast"
+      },
+      {
+        "id": "lib-34",
+        "title": "Pipeline Coverage Ratio",
+        "value": "56.5x",
+        "change": "—",
+        "trend": "up",
+        "category": "Forecast"
+      }
+    ]
+  },
+  "insightsReports": {
+    "status": 200,
+    "body": {
+      "lossAnalysis": {
+        "totalLost": 236,
+        "totalBad": 469,
+        "lossRate": 13,
+        "badRate": 26
+      },
+      "sourceQualityTrends": [
+        {
+          "source": "Source #7098",
+          "leads": 347,
+          "totalLost": 0,
+          "winRate": 0,
+          "lossRate": 0,
+          "avgDaysBeforeLoss": 0
+        },
+        {
+          "source": "Source #3750035",
+          "leads": 173,
+          "totalLost": 28,
+          "winRate": 1,
+          "lossRate": 16,
+          "avgDaysBeforeLoss": 84
+        },
+        {
+          "source": "Source #3743779",
+          "leads": 133,
+          "totalLost": 21,
+          "winRate": 1,
+          "lossRate": 16,
+          "avgDaysBeforeLoss": 83
+        },
+        {
+          "source": "Repeat Customer",
+          "leads": 117,
+          "totalLost": 29,
+          "winRate": 9,
+          "lossRate": 25,
+          "avgDaysBeforeLoss": 75
+        },
+        {
+          "source": "Dealers WebSite",
+          "leads": 111,
+          "totalLost": 3,
+          "winRate": 7,
+          "lossRate": 3,
+          "avgDaysBeforeLoss": 77
+        },
+        {
+          "source": "Source #3897825",
+          "leads": 68,
+          "totalLost": 7,
+          "winRate": 0,
+          "lossRate": 10,
+          "avgDaysBeforeLoss": 76
+        },
+        {
+          "source": "Local Customer",
+          "leads": 68,
+          "totalLost": 11,
+          "winRate": 6,
+          "lossRate": 16,
+          "avgDaysBeforeLoss": 64
+        },
+        {
+          "source": "Source #36",
+          "leads": 59,
+          "totalLost": 10,
+          "winRate": 2,
+          "lossRate": 17,
+          "avgDaysBeforeLoss": 85
+        },
+        {
+          "source": "Source #3897777",
+          "leads": 59,
+          "totalLost": 8,
+          "winRate": 2,
+          "lossRate": 14,
+          "avgDaysBeforeLoss": 77
+        },
+        {
+          "source": "Referral",
+          "leads": 53,
+          "totalLost": 16,
+          "winRate": 15,
+          "lossRate": 30,
+          "avgDaysBeforeLoss": 90
+        }
+      ],
+      "performanceSummary": {
+        "totalLeads": 1809,
+        "sold": 53,
+        "lost": 236,
+        "bad": 469,
+        "winRate": 18.3,
+        "metricsFromWarehouse": {
+          "total_leads": "1809",
+          "sold_leads": "53",
+          "lost_leads": "236",
+          "bad_leads": "469",
+          "active_leads": "634",
+          "win_rate": "18.3",
+          "computed_from": "warehouse_leads"
+        }
+      }
+    }
+  },
+  "hunches": {
+    "status": 200,
+    "body": [
+      {
+        "id": "63a6b9d9-27cd-49e5-a87a-ecb7ea8321f0",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Marketing Has Agents But No Active Campaign Momentum",
+        "description": "Marketing has five active agents (Photo Studio, Video Producer, Copywriter, Market Intel, Creative Director, Marketing Agent) representing the largest agent investment of any department, yet its campaigns show zero sends and zero engagement. The 'Presidents Day Sale' completed with no messages sent, suggesting campaigns are being marked complete without execution. Aligning the marketing agent team's output directly to campaign activation workflows could unlock significant latent capacity.",
+        "confidence": 75,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "agents - department and status fields; campaigns - department, sent, and status fields for marketing",
+        "batchId": "1bcedf18-e399-488b-ba02-5392b80f7820",
+        "generatedAt": "2026-04-27T06:01:20.347Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:01:20.347Z"
+      },
+      {
+        "id": "8d06e385-cf86-4e7f-b87c-2f2567d59ffd",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "recommendation",
+        "title": "Reactivate or Retire Stalled Service Campaigns",
+        "description": "The service department has campaigns spread across nearly every status — draft, paused, archived, completed, and active — yet none show meaningful customer responses. The 'Oil Change Reminder' campaign is paused with zero sends, and 'Service Reminder - February' is archived before any messages were sent, pointing to recurring execution failures. A consolidated service campaign strategy with clear ownership and a defined send schedule should be implemented to convert these idle assets into customer touchpoints.",
+        "confidence": 78,
+        "status": "new",
+        "department": "service",
+        "dataSource": "campaigns - department, status, sent, and replied fields for service department",
+        "batchId": "1bcedf18-e399-488b-ba02-5392b80f7820",
+        "generatedAt": "2026-04-27T06:01:20.259Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:01:20.259Z"
+      },
+      {
+        "id": "b0c83cfb-62b3-42e9-8e14-c34de310cb78",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Sales Department Over-Indexed on Chat-Only Agents",
+        "description": "The majority of sales agents (Sales Coach, Communication Writer, Data Guru) are limited to the 'chat' channel, while the department runs SMS and multi-channel campaigns. Only Caroline in sales supports voice, video, and SMS — making her a single point of failure for non-chat customer interactions. Expanding channel capabilities for existing sales agents or hiring additional multi-channel agents would reduce this bottleneck.",
+        "confidence": 82,
+        "status": "new",
+        "department": "sales",
+        "dataSource": "agents - channels and department fields cross-referenced with campaign channels",
+        "batchId": "1bcedf18-e399-488b-ba02-5392b80f7820",
+        "generatedAt": "2026-04-27T06:01:20.171Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:01:20.171Z"
+      },
+      {
+        "id": "3a9b20b7-8d45-43b5-be6b-85d761ba113e",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "Campaign Pipeline Clogged With Inactive Drafts",
+        "description": "Approximately 10 campaigns remain in 'draft' status with zero sends, indicating significant execution blockers preventing campaigns from launching. Multiple duplicate campaign names (e.g., two 'E2E Shared Test Campaign' drafts, two 'S-4 Test Campaign' drafts) suggest disorganized workflow management and possible redundant work. A campaign governance review and a clear approval-to-launch process should be established immediately.",
+        "confidence": 90,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns - status field, sent counts, and duplicate name detection",
+        "batchId": "1bcedf18-e399-488b-ba02-5392b80f7820",
+        "generatedAt": "2026-04-27T06:01:20.083Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:01:20.083Z"
+      },
+      {
+        "id": "ea0be303-5121-49a5-87c9-bb8d5e8b5e9c",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "Zero Engagement Across All Campaigns",
+        "description": "Out of 23 campaigns across sales, service, and marketing departments, virtually none have generated any replies, resulting in a 0% reply rate organization-wide. Even completed campaigns like 'Launch Day Service Test' (5 sent, 0 replies) and 'Presidents Day Sale' show no customer engagement. This suggests a critical gap in either message targeting, content relevance, or delivery configuration that requires immediate investigation.",
+        "confidence": 95,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns - replyRate, replied, sent fields across all records",
+        "batchId": "1bcedf18-e399-488b-ba02-5392b80f7820",
+        "generatedAt": "2026-04-27T06:01:19.993Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:01:19.993Z"
+      },
+      {
+        "id": "e830eae5-e655-4c2c-8cfb-462373fa31f9",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Sales Dept Has Most Agents but Narrowest Channel Coverage",
+        "description": "Sales has 5 active agents (Sales Coach, Communication Writer, Caroline, Data Guru, and one context agent) but most are restricted to chat-only, with only Caroline covering voice, video, and SMS. Given that SMS accounts for 22 conversations and voice for 16, expanding channel coverage for additional sales agents could unlock significant capacity to handle the high volume of open conversations in those channels.",
+        "confidence": 76,
+        "status": "new",
+        "department": "sales",
+        "dataSource": "agents.department, agents.channels, conversations.channels",
+        "batchId": "bfc9c12c-4cf1-46ae-95df-cb11d256f272",
+        "generatedAt": "2026-04-20T06:03:08.202Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:03:08.202Z"
+      },
+      {
+        "id": "4f7afa94-3c71-46df-a8c9-f7b2ec24f917",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "recommendation",
+        "title": "Replicate 'Launch Day Service Test' Strategy Across Service Dept",
+        "description": "The 'Launch Day Service Test' campaign achieved a 100% reply rate (5 sent, 5 replied), and 'Wave-PE3 Verification Campaign' also hit 100% (1/1), while 'Service Reminder - Wave PE3 Test' achieved 50% — all outperforming the broader campaign portfolio. Service leadership should audit the targeting, messaging, and timing of these successful campaigns and use them as templates to activate the currently stalled 'Service Reminder - February' and 'Oil Change Reminder' campaigns.",
+        "confidence": 82,
+        "status": "new",
+        "department": "service",
+        "dataSource": "campaigns.replyRate, campaigns.sent, campaigns.replied, campaigns.department",
+        "batchId": "bfc9c12c-4cf1-46ae-95df-cb11d256f272",
+        "generatedAt": "2026-04-20T06:03:08.115Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:03:08.115Z"
+      },
+      {
+        "id": "31a00ca2-6dcb-4e8d-8f18-1e5ca3bba45d",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "87% of Campaigns Have Sent Zero Messages",
+        "description": "20 out of 23 campaigns across sales, service, and marketing show zero sends, including active campaigns like 'Service Reminder - February' and 'New Lead Follow-Up Sequence'. This points to a systemic execution or configuration problem that is effectively neutralizing the organization's outbound marketing and service engagement efforts.",
+        "confidence": 93,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns.sent, campaigns.status",
+        "batchId": "bfc9c12c-4cf1-46ae-95df-cb11d256f272",
+        "generatedAt": "2026-04-20T06:03:08.027Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:03:08.027Z"
+      },
+      {
+        "id": "58b6be96-84fe-4997-b505-8668a78aff17",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "AI Chat Is the Top Channel Yet Campaigns Ignore It",
+        "description": "AI-chat leads all channels with 23 conversations (28.75% of total), surpassing SMS (22), voice (16), and chat (14), yet none of the 23 campaigns leverage AI-chat as a delivery channel. Redirecting or supplementing active campaigns to include AI-chat could significantly improve reach and response rates given demonstrated customer preference for this channel.",
+        "confidence": 88,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.channels.ai-chat, campaigns",
+        "batchId": "bfc9c12c-4cf1-46ae-95df-cb11d256f272",
+        "generatedAt": "2026-04-20T06:03:07.940Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:03:07.940Z"
+      },
+      {
+        "id": "4c388900-23bd-44d9-ab64-f2d3b99e62e2",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "98.75% of Conversations Remain Open with Zero Closures",
+        "description": "Out of 80 total conversations, 79 are open and 0 have been closed, indicating a serious gap in conversation resolution workflows. This suggests either agents are not marking conversations as resolved, or customers are being left without final responses, both of which damage satisfaction and inflate workload metrics.",
+        "confidence": 95,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.open, conversations.closed, conversations.total",
+        "batchId": "bfc9c12c-4cf1-46ae-95df-cb11d256f272",
+        "generatedAt": "2026-04-20T06:03:07.852Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:03:07.852Z"
+      },
+      {
+        "id": "9afa2781-13f9-4fd8-8c67-2abd546cc0ea",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Sales Department Has Fewest Multi-Channel Agent Capabilities",
+        "description": "The majority of sales agents — including Sales Coach, Communication Writer, Data Guru, and others — are configured exclusively for chat, with only Caroline supporting voice, video, and SMS. In contrast, the service agent Nancy Gaston covers both chat and SMS, better matching the high SMS conversation volume. Expanding multi-channel capabilities for sales agents, particularly SMS and voice, could directly improve conversion rates given that SMS accounts for 22 active conversations currently unattended by most sales staff.",
+        "confidence": 78,
+        "status": "new",
+        "department": "sales",
+        "dataSource": "agents.channels, agents.department, conversations.channels",
+        "batchId": "dbaa822e-37a8-47e7-9955-b4dcd965d467",
+        "generatedAt": "2026-04-20T06:01:51.199Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:51.199Z"
+      },
+      {
+        "id": "ee4cc6c3-7fb3-42f7-a685-c58851de1af4",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "recommendation",
+        "title": "Replicate High-Performing Service Campaign Strategy",
+        "description": "The 'Launch Day Service Test' and 'Wave-PE3 Verification Campaign' achieved reply rates of 100% and 100% respectively, while 'Service Reminder - Wave PE3 Test' reached 50% — all significantly above industry benchmarks. These campaigns share a service department context and likely targeted, personalized messaging. The organization should analyze the content, timing, and audience segmentation of these campaigns and apply those learnings to scale the currently zero-performing 'Service Reminder - February' and 'Oil Change Reminder' campaigns.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "campaigns.replyRate, campaigns.department, campaigns.status",
+        "batchId": "dbaa822e-37a8-47e7-9955-b4dcd965d467",
+        "generatedAt": "2026-04-20T06:01:51.111Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:51.111Z"
+      },
+      {
+        "id": "5aa66638-5871-48c4-ac0c-3fddad438e9f",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "Nearly All Campaigns Have Zero Sends or Engagement",
+        "description": "Out of 23 campaigns across sales, service, and marketing departments, only 3 have recorded any sends, and only 2 have meaningful reply data. Multiple active campaigns — including 'New Lead Follow-Up Sequence' and 'Service Reminder - February' — show zero sends despite being in active status, suggesting broken execution pipelines or misconfigured triggers. An immediate audit of campaign launch configurations and automation triggers is critical to prevent ongoing missed revenue opportunities.",
+        "confidence": 95,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns.sent, campaigns.status, campaigns.replyRate",
+        "batchId": "dbaa822e-37a8-47e7-9955-b4dcd965d467",
+        "generatedAt": "2026-04-20T06:01:51.024Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:51.024Z"
+      },
+      {
+        "id": "2564f9a3-9eef-497f-b9ca-ab8c3e5bdc36",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "AI and SMS Channels Dominate Conversation Volume",
+        "description": "AI-chat (23) and SMS (22) together account for 56% of all conversations, outpacing traditional voice (16) and chat (14) channels, with email trailing significantly at just 3. This signals strong customer preference for asynchronous and automated communication methods. The organization should invest further in AI-chat capabilities and SMS automation to meet customers where they already are.",
+        "confidence": 88,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.channels",
+        "batchId": "dbaa822e-37a8-47e7-9955-b4dcd965d467",
+        "generatedAt": "2026-04-20T06:01:50.936Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:50.936Z"
+      },
+      {
+        "id": "f1835b35-e0db-4e76-abb4-fb36a6a8cc70",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "98.75% of Conversations Remain Open and Unresolved",
+        "description": "Out of 80 total conversations, 79 are open and 0 have been closed, indicating a critical bottleneck in conversation resolution. This may point to understaffing, lack of agent follow-through, or missing workflow automation to close completed interactions. Immediate review of conversation closure processes is strongly recommended.",
+        "confidence": 92,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.open, conversations.closed, conversations.total",
+        "batchId": "dbaa822e-37a8-47e7-9955-b4dcd965d467",
+        "generatedAt": "2026-04-20T06:01:50.846Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:50.846Z"
+      },
+      {
+        "id": "fab8b676-fff8-4696-9a26-6cce98714bad",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Marketing Agents Are Chat-Only, Limiting Omnichannel Reach",
+        "description": "All five active Marketing department agents are exclusively configured for the chat channel, with no SMS, voice, or email coverage despite email and SMS being active conversation channels in the organization. This creates a structural gap where marketing-driven inbound conversations arriving via SMS or email cannot be handled by Marketing agents, likely routing them to mismatched departments or leaving them unattended. Enabling Marketing agents on at least SMS and email channels would align agent capabilities with actual inbound traffic patterns.",
+        "confidence": 78,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "agents[].department, agents[].channels, conversations.channels",
+        "batchId": "0419c4ad-ef21-43b5-b98a-c44539e98c57",
+        "generatedAt": "2026-04-13T06:05:07.780Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:05:07.780Z"
+      },
+      {
+        "id": "d1915b4d-d0a3-42dd-88ee-dbf14a789b7b",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "recommendation",
+        "title": "Scale the High-Performing Service Campaign Model",
+        "description": "The 'Launch Day Service Test' and 'Wave-PE3 Verification Campaign' achieved 100% and 50% reply rates respectively, demonstrating that the Service department's campaign approach is highly effective when executed. In contrast, Sales and Marketing campaigns have produced zero engagement despite having more active and draft campaigns in the pipeline. Leadership should analyze the messaging strategy, timing, and audience targeting used in the successful Service campaigns and apply those learnings to Sales and Marketing campaign builds.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "campaigns[].replyRate, campaigns[].department, campaigns[].status",
+        "batchId": "0419c4ad-ef21-43b5-b98a-c44539e98c57",
+        "generatedAt": "2026-04-13T06:05:07.691Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:05:07.691Z"
+      },
+      {
+        "id": "17419a69-0d05-4c7e-9043-bd4facabdc3f",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "Majority of Campaigns Have Sent Zero Messages",
+        "description": "11 out of 15 campaigns (73%) show zero sends, including active campaigns like 'Service Reminder - February,' 'New Lead Follow-Up Sequence,' and 'E2E Lifecycle Test Campaign.' Active campaigns with no sends suggest possible misconfiguration, missing audience lists, or integration failures that are silently stalling outreach. An immediate audit of active campaign configurations and audience assignments is critical to prevent missed revenue and retention opportunities.",
+        "confidence": 90,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns[].status, campaigns[].sent",
+        "batchId": "0419c4ad-ef21-43b5-b98a-c44539e98c57",
+        "generatedAt": "2026-04-13T06:05:07.603Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:05:07.603Z"
+      },
+      {
+        "id": "17e9f380-c2c6-48b0-bfb6-f3608aea7b3b",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "SMS Is the Dominant Channel But Lacks Dedicated Agents",
+        "description": "SMS accounts for 46% of all conversations (19 of 41), making it the highest-volume channel, yet only one agent (Nancy Gaston in Service) is configured to handle SMS alongside Caroline in Sales. This mismatch between channel demand and agent capacity likely contributes to the high volume of unresolved conversations. Expanding SMS-capable agent assignments across departments could significantly improve response times and resolution rates.",
+        "confidence": 87,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.channels.sms, agents[].channels",
+        "batchId": "0419c4ad-ef21-43b5-b98a-c44539e98c57",
+        "generatedAt": "2026-04-13T06:05:07.514Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:05:07.514Z"
+      },
+      {
+        "id": "4f04fe25-e0bb-4e1c-89bf-86ba4c3c23bf",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "40 of 41 Conversations Remain Unresolved",
+        "description": "Nearly all conversations (97.6%) are currently open with zero closed, indicating a significant bottleneck in conversation resolution. This could point to understaffing, lack of escalation workflows, or agents not marking conversations as resolved after completion. Immediate review of conversation closure procedures and workload distribution is recommended.",
+        "confidence": 92,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.open, conversations.closed, conversations.total",
+        "batchId": "0419c4ad-ef21-43b5-b98a-c44539e98c57",
+        "generatedAt": "2026-04-13T06:05:07.425Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:05:07.425Z"
+      },
+      {
+        "id": "1fa507db-65a1-4033-8f2c-d26564601d2a",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "recommendation",
+        "title": "Service Department Severely Under-Resourced for Campaigns",
+        "description": "The service department has only 2 agents (Nancy Gaston and Service Agent), yet manages recurring high-value campaigns like 'Service Reminder - February' and 'Oil Change Reminder' that directly impact retention. With the 'Oil Change Reminder' campaign paused and service reminders generating minimal engagement, there is a risk of losing repeat service business. Recommend assigning additional agents to the service department, reactivating the 'Oil Change Reminder' campaign with a properly loaded audience list, and establishing a dedicated follow-up workflow for service customers.",
+        "confidence": 78,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents[].department, campaigns[].department, campaigns[].status",
+        "batchId": "6c38a0b1-e2a3-49e9-9679-e00fcd034441",
+        "generatedAt": "2026-04-06T06:01:48.933Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:01:48.933Z"
+      },
+      {
+        "id": "c3fbe88c-9376-458c-a773-4dfbef6f43d0",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Form Channel Dominates Inbound — Underutilizing Voice & AI",
+        "description": "Form-based conversations account for 64% of all inbound volume (330 of 518), while AI-chat is barely used at 7 conversations and voice at 36. Given that Caroline is the only agent staffed for voice and no agents are explicitly assigned to AI-chat or SMS channels, there is a clear misalignment between agent capabilities and channel demand. Redistributing agent coverage to support form follow-ups and scaling AI-chat for deflection could significantly reduce resolution times and improve customer experience.",
+        "confidence": 82,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.channels, agents[].channels",
+        "batchId": "6c38a0b1-e2a3-49e9-9679-e00fcd034441",
+        "generatedAt": "2026-04-06T06:01:48.844Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:01:48.844Z"
+      },
+      {
+        "id": "ebbb1d8a-4811-45fb-9361-a638f0d2cad2",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "pattern",
+        "title": "Automated Workflow Campaigns Flooding Sales Pipeline",
+        "description": "Over 40 auto-generated 'WF-Campaign' entries exist in the sales department, all in a 'stopped' status with zero activity, suggesting runaway automation or a misconfigured workflow trigger that repeatedly spawns new campaign objects. This clutter degrades pipeline visibility, makes it harder to manage legitimate campaigns, and may be a symptom of a looping automation bug. The sales and engineering teams should investigate the workflow engine responsible for generating these entries and implement safeguards against duplicate creation.",
+        "confidence": 92,
+        "status": "new",
+        "department": "sales",
+        "dataSource": "campaigns[].name (WF-Campaign prefix), campaigns[].status, campaigns[].department",
+        "batchId": "6c38a0b1-e2a3-49e9-9679-e00fcd034441",
+        "generatedAt": "2026-04-06T06:01:48.755Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:01:48.755Z"
+      },
+      {
+        "id": "b1b9dd84-b240-48b4-b9a8-2d446a63496f",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "Campaigns Generating Zero Engagement Across the Board",
+        "description": "Every single campaign in the system — including active ones like 'New Lead Follow-Up Sequence' and 'Service Reminder - February' — shows 0 messages sent and 0% reply rates (with one marginal exception of 1 reply). This indicates campaigns are either misconfigured, audience lists are empty, or a technical execution failure is preventing sends. A full campaign pipeline audit should be conducted immediately to identify and resolve the delivery blockage.",
+        "confidence": 97,
+        "status": "new",
+        "department": null,
+        "dataSource": "campaigns[].sent, campaigns[].replyRate, campaigns[].status",
+        "batchId": "6c38a0b1-e2a3-49e9-9679-e00fcd034441",
+        "generatedAt": "2026-04-06T06:01:48.667Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:01:48.667Z"
+      },
+      {
+        "id": "f105e55a-1c4b-4106-8223-2df09f070621",
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "type": "alert",
+        "title": "99% of Conversations Are Unresolved",
+        "description": "Out of 518 total conversations, 513 are open and 0 are closed, indicating a near-complete absence of conversation resolution. This suggests either a systemic issue with closing workflows, agents are not marking conversations as resolved, or the volume has overwhelmed current capacity. Immediate attention is needed to audit the conversation closure process and ensure customer issues are being properly handled and logged.",
+        "confidence": 95,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.open, conversations.closed, conversations.total",
+        "batchId": "6c38a0b1-e2a3-49e9-9679-e00fcd034441",
+        "generatedAt": "2026-04-06T06:01:48.577Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:01:48.577Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,623 @@
+{
+  "me": {
+    "status": 200,
+    "body": {
+      "user": {
+        "id": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "email": "duane.wells@huminic.ai",
+        "firstName": "Duane K.",
+        "lastName": "Wells",
+        "profilePhotoUrl": null,
+        "role": {
+          "id": "677c1e75-b4cd-47ae-a9e0-9567a2ecb37d",
+          "name": "super_admin",
+          "level": 1
+        },
+        "organization": {
+          "id": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+          "name": "Huminic"
+        }
+      }
+    }
+  },
+  "pipeline": {
+    "status": 200,
+    "body": {
+      "activePipeline": 0,
+      "appointmentsToday": 0,
+      "openEscalations": 11,
+      "outboundSent24h": 0
+    }
+  },
+  "dashboard": {
+    "status": 200,
+    "body": {
+      "conversationCounts": {
+        "total": 10,
+        "open": 10,
+        "closed": 0,
+        "byChannel": {
+          "sms": 1,
+          "ai-chat": 5,
+          "chat": 4
+        }
+      },
+      "messageCounts": {
+        "total": 16,
+        "last30Days": 16
+      },
+      "campaignStats": {
+        "total": 10,
+        "active": 0,
+        "totalSent": 0,
+        "totalReplied": 0,
+        "replyRate": 0,
+        "byDepartment": {
+          "sales": {
+            "total": 10,
+            "active": 0,
+            "sent": 0,
+            "replied": 0,
+            "replyRate": 0
+          }
+        }
+      },
+      "agentCounts": {
+        "total": 0,
+        "active": 0,
+        "byDepartment": {}
+      },
+      "userCounts": {
+        "total": 8,
+        "active": 8
+      },
+      "pipeline": {
+        "activePipeline": 0,
+        "appointmentsToday": 0,
+        "openEscalations": 11,
+        "outboundSent24h": 0
+      }
+    }
+  },
+  "activityLog": {
+    "status": 200,
+    "body": [
+      {
+        "id": "aab8df15-6f42-48ef-a5c8-d97c0f04f191",
+        "userId": "243dff04-b0b3-41db-acfd-1f9c5f24db88",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "escalation_email_sent",
+        "entityType": "conversation",
+        "entityId": "5ecf6c84-474d-400f-ae78-555d08537c5b",
+        "metadata": {
+          "channel": "sms",
+          "contactName": "+15551234567",
+          "contactPhone": "+15551234567",
+          "waitingMinutes": 32
+        },
+        "createdAt": "2026-04-30T06:13:15.501Z"
+      },
+      {
+        "id": "c250c36b-1d4d-47cc-abd5-cb4058be4b03",
+        "userId": null,
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "sms_inbound_received",
+        "entityType": "conversation",
+        "entityId": "5ecf6c84-474d-400f-ae78-555d08537c5b",
+        "metadata": {
+          "campaignId": null,
+          "senderPhone": "+15551234567",
+          "contextLabel": "new_contact",
+          "messagePreview": "chunk-5-relaxed-verify-test",
+          "sourceConversationId": null
+        },
+        "createdAt": "2026-04-30T05:40:47.684Z"
+      },
+      {
+        "id": "49f5440c-5709-4530-9fdf-a44492cf52b2",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "organization_updated",
+        "entityType": "organization",
+        "entityId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "metadata": {
+          "fields": "outboundEnabled"
+        },
+        "createdAt": "2026-04-29T06:30:18.197Z"
+      },
+      {
+        "id": "678048f3-b33b-4dbb-9c57-f7744cd80062",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "organization_updated",
+        "entityType": "organization",
+        "entityId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "metadata": {
+          "fields": "outboundEnabled"
+        },
+        "createdAt": "2026-04-29T06:30:17.378Z"
+      },
+      {
+        "id": "405a314b-99c1-451e-b5e8-c1ecd476db51",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_stopped",
+        "entityType": "campaign",
+        "entityId": "ae9a4b56-f85c-4dcb-ac0f-8eb1dcc985de",
+        "metadata": {
+          "fields": "status, killSwitch",
+          "campaignName": "AC2-MergeFields-t010d-1777358871920"
+        },
+        "createdAt": "2026-04-28T06:48:06.786Z"
+      },
+      {
+        "id": "68236313-dace-4b12-afd5-1edce6a03d2d",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_dry_run",
+        "entityType": "campaign",
+        "entityId": "ae9a4b56-f85c-4dcb-ac0f-8eb1dcc985de",
+        "metadata": {
+          "dryRun": true
+        },
+        "createdAt": "2026-04-28T06:48:02.326Z"
+      },
+      {
+        "id": "4ed8387b-ad09-418a-a718-e22fcfb39d20",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_created",
+        "entityType": "campaign",
+        "entityId": "ae9a4b56-f85c-4dcb-ac0f-8eb1dcc985de",
+        "metadata": {
+          "department": "sales",
+          "campaignName": "AC2-MergeFields-t010d-1777358871920"
+        },
+        "createdAt": "2026-04-28T06:48:00.444Z"
+      },
+      {
+        "id": "1eee9d36-f338-4a38-a2ae-116f69157eda",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_stopped",
+        "entityType": "campaign",
+        "entityId": "9d3ced18-b1c5-41e9-b2dc-7fbeb6390d69",
+        "metadata": {
+          "fields": "status, killSwitch",
+          "campaignName": "AC1-CommGate-Block-t010d-1777358871920"
+        },
+        "createdAt": "2026-04-28T06:47:59.787Z"
+      },
+      {
+        "id": "d795c023-d132-4483-b1ab-139ffd090520",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_executed",
+        "entityType": "campaign",
+        "entityId": "9d3ced18-b1c5-41e9-b2dc-7fbeb6390d69",
+        "metadata": {
+          "dryRun": false
+        },
+        "createdAt": "2026-04-28T06:47:54.819Z"
+      },
+      {
+        "id": "64adda79-21f0-415e-821d-c4632802388b",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "action": "campaign_created",
+        "entityType": "campaign",
+        "entityId": "9d3ced18-b1c5-41e9-b2dc-7fbeb6390d69",
+        "metadata": {
+          "department": "sales",
+          "campaignName": "AC1-CommGate-Block-t010d-1777358871920"
+        },
+        "createdAt": "2026-04-28T06:47:52.563Z"
+      }
+    ]
+  },
+  "hunches": {
+    "status": 200,
+    "body": [
+      {
+        "id": "7aa68c3e-d6df-4a98-a0b9-83947e01ad9a",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Establish Baseline KPIs Before Scaling Operations",
+        "description": "With early-stage data showing only 7 conversations and no closed tickets, now is the optimal time to define resolution time targets, agent performance benchmarks, and campaign conversion goals. Setting these baselines early will enable meaningful performance tracking as the organization scales. Implement a lightweight CRM or helpdesk reporting dashboard to capture metrics from day one.",
+        "confidence": 78,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.total, campaigns, agents",
+        "batchId": "e8f88f5b-d3d0-402c-8019-d20a6945867b",
+        "generatedAt": "2026-04-27T06:02:52.937Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:02:52.937Z"
+      },
+      {
+        "id": "63e4e819-27b3-47e3-b602-2bf00c51beac",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "No Campaigns Running - Zero Marketing Engagement",
+        "description": "The absence of any active or historical campaigns suggests the organization has not yet initiated outbound marketing efforts. This limits lead generation, customer re-engagement, and brand awareness opportunities. Launching even one targeted campaign could significantly improve pipeline and conversation volume quality.",
+        "confidence": 88,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "campaigns",
+        "batchId": "e8f88f5b-d3d0-402c-8019-d20a6945867b",
+        "generatedAt": "2026-04-27T06:02:52.849Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:02:52.849Z"
+      },
+      {
+        "id": "658abadc-1de7-4278-8840-3f9a8ceb492c",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "pattern",
+        "title": "AI Chat Dominates at 71% of Conversation Volume",
+        "description": "AI-chat accounts for 5 out of 7 conversations (71%), suggesting customers prefer or are being funneled toward automated interactions over live chat. This reliance on AI without human agent backup creates a high risk of unresolved complex queries. Consider establishing an escalation path from AI-chat to human agents once staffing is in place.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.channels",
+        "batchId": "e8f88f5b-d3d0-402c-8019-d20a6945867b",
+        "generatedAt": "2026-04-27T06:02:52.761Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:02:52.761Z"
+      },
+      {
+        "id": "a63bd8d4-166b-4f05-bc41-a5ad5f051b41",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "Zero Agents Configured - Critical Operational Gap",
+        "description": "No agents are currently registered in the system, which directly explains why all conversations remain unresolved. Without assigned agents, customer inquiries cannot be handled effectively or at all through human escalation. Prioritize onboarding and configuring at least a minimum viable team immediately.",
+        "confidence": 97,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents",
+        "batchId": "e8f88f5b-d3d0-402c-8019-d20a6945867b",
+        "generatedAt": "2026-04-27T06:02:52.672Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:02:52.672Z"
+      },
+      {
+        "id": "00da1274-b2c3-4012-abbc-0d16e5a1794a",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "100% Open Conversations - No Resolution Activity",
+        "description": "All 7 active conversations remain open with zero closed cases, indicating a complete absence of resolution activity. This could signal understaffing, lack of agent availability, or a systemic bottleneck in the support workflow. Immediate attention is needed to prevent customer satisfaction degradation.",
+        "confidence": 92,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.open, conversations.closed",
+        "batchId": "e8f88f5b-d3d0-402c-8019-d20a6945867b",
+        "generatedAt": "2026-04-27T06:02:52.584Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-27T06:02:52.584Z"
+      },
+      {
+        "id": "8e642ed0-a772-495d-a535-ce6ef50e3e28",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Build Agent Infrastructure Before Scaling Conversations",
+        "description": "The absence of both agents and campaigns suggests the organization may be in an early or misconfigured operational stage, yet real conversations are already occurring. Scaling conversation volume without a proper agent framework in place will amplify resolution failures and damage customer experience. Prioritize hiring or assigning agents, configuring routing rules, and setting SLA targets before any growth initiatives are launched.",
+        "confidence": 91,
+        "status": "new",
+        "department": null,
+        "dataSource": "agents, campaigns, conversations.total",
+        "batchId": "2fc5d6fb-176b-4c04-a25f-455b22ef5999",
+        "generatedAt": "2026-04-20T06:02:44.662Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:02:44.662Z"
+      },
+      {
+        "id": "9be6f5a0-a0a3-48df-8b47-97b4728b1a18",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Launch First Campaign to Drive Engagement Pipeline",
+        "description": "The campaigns array is entirely empty, meaning there are no active or historical marketing campaigns to generate leads or nurture existing customers. With inbound conversations already occurring organically, a targeted campaign could significantly amplify reach and conversion opportunities. Starting with a simple re-engagement or onboarding campaign would provide baseline data to measure marketing ROI.",
+        "confidence": 82,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "campaigns",
+        "batchId": "2fc5d6fb-176b-4c04-a25f-455b22ef5999",
+        "generatedAt": "2026-04-20T06:02:44.574Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:02:44.574Z"
+      },
+      {
+        "id": "f666ac24-a622-46fa-bc70-a218248a9d5e",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "pattern",
+        "title": "AI Chat Dominates at 71% of Conversation Volume",
+        "description": "5 out of 7 conversations (71%) are coming through the AI chat channel, compared to only 2 via standard chat. This indicates strong customer preference for AI-assisted interaction and validates investment in AI-driven communication channels. The organization should consider expanding AI chat capabilities and ensuring the AI model is trained to handle the most common query types effectively.",
+        "confidence": 78,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.channels.ai-chat, conversations.channels.chat",
+        "batchId": "2fc5d6fb-176b-4c04-a25f-455b22ef5999",
+        "generatedAt": "2026-04-20T06:02:44.486Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:02:44.486Z"
+      },
+      {
+        "id": "3a9acbeb-1ae5-47f6-bf1d-da7c4e426748",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "No Agents Configured — Coverage Risk is Critical",
+        "description": "The agent roster is completely empty, yet 7 active conversations are open and awaiting attention. This suggests either agents are not onboarded into the system or the organization is operating without structured agent assignment, creating a serious risk of conversations going unattended. Immediate agent onboarding and assignment protocols should be established.",
+        "confidence": 95,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents, conversations.open",
+        "batchId": "2fc5d6fb-176b-4c04-a25f-455b22ef5999",
+        "generatedAt": "2026-04-20T06:02:44.398Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:02:44.398Z"
+      },
+      {
+        "id": "d37a944d-72be-4fe3-9072-f3035fc38cfb",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "100% Open Conversation Rate Signals Resolution Gap",
+        "description": "All 7 active conversations remain unresolved with zero closed tickets, indicating a potential bottleneck in issue resolution. This could point to understaffing, complex incoming queries, or a lack of defined escalation and closure processes. Immediate review of conversation workflows is recommended to prevent customer satisfaction deterioration.",
+        "confidence": 88,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.open, conversations.closed",
+        "batchId": "2fc5d6fb-176b-4c04-a25f-455b22ef5999",
+        "generatedAt": "2026-04-20T06:02:44.309Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:02:44.309Z"
+      },
+      {
+        "id": "c2e59bb4-f655-4cdc-a64f-d6d4b3b75d13",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Establish Cross-Channel Conversation Routing Strategy",
+        "description": "With conversations split between AI-chat (71%) and live chat (29%), there is no visible routing or escalation strategy in place, especially with no agents configured. Defining clear handoff rules between AI and human support will be essential as conversation volume grows. Implementing a tiered routing policy now will prevent chaos at scale.",
+        "confidence": 68,
+        "status": "new",
+        "department": null,
+        "dataSource": "conversations.channels, agents",
+        "batchId": "cc2f731b-290f-4b40-8ce0-4945f3c0ef3d",
+        "generatedAt": "2026-04-20T06:01:32.862Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:32.862Z"
+      },
+      {
+        "id": "37d3e87a-d6fc-4b04-9b01-92b1d5a3fbd0",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Launch First Campaign to Drive Structured Engagement",
+        "description": "No campaigns have been created, representing a missed opportunity to proactively engage customers and reduce inbound reactive conversations. A targeted onboarding or FAQ campaign could deflect common queries and reduce conversation volume. Starting with a simple welcome or self-service campaign is recommended as a low-effort, high-impact first step.",
+        "confidence": 72,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "campaigns, conversations.total",
+        "batchId": "cc2f731b-290f-4b40-8ce0-4945f3c0ef3d",
+        "generatedAt": "2026-04-20T06:01:32.774Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:32.774Z"
+      },
+      {
+        "id": "9ea2fadb-28d4-4d1a-a3fa-e99038d4c10f",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "pattern",
+        "title": "AI-Chat Dominates at 71% of Conversation Volume",
+        "description": "5 out of 7 conversations originate from the AI-chat channel, suggesting customers prefer or are being directed toward AI-assisted interactions. This presents an opportunity to optimize AI-chat flows and automate resolutions for common queries. Investing in AI-chat response templates and intent detection could significantly reduce resolution time.",
+        "confidence": 78,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.channels",
+        "batchId": "cc2f731b-290f-4b40-8ce0-4945f3c0ef3d",
+        "generatedAt": "2026-04-20T06:01:32.686Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:32.686Z"
+      },
+      {
+        "id": "f9355910-b411-4fb1-81b1-b48e92b3f49d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "No Agents Assigned — Critical Operational Risk",
+        "description": "The organization currently has zero agents configured, yet 7 active conversations are open across channels. This means customer inquiries may be going completely unattended, creating serious customer experience risk. Onboarding at least one human or AI agent immediately should be the top priority.",
+        "confidence": 95,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents, conversations.total",
+        "batchId": "cc2f731b-290f-4b40-8ce0-4945f3c0ef3d",
+        "generatedAt": "2026-04-20T06:01:32.598Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:32.598Z"
+      },
+      {
+        "id": "f47fccd0-6ec8-40ae-8746-20ac2fa90b66",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "100% Open Conversation Rate Signals Resolution Gap",
+        "description": "All 7 active conversations remain unresolved with zero closed tickets, indicating a potential bottleneck in conversation handling or resolution workflows. This could reflect understaffing, unclear escalation paths, or lack of automated resolution triggers. Immediate review of open conversations and resolution SLAs is recommended.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.open, conversations.closed",
+        "batchId": "cc2f731b-290f-4b40-8ce0-4945f3c0ef3d",
+        "generatedAt": "2026-04-20T06:01:32.509Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-20T06:01:32.509Z"
+      },
+      {
+        "id": "64936021-f523-4a13-9352-f08686dd537b",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "No Agent Infrastructure Puts Operations at Risk",
+        "description": "The absence of any configured agents combined with a fully open conversation queue creates an operational blind spot where no one may be monitoring or responding to customer inquiries. This gap risks customer churn and reputational damage if conversations go unattended for extended periods.",
+        "confidence": 88,
+        "status": "new",
+        "department": null,
+        "dataSource": "agents, conversations.open, conversations.closed",
+        "batchId": "b25770bc-4774-4a99-8251-284c84fcb6e1",
+        "generatedAt": "2026-04-13T06:03:52.857Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:03:52.857Z"
+      },
+      {
+        "id": "682af6f2-6880-4600-b60e-884b6e95ec71",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Launch First Campaign to Drive Structured Engagement",
+        "description": "The campaigns array is completely empty, meaning there are no active or historical outreach efforts to analyze or build upon. Initiating even one targeted campaign would create measurable engagement data and help identify which customer segments respond best to proactive outreach.",
+        "confidence": 80,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "campaigns",
+        "batchId": "b25770bc-4774-4a99-8251-284c84fcb6e1",
+        "generatedAt": "2026-04-13T06:03:52.768Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:03:52.768Z"
+      },
+      {
+        "id": "58cbd6b0-6e5d-4802-bc80-1df935a85b83",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Assign Dedicated Agents to Clear Conversation Backlog",
+        "description": "With zero agents configured in the system and 6 open conversations, there is no human oversight or escalation capability currently in place. Immediately onboarding and assigning agents would prevent customer experience degradation and ensure complex queries are resolved effectively.",
+        "confidence": 92,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents, conversations.open",
+        "batchId": "b25770bc-4774-4a99-8251-284c84fcb6e1",
+        "generatedAt": "2026-04-13T06:03:52.680Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:03:52.680Z"
+      },
+      {
+        "id": "bae954d6-baf3-40a6-a6a2-1a2888b7398b",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "pattern",
+        "title": "AI Chat Dominates at 83% of All Conversations",
+        "description": "5 out of 6 conversations are happening through the AI chat channel, suggesting customers strongly prefer automated or self-service interactions. This channel dominance may indicate that the traditional chat channel is underutilized or poorly promoted.",
+        "confidence": 78,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.channels.ai-chat, conversations.channels.chat",
+        "batchId": "b25770bc-4774-4a99-8251-284c84fcb6e1",
+        "generatedAt": "2026-04-13T06:03:52.591Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:03:52.591Z"
+      },
+      {
+        "id": "a3c600da-8b87-4f33-843b-b6cf0a3df293",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "100% Open Conversation Rate Signals Resolution Gap",
+        "description": "All 6 active conversations remain open with zero closed, indicating a potential bottleneck in conversation resolution. This could point to understaffing, lack of clear escalation paths, or conversations being initiated but not followed through to completion.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.open, conversations.closed",
+        "batchId": "b25770bc-4774-4a99-8251-284c84fcb6e1",
+        "generatedAt": "2026-04-13T06:03:52.502Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-13T06:03:52.502Z"
+      },
+      {
+        "id": "7b2e8934-02ab-4af8-8c8b-c2d2cc628ad4",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Establish Agent Onboarding Before Scaling Volume",
+        "description": "With no agents and a 0% resolution rate, scaling conversations through campaigns or new channels would compound existing service gaps and risk damaging customer satisfaction scores. Prioritizing agent recruitment and onboarding, even with a small team of 2-3 agents, should precede any growth initiatives to ensure sustainable operations.",
+        "confidence": 90,
+        "status": "new",
+        "department": null,
+        "dataSource": "agents, campaigns, conversations.open, conversations.closed",
+        "batchId": "3b9360e7-a38e-4594-b261-3380939141aa",
+        "generatedAt": "2026-04-06T06:00:59.719Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:00:59.719Z"
+      },
+      {
+        "id": "bb7872bf-9a39-454b-924a-b365c2678875",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "pattern",
+        "title": "No Marketing Campaigns Active or Planned",
+        "description": "The absence of any campaigns suggests the organization may be relying entirely on organic or inbound traffic without structured outreach efforts. Launching targeted campaigns could help scale conversation volume and improve customer acquisition while the support infrastructure is being built out.",
+        "confidence": 78,
+        "status": "new",
+        "department": "marketing",
+        "dataSource": "campaigns",
+        "batchId": "3b9360e7-a38e-4594-b261-3380939141aa",
+        "generatedAt": "2026-04-06T06:00:59.632Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:00:59.632Z"
+      },
+      {
+        "id": "2eede8b6-336b-4a62-9e61-14ca08500c84",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "recommendation",
+        "title": "Diversify Beyond Single AI-Chat Channel",
+        "description": "All customer interactions are concentrated exclusively in the AI-chat channel, creating a single point of failure with no omnichannel strategy in place. Expanding to email, phone, or social media channels would reduce dependency on one touchpoint and capture a broader audience with varying communication preferences.",
+        "confidence": 85,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.channels",
+        "batchId": "3b9360e7-a38e-4594-b261-3380939141aa",
+        "generatedAt": "2026-04-06T06:00:59.544Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:00:59.544Z"
+      },
+      {
+        "id": "ec0bc4c9-c863-4ff7-b1b7-5a67692b9674",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "No Human Agents Configured in the System",
+        "description": "The organization currently has zero agents registered, meaning all 4 open conversations are being handled solely by AI with no human oversight or escalation capability. This creates a significant service risk, as complex or sensitive customer issues cannot be escalated to a human representative.",
+        "confidence": 97,
+        "status": "new",
+        "department": "service",
+        "dataSource": "agents, conversations.open",
+        "batchId": "3b9360e7-a38e-4594-b261-3380939141aa",
+        "generatedAt": "2026-04-06T06:00:59.456Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:00:59.456Z"
+      },
+      {
+        "id": "364b52da-7153-47c1-97f6-23c25d39835a",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "100% Open Conversations - Zero Resolution Rate",
+        "description": "All 4 active conversations remain unresolved with a 0% closure rate, indicating a potential bottleneck in customer support workflow. This could signal understaffing, lack of agent availability, or unaddressed escalation paths that are leaving customers waiting for resolution.",
+        "confidence": 92,
+        "status": "new",
+        "department": "service",
+        "dataSource": "conversations.open, conversations.closed, conversations.total",
+        "batchId": "3b9360e7-a38e-4594-b261-3380939141aa",
+        "generatedAt": "2026-04-06T06:00:59.368Z",
+        "acceptedAt": null,
+        "resolvedAt": null,
+        "createdAt": "2026-04-06T06:00:59.368Z"
+      }
+    ]
+  }
+}

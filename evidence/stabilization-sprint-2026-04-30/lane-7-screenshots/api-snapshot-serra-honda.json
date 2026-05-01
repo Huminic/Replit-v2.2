@@ -1,0 +1,175 @@
+{
+  "pipeline": {
+    "status": 200,
+    "body": {
+      "activePipeline": 187,
+      "appointmentsToday": 0,
+      "openEscalations": 441,
+      "outboundSent24h": 9
+    }
+  },
+  "dashboard": {
+    "status": 200,
+    "body": {
+      "conversationCounts": {
+        "total": 41,
+        "open": 41,
+        "closed": 0,
+        "byChannel": {
+          "voice": 3,
+          "agent-chat-2761995f-ca10-4bd1-80c7-2cd813a05e89": 1,
+          "form": 2,
+          "sms": 2,
+          "ai-chat": 23,
+          "chat": 10
+        }
+      },
+      "messageCounts": {
+        "total": 67,
+        "last30Days": 67
+      },
+      "campaignStats": {
+        "total": 30,
+        "active": 6,
+        "totalSent": 11,
+        "totalReplied": 2,
+        "replyRate": 18,
+        "byDepartment": {
+          "service": {
+            "total": 15,
+            "active": 2,
+            "sent": 10,
+            "replied": 2,
+            "replyRate": 20
+          },
+          "sales": {
+            "total": 12,
+            "active": 4,
+            "sent": 0,
+            "replied": 0,
+            "replyRate": 0
+          },
+          "marketing": {
+            "total": 3,
+            "active": 0,
+            "sent": 1,
+            "replied": 0,
+            "replyRate": 0
+          }
+        }
+      },
+      "agentCounts": {
+        "total": 12,
+        "active": 11,
+        "byDepartment": {
+          "service": 2,
+          "sales": 4,
+          "marketing": 6
+        }
+      },
+      "userCounts": {
+        "total": 13,
+        "active": 13
+      },
+      "pipeline": {
+        "activePipeline": 187,
+        "appointmentsToday": 0,
+        "openEscalations": 441,
+        "outboundSent24h": 9
+      }
+    }
+  },
+  "leadSummary": {
+    "status": 200,
+    "body": {
+      "period": {
+        "start": "2026-03-31",
+        "end": "2026-04-30"
+      },
+      "totalLeads": 612,
+      "totalLeadsChange": 38,
+      "newLeads": 38,
+      "newLeadsChange": 27,
+      "activeLeads": 339,
+      "activeLeadsChange": 135,
+      "soldLeads": 6,
+      "soldLeadsChange": -57,
+      "lostLeads": 0,
+      "waitingForResponse": 161,
+      "appointments": 0,
+      "conversionRate": 100,
+      "source": "warehouse",
+      "syncedAt": "2026-04-30T05:56:27.975Z"
+    }
+  },
+  "activityLog": {
+    "status": 200,
+    "body": [
+      {
+        "id": "2ab34b65-9615-4081-8143-f3630516ebe9",
+        "userId": null,
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "action": "sync_delta_completed",
+        "entityType": "sync",
+        "entityId": "48377a92-827d-42d3-ac36-c1fad30b7d6c",
+        "metadata": {
+          "failed": 0,
+          "processed": 17
+        },
+        "createdAt": "2026-04-30T05:56:28.194Z"
+      },
+      {
+        "id": "0f3c61ef-053e-4ec4-8923-8388b36f44cb",
+        "userId": null,
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "action": "sync_delta_completed",
+        "entityType": "sync",
+        "entityId": "b7610ab8-b324-4677-90d6-beff963ff20e",
+        "metadata": {
+          "failed": 0,
+          "processed": 17
+        },
+        "createdAt": "2026-04-30T05:54:23.287Z"
+      },
+      {
+        "id": "9edb196c-ecd5-47cc-9fda-57229ceba5ef",
+        "userId": null,
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "action": "sync_delta_completed",
+        "entityType": "sync",
+        "entityId": "f20ec1cd-8594-4230-8518-3287f048a1e3",
+        "metadata": {
+          "failed": 0,
+          "processed": 17
+        },
+        "createdAt": "2026-04-30T05:39:21.957Z"
+      },
+      {
+        "id": "1181a8cb-61ea-4016-83ce-27e4509fb357",
+        "userId": null,
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "action": "sync_delta_completed",
+        "entityType": "sync",
+        "entityId": "3069f9dc-647d-4bad-a4a6-da6606b09f28",
+        "metadata": {
+          "failed": 0,
+          "processed": 17
+        },
+        "createdAt": "2026-04-30T05:26:29.798Z"
+      },
+      {
+        "id": "260ffa48-a2ac-43b1-8861-2e66357ff49c",
+        "userId": null,
+        "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "action": "sync_delta_completed",
+        "entityType": "sync",
+        "entityId": "33b77dcf-c66c-4677-a20e-e0bf3dcaaeb4",
+        "metadata": {
+          "failed": 0,
+          "processed": 17
+        },
+        "createdAt": "2026-04-30T05:24:21.075Z"
+      }
+    ]
+  }
+}

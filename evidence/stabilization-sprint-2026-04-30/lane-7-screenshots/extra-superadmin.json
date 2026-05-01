@@ -1,0 +1,238 @@
+{
+  "unread": {
+    "status": 200,
+    "body": {
+      "count": 133
+    }
+  },
+  "notifications": {
+    "status": 200,
+    "body": [
+      {
+        "id": "b24ea4cc-0b44-4ed5-b8b4-25495badcb05",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "sms_inbound",
+        "title": "New inbound SMS",
+        "message": "SMS from +15551234567: \"chunk-5-relaxed-verify-test\"",
+        "read": false,
+        "relatedEntityType": "conversation",
+        "relatedEntityId": "5ecf6c84-474d-400f-ae78-555d08537c5b",
+        "createdAt": "2026-04-30T05:40:47.687Z"
+      },
+      {
+        "id": "0fb4384e-360d-4403-9497-34f6aef76e2c",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "Communication gate enabled",
+        "message": "Outbound communications have been enabled by Duane K. Wells.",
+        "read": false,
+        "relatedEntityType": "organization",
+        "relatedEntityId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "createdAt": "2026-04-29T06:30:18.297Z"
+      },
+      {
+        "id": "5cdfc82e-5cf8-4c53-9c22-6bac5c097caf",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "Communication gate disabled",
+        "message": "Outbound communications have been disabled by Duane K. Wells.",
+        "read": false,
+        "relatedEntityType": "organization",
+        "relatedEntityId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+        "createdAt": "2026-04-29T06:30:17.470Z"
+      },
+      {
+        "id": "c39c87a2-7a1d-4b94-a29a-42e4439bc6e2",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "Kill switch activated",
+        "message": "Kill switch for campaign \"AC2-MergeFields-t010d-1777358871920\" has been activated by Duane K. Wells.",
+        "read": false,
+        "relatedEntityType": "campaign",
+        "relatedEntityId": "ae9a4b56-f85c-4dcb-ac0f-8eb1dcc985de",
+        "createdAt": "2026-04-28T06:48:06.965Z"
+      },
+      {
+        "id": "1fd0485f-361b-41fe-b139-911648f08724",
+        "userId": "bde19db9-ffe9-482b-ab25-186d3032cb6d",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "type": "alert",
+        "title": "Campaign stopped",
+        "message": "Campaign \"AC2-MergeFields-t010d-1777358871920\" has been stopped by Duane K. Wells.",
+        "read": false,
+        "relatedEntityType": "campaign",
+        "relatedEntityId": "ae9a4b56-f85c-4dcb-ac0f-8eb1dcc985de",
+        "createdAt": "2026-04-28T06:48:06.874Z"
+      }
+    ]
+  },
+  "usage": {
+    "status": 200,
+    "body": [
+      {
+        "id": "bd317d6d-049a-4d99-9243-596c063886d1",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (1:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-30T05:40:46.869Z"
+      },
+      {
+        "id": "715cb425-b215-44b8-b4e7-72ffc779051c",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15559876543"
+        },
+        "createdAt": "2026-04-28T06:48:02.238Z"
+      },
+      {
+        "id": "c238bc6b-2450-4c6f-8208-55661449baf7",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-28T06:47:54.466Z"
+      },
+      {
+        "id": "8361ee3d-528b-42f0-bddc-16ca75ea501b",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15559876543"
+        },
+        "createdAt": "2026-04-28T06:29:37.840Z"
+      },
+      {
+        "id": "4af3b84c-8d6b-4dc3-9597-e4622d80eb7f",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-28T06:29:29.722Z"
+      },
+      {
+        "id": "29200026-7477-4104-b077-4bc621e9f95b",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15559876543"
+        },
+        "createdAt": "2026-04-28T06:02:58.660Z"
+      },
+      {
+        "id": "16a368be-a583-463c-b115-a1aca9cbba71",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (2:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-28T06:02:50.538Z"
+      },
+      {
+        "id": "213493d5-a471-4287-aefd-3501af5dffb5",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (1:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15559876543"
+        },
+        "createdAt": "2026-04-28T05:59:10.154Z"
+      },
+      {
+        "id": "a0ddcbda-ba7f-46fd-9d6b-dcbea7549c50",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (1:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-28T05:59:01.644Z"
+      },
+      {
+        "id": "529616c3-4b99-4cc5-9d61-799488f6a26c",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (1:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15559876543"
+        },
+        "createdAt": "2026-04-28T05:27:55.149Z"
+      },
+      {
+        "id": "9b952f57-27e5-4cb5-a01f-e1d8403bbedc",
+        "organizationId": "f1b20850-8ad4-4c36-a342-4dc108e92ab6",
+        "eventType": "outbound_sms_blocked",
+        "channel": "sms",
+        "quantity": 0,
+        "metadata": {
+          "reason": "Outside business hours (1:00 America/New_York, allowed 8:00-21:00)",
+          "status": "blocked",
+          "recipient": "+15551234567"
+        },
+        "createdAt": "2026-04-28T05:27:47.331Z"
+      }
+    ]
+  },
+  "billingDashboard": {
+    "status": 404,
+    "body": {
+      "error": "Not found"
+    }
+  },
+  "billingUsage": {
+    "status": 200,
+    "body": {
+      "configured": false,
+      "message": "Billing not configured"
+    }
+  },
+  "metricsDetail_active": {
+    "status": 200,
+    "body": []
+  }
+}
