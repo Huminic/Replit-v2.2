@@ -207,25 +207,69 @@ The orchestrator will NOT pre-create these markers before operator approval. The
 
 ---
 
-## 6. Real OS-level teammates (operator tightening point #6)
+## 6. Teammates and audit subagents (operator tightening point #6)
 
-**Rule:** Teammates are spawned as real OS-level team sessions joined to `nexxus-finish-line`. No same-context subagents. If the only available mechanism would consume orchestrator context, STOP and ask operator.
+**Subagent vs teammate axis (per docs, not invented):**
+- **Subagent** = `Agent` tool, runs inside the current session's process, fresh context window, returns one summary, dies. Cannot see the team mailbox or task list. Right primitive for "give me one answer" read-only tasks AND for **audit roles that must stay uncontaminated by team chatter**.
+- **Teammate** = separate Claude Code instance (per `code.claude.com/docs/en/agent-teams.md`), full session, file-backed mailbox, bidirectional peer messaging. Right primitive for collaboration / handoff / disagreement work.
 
-**Per-chunk teammate roster:**
+**Architectural correction (operator 2026-05-02):** the docs do NOT expose a switch to disable peer messaging within a team. There is no per-teammate ACL, no isolation mode, no "audit-only" teammate. If a role must audit without team-mailbox influence, it must be a subagent dispatched by the lead at a gate point — not a teammate.
 
-| Chunk | harness-backend teammate | qa-evaluator teammate | code-reviewer teammate | integration-safety teammate |
-|---|---|---|---|---|
-| 1A | `harness-backend-1A` | `qa-evaluator-1A` | `code-reviewer-1A` | not needed |
-| 1B | `harness-backend-1B` | `qa-evaluator-1B` | `code-reviewer-1B` | `integration-safety-1B` (Resend dry-run) |
-| 1C | `harness-backend-1C` | `qa-evaluator-1C` | `code-reviewer-1C` | not needed |
-| 1D | `harness-backend-1D` | `qa-evaluator-1D` | `code-reviewer-1D` | not needed |
-| 1E | `harness-backend-1E` | `qa-evaluator-1E` | `code-reviewer-1E` | not needed |
-| 1F | `harness-backend-1F` | `qa-evaluator-1F` | `code-reviewer-1F` | not needed |
-| 1G | `harness-backend-1G` | `qa-evaluator-1G` | `code-reviewer-1G` | `integration-safety-1G` (Resend dry-run) |
+**Waves 1–3 (already complete)** used subagents because they were one-shot read-only investigations. Subagent was the right primitive.
 
-Each named teammate is a separate real agent session. Operator can chat with each by name. Team config (with full roster) lives at `~/.claude/teams/nexxus-finish-line/config.json`. The orchestrator coordinates by reading evidence files from disk and sending messages to teammates by name — it does not perform coding work itself and does not consume its own context with subagents performing coding work.
+**Env precondition:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (verified ON in the orchestrator's shell + `~/.claude/settings.json` 2026-05-02). If this var is unset in any future session, agent-teams falls back to subagents — orchestrator must STOP and re-enable before spawning teammates.
 
-**Dispatch Wave 1–3 (already complete) were ephemeral read-only investigators, not coding teammates. They wrote findings to disk; orchestrator integrated from disk. No coding work was performed by them, by other subagents, or by the orchestrator.**
+### Per-chunk role assignment (collaborator vs auditor)
+
+| Role | Mechanism | Rationale |
+|---|---|---|
+| `harness-backend-1X` | **teammate** | Implementer; may need to coordinate with the lead during edits, ask clarifying questions, or hand off if a chunk splits sub-chunks. Collaborator. |
+| `qa-evaluator-1X` | **subagent** dispatched by lead AFTER builder idles | Produces dual-delta proof. Should assess what the builder produced, not what the builder said about it. Audit role; must stay uncontaminated by team chatter. |
+| `code-reviewer-1X` | **subagent** dispatched by lead AFTER builder idles | Independent diff review is the whole point. Audit role. |
+| `integration-safety-1X` (1B + 1G only) | **subagent** dispatched by lead AFTER builder idles + before any provider action | External-provider boundary check. Audit role. |
+| `scope-guardian-1X` (any chunk where diff scope is in question) | **subagent** dispatched by lead AT gate point | Verifies declared scope vs actual diff. Audit role. |
+
+### Per-chunk lifecycle
+
+```
+1. Lead spawns harness-backend-1X as a teammate joined to nexxus-finish-line.
+   - Brief includes: chunk spec from §4, file scope, the relevant per-file
+     UI scope marker(s) if applicable, the dual-delta proof requirements
+     from §9, and the stop conditions for that chunk.
+2. Builder works in its own session. May message the lead with questions.
+3. Lead waits for TeammateIdle on the builder.
+4. Lead reads the builder's diff (chunk branch).
+5. Lead dispatches qa-evaluator AS A SUBAGENT with explicit brief:
+   "Here is the diff at SHA <X>. Here is the dual-delta proof requirement
+    for this chunk from batch-1-preflight.md §4. Produce both deltas.
+    DO NOT read the team mailbox or task list — your verdict must be
+    independent. Return one summary."
+6. Subagent returns verdict; lead inspects.
+7. Lead dispatches code-reviewer AS A SUBAGENT with the same isolation
+   instruction. Returns verdict.
+8. (If chunk touches external-provider boundary) Lead dispatches
+   integration-safety AS A SUBAGENT. Returns verdict.
+9. Lead presents diff + all subagent verdicts to operator.
+10. Operator approves merge of chunk branch into batch-1-finish-line.
+11. Lead messages builder teammate that the chunk is closed; builder
+    teammate may shut down or move to next chunk if assigned.
+```
+
+This honors operator's "audit must be uncontaminated" while keeping the builder's collaboration surface available. Token cost is bounded: one teammate per chunk + 2–3 small subagent dispatches per chunk, vs the prior all-teammates pattern which would have been 3–4 full sessions per chunk.
+
+### Roster summary
+
+| Chunk | Builder (teammate) | Auditors (subagents dispatched at gate) |
+|---|---|---|
+| 1A | `harness-backend-1A` | qa-evaluator, code-reviewer |
+| 1B | `harness-backend-1B` | qa-evaluator, code-reviewer, integration-safety (Resend dry-run) |
+| 1C | `harness-backend-1C` | qa-evaluator (per-metric proof), code-reviewer (incl. monolith-prevention check), scope-guardian (UI files touched) |
+| 1D | `harness-backend-1D` | qa-evaluator, code-reviewer |
+| 1E | `harness-backend-1E` | qa-evaluator, code-reviewer (esp. dead-branch grep), scope-guardian |
+| 1F | `harness-backend-1F` | qa-evaluator (rg + UI absence + 404 proofs), code-reviewer, scope-guardian (server route + UI Dialog deletion both in declared scope) |
+| 1G | `harness-backend-1G` | qa-evaluator, code-reviewer, integration-safety (Resend dry-run) |
+
+**Orchestrator role:** never performs coding work itself, never edits product code. Spawns the teammate, briefs auditor subagents at gate points with diff + spec + the explicit "do not read team mailbox" instruction, integrates results, presents to operator.
 
 ---
 
