@@ -1,0 +1,6 @@
+SERVICE_APPOINTMENT_SCHEDULED -> true
+CONTACT_LATER -> false
+null -> false
+undefined -> false
+empty -> false
+service_appointment_scheduled (lowercase) -> true
