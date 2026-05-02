@@ -1,5 +1,9 @@
 # Tomorrow's Plan — 2026-05-01
 
+> **⚠️ SUPERSEDED 2026-05-01 by:** `evidence/stabilization-sprint-2026-05-01/finish-line-plan.md`
+>
+> This plan covered the priority queue identified by overnight validation 2026-04-30 → 2026-05-01. Most items have been re-grouped into the three-batch finish-line plan. Specifically: routing-redirect trap (P0) — CLOSED via PR #6 + Step A live verification on 2026-05-01; sales-vs-service / metric honesty / activity feed → Batch 1; trigger + provider proof → Batch 2; marketing tab routing + TeamBox channel filter + final E2E → Batch 3. The "tomorrow" date label violated the absolute-date rule and is being retired by the supersedence. **No content removed**; this preamble preserves the original plan as historical evidence.
+
 ## Context
 
 Overnight validation 2026-04-30 → 2026-05-01 ran 4 read-only lanes (Sales Reports, TeamBox taxonomy, Marketing inventory, Metrics honesty). Full report at `evidence/stabilization-sprint-2026-04-30/overnight-validation-report.md`.

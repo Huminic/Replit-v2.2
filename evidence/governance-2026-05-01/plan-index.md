@@ -2,10 +2,12 @@
 
 Comprehensive classification of every `plan.md` / `*-plan.md` / `tomorrow-plan.md` / `overnight-validation-plan.md` / `lanes-*-plan.md` discoverable under `evidence/`, `docs/`, project root, `tests/`, and `legacy-artifacts/`.
 
-**Authoritative current plan (pinned):** `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/tomorrow-plan.md`
-- Date covered: **2026-05-01** (today's plan; "tomorrow" was authored 2026-04-30 evening UTC and refers to 2026-05-01)
-- Operator standing order embedded: NO deploys / pushes / code edits unless production outage AND specific operator approval. This pass honored the order.
-- **Forward note:** the next planning artifact (covering 2026-05-02) does not yet exist. When created, it should explicitly supersede `tomorrow-plan.md`.
+**Authoritative current plan (pinned 2026-05-01):** `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/finish-line-plan.md`
+- Approved at ExitPlanMode 2026-05-01 by operator with the standing constraint: "as long as we can test thoroughly before pushing live, you are approved to dive in and continue in auto mode."
+- Plan-mode authoring artifact: `~/.claude/plans/moonlit-booping-popcorn.md` (source of truth; evidence files are derivative).
+- Companion evidence: `finish-line-preflight.md` (Phase 0 GREEN), `finish-line-agent-dispatches.md` (six dispatches for fresh real-agent sessions).
+- **Supersedes:** `tomorrow-plan.md` (formerly authoritative; now SUPERSEDED).
+- **Forward note:** future planning artifacts must be named with absolute date (e.g. `2026-05-NN-finish-line-plan.md`) and explicitly state what they supersede.
 
 ---
 
@@ -13,10 +15,12 @@ Comprehensive classification of every `plan.md` / `*-plan.md` / `tomorrow-plan.m
 
 | Path | Last modified | Author/Source | Purpose |
 |---|---|---|---|
-| `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/tomorrow-plan.md` | 2026-04-30 06:25 UTC | orchestrator overnight | **AUTHORITATIVE** — priority queue for 2026-05-01 (P0 routing redirect, P1 metric honesty, P2 tooling) |
-| `/home/ubuntu/Claude-store/nexxus2.2_replit/plan.md` | 2026-04-29 15:54 UTC | operator-curated | Top-level living finish plan for Nexxus v2.2 (UI-truth posture, operating constraints). Long-horizon roadmap; not a daily plan. |
+| `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/finish-line-plan.md` | 2026-05-01 | main orchestrator session | **AUTHORITATIVE — active sprint plan.** Three-batch finish-line plan (Data Truth → Workflow Proof → UI/E2E). Includes Operational Risk Gate (Known Defects · Execution Risks · Accepted Debt · Governance Guardrails). |
+| `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/finish-line-preflight.md` | 2026-05-01 | derivative of finish-line-plan.md | Phase 0 GREEN preflight — companion to finish-line-plan.md |
+| `/home/ubuntu/Claude-store/nexxus2.2_replit/evidence/stabilization-sprint-2026-05-01/finish-line-agent-dispatches.md` | 2026-05-01 | derivative of finish-line-plan.md | Six dispatches (Schema, Reports, Metrics, Marketing Insights, Workflow QA, TeamBox Operability) for fresh real-agent sessions |
+| `/home/ubuntu/Claude-store/nexxus2.2_replit/plan.md` | 2026-04-29 15:54 UTC | operator-curated | Top-level long-horizon finish plan for Nexxus v2.2 (UI-truth posture, Phases 1–5 + 6). Stable across sprints; informs `finish-line-plan.md`. |
 
-`tomorrow-plan.md` is operationally authoritative for 2026-05-01. `plan.md` is the long-horizon strategy plan and is referenced by daily plans, not superseded by them.
+Two-file authority: `plan.md` (long-horizon strategy) + `finish-line-plan.md` (active sprint). Companion evidence files are derivatives of the sprint plan.
 
 ---
 
