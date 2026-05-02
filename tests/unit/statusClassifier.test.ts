@@ -9,15 +9,11 @@
  * and lowercase variants).
  *
  * Behavior under test (read directly from server/statusClassifier.ts):
- *   - classifyVinStatus(status) returns 'service' iff
- *     status.toUpperCase().startsWith('SERVICE_').
+ *   - classifyVinStatus uppercases its input on line 6 before checking
+ *     the SERVICE_ prefix on line 20, so the match is case-insensitive:
+ *     'SERVICE_APPOINTMENT_SCHEDULED', 'service_appointment_scheduled',
+ *     and 'Service_Appointment_Scheduled' all classify as 'service'.
  *   - isServiceLead(status) === (classifyVinStatus(status) === 'service').
- *
- * Lowercase prefix (`'service_*'`) does NOT match because the SERVICE
- * branch is uppercase-only and no lowercase alias exists in the
- * classifier (contrast with 'active'/'sold'/'lost' branches which DO
- * have lowercase aliases). The lowercase test below documents this
- * shape explicitly.
  *
  * No mocks of the helper. Calls isServiceLead directly.
  */
@@ -84,16 +80,11 @@ describe("isServiceLead", () => {
     expect(isServiceLead("")).toBe(false);
   });
 
-  it("returns false for lowercase 'service_*' (uppercase-only prefix)", () => {
-    // The SERVICE_ branch in classifyVinStatus uses
-    // `upper.startsWith('SERVICE_')` AFTER uppercasing the input —
-    // wait: the branch matches AGAINST the uppercased copy, so a
-    // lowercase input IS uppercased and DOES match the prefix.
-    // Verify the actual runtime behavior here rather than asserting
-    // an assumption: the helper uppercases first, so lowercase
-    // 'service_*' uppercases to 'SERVICE_*' and matches the prefix.
-    // This test pins the observed behavior so a future refactor that
-    // breaks case-insensitivity will fail loudly.
+  it("returns true for lowercase and mixed-case 'service_*' (case-insensitive)", () => {
+    // toUpperCase() at statusClassifier.ts:6 happens before the SERVICE_
+    // prefix check at line 20, so case-insensitive matching is part of
+    // the contract. This test pins it so a future case-sensitive
+    // refactor fails loudly.
     expect(isServiceLead("service_appointment_scheduled")).toBe(true);
     expect(isServiceLead("Service_Appointment_Scheduled")).toBe(true);
   });
