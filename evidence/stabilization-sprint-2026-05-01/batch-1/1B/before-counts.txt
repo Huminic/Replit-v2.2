@@ -1,0 +1,18 @@
+# Chunk 1B Delta 2 — before-counts (run 2026-05-02T10:54:43.249Z)
+# org_id: 24d64f99-ba04-4b43-af35-fd06f555ac86
+# window: NOW() - INTERVAL '7 days' .. NOW()
+
+## (b) total_raw
+total_raw=141
+
+## (c) sales_only
+sales_only=109
+
+## (d) per-status breakdown of excluded SERVICE rows
+SERVICE_APPOINTMENT_SCHEDULED: 32
+total_service_excluded=32
+
+# Sanity check: total_raw - sales_only should equal total_service_excluded
+# total_raw - sales_only = 32
+# total_service_excluded = 32
+# match: YES

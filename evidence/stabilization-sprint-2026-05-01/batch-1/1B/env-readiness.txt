@@ -1,0 +1,5 @@
+JWT_SECRET present: yes
+DATABASE_URL present: yes
+RESEND_API_KEY present: yes
+TESTLANE_MODE=true: yes
+TESTLANE_EMAIL_TO matches allowlist recipient: yes
