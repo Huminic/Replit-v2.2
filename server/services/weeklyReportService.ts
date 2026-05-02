@@ -851,7 +851,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, weekStart),
         lte(warehouseLeads.vinCreatedAt, weekEnd),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
 
@@ -1192,7 +1192,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   const bySourcePriorWeek = new Map<string, number>();
@@ -1658,7 +1658,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
 
@@ -1722,7 +1722,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   const priorLeadsWithPhone = priorLeadsInWindow.filter(
@@ -1835,7 +1835,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinUpdatedAt),
         gte(warehouseLeads.vinUpdatedAt, weekStart),
         lte(warehouseLeads.vinUpdatedAt, weekEnd),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
 
@@ -1884,7 +1884,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinUpdatedAt),
         gte(warehouseLeads.vinUpdatedAt, priorWeekStart),
         lt(warehouseLeads.vinUpdatedAt, weekStart),
-        sql`${warehouseLeads.vinStatus} NOT LIKE 'SERVICE%'`,
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   let priorLostBadLead = 0;
