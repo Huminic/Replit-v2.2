@@ -1,0 +1,29 @@
+# Chunk 1B Delta 2 — Resend send runtime log
+# Captured 2026-05-02 11:05 UTC from stdout of the operator-authorized
+# `npx tsx --env-file=.env -e "..."` invocation.
+#
+# Note: sendWeeklyReportEmail()'s return type at server/services/
+# notificationService.ts:620 is `{ sent: boolean; messageId?: string;
+# error?: string }` — it does not return recipients/sid/overridden in
+# the JSON response. Those facts are observable in the runtime log
+# below, written by notificationService.ts via console.log:
+#   - Recipient hard-routed to duane.wells@huminic.ai
+#   - testLaneSessionId (sid): chunk-1b-delta2
+#   - Override path exercised: ACTIVE
+#   - Subject prefixed with [testlane:chunk-1b-delta2] tag
+#   - Original to/cc/bcc count: to=1 cc=0 bcc=0
+
+# --- env-readiness pre-check (all PASS) ---
+JWT_SECRET present: yes
+DATABASE_URL present: yes
+RESEND_API_KEY present: yes
+TESTLANE_MODE=true: yes
+TESTLANE_EMAIL_TO matches allowlist recipient: yes
+
+# --- send runtime log ---
+[WeeklyReport] Test-lane override ACTIVE sid=chunk-1b-delta2 — original to=1 cc=0 bcc=0 -> hard-routed to duane.wells@huminic.ai
+[WeeklyReport] Sending report "[testlane:chunk-1b-delta2] [TESTLANE] 🚗 Weekly Sales Report — Serra Honda — sales leads only — week ending May 2, 2026" to duane.wells@huminic.ai (via MCP)
+[WeeklyReport] Sent. messageId=cb305d77-cd6c-42da-bb35-d85c2a380113
+
+# --- Resend response JSON (from resend-response.json) ---
+{"sent":true,"messageId":"cb305d77-cd6c-42da-bb35-d85c2a380113"}

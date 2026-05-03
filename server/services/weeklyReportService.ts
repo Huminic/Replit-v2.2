@@ -443,12 +443,6 @@ export interface WeeklyReportData {
 
   // rev-6: Test-phone filter drop counts (per list).
   testPhoneFilterStats: TestPhoneFilterStats;
-
-  // TRG-RPT-001 hotfix (2026-04-21): true when buildWeeklyReport was called
-  // with the opt-in salesOnlyLeadIds filter. Renderer uses this to switch
-  // the "Leads This Week" tile label to "Sales leads". Optional for
-  // backward compat — undefined is treated as false.
-  salesFilterActive?: boolean;
 }
 
 export interface BuildReportResult {
@@ -457,37 +451,16 @@ export interface BuildReportResult {
 }
 
 /**
- * TRG-RPT-001 hotfix (2026-04-21): opt-in sales-only filter.
+ * Chunk 1B (2026-05-02): sales-only filter is default-on.
  *
- * The warehouse_leads table has no lead_type column — only VIN Solutions has
- * the sales-vs-service distinction. Until BL-107 adds lead_type to the
- * warehouse + sync extension, callers can pass a pre-computed Set of
- * warehouse source_id values that were classified as "sales" (INTERNET /
- * PHONE / WALK_IN / REFERRAL) via a live VIN API classification pass.
- *
- * When `salesOnlyLeadIds` is undefined, buildWeeklyReport's behavior is
- * unchanged (counts include service + parts leads as before).
- *
- * When `salesOnlyLeadIds` is a Set:
- *   - current-week lead lists are filtered to rows whose source_id is in the set
- *   - count queries that read lead-level current-week data are filtered too
- *   - the rendered "Leads This Week" tile re-labels to "Sales leads"
- *   - prior-week data is NOT filtered (we don't have last week's VIN
- *     classification; trend arrows still compare against raw prior-week
- *     warehouse data — acceptable for the one-off regeneration)
+ * Service-classified rows (vin_status LIKE 'SERVICE%') are excluded at the
+ * query layer for every site that feeds a weekly-report tile. The previous
+ * opt-in `salesOnlyLeadIds: Set<string>` plumbing (TRG-RPT-001 hotfix
+ * 2026-04-21) was always opt-in and never invoked in production — removed
+ * entirely so this filter is the single source of behavior. See
+ * server/statusClassifier.ts isServiceLead() for the in-code classifier
+ * (SQL predicate kept aligned with classifyVinStatus's 'SERVICE_' prefix).
  */
-export interface BuildReportOptions {
-  salesOnlyLeadIds?: Set<string>;
-}
-
-/**
- * Sales-only filter mode flag added to WeeklyReportData. Renderer uses it to
- * switch labels. Validator does not enforce anything around it.
- */
-function isSalesFilterActive(opts: BuildReportOptions | undefined): boolean {
-  return !!(opts && opts.salesOnlyLeadIds && opts.salesOnlyLeadIds.size >= 0);
-}
-
 export interface ValidationResult {
   ok: boolean;
   failures: string[];
@@ -854,11 +827,8 @@ export async function buildWeeklyReport(
   orgId: string,
   weekStart: Date,
   weekEnd: Date,
-  opts: BuildReportOptions = {},
 ): Promise<BuildReportResult> {
   const warnings: string[] = [];
-  const salesFilterActive = !!opts.salesOnlyLeadIds;
-  const salesIds = opts.salesOnlyLeadIds || null;
 
   // 1. Resolve org name + agent name
   const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
@@ -867,8 +837,12 @@ export async function buildWeeklyReport(
   }
   const agentName = await getPrimaryAgentName(orgId);
 
-  // 2. Leads created in window (non-null vin_created_at only — null is a VIN defect per Q3)
-  const leadsInWindowRaw = await db
+  // 2. Leads created in window (non-null vin_created_at only — null is a VIN defect per Q3).
+  //    Chunk 1B: SERVICE_* rows are excluded by default at the query layer
+  //    (matches isServiceLead — see server/statusClassifier.ts). PostgreSQL
+  //    LIKE is case-sensitive; all observed leaks have uppercase SERVICE_*
+  //    values per Dispatch 2 finding §7.
+  const leadsInWindow = await db
     .select()
     .from(warehouseLeads)
     .where(
@@ -877,21 +851,9 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, weekStart),
         lte(warehouseLeads.vinCreatedAt, weekEnd),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
-  // TRG-RPT-001 hotfix: opt-in sales-only filter. Applied in-memory to keep
-  // the query shape stable across both code paths. sourceId is the VIN leadId
-  // (verified 2026-04-21 by comparing warehouse_leads.source_id to VIN
-  // items[].leadId for all 5 dealerships).
-  const leadsInWindow = salesIds
-    ? leadsInWindowRaw.filter((l) => l.sourceId != null && salesIds.has(String(l.sourceId)))
-    : leadsInWindowRaw;
-  if (salesFilterActive) {
-    const filteredOut = leadsInWindowRaw.length - leadsInWindow.length;
-    warnings.push(
-      `Sales-only filter applied: ${filteredOut} of ${leadsInWindowRaw.length} warehouse leads excluded (non-sales lead types per VIN API).`,
-    );
-  }
 
   // Count nulls for transparency
   const [{ nullCount }] = await db
@@ -1218,7 +1180,8 @@ export async function buildWeeklyReport(
     bySourceThisWeek.set(key, (bySourceThisWeek.get(key) || 0) + 1);
   }
 
-  // Prior week (weekStart - 7d, weekStart)
+  // Prior week (weekStart - 7d, weekStart). Chunk 1B: SERVICE_* excluded
+  // symmetrically with this-week so trend arrows compare like-with-like.
   const priorWeekStart = new Date(weekStart.getTime() - 7 * 24 * 60 * 60 * 1000);
   const priorWeekLeads = await db
     .select({ leadSource: warehouseLeads.leadSource })
@@ -1229,6 +1192,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   const bySourcePriorWeek = new Map<string, number>();
@@ -1334,27 +1298,21 @@ export async function buildWeeklyReport(
       ),
     );
 
-  // TRG-RPT-001 hotfix: when sales-only filter active, use the filtered
-  // leadsInWindow as the leadsSynced count proxy so activity totals reflect
-  // the sales-only scope. The original query counted every synced row
-  // regardless of vinCreatedAt, which conflates sync activity with lead
-  // volume; the filtered path is the honest sales-only number.
-  let leadsSynced: number;
-  if (salesFilterActive) {
-    leadsSynced = leadsInWindow.length;
-  } else {
-    const [row] = await db
-      .select({ leadsSynced: sql<number>`COUNT(*)::int` })
-      .from(warehouseLeads)
-      .where(
-        and(
-          eq(warehouseLeads.organizationId, orgId),
-          gte(warehouseLeads.syncedAt, weekStart),
-          lte(warehouseLeads.syncedAt, weekEnd),
-        ),
-      );
-    leadsSynced = Number(row.leadsSynced);
-  }
+  // leadsSynced is a sync-activity metric (rows synced in window, regardless
+  // of vinCreatedAt). Per Dispatch 2 finding §9, sync-activity counts do NOT
+  // touch warehouse_leads.vinStatus and are not part of the 6 leak sites; we
+  // keep this query unchanged.
+  const [leadsSyncedRow] = await db
+    .select({ leadsSynced: sql<number>`COUNT(*)::int` })
+    .from(warehouseLeads)
+    .where(
+      and(
+        eq(warehouseLeads.organizationId, orgId),
+        gte(warehouseLeads.syncedAt, weekStart),
+        lte(warehouseLeads.syncedAt, weekEnd),
+      ),
+    );
+  const leadsSynced = Number(leadsSyncedRow.leadsSynced);
 
   const [{ adfDelivered }] = await db
     .select({ adfDelivered: sql<number>`COUNT(*)::int` })
@@ -1700,6 +1658,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
 
@@ -1752,7 +1711,8 @@ export async function buildWeeklyReport(
     );
 
   // Prior-week ghosted / stalled / over48h — re-applies the ghosted and
-  // single-followup logic to the prior-week window.
+  // single-followup logic to the prior-week window. Chunk 1B: SERVICE_*
+  // excluded so prior-week ghosted/stalled comparisons stay symmetric.
   const priorLeadsInWindow = await db
     .select()
     .from(warehouseLeads)
@@ -1762,6 +1722,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinCreatedAt),
         gte(warehouseLeads.vinCreatedAt, priorWeekStart),
         lt(warehouseLeads.vinCreatedAt, weekStart),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   const priorLeadsWithPhone = priorLeadsInWindow.filter(
@@ -1857,7 +1818,11 @@ export async function buildWeeklyReport(
   // count), and a separate count for PRIOR week LOST_BAD_LEAD.
   // -------------------------------------------------------------------------
 
-  const statusRowsThisWeekRaw = await db
+  // Chunk 1B: SERVICE_* excluded at the query layer — keeps the
+  // LOST_BAD_LEAD featured card and prior-week WoW delta consistent with the
+  // rest of the report (and removes the conceptual leak flagged in
+  // Dispatch 2 §3 on the LOST_BAD_LEAD prefix predicate).
+  const statusRowsThisWeek = await db
     .select({
       sourceId: warehouseLeads.sourceId,
       vinStatus: warehouseLeads.vinStatus,
@@ -1870,12 +1835,9 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinUpdatedAt),
         gte(warehouseLeads.vinUpdatedAt, weekStart),
         lte(warehouseLeads.vinUpdatedAt, weekEnd),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
-  // TRG-RPT-001 hotfix: filter status-breakdown rows through salesIds when active.
-  const statusRowsThisWeek = salesIds
-    ? statusRowsThisWeekRaw.filter((r) => r.sourceId != null && salesIds.has(String(r.sourceId)))
-    : statusRowsThisWeekRaw;
 
   const leadStatusBreakdown: LeadStatusBreakdown = {
     active: 0,
@@ -1908,7 +1870,8 @@ export async function buildWeeklyReport(
     );
   }
 
-  // Prior-week LOST_BAD_LEAD count (for WoW delta on the featured card)
+  // Prior-week LOST_BAD_LEAD count (for WoW delta on the featured card).
+  // Chunk 1B: SERVICE_* excluded symmetrically with this-week.
   const priorStatusRows = await db
     .select({
       vinStatus: warehouseLeads.vinStatus,
@@ -1921,6 +1884,7 @@ export async function buildWeeklyReport(
         isNotNull(warehouseLeads.vinUpdatedAt),
         gte(warehouseLeads.vinUpdatedAt, priorWeekStart),
         lt(warehouseLeads.vinUpdatedAt, weekStart),
+        sql`UPPER(${warehouseLeads.vinStatus}) NOT LIKE 'SERVICE\\_%' ESCAPE '\\'`,
       ),
     );
   let priorLostBadLead = 0;
@@ -1944,33 +1908,21 @@ export async function buildWeeklyReport(
   // from the week-scoped leadStatusBreakdown.active count.
   // -------------------------------------------------------------------------
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  // TRG-RPT-001 hotfix: when sales-only filter active, approximate the 30-day
-  // active count using only the current-week slice that passed the filter.
-  // The full 30-day VIN classification is out of scope for this one-off
-  // regeneration (5x the API volume). The number is still directionally
-  // correct — it undercounts active sales leads from prior weeks in the
-  // 30-day window, but never overcounts. BL-107 fixes this properly.
-  let score30DayActive: number;
-  if (salesFilterActive) {
-    // Count only current-week sales leads with ACTIVE_ status.
-    score30DayActive = leadsInWindow.filter((l) => {
-      const status = (l.vinStatus || "").toUpperCase();
-      return status.startsWith("ACTIVE_");
-    }).length;
-  } else {
-    const [{ activeCount }] = await db
-      .select({ activeCount: sql<number>`COUNT(*)::int` })
-      .from(warehouseLeads)
-      .where(
-        and(
-          eq(warehouseLeads.organizationId, orgId),
-          isNotNull(warehouseLeads.vinCreatedAt),
-          gte(warehouseLeads.vinCreatedAt, thirtyDaysAgo),
-          sql`UPPER(${warehouseLeads.vinStatus}) LIKE 'ACTIVE\\_%' ESCAPE '\\'`,
-        ),
-      );
-    score30DayActive = Number(activeCount) || 0;
-  }
+  // The 'ACTIVE_' prefix predicate is sales-honest by construction — service
+  // rows use the 'SERVICE_' prefix per server/statusClassifier.ts, so no
+  // additional NOT-LIKE-SERVICE filter is needed here.
+  const [{ activeCount }] = await db
+    .select({ activeCount: sql<number>`COUNT(*)::int` })
+    .from(warehouseLeads)
+    .where(
+      and(
+        eq(warehouseLeads.organizationId, orgId),
+        isNotNull(warehouseLeads.vinCreatedAt),
+        gte(warehouseLeads.vinCreatedAt, thirtyDaysAgo),
+        sql`UPPER(${warehouseLeads.vinStatus}) LIKE 'ACTIVE\\_%' ESCAPE '\\'`,
+      ),
+    );
+  const score30DayActive = Number(activeCount) || 0;
 
   const priorWeekMetrics: PriorWeekMetrics = {
     leads: Number(priorLeads),
@@ -2211,8 +2163,6 @@ export async function buildWeeklyReport(
       statusBreakdown: statusBreakdownTestPhonesFiltered,
       fastestAction: 0, // set below after fastestActionList filter
     },
-    // TRG-RPT-001 hotfix (2026-04-21): opt-in sales-only filter marker
-    salesFilterActive,
   };
 
   // rev-6: Apply test-phone filter to fastestActionList too. ghostedActionRows
@@ -3322,11 +3272,9 @@ export function renderWeeklyReportHtml(data: WeeklyReportData): string {
                     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:separate;border-spacing:0;">
                       <tr>
                         ${miniTile(
-                          data.salesFilterActive ? "Sales Leads This Week" : "Leads This Week",
+                          "Sales Leads This Week",
                           data.leadsReceivedThisWeek,
-                          data.salesFilterActive
-                            ? "New sales leads that came into VIN Solutions"
-                            : "New leads that came into VIN Solutions",
+                          "New sales leads that came into VIN Solutions",
                           data.kpiArrows.leads,
                           textInk,
                         )}
@@ -4078,7 +4026,10 @@ export async function sendWeeklyReportProduction(
     month: "short",
     day: "numeric",
   });
-  const subject = `\uD83D\uDE97 AI Dealership Performance Analysis \u2014 ${data.orgName} \u2014 week ending ${weekEndDate}`;
+  // Chunk 1B: subject is explicit about scope. The report is sales-only by
+  // default (service rows excluded at the query layer); the subject line now
+  // states this so the email reads as a sales report standalone.
+  const subject = `\uD83D\uDE97 Weekly Sales Report \u2014 ${data.orgName} \u2014 sales leads only \u2014 week ending ${weekEndDate}`;
 
   // Lazy import to avoid a circular/ordering dependency between the two
   // services at module load (notificationService → weeklyReportService is
