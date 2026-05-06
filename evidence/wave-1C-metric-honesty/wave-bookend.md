@@ -130,4 +130,109 @@ Optional helpers:
 
 ## CLOSING
 
-(Section intentionally empty until wave completes. Lead fills using the wave-bookend template's CLOSING section.)
+**Closed:** 2026-05-06
+**Wave-level verdict:** GATE-CLEAN — code-level proof PASS. Runtime proof deferred to operator pre-merge.
+
+### Changed files (final, aggregated across 6 chunks)
+
+| File | Chunks | Net change |
+|---|---|---|
+| `server/routes/insights.ts` | S1, S4, S5 | +74/-13 |
+| `server/storage.ts` | S2 | +8/-1 |
+| `server/vendorProxy.ts` | S3 | +8/-2 |
+| `tests/agents/generated/sales.agent.spec.ts` | S6 | +5/-2 |
+| `tests/e2e/s1-ai-chat.spec.ts` | S6 | +2/-1 |
+
+5 files / +97/-19 / 6 commits.
+
+### Commits (wave branch `wave/5-insights/1C-metric-honesty`, base `batch-1-finish-line` at `857febf`)
+
+| Wave SHA | Cherry-pick source | Description |
+|---|---|---|
+| `dcffb19` | `7fe52bb` (S1) | drop hard-coded `trend: "flat"` on lead-source payload |
+| `a5bc106` | `62cf437` (S2) | server-side entityType filter on getActivityLogs |
+| `a467f14` | `6ce4ac6` (S3) | drop dead warehouse branch + null-out all-zero fallback |
+| `af06c3b` | `58ce181` (S4) | UPSTREAM sales-only predicate at getWarehouseLeads fetch sites |
+| `3c40091` | `d151cd8` (S5) | swap dishonest 30d conv-rate for lib-8 lifetime win rate |
+| `23742cf` | `ac723d1` (S6) | align stale assertions with Wave 1C honesty changes |
+
+### Per-chunk audit verdicts
+
+| Chunk | scope-guardian (isolated) | code-reviewer (isolated) | release-fit-reviewer (teammate) |
+|---|---|---|---|
+| S1 | PASS | APPROVE | FIT |
+| S2 | PASS | APPROVE (1 minor commit-body advisory; not blocking) | FIT |
+| S3 | PASS | APPROVE | FIT |
+| S4 | PASS | APPROVE | FIT |
+| S5 | PASS | APPROVE | FIT |
+| S6 | PASS | APPROVE | (deferred — covered by final wave-level scan) |
+
+Wave-level fit-reviewer scan: **FIT** — no fitness blockers.
+
+### Tests run (wave-level code proof)
+
+- `npx tsc --noEmit` on integrated wave branch → **PASS** (zero errors)
+- `npx vitest run tests/unit/` on integrated wave branch → **17 files PASS, 459 tests PASS, 2 skipped (intentional)** — duration 51s
+  - Preserves Wave 1B's "excludes service rows by default" and "excludes service rows across every tile type for every dealer org" → S4's UPSTREAM predicate did not regress Wave 1B coverage
+
+### Two deltas of proof (per chunk × 6)
+
+- **Delta 1 (mechanical scope):** scope-guardian PASS × 6 (each chunk's diff matched its declared scope)
+- **Delta 2 (semantic correctness):** code-reviewer APPROVE × 6 (no `required_changes_before_merge` across all chunks)
+
+### Provider proof / Playwright walks (NOT YET DONE — operator pre-merge step)
+
+Pre-authorized per allowlist autonomy + dev-deploy autonomy. Recommended next-session sequence:
+1. `pm2 reload nexxus-app --update-env` after switching dev to wave branch (DEV ONLY, port 5000, does NOT touch live container on port 5001).
+2. Playwright walk of `/insights` and `/sales` showing new shape; capture screenshots.
+3. Resend dry-run of weekly report with Wave 1C consolidated predicate to internal_operator (`duane.wells@huminic.ai`); preflight + destination-classification table required.
+4. Operator review of evidence pack → approve PR-to-main → live deploy gate.
+
+### Spec refinements documented (folded inline; recorded here for OPENING bookend reconciliation)
+
+| Chunk | Refinement | Rationale |
+|---|---|---|
+| S2 | Dropped `userId IS NOT NULL` from D-F1 #8 spec; kept only NULL-tolerant `entityType NOT IN ('sync','system')` | Builder consumer scan: original would break `triggerService.hasRecentTriggerSend` (SMS-spam risk for serra-honda) and `dailyRecapService.buildDailyRecap` counters (both depend on NULL-userId trigger rows). |
+| S3 | Used NULL-tolerant `entityType` filter form (`IS NULL OR NOT IN`) | SQL `NOT IN` excludes NULLs by default; would silently drop legitimate user-attributable rows whose call sites omit entityType. |
+| S5 | Path B chosen (consumer-side computation in `insights.ts`) over Path A (vendorProxy edit) | Targets the dishonest surface directly; vendorProxy's 30-day calc may have other consumers. Single helper `computeLifetimeWinRate` shared between dashboard tile and lib-8 push for single source of truth. |
+
+### Existing code inconsistencies surfaced (NOT touched in Wave 1C — v2.3 follow-ups)
+
+1. lib-8 displayed value formula at `:1047` is `sold/total`; lib-8 detail-case insight string at `:466` is `sold/(sold+lost)`. Disagree. Builder followed displayed-value formula. Product question for v2.3.
+2. `client/src/pages/sales.tsx:129` renders `${summary.conversionRate}%` literally; with `conversionRate` now possibly null, this produces "null%" string. **Wave 3F UI must fix** (render "—" or hide tile when null).
+3. Code-reviewer S2 advisory: commit body lists `login_failed`/`organization_created`/`hunches_generated` as `entityType` omitters; those writers actually set entityType. The IS-NULL branch is defensive-only, not load-bearing. Not amended.
+
+### Issues / backlog updates
+
+None new. Existing: `BL-107 lead_type schema migration` → v2.3 (not promoted). Wave 9-Sec triage (5 security items I-244/245/246/247/249) still queued.
+
+### Accepted debt
+
+- AD: lib-8 internal formula inconsistency (`:466` vs `:1047`) — v2.3 product question, not a release blocker.
+- AD: `null%` UX in `client/src/pages/sales.tsx:129` until Wave 3F handles null.
+- AD: S2 commit-body advisory (defensive IS-NULL branch). Not amended.
+
+### Rollback notes
+
+- Each chunk is its own commit on its own chunk branch + integrated wave branch.
+- Single-change revert: `git revert <chunk-sha-on-wave-branch>` and merge.
+- Worst case: drop the entire wave branch — `batch-1-finish-line` (HEAD `857febf`) is the pre-Wave-1C state. No DB migration to roll back; no schema change; no provider state to undo.
+
+### Merge recommendation (operator-approved sequence)
+
+1. After runtime proof PASS + operator GO: fast-forward merge wave branch into `batch-1-finish-line`:
+   `git checkout batch-1-finish-line && git merge --ff-only wave/5-insights/1C-metric-honesty`
+2. Then operator-approved push to remote (or PR-to-main if that's the merge target):
+   `git push origin batch-1-finish-line`  (operator approves the exact command)
+3. Live deploy gate is separate (`npm run build && pm2 restart nexxus-app` — explicit operator approval per CLAUDE.md hard rules).
+
+### Next-wave readiness
+
+- **YES** — Wave I-Auth (read-only auth audit; no dependency on Wave 1C).
+- **YES** — Wave 3F (Insights/Sales UI label-only changes; pre-locked scope markers; consumer-side handling of new null-tolerant API shape from this wave).
+- **CONDITIONAL** — Wave 2A (provider-proof workflows; independent of Wave 1C; ready when operator authorizes).
+
+### Orchestrator-side cleanup queue (next session)
+
+- 5 orphan worktrees in `.claude/worktrees/agent-*` from chunk subagent spawns; `git worktree remove -f -f` to clean (locks held by runtime).
+- `worktree-agent-a46c2ac9203612a77` orphan branch (created by S1 subagent runtime; chunk content already cherry-picked to wave branch as `dcffb19`; branch redundant). Operator-approved cleanup queue.
