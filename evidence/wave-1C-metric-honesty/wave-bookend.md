@@ -180,13 +180,36 @@ Wave-level fit-reviewer scan: **FIT** — no fitness blockers.
 - **Delta 1 (mechanical scope):** scope-guardian PASS × 6 (each chunk's diff matched its declared scope)
 - **Delta 2 (semantic correctness):** code-reviewer APPROVE × 6 (no `required_changes_before_merge` across all chunks)
 
-### Provider proof / Playwright walks (NOT YET DONE — operator pre-merge step)
+### Provider proof / Δ1 captured 2026-05-06 (qa-evaluator)
 
-Pre-authorized per allowlist autonomy + dev-deploy autonomy. Recommended next-session sequence:
-1. `pm2 reload nexxus-app --update-env` after switching dev to wave branch (DEV ONLY, port 5000, does NOT touch live container on port 5001).
-2. Playwright walk of `/insights` and `/sales` showing new shape; capture screenshots.
-3. Resend dry-run of weekly report with Wave 1C consolidated predicate to internal_operator (`duane.wells@huminic.ai`); preflight + destination-classification table required.
-4. Operator review of evidence pack → approve PR-to-main → live deploy gate.
+**Δ1 (provider-observed) — PASS.** Resend dry-run executed via Wave 1B precedent direct-invocation pattern (`npx tsx --env-file=.env -e "..."`) with `TESTLANE_MODE=true TESTLANE_EMAIL_TO=duane.wells@huminic.ai`.
+
+| Item | Value |
+|---|---|
+| Resend response | `{"sent":true,"messageId":"f443654b-bf71-494e-b09b-0714c12627e5"}` |
+| Recipient | `duane.wells@huminic.ai` (internal_operator allowlist; hard-routed by TESTLANE override) |
+| Subject prefix | `[testlane:wave-1c-runtime-proof]` (correctly tagged) |
+| Body bytes | 40,018 (rendered weekly report HTML) |
+| Numbers eye-check | varied trend arrows (↑/↓ — no `flat`); zero `sync_*` rows; no NaN/null%/undefined in visible text; `100%` hits all CSS literals (16/16) |
+| Halt conditions | all PASS (env, sent, status, subject, recipient, render) |
+
+**What Δ1 covers:** S1 (drop `trend:flat`) and S2 (entityType filter) — both directly observable in rendered email body. PASS for both.
+
+**What Δ1 does NOT cover:** S3 (vendorProxy null fallback), S5 (lib-8 lifetime win rate). These KPIs render on `/sales` and `/insights` browser surfaces — not surfaced in the weekly email. **Δ2 browser walks remain required** before Wave 1C is fully runtime-proven.
+
+Evidence files (committed alongside this update): `wave-proof/env-readiness.txt`, `wave-proof/send-runtime-log.txt`, `wave-proof/resend-response.json`, `wave-proof/post-1c-body.html`, `wave-proof/wave-1c-numbers-snapshot.md`, `wave-proof/unit-suite-rerun.txt`, `wave-proof/integration-suite-default.txt`, `wave-proof/build-gate-blocked.md`, `wave-proof/playwright-walk-plan.md` (Δ2 spec), `wave-proof/resend-preflight-staged.md` (Δ1 spec).
+
+### Δ2 (browser walks) — STILL REQUIRED (parked at build gate)
+
+Build approval (`npm run build && pm2 restart nexxus-app` on dev) is the unblocker. After build approval, Δ2 closes S3, S5, S6 visible-surface verification per `wave-proof/playwright-walk-plan.md`. Recommended next sequence:
+1. Operator approves `npm run build` (DEV) → orchestrator runs build with `# APPROVED:` suffix, then `pm2 restart nexxus-app`.
+2. qa-evaluator (or playwright-test-generator) walks `/insights`, `/sales`, `/dashboard` as `serra_honda@huminic.ai` (read-only). Captures 7 PNGs + `walk-summary.md`.
+3. Operator review of full Δ1+Δ2 evidence pack → approve `git merge --ff-only wave/5-insights/1C-metric-honesty` → push → live deploy (separate gate).
+
+### Backlog follow-ups surfaced by qa-evaluator (NOT blockers)
+
+1. `tests/integration/weeklyReport.send-live.test.ts` does not pass `testLaneSessionId` and does not put `[testlane:...]` in the subject. Under `TESTLANE_MODE=true` it would fail-closed by design. qa-evaluator used the direct-invocation fallback (Wave 1B precedent, explicitly authorized in `resend-preflight-staged.md`). **Backlog:** teach the test to self-mark.
+2. The html-eye-check helper regexes raw HTML for `100%`, catching CSS literals (`width:100%`, gradient stops). qa-evaluator manually unpacked all 16 hits and confirmed none are visible KPIs. **Backlog:** strip CSS/style attributes before regex.
 
 ### Spec refinements documented (folded inline; recorded here for OPENING bookend reconciliation)
 

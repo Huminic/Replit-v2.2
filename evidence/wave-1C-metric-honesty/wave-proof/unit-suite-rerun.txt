@@ -1,0 +1,129 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/ubuntu/Claude-store/nexxus2.2_replit[39m
+
+ [32m✓[39m tests/unit/weeklyReport.validator.test.ts [2m([22m[2m93 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+[90mstdout[2m | tests/unit/dailyRecap.test.ts
+[22m[39mSEED_DEMO_DATA=true — forcing demo data seed path for staging.
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts
+[22m[39mSEED_DEMO_DATA=true — forcing demo data seed path for staging.
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcalls send for an org in the window and records weekly_report_sent
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Honda (org-1) — reason=primary_window local=2026-04-20 07:15 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcalls send for an org in the window and records weekly_report_sent
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Honda: SENT messageId=msg-abc to=1 cc=1 bcc=1
+
+[90mstdout[2m | tests/unit/dailyRecap.test.ts[2m > [22m[2mrunDailyRecapScheduler[2m > [22m[2mfires for an enabled org at the recap hour
+[22m[39m[DailyRecapScheduler] firing for Acme (o1) — reason=primary_window local=2026-04-30 18:00 tz=America/Chicago window=2026-04-30T05:00:00.000Z..2026-04-30T23:00:00.000Z
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mlogs weekly_report_skipped with validationFailures when validation fails
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Honda (org-1) — reason=primary_window local=2026-04-20 07:00 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mlogs weekly_report_skipped with validationFailures when validation fails
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Honda: SKIPPED reason=validation_failed error=(none)
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Honda (org-1) — reason=primary_window local=2026-04-20 07:10 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Honda: SENT messageId=msg-org-1 to=1 cc=1 bcc=1
+
+[90mstdout[2m | tests/unit/dailyRecap.test.ts[2m > [22m[2mrunDailyRecapScheduler[2m > [22m[2misolates failure of one org so others still run
+[22m[39m[DailyRecapScheduler] firing for AcmeA (oA) — reason=primary_window local=2026-04-30 18:00 tz=America/Chicago window=2026-04-30T05:00:00.000Z..2026-04-30T23:00:00.000Z
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Nissan (org-2) — reason=primary_window local=2026-04-20 07:10 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Nissan: unexpected error: Error: simulated send explosion
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Tony Serra Ford (org-3) — reason=primary_window local=2026-04-20 07:10 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/dailyRecap.test.ts[2m > [22m[2mrunDailyRecapScheduler[2m > [22m[2misolates failure of one org so others still run
+[22m[39m[DailyRecapScheduler] firing for AcmeB (oB) — reason=primary_window local=2026-04-30 18:00 tz=America/Chicago window=2026-04-30T05:00:00.000Z..2026-04-30T23:00:00.000Z
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mcontinues processing remaining orgs when one throws — error isolation
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Tony Serra Ford: SENT messageId=msg-org-3 to=1 cc=1 bcc=1
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mpasses safetyBcc=null when WEEKLY_REPORT_SAFETY_BCC_DISABLED=1, otherwise the operator email
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Honda (org-1) — reason=primary_window local=2026-04-20 07:00 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mpasses safetyBcc=null when WEEKLY_REPORT_SAFETY_BCC_DISABLED=1, otherwise the operator email
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Honda: SENT messageId=m to=1 cc=1 bcc=0
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mpasses safetyBcc=null when WEEKLY_REPORT_SAFETY_BCC_DISABLED=1, otherwise the operator email
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] firing for Serra Honda (org-1) — reason=primary_window local=2026-04-20 07:00 tz=America/Chicago
+
+[90mstdout[2m | tests/unit/weeklyReport.scheduler.test.ts[2m > [22m[2mrunWeeklyReportScheduler (orchestration)[2m > [22m[2mpasses safetyBcc=null when WEEKLY_REPORT_SAFETY_BCC_DISABLED=1, otherwise the operator email
+[22m[39m3:39:11 PM [weekly-report] [WeeklyReportScheduler] Serra Honda: SENT messageId=m to=1 cc=1 bcc=0
+
+ [32m✓[39m tests/unit/weeklyReport.scheduler.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m tests/unit/dailyRecap.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m tests/unit/organizations.list.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/businessHours.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/unit/refreshTokenRotation.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m tests/unit/test-lane-guards.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m tests/unit/vapiInboundGuard.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/templateSubstitute.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/preLaunchSmsGuard.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/roleGuard.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/getConversationForRecipient.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/metric-delta.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/leadContactMatch.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/statusClassifier.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/leadSourceFormat.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[90mstdout[2m | tests/unit/weeklyReport.content.test.ts[2m > [22m[2mbuildWeeklyReport (live staging data, revision 2)[2m > [22m[2mprints rev-5 per-store diagnostics (arrows, winners/losers, phone counts)
+[22m[39m[rev5-diag] Ford of Columbia | leads=309/388 ghosted=53/52 over48h=37/52 stalled=1/2 score=37/22 notifs=1/7 adf=0/0 triggers=0/0 inbound=1/7
+[rev5-diag] Ford of Columbia ARROWS | score=up leads=down ghosted=up over48h=down stalled=down notifs=down adf=flat triggers=flat
+[rev5-diag] Ford of Columbia SPLIT | winners=4 losers=5 RENDER phones=6 masked=0 ghosted-ages=5 stalled-ages=1
+[rev5-diag] Ford of Columbia top-winner="Source #3669331" delta=+15
+[rev5-diag] Ford of Columbia top-loser="Cargurus" delta=-15
+[rev5-diag] Ford of Columbia whatMoved: Source #3669331 and Cars.com were the clearest gains. Cargurus was the biggest drop in the visible source mix. Keeping this section short makes it easier to scan.
+
+[90mstdout[2m | tests/unit/weeklyReport.content.test.ts[2m > [22m[2mbuildWeeklyReport (live staging data, revision 2)[2m > [22m[2mprints rev-5 per-store diagnostics (arrows, winners/losers, phone counts)
+[22m[39m[rev5-diag] Hyundai of Columbia | leads=573/650 ghosted=58/48 over48h=43/48 stalled=2/3 score=28/28 notifs=4/36 adf=0/0 triggers=0/0 inbound=2/18
+[rev5-diag] Hyundai of Columbia ARROWS | score=flat leads=down ghosted=up over48h=down stalled=down notifs=down adf=flat triggers=flat
+[rev5-diag] Hyundai of Columbia SPLIT | winners=4 losers=5 RENDER phones=7 masked=0 ghosted-ages=5 stalled-ages=2
+[rev5-diag] Hyundai of Columbia top-winner="Source #8" delta=+16
+[rev5-diag] Hyundai of Columbia top-loser="Cargurus" delta=-23
+[rev5-diag] Hyundai of Columbia whatMoved: Source #8 and Source #3866624 were the clearest gains. Cargurus was the biggest drop in the visible source mix. Keeping this section short makes it easier to scan.
+
+[90mstdout[2m | tests/unit/weeklyReport.content.test.ts[2m > [22m[2mbuildWeeklyReport (live staging data, revision 2)[2m > [22m[2mprints rev-5 per-store diagnostics (arrows, winners/losers, phone counts)
+[22m[39m[rev5-diag] Serra Honda | leads=100/135 ghosted=4/0 over48h=0/0 stalled=1/0 score=98/100 notifs=58/176 adf=0/3 triggers=1/2 inbound=1/2
+[rev5-diag] Serra Honda ARROWS | score=down leads=down ghosted=up over48h=flat stalled=up notifs=down adf=down triggers=down
+[rev5-diag] Serra Honda SPLIT | winners=4 losers=5 RENDER phones=5 masked=0 ghosted-ages=4 stalled-ages=1
+[rev5-diag] Serra Honda top-winner="Source #256928" delta=+4
+[rev5-diag] Serra Honda top-loser="Source #3750035" delta=-12
+[rev5-diag] Serra Honda whatMoved: Source #256928 and Source #3819124 were the clearest gains. Source #3750035 was the biggest drop in the visible source mix. Keeping this section short makes it easier to scan.
+
+[90mstdout[2m | tests/unit/weeklyReport.content.test.ts[2m > [22m[2mbuildWeeklyReport (live staging data, revision 2)[2m > [22m[2mprints rev-5 per-store diagnostics (arrows, winners/losers, phone counts)
+[22m[39m[rev5-diag] Serra Nissan | leads=87/80 ghosted=27/28 over48h=15/28 stalled=0/1 score=72/58 notifs=0/2 adf=0/2 triggers=0/0 inbound=0/2
+[rev5-diag] Serra Nissan ARROWS | score=up leads=up ghosted=down over48h=down stalled=down notifs=down adf=down triggers=flat
+[rev5-diag] Serra Nissan SPLIT | winners=4 losers=5 RENDER phones=5 masked=0 ghosted-ages=5 stalled-ages=0
+[rev5-diag] Serra Nissan top-winner="My Facebook Post" delta=+11
+[rev5-diag] Serra Nissan top-loser="Source #3743779" delta=-4
+[rev5-diag] Serra Nissan whatMoved: My Facebook Post and Other- come ask me were the clearest gains. Source #3743779 was the biggest drop in the visible source mix. Keeping this section short makes it easier to scan.
+
+[90mstdout[2m | tests/unit/weeklyReport.content.test.ts[2m > [22m[2mbuildWeeklyReport (live staging data, revision 2)[2m > [22m[2mprints rev-5 per-store diagnostics (arrows, winners/losers, phone counts)
+[22m[39m[rev5-diag] Tony Serra Ford | leads=64/38 ghosted=22/10 over48h=17/10 stalled=0/0 score=72/85 notifs=0/1 adf=0/0 triggers=0/0 inbound=0/1
+[rev5-diag] Tony Serra Ford ARROWS | score=down leads=up ghosted=up over48h=up stalled=flat notifs=down adf=flat triggers=flat
+[rev5-diag] Tony Serra Ford SPLIT | winners=4 losers=4 RENDER phones=5 masked=0 ghosted-ages=5 stalled-ages=0
+[rev5-diag] Tony Serra Ford top-winner="Source #20783" delta=+8
+[rev5-diag] Tony Serra Ford top-loser="Source #3743779" delta=-2
+[rev5-diag] Tony Serra Ford whatMoved: Source #20783 and Local Customer were the clearest gains. Source #3743779 was the biggest drop in the visible source mix. Keeping this section short makes it easier to scan.
+
+ [32m✓[39m tests/unit/weeklyReport.content.test.ts [2m([22m[2m69 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[33m 46638[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves a non-empty agent name for each dealership [33m 813[2mms[22m[39m
+     [33m[2m✓[22m[39m produces a shape-valid report for each dealership [33m 12934[2mms[22m[39m
+     [33m[2m✓[22m[39m excludes service rows by default — count drops vs raw warehouse total and labels read 'Sales Leads This Week' [33m 2923[2mms[22m[39m
+     [33m[2m✓[22m[39m excludes service rows across every tile type for every dealer org [33m 14535[2mms[22m[39m
+     [33m[2m✓[22m[39m prints rev-5 per-store diagnostics (arrows, winners/losers, phone counts) [33m 12574[2mms[22m[39m
+     [33m[2m✓[22m[39m returns empty window-scoped arrays for a zero-activity week window (far future) [33m 2201[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+[2m      Tests [22m [1m[32m459 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (461)[39m
+[2m   Start at [22m 15:39:08
+[2m   Duration [22m 48.26s[2m (transform 4.02s, setup 2.76s, import 7.55s, tests 47.04s, environment 3ms)[22m
+

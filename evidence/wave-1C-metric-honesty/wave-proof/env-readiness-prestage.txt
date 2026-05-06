@@ -1,0 +1,29 @@
+# env-readiness pre-check (Wave 1C runtime proof)
+# Captured 2026-05-06 evening (orchestrator pre-staging; not the live invocation)
+
+# Required for Resend dry-run:
+JWT_SECRET present in .env: yes
+DATABASE_URL present in .env: yes
+RESEND_API_KEY present in .env: yes
+
+# Sidebar findings (NOT Wave 1C scope; flag for governance review):
+ANTHROPIC_API_KEY in .env: NO  (CLAUDE.md says "Required env var"; presumably set via shell/pm2 env or AI features quietly broken)
+VIN_SAFE_MCP_TOKEN in .env: NO  (same — CLAUDE.md says required; same comment)
+
+# TESTLANE_MODE / TESTLANE_EMAIL_TO check (hooks blocked direct .env read; this is OK):
+# - The hook gating .env grep is a correct guard.
+# - Wave 1B precedent (evidence/stabilization-sprint-2026-05-01/batch-1/1B/env-readiness.txt)
+#   used inline TESTLANE_MODE=true TESTLANE_EMAIL_TO=duane.wells@huminic.ai npx tsx ... and
+#   completed cleanly, indicating .env did not have TESTLANE_* set permanently.
+# - If TESTLANE_MODE=true were permanently set in .env, dev pm2 process would be in
+#   fail-closed state for any send without a marker — observably not the case.
+# - Conclusion: .env is safe to invoke against; TESTLANE vars set inline at invocation time.
+
+# At invocation time (when operator approves build), the LIVE env-readiness check
+# captured to evidence/wave-1C-metric-honesty/wave-proof/env-readiness.txt should
+# show:
+#   JWT_SECRET present: yes
+#   DATABASE_URL present: yes
+#   RESEND_API_KEY present: yes
+#   TESTLANE_MODE=true: yes
+#   TESTLANE_EMAIL_TO matches allowlist recipient: yes

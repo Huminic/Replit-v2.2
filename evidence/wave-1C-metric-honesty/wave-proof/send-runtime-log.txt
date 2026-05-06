@@ -1,0 +1,14 @@
+[wave-1c] Starting Resend dry-run for Serra Honda
+[wave-1c] testLaneSessionId=wave-1c-runtime-proof
+[wave-1c] TESTLANE_MODE=true
+[wave-1c] TESTLANE_EMAIL_TO=duane.wells@huminic.ai
+[wave-1c] build warnings: Only 6 of 31 lead sources resolved by VIN API (19% coverage). Remaining entries display as "Source #{id}". Upstream VIN limitation — tracked under issue below.
+[wave-1c] narrative wordCount=182
+[wave-1c] validation: PASS
+[wave-1c] Wrote post-1c-body.html (40018 bytes)
+[wave-1c] html-eyecheck: contains-100%=true contains-NaN=false contains-flat-literal=false
+[WeeklyReport] Test-lane override ACTIVE sid=wave-1c-runtime-proof — original to=1 cc=0 bcc=0 -> hard-routed to duane.wells@huminic.ai
+[WeeklyReport] Sending report "[testlane:wave-1c-runtime-proof] 🚗 Weekly Sales Report — Serra Honda — sales leads only — week ending May 6, 2026" to duane.wells@huminic.ai (via MCP)
+[WeeklyReport] Sent. messageId=f443654b-bf71-494e-b09b-0714c12627e5
+[wave-1c] sent=true messageId=f443654b-bf71-494e-b09b-0714c12627e5 error=(none)
+[wave-1c] Wrote resend-response.json

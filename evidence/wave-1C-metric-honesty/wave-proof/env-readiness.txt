@@ -1,0 +1,11 @@
+# Wave 1C — env-readiness pre-check (live, captured at invocation)
+# Branch: wave/5-insights/1C-metric-honesty
+# Captured: 2026-05-06T15:40:33.969Z
+
+JWT_SECRET present: yes
+DATABASE_URL present: yes
+RESEND_API_KEY present: yes
+TESTLANE_MODE=true: yes
+TESTLANE_EMAIL_TO matches allowlist recipient: yes
+
+OVERALL: PASS — all 5 preflight checks
