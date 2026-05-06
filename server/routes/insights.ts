@@ -41,6 +41,20 @@ function resolveOrgIdParam(req: import("express").Request): string | null {
   return null;
 }
 
+/**
+ * Lifetime-style win rate as displayed by the lib-8 push at line ~1047:
+ * sold / total (NOT sold / (sold + lost)). Mirroring lib-8 keeps the
+ * dashboard tile and library card in agreement on a single source of truth.
+ *
+ * Returns null (not 0) when the sample is empty so the wire stays honest
+ * under small-sample / no-data conditions per S3's null-tolerant convention.
+ * Callers that need a numeric fallback (e.g. legacy lib-8 push) can `?? 0`.
+ */
+function computeLifetimeWinRate(soldCount: number, totalCount: number): number | null {
+  if (totalCount <= 0) return null;
+  return Math.round((soldCount / totalCount) * 1000) / 10;
+}
+
 export function registerInsightRoutes(app: Express) {
   app.get("/api/insights/dashboard", authenticateToken, async (req, res) => {
     try {
@@ -115,9 +129,13 @@ export function registerInsightRoutes(app: Express) {
       const totalLeads = allLeads.length;
       const hotCount = allLeads.filter(l => isActiveLead(l.vinStatus)).length;
       const soldCount = allLeads.filter(l => isSoldLead(l.vinStatus)).length;
-      const lostCount = allLeads.filter(l => isLostLead(l.vinStatus)).length;
-      const winRateDenom = soldCount + lostCount;
-      const conversionRate = winRateDenom > 0 ? Math.round((soldCount / winRateDenom) * 1000) / 10 : 0;
+      // Chunk 1C-S5: swapped dishonest 30-day sold/(sold+lost) for the lib-8
+      // lifetime-win-rate formula (sold/total). The legacy formula printed
+      // "100%" on small samples (1 sold + 0 lost). Returns null when the
+      // sample is empty (totalLeads === 0) so consumers can render honestly.
+      // Single source of truth: see computeLifetimeWinRate above and the
+      // matching lib-8 push at the /api/insights/library handler.
+      const lifetimeWinRate = computeLifetimeWinRate(soldCount, totalLeads);
       const newCount = allLeads.filter(l => isNewLead(l.vinStatus)).length;
 
       const sourceCounts: Record<string, { total: number; won: number; bad: number }> = {};
@@ -188,7 +206,7 @@ export function registerInsightRoutes(app: Express) {
           sold_leads: String(soldCount),
           lost_leads: String(lostCount),
           bad_leads: String(badCount),
-          conversion_rate: String(conversionRate),
+          conversion_rate: lifetimeWinRate == null ? "" : String(lifetimeWinRate),
           computed_from: "warehouse_leads",
         };
       }
@@ -228,7 +246,11 @@ export function registerInsightRoutes(app: Express) {
 
       return res.json({
         overview: {
-          totalLeads, hotCount, newCount, soldCount, conversionRate,
+          totalLeads, hotCount, newCount, soldCount,
+          // Chunk 1C-S5: field name preserved for wire compat; value now
+          // carries lib-8 lifetime win rate (sold/total). Null when no
+          // sample. UI consumer-side handling lands at Wave 3F.
+          conversionRate: lifetimeWinRate,
           metricsFromWarehouse: metricsMap,
         },
         redZone: { hotLeadsGoingCold, newLeadsNoContact, showroomNotClosed },
@@ -241,7 +263,16 @@ export function registerInsightRoutes(app: Express) {
         },
         greenZone: [
           { label: "Total Active Pipeline (30d)", value: hotCount, status: hotCount > 0 ? "healthy" : "empty" },
-          { label: "Conversion Rate", value: `${conversionRate}%`, status: conversionRate > 10 ? "healthy" : "watch" },
+          // Chunk 1C-S5: lib-8 lifetime win rate replaces the dishonest
+          // 30-day sold/(sold+lost) calc that printed "100%" on small samples.
+          // Null value + "unknown" status when sample is empty.
+          {
+            label: "Conversion Rate",
+            value: lifetimeWinRate == null ? null : `${lifetimeWinRate}%`,
+            status: lifetimeWinRate == null
+              ? "unknown"
+              : lifetimeWinRate > 10 ? "healthy" : "watch",
+          },
           { label: "Total Leads", value: totalLeads, status: "info" },
         ],
         pipelineHealth: {
@@ -1067,7 +1098,11 @@ export function registerInsightRoutes(app: Express) {
       const c7 = computeRateChange(freshLeads.length, activeLeads.length, priorFreshLeads.length, priorActiveLeads.length);
       libMetrics.push({ id: "lib-7", title: "Fresh Lead Ratio", value: `${freshRatio}%`, change: c7.change, trend: c7.trend, category: "Pipeline" });
 
-      const winRate = totalLeads > 0 ? Math.round((soldLeads.length / totalLeads) * 1000) / 10 : 0;
+      // Chunk 1C-S5: route lib-8 through the same computeLifetimeWinRate
+      // helper used by the dashboard tile. `?? 0` preserves the existing
+      // wire shape for the library card (numeric, never null). The dashboard
+      // tile passes through the null directly per S3's null-tolerant convention.
+      const winRate = computeLifetimeWinRate(soldLeads.length, totalLeads) ?? 0;
       const c8 = computeRateChange(soldLeads.length, totalLeads, priorSoldLeads.length, priorTotal);
       libMetrics.push({ id: "lib-8", title: "Lifetime Win Rate", value: `${winRate}%`, change: c8.change, trend: c8.trend, category: "Conversion" });
 
