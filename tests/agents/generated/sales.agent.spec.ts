@@ -198,7 +198,8 @@ test.describe("Sales API — Extended Validation", () => {
     if (res.status() === 200) {
       const body = await res.json();
       expect(body).toHaveProperty("period");
-      expect(body).toHaveProperty("source");
+      // Wave 1C (Chunk 1C-S3): "source" field removed from leadSummary response.
+      expect(body).not.toHaveProperty("source");
       expect(body).toHaveProperty("soldLeads");
       expect(body).toHaveProperty("waitingForResponse");
       expect(body).toHaveProperty("appointments");
@@ -215,7 +216,9 @@ test.describe("Sales API — Extended Validation", () => {
       expect(typeof body.newLeads).toBe("number");
       expect(typeof body.activeLeads).toBe("number");
       expect(typeof body.soldLeads).toBe("number");
-      expect(typeof body.conversionRate).toBe("number");
+      // Wave 1C (Chunks 1C-S3, 1C-S5): conversionRate is now number | null
+      // (null when sample empty, i.e. sold+lost = 0). typeof null === "object".
+      expect(body.conversionRate === null || typeof body.conversionRate === "number").toBe(true);
     }
   });
 

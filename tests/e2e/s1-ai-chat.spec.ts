@@ -171,7 +171,8 @@ test("S-1.AC6: VIN leads summary returns data for Serra Honda", async ({ request
   expect(res.status()).toBe(200);
   const data = await res.json();
   expect(data.totalLeads, "Serra Honda should have leads").toBeGreaterThan(0);
-  expect(data.source).toBe("warehouse");
+  // Wave 1C (Chunk 1C-S3): leadSummary.source "warehouse" literal removed; field is no longer emitted.
+  expect(data.source).toBeUndefined();
   console.log(`  VIN leads: total=${data.totalLeads}, new=${data.newLeads}, active=${data.activeLeads}`);
 });
 
