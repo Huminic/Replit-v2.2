@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { authenticateToken } from "../auth";
 import { storage } from "../storage";
-import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead } from "../statusClassifier";
+import { isActiveLead, isNewLead, isSoldLead, isLostLead, isBadLead, isServiceLead } from "../statusClassifier";
 import {
   computeAvgDaysToFirstContact,
   formatAvgDaysToFirstContact,
@@ -52,11 +52,18 @@ export function registerInsightRoutes(app: Express) {
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const [allLeads, metrics, sourceMap] = await Promise.all([
+      const [rawLeads, metrics, sourceMap] = await Promise.all([
         storage.getWarehouseLeads(orgId, { createdAfter: thirtyDaysAgo }),
         storage.getWarehouseMetrics(orgId, {}),
         getLeadSourceMap(orgId),
       ]);
+
+      // Wave 1C / Chunk 1C-S4 (D-F1 verdict #5): apply sales-only predicate
+      // UPSTREAM at the fetch site so every downstream tile sees a sales-scoped
+      // pipeline. Pattern matches Wave 1B's weeklyReportService.ts (predicate
+      // sourced from server/statusClassifier.ts:isServiceLead — locked
+      // underscore-strict).
+      const allLeads = rawLeads.filter(l => !isServiceLead(l.vinStatus));
 
       const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
@@ -263,11 +270,17 @@ export function registerInsightRoutes(app: Express) {
       const thirtyDaysAgo = new Date(now);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const [allLeads, metrics, sourceMap] = await Promise.all([
+      const [rawLeads, metrics, sourceMap] = await Promise.all([
         storage.getWarehouseLeads(orgId, {}),
         storage.getWarehouseMetrics(orgId, {}),
         getLeadSourceMap(orgId),
       ]);
+
+      // Wave 1C / Chunk 1C-S4 (D-F1 verdict #5): sales-only predicate UPSTREAM.
+      // Reports surface (loss analysis, source quality trends, performance
+      // summary) is sales-scoped — service-status leads must not pollute these
+      // counts. Pattern matches Wave 1B's weeklyReportService.ts.
+      const allLeads = rawLeads.filter(l => !isServiceLead(l.vinStatus));
 
       const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
@@ -355,7 +368,13 @@ export function registerInsightRoutes(app: Express) {
       const createdAfter = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000);
       const now = new Date();
 
-      const allLeads = await storage.getWarehouseLeads(orgId, { createdAfter });
+      const rawLeads = await storage.getWarehouseLeads(orgId, { createdAfter });
+      // Wave 1C / Chunk 1C-S4 (D-F1 verdict #5): sales-only predicate UPSTREAM.
+      // Every lib-N drill-down (status mix, lead-source win rate, walk-in close
+      // rate, hot lead conversion, contact time, etc.) is a sales-pipeline
+      // metric. Filter at the fetch site so all switch branches see a
+      // sales-scoped array. Pattern matches Wave 1B's weeklyReportService.ts.
+      const allLeads = rawLeads.filter(l => !isServiceLead(l.vinStatus));
 
       type Row = { label: string; value: string; detail?: string };
       let rows: Row[] = [];
@@ -716,12 +735,19 @@ export function registerInsightRoutes(app: Express) {
       const priorStart = new Date(periodStart);
       priorStart.setDate(priorStart.getDate() - lookbackDays);
 
-      const [allLeads, priorLeads, allOrgConversations, sourceMap] = await Promise.all([
+      const [rawLeads, rawPriorLeads, allOrgConversations, sourceMap] = await Promise.all([
         storage.getWarehouseLeads(orgId, { createdAfter: periodStart }),
         storage.getWarehouseLeads(orgId, { createdAfter: priorStart }),
         storage.getConversations(orgId),
         getLeadSourceMap(orgId),
       ]);
+
+      // Wave 1C / Chunk 1C-S4 (D-F1 verdict #5): sales-only predicate UPSTREAM
+      // at BOTH fetch sites (current + prior windows) so trend/delta math is
+      // computed sales-vs-sales. lib-1 through lib-34 are all sales-pipeline
+      // metrics. Pattern matches Wave 1B's weeklyReportService.ts.
+      const allLeads = rawLeads.filter(l => !isServiceLead(l.vinStatus));
+      const priorLeads = rawPriorLeads.filter(l => !isServiceLead(l.vinStatus));
 
       const fmtSrc = (raw: string | null | undefined) => formatLeadSource(raw, sourceMap);
 
