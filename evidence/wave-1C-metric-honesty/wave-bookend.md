@@ -199,12 +199,53 @@ Wave-level fit-reviewer scan: **FIT** — no fitness blockers.
 
 Evidence files (committed alongside this update): `wave-proof/env-readiness.txt`, `wave-proof/send-runtime-log.txt`, `wave-proof/resend-response.json`, `wave-proof/post-1c-body.html`, `wave-proof/wave-1c-numbers-snapshot.md`, `wave-proof/unit-suite-rerun.txt`, `wave-proof/integration-suite-default.txt`, `wave-proof/build-gate-blocked.md`, `wave-proof/playwright-walk-plan.md` (Δ2 spec), `wave-proof/resend-preflight-staged.md` (Δ1 spec).
 
-### Δ2 (browser walks) — STILL REQUIRED (parked at build gate)
+### Δ2 (browser walks) captured 2026-05-06 (qa-evaluator) — PASS
 
-Build approval (`npm run build && pm2 restart nexxus-app` on dev) is the unblocker. After build approval, Δ2 closes S3, S5, S6 visible-surface verification per `wave-proof/playwright-walk-plan.md`. Recommended next sequence:
-1. Operator approves `npm run build` (DEV) → orchestrator runs build with `# APPROVED:` suffix, then `pm2 restart nexxus-app`.
-2. qa-evaluator (or playwright-test-generator) walks `/insights`, `/sales`, `/dashboard` as `serra_honda@huminic.ai` (read-only). Captures 7 PNGs + `walk-summary.md`.
-3. Operator review of full Δ1+Δ2 evidence pack → approve `git merge --ff-only wave/5-insights/1C-metric-honesty` → push → live deploy (separate gate).
+**Δ2 (browser-observed) — PASS.** Operator approved build 2026-05-06; orchestrator ran `npm run build && pm2 restart nexxus-app` on dev (port 5000); qa-evaluator subagent dispatched per `feedback_agent_taxonomy.md` recommended pattern (verification-at-gate = subagent). 20-minute Playwright walk as `serra_honda@huminic.ai` read-only.
+
+| Item | Value |
+|---|---|
+| Login URL | `http://localhost:5000` (200 in <1s) |
+| Walk duration | ~20 min |
+| Screenshots captured | 7 PNGs (01–07) UTC-timestamped |
+| Console errors (new vs baseline) | NONE — only probe-induced 404/401 + pre-login `/api/auth/refresh` 400 (pre-existing) |
+| pm2 logs during walk | clean — no uncaught exceptions |
+| Halt conditions | all PASS (no 500s, no timeouts, no `100%` win-rate dishonesty, no infinite loading) |
+
+**Per-chunk runtime coverage:**
+
+| Chunk | Surface verified | Result |
+|---|---|---|
+| **S1** drop hard-coded `flat` | `/insights` Reports + Activity (50+ rows scanned) | **PROVEN** — zero `flat` literals on page; varied per-row trend values |
+| **S2** entityType filter | `/insights > Activity` tab + `/sales > Recent Activity` (50+ rows scanned) | **PROVEN** — zero `sync_*`, zero "system event", all rows user-attributable |
+| **S3** vendorProxy null-on-empty conversionRate | `/sales` Conversion Rate KPI card (network capture in `sales-summary-network-*.json`) | **PROVEN by API wire shape + correct math** — captured `{soldLeads:6, lostLeads:0, conversionRate:100}`. New formula `(sold+lost)>0 ? sold/(sold+lost)*100 : null` confirmed in effect; `100%` is honest math on this dataset (6/(6+0)). null branch is data-gated and not exercisable in dev today without contrived data. |
+| **S4** UPSTREAM sales-only predicate | `/sales` totals + `/insights` tiles | **INDIRECTLY PROVEN** — Total Leads 494 lifetime / 627 (30d), Sold 6 — consistent with Wave 1B Δ1 "Sales Leads This Week = 100" sales-only count |
+| **S5** lib-8 lifetime win rate swap | `/insights` Performance Scorecard "Win Rate" tile | **PROVEN** — renders `1.2%` (= 6/494 ≈ 1.21%, lifetime sample), NOT `100%`, NOT 30-day-window. The dishonest pre-1C value is gone. |
+| **S6** test housekeeping | covered by S3 wire-shape proof | n/a |
+
+Evidence files (committed alongside this update):
+- `wave-proof/01-insights-dashboard-*.png` — full above-fold dashboard
+- `wave-proof/02-insights-lib-8-winrate-*.png` — Performance Scorecard zoom (1.2% visible)
+- `wave-proof/03-insights-lead-source-*.png` — Loss & Quality reports section
+- `wave-proof/04-sales-leaderboard-*.png` — full /sales page
+- `wave-proof/05-sales-kpi-grid-*.png` — Conversion Rate + sales totals KPI cards
+- `wave-proof/06-sales-totals-*.png` — page totals zoom
+- `wave-proof/07-insights-activity-feed-*.png` — activity panel
+- `wave-proof/sales-summary-network-*.json` — captured API wire shape (proves S3)
+- `wave-proof/console-errors-*.log` — clean (3 expected probe-induced entries)
+- `wave-proof/walk-summary.md` — full dossier (halt-condition table, per-surface verdict, screenshots index)
+
+### Surprises surfaced during Δ2 (operator-relevant; NOT Wave 1C blockers)
+
+1. **Conversion Rate KPI renders `100%`.** Initially looked dishonest. Network capture proved it's the correct S3-formula output for Serra Honda's data (6 sold, 0 lost). The new formula `(sold+lost)>0 ? sold/(sold+lost)*100 : null` is in effect. **Wave 3F operator-note:** consider adding denominator-confidence rendering ("sample too small" / "confidence: low" treatment) when the denominator is small. A `100%` on `n=6` is mathematically true but visually misleading to dealership users. NOT Wave 1C scope; UI judgment call for Wave 3F.
+
+2. **No human-rep leaderboard exists on `/sales` today.** "Top Performing Agents" panel lists AI agents only (Data Guru, Sales Coach, Communication Writer, Caroline). The `playwright-walk-plan.md` referenced "rep leaderboard column" — that surface doesn't exist in dev. The S3 conversionRate is a single page-level KPI card, not a per-rep column. The `null%` literal at `client/src/pages/sales.tsx:129` did NOT manifest because the dataset never produced null. Wave 3F follow-up still appropriate (defensive guard).
+
+3. **`/dashboard` route returns 404.** Activity feed actually lives on `/insights > Activity` tab and `/sales > Recent Activity` panel — both verified.
+
+### Δ1 + Δ2 = wave fully two-delta-proven
+
+**Wave 1C is now ready for merge to `batch-1-finish-line`.**
 
 ### Backlog follow-ups surfaced by qa-evaluator (NOT blockers)
 

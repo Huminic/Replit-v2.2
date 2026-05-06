@@ -1,0 +1,6 @@
+Total messages: 0 (Errors: 0, Warnings: 0)
+Returning 3 messages for level "error"
+
+[ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:5000/api/auth/refresh:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5000/api/vin/lead-summary?days=30:0
+[ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5000/api/vin/leads/summary?days=30:0
