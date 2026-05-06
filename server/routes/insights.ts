@@ -135,7 +135,6 @@ export function registerInsightRoutes(app: Express) {
             winRate: srcWinRate,
             quality,
             badPct: data.total > 0 ? Math.round((data.bad / data.total) * 1000) / 10 : 0,
-            trend: "flat" as const,
             gradeColor: gradeColorMap[grade] || "gray",
           };
         });
