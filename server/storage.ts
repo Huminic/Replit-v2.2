@@ -1196,8 +1196,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivityLogs(organizationId: string, limit = 50): Promise<ActivityLog[]> {
+    // Chunk 1C-S2: drop system-event flood (sync_delta_completed et al.) from
+    // the dealer-facing feed. NULL-tolerant: legitimate user actions whose
+    // call sites omit entityType (login_failed, organization_created, etc.)
+    // are preserved.
     return db.select().from(activityLog)
-      .where(eq(activityLog.organizationId, organizationId))
+      .where(and(
+        eq(activityLog.organizationId, organizationId),
+        sql`(${activityLog.entityType} IS NULL OR ${activityLog.entityType} NOT IN ('sync', 'system'))`,
+      ))
       .orderBy(desc(activityLog.createdAt))
       .limit(limit);
   }
