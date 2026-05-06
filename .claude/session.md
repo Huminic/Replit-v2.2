@@ -1,175 +1,119 @@
-# Session — nexxus2.2_replit (operator-curated; authoritative)
+# Session — nexxus2.2_replit
 
-Last operator-curation: 2026-04-26
-Branch: wave-pe3
-Dirty entries: see `git status` (operator-pending product changes — see disposition table at bottom)
+**Date of this checkpoint:** 2026-05-06
+**Last operator action:** approved governance reset (Option D in-process for governance text only); confirmed orchestrator-as-advocate role; will manually `/compact` after this handoff.
+**Phase:** v2.2 release-factory governance reset COMPLETE. Wave 1C (server-only metric honesty) OPENED but NOT yet implementing. Wave I-Auth OPENED but NOT yet investigating.
 
-> **NOTE for hooks:** the session-end and pre-compact hooks write to `.claude/session-snapshot.md` (informational only). This `session.md` file is the authoritative operator-curated context for the next session. Do NOT clobber.
+---
 
-## ⚠️ AUTONOMY POLICY (effective 2026-04-25)
+## ✅ Done this session (2026-05-05 → 2026-05-06)
 
-The model is **NOT "block all real sends"**. The model IS:
+### Governance reset (six declared files written; eight ops folded)
 
-> **Allow real provider sends ONLY to approved internal/test destinations.**
-> **Block any send whose recipient is a real customer or unapproved external party.**
+- `roadmap.md` (NEW, 99 lines) — full v2.2 component map (11 phases) + v2.3 deferred map.
+- `plan.md` (REWRITE, 99 ins / 116 del) — narrowed to active-execution contract; phase frame moved to roadmap.md.
+- `evidence/wave-bookend-template.md` (NEW, 94 lines) — single template for all future waves.
+- `evidence/wave-1C-metric-honesty/wave-bookend.md` (NEW, 133 lines + Ops 1, 2, 7 folds) — Wave 1C OPENING.
+- `evidence/wave-I-auth-integrity/wave-bookend.md` (NEW, 111 lines + Ops 3, 4 folds) — Wave I-Auth OPENING (read-only).
+- `evidence/governance-reset-2026-05-05/runtime-deviation-in-process-teammate.md` (NEW, 74 lines) — Option D deviation note.
+- `evidence/governance-reset-2026-05-05/scope-guardian-verdict.md` (NEW, 24 lines) — PASS verdict capture.
+- `evidence/governance-reset-2026-05-05/code-reviewer-verdict.md` (NEW, 34 lines) — APPROVE verdict capture.
+- `evidence/governance-reset-2026-05-05/fit-reviewer-verdict.md` (NEW, 25 lines) — FIT verdict capture.
 
-### Autonomy ALLOWED after preflight
+### Audit gates passed (this session)
 
-- Edit code in approved scope (`server/`, `harness/`, `evidence/`, `tests/`, `comms-test.ts`) — UI files (`client/src/{pages,components,styles,layouts}/**`) still require per-file `.claude/state/scope/<basename>.ok` markers
-- Configure `TESTLANE_*` env vars in `.env`
-- `pm2 restart nexxus-app` / `pm2 reload nexxus-app --update-env` (DEV ONLY) — must show exact command + reason
-- Run `npx tsx server/comms-test.ts <fn>` against allowlisted test destinations
-- Check Resend / TextMagic / VAPI / Tavus logs / dashboards for proof
-- Use Playwright MCP browser actions on `localhost:5000`, `dev.huminicdev.com`, `live.huminic.app`
-- Create `[TESTLANE]`-marked records (campaigns, conversations, recipients, leads)
-- `harness/bin/test-lane-reset.sh` DRY-RUN, plus `--execute` with `TESTLANE_RESET_APPROVED=yes`
+- `scope-guardian` (isolated subagent) — **PASS**. Diff = exactly six declared paths; no client/server/shared/migrations/tests entries.
+- `code-reviewer` (isolated subagent) — **APPROVE** with `required_changes_before_merge: none`. 4 minor wording findings folded inline (Ops 1-4); finding #5 (D-* locks not in decisions.md) operator-directed NO-FIX.
+- `release-fit-reviewer` (teammate) — **FIT — proceed**. 1 actionable trim folded (Op 7); 2 advisory flags accepted-but-not-fixed (template heaviness; minor plan/roadmap duplication).
+- `qa-evaluator` (isolated subagent) — **PASS**. Two deltas confirmed independent (mechanical scope vs content correctness). All six files nonzero, plan.md is true rewrite, markdown well-formed.
 
-### STILL REQUIRES EXPLICIT APPROVAL
+### Markers written (this session)
 
-- Production deploy (anything affecting `live.huminic.app`)
-- Migration / schema change
-- VIN `execute` write after `prepare → review`
-- Adding or changing real customer recipients in any test
-- Enabling service campaigns for stores other than `serra-honda`
-- Sending to any non-allowlisted phone/email
-- Changing live Coolify env (container `phqqzjj5pal13wlp39m5ohx6-…`)
-- Restarting live Coolify container (any `docker restart` / `docker compose restart`)
-- Force push or push to main
-- Broad UI redesign
+- `.claude/state/completion/verify-scope.no-session.ok` (00:13)
+- `.claude/state/completion/code-review.no-session.ok` (00:13)
+- `.claude/state/completion/proof.no-session.ok` (00:13)
+- `.claude/state/completion/testing-level.step.no-session.ok` (00:14)
 
-## ⚠️ TEST SAFETY (verified 2026-04-25)
+⚠️ **All four have `.no-session.ok` suffix** — `mark-complete.sh` could not bind to a session-id (no `CLAUDE_SESSION_ID` exported in env). Per CLAUDE.md doctrine, `.no-session.ok` markers are inert. The Stop hook may block. Documented BROKEN governance, slated for **Wave 11-Gov**. Operator's manual `/compact` is the agreed path forward at session-end.
 
-**dev and live SHARE the same Supabase database.**
+---
 
-- `dev.huminicdev.com` → PM2 `nexxus-app` on port 5000 (local Node, working tree)
-- `live.huminic.app` → Coolify container `phqqzjj5pal13wlp39m5ohx6-…` on port 5001 (separate deployment; image `f4166227f5...`, started 2026-04-14)
-- Both connect to: `aws-1-us-west-2.pooler.supabase.com:6543/postgres` and `:5432/postgres`
+## 🤝 Agent team — `nexxus-release-factory` (4 members; persists across compaction)
 
-**Outbound posture is LIVE on both deployments.**
-
-- dev `.env`: `OUTBOUND_LIVE_ENABLED=true`, `ADF_MODE=live`, `ADF_TEST_EMAIL=duane.wells@huminic.ai`, `NODE_ENV=development`, `SEED_DEMO_DATA=true`
-- live container env: `OUTBOUND_LIVE_ENABLED=true`, `NODE_ENV=production`
-
-**All 7 named org_admin accounts are real dealership admins** (verified by DB query 2026-04-25):
-
-| email | role | org slug | ADF configured |
+| Member | Type | State | Reusable for |
 |---|---|---|---|
-| `serra_honda@huminic.ai` | org_admin | serra-honda | YES (Honda) |
-| `serra_nissan@huminic.ai` | org_admin | serra-nissan | YES (Nissan) |
-| `serra_ford@huminic.ai` | org_admin | tony-serra-ford | YES (Ford) |
-| `columbia_hyundai@huminic.ai` | org_admin | hyundai-of-columbia | NO |
-| `columbia_ford@huminic.ai` | org_admin | ford-of-columbia | NO |
-| `duanekwells@gmail.com` | partner_admin | cage-automotive | NO |
-| `duane.wells@huminic.ai` | super_admin | huminic | NO |
+| `team-lead` | orchestrator (this session) | active → handoff → stop | Lead role; spawns teammates and dispatches isolated subagents |
+| `release-product-logic` | teammate (general-purpose, in-process) | idle | Wave OPENING validation, scope-fit pre-check |
+| `release-builder` | teammate (general-purpose, in-process) | idle | Governance-text writes; product code TBD (worktree-team gap) |
+| `release-fit-reviewer` | teammate (general-purpose, in-process) | idle (standing brief) | Drift / over-complication / v2.3-leakage scans at every wave OPENING and CLOSING |
 
-All 7 orgs have `outbound_enabled=TRUE` and all per-channel flags ON. There is **no safe-by-default org**.
+Team config: `~/.claude/teams/nexxus-release-factory/config.json`
+Tasks: `~/.claude/tasks/nexxus-release-factory/` (#1, #2 completed; fit-reviewer scan task created and completed)
 
-## Serra Honda Test Lane (REQUIRED for every real-integration E2E)
+**Isolated audit subagents (used at gate; no team mailbox):** `scope-guardian`, `code-reviewer`, `integration-safety` (only when external-provider boundary touched), `qa-evaluator`.
 
-Encoded in code:
-- `server/outbound.ts:processOutboundSend` — two-way fail-closed test-lane guard
-- `server/services/notificationService.ts:applyTestLaneRecipientOverride` — admin-recipient override
-- `server/routes/webhooks.ts:submitAdfLead` — ADF fail-closed guard
+---
 
-Per-request markers (any one): `request.testLaneSessionId`, `[TESTLANE]`/`[testlane:` in `messageContent` / campaign name / `recipient.firstName==="TestLane"`.
+## 🔧 Active runtime deviations / known gaps
 
-Required env vars (operator sets in `.env` for test-lane sessions):
+1. **Worktree-with-team gap:** Agent-Teams runtime ignores `isolation: "worktree"` for team members. Accepted **for governance text only** per `evidence/governance-reset-2026-05-05/runtime-deviation-in-process-teammate.md`. Wave 1C implementation must either (a) get worktree+team to work, or (b) spawn implementer as isolated `Agent` subagent with `isolation: "worktree"` (operator pre-authorized this fallback in the deviation note).
+2. **Marker session-id binding gap:** `mark-complete.sh` writes `.no-session.ok` because `CLAUDE_SESSION_ID` isn't in env. Documented BROKEN; Wave 11-Gov fix.
+3. **Governance edit-scope hook gates `plan.md`:** `edit-scope-guard.sh` treats `plan.md` like `decisions.md` / `issues.md` (one-shot scope marker required). CLAUDE.md only enumerates UI paths under `client/src/`; the gate on `plan.md` is real but undocumented in CLAUDE.md.
 
-```
-TESTLANE_MODE=true
-TESTLANE_SMS_TO=+14126546500
-TESTLANE_EMAIL_TO=duanewells@icloud.com
-TESTLANE_VOICE_TO=+14126546500
-ADF_MODE=test
-ADF_TEST_EMAIL=duane.wells@huminic.ai
-```
+---
 
-Procedure:
+## 🚦 Operator decisions outstanding
 
-1. Operator sets the test-lane env vars in `.env`. PM2 restart with `pm2 reload nexxus-app --update-env` to load them (dev only; affects port 5000; does NOT touch the Coolify container on port 5001).
-2. Operator confirms `serra-honda` is on `.claude/state/test-orgs.txt` and the test phone/email are on `.claude/state/test-recipients.txt`.
-3. `harness/bin/test-lane-verify.sh pre <sid>` — pre-check + baseline DB snapshot.
-4. Generate a unique session id `<sid>` and use it on every `SendRequest.testLaneSessionId`.
-5. Run E2E paths. Every campaign named `[TESTLANE] <description>`. Every recipient `firstName="TestLane"`. Every conversation customer name `[TESTLANE] <id>`. Every manually-injected `warehouse_leads` row `customer_name='[TESTLANE] Trigger Probe <sid>'`.
-6. **Trigger-path tests off-by-default.** DO NOT enable the 15-min `checkTriggerConditions` poll against real `warehouse_leads`. Single manually-injected `[TESTLANE]`-marked rows ONLY.
-7. `harness/bin/test-lane-verify.sh post <sid>` — assert no non-test recipient was contacted.
-8. `harness/bin/test-lane-reset.sh` (DRY-RUN; `TESTLANE_RESET_APPROVED=yes ... --execute` after operator approval).
+None for the governance reset — all audit gates PASS / APPROVE / FIT. Operator action required only for:
 
-## Categorized allowlists (seeded 2026-04-25)
+- `/compact` when ready (this is the agreed stop point).
+- Wave 1C implementation kickoff at the next session.
+- Wave 9-Sec triage (5 items: I-244, I-245, I-246, I-247, I-249) when that wave opens.
 
-`.claude/state/test-recipients.txt`:
+Standing parked items unchanged: D-I2 (local main divergence), cosmetic legacy-file moves, D-I3 (console-error issue text — issue text not yet drafted).
 
-| Category | Entry |
+---
+
+## 🗺️ Wave roadmap (per plan.md)
+
+ACTIVE: **Wave 1C — Metric honesty (server-side)** at `evidence/wave-1C-metric-honesty/wave-bookend.md`.
+OPEN: **Wave I-Auth — Auth/account integrity audit (READ-ONLY)** at `evidence/wave-I-auth-integrity/wave-bookend.md`.
+QUEUED: 2A (Trigger 1/2 + service-campaign + webhook provider proof), 2B (Widget E2E), 3A (Push-to-VIN remove), 3B (Marketing tab routing), 3C (Marketing Insights filter), 3F (Insights/Sales label-only metric UI), 9-Sec (security triage), 11A (Final E2E + go/no-go), 11-Gov (harness session-marker + console-error).
+NOT IN v2.2: 3D (TeamBox channel filter — locked DEFER per D-H1; only re-enters v2.2 if operator unwinds).
+
+---
+
+## 🔁 Reset / methodology stance (orchestrator-advocate role)
+
+1. **Backup-first protocol** — before claiming any change irreversible, list two undo paths. If neither exists, escalate. Most things treated as irreversible were preparedly reversible (chunk branches, reverts, allowlist hooks, dev-first deploys).
+2. **Minimum-blast chunks** — every chunk on its own `chunk/<phase>/<wave>/<name>` branch; wave merge after gate-clean; phase merge after wave matrix; main merge with operator approval.
+3. **Phase-boundary cleanliness checkpoint** — at every wave CLOSING + phase CLOSING: working tree clean (or documented dirty), no orphan worktrees, MEMORY.md current, session-output.md written, branches archived/cleaned per cleanup queue, audit markers honest for that session-id only.
+4. **Operator-decision boundaries** (fixed per 2026-05-06):
+   - **Operator-only:** product/creative/UX wording, push, deploy, DB writes, real-customer sends, UI scope marker creation, Phase 9 security triage, Wave-N closing-to-main, unwinding any locked decision (D-A1/B1/F1/G1/H1).
+   - **Agent-verifiable:** everything else, including allowlisted test-lane sends while D-B1 holds.
+5. **Don't change design / creative / functionality.** Make the UI work as it claims.
+
+---
+
+## ⏭️ Next-session recommended action
+
+After `/compact`:
+1. Operator confirms governance-reset close-out PROVEN (evidence at `evidence/governance-reset-2026-05-05/`; this session's `qa-evaluator` PASS verdict captured in transcript only — optional Op 9 to capture to disk if operator wants the full evidence pack).
+2. Open **Wave 1C** implementation. First chunk: **1C-S1** — drop literal `trend: "flat"` at `server/routes/insights.ts:138` (smallest / lowest-risk warmup). Spawn **`release-builder-1C`** — re-attempt worktree+team; if still in-process, fall back to isolated `Agent` subagent (`isolation: "worktree"`, no `team_name`) per the deviation note.
+3. Auditors per chunk: `scope-guardian` + `code-reviewer` (isolated, no team mailbox); `release-fit-reviewer` (teammate) wakes at chunk close via `SendMessage`.
+
+---
+
+## Git posture at handoff
+
+| Field | Value |
 |---|---|
-| internal_operator | `+14126546500`, `duanewells@icloud.com` |
-| test_email | `duane.wells@huminic.ai` |
-| vapi_test_agent | `c303d993-bf42-4784-a8cb-247477b1cbdd` (Elliott) |
-| vin_test_contact | `Durran Cage` (resolved per-dealer via vin-safe-mcp) |
-| tavus_test | `popup-only` |
-| textmagic_test_number | TBD — operator to fill in 3 owned TextMagic numbers (receive-only / outbound-authorized / webhook-test) |
+| Branch | `batch-1-finish-line` |
+| HEAD | `13ee709` (Wave 1B merge — weekly-report sales-only filter) |
+| `origin/main` | `becb739` (P0 routing redirect via PR #6, LIVE) |
+| Local `main` | PARKED 47-file divergence (D-I2 — `evidence/governance-2026-05-01/local-main-divergence-2026-05-02.md`) |
+| Worktrees | main only |
+| Pushes this session | NONE |
+| Deploys this session | NONE |
 
-`.claude/state/test-orgs.txt`: `test_org:serra-honda` only.
-
-## ⚠️ TESTING DOCTRINE — see `~/Claude-store/sysadmin/harness/TESTING_DOCTRINE.md`
-
-Every claim of completion must specify a testing level:
-- **step** — single function/route/component change
-- **sprint** — backlog item / sprint completion (GUI testing MANDATORY for user-facing changes)
-- **phase** — phase exit (full route/feature eval suite + Playwright MCP smoke)
-- **pre-prod** — before deploy / production restart (full launch matrix, integration-safety, test-lane E2E)
-- **post-prod** — after approved deploy (live smoke only, no unsafe mutations)
-
-Marker: `mark-complete.sh testing-level <step|sprint|phase|pre-prod|post-prod> [evidence-path]`
-
-Evidence layout: `evidence/<task-id>/{step,sprint,phase,pre-prod,post-prod}/`.
-
-Nexxus required eval matrix per route (see TESTING_DOCTRINE.md "Nexxus eval / test commands"). Test commands:
-- `npm run test:e2e` (43 specs; 13 Playwright projects)
-- `npm run test:e2e:list` (list available)
-- `npx playwright test --project=workflow` (15 wf-*.spec.ts)
-- `npx playwright test --project=visual` (timeout 180s)
-- `node tests/pe-insights-03-eval.js` (Insights eval)
-- `npx tsx server/comms-test.ts <fn>` (allowlisted-only comms)
-
-Playwright MCP agents available: `playwright-test-planner`, `playwright-test-generator`, `playwright-test-healer` (Nexxus only, real files), plus `nexxus-e2e-evaluator` and `qa-evaluator` (harness symlinks).
-
-## Hard preconditions before ANY mutating test action
-
-1. Run `/home/ubuntu/Claude-store/sysadmin/harness/bin/test-safety-check.sh` (`/preflight` does this automatically for Nexxus).
-2. Operator confirmation in chat on each "OPERATOR DECISION REQUIRED" item.
-3. Allowlist check: `test-orgs-allowlist-check.sh org <slug>` AND `... recipient <target>` (exit 0 + category).
-4. Read-only login as a real org_admin is OK; mutating actions under those identities require per-action `# APPROVED:` marker AND operator confirmation.
-5. Service-campaign launch rule: Monday Apr 27 ships service capability ONLY for `serra-honda`.
-
-## Operator decisions still pending
-
-1. **Bearer-token rotation.** VIN-safe-mcp / dax-mcp / n8n-hyperbridge / Coolify tokens were checked into git history. Rotated → out of scope for harness. Currently moved to gitignored `settings.local.json`. The VIN-safe-mcp token also appears in plain text in `CLAUDE.md` line 75; replace with env-var reference and rotate.
-2. **Pre-existing dirty tree disposition** (table below).
-3. **Captain-introduced commit `0e0a0b3`** in history contains content the operator did not approve. Working-tree rewrite of `plan.md`/`backlog.md` supersedes it.
-4. **Service-campaign per-store flags** confirmed before launch: Serra Honda on, others off.
-5. **TextMagic 3-number classification** — operator to fill into `test-recipients.txt` with sub-categories (receive-only / outbound-authorized / webhook-test).
-
-## Pre-existing dirty tree disposition (operator decision needed)
-
-| File | Change | Recommendation |
-|---|---|---|
-| `plan.md` | Heavy rewrite (442→145 lines), removes captain-introduced `0e0a0b3` content | **Stage and commit** — IS the intended source of truth |
-| `backlog.md` | Heavy rewrite, matches new plan.md phase shape | **Stage and commit with plan.md** |
-| `decisions.md` | Adds 5 operator decisions dated 2026-04-24 | **Stage and commit** |
-| `client/src/pages/widget-landing.tsx` | Adds chat/voice/form auto-launch handlers (4-action widget bridge) | **Real bug fix.** Stage; future UI edits need per-file scope marker. |
-| `server/routes/organizations.ts` | Adds `additionalOrgIds` for org_admin (multi-store admins) | **Real bug fix.** Stage. |
-| `server/outbound.ts` (this session) | Test-lane guard | Stage with harness commit |
-| `server/services/notificationService.ts` (this session) | Admin-recipient test-lane override | Stage with harness commit |
-| `server/routes/webhooks.ts` (this session) | ADF test-lane fail-closed guard | Stage with harness commit |
-| `evidence/watchdog-alerts.log` | Log file growth | Operator preference |
-| `nexxus-migration.md` (deleted) | Now-obsolete | Stage deletion |
-| `.codex` (untracked) | Sentinel | Operator decides |
-| Untracked PRD/strategy/evidence docs | Today's research | Stage |
-
-## Approval bypass cheatsheet
-
-- Bash blocked: append `# APPROVED: <reason>`
-- Edit blocked file: `mkdir -p .claude/state/scope && touch .claude/state/scope/<basename>.ok`
-- Stop hook escape: `touch .claude/state/skip-stop-check`
-- Completion marker write: `/home/ubuntu/Claude-store/sysadmin/harness/bin/mark-complete.sh <kind> [args]`
-- Test-lane reset --execute: `TESTLANE_RESET_APPROVED=yes`
+`git status --short` will show: `M plan.md`, plus 5 new untracked governance-reset directories/files, plus pre-existing dirty entries (`.claude/session.md`, `evidence/watchdog-alerts.log`, `.claude/session-snapshot.md`, `.codex`, `evidence/governance-2026-05-01/*`, `uploads/`).

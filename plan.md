@@ -1,145 +1,128 @@
-# Nexxus v2.2 — Finish Plan
+# Nexxus v2.2 — Active Execution Plan
 
-**Living document.** Updated at phase boundaries and checkpoints.
+**Authority hierarchy:** This file authorizes execution. roadmap.md is the map. backlog.md is the queue. issues.md is defects/debt. evidence/ is proof. decisions.md is operator decisions.
 
-Referenced standards: `~/Claude-store/sysadmin/governance-framework/file-standards.md`.
-Detailed sprints in: `backlog.md`.
-Open defects in: `issues.md`.
+**Hierarchy of work:** Roadmap → Phase → Wave → Chunk → Step.
+
+**Active wave:** Wave 1C — Metric honesty (server-side). Owner: harness-backend teammate (when authorized). Audit: scope-guardian + code-reviewer + integration-safety (isolated subagents at gate, no team mailbox).
 
 ---
 
-## Version Context
+## Done so far in this release reset (PROVEN)
 
-Nexxus v2.2 is being finished from a UI-truth posture. The customer has used the interface and surfaced practical friction: confusing TeamBox navigation, meaningless metrics, unfinished or misleading modules, service-campaign readiness, trigger confidence, and uncertainty about how to fold the product into daily dealership work.
-
-The immediate planning objective is not to redesign the product. It is to verify what the app visibly promises, prove which workflows work end to end, revise the sprints from evidence, and finish the software in controlled chunks.
-
-### Operating Constraints
-
-- The UI is the truth. If a user can see it, it must be verified, fixed, hidden, gated, or explicitly deferred.
-- No broad UI redesign is approved.
-- Approved UI changes for this planning horizon are limited to:
-  - segmenting TeamBox access into relevant Sales/Service/Marketing submenu views, if preflight confirms the data model supports it
-  - revising/removing metrics so visible metrics answer useful dealership questions
-- New alerts, reports, hunches, competitive intelligence, FTC scanning, switchboard work, and similar ideas are planning candidates only until explicitly promoted.
-- All research, audits, and decision points are planned work inside this roadmap, not interruptions outside it.
-- VIN Solutions writes remain governed by the vin-safe-mcp prepare/review/execute/verify protocol in `CLAUDE.md`.
-
-### Evidence Inputs
-
-- `evidence/QA-S0/feature-map.md` — DOM/code feature map created from prior crawl.
-- `evidence/U-001/state-enumeration.md` — UI state enumeration.
-- `evidence/v2.2-inventory-2026-04-24.md` — static-code inventory; useful, but not a substitute for browser/UI validation.
-- `evidence/teambox-first-principles-2026-04-24.md` — prior TeamBox UX research; planning input, not automatic approval.
-- `docs/strategy/customer-call-strategy-2026-04-24.md` — customer-call strategy report; planning input, not automatic approval.
-- `hardwonknowledge.md` and `workflownotes.md` — operational risks and governance lessons.
-
-## Definition Of Done
-
-v2.2 is done when:
-
-- Critical customer-visible workflows pass end-to-end verification.
-- Service campaigns can be run, tested, and explained to the partner/customer.
-- Visible metrics are useful, supportable from real data, and not misleading.
-- TeamBox/service-message access is understandable enough for section users.
-- Broken, unfinished, or unpaid modules are fixed, hidden, gated, or explicitly deferred.
-- Known critical bugs from preflight are resolved or intentionally deferred with rationale.
-- Durran/operator have a practical testing/user guide.
-- The final sprint plan and backlog match what was actually approved.
-
-## Phases
-
-### Phase 1 — Preflight And Governance Reset
-
-**Entry criteria:** Current repo available; governance files readable; no app-code edits underway.
-**Exit criteria:** UI-truth preflight report complete, current plan/backlog reconciled, and operator has a factual list of must-fix / quick-win / defer / decision items.
-**Target dates:** Planning-mode, no deadline assumed.
-
-**Sprints (detailed in backlog.md):**
-- Sprint 1.1 — Governance reconciliation
-- Sprint 1.2 — UI truth inventory
-- Sprint 1.3 — End-to-end workflow validation
-- Sprint 1.4 — Metrics audit
-- Sprint 1.5 — TeamBox placement and segmentation audit
-- Sprint 1.6 — Data and MCP nuance map
-- Sprint 1.7 — Bug/issue reconciliation
-- Sprint 1.8 — Test and eval plan
-
-### Phase 2 — Critical Workflow Closure
-
-**Entry criteria:** Phase 1 evidence accepted; must-fix workflows identified; no unapproved scope in the sprint list.
-**Exit criteria:** Approved critical workflows pass verification with evidence.
-**Target dates:** After Phase 1 approval.
-
-**Sprints (detailed in backlog.md):**
-- Sprint 2.1 — Trigger and reply reliability
-- Sprint 2.2 — Service campaign readiness
-- Sprint 2.3 — Widget and public action verification
-- Sprint 2.4 — Appointment and admin-notification path
-- Sprint 2.5 — TeamBox customer-message workflow
-- Sprint 2.6 — Durran testing package and user guide
-
-### Phase 3 — Metrics And Customer Value
-
-**Entry criteria:** Metrics audit accepted; approved replacement/removal list exists.
-**Exit criteria:** Visible metrics are useful, supportable, and verified in the UI.
-**Target dates:** After Phase 2 or parallel where safe.
-
-**Sprints (detailed in backlog.md):**
-- Sprint 3.1 — Remove or gate irrelevant metrics
-- Sprint 3.2 — Revise dashboard and department metrics
-- Sprint 3.3 — Repair or defer service insights
-- Sprint 3.4 — CRM/warehouse question map
-
-### Phase 4 — Focused UX Friction And Quick Wins
-
-**Entry criteria:** Phase 1 preflight identifies approved quick wins; no broad redesign.
-**Exit criteria:** Approved friction fixes are shipped and verified.
-**Target dates:** After relevant Phase 1 decisions.
-
-**Sprints (detailed in backlog.md):**
-- Sprint 4.1 — TeamBox section access
-- Sprint 4.2 — Push-to-VIN clarity
-- Sprint 4.3 — Module visibility and gating
-- Sprint 4.4 — Notification entry-point strategy
-
-### Phase 5 — Hardening, Release, And Closeout
-
-**Entry criteria:** Critical flows and approved quick wins implemented.
-**Exit criteria:** Regression suite, manual smoke tests, and closeout artifacts complete.
-**Target dates:** Final phase.
-
-**Sprints (detailed in backlog.md):**
-- Sprint 5.1 — Regression and Playwright coverage
-- Sprint 5.2 — Security/bug hardening
-- Sprint 5.3 — Customer-facing handoff
-- Sprint 5.4 — v2.2 closeout and v2.3 seed list
-
-## Dependencies
-
-| Dependency | Needed for | Fallback |
+| Item | Evidence | Commit |
 |---|---|---|
-| Durran CRM export | Warehouse/data opportunity analysis and service-campaign validation | Use existing warehouse data and mark export-dependent items blocked |
-| CRM YAML/API capability file | Data capability matrix | Locate from known uploaded docs or document as missing |
-| Durran tone/message review | Trigger and campaign message approval | Produce review package; do not send real customer messages until approved |
-| PMA competitor list | Competitive intelligence planning | Keep competitive work as discovery only |
-| FTC technical document | FTC scanner planning | Keep FTC scanner as discovery only |
-| Real external sends | SMS/email/voice validation | Use whitelist/test contacts unless operator gives explicit go |
+| Wave 1A — statusclassifier test | `evidence/stabilization-sprint-2026-04-30/1A/sprint/` | merged |
+| Wave 1B — weekly-report sales-only filter | `evidence/stabilization-sprint-2026-05-01/finish-line-findings/02-reports.md` | 13ee709 |
+| P0 routing redirect — PR #6 LIVE | `evidence/stabilization-sprint-2026-05-01/p0-pr-merge-verification/` | becb739 |
+| Daily recap email scheduler (1A) | `evidence/stabilization-sprint-2026-04-30/1A/sprint/` | merged |
+| SMS appointment-intent admin notify (1A) | same | merged |
+| I-248 timezone validation hardening | `tests/unit/businessHours.test.ts` (9 unit tests) | merged 2026-04-30 |
 
-## Deferrals
+---
 
-Deferred unless explicitly promoted after preflight:
+## Phase status (PROVEN / PARTIAL / UNKNOWN / BROKEN / DEFERRED)
 
-- Broad UI redesign.
-- New alert library or hunch system expansion.
-- Competitive intelligence build.
-- FTC scanner build.
-- AI switchboard build.
-- Marketing module expansion.
-- Full billing/invoicing integration.
-- Staff-to-staff messaging.
-- Any VIN write path that bypasses vin-safe-mcp.
+| # | Phase | Status | Next wave |
+|---|---|---|---|
+| 1 | Core: Auth + RBAC | PARTIAL | Wave I-Auth (read-only audit) |
+| 1 | Core: Sales-vs-service classification | PROVEN | none |
+| 1 | Core: CommGate / outbound | PROVEN | none |
+| 1 | Core: Provider safety posture | PROVEN (TextMagic relaxed-verify carried as AD-3; I-248 timezone validation RESOLVED) | none |
+| 1 | Core: Report/metric primitives | PARTIAL | **Wave 1C (active)** |
+| 1 | Core: Audit/activity logging | PARTIAL (system-event filter pending) | rolled into Wave 1C |
+| 1 | Core: Scheduler infra | PROVEN | none |
+| 1 | Core: Harness session-marker | BROKEN (governance) | Wave 11-Gov |
+| 2 | Entry + Shell | PARTIAL (console error route-independent unverified) | Wave 11-Gov + Wave 11A (route matrix) |
+| 3 | TeamBox | PARTIAL | Wave 3A (Push-to-VIN remove) |
+| 4 | Sales | PARTIAL | rolled into Wave 1C + Wave 3F |
+| 5 | Insights + Reports + Metrics | PARTIAL | **Wave 1C (active)** + Wave 3F |
+| 6 | Marketing | BROKEN (visible) | Wave 3B + 3C |
+| 7 | Service | PARTIAL | Wave 2A |
+| 8 | Widget + Public Entry | PARTIAL | Wave 2B |
+| 9 | Management + Settings | PARTIAL (5 security items unclassified for v2.2 vs v2.3 — I-244/245/246/247/249) | Wave 9-Sec triage |
+| 10 | Background Workflows | PARTIAL | Wave 2A |
+| 11 | Release Gov + Final E2E | UNKNOWN (final pack not run) | Wave 11A |
+
+---
+
+## Wave roadmap (queued; each wave opens its own bookend)
+
+| Wave | Phase | Title | Authorization |
+|---|---|---|---|
+| **1C** | 5 | **Metric honesty (server-side only)** | **ACTIVE — bookend at `evidence/wave-1C-metric-honesty/wave-bookend.md`** |
+| I-Auth | 1 | Auth/account integrity audit (READ-ONLY) | OPEN — bookend at `evidence/wave-I-auth-integrity/wave-bookend.md` |
+| 2A | 10 | Trigger 1 / Trigger 2 / service-campaign / webhook provider proof | queued |
+| 2B | 8 | Widget chat / callback / form provider proof | queued |
+| 3A | 3 | TeamBox Push-to-VIN button + route REMOVAL (UI scope markers required) | queued |
+| 3B | 6 | Marketing tab routing fix (UI scope marker) | queued |
+| 3C | 6 | Marketing Insights filter propagation (UI scope marker) | queued |
+| 3D | 3 | TeamBox channel filter add — **OUT of v2.2 per locked D-H1 (BL-113 → v2.3); only re-enters v2.2 if operator unwinds the deferral** | not in v2.2 unless re-authorized |
+| 3F | 5 | Insights/Sales label-only metric changes (UI scope markers pre-locked per session.md 2026-05-02) | queued |
+| 9-Sec | 9 | Security triage — 5 items (I-244, I-245, I-246, I-247, I-249); v2.2 vs v2.3 placement | queued — opens with operator decision |
+| 11A | 11 | Final E2E + go/no-go (includes Phase-2 route matrix walk) | queued |
+| 11-Gov | 11 | Harness session-marker integrity + console-error finding (D-I3) | queued |
+
+---
+
+## Out of scope this release (DEFERRED — see roadmap.md)
+
+- Schema migrations (BL-107)
+- Marketing campaign UI buildout (BL-112)
+- AI-role visual distinction (BL-108)
+- Push-to-VIN ADF/XML rebuild (BL-109)
+- Advanced notification rules (BL-110)
+- Sales Coordinator (BL-111)
+- TeamBox channel filter (BL-113 — deferred per D-H1)
+- Lago billing
+- Production-env separation remainder
+- Dashboard Builder + Report Builder (was plan.md Phase 6 — moved to roadmap.md v2.3 map)
+
+---
+
+## Operator-decision boundaries
+
+**TRUE OPERATOR DECISIONS (orchestrator stops and asks):**
+
+- Phase 9 security triage v2.2 vs v2.3 (Wave 9-Sec opens with this question)
+- Any push (per-push command preview)
+- Any live deploy (per-deploy approval)
+- Any DB write outside an approved migration
+- Any provider send to non-allowlisted recipients
+- Any UI scope marker creation (per file)
+- D-I2 unpark (local main reconciliation)
+- D-I3 issue text approval (console error row)
+- Wave 1C closing → main (PR + merge approval)
+- Unwinding any locked decision (D-H1, D-G1, D-A1, D-F1, D-B1)
+
+**AGENT-VERIFIABLE (no operator interruption):**
+
+- Phase status classifications PROVEN/PARTIAL/UNKNOWN/BROKEN/DEFERRED from existing evidence
+- Wave 1C internal sequencing (chunks within scope)
+- Audit subagent dispatch at gate
+- Test-lane provider sends to allowlisted destinations after preflight + destination-classification table — **AGENT-VERIFIABLE while D-B1 holds; if D-B1 is rescinded, becomes per-action operator approval**
+
+---
+
+## Standing constraints
+
+- Orchestrator never writes product code; uses team teammates for collaborative build/evidence; uses isolated Agent subagents for audit gates only.
+- No git push autonomous. Every push presented with exact command + commit list, awaits chat approval.
+- No live deploy autonomous.
+- No DB write outside operator-approved migration.
+- No provider action without preflight + destination-classification table + per-recipient `test-orgs-allowlist-check.sh` exit-0.
+- UI files require per-file scope marker (`.claude/state/scope/<basename>.ok`) issued at chunk start.
+- VIN writes through vin-safe-mcp prepare→review→execute→verify only.
+
+---
+
+## Standing parked items (do not act without explicit re-approval)
+
+- **D-I2 — local main divergence** (47 files; 5658+/41-). Reset --hard rejected. Park documented at `evidence/governance-2026-05-01/local-main-divergence-2026-05-02.md`. Non-destructive option queued: rename local `main` → `archive/main-divergence-2026-05-02`, then `git checkout -B main origin/main`. NOT TO BE EXECUTED without operator approval.
+- **Cosmetic legacy-file moves** (`PLAN.md` uppercase, `NEXXUS_UNIFIED_LAUNCH_PROMPT.md` → `legacy-artifacts/`) parked.
+
+---
 
 ## Changelog
 
-- 2026-04-24 — Replaced overbuilt prior plan with UI-truth, preflight-first finish plan. Captures approved constraints: UI is truth, no broad UI redesign, TeamBox section access and metric revision are the only currently approved UI change categories.
+- 2026-05-05 — Release reset. plan.md narrowed to active-execution contract; full v2.2 component map moved to new roadmap.md. Wave 1C (server-only metric honesty) opened. Wave I-Auth (read-only auth/account integrity audit) opened. 8 product-logic deltas folded in. Runtime deviation (in-process teammate writes) accepted for governance text only — see `evidence/governance-reset-2026-05-05/runtime-deviation-in-process-teammate.md`.
