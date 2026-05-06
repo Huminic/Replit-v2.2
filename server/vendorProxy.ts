@@ -638,8 +638,14 @@ export function registerVendorRoutes(app: Express) {
         lostLeads: cur.lost,
         waitingForResponse: cur.waiting,
         appointments: cur.appt,
-        conversionRate: (cur.sold + cur.lost) > 0 ? Math.round((cur.sold / (cur.sold + cur.lost)) * 1000) / 10 : 0,
-        source: "warehouse",
+        // Wave 1C metric #6: when sold+lost denominator is 0 (no data),
+        // return null instead of fabricating a 0% conversion rate.
+        // Consumer-side handling of null is deferred to Wave 3F.
+        conversionRate: (cur.sold + cur.lost) > 0 ? Math.round((cur.sold / (cur.sold + cur.lost)) * 1000) / 10 : null,
+        // Wave 1C metric #7: dropped hardcoded `source: "warehouse"` literal.
+        // It made the alternate ("VinSolutions Live") branch in
+        // client/src/pages/sales.tsx unreachable. Consumer treats absent
+        // source as "no source indicator"; proper branching deferred to Wave 3F.
         syncedAt: latestSyncDate,
       });
     } catch (err: any) {
