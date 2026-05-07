@@ -1,6 +1,24 @@
 # Wave 3F-B — Operator Design-Gate Questions
 
 **Drafted by orchestrator-as-advocate, 2026-05-07, post-Wave-3F-A close.**
+**RESOLVED 2026-05-07 (~05:30 UTC).** Operator engaged on Item 6 only; remaining items decided by orchestrator-as-advocate per delegated authority (operator: "I cannot make those decisions").
+
+## Locked picks (Wave 3F-B OPENING uses these)
+
+| Item | Pick | Decided by |
+|---|---|---|
+| 1 — Conv rate small-denominator misleading 100% | **B** — render `'—'` (em-dash) when n<20; show real value at n≥20 | advocate (matches Wave 1C em-dash honesty doctrine; less presumptuous than adding a new badge) |
+| 2 — `/sales/leads` 404 | **A** — leave as 404 | advocate (no internal links target it; no defect) |
+| 3 — `/widget-landing` 404 | **A** — leave as 404 | advocate (only ES-module import; no nav link) |
+| 4 — `/work-center` MobileNavDropdown 404 | **B** — investigate git history for intent, then re-target the 4 link references to the existing route that matches intent (likely `/my-work`) | advocate (real defect; mechanical fix; investigation-first) |
+| 5 — Source Quality Trends chart polish | **A** — investigate-first sub-chunk; return with specific finding + options | advocate (defect undefined; need specifics before picking a fix) |
+| 6 — Top Performing Agents leaderboard scope | **A** — rename to "Top Performing AI Agents"; defer human-rep leaderboard to v2.3 | **operator 2026-05-07** |
+
+Wave 3F-B OPENING bookend will lift these picks verbatim into chunk decomposition (S1–S5; Item 4 may be 1 chunk or 2 depending on git-history finding).
+
+---
+
+
 
 These 6 items were INVESTIGATED in Wave 3F-A but require operator design / CX / product input to resolve. Each has an advocate-recommended option (marked ★), the tradeoffs, the estimated effort, and the files likely touched. Operator can answer each independently — no inter-dependencies — and the answers feed Wave 3F-B's OPENING bookend.
 
