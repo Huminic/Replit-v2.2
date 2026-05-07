@@ -126,7 +126,7 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: null, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), windowLabel: 'vs last 30d', icon: TrendingUp },
     // I-114: change=null — API does not provide conversionRateChange; using absolute rate as delta was misleading.
-    { id: 'sm-7', label: 'Conversion Rate', value: `${summary.conversionRate}%`, change: null, trend: 'up' as const, icon: TrendingUp },
+    { id: 'sm-7', label: 'Conversion Rate', value: summary.conversionRate == null ? '—' : `${summary.conversionRate}%`, change: null, trend: 'up' as const, icon: TrendingUp },
   ];
 }
 
