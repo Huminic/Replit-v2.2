@@ -308,7 +308,7 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     reengageScore: l.daysOld < 7 ? 82 : l.daysOld < 14 ? 65 : 45,
   }));
   const sourceQualityTrends = rptSourceQuality.map((s: any) => ({
-    month: s.source, winRate: s.winRate, volume: s.leads,
+    source: s.source, winRate: s.winRate, volume: s.leads,
   }));
 
   const fullChannelComparison = channelPerformance.map((ch: any) => ({
@@ -949,22 +949,18 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Source Quality Trends</CardTitle>
-              <CardDescription>Win rate by source over last 6 months</CardDescription>
+              <CardDescription>Win rate by lead source (lifetime)</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart data={sourceQualityTrends}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" className="text-xs" />
+                    <XAxis dataKey="source" className="text-xs" />
                     <YAxis className="text-xs" />
                     <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
                     <Legend />
-                    <Line type="monotone" dataKey="internet" name="Internet" stroke="#3B82F6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="walkIn" name="Walk-In" stroke="#10B981" strokeWidth={2} />
-                    <Line type="monotone" dataKey="phone" name="Phone" stroke="#F59E0B" strokeWidth={2} />
-                    <Line type="monotone" dataKey="referral" name="Referral" stroke="#8B5CF6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="service" name="Service" stroke="#EF4444" strokeWidth={2} />
+                    <Line type="monotone" dataKey="winRate" name="Win Rate" stroke="#3B82F6" strokeWidth={2} />
                   </RechartsLineChart>
                 </ResponsiveContainer>
               </div>
