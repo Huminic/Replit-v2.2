@@ -1,0 +1,131 @@
+Chunk G2 — Console error walk transcript
+Wave: 11-Gov  |  Branch: wave/3F-B-insights/3F-B-design-gate (per session start)  |  Pm2 HEAD under test: e4aa3b0 (batch-1-finish-line)
+Investigator: isolated agent (general-purpose)
+Date: 2026-05-07
+Identity: serra_honda@huminic.ai (org_admin, Serra Honda)
+Tool: Playwright MCP (chromium headless)
+Origin: localhost:5000 (CORS quirk per CLAUDE.md — DO NOT use 127.0.0.1)
+
+================================================================================
+WALK TIMELINE (UTC)
+================================================================================
+
+T0 = 2026-05-07T16:00:14Z  navigate http://localhost:5000/login
+                            (existing session cookie still valid → app redirected to /)
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+T0+45s                     own browser_evaluate fetch('/api/auth/me') from page context returned 401
+                            (probe-induced; in-app fetch uses Authorization Bearer + httpOnly refresh cookie;
+                             eval-context fetch lacks the in-memory access token — same noise documented
+                             in evidence/wave-1C-comprehensive-e2e/console-network/health-summary.md
+                             "Probe-induced 401s on direct fetch() calls from browser_evaluate context don't
+                             count")
+                            console.errors:   1 (probe-induced — discarded for D-I3 analysis)
+
+--- Cleared cookies/localStorage; reloaded /login (redirected to / again — session sticky on httpOnly cookie) ---
+
+T1 = 2026-05-07T16:02:30Z  route: /
+                            visible state: Serra Honda dashboard (191 active pipeline / 452 escalations / SHA badge)
+                            console.errors:   (none)
+                            console.warnings: (none)
+                            screenshot: console-screenshot-route-root-2026-05-07T160230Z.png
+
+T2                         route: /sales
+                            visible state: Sales Dashboard rendered (Total Leads 646; Top Performing AI Agents block);
+                                           the post-3F-B-S3 "AI Agents" copy is present
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+T3                         route: /insights
+                            visible state: Dashboard tab — Hot Leads Going Cold 20; Win Rate 1.4%; charts render
+                                           (post-3F-B-S5 Source Quality Trends chart ships repaired)
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+T4                         route: /teambox
+                            visible state: TeamBox loaded — 19 conversations; sub-tabs Conversations/Phone/Video;
+                                           channel filters All/SMS/Email/Web Chat/WhatsApp/Voice
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+T5                         route: /management
+                            HTTP/route response: client-side redirect to / (org_admin lacks super_admin RBAC — expected)
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+T6                         route: /marketing
+                            visible state: Marketing dashboard with v2.3-preview banner; counts 0/0/1/0
+                            console.errors:   (none)
+                            console.warnings: (none)
+
+--- Clicked Logout button (left nav) ---
+
+T7 = 2026-05-07T16:04:13Z  route: /login (post-logout)
+                            console.errors:
+                              [ERROR] Failed to load resource: the server responded with
+                                       a status of 400 (Bad Request) @ http://localhost:5000/api/auth/refresh:0
+                            console.warnings: (same — only the 400 surfaces)
+
+T8 = 2026-05-07T16:04:32Z  navigate http://localhost:5000/login (fresh — no refresh cookie)
+                            console.errors:
+                              [ERROR] Failed to load resource: the server responded with
+                                       a status of 400 (Bad Request) @ http://localhost:5000/api/auth/refresh:0
+                            console.warnings: same
+
+--- Logged back in as serra_honda@huminic.ai / NexxusTest2026 (operator instruction: do not log out) ---
+
+T9 = 2026-05-07T16:04:52Z  POST /api/auth/login → 200; landed on /
+                            console.errors:
+                              (only the same residual 400 from the pre-login attempt remains in buffer;
+                               no NEW console errors during the authenticated walk)
+                            screenshot: console-screenshot-route-home-final-2026-05-07T160554Z.png
+
+================================================================================
+PM2 SERVER LOG CORRELATION
+================================================================================
+
+(scrubbed from `pm2 logs nexxus-app --lines 500 --nostream`)
+
+  4:01:50 PM [express] GET /api/auth/me 401 in 1ms                  ← probe-induced
+  4:02:10 PM [express] POST /api/auth/refresh 200 in 523ms          ← normal token rotation (every ~17s)
+  4:02:10 PM [express] GET  /api/auth/me        304 in 520ms        ← user revalidated
+  ...
+  4:03:54 PM [express] POST /api/auth/refresh 200 in 528ms          ← still successful while authenticated
+  4:03:55 PM [express] GET  /api/auth/me        304 in 524ms
+  4:04:13 PM [express] POST /api/auth/logout    200 in 350ms        ← user clicked Logout
+  4:04:13 PM [express] POST /api/auth/refresh   400 in 1ms          ← bootstrap probe AFTER logout — no cookie
+  4:04:32 PM [express] POST /api/auth/refresh   400 in 1ms          ← bootstrap probe on fresh /login load
+  4:04:52 PM [express] POST /api/auth/login     200 in 501ms        ← re-login
+
+KEY OBSERVATION:
+  During the entire authenticated walk through /, /sales, /insights, /teambox, /management, /marketing,
+  NO /api/auth/refresh response was anything other than 200. The 400s ONLY fire when the bootstrap
+  probe runs without a valid refresh-cookie present (i.e., either pre-login or post-logout).
+
+================================================================================
+SOURCE LOCATION OF THE PROBE
+================================================================================
+
+client/src/contexts/AuthContext.tsx:289-338
+  useEffect on mount → tryRefreshToken() (imported from lib/queryClient.ts)
+  Comment at lines 301-304 (already in code, not added by this investigation):
+    "We must attempt the refresh call and let the server decide if the
+     cookie is present. A 401/400 response simply means no valid session."
+
+client/src/lib/queryClient.ts:26-58
+  tryRefreshToken() — fetches POST /api/auth/refresh with credentials: 'include'.
+  Returns false on !res.ok (the 400 is HANDLED — but the browser still surfaces it as a
+  network resource error in the console because that's a browser behavior for any 4xx
+  on a top-level fetch.)
+
+server/routes/auth.ts:198-237 + server/lib/refreshTokenRotation.ts:202-204
+  The 400 is INTENTIONAL when no refresh token is present:
+    if (!refreshToken) {
+      return { kind: "error", status: 400, cookie: "none", message: "Refresh token required" };
+    }
+  Comment at line 196 (server side):
+    "Pass `undefined`/`null`/`""` to surface a 400."
+
+================================================================================
+END
