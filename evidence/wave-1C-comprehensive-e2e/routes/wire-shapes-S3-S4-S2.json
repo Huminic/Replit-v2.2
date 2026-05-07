@@ -1,0 +1,17 @@
+{
+  "vinSummary": {
+    "status": 401,
+    "body": null
+  },
+  "metricsDashboard": {
+    "status": 401,
+    "body": null
+  },
+  "activityLog": {
+    "status": 401,
+    "count": 0,
+    "syncCount": 0,
+    "distinctEntityTypes": [],
+    "distinctActions": []
+  }
+}

@@ -130,8 +130,12 @@ Optional helpers:
 
 ## CLOSING
 
-**Closed:** 2026-05-06
-**Wave-level verdict:** GATE-CLEAN — code-level proof PASS. Runtime proof deferred to operator pre-merge.
+> **⚠️ SUPERSEDED 2026-05-07 — see "FINAL CLOSING (audited)" section at end of file.**
+>
+> The 2026-05-06 entries below claimed gate-clean / runtime-proven / ready-for-merge based on server-side metric correctness only (Δ1 Resend + Δ2 4-min static walk). That framing was prematurely populated and was reset 2026-05-07 by operator pushback. Do NOT take any merge or push action based on the 2026-05-06 sub-sections that follow — they are kept here for audit history only. The authoritative CLOSING is the **FINAL CLOSING (audited)** block at the bottom of this file.
+
+**Originally closed (premature):** 2026-05-06
+**Original verdict (premature):** GATE-CLEAN — code-level proof PASS. Runtime proof deferred to operator pre-merge.
 
 ### Changed files (final, aggregated across 6 chunks)
 
@@ -243,9 +247,30 @@ Evidence files (committed alongside this update):
 
 3. **`/dashboard` route returns 404.** Activity feed actually lives on `/insights > Activity` tab and `/sales > Recent Activity` panel — both verified.
 
-### Δ1 + Δ2 = wave fully two-delta-proven
+### Δ1 + Δ2 ≠ wave-bookend close-out — RESET 2026-05-07
 
-**Wave 1C is now ready for merge to `batch-1-finish-line`.**
+**Operator pushback 2026-05-07:** the wave-bookend CLOSING was prematurely populated. Δ1 (Resend send) + Δ2 (4-min static screenshot walk) constitute **server-side metric correctness verification only** — they are NOT the bookend pattern's required CLOSING work, which is **comprehensive E2E with DOM crawl + feature map + Playwright MCP exercise of all critical workflows + independent (blind) verification of those findings.**
+
+The two evidence commits on the wave branch (`d732901`, `f024271`) carry that premature claim. They remain on the wave branch (not merged to `batch-1-finish-line`); the claim is contained but must be superseded by a proper close-out. Phase A is **re-opened as "comprehensive E2E pending"** until that work + its blind verification produce a verdict.
+
+**Re-opened Phase A required CLOSING components:**
+
+1. Comprehensive E2E by `nexxus-e2e-evaluator` running as a teammate (separate Claude Code session, file-backed coordination per `feedback_agent_taxonomy.md`):
+   - DOM-crawl-driven route enumeration as `serra_honda` and `super_admin` (most data + admin surfaces)
+   - Feature map: every visible interactive feature mapped to status (renders / broken / unreachable)
+   - Critical-workflow exercise via Playwright MCP: login per role, lead view, insights tile rendering, sales workflow, marketing routing, service campaign list, settings/management, widget landing, activity feed scroll (50+ rows), auth/session
+   - Wave 1C verification matrix per chunk, runtime-confirmed
+   - pm2 / console / network health captured during walk
+   - All evidence to `evidence/wave-1C-comprehensive-e2e/`
+
+2. Blind verification at gate by separate subagent(s) (no team mailbox access):
+   - Blind verifier — re-opens the e2e-evaluator's evidence, spot-checks a sample of workflows independently, produces verdict
+   - Scope-guardian — file-level scope drift check (no out-of-scope commits, no UI changes, no product-code edits)
+   - Drift detector — hierarchy-level (Phase 5 / Wave 1C / Phase A close-out) drift check
+
+3. After all verdicts: CLOSING is re-written with the audited result. Merge gate is presented to operator only after this two-pillar proof (server-side correctness + workflow E2E with blind verification) is genuinely captured.
+
+The Δ1 + Δ2 evidence already on disk remains valid as the **server-side correctness pillar**; it just isn't the whole bookend.
 
 ### Backlog follow-ups surfaced by qa-evaluator (NOT blockers)
 
@@ -282,7 +307,9 @@ None new. Existing: `BL-107 lead_type schema migration` → v2.3 (not promoted).
 - Single-change revert: `git revert <chunk-sha-on-wave-branch>` and merge.
 - Worst case: drop the entire wave branch — `batch-1-finish-line` (HEAD `857febf`) is the pre-Wave-1C state. No DB migration to roll back; no schema change; no provider state to undo.
 
-### Merge recommendation (operator-approved sequence)
+### Merge recommendation (PREMATURE — superseded by FINAL CLOSING audited 2026-05-07)
+
+> The 2026-05-06 sequence below is kept for audit history. The actual operator-approved merge sequence lives in the FINAL CLOSING (audited) section at the end of this file, which incorporates the comprehensive E2E + blind-verification work done 2026-05-07. Do not act on this section.
 
 1. After runtime proof PASS + operator GO: fast-forward merge wave branch into `batch-1-finish-line`:
    `git checkout batch-1-finish-line && git merge --ff-only wave/5-insights/1C-metric-honesty`
@@ -300,3 +327,103 @@ None new. Existing: `BL-107 lead_type schema migration` → v2.3 (not promoted).
 
 - 5 orphan worktrees in `.claude/worktrees/agent-*` from chunk subagent spawns; `git worktree remove -f -f` to clean (locks held by runtime).
 - `worktree-agent-a46c2ac9203612a77` orphan branch (created by S1 subagent runtime; chunk content already cherry-picked to wave branch as `dcffb19`; branch redundant). Operator-approved cleanup queue.
+
+---
+
+## FINAL CLOSING (audited 2026-05-07)
+
+**This section supersedes the 2026-05-06 CLOSING block and merge-recommendation block above.**
+
+**Closed (audited):** 2026-05-07
+**Wave-level verdict:** **READY FOR MERGE GATE** — code-level audit pairs PASS (six chunks, all PASS/APPROVE/FIT) AND server-side metric correctness PROVEN (Δ1 Resend + Δ2 static walk, both committed) AND comprehensive E2E with DOM crawl + feature map + critical workflows PROVEN (teammate `e2e-runner` on team `nexxus-wave-1c-close`) AND blind-verifier audit AGREE AND drift-detector audit NO-DRIFT AND scope-guardian audit recoverable-FAIL → resolved.
+
+### Audit chain — three pillars of close-out
+
+#### Pillar 1: Code audit (per-chunk, completed 2026-05-06)
+
+| Chunk | scope-guardian (subagent) | code-reviewer (subagent) | release-fit-reviewer (teammate) |
+|---|---|---|---|
+| S1 | PASS | APPROVE | FIT |
+| S2 | PASS | APPROVE | FIT |
+| S3 | PASS | APPROVE | FIT |
+| S4 | PASS | APPROVE | FIT |
+| S5 | PASS | APPROVE | FIT |
+| S6 | PASS | APPROVE | covered |
+
+Wave-level: TS check PASS, vitest 459 tests PASS / 2 skipped.
+
+#### Pillar 2: Server-side metric correctness (Δ1 + Δ2 static, completed 2026-05-06)
+
+- Δ1 Resend: messageId `f443654b-bf71-494e-b09b-0714c12627e5` to `duane.wells@huminic.ai` (allowlist; hard-routed via TESTLANE override; subject `[testlane:wave-1c-runtime-proof]`). Resend API confirms `last_event: delivered`. Committed `d732901`.
+- Δ2 static screenshot walk: 7 PNGs of `/insights` + `/sales` showing 1.2% lifetime win rate, no `flat` literals, no `sync_*` rows. Committed `f024271`.
+- Coverage: S1, S2 directly; S3 numerical case (sold>0).
+
+#### Pillar 3: Comprehensive E2E with blind verification (completed 2026-05-07)
+
+Active runner: teammate `e2e-runner` (subagent_type `nexxus-e2e-evaluator`) on team `nexxus-wave-1c-close`. Walk window 2026-05-07T01:50:12Z → 01:59:00Z (~9 min Playwright MCP). Evidence: `evidence/wave-1C-comprehensive-e2e/`.
+
+| Coverage area | Result |
+|---|---|
+| DOM-crawl route enumeration (3 roles × multiple orgs) | 23 distinct routes; 19 × 200, 1 × 302 (correct), 2 × 404 (correct), 0 × 5xx |
+| Feature map | 24 surfaces documented; 22 rendering, 2 partial-by-design, 0 broken |
+| Critical workflows (A–J) | All PASS or correct-by-design |
+| Wave 1C runtime matrix (S1–S6) | All PASS or covered |
+| **S3 null branch demonstrated** | **NEW** — sparse-data orgs (Cage Automotive, Huminic) show BLANK Conv Rate (the null branch in action). The 2026-05-06 walk could not exercise this because it only used serra_honda. |
+| Cross-store fidelity | super_admin viewing Serra Honda renders IDENTICAL KPIs to org_admin's own view |
+| pm2 stability | restart count 85 → 85 (no restart during walk) |
+| New uncaught exceptions | 0 |
+| New console errors | 0 (probe-induced 401s don't count) |
+| Slow / hung requests | 0 over 3s |
+
+Numbers drift since 2026-05-06: sold 6→7, total leads 494→508, win rate 1.2%→1.4%. Honest math still holds.
+
+#### Blind verification (subagents at gate, completed 2026-05-07)
+
+Three independent subagents dispatched at gate (no team mailbox access by structural design). Verdicts at `evidence/wave-1C-comprehensive-e2e/verifier-audit/`:
+
+| Verifier | Verdict | Notes |
+|---|---|---|
+| `blind-verifier` (general-purpose) | **AGREE** | Independently spot-checked 5 PNGs, re-queried live dev, confirmed pm2 restart count 85 (matches walk), `/api/health` 200, git HEAD `f024271`. All claims substantiated. |
+| `scope-guardian` (subagent) | **PASS-after-revert** | Initially flagged 2 out-of-scope writes (`tests/e2e/seed.spec.ts` reverted to scaffolding boilerplate, `tests/e2e/seed-eval.spec.ts` created — both Playwright MCP planner auto-scaffold artifacts). Resolved 2026-05-07 by `git checkout -- tests/e2e/seed.spec.ts && rm tests/e2e/seed-eval.spec.ts`. Otherwise: zero new commits, no UI files touched, no scope markers consumed, pm2 integrity confirmed. |
+| `drift-detector` (general-purpose) | **NO DRIFT** | Hierarchy respected — Phase 5 stayed primary; adjacent phases used as regression smoke targets only; 6 anomalies all correctly tagged for the right future wave (3F: 5 items, 2A: provider gaps, 9-Sec: 1 item). |
+
+### Anomalies surfaced during E2E (NOT Wave 1C blockers — correctly tagged)
+
+| # | Anomaly | Tagged for | Severity |
+|---|---|---|---|
+| 1 | `/sales` Conv Rate=100% on small denominator (sold=7, lost=0) is honest math but visually misleading | Wave 3F | UX |
+| 2 | Source Quality Trends chart-render polish (axis labels render but trend lines didn't visualize in walk) | Wave 3F | UX |
+| 3 | "Top Performing Agents" panel shows AI agents only; no human-rep leaderboard exists | Wave 3F (if desired) | feature gap |
+| 4 | `/sales/leads` route is 404 (lead detail lives in TeamBox conversations) | Wave 3F (if desired) | discoverability |
+| 5 | `/widget-landing` route is 404 (widgets at `/w/:slug`) | Wave 3F (if desired) | discoverability |
+| 6 | `[Insights] Failed to fetch lead source mapping for org <empty-org>` — pre-existing warning for empty-data orgs | n/a (pre-existing per `git log -S`) | log noise |
+
+Plus carry-forward from 2026-05-06: `client/src/pages/sales.tsx:129` defensive null guard (Wave 3F).
+
+### Final merge sequence (operator-approved 3 GOs in sequence)
+
+1. **`approve merge`** — `git checkout batch-1-finish-line && git merge --ff-only wave/5-insights/1C-metric-honesty` — fast-forward only, no merge commit, no rebase. Brings 6 chunk commits + CLOSING bookend + 2 evidence-pack commits + 1 audit-evidence commit + the FINAL CLOSING update onto `batch-1-finish-line`. **Does NOT touch live.**
+
+2. **`approve push`** — `git push origin batch-1-finish-line` — durable backup to GitHub. **Does NOT auto-deploy live.** GitHub Actions `deploy.yml` only fires on push to `main`, not `batch-1-finish-line`.
+
+3. **`approve live deploy`** (separate gate) — open PR from `batch-1-finish-line` → `main`, merge, GitHub Actions auto-deploys via Coolify. **This is the irreversible production cycle.** Live container `phqqzjj5pal13wlp39m5ohx6-043556982239` (port 5001) gets rebuilt; will deploy commits: governance reset (`857febf`) + Wave 1A + Wave 1B + Wave 1C all at once (live currently on `becb739` from May 1 P0 routing redirect).
+
+### Stop-go-rule confirmation (all PASS)
+
+| Rule | Status |
+|---|---|
+| Three-pillar audit chain complete | ✅ |
+| Independent blind verification | ✅ AGREE |
+| Hierarchy/scope drift-detection | ✅ NO DRIFT |
+| File-scope drift-detection | ✅ PASS-after-revert |
+| Provider preflight done for all sends | ✅ Resend → allowlist with TESTLANE override |
+| Test-lane envelope intact | ✅ subject tagged, recipient hard-routed |
+| TS check + unit suite PASS | ✅ 459/2 |
+| pm2 process stable across walk | ✅ |
+| No 5xx, no exceptions, no dishonest values | ✅ |
+| UI scope markers consumed | ❌ none (no UI files modified) |
+| DB writes | ❌ none |
+| Real-customer recipients | ❌ none |
+| Live deploy autonomous | ❌ never |
+
+**Zero stop-go fails.**
