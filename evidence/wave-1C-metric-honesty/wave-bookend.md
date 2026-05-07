@@ -400,13 +400,17 @@ Three independent subagents dispatched at gate (no team mailbox access by struct
 
 Plus carry-forward from 2026-05-06: `client/src/pages/sales.tsx:129` defensive null guard (Wave 3F).
 
-### Final merge sequence (operator-approved 3 GOs in sequence)
+### Final merge sequence (operator-approved 2 GOs — wave-level close only)
 
-1. **`approve merge`** — `git checkout batch-1-finish-line && git merge --ff-only wave/5-insights/1C-metric-honesty` — fast-forward only, no merge commit, no rebase. Brings 6 chunk commits + CLOSING bookend + 2 evidence-pack commits + 1 audit-evidence commit + the FINAL CLOSING update onto `batch-1-finish-line`. **Does NOT touch live.**
+**Reframed 2026-05-07:** live deploy is a release-level decision, NOT a wave-level one. Each wave closes by merging to `batch-1-finish-line` (integration on dev) + push to origin (durable backup on non-deploying branch). All waves accumulate on dev. Wave 11A runs the comprehensive product-wide E2E across the full v2.2 release; only after that final go/no-go does v2.2 ship via PR `batch-1-finish-line` → `main` → Coolify auto-deploy.
+
+So Wave 1C's close-out is just two GOs, both staying on dev:
+
+1. **`approve merge`** — `git checkout batch-1-finish-line && git merge --ff-only wave/5-insights/1C-metric-honesty` — fast-forward only, no merge commit, no rebase. Brings 6 chunk commits + CLOSING bookend + 2 evidence-pack commits + 1 audit-evidence commit + this FINAL CLOSING update onto `batch-1-finish-line`. **Does NOT touch live.**
 
 2. **`approve push`** — `git push origin batch-1-finish-line` — durable backup to GitHub. **Does NOT auto-deploy live.** GitHub Actions `deploy.yml` only fires on push to `main`, not `batch-1-finish-line`.
 
-3. **`approve live deploy`** (separate gate) — open PR from `batch-1-finish-line` → `main`, merge, GitHub Actions auto-deploys via Coolify. **This is the irreversible production cycle.** Live container `phqqzjj5pal13wlp39m5ohx6-043556982239` (port 5001) gets rebuilt; will deploy commits: governance reset (`857febf`) + Wave 1A + Wave 1B + Wave 1C all at once (live currently on `becb739` from May 1 P0 routing redirect).
+**Live deploy: DEFERRED to Wave 11A release gate.** Not closed here. The release-cycle deploy will eventually open a PR from `batch-1-finish-line` → `main`; that PR's merge triggers GitHub Actions → Coolify rebuild of container `phqqzjj5pal13wlp39m5ohx6-043556982239` (port 5001) with the full v2.2 changeset. That decision happens once, after Wave 11A passes, not per-wave.
 
 ### Stop-go-rule confirmation (all PASS)
 
@@ -424,6 +428,6 @@ Plus carry-forward from 2026-05-06: `client/src/pages/sales.tsx:129` defensive n
 | UI scope markers consumed | ❌ none (no UI files modified) |
 | DB writes | ❌ none |
 | Real-customer recipients | ❌ none |
-| Live deploy autonomous | ❌ never |
+| Live deploy this gate | ❌ deferred to Wave 11A release gate (not part of any single wave's close) |
 
 **Zero stop-go fails.**
