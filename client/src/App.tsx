@@ -67,6 +67,7 @@ function AuthenticatedRouter() {
                 <Route path="/" component={MainPage} />
                 <Route path="/teambox" component={TeamboxPage} />
                 <Route path="/my-work" component={MyWorkPage} />
+                <Route path="/work-center" component={MyWorkPage} />
                 <Route path="/sales" component={SalesPage} />
                 <Route path="/service" component={ServicePage} />
                 <Route path="/marketing" component={MarketingPage} />
