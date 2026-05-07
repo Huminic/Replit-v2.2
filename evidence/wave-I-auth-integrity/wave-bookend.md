@@ -147,12 +147,21 @@ See `evidence/wave-I-auth-integrity/findings.md` for full classification + 7-opt
 - **F** — File issue: clean up I-238 legacy refreshToken fallback (`auth.ts:201`).
 - **G** — File issue: 15-min UI vs 60-min server reset-token expiry mismatch (`reset-password.tsx:62` vs `auth.ts:358`).
 
-### Operator decision
+### Operator decision — DECIDED 2026-05-07 by orchestrator-as-advocate
 
-Pending. The wave's audit is closed; the operator picks remediation options (any subset of A-G + H/I) which determine post-close work:
-- Option A picks: wave closes with no further action
-- Options D, E, F, G, H, I picks: orchestrator files in `issues.md` (scoped, operator-approved); these are NOT auth.ts edits in this wave — they get filed for future implementation waves
-- Options B, C picks: operator-side actions (password reset, Resend dashboard inspection)
+Operator delegated remediation choice to orchestrator with explicit authorization to take responsibility ("you are my advocate; you have the power to shape this and take care of this on your own"). Decision:
+
+- **A** — accepted as default (no system action; system behaved correctly)
+- **B** — declined (no churn; operator already authenticated)
+- **C** — RESOLVED via orchestrator-dispatched Resend API query (no operator inbox check needed). Verdict: NEVER-SENT — confirms D's historical impact. See `verifier-audit/option-C-resend-resolution.md`.
+- **D** — filed as `I-NEW-2026-05-07-AUTH-D` in `issues.md` (forgot-password email-case mismatch — confirmed bit operator on 2026-03-20)
+- **E** — filed as `I-NEW-2026-05-07-AUTH-E` in `issues.md` (log login_success events)
+- **F** — updated existing `I-238` with cross-ref to this audit (legacy refreshToken fallback)
+- **G** — filed as `I-NEW-2026-05-07-AUTH-G` in `issues.md` (15-min UI vs 60-min server expiry)
+- **H** — filed as `I-NEW-2026-05-07-AUTH-H` in `issues.md` (change-password doesn't invalidate other sessions; advocate added per "more careful when deciding for someone else")
+- **I** — filed as `I-NEW-2026-05-07-AUTH-I` in `issues.md` (`/api/auth/refresh` not rate-limited; advocate added)
+
+**5 new issues + 1 cross-ref to existing I-238.** All are OPEN, dimensioned BE/FE, effort E or M. None are Wave I-Auth scope to fix (read-only audit) — they get assigned to future implementation waves.
 
 ### Stop conditions — all PASS
 

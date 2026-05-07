@@ -38,9 +38,9 @@ None identified.
 - I-238 (legacy `req.body.refreshToken` fallback at `server/routes/auth.ts:201`) — confirmed present but unrelated to the symptom.
 - I-249 (self-deactivation) — not exercised; operator `is_active = t`.
 
-### Unknowns (would require operator to inspect)
+### Unknowns — RESOLVED 2026-05-07 by orchestrator-dispatched C-resolver
 
-- 2026-03-20 02:16:47 UTC operator forgot-password event: was the email actually delivered? Project-side logs don't capture Resend delivery status; operator-side Resend dashboard inspection would resolve.
+- 2026-03-20 02:16:47 UTC operator forgot-password event: **NEVER-SENT.** Resend API queried (5,200 records, 2026-03-10 → 2026-05-07): zero password-reset emails on 2026-03-20, zero emails of any kind to either operator address in the 02:00-02:59 UTC hour. The HTTP 200 response the operator saw was a silent no-op — `auth.ts` returns 200 for unknown users by design (enumeration safety). **This is confirmed historical impact of Option D's defect** (case-mismatch in user lookup): operator likely typed their email with capitalization that didn't match the stored email, causing the lookup to silently miss. See `evidence/wave-I-auth-integrity/verifier-audit/option-C-resend-resolution.md`.
 
 ---
 
