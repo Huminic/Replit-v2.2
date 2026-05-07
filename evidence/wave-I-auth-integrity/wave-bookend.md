@@ -106,6 +106,79 @@ NONE. Output is an investigation report only:
 
 ---
 
-## CLOSING
+## CLOSING (audited 2026-05-07)
 
-(Section intentionally empty until findings produced. Lead fills using the wave-bookend template's CLOSING section.)
+**Closed:** 2026-05-07
+**Wave-level verdict:** **READ-ONLY AUDIT COMPLETE — root cause identified, no system defect.** Operator-reported login/password issue traced to operator mistype on 2026-05-04 12:23-12:24 UTC, followed by successful login at 12:28:59 UTC. No system remediation required for the symptom. Seven options surfaced (A no-action, B/C operator-only, D/E/F/G file-new-issue) for operator decision.
+
+### Audit chain (3 blind verifiers at gate, all PASS)
+
+| Verifier | Type | Verdict | Evidence |
+|---|---|---|---|
+| `blind-verifier` (general-purpose) | subagent at gate | **AGREE** | `verifier-audit/blind-verifier-verdict.md` |
+| `scope-guardian` (subagent) | subagent at gate | **PASS** — zero commits, zero DB writes, zero provider sends, zero pm2 restarts, zero scope markers | `verifier-audit/scope-guardian-verdict.md` |
+| `drift-detector` (general-purpose) | subagent at gate | **NO DRIFT** — Phase 1 respected, all 7 options correctly tagged | `verifier-audit/drift-detector-verdict.md` |
+
+Independent re-query during blind verification confirmed:
+- All 6 source-code citations match actual file:line content
+- Operator user rows unchanged since 2026-04-07 (no investigator drift)
+- 4 `login_failed` activity_log events exist at the claimed timestamps
+- Server IP 150.136.6.207 matches the benign curl probe attribution
+- No `login_success` action exists in the codebase (anomaly verified, not refuted)
+
+### Additional observations from blind-verifier (NOT in original 7 options; surfaced for operator awareness)
+
+| # | Observation | Severity |
+|---|---|---|
+| H | `change-password` flow does not delete other active sessions | minor / not load-bearing for symptom |
+| I | `/api/auth/refresh` is not rate-limited | minor / not load-bearing for symptom |
+
+Operator may choose to file these as additional issues alongside D/E/F/G or defer entirely.
+
+### Findings + remediation options
+
+See `evidence/wave-I-auth-integrity/findings.md` for full classification + 7-option matrix. Summary:
+
+- **A** — No action. System behaved correctly. (Minimum sane response.)
+- **B** — Operator-side password reset via UI. Optional.
+- **C** — Operator check Resend dashboard for 2026-03-20 forgot-password event (only outstanding "unknown").
+- **D** — File issue: forgot-password email-case mismatch (`auth.ts:353` no lowercase + `storage.ts:258-261` exact-match SQL → mixed-case input silently misses user).
+- **E** — File issue: log `login_success` events.
+- **F** — File issue: clean up I-238 legacy refreshToken fallback (`auth.ts:201`).
+- **G** — File issue: 15-min UI vs 60-min server reset-token expiry mismatch (`reset-password.tsx:62` vs `auth.ts:358`).
+
+### Operator decision
+
+Pending. The wave's audit is closed; the operator picks remediation options (any subset of A-G + H/I) which determine post-close work:
+- Option A picks: wave closes with no further action
+- Options D, E, F, G, H, I picks: orchestrator files in `issues.md` (scoped, operator-approved); these are NOT auth.ts edits in this wave — they get filed for future implementation waves
+- Options B, C picks: operator-side actions (password reset, Resend dashboard inspection)
+
+### Stop conditions — all PASS
+
+- Only SELECT queries against Supabase. No DB writes.
+- No password resets attempted. No session-token invalidations.
+- No code edits to `server/routes/auth.ts`, `server/auth.ts`, RBAC, login pages.
+- No deploy / pm2 restart / Coolify action.
+- No provider sends (Resend / TextMagic / VAPI / Tavus / FlexPrice).
+- Wave branch `wave/1-core/I-auth-integrity` has zero commits during investigation; only this CLOSING + audit-evidence commit by orchestrator.
+
+### Merge sequence (after operator picks remediation)
+
+1. `approve merge` — `git checkout batch-1-finish-line && git merge --ff-only wave/1-core/I-auth-integrity` (integration on dev; no live impact)
+2. `approve push` — `git push origin batch-1-finish-line` (durable backup; Coolify watches `main` not this branch, so no auto-deploy)
+3. **Live deploy: deferred to Wave 11A release gate** (per release-cycle pattern; not closed at any single wave)
+
+### Cross-references resolved
+
+- I-140 (password reset NEEDS LIVE TEST): unchanged
+- I-165 (forgot/reset FE 11 states untested): NEW concrete defect surfaced (option G)
+- I-238 (legacy refreshToken body fallback): confirmed unrelated to symptom (option F)
+- I-249 (self-deactivation): not exercised; operator `is_active = t`
+
+### Next-wave readiness
+
+- **YES** — Wave 2A (provider-proof) is independent of I-Auth; ready when operator authorizes.
+- **YES** — Wave 3F (Insights/Sales UI) is independent.
+- **YES** — Wave 3A/3B/3C (UI changes) are independent.
+- **DEPENDENT on operator picks D/E/F/G/H/I** — those file new issues; if any are picked, they become future waves' implementation work.
