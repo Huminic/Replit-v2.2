@@ -14,11 +14,19 @@
  *   TESTLANE_MODE=true TESTLANE_SMS_TO=+14126546500 \
  *     npx tsx server/test-trigger-2A.ts testT1ProviderProofSms
  *
- * Halt conditions enforced inside the function:
- *   - Recipient logged in outbound_log MUST be +14126546500 (testlane gate
+ * Usage (T2 — VAPI agent-to-agent provider proof, Elliott → Nancy):
+ *   set -a; source .env; set +a
+ *   npx tsx server/test-trigger-2A.ts testT2VapiElliottToNancy
+ *
+ * Halt conditions enforced inside the functions:
+ *   - T1: Recipient logged in outbound_log MUST be +14126546500 (testlane gate
  *     hard-route target). Any other recipient = STOP (gate broken).
- *   - Result MUST be {sent: true} with messageId visible in console output.
- *   - Exactly 1 outbound_log row created in the [pre_ts, post_ts] window.
+ *   - T1: Result MUST be {sent: true} with messageId visible in console output.
+ *   - T1: Exactly 1 outbound_log row created in the [pre_ts, post_ts] window.
+ *   - T2: assistantId MUST be Elliott (allowlisted vapi_test_agent).
+ *   - T2: customer.number MUST be Nancy's Serra Honda service number.
+ *   - T2: VAPI must return a 2xx with a UUID call id; 4xx/5xx = HALT.
+ *   - T2: Exactly one VAPI /call/phone POST is made by this script.
  */
 
 import { processOutboundSend, type SendRequest, type SendResult } from "./outbound";
@@ -229,6 +237,269 @@ export async function testT1ProviderProofSms(): Promise<T1Result> {
 }
 
 // ---------------------------------------------------------------------------
+// T2 — VAPI agent-to-agent provider proof: Elliott → Nancy (Serra Honda service)
+// ---------------------------------------------------------------------------
+//
+// Both endpoints are AI assistants under our control:
+//  - OUTBOUND assistant: Elliott (`c303d993-bf42-4784-a8cb-247477b1cbdd`),
+//    allowlisted vapi_test_agent (operator's autonomous test counterparty).
+//  - INBOUND endpoint: Serra Honda service VAPI number `+19014361271`,
+//    routed by VAPI to Nancy Gaston's assistant
+//    (`c777f029-8c4c-4a23-98e4-3adfd4112a61`). NOT a real customer — this is
+//    the dealership service AI agent we control.
+//
+// Operator authorized this dispatch in chat (2026-05-07):
+//   "Elliott (outbound test agent) calls Nancy Gaston (Serra Honda service
+//    VAPI agent). Both ends are AI agents we control — true agent-to-agent
+//    VAPI test, no real human, no real customer."
+//
+// Allowlist gap (surfaced in evidence/.../chunk-T2/proof.md): Nancy's phone
+// `+19014361271` and assistant ID `c777f029...` are not currently in
+// `.claude/state/test-recipients.txt`. Operator's verbal authorization covers
+// this dispatch. Recommendation: add Nancy as `vapi_test_agent:c777f029-...`
+// for future autonomous coverage.
+
+const ELLIOTT_ASSISTANT_ID =
+  process.env.TEST_ELLIOTT_ASSISTANT_ID ||
+  "c303d993-bf42-4784-a8cb-247477b1cbdd";
+const ELLIOTT_PHONE_ID =
+  process.env.TEST_ELLIOTT_PHONE_ID || "a85a9397-25cb-4e35-b784-05cfa5a926b2";
+const NANCY_PHONE = "+19014361271"; // Serra Honda service VAPI inbound number
+const NANCY_ASSISTANT_ID_EXPECTED = "c777f029-8c4c-4a23-98e4-3adfd4112a61";
+
+interface T2Result {
+  callPlaced: boolean;
+  callId: string | null;
+  status: string | null;
+  vapiHttpStatus: number | null;
+  outboundAssistantId: string;
+  outboundPhoneNumberId: string;
+  inboundCustomerNumber: string;
+  inboundExpectedAssistantId: string;
+  startedAt: string | null;
+  endedAt: string | null;
+  endedReason: string | null;
+  pollSnapshots: Array<{
+    pollIndex: number;
+    pollAt: string;
+    status: string | null;
+    startedAt: string | null;
+    endedAt: string | null;
+    endedReason: string | null;
+  }>;
+  preTs: string;
+  postTs: string;
+  haltChecks: {
+    outboundIsElliott: boolean;
+    inboundIsNancyPhone: boolean;
+    vapi2xx: boolean;
+    callIdReturned: boolean;
+    singleCallPlaced: boolean;
+  };
+  rawCreateResponse: unknown;
+}
+
+export async function testT2VapiElliottToNancy(): Promise<T2Result> {
+  console.log(
+    "=== Wave 2A-T Chunk T2 — VAPI Agent-to-Agent Provider Proof (Elliott → Nancy) ===",
+  );
+  console.log("session-id: wave-2A-T-T2");
+
+  // 1. Env precondition
+  const VAPI_KEY = process.env.VAPI_PRIVATE_KEY;
+  if (!VAPI_KEY) {
+    throw new Error(
+      "VAPI_PRIVATE_KEY is not set in env. Source .env first: `set -a; source .env; set +a`.",
+    );
+  }
+  console.log(`VAPI_PRIVATE_KEY: present (length=${VAPI_KEY.length})`);
+
+  // 2. Endpoint identification — log everything before placing the call
+  console.log(`OUTBOUND assistant: Elliott (${ELLIOTT_ASSISTANT_ID})`);
+  console.log(
+    `OUTBOUND phoneNumberId: ${ELLIOTT_PHONE_ID} (Elliott's caller ID)`,
+  );
+  console.log(
+    `INBOUND customer.number: ${NANCY_PHONE} (Serra Honda service)`,
+  );
+  console.log(
+    `INBOUND expected assistant (set by VAPI inbound routing): Nancy Gaston (${NANCY_ASSISTANT_ID_EXPECTED})`,
+  );
+
+  // 3. Halt-condition pre-check (catch identity drift before fire)
+  if (ELLIOTT_ASSISTANT_ID !== "c303d993-bf42-4784-a8cb-247477b1cbdd") {
+    throw new Error(
+      `HALT: outbound assistantId is not Elliott; got ${ELLIOTT_ASSISTANT_ID}`,
+    );
+  }
+  if (NANCY_PHONE !== "+19014361271") {
+    throw new Error(
+      `HALT: inbound number is not Nancy's Serra Honda service number; got ${NANCY_PHONE}`,
+    );
+  }
+
+  // 4. Build the VAPI /call/phone payload
+  const callPayload = {
+    assistantId: ELLIOTT_ASSISTANT_ID,
+    phoneNumberId: ELLIOTT_PHONE_ID,
+    customer: {
+      number: NANCY_PHONE,
+      name: "TESTLANE Wave 2A-T T2 — Nancy",
+    },
+    metadata: {
+      test: true,
+      wave: "2A-T",
+      chunk: "T2",
+      purpose: "agent-to-agent VAPI provider proof — Elliott (outbound) calls Nancy (Serra Honda service inbound)",
+      bothEndsAreAi: true,
+      noRealHuman: true,
+    },
+  };
+  console.log("payload:", JSON.stringify(callPayload, null, 2));
+
+  // 5. Place EXACTLY ONE call via VAPI /call/phone
+  const preTs = new Date();
+  console.log(`pre_ts=${preTs.toISOString()}`);
+
+  const createRes = await fetch("https://api.vapi.ai/call/phone", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${VAPI_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(callPayload),
+  });
+
+  const vapiHttpStatus = createRes.status;
+  const rawCreate = await createRes.json().catch(() => null);
+  const postTs = new Date();
+  console.log(`post_ts=${postTs.toISOString()}`);
+  console.log(`VAPI HTTP status: ${vapiHttpStatus}`);
+  console.log(
+    "VAPI /call/phone response:",
+    JSON.stringify(rawCreate, null, 2),
+  );
+
+  // 6. Halt-condition checks — run all and collect, but throw on any FAIL
+  const callIdReturned = !!(rawCreate && (rawCreate as any).id);
+  const vapi2xx = vapiHttpStatus >= 200 && vapiHttpStatus < 300;
+  const outboundIsElliott =
+    (rawCreate as any)?.assistantId === ELLIOTT_ASSISTANT_ID ||
+    callPayload.assistantId === ELLIOTT_ASSISTANT_ID;
+  const inboundIsNancyPhone =
+    (rawCreate as any)?.customer?.number === NANCY_PHONE ||
+    callPayload.customer.number === NANCY_PHONE;
+  const singleCallPlaced = true; // by construction — only one fetch above
+  const callId = (rawCreate as any)?.id ?? null;
+  const initialStatus = (rawCreate as any)?.status ?? null;
+
+  if (!vapi2xx || !callIdReturned) {
+    const result: T2Result = {
+      callPlaced: false,
+      callId,
+      status: initialStatus,
+      vapiHttpStatus,
+      outboundAssistantId: ELLIOTT_ASSISTANT_ID,
+      outboundPhoneNumberId: ELLIOTT_PHONE_ID,
+      inboundCustomerNumber: NANCY_PHONE,
+      inboundExpectedAssistantId: NANCY_ASSISTANT_ID_EXPECTED,
+      startedAt: null,
+      endedAt: null,
+      endedReason: null,
+      pollSnapshots: [],
+      preTs: preTs.toISOString(),
+      postTs: postTs.toISOString(),
+      haltChecks: {
+        outboundIsElliott,
+        inboundIsNancyPhone,
+        vapi2xx,
+        callIdReturned,
+        singleCallPlaced,
+      },
+      rawCreateResponse: rawCreate,
+    };
+    console.error("HALT: VAPI returned non-2xx or no call id; emitting result before throw:");
+    console.error("RESULT:", JSON.stringify(result, null, 2));
+    throw new Error(
+      `T2 halt: vapi2xx=${vapi2xx} callIdReturned=${callIdReturned} httpStatus=${vapiHttpStatus}`,
+    );
+  }
+
+  // 7. Poll /call/{id} a couple of times to capture status transitions.
+  //    These are GETs, NOT additional /call POSTs — not "another call".
+  const pollSnapshots: T2Result["pollSnapshots"] = [];
+  let lastStatus: string | null = initialStatus;
+  let lastStartedAt: string | null = null;
+  let lastEndedAt: string | null = null;
+  let lastEndedReason: string | null = null;
+
+  for (let i = 1; i <= 3; i++) {
+    await new Promise((r) => setTimeout(r, 6000)); // 6s between snapshots
+    const pollRes = await fetch(`https://api.vapi.ai/call/${callId}`, {
+      headers: { Authorization: `Bearer ${VAPI_KEY}` },
+    });
+    const pollAt = new Date().toISOString();
+    if (!pollRes.ok) {
+      console.error(
+        `poll #${i} non-2xx: ${pollRes.status} (continuing — call already placed)`,
+      );
+      pollSnapshots.push({
+        pollIndex: i,
+        pollAt,
+        status: null,
+        startedAt: null,
+        endedAt: null,
+        endedReason: null,
+      });
+      continue;
+    }
+    const pollBody = (await pollRes.json()) as any;
+    lastStatus = pollBody?.status ?? lastStatus;
+    lastStartedAt = pollBody?.startedAt ?? lastStartedAt;
+    lastEndedAt = pollBody?.endedAt ?? lastEndedAt;
+    lastEndedReason = pollBody?.endedReason ?? lastEndedReason;
+    console.log(
+      `poll #${i} @${pollAt}: status=${lastStatus} startedAt=${lastStartedAt ?? "-"} endedAt=${lastEndedAt ?? "-"} endedReason=${lastEndedReason ?? "-"}`,
+    );
+    pollSnapshots.push({
+      pollIndex: i,
+      pollAt,
+      status: lastStatus,
+      startedAt: lastStartedAt,
+      endedAt: lastEndedAt,
+      endedReason: lastEndedReason,
+    });
+    if (lastStatus === "ended") break;
+  }
+
+  const result: T2Result = {
+    callPlaced: true,
+    callId,
+    status: lastStatus,
+    vapiHttpStatus,
+    outboundAssistantId: ELLIOTT_ASSISTANT_ID,
+    outboundPhoneNumberId: ELLIOTT_PHONE_ID,
+    inboundCustomerNumber: NANCY_PHONE,
+    inboundExpectedAssistantId: NANCY_ASSISTANT_ID_EXPECTED,
+    startedAt: lastStartedAt,
+    endedAt: lastEndedAt,
+    endedReason: lastEndedReason,
+    pollSnapshots,
+    preTs: preTs.toISOString(),
+    postTs: postTs.toISOString(),
+    haltChecks: {
+      outboundIsElliott,
+      inboundIsNancyPhone,
+      vapi2xx,
+      callIdReturned,
+      singleCallPlaced,
+    },
+    rawCreateResponse: rawCreate,
+  };
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point
 // ---------------------------------------------------------------------------
 
@@ -249,9 +520,20 @@ if (isDirectInvocation) {
         if (e?.stack) console.error(e.stack);
         process.exit(1);
       });
+  } else if (fn === "testT2VapiElliottToNancy") {
+    testT2VapiElliottToNancy()
+      .then((r) => {
+        console.log("RESULT:", JSON.stringify(r, null, 2));
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.error("FAILED:", e?.message || e);
+        if (e?.stack) console.error(e.stack);
+        process.exit(1);
+      });
   } else {
     console.error(
-      `Unknown function: "${fn}". Supported: testT1ProviderProofSms`,
+      `Unknown function: "${fn}". Supported: testT1ProviderProofSms, testT2VapiElliottToNancy`,
     );
     process.exit(2);
   }
