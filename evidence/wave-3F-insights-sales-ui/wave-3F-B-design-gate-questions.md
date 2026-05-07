@@ -10,7 +10,7 @@
 | 1 — Conv rate small-denominator misleading 100% | **B** — render `'—'` (em-dash) when n<20; show real value at n≥20 | advocate (matches Wave 1C em-dash honesty doctrine; less presumptuous than adding a new badge) |
 | 2 — `/sales/leads` 404 | **A** — leave as 404 | advocate (no internal links target it; no defect) |
 | 3 — `/widget-landing` 404 | **A** — leave as 404 | advocate (only ES-module import; no nav link) |
-| 4 — `/work-center` MobileNavDropdown 404 | **B** — investigate git history for intent, then re-target the 4 link references to the existing route that matches intent (likely `/my-work`) | advocate (real defect; mechanical fix; investigation-first) |
+| 4 — `/work-center` MobileNavDropdown 404 | **A** — add `/work-center` route in `App.tsx` mapped to `MyWorkPage` (revised B→A 2026-05-07 post-investigation; `/work-center` labeled "Hub" in `MobileSidebar.tsx:25` and `settings.tsx:3418` — real intended top-level concept; 1-line route addition is lower-risk than re-targeting 4+ sublinks) | advocate (real defect; mechanical fix) |
 | 5 — Source Quality Trends chart polish | **A** — investigate-first sub-chunk; return with specific finding + options | advocate (defect undefined; need specifics before picking a fix) |
 | 6 — Top Performing Agents leaderboard scope | **A** — rename to "Top Performing AI Agents"; defer human-rep leaderboard to v2.3 | **operator 2026-05-07** |
 

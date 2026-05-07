@@ -1,0 +1,35 @@
+Wave 3F-B Δ2 Playwright walk — console capture
+================================================
+
+Captured via mcp__playwright-test__browser_console_messages at every level
+(error / warning / info) after navigation through:
+
+  /login                         (POST /api/auth/refresh: 401 expected — no session)
+  /sales                         (S1 + S3 verification)
+  /insights                      (S1 sc-1)
+  /insights → Reports → Loss & Quality → Source Quality Trends sub-tab  (S5)
+  /work-center                   (S2)
+  /work-center?tab=calendar      (S2 query-param variant)
+
+Result per level
+----------------
+  level=error    → empty (zero error console messages)
+  level=warning  → empty (zero warning console messages)
+  level=info     → empty (post-navigation snapshot; no info messages flagged
+                   beyond the inline /login auth/refresh:0 401 which is the
+                   expected response when no session exists)
+
+Snapshot-attributed errors (from page Events output during navigation)
+----------------------------------------------------------------------
+  - On /login (pre-submit):
+      [ERROR] Failed to load resource: the server respon...d Request) @
+      http://localhost:5000/api/auth/refresh:0
+    This is the expected 401 returned to an unauthenticated client by the
+    refresh endpoint — present in Wave 1C E2E baseline as well.
+
+Console error count (post-fix, post-login): 0
+Console warning count: 0
+Console info count: 0
+
+Verdict: matches Wave 1C E2E baseline; no new errors introduced by chunks
+S1 / S2 / S3 / S4 / S5.
