@@ -14,7 +14,7 @@ Advocate revision: pivot Wave 2A-T to **Direct Outbound Provider Proof** at the 
 
 Revised chunk decomposition:
 - **T1 (revised)** — Direct SMS provider proof via processOutboundSend with TESTLANE-marked SMS payload
-- **T2 (revised)** — Direct Email provider proof via processOutboundSend with TESTLANE-marked email payload (ratifies Wave 1C pattern at outbound-gate layer)
+- **T2 (revised twice)** — **VAPI agent-to-agent voice provider proof** using existing `testVapiAgentToAgentCall` helper in `server/comms-test.ts:39`. Pivoted from "Email ratification" because Resend was already proven in Wave 1C; VAPI has NOT yet been proven end-to-end and is launch-critical for v2.2 voice flows. Agent-to-agent (both AI assistants we control) → zero real customer impact; uses `vapi_test_agent:c303d993-bf42-4784-a8cb-247477b1cbdd` (Elliott) per allowlist.
 - **Trigger-logic proof** — deferred to future Wave 2A-Pure-Triggers
 **Phase:** 7 (Service) + 10 (Background Workflows) — partial → proven
 **Date opened:** 2026-05-07
@@ -178,6 +178,112 @@ NONE. No UI files touched.
 
 ---
 
-## CLOSING
+## CLOSING (audited 2026-05-07)
 
-(pending — populated at gate after builder + verifiers complete)
+**Closed:** 2026-05-07 (~17:30 UTC)
+**Wave-level verdict:** **PASS — Direct Outbound Provider Proof complete for SMS (TextMagic) and VAPI (voice).** Trigger conditional logic proof remains queued as future Wave 2A-Pure-Triggers (needs trigger evaluator export approval + business-hours mocking). Sub-wave 2A-B (Service Campaign + Webhooks) parked for separate wave. Side-thread surfaced a real production-impact issue (TextMagic dashboard pointing at dev URL → 503s → silent SMS drops) with operator-execute fix recommendation.
+
+### Wave history (linear, all on `wave/10-bg/2A-T-trigger-proof`)
+
+| SHA | Commit |
+|---|---|
+| `76024ad` | (base) — pre-Wave-2A-T tip of `batch-1-finish-line` |
+| `c60907b` | `evidence(wave-2A-T): chunk-T1 original-spec blocker finding + bookend mid-wave revision` |
+| `bed5c4b` | `test(wave-2A-T): testlane-only invocation script for direct outbound provider proof (T1 setup)` |
+| `b6dfe1a` | `evidence(wave-2A-T): T1 (revised) direct SMS provider proof via processOutboundSend (1 SMS to allowlist)` |
+| `3e977dc` | `test(wave-2A-T): add T2 VAPI Elliott-to-Nancy agent-to-agent helper` |
+| `7f1a997` | `evidence(wave-2A-T): T2 VAPI Elliott-to-Nancy agent-to-agent provider proof (no real human)` |
+| `c5d8953` | `evidence(sidethread): TextMagic webhook callback URL investigation (read-only)` |
+| (next) | `evidence(wave-2A-T): CLOSING bookend + 4 verifier verdicts + T2 first-dispatch blocker ratification` |
+
+Aggregate: 1 product-side new test-only file (`server/test-trigger-2A.ts`) / 0 production code changes / 7 commits + CLOSING.
+
+### Two deltas of proof — captured
+
+| Delta | Type | Result | Evidence |
+|---|---|---|---|
+| **Δ1** | runnable | tsc PASS + vitest 459/2 PASS on wave HEAD `7f1a997`. Reproduced by blind-verifier independent run. | wave HEAD test runs |
+| **Δ2** | provider receipts | T1: TextMagic message ID `1406916679` to `+14126546500` (allowlist) verified in DB outbound_log. T2: VAPI call ID `019e03da-e46e-7000-83f9-5c9128e7f0b0` Elliott→Nancy verified via VAPI `/call/{id}` polls (queued → in-progress 19:12:19Z). | chunk-T1/proof.md + chunk-T2/proof.md |
+
+### Audit chain (4 blind verifiers at gate, all PASS)
+
+| Verifier | Type | Verdict | Evidence |
+|---|---|---|---|
+| `blind-verifier` (general-purpose) | subagent at gate | **AGREE** — 8/8 independent checks PASS | `verifier-audit/blind-verifier-verdict.md` |
+| `scope-guardian` (subagent type) | subagent at gate | **PASS** — 1 product-side new file (test-only); zero edits to production code; 2-SMS T1 over-send disclosed; Nancy allowlist gap surfaced | `verifier-audit/scope-guardian-verdict.md` |
+| `drift-detector` (general-purpose) | subagent at gate | **NO DRIFT** — both mid-wave revisions documented; 2A-B + 2A-Pure-Triggers explicitly parked; Phase 7+10 boundaries respected | `verifier-audit/drift-detector-verdict.md` |
+| `integration-safety` (subagent type) | subagent at gate (REQUIRED for provider boundary per CLAUDE.md) | **PASS** — TestLane gate hard-routed correctly; no real customer contact; vin-safe-mcp + CommGate untouched; Nancy allowlist gap covered by operator verbal authorization (this session) with written-allowlist update recommended for next session | `verifier-audit/integration-safety-verdict.md` |
+
+### Mid-wave revisions (documented for honest audit trail)
+
+1. **T1 original-spec abort.** Original T1 spec called for direct invocation of `evaluateAfterHoursTrigger`; aborted by builder (chunk-T1/blocker-finding.md committed `c60907b`) due to 4 obstacles: function not exported, after-hours trigger is defer-only by design, serra-honda has flag disabled, currently within business hours. Pivoted T1 to direct `processOutboundSend` invocation.
+2. **T2 first-dispatch abort + clarification.** First T2 dispatch assumed VAPI required PSTN-only routing and would dial Durran's non-allowlisted number via misnamed `testVapiAgentToAgentCall` helper. Builder STOPPED correctly. Operator clarified: "agent can call another agent — Elliott calls Nancy." Second T2 dispatch (Elliott→Nancy phone, both AI assistants) shipped successfully. T2 first-dispatch blocker-finding ratified into repo this CLOSING for audit completeness.
+
+### T1 disclosure (per Environmental Core Value #1: TRUTH OVER COMPLIANCE)
+
+T1 builder ran the test script TWICE instead of ONCE — once for the actual proof (succeeded with exit 0), then again to capture exit code via `echo $?` (also succeeded). Result: 2 SMS sent to operator's `+14126546500` instead of 1. Both went to allowlisted recipient via TestLane gate hard-route. Builder transparently disclosed in chunk-T1/proof.md. T2 builder explicitly avoided this pattern. Documented for future-orchestrator awareness.
+
+### Architectural findings (surfaced for follow-up; NOT blocking close)
+
+1. **`outbound_log` schema lacks `provider_message_id` column.** TextMagic message IDs are only emitted to stdout by `sendSmsRaw` and not persisted. For audit trail completeness, recommend a future schema-additive change (e.g. v2.3 or via approved migration).
+2. **`processOutboundSend` does NOT write `activity_log`.** That's a higher-level caller responsibility (e.g. trigger evaluators). Documented for future trigger-logic-proof wave (Wave 2A-Pure-Triggers).
+
+### Side-thread: TextMagic webhook callback URL (PRODUCTION-IMPACT FINDING)
+
+Operator received a TextMagic notification: `https://dev.huminicdev.com/api/webhooks/textmagic` callback URL not functioning. Investigation finding at `evidence/wave-2A-trigger-provider-proof/sidethread-textmagic-webhook/finding.md`:
+- URL IS a valid endpoint (handler at `server/routes/sms.ts:159`)
+- Should be on `live.huminic.app` (production)
+- Why on dev: leftover from pre-launch testing; dashboard never updated when prod moved to Coolify (related to carried debt `I-NEW-2026-04-30-E`)
+- Actual brokenness: dev returns HTTP 503 (`TEXTMAGIC_WEBHOOK_SECRET` unset on dev + `NODE_ENV=production` → reject branch). Live is healthy.
+- Impact: TextMagic auto-disable countdown is running. Inbound SMS at any dealership configured against the dev URL is **silently dropping right now**.
+
+**Operator action recommended:** Update TextMagic dashboard inbound callback URL from `dev.huminicdev.com` → `live.huminic.app`. NO code change needed.
+
+### Stop conditions — all PASS
+
+- Zero edits to production code (`server/services/triggerService.ts`, `server/outbound.ts`, `server/comms-test.ts`, schema files)
+- Zero DB writes outside expected outbound_log + usage_events byproducts of T1
+- Zero provider sends outside allowlist (T1 to `+14126546500` allowlist; T2 to Nancy AI service number with operator verbal authorization)
+- Zero pm2 restart on `live.huminic.app`
+- Zero commits to `batch-1-finish-line` direct or to `main`
+- Zero force pushes / `git rebase -i`
+- Zero TextMagic dashboard changes (operator-execute)
+
+### Operator action items (post-merge, async)
+
+1. **Add Nancy to test-recipients.txt** for future autonomous Elliott→Nancy dispatch:
+   - `vapi_test_agent:c777f029-8c4c-4a23-98e4-3adfd4112a61` (Nancy assistant)
+   - `vapi_test_phone:+19014361271` (Nancy Serra Honda service number)
+2. **Update TextMagic dashboard** inbound callback URL from `dev.huminicdev.com` → `live.huminic.app` (production-impact; addresses operator's email notification)
+3. **Optional:** Set `TEXTMAGIC_WEBHOOK_SECRET` in dev `.env` if you want dev to also accept callbacks for test-lane testing
+4. **Reconcile plan.md** wave-roadmap table (currently still lists Wave 1C as ACTIVE; needs reflection of 1C/I-Auth/3F-A/3F-B/11-Gov/2A-T DONE; Wave 2A's split into 2A-T/2A-B/2A-Pure-Triggers should be documented). Per drift-detector housekeeping note.
+
+### Carried-forward / future-wave items
+
+- **Wave 2A-B** (Service Campaign + Webhooks) — parked per de facto split
+- **Wave 2A-Pure-Triggers** — full trigger-logic-proof wave; needs export approval for `evaluateAfterHoursTrigger` / `evaluateCheckInTrigger` / `evaluateImmediateNewLeadTrigger` + business-hours-mocked test rig + safe scoping of `runTriggerEvaluation` to one org
+- **TextMagic dashboard URL fix** (operator-execute; no code work)
+- **outbound_log `provider_message_id` column** addition (v2.3 or approved migration)
+
+### Cross-references
+
+- `evidence/wave-1C-metric-honesty/wave-bookend.md` — Wave 1C Resend Δ1 precedent
+- `evidence/governance-2026-05-01/harness-session-id-marker-gap.md` (ratified Wave 11-Gov G1) — relevant to integration-safety marker file naming gap
+- `server/outbound.ts:79-138` — TestLane gate logic (untouched this wave)
+- `server/services/triggerService.ts:193-318, 319-513, 514-660, 726, 823, 849` — trigger evaluator surface (untouched)
+- `server/routes/sms.ts:159` — TextMagic webhook handler (subject of side-thread)
+- `.claude/state/test-recipients.txt` — allowlist (Nancy gap noted)
+
+### Merge sequence (executed by orchestrator after CLOSING commit)
+
+1. `git checkout batch-1-finish-line && git merge --ff-only wave/10-bg/2A-T-trigger-proof`
+2. `git push origin batch-1-finish-line`
+3. **Live deploy: deferred to Wave 11A release-cycle gate**
+
+### Next-wave readiness
+
+- **YES** — Wave 2A-B (Service Campaign + Webhooks) — independent
+- **YES** — Wave 11-Gov-Apply (operator-execute G1 fix from prior wave) — operator action
+- **YES** — Wave 9-Sec triage opens with operator decision
+- **YES** — Wave 11A (Final E2E + go/no-go) — preferably AFTER 11-Gov G1 fix lands and after TextMagic dashboard URL fix
+
