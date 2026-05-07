@@ -126,7 +126,11 @@ function buildSalesMetrics(summary: LeadSummary | undefined, pipeline?: Pipeline
     { id: 'sm-5', label: 'Appointments Set', value: String(summary.appointments), change: null, trend: 'up' as const, icon: ArrowUpRight },
     { id: 'sm-6', label: 'Sold', value: String(summary.soldLeads), change: summary.soldLeadsChange, trend: t(summary.soldLeadsChange), windowLabel: 'vs last 30d', icon: TrendingUp },
     // I-114: change=null — API does not provide conversionRateChange; using absolute rate as delta was misleading.
-    { id: 'sm-7', label: 'Conversion Rate', value: summary.conversionRate == null ? '—' : `${summary.conversionRate}%`, change: null, trend: 'up' as const, icon: TrendingUp },
+    // Wave 3F-A: null guard (defensive — API may emit null).
+    // Wave 3F-B-S1: small-sample em-dash threshold. When the conversion-rate denominator
+    // (soldLeads + lostLeads) is < 20, render '—' to avoid misleading 100%/0% on tiny samples.
+    // Threshold applies only to this user-facing tile label; chart-data points stay raw.
+    { id: 'sm-7', label: 'Conversion Rate', value: (summary.conversionRate == null || (summary.soldLeads + summary.lostLeads) < 20) ? '—' : `${summary.conversionRate}%`, change: null, trend: 'up' as const, icon: TrendingUp },
   ];
 }
 

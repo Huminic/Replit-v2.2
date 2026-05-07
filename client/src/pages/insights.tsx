@@ -258,8 +258,13 @@ export default function InsightsPage({ embedded = false }: { embedded?: boolean 
     },
   };
 
+  // Wave 3F-B-S1: small-sample em-dash threshold for the Win Rate tile.
+  // Denominator is the lifetime sample size (overview.totalLeads, per the lib-8 formula
+  // sold/total introduced in Chunk 1C-S5). When totalLeads < 20, render '—' on the user-facing
+  // tile label only — chart-data points (lines 1048, 1085, 2050, 2101) stay raw.
+  const winRateTileValue = (overview.conversionRate == null || totalLeads < 20) ? '—' : `${convRate}%`;
   const scorecardConversionMetrics: { id: string; label: string; value: string; sparkline: number[]; trend: 'up' | 'down' | 'neutral'; change: string }[] = [
-    { id: 'sc-1', label: 'Win Rate', value: `${convRate}%`, sparkline: [convRate], trend: 'neutral', change: '' },
+    { id: 'sc-1', label: 'Win Rate', value: winRateTileValue, sparkline: [convRate], trend: 'neutral', change: '' },
     { id: 'sc-2', label: 'Total Sold', value: `${soldCount}`, sparkline: [soldCount], trend: soldCount > 0 ? 'up' : 'neutral', change: '' },
     { id: 'sc-3', label: 'Total Active Pipeline (30d)', value: `${hotCount}`, sparkline: [hotCount], trend: hotCount > 0 ? 'up' : 'neutral', change: '' },
     { id: 'sc-4', label: 'Total Leads', value: `${totalLeads}`, sparkline: [totalLeads], trend: totalLeads > 0 ? 'up' : 'neutral', change: '' },
