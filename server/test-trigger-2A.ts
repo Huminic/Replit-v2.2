@@ -36,7 +36,7 @@
 
 import { processOutboundSend, type SendRequest, type SendResult } from "./outbound";
 import { storage, db } from "./storage";
-import { outboundLog, activityLog } from "@shared/schema";
+import { outboundLog, activityLog, conversations, messages } from "@shared/schema";
 import { and, eq, gte, lte } from "drizzle-orm";
 
 const ALLOWLISTED_OPERATOR_PHONE = "+14126546500";
@@ -793,6 +793,390 @@ export async function testT3ServiceCampaign(): Promise<T3Result> {
 }
 
 // ---------------------------------------------------------------------------
+// T4 — VAPI INBOUND webhook provider proof (synthetic POST → local handler)
+// ---------------------------------------------------------------------------
+//
+// Goal: prove that the local VAPI inbound webhook handler at
+// /api/webhooks/vapi enforces the I-NEW-2026-04-26-D fail-closed guard
+// (`server/lib/vapiInboundGuard.ts`) and accepts a content-bearing TestLane
+// event end-to-end.
+//
+// Two synthetic POSTs against http://localhost:5000/api/webhooks/vapi:
+//
+//   Test A (REJECT) — `status-update` event, no transcript / summary /
+//   messages / TestLane marker. Per the guard's event-type filter, this
+//   is "ignored by event type" — the handler returns 200 with
+//   `skipped:true`. Per the task spec the guard should NOT create a
+//   conversation row; we assert no conversation row appears in the
+//   serra-honda window. (HTTP 4xx-style "rejected by handler" is the
+//   spec wording; the actual route returns 200 with skip reason for the
+//   "event type ignored" branch. We capture this distinction explicitly.)
+//
+//   Test B (ACCEPT) — `end-of-call-report` event with assistantId set to
+//   Nancy (Serra Honda service VAPI assistant), customer.name with
+//   `[testlane:wave-2A-T4]` marker, customer.number = +14126546500
+//   (operator allowlist), and a synthesized transcript + summary. Per
+//   the guard, content-present → CREATE; the handler resolves to
+//   serra-honda via Nancy's assistantId and creates a conversation +
+//   transcript message.
+//
+// Auth: in dev (NODE_ENV=development) and with VAPI_WEBHOOK_SECRET unset,
+// the handler accepts any unauthenticated request with a console warning.
+// Verified upstream: `set -a; source .env; set +a` — no VAPI_WEBHOOK_SECRET
+// set in this dev .env (status snapshot 2026-05-08).
+//
+// Halt conditions:
+//   - Test A returns a CREATE-style success (`success:true` without
+//     `skipped:true` AND a conversation row written) → STOP, regression
+//     of I-NEW-2026-04-26-D
+//   - Test B returns 5xx → STOP, handler bug
+//   - Any conversation row created in any org OTHER than serra-honda → STOP
+//   - Any provider send observed in outbound_log inside the window → STOP
+//   - Script invoked more than once per session
+
+const T4_BASE_URL = process.env.TESTLANE_BASE_URL || "http://localhost:5000";
+const T4_SESSION_ID = "wave-2A-T4";
+const T4_NANCY_ASSISTANT_ID = "c777f029-8c4c-4a23-98e4-3adfd4112a61";
+
+interface T4PostResult {
+  testName: "A" | "B";
+  expectedAction: "ignore" | "create";
+  httpStatus: number;
+  responseBody: unknown;
+  // Whether the handler signalled "ignore" path via `skipped:true` /
+  // `success:false` / 4xx. True iff handler did NOT create a conversation.
+  handlerIgnored: boolean;
+  // Conversation rows created in serra-honda that match the synthetic
+  // call's customerPhone within the window.
+  conversationRowsForThisTest: Array<{
+    id: string;
+    organizationId: string;
+    customerName: string;
+    customerPhone: string | null;
+    channel: string;
+    createdAt: string;
+  }>;
+}
+
+interface T4Result {
+  baseUrl: string;
+  sessionId: string;
+  serraHondaOrgId: string;
+  preTs: string;
+  postTs: string;
+  testA: T4PostResult;
+  testB: T4PostResult;
+  outboundLogRowsInWindow: Array<{
+    id: string;
+    organizationId: string;
+    channel: string;
+    status: string;
+    recipientPhone: string | null;
+    recipientEmail: string | null;
+    createdAt: string;
+  }>;
+  haltChecks: {
+    testARejected: boolean;
+    testBAccepted: boolean;
+    testBNo5xx: boolean;
+    onlyOrgIsSerraHonda: boolean;
+    noProviderSends: boolean;
+  };
+}
+
+export async function testT4VapiWebhookInbound(): Promise<T4Result> {
+  console.log(
+    "=== Wave 2A Chunk T4 — VAPI Inbound Webhook Provider Proof (synthetic) ===",
+  );
+  console.log("session-id:", T4_SESSION_ID);
+  console.log("base URL:", T4_BASE_URL);
+
+  // Defensive testlane env (the handler does not consult these — they're
+  // for spec-checklist alignment with sibling chunks).
+  process.env.TESTLANE_MODE = "true";
+  process.env.TESTLANE_SMS_TO = ALLOWLISTED_OPERATOR_PHONE;
+
+  const serraHonda = await storage.getOrganizationBySlug(SERRA_HONDA_SLUG);
+  if (!serraHonda) {
+    throw new Error("T4 halt: serra-honda org not found by slug");
+  }
+  console.log(`org: id=${serraHonda.id} slug=${serraHonda.slug} name=${serraHonda.name}`);
+
+  const preTs = new Date();
+  console.log(`pre_ts=${preTs.toISOString()}`);
+
+  // ---------------------------------------------------------------------
+  // Test A — placeholder/no-content event. Should be rejected by the
+  // guard's event-type filter (status-update is not a conversation-
+  // creating event type).
+  // ---------------------------------------------------------------------
+  const testAPhone = "+14126546500";
+  const testACallId = `t4-test-a-${Date.now()}`;
+  const testAPayload = {
+    message: {
+      type: "status-update",
+      status: "queued",
+      call: {
+        id: testACallId,
+        status: "queued",
+        assistantId: T4_NANCY_ASSISTANT_ID,
+        customer: {
+          number: testAPhone,
+          name: "T4 Test A — placeholder no-transcript event",
+        },
+      },
+    },
+  };
+  console.log("\n--- Test A: synthetic placeholder event (expect REJECT) ---");
+  console.log("Test A payload:", JSON.stringify(testAPayload));
+
+  const resA = await fetch(`${T4_BASE_URL}/api/webhooks/vapi`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(testAPayload),
+  });
+  const httpStatusA = resA.status;
+  const bodyA: any = await resA.json().catch(() => null);
+  console.log(`Test A HTTP status: ${httpStatusA}`);
+  console.log("Test A response body:", JSON.stringify(bodyA));
+
+  // Test A "handler ignored" definition: NOT 5xx, AND either response is
+  // 4xx OR `skipped:true` OR `message:"Event type ignored"`.
+  const testAHandlerIgnored =
+    (httpStatusA >= 400 && httpStatusA < 500) ||
+    bodyA?.skipped === true ||
+    bodyA?.message === "Event type ignored";
+
+  // ---------------------------------------------------------------------
+  // Test B — content-present TestLane event. Should be accepted; handler
+  // resolves to serra-honda via Nancy's assistantId; conversation row
+  // created.
+  // ---------------------------------------------------------------------
+  const testBPhone = "+14126546500"; // operator allowlist phone
+  const testBCallId = `t4-test-b-${Date.now()}`;
+  const testBPayload = {
+    message: {
+      type: "end-of-call-report",
+      call: {
+        id: testBCallId,
+        status: "ended",
+        assistantId: T4_NANCY_ASSISTANT_ID,
+        phoneNumber: { number: "+19014361271" },
+        customer: {
+          number: testBPhone,
+          name: "[testlane:wave-2A-T4] Synthetic Caller",
+        },
+        startedAt: new Date(Date.now() - 120_000).toISOString(),
+        endedAt: new Date(Date.now() - 60_000).toISOString(),
+      },
+      transcript:
+        "[testlane:wave-2A-T4] Synthetic transcript content for inbound webhook proof.\n" +
+        "user: Hi, calling about my 2024 Honda Pilot service appointment.\n" +
+        "assistant: Of course — let me pull up your record.",
+      summary:
+        "[testlane:wave-2A-T4] Synthetic VAPI end-of-call summary used for inbound webhook proof; no real human involved.",
+    },
+  };
+  console.log("\n--- Test B: synthetic content-bearing TestLane event (expect ACCEPT) ---");
+  console.log("Test B payload (transcript truncated):", JSON.stringify({
+    ...testBPayload,
+    message: {
+      ...testBPayload.message,
+      transcript: testBPayload.message.transcript.slice(0, 80) + "...",
+      summary: testBPayload.message.summary.slice(0, 80) + "...",
+    },
+  }));
+
+  const resB = await fetch(`${T4_BASE_URL}/api/webhooks/vapi`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(testBPayload),
+  });
+  const httpStatusB = resB.status;
+  const bodyB: any = await resB.json().catch(() => null);
+  console.log(`Test B HTTP status: ${httpStatusB}`);
+  console.log("Test B response body:", JSON.stringify(bodyB));
+
+  const testBHandlerIgnored =
+    (httpStatusB >= 400 && httpStatusB < 500) ||
+    bodyB?.skipped === true ||
+    bodyB?.message === "Event type ignored";
+
+  const postTs = new Date();
+  console.log(`\npost_ts=${postTs.toISOString()}`);
+
+  // 4. Query conversations created in window — filter by createdAt and
+  //    customerPhone match per test (allowlist phone).
+  const convoRowsAll = await db
+    .select()
+    .from(conversations)
+    .where(
+      and(
+        gte(conversations.createdAt, preTs),
+        lte(conversations.createdAt, postTs),
+      ),
+    );
+
+  // 5. Filter to conversations that look like products of these synthetic
+  //    POSTs (channel=voice + organization + phone).
+  const convoRowsThisTestA = convoRowsAll.filter(
+    (c) =>
+      c.channel === "voice" &&
+      c.customerPhone === testAPhone &&
+      c.organizationId === serraHonda.id &&
+      // Test A's customer name is unique to Test A
+      (c.customerName?.includes("placeholder") ?? false),
+  );
+  const convoRowsThisTestB = convoRowsAll.filter(
+    (c) =>
+      c.channel === "voice" &&
+      c.customerPhone === testBPhone &&
+      c.organizationId === serraHonda.id &&
+      // Test B carries the testlane marker in the customer name
+      (c.customerName?.includes("[testlane:wave-2A-T4]") ?? false),
+  );
+
+  // 6. Defense-in-depth: any voice conversation in window in an org OTHER
+  //    than serra-honda?
+  const voiceConvosOtherOrg = convoRowsAll.filter(
+    (c) => c.channel === "voice" && c.organizationId !== serraHonda.id,
+  );
+
+  // 7. Defense-in-depth: outbound_log rows in serra-honda window (synthetic
+  //    POST should NOT trigger sends; non-zero would indicate something
+  //    fired downstream).
+  const outboundRows = await db
+    .select()
+    .from(outboundLog)
+    .where(
+      and(
+        eq(outboundLog.organizationId, serraHonda.id),
+        gte(outboundLog.createdAt, preTs),
+        lte(outboundLog.createdAt, postTs),
+      ),
+    );
+
+  // 8. Halt-check assembly
+  const testARejected =
+    testAHandlerIgnored && convoRowsThisTestA.length === 0;
+  const testBNo5xx = httpStatusB < 500;
+  const testBAccepted =
+    !testBHandlerIgnored &&
+    httpStatusB >= 200 &&
+    httpStatusB < 300 &&
+    bodyB?.success === true &&
+    bodyB?.skipped !== true &&
+    convoRowsThisTestB.length === 1;
+  const onlyOrgIsSerraHonda = voiceConvosOtherOrg.length === 0;
+  const noProviderSends = outboundRows.length === 0;
+
+  if (!testARejected) {
+    console.error(
+      `HALT: Test A was NOT rejected as expected. handlerIgnored=${testAHandlerIgnored} httpStatus=${httpStatusA} convoRows=${convoRowsThisTestA.length}`,
+    );
+  }
+  if (!testBAccepted) {
+    console.error(
+      `HALT: Test B was NOT accepted as expected. httpStatus=${httpStatusB} body=${JSON.stringify(bodyB)} convoRows=${convoRowsThisTestB.length}`,
+    );
+  }
+  if (!testBNo5xx) {
+    console.error(`HALT: Test B returned 5xx. status=${httpStatusB}`);
+  }
+  if (!onlyOrgIsSerraHonda) {
+    console.error(
+      `HALT: voice conversation(s) created in org(s) OTHER than serra-honda: ${JSON.stringify(
+        voiceConvosOtherOrg.map((c) => ({
+          id: c.id,
+          orgId: c.organizationId,
+          customerName: c.customerName,
+        })),
+      )}`,
+    );
+  }
+  if (!noProviderSends) {
+    console.error(
+      `HALT: provider send(s) observed in window: ${outboundRows.length} row(s)`,
+    );
+  }
+
+  const result: T4Result = {
+    baseUrl: T4_BASE_URL,
+    sessionId: T4_SESSION_ID,
+    serraHondaOrgId: serraHonda.id,
+    preTs: preTs.toISOString(),
+    postTs: postTs.toISOString(),
+    testA: {
+      testName: "A",
+      expectedAction: "ignore",
+      httpStatus: httpStatusA,
+      responseBody: bodyA,
+      handlerIgnored: testAHandlerIgnored,
+      conversationRowsForThisTest: convoRowsThisTestA.map((c) => ({
+        id: c.id,
+        organizationId: c.organizationId,
+        customerName: c.customerName,
+        customerPhone: c.customerPhone,
+        channel: c.channel,
+        createdAt: c.createdAt.toISOString(),
+      })),
+    },
+    testB: {
+      testName: "B",
+      expectedAction: "create",
+      httpStatus: httpStatusB,
+      responseBody: bodyB,
+      handlerIgnored: testBHandlerIgnored,
+      conversationRowsForThisTest: convoRowsThisTestB.map((c) => ({
+        id: c.id,
+        organizationId: c.organizationId,
+        customerName: c.customerName,
+        customerPhone: c.customerPhone,
+        channel: c.channel,
+        createdAt: c.createdAt.toISOString(),
+      })),
+    },
+    outboundLogRowsInWindow: outboundRows.map((r) => ({
+      id: r.id,
+      organizationId: r.organizationId,
+      channel: r.channel,
+      status: r.status,
+      recipientPhone: r.recipientPhone,
+      recipientEmail: r.recipientEmail,
+      createdAt: r.createdAt.toISOString(),
+    })),
+    haltChecks: {
+      testARejected,
+      testBAccepted,
+      testBNo5xx,
+      onlyOrgIsSerraHonda,
+      noProviderSends,
+    },
+  };
+
+  if (
+    !testARejected ||
+    !testBAccepted ||
+    !testBNo5xx ||
+    !onlyOrgIsSerraHonda ||
+    !noProviderSends
+  ) {
+    console.error("HALT-CONDITION FAILED; emitting result before throw:");
+    console.error("RESULT:", JSON.stringify(result, null, 2));
+    throw new Error(
+      `T4 halt: Arejected=${testARejected} Baccepted=${testBAccepted} Bno5xx=${testBNo5xx} onlySerra=${onlyOrgIsSerraHonda} noSends=${noProviderSends}`,
+    );
+  }
+
+  // Suppress unused-import warning when only T4 is invoked. The `messages`
+  // table is imported here for parity with sibling chunks; future T4
+  // extensions (e.g. asserting the VAPI transcript message row) will use it.
+  void messages;
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point
 // ---------------------------------------------------------------------------
 
@@ -835,9 +1219,20 @@ if (isDirectInvocation) {
         if (e?.stack) console.error(e.stack);
         process.exit(1);
       });
+  } else if (fn === "testT4VapiWebhookInbound") {
+    testT4VapiWebhookInbound()
+      .then((r) => {
+        console.log("RESULT:", JSON.stringify(r, null, 2));
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.error("FAILED:", e?.message || e);
+        if (e?.stack) console.error(e.stack);
+        process.exit(1);
+      });
   } else {
     console.error(
-      `Unknown function: "${fn}". Supported: testT1ProviderProofSms, testT2VapiElliottToNancy, testT3ServiceCampaign`,
+      `Unknown function: "${fn}". Supported: testT1ProviderProofSms, testT2VapiElliottToNancy, testT3ServiceCampaign, testT4VapiWebhookInbound`,
     );
     process.exit(2);
   }
