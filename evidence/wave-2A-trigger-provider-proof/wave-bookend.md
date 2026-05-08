@@ -282,8 +282,44 @@ Operator received a TextMagic notification: `https://dev.huminicdev.com/api/webh
 
 ### Next-wave readiness
 
-- **YES** — Wave 2A-B (Service Campaign + Webhooks) — independent
-- **YES** — Wave 11-Gov-Apply (operator-execute G1 fix from prior wave) — operator action
+- **YES** — Wave 2B (widget E2E) — independent
 - **YES** — Wave 9-Sec triage opens with operator decision
 - **YES** — Wave 11A (Final E2E + go/no-go) — preferably AFTER 11-Gov G1 fix lands and after TextMagic dashboard URL fix
+
+---
+
+## CONTINUATION OPENING (2026-05-07/08)
+
+Wave 2A re-opened for the remaining chunks per plan.md. Operator retired A/B/C wave-naming convention 2026-05-07 — these chunks are inside Wave 2A, not a new wave.
+
+### Chunks added in this continuation
+
+- **Chunk T3 — Service Campaign provider proof.** Use existing helper `testServiceCampaignCreation` at `server/comms-test.ts:67` (already in codebase). Run test-lane creation of a service campaign in serra-honda; verify campaign row created + any SMS sequence emits route through TestLane gate to allowlist. Capture campaign ID, SMS message_ids if any, outbound_log entries.
+- **Chunk T4 — Webhook provider proof.** VAPI inbound webhook validation. Generate a synthetic VAPI event (call.started or transcript chunk) POST to local `/api/webhooks/vapi`; verify handler processes correctly, creates conversation row if applicable, no 5xx. TextMagic inbound webhook proof is BLOCKED by I-NEW-2026-05-07-TEXTMAGIC-URL (operator-execute dashboard fix); covered conceptually here but live SMS roundtrip deferred until dashboard URL is corrected.
+
+Trigger-evaluator-driven proof (per Wave 2A original spec) remains queued — needs export approval for `evaluateAfterHoursTrigger` / `evaluateCheckInTrigger` / `evaluateImmediateNewLeadTrigger` + business-hours-mocked test rig. Not dispatching this session.
+
+### Out of scope (this continuation)
+
+- ANY edit to `server/services/triggerService.ts`, `server/outbound.ts`, `server/comms-test.ts` body changes (extension via export-import is OK), schema, migrations
+- ANY provider send to non-allowlisted recipients
+- ANY pm2 restart on live; dev autonomous after presenting reason
+
+### Files likely touched
+
+- `server/test-trigger-2A.ts` — extend with T3/T4 functions (already exists)
+- `server/comms-test.ts` — read-only (existing testServiceCampaignCreation helper; do NOT modify body)
+- `evidence/wave-2A-trigger-provider-proof/chunk-T3/proof.md` (NEW)
+- `evidence/wave-2A-trigger-provider-proof/chunk-T4/proof.md` (NEW)
+- (Update) `evidence/wave-2A-trigger-provider-proof/wave-bookend.md` — final CLOSING covers all 4 chunks (T1, T2, T3, T4)
+- (Update) `evidence/wave-2A-trigger-provider-proof/verifier-audit/` — re-run verifiers to cover all 4 chunks at final close
+
+### Stop conditions (carry from initial OPENING + add)
+
+- Service campaign helper requires modifications to comms-test.ts body — STOP, escalate
+- Webhook handler returns 5xx during synthetic POST — capture, STOP for diagnosis
+- Any provider send routes outside allowlist — STOP IMMEDIATELY
+- Run scripts EXACTLY ONCE per chunk — capture exit code from RESULT JSON, no echo-rerun pattern (T1 disclosure carryover)
+
+CLOSING below will be REWRITTEN to cover all 4 chunks once T3 + T4 land.
 
