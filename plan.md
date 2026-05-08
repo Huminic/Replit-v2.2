@@ -90,30 +90,19 @@
 
 ## Operator-decision boundaries
 
-**TRUE OPERATOR DECISIONS (orchestrator stops and asks):**
+Operator gets consulted when something:
+1. **Changes functionality** (what the system does)
+2. **Changes UI** (what the user sees)
+3. **Is creative** (taste, design, copy, scope-defining choice)
 
-- Phase 9 security triage v2.2 vs v2.3 (Wave 9-Sec opens with this question)
-- Live deploy (per-deploy approval; Wave 11A only)
-- Any DB write outside an approved migration
-- Any provider send to non-allowlisted recipients
-- Any UI scope marker creation outside the pre-approved categories
-- D-I2 unpark (local main reconciliation)
-- Wave 11A closing → main (PR + merge approval; this is the live-deploy gate)
-- Unwinding any locked decision (D-H1, D-G1, D-A1, D-F1, D-B1)
-- Cross-project filesystem-boundary edits (e.g. `~/Claude-store/sysadmin/harness/` for Wave 11-Gov G1 fix)
-- Third-party dashboard config (e.g. TextMagic dashboard inbound URL)
+Everything else is orchestrator-autonomous. Don't expand this list.
 
-**ADVOCATE-AUTONOMOUS (orchestrator decides + documents in advocate-decision evidence):**
-
-- Wave internal sequencing (chunk decomposition within scope)
-- Mid-wave revisions when scope assumptions prove wrong (must be documented in bookend OPENING)
-- Audit subagent dispatch at gate
-- Test-lane provider sends to allowlisted destinations after preflight + destination-classification table
-- pm2 restart on dev (after presenting exact command + reason)
-- `npm run build` on dev (after presenting reason; per session.md autonomy list)
-- Plan.md / backlog.md / issues.md edits (with bypass marker; explicit acknowledgment per Core Value #6)
-- TESTLANE allowlist updates within established categories
-- Push to `batch-1-finish-line` (Coolify watches `main`, not this branch — no auto-deploy)
+Hard safety floors (separate from "consult" — these are STOPs, not approvals):
+- No live deploy autonomous (operator-approved PR `batch-1-finish-line` → `main` is the gate)
+- No DB write outside an approved migration or autonomy-allowed TESTLANE category
+- No provider send to non-allowlisted recipients
+- No cross-project filesystem edits (per REM-8-DT)
+- No `git push --force` to main; no skipping safety hooks
 
 ---
 
