@@ -323,3 +323,97 @@ Trigger-evaluator-driven proof (per Wave 2A original spec) remains queued — ne
 
 CLOSING below will be REWRITTEN to cover all 4 chunks once T3 + T4 land.
 
+---
+
+## FINAL CLOSING (audited 2026-05-08, supersedes prior 2026-05-07 CLOSING)
+
+**Closed:** 2026-05-08
+**Wave-level verdict:** **PASS — 3 chunks PASS (T1, T2, T3); 1 chunk PARTIAL (T4) with carry-forward issue filed.** Wave 2A direct outbound provider proofs done for SMS (TextMagic), VAPI agent-to-agent, and service campaign creation. VAPI inbound webhook proof PARTIAL — auth gate proven; guard branches not exercisable until dev-pm2 env config is corrected (operator-decision; tracked as `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`). TextMagic inbound webhook proof remains BLOCKED on operator-execute dashboard URL fix (`I-NEW-2026-05-07-TEXTMAGIC-URL`). Trigger-evaluator-driven proof (original Wave 2A spec) remains queued; needs evaluator export approval.
+
+### Final wave history (linear)
+
+| SHA | Commit |
+|---|---|
+| (base) | `b4011ab` (post-plan-reconcile tip of `batch-1-finish-line`) |
+| `c083a0c` | continuation OPENING — T3 + T4 declared |
+| `197c0ea` | T3 service campaign helper |
+| `3ac1504` | T3 evidence (PASS) |
+| `c1023f8` | T4 VAPI webhook helper |
+| `d15ca99` | T4 evidence (PARTIAL) |
+| `42ed5ce` | issue `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH` filed |
+| (next) | FINAL CLOSING + 4 verifier verdicts (continuation) |
+
+Aggregate (continuation): `server/test-trigger-2A.ts` extended (additive) + 4 evidence/issues files; 0 production code changes.
+
+### Resolution per chunk
+
+| Chunk | Result | Δ1 | Δ2 | Notes |
+|---|---|---|---|---|
+| **T1 — SMS direct provider proof** | PASS | tsc 0, vitest 459/2 | TextMagic msg id `1406916679` to `+14126546500` allowlist, outbound_log row | 2 SMS sent (disclosed); both to allowlist |
+| **T2 — VAPI agent-to-agent** | PASS | tsc 0, vitest 459/2 | VAPI call id `019e03da-e46e-7000-83f9-5c9128e7f0b0` Elliott→Nancy, queued→in-progress | both AI ends; no human |
+| **T3 — Service campaign creation** | PASS | tsc 0, vitest 459/2 (re-run for continuation) | campaign id `1cf1d278-21a2-4ffa-8a4e-00270d1af6c7` in serra-honda, draft, 2 recipients | 0 sends (creation is metadata-only by design) |
+| **T4 — VAPI inbound webhook** | PARTIAL | tsc 0, vitest 459/2 | both synthetic POSTs returned HTTP 503 at I-236 auth gate before guard branches; 0 conversation rows; 0 sends | env config blocks proof; new issue filed |
+
+### Final audit chain (8 verifier verdicts total — 4 initial + 4 continuation)
+
+**Initial close (2026-05-07, T1 + T2):**
+- blind-verifier: AGREE (8/8) — `verifier-audit/blind-verifier-verdict.md`
+- scope-guardian: PASS — `verifier-audit/scope-guardian-verdict.md`
+- drift-detector: NO DRIFT — `verifier-audit/drift-detector-verdict.md`
+- integration-safety: PASS — `verifier-audit/integration-safety-verdict.md`
+
+**Continuation close (2026-05-08, T3 + T4):**
+- blind-verifier: AGREE (7/7) — `verifier-audit/blind-verifier-continuation-verdict.md`
+- scope-guardian: PASS — `verifier-audit/scope-guardian-continuation-verdict.md`
+- drift-detector: NO DRIFT — `verifier-audit/drift-detector-continuation-verdict.md`
+- integration-safety: PASS — `verifier-audit/integration-safety-continuation-verdict.md`
+
+### T4 PARTIAL acceptance reasoning
+
+Two synthetic VAPI webhook POSTs to `localhost:5000/api/webhooks/vapi` returned HTTP 503. Root cause: dev pm2 `nexxus-app` runs with `NODE_ENV=production` AND `VAPI_WEBHOOK_SECRET` UNSET, so the I-236 auth gate at `server/routes/webhooks.ts:920-925` rejects every webhook before any handler logic (incl. the I-NEW-2026-04-26-D guard). This is the SAME pattern as `I-NEW-2026-05-07-TEXTMAGIC-URL` (production-strict env reject). 
+
+Builder appropriately:
+- Did NOT autonomously fix the env (would change dev runtime behavior = functionality decision per operator's 3-category rule)
+- Filed `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH` as `OPEN — operator-decision`
+- Captured the auth-gate proof (handler exists at expected path; auth fail-closed in production mode confirmed)
+- Did NOT claim guard-branch coverage that did not occur
+
+Per Environmental Core Value #1 (TRUTH OVER COMPLIANCE), the PARTIAL classification is the honest reading. Once operator approves env fix, T4 can be re-run as a single-chunk follow-up wave (or in-place re-run of the existing helper) to exercise the guard branches.
+
+### Items deferred (not blocking close)
+
+- **TextMagic inbound webhook live-roundtrip proof** — operator-execute (TextMagic dashboard URL fix per `I-NEW-2026-05-07-TEXTMAGIC-URL`)
+- **VAPI inbound webhook guard-branch proof** — operator-decide env config per `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`, then re-run T4 helper
+- **Trigger-evaluator-driven proof** (original Wave 2A goal) — needs evaluator export approval + business-hours-mocked test rig; queued as future wave
+
+### Stop conditions — all PASS
+
+- Zero production code edits across all 4 chunks
+- Zero DB writes outside expected byproducts (T1 outbound_log rows; T3 campaign row + activity_log; T4 zero)
+- Zero provider sends outside allowlist (T1 to operator phone; T2 Elliott→Nancy AI-to-AI; T3 zero; T4 zero)
+- Zero pm2 restart on `live.huminic.app`
+- Zero commits to `batch-1-finish-line` direct or to `main`
+- Zero force pushes / `git rebase -i`
+- Zero TextMagic dashboard changes (operator-execute)
+- Zero env file edits (NODE_ENV / TEXTMAGIC_WEBHOOK_SECRET / VAPI_WEBHOOK_SECRET) — both env-config issues operator-decision
+
+### Operator action items (carry forward; non-blocking for next wave)
+
+1. **TextMagic dashboard URL** — change inbound callback `dev.huminicdev.com` → `live.huminic.app` (`I-NEW-2026-05-07-TEXTMAGIC-URL`)
+2. **Wave 11-Gov G1 cross-project fix** — apply Path B at `~/Claude-store/sysadmin/harness/lib/common.sh:56-58` + cleanup line in `session-start.sh` (`evidence/wave-11-gov-harness/chunk-G1/finding.md` §7)
+3. **Wave 9-Sec triage decision** — pick v2.2 vs v2.3 for 5 original + 5 new auth security items
+4. **Dev VAPI webhook env config** — decide between (a) set `VAPI_WEBHOOK_SECRET` in dev `.env` + `pm2 reload nexxus-app --update-env`, or (b) flip dev pm2 to `NODE_ENV=development`. Required to unblock T4 guard-branch coverage. Per `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`.
+
+### Merge sequence (executed by orchestrator)
+
+1. `git checkout batch-1-finish-line && git merge --ff-only wave/10-bg/2A-svc-webhook`
+2. `git push origin batch-1-finish-line`
+3. **Live deploy: deferred to Wave 11A release-cycle gate**
+
+### Next-wave readiness (per plan order)
+
+- Wave 2B (widget E2E) — next per plan.md
+- Wave 3A / 3B / 3C (UI scope-marker waves)
+- Wave 9-Sec triage opens with operator decision
+- Wave 11A (Final E2E + go/no-go) — preferably AFTER all operator action items land
+
