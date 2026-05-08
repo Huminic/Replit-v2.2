@@ -18,6 +18,11 @@
  *   set -a; source .env; set +a
  *   npx tsx server/test-trigger-2A.ts testT2VapiElliottToNancy
  *
+ * Usage (T3 — Service campaign provider proof, serra-honda):
+ *   set -a; source .env; set +a
+ *   TESTLANE_MODE=true TESTLANE_SMS_TO=+14126546500 \
+ *     npx tsx server/test-trigger-2A.ts testT3ServiceCampaign
+ *
  * Halt conditions enforced inside the functions:
  *   - T1: Recipient logged in outbound_log MUST be +14126546500 (testlane gate
  *     hard-route target). Any other recipient = STOP (gate broken).
@@ -500,6 +505,294 @@ export async function testT2VapiElliottToNancy(): Promise<T2Result> {
 }
 
 // ---------------------------------------------------------------------------
+// T3 — Service Campaign provider proof (HTTP path through dev server)
+// ---------------------------------------------------------------------------
+//
+// Calls the existing helper `testServiceCampaignCreation` in
+// server/comms-test.ts (read-only import). The helper:
+//   1. POST /api/campaigns to create a draft service campaign in serra-honda
+//   2. POST /api/campaigns/:id/upload-csv to attach 2 recipients
+//
+// Neither step triggers any provider send. Campaign is created with
+// `status: "draft"` and there is no call to `/api/campaigns/:id/execute` in
+// the helper. So expected provider sends = 0. The proof here is a DB row +
+// activity_log row in serra-honda (capability proof for Phase 7 Service).
+//
+// Auth: HTTP POST /api/auth/login with serra-honda's org_admin credentials
+// (`serra_honda@huminic.ai` / `NexxusTest2026`). accessToken returned in
+// response body.
+//
+// Halt conditions:
+//   - Login returns non-2xx → STOP
+//   - Campaign creation returns non-2xx → STOP
+//   - Campaign created in any org other than serra-honda → STOP
+//   - Any outbound_log row appears in the test window with a recipient that
+//     is NOT in the allowlist → STOP (defense-in-depth — should be 0 rows)
+
+import { testServiceCampaignCreation } from "./comms-test";
+
+const SERRA_HONDA_LOGIN_EMAIL =
+  process.env.TESTLANE_SERRA_HONDA_EMAIL || "serra_honda@huminic.ai";
+const SERRA_HONDA_LOGIN_PASSWORD =
+  process.env.TESTLANE_SERRA_HONDA_PASSWORD || "NexxusTest2026";
+const T3_BASE_URL = process.env.TESTLANE_BASE_URL || "http://localhost:5000";
+const T3_SESSION_ID = "wave-2A-T3";
+const ALLOWLISTED_PHONE = "+14126546500";
+
+interface T3Result {
+  campaignCreated: boolean;
+  campaignId: string | null;
+  campaignName: string | null;
+  campaignDepartment: string | null;
+  campaignChannel: string | null;
+  campaignStatus: string | null;
+  campaignOrgId: string | null;
+  campaignOrgSlug: string | null;
+  recipientCount: number;
+  loginHttpStatus: number | null;
+  authenticatedUserId: string | null;
+  authenticatedOrgId: string | null;
+  preTs: string;
+  postTs: string;
+  outboundLogRowsInWindow: Array<{
+    id: string;
+    organizationId: string;
+    channel: string;
+    status: string;
+    recipientPhone: string | null;
+    recipientEmail: string | null;
+    recipientName: string | null;
+    sentAt: string | null;
+    createdAt: string;
+    blockedReason: string | null;
+  }>;
+  activityLogRowsInWindow: Array<{
+    id: string;
+    organizationId: string;
+    action: string;
+    entityType: string | null;
+    entityId: string | null;
+    createdAt: string;
+  }>;
+  haltChecks: {
+    loginOk: boolean;
+    campaignCreatedOk: boolean;
+    orgIsSerraHonda: boolean;
+    zeroOutboundSends: boolean;
+    noNonAllowlistRecipients: boolean;
+  };
+  rawHelperResult: unknown;
+}
+
+export async function testT3ServiceCampaign(): Promise<T3Result> {
+  console.log(
+    "=== Wave 2A Chunk T3 — Service Campaign Provider Proof (serra-honda) ===",
+  );
+  console.log("session-id:", T3_SESSION_ID);
+
+  // 1. Defensive testlane env (HTTP path doesn't fire processOutboundSend on
+  //    campaign create, but set the flags anyway for spec-checklist alignment)
+  process.env.TESTLANE_MODE = "true";
+  process.env.TESTLANE_SMS_TO = ALLOWLISTED_PHONE;
+  console.log("TESTLANE_MODE:", process.env.TESTLANE_MODE);
+  console.log("TESTLANE_SMS_TO:", process.env.TESTLANE_SMS_TO);
+  console.log("base URL:", T3_BASE_URL);
+  console.log("login email:", SERRA_HONDA_LOGIN_EMAIL);
+
+  const preTs = new Date();
+  console.log(`pre_ts=${preTs.toISOString()}`);
+
+  // 2. Login to obtain accessToken
+  const loginRes = await fetch(`${T3_BASE_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: SERRA_HONDA_LOGIN_EMAIL,
+      password: SERRA_HONDA_LOGIN_PASSWORD,
+    }),
+  });
+  const loginHttpStatus = loginRes.status;
+  const loginBody: any = await loginRes.json().catch(() => null);
+  const loginOk = loginHttpStatus >= 200 && loginHttpStatus < 300;
+  if (!loginOk || !loginBody?.accessToken) {
+    console.error(
+      `HALT: login failed. HTTP ${loginHttpStatus}, body=${JSON.stringify(loginBody)}`,
+    );
+    throw new Error(
+      `T3 halt: login failed (status=${loginHttpStatus}, hasToken=${!!loginBody?.accessToken})`,
+    );
+  }
+  const accessToken = loginBody.accessToken as string;
+  const authenticatedUserId = loginBody?.user?.id ?? null;
+  const authenticatedOrgId =
+    loginBody?.user?.organizationId ?? loginBody?.organization?.id ?? null;
+  console.log(
+    `[AUTH] Login OK. user.id=${authenticatedUserId} org.id=${authenticatedOrgId}`,
+  );
+
+  // 3. Resolve serra-honda org for halt checks BEFORE invoking helper
+  const serraHonda = await storage.getOrganizationBySlug(SERRA_HONDA_SLUG);
+  if (!serraHonda) {
+    throw new Error(`HALT: serra-honda org not found by slug`);
+  }
+  console.log(`org: id=${serraHonda.id} slug=${serraHonda.slug} name=${serraHonda.name}`);
+
+  if (authenticatedOrgId && authenticatedOrgId !== serraHonda.id) {
+    console.error(
+      `HALT: authenticated user is not in serra-honda. authOrgId=${authenticatedOrgId} expected=${serraHonda.id}`,
+    );
+    throw new Error("T3 halt: authenticated user is not in serra-honda");
+  }
+
+  // 4. Invoke the existing helper (read-only import; helper hits HTTP layer)
+  //    Note: helper sets the env var TEST_ORG_ID for its internal default; we
+  //    leave that to the helper's defaults since the org context comes from
+  //    the JWT, not the body.
+  console.log("Invoking testServiceCampaignCreation()...");
+  const helperResult = await testServiceCampaignCreation(accessToken, T3_BASE_URL);
+  console.log("helper result:", JSON.stringify(helperResult));
+
+  if (!helperResult.success) {
+    throw new Error(
+      `T3 halt: helper failed — ${helperResult.error || "unknown error"}`,
+    );
+  }
+
+  const campaignId = helperResult.campaignId;
+  if (!campaignId) {
+    throw new Error("T3 halt: helper returned success but no campaignId");
+  }
+
+  // 5. Re-read the created campaign to capture authoritative state
+  const createdCampaign = await storage.getCampaign(campaignId);
+  if (!createdCampaign) {
+    throw new Error(
+      `T3 halt: campaign id ${campaignId} not found in DB after creation`,
+    );
+  }
+  console.log(
+    `campaign created: id=${createdCampaign.id} name="${createdCampaign.name}" department=${createdCampaign.department} channel=${createdCampaign.channel} status=${createdCampaign.status} org=${createdCampaign.organizationId}`,
+  );
+
+  const orgIsSerraHonda = createdCampaign.organizationId === serraHonda.id;
+  if (!orgIsSerraHonda) {
+    console.error(
+      `HALT: campaign created in unexpected org. campaign.organizationId=${createdCampaign.organizationId} expected=${serraHonda.id}`,
+    );
+    throw new Error("T3 halt: campaign not in serra-honda");
+  }
+
+  // 6. Read recipient count
+  const recipientCount = await storage.getRecipientCount(campaignId);
+  console.log(`recipient count: ${recipientCount}`);
+
+  // 7. Capture post-window timestamp + scan logs for any outbound activity
+  const postTs = new Date();
+  console.log(`post_ts=${postTs.toISOString()}`);
+
+  // 8. Defensive scan — should be 0 outbound_log rows because helper does not
+  //    call /execute. Any rows here would indicate a contract violation.
+  const outboundRows = await db
+    .select()
+    .from(outboundLog)
+    .where(
+      and(
+        eq(outboundLog.organizationId, serraHonda.id),
+        gte(outboundLog.createdAt, preTs),
+        lte(outboundLog.createdAt, postTs),
+      ),
+    );
+
+  // 9. activity_log rows in window — expect 1 (campaign_created)
+  const activityRows = await db
+    .select()
+    .from(activityLog)
+    .where(
+      and(
+        eq(activityLog.organizationId, serraHonda.id),
+        gte(activityLog.createdAt, preTs),
+        lte(activityLog.createdAt, postTs),
+      ),
+    );
+
+  // 10. Halt-checks — defense-in-depth recipient allowlist scan
+  const recipientPhones = outboundRows
+    .map((r) => r.recipientPhone)
+    .filter(Boolean) as string[];
+  const allowedPhones = new Set([ALLOWLISTED_PHONE]);
+  const noNonAllowlistRecipients = recipientPhones.every((p) =>
+    allowedPhones.has(p),
+  );
+  const zeroOutboundSends = outboundRows.length === 0;
+
+  if (!noNonAllowlistRecipients) {
+    console.error(
+      `HALT: outbound_log row(s) created with recipient outside allowlist: ${JSON.stringify(recipientPhones)}`,
+    );
+  }
+  if (!zeroOutboundSends) {
+    console.error(
+      `WARN: ${outboundRows.length} outbound_log row(s) appeared in window. Helper does not call /execute; this would indicate a contract change.`,
+    );
+  }
+
+  const result: T3Result = {
+    campaignCreated: true,
+    campaignId: createdCampaign.id,
+    campaignName: createdCampaign.name,
+    campaignDepartment: createdCampaign.department,
+    campaignChannel: createdCampaign.channel,
+    campaignStatus: createdCampaign.status,
+    campaignOrgId: createdCampaign.organizationId,
+    campaignOrgSlug: serraHonda.slug,
+    recipientCount,
+    loginHttpStatus,
+    authenticatedUserId,
+    authenticatedOrgId,
+    preTs: preTs.toISOString(),
+    postTs: postTs.toISOString(),
+    outboundLogRowsInWindow: outboundRows.map((r) => ({
+      id: r.id,
+      organizationId: r.organizationId,
+      channel: r.channel,
+      status: r.status,
+      recipientPhone: r.recipientPhone,
+      recipientEmail: r.recipientEmail,
+      recipientName: r.recipientName,
+      sentAt: r.sentAt ? r.sentAt.toISOString() : null,
+      createdAt: r.createdAt.toISOString(),
+      blockedReason: r.blockedReason,
+    })),
+    activityLogRowsInWindow: activityRows.map((r) => ({
+      id: r.id,
+      organizationId: r.organizationId,
+      action: r.action,
+      entityType: r.entityType,
+      entityId: r.entityId,
+      createdAt: r.createdAt.toISOString(),
+    })),
+    haltChecks: {
+      loginOk,
+      campaignCreatedOk: true,
+      orgIsSerraHonda,
+      zeroOutboundSends,
+      noNonAllowlistRecipients,
+    },
+    rawHelperResult: helperResult,
+  };
+
+  if (!noNonAllowlistRecipients) {
+    console.error("HALT-CONDITION FAILED; emitting result before throw:");
+    console.error("RESULT:", JSON.stringify(result, null, 2));
+    throw new Error(
+      `T3 halt: non-allowlist recipient(s) in outbound_log: ${JSON.stringify(recipientPhones)}`,
+    );
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point
 // ---------------------------------------------------------------------------
 
@@ -531,9 +824,20 @@ if (isDirectInvocation) {
         if (e?.stack) console.error(e.stack);
         process.exit(1);
       });
+  } else if (fn === "testT3ServiceCampaign") {
+    testT3ServiceCampaign()
+      .then((r) => {
+        console.log("RESULT:", JSON.stringify(r, null, 2));
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.error("FAILED:", e?.message || e);
+        if (e?.stack) console.error(e.stack);
+        process.exit(1);
+      });
   } else {
     console.error(
-      `Unknown function: "${fn}". Supported: testT1ProviderProofSms, testT2VapiElliottToNancy`,
+      `Unknown function: "${fn}". Supported: testT1ProviderProofSms, testT2VapiElliottToNancy, testT3ServiceCampaign`,
     );
     process.exit(2);
   }
