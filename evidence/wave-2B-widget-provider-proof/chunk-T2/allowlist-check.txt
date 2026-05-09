@@ -1,0 +1,2 @@
+ALLOWED: recipient='+19014361271' is on the allowlist (/home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-recipients.txt) — category=vapi_test_phone
+ALLOWED: org='serra-honda' is on the allowlist (/home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-orgs.txt) — category=test_org

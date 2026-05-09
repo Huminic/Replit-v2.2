@@ -1,0 +1,59 @@
+=== Wave 2B-T2 — Public Widget Voice Callback Provider Proof ===
+base URL: http://localhost:5000
+org slug: serra-honda
+phone (request): +19014361271
+org: id=24d64f99-ba04-4b43-af35-fd06f555ac86 slug=serra-honda name=Serra Honda
+voice agent (audit): id=1e8607bb-0034-406f-a35b-b2e5f0aa6d0f vapiAssistantId=90a876c0-0f11-4424-abfe-9ac82b264d88 status=active
+pre_ts=2026-05-09T00:53:01.730Z
+POST http://localhost:5000/api/widget/voice-callback {"slug":"serra-honda","phoneNumber":"+19014361271"}
+post_ts=2026-05-09T00:53:03.650Z
+HTTP 200
+response body: {
+  "success": true,
+  "callId": "019e0a39-366a-700f-8829-2b212eaa7c2f",
+  "conversationId": "dbaab6ff-79a5-4c40-99fc-2fbcb9219948"
+}
+conversation: id=dbaab6ff-79a5-4c40-99fc-2fbcb9219948 channel=voice status=open org=24d64f99-ba04-4b43-af35-fd06f555ac86 phone=+19014361271 created_at=2026-05-09T00:53:03.605Z
+RESULT: {
+  "ok": true,
+  "status": 200,
+  "callId": "019e0a39-366a-700f-8829-2b212eaa7c2f",
+  "conversationId": "dbaab6ff-79a5-4c40-99fc-2fbcb9219948",
+  "durationMs": 2703,
+  "meta": {
+    "baseUrl": "http://localhost:5000",
+    "orgSlug": "serra-honda",
+    "orgId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "voiceAgentId": "1e8607bb-0034-406f-a35b-b2e5f0aa6d0f",
+    "vapiAssistantId": "90a876c0-0f11-4424-abfe-9ac82b264d88",
+    "requestPhoneIn": "+19014361271",
+    "requestPhoneFormatted": "+19014361271",
+    "requestBody": {
+      "slug": "serra-honda",
+      "phoneNumber": "+19014361271"
+    },
+    "httpResponseBody": {
+      "success": true,
+      "callId": "019e0a39-366a-700f-8829-2b212eaa7c2f",
+      "conversationId": "dbaab6ff-79a5-4c40-99fc-2fbcb9219948"
+    },
+    "conversationRow": {
+      "id": "dbaab6ff-79a5-4c40-99fc-2fbcb9219948",
+      "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "channel": "voice",
+      "status": "open",
+      "customerPhone": "+19014361271",
+      "customerName": "Callback Request",
+      "createdAt": "2026-05-09T00:53:03.605Z"
+    },
+    "haltChecks": {
+      "status2xx": true,
+      "hasCallId": true,
+      "hasConversationId": true,
+      "conversationRowFound": true,
+      "conversationOrgMatchesSerraHonda": true,
+      "conversationChannelIsVoice": true,
+      "conversationPhoneMatches": true
+    }
+  }
+}

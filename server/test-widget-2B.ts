@@ -334,6 +334,291 @@ export async function testWidgetChat({
 }
 
 // ---------------------------------------------------------------------------
+// Wave 2B-T2 — Public Widget Voice Callback Provider Proof
+// ---------------------------------------------------------------------------
+//
+// Purpose: prove the public widget voice-callback endpoint
+//   POST /api/widget/voice-callback   (server/routes/public.ts:130-187)
+// end-to-end against the running dev pm2 instance, including the live
+// VAPI provider call (vapi_create_call via central-mcp) and the
+// conversations DB row that results.
+//
+// --- Endpoint contract (authoritative source: server/routes/public.ts:130-187) ---
+//
+// The handler reads `{ slug, phoneNumber }` from the request body. It does
+// NOT consult any other field. It then:
+//   1. resolveOrgBySlug(slug) → 404 if missing
+//   2. find an active voice agent with vapiAssistantId & channels.includes("voice") → 400 if missing
+//   3. normalize phoneNumber → +E.164
+//   4. callMCP("vapi_create_call", { assistantId, customerNumber, phoneNumberId? })
+//      — failures here return 503 (NOT 500)
+//   5. createConversation(channel="voice", customerPhone, organizationId, ...) — NO provider-ref column
+//   6. respond { success, callId, conversationId }
+//
+// Schema check (shared/schema.ts:86-109): the `conversations` table has no
+// `vapi_call_id` / `provider_call_id` column today, so the VAPI callId only
+// lives in (a) the HTTP response, (b) the server console, and (c) the VAPI
+// dashboard. Delta-1 captures (a); delta-2 documents the cross-check path.
+//
+// --- Halt conditions ---
+//
+//   - allowlist check did not return exit 0 for +19014361271 → STOP (caller's responsibility)
+//   - HTTP status not 2xx → STOP
+//   - response.callId missing/empty → STOP (VAPI call did not fire)
+//   - response.conversationId missing or not a UUID → STOP
+//   - conversation row not found in DB after success → STOP
+//   - conversation.organizationId != serra-honda's id → STOP
+//   - conversation.channel != "voice" → STOP
+//   - conversation.customerPhone != formatted +19014361271 → STOP
+
+const NANCY_ALLOWLIST_PHONE = "+19014361271";
+
+interface T2Result {
+  ok: boolean;
+  status: number | null;
+  callId: string | null;
+  conversationId: string | null;
+  durationMs: number;
+  error?: string;
+  meta: {
+    baseUrl: string;
+    orgSlug: string;
+    orgId: string | null;
+    voiceAgentId: string | null;
+    vapiAssistantId: string | null;
+    requestPhoneIn: string;
+    requestPhoneFormatted: string | null;
+    requestBody: { slug: string; phoneNumber: string } | null;
+    httpResponseBody: unknown;
+    conversationRow: {
+      id: string;
+      organizationId: string;
+      channel: string;
+      status: string;
+      customerPhone: string | null;
+      customerName: string;
+      createdAt: string;
+    } | null;
+    haltChecks: {
+      status2xx: boolean;
+      hasCallId: boolean;
+      hasConversationId: boolean;
+      conversationRowFound: boolean;
+      conversationOrgMatchesSerraHonda: boolean;
+      conversationChannelIsVoice: boolean;
+      conversationPhoneMatches: boolean;
+    };
+  };
+}
+
+export async function testWidgetVoiceCallback({
+  orgSlug = SERRA_HONDA_SLUG,
+  phone = NANCY_ALLOWLIST_PHONE,
+}: { orgSlug?: string; phone?: string } = {}): Promise<T2Result> {
+  const t0 = Date.now();
+
+  console.log("=== Wave 2B-T2 — Public Widget Voice Callback Provider Proof ===");
+  console.log("base URL:", BASE_URL);
+  console.log("org slug:", orgSlug);
+  console.log("phone (request):", phone);
+
+  const meta: T2Result["meta"] = {
+    baseUrl: BASE_URL,
+    orgSlug,
+    orgId: null,
+    voiceAgentId: null,
+    vapiAssistantId: null,
+    requestPhoneIn: phone,
+    requestPhoneFormatted: null,
+    requestBody: null,
+    httpResponseBody: null,
+    conversationRow: null,
+    haltChecks: {
+      status2xx: false,
+      hasCallId: false,
+      hasConversationId: false,
+      conversationRowFound: false,
+      conversationOrgMatchesSerraHonda: false,
+      conversationChannelIsVoice: false,
+      conversationPhoneMatches: false,
+    },
+  };
+
+  // 1. Resolve org
+  const org = await storage.getOrganizationBySlug(orgSlug);
+  if (!org) {
+    return {
+      ok: false,
+      status: null,
+      callId: null,
+      conversationId: null,
+      durationMs: Date.now() - t0,
+      error: `org not found by slug=${orgSlug}`,
+      meta,
+    };
+  }
+  meta.orgId = org.id;
+  console.log(`org: id=${org.id} slug=${org.slug} name=${org.name}`);
+
+  // 2. Audit-only: discover active voice agent (the endpoint does this same
+  //    lookup at request time; we pre-check so the proof can show the
+  //    configured assistant id alongside the captured callId).
+  const orgAgents = await storage.getAgents(org.id);
+  const voiceAgent = orgAgents.find(
+    (a) =>
+      a.vapiAssistantId &&
+      Array.isArray(a.channels) &&
+      a.channels.includes("voice") &&
+      a.status === "active",
+  );
+  if (!voiceAgent?.vapiAssistantId) {
+    return {
+      ok: false,
+      status: null,
+      callId: null,
+      conversationId: null,
+      durationMs: Date.now() - t0,
+      error: "no active voice agent for org (audit-only pre-check)",
+      meta,
+    };
+  }
+  meta.voiceAgentId = voiceAgent.id;
+  meta.vapiAssistantId = voiceAgent.vapiAssistantId;
+  console.log(
+    `voice agent (audit): id=${voiceAgent.id} vapiAssistantId=${voiceAgent.vapiAssistantId} status=${voiceAgent.status}`,
+  );
+
+  // 3. Compute the formatted phone the endpoint will use (mirrors handler logic).
+  const cleaned = phone.replace(/[^0-9+]/g, "");
+  const formatted = cleaned.startsWith("+") ? cleaned : `+1${cleaned}`;
+  meta.requestPhoneFormatted = formatted;
+
+  // 4. Capture pre-window
+  const preTs = new Date();
+  console.log(`pre_ts=${preTs.toISOString()}`);
+
+  // 5. POST to /api/widget/voice-callback — single invocation only
+  const requestBody = { slug: orgSlug, phoneNumber: phone };
+  meta.requestBody = requestBody;
+  console.log(
+    "POST",
+    `${BASE_URL}/api/widget/voice-callback`,
+    JSON.stringify(requestBody),
+  );
+
+  let httpStatus: number | null = null;
+  let respBody: any = null;
+  try {
+    const res = await fetch(`${BASE_URL}/api/widget/voice-callback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+    httpStatus = res.status;
+    respBody = await res.json().catch(() => null);
+  } catch (err: any) {
+    return {
+      ok: false,
+      status: null,
+      callId: null,
+      conversationId: null,
+      durationMs: Date.now() - t0,
+      error: `fetch failed: ${err?.message || err}`,
+      meta,
+    };
+  }
+  meta.httpResponseBody = respBody;
+  const postTs = new Date();
+  console.log(`post_ts=${postTs.toISOString()}`);
+  console.log(`HTTP ${httpStatus}`);
+  console.log("response body:", JSON.stringify(respBody, null, 2));
+
+  const callId: string | null = respBody?.callId ?? null;
+  const conversationId: string | null = respBody?.conversationId ?? null;
+
+  // 6. Halt-conditions on HTTP layer
+  const status2xx = httpStatus !== null && httpStatus >= 200 && httpStatus < 300;
+  meta.haltChecks.status2xx = status2xx;
+  meta.haltChecks.hasCallId = !!callId;
+  meta.haltChecks.hasConversationId = !!conversationId;
+
+  if (!status2xx || !callId || !conversationId) {
+    return {
+      ok: false,
+      status: httpStatus,
+      callId,
+      conversationId,
+      durationMs: Date.now() - t0,
+      error: `HTTP failure: status=${httpStatus} hasCallId=${!!callId} hasConvoId=${!!conversationId}`,
+      meta,
+    };
+  }
+
+  // 7. Look up the conversation row in the DB
+  const conversation = await storage.getConversation(conversationId);
+  meta.haltChecks.conversationRowFound = !!conversation;
+  if (!conversation) {
+    return {
+      ok: false,
+      status: httpStatus,
+      callId,
+      conversationId,
+      durationMs: Date.now() - t0,
+      error: `conversation row not found id=${conversationId}`,
+      meta,
+    };
+  }
+  meta.conversationRow = {
+    id: conversation.id,
+    organizationId: conversation.organizationId,
+    channel: conversation.channel,
+    status: conversation.status,
+    customerPhone: conversation.customerPhone ?? null,
+    customerName: conversation.customerName,
+    createdAt: conversation.createdAt.toISOString(),
+  };
+  meta.haltChecks.conversationOrgMatchesSerraHonda =
+    conversation.organizationId === org.id;
+  meta.haltChecks.conversationChannelIsVoice = conversation.channel === "voice";
+  meta.haltChecks.conversationPhoneMatches =
+    conversation.customerPhone === formatted;
+  console.log(
+    `conversation: id=${conversation.id} channel=${conversation.channel} status=${conversation.status} org=${conversation.organizationId} phone=${conversation.customerPhone} created_at=${conversation.createdAt.toISOString()}`,
+  );
+
+  const allHaltOk =
+    status2xx &&
+    !!callId &&
+    !!conversationId &&
+    meta.haltChecks.conversationRowFound &&
+    meta.haltChecks.conversationOrgMatchesSerraHonda &&
+    meta.haltChecks.conversationChannelIsVoice &&
+    meta.haltChecks.conversationPhoneMatches;
+
+  const durationMs = Date.now() - t0;
+  if (!allHaltOk) {
+    return {
+      ok: false,
+      status: httpStatus,
+      callId,
+      conversationId,
+      durationMs,
+      error: `halt-check failed: ${JSON.stringify(meta.haltChecks)}`,
+      meta,
+    };
+  }
+
+  return {
+    ok: true,
+    status: httpStatus,
+    callId,
+    conversationId,
+    durationMs,
+    meta,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point
 // ---------------------------------------------------------------------------
 
@@ -353,9 +638,20 @@ if (isDirectInvocation) {
         if (e?.stack) console.error(e.stack);
         process.exit(1);
       });
+  } else if (fn === "testWidgetVoiceCallback") {
+    testWidgetVoiceCallback()
+      .then((r) => {
+        console.log("RESULT:", JSON.stringify(r, null, 2));
+        process.exit(r.ok ? 0 : 1);
+      })
+      .catch((e) => {
+        console.error("FAILED:", e?.message || e);
+        if (e?.stack) console.error(e.stack);
+        process.exit(1);
+      });
   } else {
     console.error(
-      `Unknown function: "${fn}". Supported: testWidgetChat`,
+      `Unknown function: "${fn}". Supported: testWidgetChat, testWidgetVoiceCallback`,
     );
     process.exit(2);
   }
