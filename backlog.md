@@ -209,3 +209,33 @@ Per standards at `~/Claude-store/sysadmin/governance-framework/file-standards.md
 - **Scope:** A dashboard-builder UI for choosing tiles/charts/metrics from a curated library; a report-builder UI for composing an email layout from those same templates plus narrative blocks; per-customer scheduling (interval, timezone, recipient list, quiet hours); reuse of existing weekly-report and daily-recap email infrastructure (`server/services/weeklyReportService.ts`, `server/services/dailyRecapService.ts`, `server/services/notificationService.ts`); per-tenant persistence of dashboard + report definitions; preview-and-test-send flow through the existing test-lane envelope; admin gate so only operator + org_admin can edit; CommGate enforcement; HALT checks parity with weekly-report safety pattern.
 - **Done looks like:** An org_admin can build a dashboard from a tile library, save it, build a recurring email report that reuses any subset of those tiles, set a cadence (e.g., "every Monday 8am ET") and recipients, send a test through the test-lane, and have the report fire on schedule. Reports respect CommGate + per-store flags. All sends are recorded with HALT-check parity. A customer can change cadence, recipients, and content without engineering involvement.
 - **Constraints:** Do NOT bypass CommGate or test-lane envelope. Do NOT introduce a parallel scheduler — reuse the existing 60s/5min ticks. Templates must be a curated library, not freeform LLM-generated layouts. Recipient resolution must obey the same per-org / per-role boundaries as the existing weekly-report (no cross-org bleed). The data layer should NOT be a per-tile bespoke query — define a small set of typed query primitives (e.g., warehouse_leads aggregated, conversation counts, appointment counts) that tiles consume. Any metric exposed to this builder must already be REAL or PARTIAL grade per the dashboard-honesty audit (`evidence/stabilization-sprint-2026-04-30/lane-7-metrics.md`); MOCKED/STALE metrics are not eligible until they're fixed. UI introduction is significant — requires explicit operator approval before any code starts and must follow harness `harness-frontend` per-file scope markers.
+
+## Deferred Items (carry-over)
+
+### BL-001 — Push-to-VIN UI deferred (Wave 3A 2026-05-09)
+
+**Status:** Deferred from v2.2 launch (UI stubbed; route preserved)
+
+**Objective:** Decide whether to remove or re-enable the Push-to-VIN feature
+in TeamBox.
+
+**Context:** Wave 3A originally planned to remove both the UI button AND the
+route. Operator pivoted 2026-05-09 to UI-stub only ("reduce blast radius and
+allow me to think it through before we remove the route"). UI is hidden via
+const guard `PUSH_TO_VIN_UI_ENABLED` in `client/src/pages/teambox.tsx`. Backend
+route `POST /api/conversations/:id/push-to-vin` and its vin-safe-mcp call chain
+remain alive but unreachable from the UI.
+
+**Done looks like:** Operator decision recorded in decisions.md, then EITHER
+(a) flip flag to true and ensure E2E provider proof, OR (b) delete the route
+handler + mutation hook + dialog + flag together in a single Wave.
+
+**Scope (when un-deferred):** `client/src/pages/teambox.tsx`,
+`server/routes/conversations.ts:280-381`. No new files. May include
+issues.md EDR-04 and EDR-11 cleanup.
+
+**Constraints:** vin-safe-mcp boundary applies if route is exercised live.
+Wave 11A go/no-go does NOT block on this entry — UI is already hidden.
+
+**References:** Wave 3A bookend at `evidence/wave-3A-push-to-vin-stub/`,
+issues.md EDR-04 and EDR-11.

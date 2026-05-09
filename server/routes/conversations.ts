@@ -278,6 +278,13 @@ export function registerConversationRoutes(app: Express) {
   });
 
   // POST /api/conversations/:id/push-to-vin — push TeamBox conversation as VIN Solutions lead
+  // ⚠️ BACKLOGGED 2026-05-09 (Wave 3A) — Push-to-VIN UI is stubbed in
+  // client/src/pages/teambox.tsx via PUSH_TO_VIN_UI_ENABLED flag. The button is
+  // hidden from users while the operator evaluates whether to remove this route.
+  // This handler is intentionally LEFT ALIVE so re-enabling is a one-line UI change.
+  // See: backlog.md "Push-to-VIN UI deferred" entry; issues.md EDR-04, EDR-11.
+  // Do not remove this route or its vin-safe-mcp prepare→execute calls without
+  // operator authorization.
   app.post("/api/conversations/:id/push-to-vin", authenticateToken, async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
