@@ -77,4 +77,57 @@
 
 ---
 
-(CLOSING to follow after all 3 chunks + 4 verifier verdicts.)
+## CLOSING (2026-05-09T01:00Z)
+
+### Chunk results
+
+| Chunk | Verdict | Provider proof captured | Conversation id |
+|---|---|---|---|
+| **T1 — chat** | PASS | Anthropic claude-sonnet-4-6 reply, 535 chars, non-stub, 4930 ms | `67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c` |
+| **T2 — callback** | PASS | VAPI call_id `019e0a39-366a-700f-8829-2b212eaa7c2f` Elliott→Nancy `+19014361271`, 2703 ms | `dbaab6ff-79a5-4c40-99fc-2fbcb9219948` |
+| **T3 — form** | PASS | Storage-only (per design); HTTP 200, conversation+message rows created | `e0c45066-daa3-4f14-a489-3fb4b123a34d` |
+
+All chunks: ONE invocation each, no echo-rerun. Two-deltas-of-proof contract satisfied for each.
+
+### Verifier verdicts (4 at gate, parallel)
+
+| Verifier | Verdict | Notable observation |
+|---|---|---|
+| blind-verifier | **AGREE** | Helper-vs-endpoint contract alignment confirmed; deltas independent (HTTP-side vs DB-side) |
+| scope-guardian | **PASS** | Changed files confined to `server/test-widget-2B.ts` (new) + `evidence/wave-2B-widget-provider-proof/**`. Zero UI/schema/migration touches |
+| drift-detector | **NO DRIFT** | All 7 governance-correction checks clean: T1/T2/T3 (no A/B/C), 3-category boundary, no options menu, exactly two deltas per chunk, no echo-rerun, no backdating |
+| integration-safety | **PASS** | VAPI to Nancy allowlist (exit 0 BOTH recipient + org); central-mcp 4002 boundary correct; vin-safe-mcp untouched; CommGate untouched; one call only |
+
+### Builder findings (transparency)
+
+1. **T1 contract correction.** Dispatch task body said `{ widgetCode, sessionId, message }`; actual endpoint at `server/routes/public.ts:246` accepts `{ slug, message, conversationId }`. T1 builder applied truth-over-compliance: sent the real contract and documented deviation in delta-1-http.md. Future dispatches now pre-instruct: "verify endpoint contract first" — T2 + T3 builders complied without issue.
+2. **T2 worktree branch posture.** T2 builder noted that the isolated worktree initially had branch tip at unrelated lineage (`becb739`). Builder repointed via `git checkout -B` to `cbcda57` (parent T1 head) before adding T2 commit. Result: clean ff-mergeable history. No commits lost.
+3. **No autonomous fixes outside scope.** Three contract clarifications required reading endpoint code; zero modifications applied. Production routing untouched across 1995 LOC of changes (997 helper + 998 evidence).
+
+### Architectural note (carry-forward, not blocking)
+
+`shared/schema.ts:86-109` — `conversations` table does NOT have a provider call reference column. VAPI `call_id` persists only in HTTP response + server console + VAPI dashboard, not in DB. T2 documented this in delta-2-db.md. Same architectural shape as Wave 2A finding on outbound_log lacking provider_message_id. Schema migration deferred to v2.3 per BL-107.
+
+### Completion gate (per CLAUDE.md harness)
+
+- Two deltas of proof: ✅ (per-chunk)
+- Testing level: sprint
+- Code review: ✅ blind-verifier AGREE
+- Scope verification: ✅ scope-guardian PASS
+- Integration safety: ✅ integration-safety PASS (T2 VAPI provider boundary)
+
+### Posture at CLOSING
+
+- Branch HEAD: `ce29e7e` on `wave/8-widget/2B-chat-callback-form`
+- Provider sends this wave: 1 VAPI call (T2 to Nancy allowlist)
+- DB writes this wave: 3 conversations + 5 messages (TestLane-tagged, autonomous category)
+- pm2 restarts: 0 (test-only changes)
+- Builds: 0
+- Live deploys: 0
+
+Ready for ff-merge to `batch-1-finish-line`.
+
+---
+
+**Wave 2B status: DONE.**
+
