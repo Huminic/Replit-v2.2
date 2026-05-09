@@ -1,45 +1,47 @@
 # Session — nexxus2.2_replit
 
-**Date of this checkpoint:** 2026-05-08 (~04:30 UTC)
-**Last operator action:** retired Wave A/B/C suffix convention; collapsed operator-decision boundaries to 3 categories (functionality / UI / creative); approved continuation of Wave 2A in dispatcher/observer mode.
+**Date of this checkpoint:** 2026-05-09 (~01:03 UTC)
+**Last orchestrator action:** Wave 2B closed (Widget chat/callback/form provider proof). All 3 chunks PASS. 4 verifiers PASS. ff-merged to `batch-1-finish-line`, pushed to origin. plan.md updated to mark Phase 8 PROVEN.
 
-## Seven waves shipped to dev this session (Wave 2A now complete)
+## Eight waves shipped to dev (this session: Wave 2B added)
 
-- Wave 1C — pre-compact
-- Wave I-Auth — pre-compact
-- Wave 3F — post-compact (mechanical close + design-gate execution)
-- Wave 11-Gov — investigation; cross-project G1 fix recipe queued for operator
-- **Wave 2A — DONE this turn** (4 chunks: T1 SMS direct, T2 VAPI Elliott→Nancy, T3 service campaign, T4 VAPI webhook PARTIAL). `batch-1-finish-line` HEAD now `0c0f6f0` on origin.
+- Wave 1A, 1B — pre-session
+- Wave 1C — pre-compact prior session
+- Wave I-Auth — pre-compact prior session
+- Wave 3F — prior session post-compact
+- Wave 11-Gov — prior session
+- Wave 2A — prior session (T4 PARTIAL carry-forward)
+- **Wave 2B — DONE this turn** (T1 chat / T2 voice-callback / T3 form, all PASS)
 
-Coolify untouched. Live still on `becb739`. Live deploy deferred to Wave 11A.
+Coolify untouched. Live still on `becb739`. Live deploy gate is Wave 11A.
 
 ---
 
-## Wave 2A — DONE this turn (continuation closing, 4 chunks total)
+## Wave 2B — DONE this turn
 
-**Branch (merged):** `wave/10-bg/2A-svc-webhook`
+**Branch (merged):** `wave/8-widget/2B-chat-callback-form` → `batch-1-finish-line`
+**HEAD now on origin:** `b9fac92` (was `55727c8`; +5 commits: OPENING, T1, T2, T3, CLOSING, plan-update)
 
 ### Resolution per chunk
 
-| Chunk | Result | Provider/observation |
-|---|---|---|
-| T1 — SMS direct provider proof | PASS | TextMagic msg id `1406916679` to `+14126546500` allowlist (2 SMS — disclosed) |
-| T2 — VAPI agent-to-agent | PASS | VAPI call id `019e03da-e46e-7000-83f9-5c9128e7f0b0` Elliott→Nancy |
-| T3 — Service campaign creation | PASS | campaign id `1cf1d278-21a2-4ffa-8a4e-00270d1af6c7` in serra-honda, draft, 0 sends (creation is metadata-only by design) |
-| T4 — VAPI inbound webhook | **PARTIAL** | both synthetic POSTs returned HTTP 503 at I-236 auth gate before guard branches; new issue filed |
+| Chunk | Result | Provider proof | Conversation id |
+|---|---|---|---|
+| T1 — chat | PASS | Anthropic claude-sonnet-4-6, 535 chars non-stub reply, 4930 ms | `67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c` |
+| T2 — voice-callback | PASS | VAPI call_id `019e0a39-366a-700f-8829-2b212eaa7c2f` Elliott→Nancy `+19014361271`, 2703 ms | `dbaab6ff-79a5-4c40-99fc-2fbcb9219948` |
+| T3 — contact form | PASS | Storage-only (per design); HTTP 200, conversation+message rows | `e0c45066-daa3-4f14-a489-3fb4b123a34d` |
 
-### T4 PARTIAL detail
+### Audit chain — 4 verifier verdicts (all PASS)
 
-Dev pm2 `nexxus-app` runs with `NODE_ENV=production` AND `VAPI_WEBHOOK_SECRET` UNSET, so the I-236 auth gate at `server/routes/webhooks.ts:920-925` rejects every webhook before any handler logic. **SAME pattern as I-NEW-2026-05-07-TEXTMAGIC-URL** (production-strict env reject).
+- blind-verifier: AGREE — helper-vs-endpoint contract verified, deltas independent (HTTP-side vs DB-side)
+- scope-guardian: PASS — only `server/test-widget-2B.ts` (new) + `evidence/wave-2B-widget-provider-proof/**` changed; UI/schema/migrations untouched
+- drift-detector: NO DRIFT — all 7 governance-correction checks clean (no A/B/C, 3-category boundary, no options menu, two-deltas-per-chunk, no echo-rerun, no backdating)
+- integration-safety: PASS — VAPI through central-mcp 4002 boundary; vin-safe-mcp untouched; CommGate untouched; Nancy allowlist exit 0 BEFORE call; one call only
 
-Builder appropriately did NOT autonomously fix env (would change dev runtime → operator-consult per 3-category rule). Filed `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH` for operator-decision. Auth gate proven; guard branches not exercisable until env corrected.
+### Builder findings (transparency)
 
-### Audit chain — 8 verifier verdicts total (4 initial + 4 continuation), all PASS
-
-- blind-verifier × 2: AGREE (8/8 + 7/7)
-- scope-guardian × 2: PASS (T1/T2 byte-for-byte unchanged in continuation; only additive)
-- drift-detector × 2: NO DRIFT (T4 PARTIAL appropriately classified)
-- integration-safety × 2: PASS (zero provider sends in T3+T4; vin-safe-mcp + CommGate untouched)
+- T1: dispatch contract typo caught and corrected by builder via truth-over-compliance (real endpoint contract `{ slug, message, conversationId }` not the dispatch's `{ widgetCode, sessionId, message }`); future dispatches now pre-instruct contract verification
+- T2: builder repointed isolated worktree branch from unrelated lineage to T1 head before commit; result clean ff-mergeable history
+- Architectural finding (deferred to v2.3 per BL-107): `conversations` table lacks provider call reference column; VAPI call_id persists only in HTTP response + dashboard
 
 ---
 
@@ -47,54 +49,56 @@ Builder appropriately did NOT autonomously fix env (would change dev runtime →
 
 | Field | Value |
 |---|---|
-| Active branch | `batch-1-finish-line` (HEAD `0c0f6f0`) |
-| Origin `batch-1-finish-line` | matches local `0c0f6f0` |
-| Wave branches merged this session | 1C, I-Auth, 3F (×2 historical sub-waves), 11-Gov, 2A (×2 historical sub-branches) |
+| Active branch | `batch-1-finish-line` (HEAD `b9fac92`) |
+| Origin `batch-1-finish-line` | matches local `b9fac92` |
+| Wave branches merged this session | 2B |
 | Live container | `becb739` |
-| Working tree dirty | `evidence/watchdog-alerts.log` (auto) only |
-| Provider sends this turn | T3 = 0; T4 = 0 (synthetic POSTs 503'd at auth gate) |
-| DB writes this turn | T3: 1 service campaign + 1 activity_log row in serra-honda; T4: 0 |
+| Working tree dirty | `evidence/watchdog-alerts.log` (auto) + 5 untracked unrelated entries |
+| Provider sends this turn | T1 = 0 external recipient (Anthropic only); T2 = 1 VAPI call (Nancy allowlist); T3 = 0 |
+| DB writes this turn | 3 conversations + 5 messages (TestLane-tagged, autonomous category) |
 | Builds this turn | NONE |
 | pm2 restarts this turn | NONE |
 | Live deploys | NONE |
 
 ---
 
-## Wave roadmap status (per plan.md, post-reconcile)
+## Wave roadmap status (per plan.md, post-Wave-2B)
 
 | Wave | State |
 |---|---|
 | 1A, 1B | DONE pre-session |
-| 1C, I-Auth | DONE pre-compact this session |
-| 3F | DONE this session |
-| 11-Gov | DONE this session (cross-project G1 fix queued for operator) |
-| **2A** | **DONE this turn** (T1+T2+T3 PASS; T4 PARTIAL with carry-forward issue) |
-| 2B | next per plan order — widget E2E |
-| 3A/3B/3C | queued — UI scope-marker waves |
+| 1C, I-Auth | DONE prior session |
+| 3F | DONE prior session |
+| 11-Gov | DONE prior session |
+| 2A | DONE prior session (T4 PARTIAL carry-forward) |
+| **2B** | **DONE this turn** |
+| 3A | next per plan order — TeamBox Push-to-VIN button + route REMOVAL (UI scope marker required) |
+| 3B | queued — Marketing tab routing fix (UI) |
+| 3C | queued — Marketing Insights filter propagation (UI) |
 | 9-Sec | queued — operator triage opens |
 | 11A | queued — Final E2E + go/no-go |
 
 ---
 
-## Operator action items (carry forward; non-blocking for Wave 2B)
+## Operator action items (carry forward; non-blocking for Wave 3A)
 
-1. **TextMagic dashboard URL fix** (production-impact; ~30s in TextMagic UI) — `I-NEW-2026-05-07-TEXTMAGIC-URL`
+1. **TextMagic dashboard inbound callback URL** — `I-NEW-2026-05-07-TEXTMAGIC-URL` (production-impact; ~30s in TextMagic UI)
 2. **Wave 11-Gov G1 cross-project fix** at `~/Claude-store/sysadmin/harness/lib/common.sh:56-58` per Path B
-3. **Wave 9-Sec triage decision** — v2.2 vs v2.3 for 5+5 security items
-4. **Dev VAPI webhook env config** — pick (a) set `VAPI_WEBHOOK_SECRET` in dev `.env` + pm2 reload, OR (b) flip dev pm2 to `NODE_ENV=development`. `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`. Required to unblock T4 guard-branch coverage.
+3. **Wave 9-Sec triage decision** — v2.2 vs v2.3 placement for 5 original + 5 new auth security items
+4. **Dev VAPI/Tavus webhook env config** — `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`. Required to unblock T4 (video) and webhook-receive provider proofs in any future wave.
 
 ---
 
 ## Cleanup queue (post-operator-review)
 
-- 7 merged wave branches deletable
-- Worktrees: 4 from Wave 1C + 1 each from 3F, 3F-B, 2A initial dispatch
+- 8 merged wave branches deletable (now includes `wave/8-widget/2B-chat-callback-form`)
+- Worktrees: pre-existing 8 + 3 new from Wave 2B builders (chat/callback/form)
 - `evidence/governance-2026-05-01/local-main-divergence-2026-05-02.md` still untracked (parked per D-I2)
 
 ---
 
-## Next-session: Wave 2B
+## Next-session: Wave 3A
 
-Per plan order: Widget E2E provider proof. Independent of operator action items above. Standard bookend pattern.
+Per plan order: TeamBox Push-to-VIN button + route REMOVAL. UI scope-marker required (`client/src/pages/teambox.tsx` or equivalent). Operator approval needed BEFORE issuing scope marker since UI change is in the "user sees" category. Standard bookend pattern.
 
 If operator pivots to `/clear` instead of `/compact`, next session reads in this order: `CLAUDE.md`, `plan.md`, `backlog.md`, `issues.md`, `.claude/session.md` (this file), `memory/context.md`, `memory/session-output.md`.
