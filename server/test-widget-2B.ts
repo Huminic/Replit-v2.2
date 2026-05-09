@@ -619,6 +619,334 @@ export async function testWidgetVoiceCallback({
 }
 
 // ---------------------------------------------------------------------------
+// Wave 2B-T3 — Public Widget Contact Form Provider Proof
+// ---------------------------------------------------------------------------
+//
+// Purpose: prove the public widget contact form endpoint
+//   POST /api/widget/contact   (server/routes/public.ts:76-128)
+// end-to-end against the running dev pm2 instance. This endpoint is
+// STORAGE-ONLY at submission time — it does NOT call any external
+// provider (no Anthropic, no VAPI, no TextMagic, no Resend). The proof
+// shows that a form submission resolves the org, writes a `conversations`
+// row with channel="form", and writes a single initial `messages` row
+// containing the formatted contact form payload.
+//
+// --- Endpoint contract (authoritative source: server/routes/public.ts:76-128) ---
+//
+// The handler reads `{ widgetCode, slug, name, email, phone, message }`
+// from the request body. `name`, `email`, and `message` are REQUIRED
+// (400 "Name, email, and message are required" otherwise). Org is
+// resolved via `widgetCode` (preferred — scans all org widgets) OR
+// via `slug`. Returns:
+//   { success: true, conversationId }
+// after creating:
+//   conversations row { customerName=name, customerEmail=email,
+//                       customerPhone=phone||null, channel="form",
+//                       status="open", organizationId, unreadCount=1,
+//                       lastMessageAt=now }
+//   messages row     { conversationId, role="user", senderName=name,
+//                      content="Contact Form Submission\n\nName: ...\n
+//                      Email: ...\n[Phone: ...\n]\nMessage:\n..." }
+//
+// --- Halt conditions ---
+//
+//   - allowlist check did not return exit 0 for duane.wells@huminic.ai → STOP (caller's responsibility)
+//   - HTTP status not 2xx → STOP
+//   - response.success !== true → STOP
+//   - response.conversationId missing or not a UUID → STOP
+//   - conversation row not found in DB after success → STOP
+//   - conversation.organizationId != serra-honda's id → STOP
+//   - conversation.channel != "form" → STOP
+//   - conversation.customerEmail != requested email → STOP
+//   - conversation.customerName != requested name → STOP
+//   - messages count != 1 (single initial user message) → STOP
+//   - first message.role != "user" → STOP
+//   - first message.content does not contain "Contact Form Submission" → STOP
+
+const TESTLANE_FORM_NAME = "TESTLANE Wave2B-T3";
+const TESTLANE_FORM_EMAIL = "duane.wells@huminic.ai";
+const TESTLANE_FORM_PHONE = "+19014361271";
+const TESTLANE_FORM_MESSAGE =
+  "Test form submission for Wave 2B T3 widget provider proof";
+
+interface T3Result {
+  ok: boolean;
+  status: number | null;
+  conversationId: string | null;
+  durationMs: number;
+  error?: string;
+  meta: {
+    baseUrl: string;
+    orgSlug: string;
+    orgId: string | null;
+    requestBody: {
+      slug: string;
+      name: string;
+      email: string;
+      phone: string;
+      message: string;
+    } | null;
+    httpResponseBody: unknown;
+    conversationRow: {
+      id: string;
+      organizationId: string;
+      channel: string;
+      status: string;
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string | null;
+      unreadCount: number;
+      createdAt: string;
+    } | null;
+    firstMessageRow: {
+      id: string;
+      conversationId: string;
+      role: string;
+      senderName: string | null;
+      content: string;
+      createdAt: string;
+    } | null;
+    messageCount: number;
+    haltChecks: {
+      status2xx: boolean;
+      successFlag: boolean;
+      hasConversationId: boolean;
+      conversationRowFound: boolean;
+      conversationOrgMatchesSerraHonda: boolean;
+      conversationChannelIsForm: boolean;
+      conversationEmailMatches: boolean;
+      conversationNameMatches: boolean;
+      exactlyOneMessage: boolean;
+      messageRoleIsUser: boolean;
+      messageContentHasFormHeader: boolean;
+    };
+  };
+}
+
+export async function testWidgetForm({
+  orgSlug = SERRA_HONDA_SLUG,
+  name = TESTLANE_FORM_NAME,
+  email = TESTLANE_FORM_EMAIL,
+  phone = TESTLANE_FORM_PHONE,
+  message = TESTLANE_FORM_MESSAGE,
+}: {
+  orgSlug?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
+} = {}): Promise<T3Result> {
+  const t0 = Date.now();
+
+  console.log("=== Wave 2B-T3 — Public Widget Contact Form Provider Proof ===");
+  console.log("base URL:", BASE_URL);
+  console.log("org slug:", orgSlug);
+  console.log("name:", name);
+  console.log("email:", email);
+  console.log("phone:", phone);
+
+  const meta: T3Result["meta"] = {
+    baseUrl: BASE_URL,
+    orgSlug,
+    orgId: null,
+    requestBody: null,
+    httpResponseBody: null,
+    conversationRow: null,
+    firstMessageRow: null,
+    messageCount: 0,
+    haltChecks: {
+      status2xx: false,
+      successFlag: false,
+      hasConversationId: false,
+      conversationRowFound: false,
+      conversationOrgMatchesSerraHonda: false,
+      conversationChannelIsForm: false,
+      conversationEmailMatches: false,
+      conversationNameMatches: false,
+      exactlyOneMessage: false,
+      messageRoleIsUser: false,
+      messageContentHasFormHeader: false,
+    },
+  };
+
+  // 1. Resolve org (audit-only pre-check; the endpoint also resolves)
+  const org = await storage.getOrganizationBySlug(orgSlug);
+  if (!org) {
+    return {
+      ok: false,
+      status: null,
+      conversationId: null,
+      durationMs: Date.now() - t0,
+      error: `org not found by slug=${orgSlug}`,
+      meta,
+    };
+  }
+  meta.orgId = org.id;
+  console.log(`org: id=${org.id} slug=${org.slug} name=${org.name}`);
+
+  // 2. Capture pre-window
+  const preTs = new Date();
+  console.log(`pre_ts=${preTs.toISOString()}`);
+
+  // 3. POST /api/widget/contact — single invocation only
+  const requestBody = { slug: orgSlug, name, email, phone, message };
+  meta.requestBody = requestBody;
+  console.log(
+    "POST",
+    `${BASE_URL}/api/widget/contact`,
+    JSON.stringify(requestBody),
+  );
+
+  let httpStatus: number | null = null;
+  let respBody: any = null;
+  try {
+    const res = await fetch(`${BASE_URL}/api/widget/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+    httpStatus = res.status;
+    respBody = await res.json().catch(() => null);
+  } catch (err: any) {
+    return {
+      ok: false,
+      status: null,
+      conversationId: null,
+      durationMs: Date.now() - t0,
+      error: `fetch failed: ${err?.message || err}`,
+      meta,
+    };
+  }
+  meta.httpResponseBody = respBody;
+  const postTs = new Date();
+  console.log(`post_ts=${postTs.toISOString()}`);
+  console.log(`HTTP ${httpStatus}`);
+  console.log("response body:", JSON.stringify(respBody, null, 2));
+
+  const conversationId: string | null = respBody?.conversationId ?? null;
+  const successFlag: boolean = respBody?.success === true;
+
+  // 4. HTTP-layer halt checks
+  const status2xx = httpStatus !== null && httpStatus >= 200 && httpStatus < 300;
+  meta.haltChecks.status2xx = status2xx;
+  meta.haltChecks.successFlag = successFlag;
+  meta.haltChecks.hasConversationId = !!conversationId;
+
+  if (!status2xx || !successFlag || !conversationId) {
+    return {
+      ok: false,
+      status: httpStatus,
+      conversationId,
+      durationMs: Date.now() - t0,
+      error: `HTTP failure: status=${httpStatus} success=${successFlag} hasConvoId=${!!conversationId}`,
+      meta,
+    };
+  }
+
+  // 5. Look up the conversation row in the DB
+  const conversation = await storage.getConversation(conversationId);
+  meta.haltChecks.conversationRowFound = !!conversation;
+  if (!conversation) {
+    return {
+      ok: false,
+      status: httpStatus,
+      conversationId,
+      durationMs: Date.now() - t0,
+      error: `conversation row not found id=${conversationId}`,
+      meta,
+    };
+  }
+  meta.conversationRow = {
+    id: conversation.id,
+    organizationId: conversation.organizationId,
+    channel: conversation.channel,
+    status: conversation.status,
+    customerName: conversation.customerName,
+    customerEmail: conversation.customerEmail ?? "",
+    customerPhone: conversation.customerPhone ?? null,
+    unreadCount: conversation.unreadCount ?? 0,
+    createdAt: conversation.createdAt.toISOString(),
+  };
+  meta.haltChecks.conversationOrgMatchesSerraHonda =
+    conversation.organizationId === org.id;
+  meta.haltChecks.conversationChannelIsForm = conversation.channel === "form";
+  meta.haltChecks.conversationEmailMatches = conversation.customerEmail === email;
+  meta.haltChecks.conversationNameMatches = conversation.customerName === name;
+  console.log(
+    `conversation: id=${conversation.id} channel=${conversation.channel} status=${conversation.status} org=${conversation.organizationId} email=${conversation.customerEmail} name=${conversation.customerName} created_at=${conversation.createdAt.toISOString()}`,
+  );
+
+  // 6. Look up the messages rows (expect exactly 1 — initial user message)
+  const convoMessages = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, conversationId));
+  meta.messageCount = convoMessages.length;
+  const ascMessages = [...convoMessages].sort(
+    (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+  );
+  const firstMessage = ascMessages[0];
+  if (firstMessage) {
+    meta.firstMessageRow = {
+      id: firstMessage.id,
+      conversationId: firstMessage.conversationId,
+      role: firstMessage.role,
+      senderName: firstMessage.senderName ?? null,
+      content: firstMessage.content,
+      createdAt: firstMessage.createdAt.toISOString(),
+    };
+  }
+  meta.haltChecks.exactlyOneMessage = convoMessages.length === 1;
+  meta.haltChecks.messageRoleIsUser = firstMessage?.role === "user";
+  meta.haltChecks.messageContentHasFormHeader =
+    !!firstMessage && firstMessage.content.includes("Contact Form Submission");
+  console.log(
+    `messages count: ${convoMessages.length} (window pre=${preTs.toISOString()} post=${postTs.toISOString()})`,
+  );
+  if (firstMessage) {
+    console.log(
+      `first message: id=${firstMessage.id} role=${firstMessage.role} senderName=${firstMessage.senderName} created_at=${firstMessage.createdAt.toISOString()}`,
+    );
+    console.log(
+      `first message content (first 240 chars):\n${firstMessage.content.slice(0, 240)}`,
+    );
+  }
+
+  const allHaltOk =
+    status2xx &&
+    successFlag &&
+    !!conversationId &&
+    meta.haltChecks.conversationRowFound &&
+    meta.haltChecks.conversationOrgMatchesSerraHonda &&
+    meta.haltChecks.conversationChannelIsForm &&
+    meta.haltChecks.conversationEmailMatches &&
+    meta.haltChecks.conversationNameMatches &&
+    meta.haltChecks.exactlyOneMessage &&
+    meta.haltChecks.messageRoleIsUser &&
+    meta.haltChecks.messageContentHasFormHeader;
+
+  const durationMs = Date.now() - t0;
+  if (!allHaltOk) {
+    return {
+      ok: false,
+      status: httpStatus,
+      conversationId,
+      durationMs,
+      error: `halt-check failed: ${JSON.stringify(meta.haltChecks)}`,
+      meta,
+    };
+  }
+
+  return {
+    ok: true,
+    status: httpStatus,
+    conversationId,
+    durationMs,
+    meta,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point
 // ---------------------------------------------------------------------------
 
@@ -649,9 +977,20 @@ if (isDirectInvocation) {
         if (e?.stack) console.error(e.stack);
         process.exit(1);
       });
+  } else if (fn === "testWidgetForm") {
+    testWidgetForm()
+      .then((r) => {
+        console.log("RESULT:", JSON.stringify(r, null, 2));
+        process.exit(r.ok ? 0 : 1);
+      })
+      .catch((e) => {
+        console.error("FAILED:", e?.message || e);
+        if (e?.stack) console.error(e.stack);
+        process.exit(1);
+      });
   } else {
     console.error(
-      `Unknown function: "${fn}". Supported: testWidgetChat, testWidgetVoiceCallback`,
+      `Unknown function: "${fn}". Supported: testWidgetChat, testWidgetVoiceCallback, testWidgetForm`,
     );
     process.exit(2);
   }

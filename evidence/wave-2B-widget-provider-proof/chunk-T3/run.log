@@ -1,0 +1,82 @@
+=== Wave 2B-T3 — Public Widget Contact Form Provider Proof ===
+base URL: http://localhost:5000
+org slug: serra-honda
+name: TESTLANE Wave2B-T3
+email: duane.wells@huminic.ai
+phone: +19014361271
+org: id=24d64f99-ba04-4b43-af35-fd06f555ac86 slug=serra-honda name=Serra Honda
+pre_ts=2026-05-09T00:57:08.501Z
+POST http://localhost:5000/api/widget/contact {"slug":"serra-honda","name":"TESTLANE Wave2B-T3","email":"duane.wells@huminic.ai","phone":"+19014361271","message":"Test form submission for Wave 2B T3 widget provider proof"}
+post_ts=2026-05-09T00:57:08.809Z
+HTTP 200
+response body: {
+  "success": true,
+  "conversationId": "e0c45066-daa3-4f14-a489-3fb4b123a34d"
+}
+conversation: id=e0c45066-daa3-4f14-a489-3fb4b123a34d channel=form status=open org=24d64f99-ba04-4b43-af35-fd06f555ac86 email=duane.wells@huminic.ai name=TESTLANE Wave2B-T3 created_at=2026-05-09T00:57:08.676Z
+messages count: 1 (window pre=2026-05-09T00:57:08.501Z post=2026-05-09T00:57:08.809Z)
+first message: id=9ca6b0b5-eb60-4500-b261-d2b2c29aec37 role=user senderName=TESTLANE Wave2B-T3 created_at=2026-05-09T00:57:08.763Z
+first message content (first 240 chars):
+Contact Form Submission
+
+Name: TESTLANE Wave2B-T3
+Email: duane.wells@huminic.ai
+Phone: +19014361271
+
+Message:
+Test form submission for Wave 2B T3 widget provider proof
+RESULT: {
+  "ok": true,
+  "status": 200,
+  "conversationId": "e0c45066-daa3-4f14-a489-3fb4b123a34d",
+  "durationMs": 956,
+  "meta": {
+    "baseUrl": "http://localhost:5000",
+    "orgSlug": "serra-honda",
+    "orgId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "requestBody": {
+      "slug": "serra-honda",
+      "name": "TESTLANE Wave2B-T3",
+      "email": "duane.wells@huminic.ai",
+      "phone": "+19014361271",
+      "message": "Test form submission for Wave 2B T3 widget provider proof"
+    },
+    "httpResponseBody": {
+      "success": true,
+      "conversationId": "e0c45066-daa3-4f14-a489-3fb4b123a34d"
+    },
+    "conversationRow": {
+      "id": "e0c45066-daa3-4f14-a489-3fb4b123a34d",
+      "organizationId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+      "channel": "form",
+      "status": "open",
+      "customerName": "TESTLANE Wave2B-T3",
+      "customerEmail": "duane.wells@huminic.ai",
+      "customerPhone": "+19014361271",
+      "unreadCount": 1,
+      "createdAt": "2026-05-09T00:57:08.676Z"
+    },
+    "firstMessageRow": {
+      "id": "9ca6b0b5-eb60-4500-b261-d2b2c29aec37",
+      "conversationId": "e0c45066-daa3-4f14-a489-3fb4b123a34d",
+      "role": "user",
+      "senderName": "TESTLANE Wave2B-T3",
+      "content": "Contact Form Submission\n\nName: TESTLANE Wave2B-T3\nEmail: duane.wells@huminic.ai\nPhone: +19014361271\n\nMessage:\nTest form submission for Wave 2B T3 widget provider proof",
+      "createdAt": "2026-05-09T00:57:08.763Z"
+    },
+    "messageCount": 1,
+    "haltChecks": {
+      "status2xx": true,
+      "successFlag": true,
+      "hasConversationId": true,
+      "conversationRowFound": true,
+      "conversationOrgMatchesSerraHonda": true,
+      "conversationChannelIsForm": true,
+      "conversationEmailMatches": true,
+      "conversationNameMatches": true,
+      "exactlyOneMessage": true,
+      "messageRoleIsUser": true,
+      "messageContentHasFormHeader": true
+    }
+  }
+}

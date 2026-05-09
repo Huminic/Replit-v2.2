@@ -1,0 +1,1 @@
+ALLOWED: recipient='duane.wells@huminic.ai' is on the allowlist (/home/ubuntu/Claude-store/nexxus2.2_replit/.claude/state/test-recipients.txt) — category=test_email
