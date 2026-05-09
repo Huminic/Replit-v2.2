@@ -84,6 +84,13 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
   { id: 'voice', label: 'Voice' },
 ];
 
+// ⚠️ BACKLOGGED 2026-05-09 — Push-to-VIN UI surface stubbed pending operator
+// decision on route removal. The route POST /api/conversations/:id/push-to-vin
+// and the mutation hook below remain alive (zero blast radius). Setting this
+// flag back to true is the only change required to re-enable the UI.
+// See: backlog.md "Push-to-VIN UI deferred" entry.
+const PUSH_TO_VIN_UI_ENABLED = false;
+
 
 function getAgentName(agentId: string | null, agents: { id: string; name: string }[]): string | undefined {
   if (!agentId) return undefined;
@@ -269,7 +276,7 @@ export default function TeamboxPage() {
       setVinConfirmOpen(false);
     },
     onError: (err: any) => {
-      toast({ title: 'Push to VIN failed', description: err?.message || 'An error occurred.', variant: 'destructive' });
+      toast({ title: 'Push to VIN unavailable', description: err?.message || 'Push to VIN currently unavailable', variant: 'destructive' });
       setVinConfirmOpen(false);
     },
   });
@@ -775,21 +782,23 @@ export default function TeamboxPage() {
                     {selectedConversation.campaignDisconnected ? 'Disconnected' : 'Disconnect Campaign'}
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs gap-1"
-                  onClick={() => setVinConfirmOpen(true)}
-                  disabled={pushToVinMutation.isPending}
-                  data-testid="button-push-to-vin"
-                >
-                  {pushToVinMutation.isPending ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <UserCheck className="h-3 w-3" />
-                  )}
-                  Push to VIN
-                </Button>
+                {PUSH_TO_VIN_UI_ENABLED && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => setVinConfirmOpen(true)}
+                    disabled={pushToVinMutation.isPending}
+                    data-testid="button-push-to-vin"
+                  >
+                    {pushToVinMutation.isPending ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <UserCheck className="h-3 w-3" />
+                    )}
+                    Push to VIN
+                  </Button>
+                )}
               </div>
             </div>
 
