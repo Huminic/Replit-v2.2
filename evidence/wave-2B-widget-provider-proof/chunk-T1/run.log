@@ -1,0 +1,56 @@
+=== Wave 2B-T1 — Public Widget Chat Provider Proof ===
+session-id: 537236ad-fece-44d3-8915-c5e1d7e94e69
+base URL: http://localhost:5000
+org slug: serra-honda
+org: id=24d64f99-ba04-4b43-af35-fd06f555ac86 slug=serra-honda name=Serra Honda
+widget (audit only): id=0de04433-d04c-4e05-abef-2a6013369bb8 code=wgt_serra_honda_sales type=text status=active
+pre_ts=2026-05-09T00:46:15.479Z
+POST http://localhost:5000/api/widget/chat {"slug":"serra-honda","message":"Hi, I am interested in a 2024 Honda Civic. Do you have any in stock?"}
+post_ts=2026-05-09T00:46:19.688Z
+HTTP 200
+response body: {
+  "conversationId": "67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c",
+  "response": "Hi! Thanks for reaching out to Serra Honda! 😊\n\nBased on our current inventory, I don't see any 2024 Honda Civics available at this time. However, we do have a **2026 Honda Civic Sport** in stock, which is a fantastic option! Here are the details:\n\n- **Year:** 2026\n- **Model:** Honda Civic Sport\n- **Price:** $28,995\n- **Status:** Available\n\nThe 2026 Civic Sport comes with some great upgrades over previous model years. Would you like to know more about it, or would you like to schedule a test drive? I can also check if there are other options that might interest you! 🚗",
+  "autoGreeting": "Hi there! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?"
+}
+conversation: id=67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c channel=chat status=open org=24d64f99-ba04-4b43-af35-fd06f555ac86 created_at=2026-05-09T00:46:15.634Z
+messages count: 3 (window pre=2026-05-09T00:46:15.479Z post=2026-05-09T00:46:19.688Z)
+RESULT: {
+  "ok": true,
+  "status": 200,
+  "conversationId": "67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c",
+  "replyText": "Hi! Thanks for reaching out to Serra Honda! 😊\n\nBased on our current inventory, I don't see any 2024 Honda Civics available at this time. However, we do have a **2026 Honda Civic Sport** in stock, which is a fantastic option! Here are the details:\n\n- **Year:** 2026\n- **Model:** Honda Civic Sport\n- **Price:** $28,995\n- **Status:** Available\n\nThe 2026 Civic Sport comes with some great upgrades over previous model years. Would you like to know more about it, or would you like to schedule a test drive? I can also check if there are other options that might interest you! 🚗",
+  "durationMs": 4930,
+  "meta": {
+    "sessionId": "537236ad-fece-44d3-8915-c5e1d7e94e69",
+    "baseUrl": "http://localhost:5000",
+    "orgSlug": "serra-honda",
+    "orgId": "24d64f99-ba04-4b43-af35-fd06f555ac86",
+    "widgetCode": "wgt_serra_honda_sales",
+    "widgetId": "0de04433-d04c-4e05-abef-2a6013369bb8",
+    "widgetType": "text",
+    "widgetStatus": "active",
+    "requestBody": {
+      "slug": "serra-honda",
+      "message": "Hi, I am interested in a 2024 Honda Civic. Do you have any in stock?"
+    },
+    "httpResponseBody": {
+      "conversationId": "67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c",
+      "response": "Hi! Thanks for reaching out to Serra Honda! 😊\n\nBased on our current inventory, I don't see any 2024 Honda Civics available at this time. However, we do have a **2026 Honda Civic Sport** in stock, which is a fantastic option! Here are the details:\n\n- **Year:** 2026\n- **Model:** Honda Civic Sport\n- **Price:** $28,995\n- **Status:** Available\n\nThe 2026 Civic Sport comes with some great upgrades over previous model years. Would you like to know more about it, or would you like to schedule a test drive? I can also check if there are other options that might interest you! 🚗",
+      "autoGreeting": "Hi there! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?"
+    },
+    "isNewConversation": true,
+    "messageCount": 3,
+    "firstUserMessagePreview": "Hi, I am interested in a 2024 Honda Civic. Do you have any in stock?",
+    "firstAssistantMessagePreview": "Hi there! This is Caroline from Serra Honda. Thank you for your interest — I'd love to help you find the perfect vehicle. What are you looking for?",
+    "haltChecks": {
+      "status2xx": true,
+      "hasConversationId": true,
+      "replyLengthOver20": true,
+      "replyNotStubFallback": true,
+      "conversationRowFound": true,
+      "conversationOrgMatchesSerraHonda": true,
+      "atLeastTwoMessages": true
+    }
+  }
+}
