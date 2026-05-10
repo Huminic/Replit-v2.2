@@ -1,7 +1,33 @@
 # Session — nexxus2.2_replit
 
-**Date of this checkpoint:** 2026-05-10 (~17:25 UTC)
-**Last orchestrator action:** Wave 3B closed (Marketing agent functionality fix — re-scoped per operator from "Marketing tab routing fix" to AGENT fix). Root cause was rotated OpenAI API key. All 3 phases PASS. 4 verifiers PASS. ff-merged + pushed.
+**Date of this checkpoint:** 2026-05-10 (~later, post-team-setup)
+**Last orchestrator action:** Persistent team `nexxus-v22-release-factory` instantiated with 8 prescribed members + team-lead (orchestrator). CLAUDE.md updated with TEAM DISPATCH DEFAULT enforcement. Cleanup A1+A2+A3 complete (8 worktrees pruned, 18 branches deleted, watchdog log mod discarded).
+
+## ⚠️ READ FIRST — TEAM EXISTS
+
+**Persistent team:** `nexxus-v22-release-factory` at `~/.claude/teams/nexxus-v22-release-factory/config.json`
+
+**9 members (8 prescribed + team-lead):**
+
+| name | role | when used |
+|---|---|---|
+| `team-lead` | release-orchestrator (you) | self |
+| `harness-backend` | server/API/data-layer impl | most waves |
+| `harness-frontend` | UI impl (operator-approved scope only) | UI waves (3C, future) |
+| `qa-evaluator` | two-deltas-of-proof + investigation | every wave + "broken/not-working" diagnostics |
+| `code-reviewer` | blind diff review at gate | every wave CLOSING |
+| `scope-guardian` | scope + process drift (consolidates ex-"drift-detector") | every wave CLOSING |
+| `integration-safety` | external-provider boundary | when provider boundary touched |
+| `launch-captain` | Nexxus launch readiness | Wave 11A only |
+| `e2e-evaluator` | autonomous E2E + recorded evidence | Wave 11A only |
+
+**DEFAULT DISPATCH PATH:** `SendMessage({to: <name>, message: ...})` — NOT `Agent({...})`.
+
+Spawning fresh subagents only OK when (a) the role isn't on the team, (b) you need a one-shot read-only `Explore` scout, or (c) the team config file is genuinely missing or corrupted.
+
+CLAUDE.md "TEAM DISPATCH DEFAULT" section is the canonical rule. Read it first.
+
+---
 
 ## Ten waves shipped to dev (this session: 3A + 3B added)
 
