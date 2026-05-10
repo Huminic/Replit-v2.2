@@ -1,76 +1,58 @@
 # Session — nexxus2.2_replit
 
-**Date of this checkpoint:** 2026-05-10 (~later, post-team-setup)
-**Last orchestrator action:** Persistent team `nexxus-v22-release-factory` instantiated with 8 prescribed members + team-lead (orchestrator). CLAUDE.md updated with TEAM DISPATCH DEFAULT enforcement. Cleanup A1+A2+A3 complete (8 worktrees pruned, 18 branches deleted, watchdog log mod discarded).
+**Date of this checkpoint:** 2026-05-10 (~19:18 UTC)
+**Last orchestrator action:** Wave 9-Sec closed. 5 v2.2 security fixes shipped (I-244, I-245, AUTH-D, I-247, I-249); 4 deferred to v2.3 (AUTH-E/G/H/I); 1 dropped (I-246). 2 bonus defects filed (D-SELF-ROLE, E-ADMINEMAIL-NORM). All 4 verifier verdicts clean.
 
 ## ⚠️ READ FIRST — TEAM EXISTS
 
 **Persistent team:** `nexxus-v22-release-factory` at `~/.claude/teams/nexxus-v22-release-factory/config.json`
 
-**9 members (8 prescribed + team-lead):**
+9 members (team-lead + 8 prescribed). DEFAULT DISPATCH PATH: `SendMessage({to: <name>, ...})` — NOT `Agent({...})`. CLAUDE.md "TEAM DISPATCH DEFAULT" section is the canonical rule.
 
-| name | role | when used |
+## Eleven waves shipped to dev
+
+| Wave | Phase | State |
 |---|---|---|
-| `team-lead` | release-orchestrator (you) | self |
-| `harness-backend` | server/API/data-layer impl | most waves |
-| `harness-frontend` | UI impl (operator-approved scope only) | UI waves (3C, future) |
-| `qa-evaluator` | two-deltas-of-proof + investigation | every wave + "broken/not-working" diagnostics |
-| `code-reviewer` | blind diff review at gate | every wave CLOSING |
-| `scope-guardian` | scope + process drift (consolidates ex-"drift-detector") | every wave CLOSING |
-| `integration-safety` | external-provider boundary | when provider boundary touched |
-| `launch-captain` | Nexxus launch readiness | Wave 11A only |
-| `e2e-evaluator` | autonomous E2E + recorded evidence | Wave 11A only |
-
-**DEFAULT DISPATCH PATH:** `SendMessage({to: <name>, message: ...})` — NOT `Agent({...})`.
-
-Spawning fresh subagents only OK when (a) the role isn't on the team, (b) you need a one-shot read-only `Explore` scout, or (c) the team config file is genuinely missing or corrupted.
-
-CLAUDE.md "TEAM DISPATCH DEFAULT" section is the canonical rule. Read it first.
-
----
-
-## Ten waves shipped to dev (this session: 3A + 3B added)
-
-- Wave 1A, 1B, 1C, I-Auth, 3F, 11-Gov, 2A, 2B — prior sessions
-- **Wave 3A — DONE** (Push-to-VIN UI stub, route preserved per operator pivot)
-- **Wave 3B — DONE this turn** (Marketing agent fix, re-scoped per operator: no UI change, config-only OPENAI_API_KEY rotation)
+| 1A, 1B, 1C, I-Auth, 3F, 11-Gov, 2A, 2B, 3A, 3B | various | DONE prior |
+| **9-Sec** | 9 | **DONE this turn** |
+| 3C | 6 | DEFERRED v2.3 (BL-002) |
+| **11A** | 11 | **next — Final E2E + go/no-go** |
 
 Coolify untouched. Live still on `becb739`. Live deploy gate is Wave 11A.
 
 ---
 
-## Wave 3B — DONE this turn (re-scoped per operator)
+## Wave 9-Sec — DONE this turn
 
-**Branch (merged):** `wave/6-marketing/3B-agent-fix` → `batch-1-finish-line`
-**HEAD now on origin:** `292fd67` (was `c5c3321`; +6 commits: OPENING, investigation, Phase 2 amendment, post-fix evidence, CLOSING+issues, plan-update)
+**Branch (merged):** `wave/9-sec/triage` → `batch-1-finish-line`
+**HEAD now on origin:** `0fdf3f6`
 
-### Operator scope clarification (verbatim, 2026-05-10)
+### Resolution per chunk
 
-> "There is no UI change. The marketing agent has a UI, it doesn't need a UI change, it needs to work as it is. Technically I've seen most of it working but there are errors now. It might not be setup properly."
+| Chunk | Item | Commit | Tests |
+|---|---|---|---|
+| S1 | I-244 IDOR cross-tenant (HIGH) | `3a63022` | 11/11 + endpoint probe (649 vs 460 control) |
+| S2 | I-245 AI PATCH bypass (HIGH) | `94e9f70` | 9/9 + endpoint probe (EVIL strings stripped) |
+| S3 | AUTH-D + signup parity (HIGH) | `4985b03` | 14/14 + real Resend send (allowlisted) |
+| S5 | I-249 self-deactivate (MEDIUM) | `5a1b0c5` | 11/11 + HTTP 400 probe |
+| S4 | I-247 org slug (MEDIUM, route-level) | `a0a354e` | 7/7 + slug-unchanged probe |
+| Total | | | **66/66** + 5 endpoint probes |
 
-Plan title was "Marketing tab routing fix". Operator's signal redirected to: AGENT functionality fix, NOT routing/UI. First scout suggested adding a sidebar nav link — operator pushed back. Drift correction documented in OPENING bookend.
+### Audit chain (all PASS)
 
-### Resolution per phase
+- qa-evaluator wave-end sweep: 5/5 chunks PASS, 2 deltas each
+- code-reviewer (blind): AGREE
+- scope-guardian (scope + drift consolidated): PASS (9/9 process checks)
+- integration-safety: PASS (auth boundary preserved; vin-safe-mcp + central-mcp + CommGate untouched)
 
-| Phase | Owner | Result |
-|---|---|---|
-| Phase 1 (investigation) | qa-evaluator | PASS — error reproduced; `/api/openai-proxy` 401 with verbatim OpenAI body identifying bad key suffix `...OxMA` |
-| Phase 2 (config-only fix) | orchestrator (no builder dispatched) | PASS — operator provided new key in chat; orchestrator atomic-replaced in dev `.env` (gitignored, never committed); `pm2 reload --update-env` |
-| Phase 3 (post-fix re-verification) | qa-evaluator | PASS — `/api/openai-proxy` 401→200; coherent `gpt-4o-mini-2024-07-18` reply; UI no longer shows error toast |
+### Mid-wave revision (documented)
 
-### Audit chain — 4 verifier verdicts (all PASS)
+S4 originally scoped for `shared/schema.ts:519` (governance-protected); schema-edit hook blocked. Redirected to route-level `updateOrganizationSchema.omit({ slug: true })` at `server/routes/organizations.ts:366`. Same security outcome. Captured in commit `a0a354e` message.
 
-- blind-verifier (code-reviewer): AGREE — Phase 1↔Phase 2↔Phase 3 cross-check verified
-- scope-guardian: PASS — 15 changed files, ALL under `evidence/wave-3B-marketing-agent-fix/**`; zero source-code; .env gitignored; zero secret leaks
-- drift-detector (general-purpose): NO DRIFT — all 10 governance + wave-specific checks pass
-- integration-safety: PASS — dev-only key rotation; live Coolify untouched; vin-safe-mcp + CommGate untouched; OpenAI boundary healthy post-rotation
+### Bonus carry-forwards filed
 
-### Carry-forward issues filed
-
-- `I-NEW-2026-05-10-A` — `GOOGLE_MAPS_API_KEY` missing on dev (Market Intel agent silently uses mock fallback)
-- `I-NEW-2026-05-10-B` — `/api/maps-proxy` body-shape mismatch
-
-Both non-blocking for v2.2 launch; will surface only when Market Intel agent is exercised; primary chat path is fully restored.
+- `I-NEW-2026-05-10-D-SELF-ROLE` (commit `fd5353d`) — self-role-change in same handler as I-249. Deferred v2.3.
+- `I-NEW-2026-05-10-E-ADMINEMAIL-NORM` (commit `a2034da`) — org-create adminEmail not normalized (AUTH-D parity). Deferred v2.3.
 
 ---
 
@@ -78,68 +60,49 @@ Both non-blocking for v2.2 launch; will surface only when Market Intel agent is 
 
 | Field | Value |
 |---|---|
-| Active branch | `batch-1-finish-line` (HEAD `292fd67`) |
-| Origin `batch-1-finish-line` | matches local `292fd67` |
-| Wave branches merged this session | 3A, 3B |
+| Active branch | `batch-1-finish-line` (HEAD `0fdf3f6`) |
+| Origin | matches local |
 | Live container | `becb739` |
-| Working tree dirty | `evidence/watchdog-alerts.log` (auto) + 5 untracked unrelated entries |
-| Provider sends Wave 3B | 0 customer-facing (Anthropic/OpenAI server-side AI calls only) |
-| DB writes Wave 3B | 0 |
-| Builds Wave 3B | 0 (no source code changed) |
-| pm2 restarts Wave 3B | 1 (`pm2 reload nexxus-app --update-env` for new key) |
+| Working tree dirty | 4 untracked (auto log + parked items + worktrees + uploads) |
+| Provider sends this wave | 1 Resend (allowlisted test_email; S3 probe) |
+| DB writes this wave | S2 net-zero; S3 reset_token (allowlisted); S4 updated_at no slug-change; S1+S5 zero |
+| Builds this wave | 1 (qa-evaluator pre-probe) |
+| pm2 restarts this wave | 1 (dev only) |
 | Live deploys | 0 |
 
 ---
 
-## Wave roadmap status (post-Wave-3B)
+## Wave 11A — next per plan order
 
-| Wave | State |
-|---|---|
-| 1A, 1B, 1C, I-Auth, 3F, 11-Gov, 2A, 2B | DONE prior sessions |
-| 3A | DONE prior turn (UI stub, route preserved) |
-| **3B** | **DONE this turn** (re-scoped: agent fix via OPENAI key rotation) |
-| **3C** | **next per plan order — Marketing Insights filter propagation (UI)** |
-| 9-Sec | queued — operator triage opens |
-| 11A | queued — Final E2E + go/no-go |
+Plan reference: "Final E2E + go/no-go (includes Phase-2 route matrix walk; preferably AFTER 11-Gov G1 fix lands AND TextMagic dashboard URL is corrected)"
 
----
+**Pre-positioned teammates:** `e2e-evaluator` + `launch-captain` (both idle).
 
-## Operator action items (carry forward; non-blocking for Wave 3C)
-
-1. **TextMagic dashboard URL fix** — `I-NEW-2026-05-07-TEXTMAGIC-URL`
-2. **Wave 11-Gov G1 cross-project fix** at `~/Claude-store/sysadmin/harness/lib/common.sh:56-58`
-3. **Wave 9-Sec triage decision** — v2.2 vs v2.3 placement
-4. **Dev VAPI/Tavus webhook env config** — `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`
-5. **BL-001 Push-to-VIN route-removal decision** — operator's deferred call (UI is hidden either way)
-6. **NEW: Google Maps Market Intel** — `I-NEW-2026-05-10-A` (missing key) + `I-NEW-2026-05-10-B` (body-shape) — non-blocking; v2.3 candidates
+**Wave 11A sequence:**
+1. e2e-evaluator runs autonomous E2E sweep on dev (Serra Honda Test Lane) — captures recorded evidence
+2. launch-captain reviews E2E + 8 carry-forward operator/orchestrator action items + launch checklist → produces go/no-go recommendation
+3. Operator makes final go decision
+4. If GO: PR `batch-1-finish-line` → `main`, Coolify auto-deploys
+5. Post-deploy smoke test on live
 
 ---
 
-## Subagent inventory acknowledgment (per operator instruction 2026-05-10)
+## Operator action items (carry-forward; mostly non-blocking for 11A go/no-go)
 
-This wave demonstrated the full subagent roster:
-- **qa-evaluator** drove BOTH Phase 1 investigation AND Phase 3 re-verification (primary investigator role)
-- **scope-guardian, code-reviewer, general-purpose, integration-safety** at gate (4-verifier convergence)
-- **harness-frontend NOT used** (operator-mandated: no UI change)
-- **harness-backend NOT used** (root cause was config, not code)
+1. TextMagic dashboard URL fix — `I-NEW-2026-05-07-TEXTMAGIC-URL` (production-impact; 30s)
+2. Wave 11-Gov G1 cross-project fix — `~/Claude-store/sysadmin/harness/lib/common.sh:56-58`
+3. Dev VAPI/Tavus webhook env config — `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH` (non-blocking for v2.2 launch)
+4. BL-001 Push-to-VIN route-removal decision (UI hidden; non-blocking)
+5. BL-002 Marketing Insights data + reports decisions (Wave 3C deferred; non-blocking)
+6. I-NEW-2026-05-10-A Google Maps key (non-blocking)
+7. I-NEW-2026-05-10-B maps-proxy body shape (non-blocking)
+8. **I-NEW-2026-05-10-D-SELF-ROLE** (new) — self-role-change sibling defect (non-blocking)
+9. **I-NEW-2026-05-10-E-ADMINEMAIL-NORM** (new) — adminEmail normalization parity (non-blocking)
 
-Pattern to keep: when investigation phase is needed, qa-evaluator goes FIRST (not at gate). When code change is needed, builder goes between investigation and verification. When fix is config-only, no builder is dispatched and orchestrator handles the rotation directly with operator-provided values.
-
----
-
-## Cleanup queue (post-operator-review)
-
-- 10 merged wave branches deletable
-- Worktrees: many from prior waves
-- `evidence/governance-2026-05-01/local-main-divergence-2026-05-02.md` still untracked (parked per D-I2)
-- `.playwright-mcp/` artifacts (gitignored; canonical copies under `evidence/wave-3B-marketing-agent-fix/post-fix/` force-added)
+Plus Wave 2A T4 PARTIAL (dev webhook env-blocked).
 
 ---
 
-## Next-session: Wave 3C
+## Next-session: Wave 11A
 
-Per plan order: Marketing Insights filter propagation. UI scope-marker required. Operator approval needed BEFORE dispatching builder, since UI change. Standard bookend pattern.
-
-Post-Wave-3B Marketing module is now PARTIAL (was BROKEN). Wave 3C should bring it to PROVEN if filter propagation is the last visible defect.
-
-If operator pivots to `/clear` instead of `/compact`, next session reads in this order: `CLAUDE.md`, `plan.md`, `backlog.md`, `issues.md`, `.claude/session.md` (this file), `memory/context.md`, `memory/session-output.md`.
+If operator pivots to `/clear` or `/compact`, next session reads in this order: `CLAUDE.md`, `plan.md`, `backlog.md`, `issues.md`, `.claude/session.md` (this file), `memory/context.md`, `memory/session-output.md`. **READ THE TEAM CONFIG FIRST** before any agent dispatch.
