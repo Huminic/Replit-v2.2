@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
+import { stripAiFieldsForLowerRoles } from "../lib/aiSettingsGuard";
 
 export function registerSettingsRoutes(app: Express) {
   app.get("/api/settings/org", authenticateToken, async (req, res) => {
@@ -20,7 +21,15 @@ export function registerSettingsRoutes(app: Express) {
       const org = await storage.getOrganization(req.user.organizationId);
       if (!org) return res.status(404).json({ message: "Organization not found" });
       const existingSettings = (org.settings || {}) as Record<string, any>;
-      const mergedSettings = { ...existingSettings, ...req.body };
+      // I-245 (Wave 9-Sec): field-allowlist gate — only roleLevel <= 2 may
+      // PATCH AI-behavior fields (aiModel, systemPrompt, chatInstructions).
+      // The UI hides the AI-config tile for org_admin, but the API must also
+      // enforce it so a hand-crafted request can't bypass.
+      const scopedBody = stripAiFieldsForLowerRoles(
+        (req.body || {}) as Record<string, unknown>,
+        req.user.roleLevel,
+      );
+      const mergedSettings = { ...existingSettings, ...scopedBody };
       // TODO: type properly when schema updated — jsonb column types from Drizzle don't accept Record<string, any> directly
       const updated = await storage.updateOrganization(req.user.organizationId, { settings: mergedSettings } as any);
       if (!updated) return res.status(500).json({ message: "Failed to update settings" });
@@ -31,7 +40,7 @@ export function registerSettingsRoutes(app: Express) {
         action: "settings_updated",
         entityType: "organization",
         entityId: req.user.organizationId,
-        metadata: { sections: Object.keys(req.body) },
+        metadata: { sections: Object.keys(scopedBody) },
       }).catch(() => {});
 
       return res.json(mergedSettings);
