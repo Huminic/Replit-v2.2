@@ -1,0 +1,13 @@
+### S4 I-247 probe — PATCH /api/organizations/:id with slug field
+
+### Step 1: pre-probe DB slug
+[dotenv@17.3.1] injecting env (33) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+PRE: {"id":"24d64f99-ba04-4b43-af35-fd06f555ac86","slug":"serra-honda","name":"Serra Honda","persona_name":"Caroline","updated_at":"2026-05-10T19:06:11.747Z"}
+
+### Step 2: attempt PATCH with slug only
+{"id":"24d64f99-ba04-4b43-af35-fd06f555ac86","name":"Serra Honda","slug":"serra-honda","personaName":"Caroline","partnerId":"fe2e50a8-0029-4763-8ca7-83325fd70dde","outboundEnabled":true,"smsEnabled":true,"phoneEnabled":true,"emailEnabled":true,"videoEnabled":false,"billingCustomerId":null,"billingSubscriptionId":null,"billingWalletId":null,"billingPlanId":null,"billingTier":null,"settings":{"adfBrand":"Honda","adfEmail":"leads@serrahonda.co","timezone":"America/Chicago","adfLeadSource":"Dealers WebSite","textmagicPhone":"+18338935694","triggersEnabled":true,"triggerTestPhones":["+14126546500"],"vapiPhoneNumberId":"6e524330-8253-4e09-bf34-1892ebb393b5","checkInDelayMinutes":1440,"checkInTriggerEnabled":true,"afterHoursTriggerEnabled":false},"createdAt":"2026-04-03T05:01:48.190Z","updatedAt":"2026-05-10T19:09:13.229Z"}
+__HTTP__200
+
+### Step 3: post-probe DB slug (should still be 'serra-honda')
+[dotenv@17.3.1] injecting env (33) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+POST: {"id":"24d64f99-ba04-4b43-af35-fd06f555ac86","slug":"serra-honda","name":"Serra Honda","persona_name":"Caroline","updated_at":"2026-05-10T19:09:13.229Z"}

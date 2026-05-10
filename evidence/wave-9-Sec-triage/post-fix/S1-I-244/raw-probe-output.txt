@@ -1,0 +1,11 @@
+### Probe A: NO orgId override (own org default = serra-honda)
+Command: curl GET /api/vin/leads/summary
+Response:
+{"period":{"start":"2026-04-10","end":"2026-05-10"},"totalLeads":649,"totalLeadsChange":43,"newLeads":33,"newLeadsChange":-17,"activeLeads":367,"activeLeadsChange":104,"soldLeads":7,"soldLeadsChange":-36,"lostLeads":0,"waitingForResponse":159,"appointments":0,"conversionRate":100,"syncedAt":"2026-05-10T19:00:24.810Z"}
+__HTTP__200
+
+### Probe B: orgId=serra-nissan override (IDOR attempt as serra-honda admin, roleLevel>2)
+Command: curl GET /api/vin/leads/summary?orgId=4a23d5ad-38ff-4016-8af5-f4cfc9fd88cd
+Response:
+{"period":{"start":"2026-04-10","end":"2026-05-10"},"totalLeads":649,"totalLeadsChange":43,"newLeads":33,"newLeadsChange":-17,"activeLeads":367,"activeLeadsChange":104,"soldLeads":7,"soldLeadsChange":-36,"lostLeads":0,"waitingForResponse":159,"appointments":0,"conversionRate":100,"syncedAt":"2026-05-10T19:00:24.810Z"}
+__HTTP__200

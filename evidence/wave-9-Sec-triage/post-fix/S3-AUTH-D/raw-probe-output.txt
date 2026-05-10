@@ -1,0 +1,19 @@
+### S3 AUTH-D probe — forgot-password with MIXED-CASE email (single send)
+Target: DUANE.WELLS@HUMINIC.AI (allowlisted as test_email)
+Pre-fix expected: ZERO reset_token written (lookup misses)
+Post-fix expected: reset_token written to user row, real Resend email sent
+
+### Step 1: pre-probe DB state
+[dotenv@17.3.1] injecting env (33) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+PRE: {"email":"duane.wells@huminic.ai","reset_token":null,"reset_token_expiry":null,"updated_at":"2026-04-07T07:32:35.571Z"}
+
+### Step 2: POST /api/auth/forgot-password with MIXED-CASE input
+{"message":"If an account exists with that email, a reset link has been sent."}
+__HTTP__200
+
+### Step 3: post-probe DB state (reset_token should be SET if fix works)
+[dotenv@17.3.1] injecting env (33) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+POST: {"email":"duane.wells@huminic.ai","has_token":true,"reset_token_expiry":"2026-05-10T20:07:51.850Z","updated_at":"2026-05-10T19:07:51.850Z"}
+
+### Step 4: pm2 log slice for [AUTH] entries
+47|nexxus- | [AUTH] Password reset email sent to duane.wells@huminic.ai

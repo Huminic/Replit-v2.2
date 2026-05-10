@@ -1,0 +1,13 @@
+### S5 I-249 probe — self-deactivation attempt
+
+### Step 1: pre-probe DB user state
+[dotenv@17.3.1] injecting env (33) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+PRE: {"id":"6249dbc6-bdbf-4dae-a962-04ae63002bea","email":"serra_honda@huminic.ai","is_active":true}
+
+### Step 2: attempt self-deactivation (PATCH own user with isActive=false)
+{"message":"Cannot deactivate yourself. Ask another admin to deactivate this account."}
+__HTTP__400
+
+### Step 3: post-probe DB user state (should still be is_active=true)
+[dotenv@17.3.1] injecting env (33) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+POST: {"id":"6249dbc6-bdbf-4dae-a962-04ae63002bea","email":"serra_honda@huminic.ai","is_active":true}

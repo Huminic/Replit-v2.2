@@ -1,0 +1,7 @@
+### Control C: super_admin (roleLevel=1) — orgId=serra-nissan override (legitimate cross-tenant)
+{"period":{"start":"2026-04-10","end":"2026-05-10"},"totalLeads":460,"totalLeadsChange":21,"newLeads":13,"newLeadsChange":0,"activeLeads":307,"activeLeadsChange":73,"soldLeads":4,"soldLeadsChange":-60,"lostLeads":1,"waitingForResponse":114,"appointments":0,"conversionRate":80,"syncedAt":"2026-05-10T19:04:23.298Z"}
+__HTTP__200
+
+### Control D: super_admin (roleLevel=1) — orgId=serra-honda override
+{"period":{"start":"2026-04-10","end":"2026-05-10"},"totalLeads":649,"totalLeadsChange":43,"newLeads":33,"newLeadsChange":-17,"activeLeads":367,"activeLeadsChange":104,"soldLeads":7,"soldLeadsChange":-36,"lostLeads":0,"waitingForResponse":159,"appointments":0,"conversionRate":100,"syncedAt":"2026-05-10T19:00:24.810Z"}
+__HTTP__200

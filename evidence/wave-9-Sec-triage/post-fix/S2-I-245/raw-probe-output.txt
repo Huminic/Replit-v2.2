@@ -1,0 +1,11 @@
+### Step 1: GET current org settings (baseline)
+{"adfBrand":"Honda","adfEmail":"leads@serrahonda.co","timezone":"America/Chicago","adfLeadSource":"Dealers WebSite","textmagicPhone":"+18338935694","triggersEnabled":true,"triggerTestPhones":["+14126546500"],"vapiPhoneNumberId":"6e524330-8253-4e09-bf34-1892ebb393b5","checkInDelayMinutes":1440,"checkInTriggerEnabled":true,"afterHoursTriggerEnabled":false}
+__HTTP__200
+
+### Step 2: PATCH with EVIL AI fields + a benign timezone field as serra-honda admin (roleLevel=3)
+{"adfBrand":"Honda","adfEmail":"leads@serrahonda.co","timezone":"America/Detroit","adfLeadSource":"Dealers WebSite","textmagicPhone":"+18338935694","triggersEnabled":true,"triggerTestPhones":["+14126546500"],"vapiPhoneNumberId":"6e524330-8253-4e09-bf34-1892ebb393b5","checkInDelayMinutes":1440,"checkInTriggerEnabled":true,"afterHoursTriggerEnabled":false}
+__HTTP__200
+
+### Step 3: GET again to verify state — AI fields should be UNCHANGED, timezone updated
+{"adfBrand":"Honda","adfEmail":"leads@serrahonda.co","timezone":"America/Detroit","adfLeadSource":"Dealers WebSite","textmagicPhone":"+18338935694","triggersEnabled":true,"triggerTestPhones":["+14126546500"],"vapiPhoneNumberId":"6e524330-8253-4e09-bf34-1892ebb393b5","checkInDelayMinutes":1440,"checkInTriggerEnabled":true,"afterHoursTriggerEnabled":false}
+__HTTP__200
