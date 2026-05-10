@@ -4,7 +4,7 @@
 
 **Hierarchy of work:** Roadmap → Phase → Wave → Chunk → Step. Waves are NOT sub-divided into A/B/C suffixes; each wave name in the roadmap below is canonical. Internal decomposition uses chunk numbers (S1, S2, T1, T2, G1, G2, etc.) inside the wave's bookend.
 
-**Active wave:** Wave 2B closed 2026-05-09. Next: Wave 3A (TeamBox Push-to-VIN button + route REMOVAL).
+**Active wave:** Wave 3A closed 2026-05-10 (re-scoped per operator: STUB only, route preserved). Next: Wave 3B (Marketing tab routing fix).
 
 ---
 
@@ -24,6 +24,7 @@
 | **Wave 11-Gov — Harness session-marker investigation + D-I3 console-error finding (read-only)** | `evidence/wave-11-gov-harness/wave-bookend.md` | merged 2026-05-07 |
 | **Wave 2A — Direct outbound provider proof (SMS + VAPI chunks)** | `evidence/wave-2A-trigger-provider-proof/wave-bookend.md` | merged 2026-05-07 (chunks remaining: service-campaign, webhook) |
 | **Wave 2B — Widget chat / callback / form provider proof** | `evidence/wave-2B-widget-provider-proof/wave-bookend.md` | merged 2026-05-09 (T1+T2+T3 PASS; video + inbound webhooks remain in deferred bucket per dev-env block) |
+| **Wave 3A — TeamBox Push-to-VIN UI STUB** (route REMOVAL deferred per operator pivot 2026-05-09) | `evidence/wave-3A-push-to-vin-stub/wave-bookend.md` | merged 2026-05-10 (S1+S2+S3 PASS; route handler byte-unchanged; backlog entry BL-001 filed) |
 
 ---
 
@@ -40,7 +41,7 @@
 | 1 | Core: Scheduler infra | PROVEN | none |
 | 1 | Core: Harness session-marker | BROKEN (Wave 11-Gov G1 fix recipe documented; cross-project, operator-execute) | operator action item |
 | 2 | Entry + Shell | PROVEN (Wave 11-Gov G2 closed D-I3 BENIGN) | none |
-| 3 | TeamBox | PARTIAL | Wave 3A |
+| 3 | TeamBox | PARTIAL (Push-to-VIN UI stubbed Wave 3A; route-removal decision deferred to BL-001) | none (route-removal carried in backlog) |
 | 4 | Sales | PROVEN (Wave 1C + Wave 3F) | none |
 | 5 | Insights + Reports + Metrics | PROVEN (Wave 1C + Wave 3F) | none |
 | 6 | Marketing | BROKEN (visible) | Wave 3B + 3C |
@@ -64,7 +65,7 @@
 | 6 | 11-Gov | 11 | harness session-marker investigation + D-I3 console-error finding (read-only) | DONE |
 | 7 | **2A** | **7+10** | **Trigger 1 / Trigger 2 / service-campaign / webhook provider proof** | **IN PROGRESS** — direct outbound proof chunks (SMS + VAPI) merged 2026-05-07; remaining chunks: service-campaign + webhook + trigger-evaluator-driven proof (needs evaluator export approval + business-hours-mocked test rig per chunk-T1/blocker-finding.md) |
 | 8 | 2B | 8 | Widget chat / callback / form provider proof | DONE |
-| 9 | 3A | 3 | TeamBox Push-to-VIN button + route REMOVAL (UI scope marker required) | queued |
+| 9 | 3A | 3 | TeamBox Push-to-VIN UI STUB (re-scoped 2026-05-09: route REMOVAL deferred per operator) | DONE |
 | 10 | 3B | 6 | Marketing tab routing fix (UI scope marker) | queued |
 | 11 | 3C | 6 | Marketing Insights filter propagation (UI scope marker) | queued |
 | 12 | 9-Sec | 9 | Security triage — 5 original items (I-244, I-245, I-246, I-247, I-249) + 5 new auth items from I-Auth (D, E, G, H, I) | queued — opens with operator decision on v2.2 vs v2.3 placement |
@@ -136,6 +137,7 @@ Hard safety floors (separate from "consult" — these are STOPs, not approvals):
 
 ## Changelog
 
+- **2026-05-10 — Wave 3A shipped (re-scoped).** Operator pivoted from "TeamBox Push-to-VIN button + route REMOVAL" to **STUB only** (UI hidden via `PUSH_TO_VIN_UI_ENABLED` const guard, route handler preserved, comment block added, BL-001 backlog entry filed). All 3 chunks PASS, 4 verifiers AGREE/PASS/NO DRIFT/PASS. Two deltas: Playwright DOM check (0 buttons rendered, 0 strings) + git diff (3 source files, tsc clean, route handler byte-unchanged). `batch-1-finish-line` HEAD `f9cc9f8`. Live still on `becb739`.
 - **2026-05-09 — Wave 2B shipped.** Widget public-entry provider proof: T1 chat (Anthropic), T2 voice-callback (VAPI Elliott→Nancy allowlist), T3 contact form (storage-only). All 3 chunks PASS, 4 verifiers AGREE/PASS/NO DRIFT/PASS. Architectural finding (deferred): `conversations` table lacks provider call reference column; VAPI call_id persists only in HTTP response + dashboard. Phase 8 (Widget + Public Entry) now PROVEN. Live still on `becb739`. `batch-1-finish-line` HEAD `3b45d10`.
 - **2026-05-07 — six waves shipped, plan reconciled.** 1C, I-Auth, 3F (mechanical UI close + design-gate execution), 11-Gov (read-only investigation), 2A (SMS + VAPI direct outbound provider proof) all merged to `batch-1-finish-line`. Wave A/B/C sub-naming retired going forward (waves are canonical per roadmap; chunks decompose internally). Operator action items consolidated to 3 (TextMagic dashboard URL, Wave 11-Gov G1 cross-project fix, Wave 9-Sec triage). Live still on `becb739`; live deploy deferred to Wave 11A.
 - 2026-05-05 — Release reset. plan.md narrowed to active-execution contract; full v2.2 component map moved to roadmap.md. 8 product-logic deltas folded in.
