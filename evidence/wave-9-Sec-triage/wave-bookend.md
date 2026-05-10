@@ -105,4 +105,69 @@ Each chunk:
 
 After all 5 chunks land, wave-level 4-verifier gate (blind / scope-guardian / drift / integration-safety). Auth boundary touched → integration-safety mandatory.
 
-## Phase 3 (in progress) — implementation chunks
+## Phase 3 — implementation chunks (COMPLETE)
+
+| Chunk | Item | Commit | Test count | File targets |
+|---|---|---|---|---|
+| S1 | I-244 IDOR cross-tenant | `3a63022` | 11/11 | `server/vendorProxy.ts` + `server/lib/tenantScope.ts` (new) |
+| S2 | I-245 AI PATCH bypass | `94e9f70` | 9/9 | `server/routes/settings.ts` + `server/lib/aiSettingsGuard.ts` (new) |
+| S3 | AUTH-D + signup parity | `4985b03` | 14/14 | `server/routes/auth.ts` + `server/routes/users.ts` + `server/lib/emailNormalize.ts` (new) |
+| S5 | I-249 self-deactivate | `5a1b0c5` | 11/11 | `server/routes/users.ts` + `server/lib/selfModifyGuard.ts` (new) |
+| S4 | I-247 org slug | `a0a354e` | 7/7 | `server/routes/organizations.ts` (route-level omit, NOT shared/schema.ts) |
+| roleGuard sentinel | — | — | 14/14 | (regression check only) |
+| **Total** | | | **66/66** | |
+
+**Mid-wave revision (S4):** Original plan was `shared/schema.ts:519` edit. Schema-edit hook blocked the edit (governance-protected file). Operator-advocate orchestrator redirected to route-level `updateOrganizationSchema.omit({ slug: true })` at `server/routes/organizations.ts:366`. Same security outcome; `shared/schema.ts` byte-unchanged. Recorded in commit `a0a354e` message.
+
+## Phase 4 — qa-evaluator wave-end sweep (commit `1427ae1`)
+
+- 5/5 chunks PASS
+- Two deltas per chunk:
+  - Delta 1: independent test re-run (vitest)
+  - Delta 2: endpoint behavioral probe (S1/S2/S3 HIGH) or code-trace + curl probe (S4/S5 MEDIUM)
+- 22 evidence files + `post-fix-summary.md` under `evidence/wave-9-Sec-triage/post-fix/`
+- Build + pm2 reload performed (`# APPROVED:` markers, dev only); health-check OK at 2026-05-10T19:03:39Z
+- DB mutation hygiene: S2 timezone restored to baseline; S3 reset_token written to allowlisted `duane.wells@huminic.ai` (expires 60min); S4 row touched but slug unchanged; S1+S5 zero writes
+- Real-customer recipients: NONE (serra_honda email correctly skipped as not allowlisted; only allowlisted test_email used for S3 send-probe)
+
+## Phase 5 — 3-verifier gate at CLOSING (parallel SendMessage via team)
+
+| Verifier | Verdict | Notable |
+|---|---|---|
+| **code-reviewer** (blind) | **AGREE** | Cold-read against all 5 commits + helpers + tests + delta-2 evidence; 66 unit tests reconcile; no UI files (`grep ^client/` empty); `shared/schema.ts` byte-unchanged |
+| **scope-guardian** (scope + drift consolidated) | **PASS** | 9/9 process-discipline checks clean; 37 files all in declared scope; forbidden-paths grep empty; mid-wave S4 revision documented in commit message per criterion |
+| **integration-safety** (auth boundary) | **PASS** | All 5 boundaries verified; vin-safe-mcp / central-mcp / CommGate untouched; one Resend send to allowlisted recipient; one bonus finding filed as carry-forward |
+
+(qa-evaluator's 5/5 PASS is functionally the 4th convergent verdict at the gate.)
+
+## Carry-forward issues filed (per "no silent scope expansion" rule)
+
+- `I-NEW-2026-05-10-D-SELF-ROLE` (commit `fd5353d`) — sibling defect to I-249; self-role-change in same PATCH handler. Discovered by harness-backend during S5. Deferred to v2.3.
+- `I-NEW-2026-05-10-E-ADMINEMAIL-NORM` (commit `a2034da`) — AUTH-D parity gap; org-create path at `server/routes/organizations.ts:255` does NOT normalize `adminEmail`. Discovered by integration-safety during wave-end verification. Deferred to v2.3 (admin-only path; non-public regression vector).
+
+## Operator decisions honored
+
+| Decision | Source | Honored |
+|---|---|---|
+| Cross-tenant data leak (I-244) is non-negotiable v2.2 fix | operator 2026-05-10 ("We definitely do not want a chance of cross-tenant lead data happening") | ✅ S1 shipped |
+| AUTH-D operator-confirmed historical impact (2026-03-20) → v2.2 must-fix | orchestrator advocate + operator deferral on decisions | ✅ S3 shipped |
+| RBAC locked for v2.2 | orchestrator advocate + operator deferral | ✅ I-245 + I-247 shipped without RBAC schema changes |
+| 5 single-line backend fixes vs full 9-item v2.2 | orchestrator advocate compressed-path recommendation | ✅ AUTH-E/G/H/I correctly deferred to v2.3; I-246 dropped as already-fixed |
+| Team dispatch via SendMessage, not fresh Agent spawn | operator 2026-05-10 ("don't kill and recreate") | ✅ All 5 chunks + 4 verifications dispatched via SendMessage to persistent teammates |
+| No silent scope expansion (sibling defects FILED not added) | operator + orchestrator discipline | ✅ I-NEW-2026-05-10-D + I-NEW-2026-05-10-E filed, not added to Wave 9-Sec |
+
+## Posture at CLOSING
+
+- Branch HEAD: `a2034da` on `wave/9-sec/triage` (CLOSING commit will advance)
+- Provider sends this wave: 1 Resend (allowlisted test_email; S3 verification probe)
+- DB writes this wave: S2 timezone net-zero; S3 1 reset_token + 1 outbound_log row; S4 1 updated_at touch (slug unchanged); S1+S5 zero
+- Builds this wave: 1 (qa-evaluator pre-probe)
+- pm2 restarts this wave: 1 (dev only, post-build for probes)
+- Live deploys: 0
+
+---
+
+**Wave 9-Sec status: DONE.**
+
+5 HIGH/MEDIUM security defects closed for v2.2. 4 LOW/MEDIUM items deferred to v2.3. 1 item dropped (already fixed). 2 bonus defects discovered during the wave filed as carry-forward (deferred to v2.3). Phase 9 (Management + Settings — security) elevated from PARTIAL to PROVEN-FOR-V2.2-CRITICAL-PATHS.
+
