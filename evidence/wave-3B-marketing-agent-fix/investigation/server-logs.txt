@@ -1,0 +1,12 @@
+5:43:33 AM [express] POST /api/openai-proxy 401 in 0ms
+5:43:57 AM [express] POST /api/openai-proxy 401 in 491ms
+5:44:03 AM [express] POST /api/maps-proxy 503 in 264ms
+5:44:06 AM [express] POST /api/fal-proxy 200 in 595ms
+5:44:37 AM [express] POST /api/auth/refresh 401 in 175ms
+5:44:48 AM [express] GET /api/agents 304 in 349ms
+5:44:49 AM [express] GET /api/agents 200 in 389ms
+5:44:49 AM [express] GET /api/agents 200 in 418ms
+5:44:49 AM [express] GET /api/agents 200 in 746ms
+5:45:13 AM [express] POST /api/openai-proxy 401 in 514ms
+5:45:13 AM [express] POST /api/auth/refresh 200 in 527ms
+5:45:14 AM [express] POST /api/openai-proxy 401 in 330ms
