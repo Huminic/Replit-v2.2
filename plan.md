@@ -4,7 +4,7 @@
 
 **Hierarchy of work:** Roadmap → Phase → Wave → Chunk → Step. Waves are NOT sub-divided into A/B/C suffixes; each wave name in the roadmap below is canonical. Internal decomposition uses chunk numbers (S1, S2, T1, T2, G1, G2, etc.) inside the wave's bookend.
 
-**Active wave:** Wave 3B closed 2026-05-10. Wave 3C DEFERRED to v2.3 per operator 2026-05-10 (marketing data + reports decisions are pending; UI stays as-is). Next: Wave 9-Sec (security triage).
+**Active wave:** Wave 9-Sec closed 2026-05-10 (5/5 v2.2 critical-path fixes; 4 deferred to v2.3; 2 bonus defects filed). Next: Wave 11A (Final E2E + go/no-go).
 
 ---
 
@@ -26,6 +26,7 @@
 | **Wave 2B — Widget chat / callback / form provider proof** | `evidence/wave-2B-widget-provider-proof/wave-bookend.md` | merged 2026-05-09 (T1+T2+T3 PASS; video + inbound webhooks remain in deferred bucket per dev-env block) |
 | **Wave 3A — TeamBox Push-to-VIN UI STUB** (route REMOVAL deferred per operator pivot 2026-05-09) | `evidence/wave-3A-push-to-vin-stub/wave-bookend.md` | merged 2026-05-10 (S1+S2+S3 PASS; route handler byte-unchanged; backlog entry BL-001 filed) |
 | **Wave 3B — Marketing agent functionality fix** (re-scoped per operator 2026-05-10: NOT a UI/routing change; rotated OPENAI_API_KEY) | `evidence/wave-3B-marketing-agent-fix/wave-bookend.md` | merged 2026-05-10 (3 phases PASS; config-only fix; zero source-code changes; 2 carry-forward issues filed) |
+| **Wave 9-Sec — Security triage (5 v2.2 fixes)** | `evidence/wave-9-Sec-triage/wave-bookend.md` | merged 2026-05-10 (S1 I-244 IDOR / S2 I-245 AI PATCH / S3 AUTH-D / S4 I-247 slug / S5 I-249 self-deactivate; 66 unit tests; 5/5 endpoint probes PASS; 2 bonus defects deferred to v2.3) |
 
 ---
 
@@ -33,7 +34,7 @@
 
 | # | Phase | Status | Next wave |
 |---|---|---|---|
-| 1 | Core: Auth + RBAC | PARTIAL (5 new auth defects from I-Auth filed; v2.2 vs v2.3 split pending) | Wave 9-Sec |
+| 1 | Core: Auth + RBAC | PROVEN-FOR-V2.2-CRITICAL-PATHS (AUTH-D fixed in Wave 9-Sec; AUTH-E/G/H/I deferred to v2.3) | none |
 | 1 | Core: Sales-vs-service classification | PROVEN | none |
 | 1 | Core: CommGate / outbound | PROVEN (Wave 2A SMS proof confirms TestLane gate) | none |
 | 1 | Core: Provider safety posture | PROVEN | none |
@@ -48,7 +49,7 @@
 | 6 | Marketing | PARTIAL (Wave 3B fixed primary chat regression — `OPENAI_API_KEY` rotated; 2 carry-forward issues on Market Intel proxy filed `I-NEW-2026-05-10-A`/`B`) | Wave 3C |
 | 7 | Service | PARTIAL (Wave 2A in progress; service-campaign chunks remaining) | Wave 2A continuation |
 | 8 | Widget + Public Entry | PROVEN (Wave 2B chat/callback/form chunks shipped; video + inbound webhooks deferred to Wave 11A pending dev-env fix) | none |
-| 9 | Management + Settings | PARTIAL (5 original security items + 5 new auth from I-Auth) | Wave 9-Sec |
+| 9 | Management + Settings | PROVEN-FOR-V2.2-CRITICAL-PATHS (Wave 9-Sec closed 5 HIGH/MEDIUM; 4 LOW/MEDIUM deferred to v2.3 as AUTH-E/G/H/I; 2 bonus defects D-SELF-ROLE + E-ADMINEMAIL-NORM deferred) | none — v2.3 |
 | 10 | Background Workflows | PARTIAL (Wave 2A SMS+VAPI chunks done; webhook + trigger-evaluator-driven proofs remaining) | Wave 2A continuation |
 | 11 | Release Gov + Final E2E | PARTIAL (Wave 11-Gov closed) | Wave 11A |
 
@@ -69,7 +70,7 @@
 | 9 | 3A | 3 | TeamBox Push-to-VIN UI STUB (re-scoped 2026-05-09: route REMOVAL deferred per operator) | DONE |
 | 10 | 3B | 6 | Marketing agent functionality fix (re-scoped 2026-05-10: NOT UI/routing — config-only `OPENAI_API_KEY` rotation) | DONE |
 | 11 | 3C | 6 | Marketing Insights filter propagation | DEFERRED-V2.3 (operator 2026-05-10: data + reports decisions pending; UI stays as-is) |
-| 12 | 9-Sec | 9 | Security triage — 5 original items (I-244, I-245, I-246, I-247, I-249) + 5 new auth items from I-Auth (D, E, G, H, I) | queued — opens with operator decision on v2.2 vs v2.3 placement |
+| 12 | 9-Sec | 9 | Security triage — 5 original items (I-244, I-245, I-246, I-247, I-249) + 5 new auth items from I-Auth (D, E, G, H, I) | DONE 2026-05-10 (5 fixed for v2.2 critical paths; 4 deferred to v2.3; 1 dropped; 2 bonus defects filed) |
 | 13 | 11A | 11 | Final E2E + go/no-go (includes Phase-2 route matrix walk; preferably AFTER 11-Gov G1 fix lands AND TextMagic dashboard URL is corrected) | queued |
 | — | 3D | 3 | TeamBox channel filter add | OUT of v2.2 per locked D-H1 (BL-113 → v2.3) |
 
@@ -132,12 +133,13 @@ Hard safety floors (separate from "consult" — these are STOPs, not approvals):
 
 1. **TextMagic dashboard inbound callback URL** — change from `dev.huminicdev.com` to `live.huminic.app` per `evidence/wave-2A-trigger-provider-proof/sidethread-textmagic-webhook/finding.md`. Production-impact (silent SMS drops). 30-second fix in TextMagic dashboard UI.
 2. **Wave 11-Gov G1 cross-project fix** — apply Path B at `~/Claude-store/sysadmin/harness/lib/common.sh:56-58` + one-line cleanup in `session-start.sh`. Per `evidence/wave-11-gov-harness/chunk-G1/finding.md` §7 (test plan in §9).
-3. **Wave 9-Sec triage decision** — pick v2.2 vs v2.3 placement for 5 original security items + 5 new auth items from I-Auth.
+3. ~~Wave 9-Sec triage decision~~ — RESOLVED 2026-05-10 (Wave 9-Sec closed; 5 v2.2 fixes shipped, 4 deferred to v2.3, 1 dropped).
 
 ---
 
 ## Changelog
 
+- **2026-05-10 — Wave 9-Sec shipped.** Security triage + 5 v2.2-critical fixes: S1 I-244 IDOR cross-tenant lead-data leak (HIGH); S2 I-245 AI-prompt PATCH bypass (HIGH); S3 AUTH-D forgot-password email-case + signup parity (HIGH); S4 I-247 org slug route-level omit (MEDIUM, schema-edit hook redirected to route layer); S5 I-249 self-deactivation guard (MEDIUM). 4 verifier verdicts AGREE/PASS/PASS + qa-evaluator 5/5 PASS. 66 unit tests + endpoint probes. 4 items deferred to v2.3 (AUTH-E, AUTH-G, AUTH-H, AUTH-I). 1 dropped (I-246 already fixed). 2 bonus defects filed (I-NEW-2026-05-10-D-SELF-ROLE sibling to I-249; I-NEW-2026-05-10-E-ADMINEMAIL-NORM parity to AUTH-D). Persistent team `nexxus-v22-release-factory` used via SendMessage for all dispatches (no fresh Agent spawns). Phase 1 (Auth + RBAC) and Phase 9 (Management + Settings) elevated to PROVEN-FOR-V2.2-CRITICAL-PATHS. `batch-1-finish-line` HEAD `d6f7e4a`. Live still on `becb739`.
 - **2026-05-10 — Wave 3B shipped (re-scoped per operator).** Original plan title was "Marketing tab routing fix" (UI). Operator clarified mid-wave: marketing AGENT errors, NOT a UI/routing problem; the agent has a UI, it just needs to work. qa-evaluator drove Phase 1 investigation → root cause: `OPENAI_API_KEY` rejected by OpenAI as invalid (verbatim 401). Operator rotated key. Orchestrator atomic-replaced in dev `.env` (gitignored), `pm2 reload --update-env`. qa-evaluator Phase 3 re-run → 200 with valid `gpt-4o-mini-2024-07-18` chat.completion. 4 verifiers AGREE/PASS/NO DRIFT/PASS. Zero source-code changes. 2 carry-forward issues filed (`I-NEW-2026-05-10-A` Google Maps key, `I-NEW-2026-05-10-B` maps-proxy body shape). `batch-1-finish-line` HEAD `1b606d3`. Phase 6 (Marketing) elevated from BROKEN to PARTIAL.
 - **2026-05-10 — Wave 3A shipped (re-scoped).** Operator pivoted from "TeamBox Push-to-VIN button + route REMOVAL" to **STUB only** (UI hidden via `PUSH_TO_VIN_UI_ENABLED` const guard, route handler preserved, comment block added, BL-001 backlog entry filed). All 3 chunks PASS, 4 verifiers AGREE/PASS/NO DRIFT/PASS. Two deltas: Playwright DOM check (0 buttons rendered, 0 strings) + git diff (3 source files, tsc clean, route handler byte-unchanged). `batch-1-finish-line` HEAD `f9cc9f8`. Live still on `becb739`.
 - **2026-05-09 — Wave 2B shipped.** Widget public-entry provider proof: T1 chat (Anthropic), T2 voice-callback (VAPI Elliott→Nancy allowlist), T3 contact form (storage-only). All 3 chunks PASS, 4 verifiers AGREE/PASS/NO DRIFT/PASS. Architectural finding (deferred): `conversations` table lacks provider call reference column; VAPI call_id persists only in HTTP response + dashboard. Phase 8 (Widget + Public Entry) now PROVEN. Live still on `becb739`. `batch-1-finish-line` HEAD `3b45d10`.
