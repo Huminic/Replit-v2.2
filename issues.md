@@ -627,6 +627,17 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ---
 
+### I-NEW-2026-05-10-D-SELF-ROLE: Self-role-change in PATCH /api/users/:id (sibling of I-249)
+**Discovered:** Wave 9-Sec S5 implementation 2026-05-10 by harness-backend during I-249 self-deactivation fix.
+**Status:** OPEN — deferred to v2.3 (NOT in Wave 9-Sec scope per operator's "no silent scope expansion" rule).
+**Severity:** MEDIUM (mirrors I-249 — same handler, same self-mutation class).
+**Code:** `server/routes/users.ts:197-204` — PATCH /api/users/:id handler accepts `req.body.roleId` for the actor's own user record.
+**Behavior:** A super_admin can demote themselves to org_admin and lose escalation paths; an org_admin (level 3) is bounded by `canAssignRole` so can't escalate, but CAN demote themselves to a lower role and lose admin access. Same self-mutation class as I-249 (self-deactivation) which was fixed in Wave 9-Sec S5 (`5a1b0c5`).
+**Recommended fix shape:** extend `server/lib/selfModifyGuard.ts` with `isSelfRoleChangeAttempt(actor, params, body): boolean` and add a parallel guard at the same call site as the I-249 check, returning 400 with "Cannot change your own role. Ask another admin." (Or: bundle the two self-mutation guards into one `isSelfPrivilegeMutation` predicate covering both fields.)
+**Trace:** Wave 9-Sec S5 builder return message 2026-05-10; flagged but not fixed per orchestrator's scope discipline. See `evidence/wave-9-Sec-triage/wave-bookend.md` Phase 2 amendment for the original 5-chunk scope.
+
+---
+
 ### I-NEW-2026-05-10-A: Marketing Market Intel agent — `GOOGLE_MAPS_API_KEY` missing in dev env (silently masked by mock fallback)
 **Discovered:** Wave 3B Phase 1 investigation 2026-05-10 by qa-evaluator.
 **Status:** OPEN — non-blocking for v2.2 launch.
