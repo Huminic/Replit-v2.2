@@ -67,4 +67,42 @@ If Phase 3 runs (any v2.2 implementations), each implemented item adds its own t
 
 ---
 
-(Phase 2 amendment + CLOSING to follow.)
+## Phase 2 amendment (2026-05-10T18:33Z) — operator decisions locked
+
+Operator response to scope-guardian triage table (2026-05-10):
+
+> "I'll defer to you on those decisions, but to me it would seem like yes. We definitely do not want a chance of cross-tenant lead data happening."
+
+Operator-advocate posture honored: orchestrator selects per-row placements, with explicit operator approval of the I-244 cross-tenant question. Locked decisions:
+
+| ID | Decision | Severity |
+|---|---|---|
+| **I-244** IDOR cross-tenant lead data | **v2.2** | HIGH |
+| **I-245** AI system-prompt PATCH bypass | **v2.2** | HIGH |
+| **AUTH-D** forgot-password email-case mismatch | **v2.2** | HIGH |
+| **I-247** org slug writable via API | **v2.2** | MEDIUM (cheap insurance) |
+| **I-249** self-deactivation lockout | **v2.2** | MEDIUM (cheap insurance) |
+| AUTH-E login_success audit log | v2.3 | LOW |
+| AUTH-G UI countdown 15/60 mismatch | v2.3 | LOW (UI file) |
+| AUTH-H change-password session invalidation | v2.3 | MEDIUM |
+| AUTH-I refresh route rate-limit | v2.3 | MEDIUM |
+| I-246 role dropdown | **drop** — already fixed | — |
+
+**5 chunks queued for Phase 3 (severity-ordered, sequential dispatch via SendMessage to `harness-backend`):**
+
+| Chunk | Item | File:line | Fix shape |
+|---|---|---|---|
+| S1 | I-244 | `server/vendorProxy.ts:555` | role-check guard: if `roleLevel > 2`, force `req.user.organizationId` instead of `req.query.orgId` |
+| S2 | I-245 | `server/routes/settings.ts:17-25` | raise `requireRole(3) → requireRole(2)` OR field-allowlist on the body merge |
+| S3 | AUTH-D | `server/routes/auth.ts:353` | `.toLowerCase()` on the email before lookup |
+| S4 | I-247 | `shared/schema.ts:519` | omit `slug` from `updateOrganizationSchema` |
+| S5 | I-249 | `server/routes/users.ts:175-211` | guard: forbid `req.user.id === req.params.id` self-deactivate |
+
+Each chunk:
+- harness-backend implements fix + regression test
+- qa-evaluator verifies pre-fix vulnerability AND post-fix block (two deltas per chunk)
+- All commits land on `wave/9-sec/triage`
+
+After all 5 chunks land, wave-level 4-verifier gate (blind / scope-guardian / drift / integration-safety). Auth boundary touched → integration-safety mandatory.
+
+## Phase 3 (in progress) — implementation chunks
