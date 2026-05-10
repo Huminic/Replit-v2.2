@@ -4,7 +4,7 @@
 
 **Hierarchy of work:** Roadmap → Phase → Wave → Chunk → Step. Waves are NOT sub-divided into A/B/C suffixes; each wave name in the roadmap below is canonical. Internal decomposition uses chunk numbers (S1, S2, T1, T2, G1, G2, etc.) inside the wave's bookend.
 
-**Active wave:** Wave 3B closed 2026-05-10 (re-scoped per operator: marketing AGENT functionality fix, NOT routing/UI; root cause was rotated `OPENAI_API_KEY`). Next: Wave 3C (Marketing Insights filter propagation).
+**Active wave:** Wave 3B closed 2026-05-10. Wave 3C DEFERRED to v2.3 per operator 2026-05-10 (marketing data + reports decisions are pending; UI stays as-is). Next: Wave 9-Sec (security triage).
 
 ---
 
@@ -68,7 +68,7 @@
 | 8 | 2B | 8 | Widget chat / callback / form provider proof | DONE |
 | 9 | 3A | 3 | TeamBox Push-to-VIN UI STUB (re-scoped 2026-05-09: route REMOVAL deferred per operator) | DONE |
 | 10 | 3B | 6 | Marketing agent functionality fix (re-scoped 2026-05-10: NOT UI/routing — config-only `OPENAI_API_KEY` rotation) | DONE |
-| 11 | 3C | 6 | Marketing Insights filter propagation (UI scope marker) | queued |
+| 11 | 3C | 6 | Marketing Insights filter propagation | DEFERRED-V2.3 (operator 2026-05-10: data + reports decisions pending; UI stays as-is) |
 | 12 | 9-Sec | 9 | Security triage — 5 original items (I-244, I-245, I-246, I-247, I-249) + 5 new auth items from I-Auth (D, E, G, H, I) | queued — opens with operator decision on v2.2 vs v2.3 placement |
 | 13 | 11A | 11 | Final E2E + go/no-go (includes Phase-2 route matrix walk; preferably AFTER 11-Gov G1 fix lands AND TextMagic dashboard URL is corrected) | queued |
 | — | 3D | 3 | TeamBox channel filter add | OUT of v2.2 per locked D-H1 (BL-113 → v2.3) |

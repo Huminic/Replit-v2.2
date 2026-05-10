@@ -239,3 +239,28 @@ Wave 11A go/no-go does NOT block on this entry — UI is already hidden.
 
 **References:** Wave 3A bookend at `evidence/wave-3A-push-to-vin-stub/`,
 issues.md EDR-04 and EDR-11.
+
+---
+
+### BL-002 — Marketing Insights data + reports decisions (Wave 3C deferred 2026-05-10)
+
+**Status:** Deferred from v2.2 launch (Wave 3C did NOT execute; Marketing Insights UI left as-is)
+
+**Objective:** Operator-led decision on what data + reports go into the Marketing Insights tab once operator-supplied marketing data is connected. Then implement the chosen reports.
+
+**Context:** Wave 3C plan title was "Marketing Insights filter propagation" (UI). Initial scout proposed a one-line org-context-propagation fix (`insights.tsx:136`) for an "all orgs data instead of own org" predicted symptom. Operator redirected 2026-05-10:
+> "Marketing insights can be stubbed when we're done with this and I'm way behind. I have marketing data to give you to run some reports and we're going to make some decisions about what goes into marketing insights. So you can leave the marketing insights as is, but we're gonna get some connections to data and reports to put in. I don't want to deal with that right now, though. I was more concerned about the agents."
+
+Marketing AGENT functionality was the actual concern for v2.2 — fixed in Wave 3B (`OPENAI_API_KEY` rotation). Marketing INSIGHTS data work is a separate v2.3 item.
+
+**Done looks like:**
+1. Operator provides marketing data sources (CSV / API / DB).
+2. Operator + orchestrator iterate on which reports + tiles go into Marketing Insights (informed by the data).
+3. Implementation wave delivers the chosen reports + filter propagation, with two-deltas-of-proof.
+4. Optionally: stub the Marketing → Insights tab UI before launch if it's confusing as-is (Push-to-VIN-style const guard pattern).
+
+**Scope (when un-deferred):** `client/src/pages/insights.tsx` (embedded mode org-context init at line 136 — the originally-scouted fix is still valid as a sub-step), `client/src/pages/marketing.tsx` (where InsightsPage is embedded at line 219-220), and any new server routes for the operator-supplied data sources.
+
+**Constraints:** UI changes require operator approval (per the 3-category rule — UI). Any new data ingestion must respect CommGate + test-lane envelope. Schema changes deferred per BL-107.
+
+**References:** Wave 3C scout report (in-conversation, not committed), issues.md (no Marketing-Insights-specific entries).
