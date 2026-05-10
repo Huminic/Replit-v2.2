@@ -1,0 +1,23 @@
+{
+  "captured_at_utc": "2026-05-10T17:16Z",
+  "session": "Phase 3 post-fix re-verification",
+  "user": "serra_honda@huminic.ai",
+  "page_path": "/marketing -> Agents tab -> Copywriter",
+  "phase_1_baseline": {
+    "endpoint": "POST /api/openai-proxy",
+    "status": 401,
+    "body": "{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided: sk-proj-...OxMA\"}"
+  },
+  "phase_3_observed": {
+    "endpoint": "POST /api/openai-proxy",
+    "status": 200,
+    "evidence_source": "playwright network log line 25 in network-all-raw.json",
+    "raw_line": "[POST] http://localhost:5000/api/openai-proxy => [200] OK"
+  },
+  "supporting_calls": [
+    {"line": 3, "call": "GET /api/agents -> 200"},
+    {"line": 13, "call": "GET /api/agents?department=marketing -> 200"},
+    {"line": 22, "call": "GET /api/conversations/.../messages -> 200"}
+  ],
+  "delta": "401 (FAIL) -> 200 (PASS) on the same endpoint, same login, same UI path"
+}

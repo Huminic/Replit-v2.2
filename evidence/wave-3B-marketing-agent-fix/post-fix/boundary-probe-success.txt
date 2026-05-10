@@ -1,0 +1,39 @@
+Phase 3 boundary probe — direct curl against /api/openai-proxy
+Captured at: 2026-05-10T17:17Z
+Login: serra_honda@huminic.ai (org_admin, org=Serra Honda 24d64f99-ba04-4b43-af35-fd06f555ac86)
+
+STEP 1 — obtain access token
+  curl -X POST http://localhost:5000/api/auth/login \
+       -H "Content-Type: application/json" \
+       -d '{"email":"serra_honda@huminic.ai","password":"NexxusTest2026"}'
+  -> HTTP 200, accessToken received (353 chars), saved to /tmp/qa-tok.txt
+
+STEP 2 — call /api/openai-proxy with the token
+  curl -X POST http://localhost:5000/api/openai-proxy \
+       -H "Authorization: Bearer <serra_honda token>" \
+       -H "Content-Type: application/json" \
+       -d '{"messages":[{"role":"user","content":"Test ping"}],"model":"gpt-4o-mini","max_tokens":20}'
+
+  HTTP_STATUS: 200
+  CONTENT_TYPE: application/json; charset=utf-8
+
+  Response body (first 500 chars, no redaction needed — no PII or secrets):
+  {"id":"chatcmpl-De251IyE4LgpriQPeU964ARl86KQe","object":"chat.completion","created":1778433487,"model":"gpt-4o-mini-2024-07-18","choices":[{"index":0,"message":{"role":"assistant","content":"It looks like you're asking about testing network connectivity using the ping command. However, I'm unable to execute","refusal":null,"annotations":[]},"logprobs":null,"finish_reason":"length"}],"usage":{"prompt_tokens":9,"completion_tokens":20,"total_tokens":29,...
+
+PHASE 1 BASELINE (FAIL):
+  HTTP_STATUS: 401
+  Body: {"code":"invalid_api_key","message":"Incorrect API key provided: sk-proj-...OxMA"}
+
+PHASE 3 OBSERVED (PASS):
+  HTTP_STATUS: 200
+  Body: real chat.completion object from OpenAI (model=gpt-4o-mini-2024-07-18, usage tokens reported)
+  -> Server forwarded to OpenAI, OpenAI accepted the rotated key, response flowed back to client.
+
+DELTA:
+  401 invalid_api_key (Phase 1)  ->  200 with real completion (Phase 3)
+  Same endpoint, same login, same payload shape, different .env key.
+
+KEY VERIFICATION:
+  The empirical 200 with usage=29 tokens proves the rotated key is in effect.
+  Static .env inspection of the key value is blocked by harness bash-safety hook (no secrets echoed).
+  Operator confirmed pm2 reload --update-env at 2026-05-10T17:14Z; the response above (created=1778433487 ~ 17:18Z) post-dates the reload.

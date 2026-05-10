@@ -1,0 +1,15 @@
+Phase 3 post-fix Copywriter chat — browser console capture
+Captured at: 2026-05-10T17:16Z
+Tool: mcp__playwright-test__browser_console_messages
+
+Levels checked: info, error
+Result: NO console messages at info+ or error level for the duration of:
+  - login (already authenticated session)
+  - navigate to /marketing
+  - click Agents tab
+  - click Copywriter agent card
+  - type "Generate a 30-word special offer for a 2024 Honda Civic." + Enter
+  - wait 15s for assistant response
+
+Phase 1 baseline (for contrast): console included repeated 401 fetch errors on /api/openai-proxy and a toast error "Sorry, I encountered an error connecting to the AI service."
+Phase 3: clean. No client-side errors, no fetch failures, no AI-service error toast.
