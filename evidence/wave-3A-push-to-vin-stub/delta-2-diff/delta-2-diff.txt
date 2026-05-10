@@ -1,0 +1,171 @@
+## git diff stat (592f3b5..HEAD)
+ backlog.md                     | 30 ++++++++++++++++++++++++++++++
+ client/src/pages/teambox.tsx   | 41 +++++++++++++++++++++++++----------------
+ server/routes/conversations.ts |  7 +++++++
+ 3 files changed, 62 insertions(+), 16 deletions(-)
+
+## git diff (full content)
+diff --git a/backlog.md b/backlog.md
+index 52d0690..5e9a007 100644
+--- a/backlog.md
++++ b/backlog.md
+@@ -209,3 +209,33 @@ Per standards at `~/Claude-store/sysadmin/governance-framework/file-standards.md
+ - **Scope:** A dashboard-builder UI for choosing tiles/charts/metrics from a curated library; a report-builder UI for composing an email layout from those same templates plus narrative blocks; per-customer scheduling (interval, timezone, recipient list, quiet hours); reuse of existing weekly-report and daily-recap email infrastructure (`server/services/weeklyReportService.ts`, `server/services/dailyRecapService.ts`, `server/services/notificationService.ts`); per-tenant persistence of dashboard + report definitions; preview-and-test-send flow through the existing test-lane envelope; admin gate so only operator + org_admin can edit; CommGate enforcement; HALT checks parity with weekly-report safety pattern.
+ - **Done looks like:** An org_admin can build a dashboard from a tile library, save it, build a recurring email report that reuses any subset of those tiles, set a cadence (e.g., "every Monday 8am ET") and recipients, send a test through the test-lane, and have the report fire on schedule. Reports respect CommGate + per-store flags. All sends are recorded with HALT-check parity. A customer can change cadence, recipients, and content without engineering involvement.
+ - **Constraints:** Do NOT bypass CommGate or test-lane envelope. Do NOT introduce a parallel scheduler — reuse the existing 60s/5min ticks. Templates must be a curated library, not freeform LLM-generated layouts. Recipient resolution must obey the same per-org / per-role boundaries as the existing weekly-report (no cross-org bleed). The data layer should NOT be a per-tile bespoke query — define a small set of typed query primitives (e.g., warehouse_leads aggregated, conversation counts, appointment counts) that tiles consume. Any metric exposed to this builder must already be REAL or PARTIAL grade per the dashboard-honesty audit (`evidence/stabilization-sprint-2026-04-30/lane-7-metrics.md`); MOCKED/STALE metrics are not eligible until they're fixed. UI introduction is significant — requires explicit operator approval before any code starts and must follow harness `harness-frontend` per-file scope markers.
++
++## Deferred Items (carry-over)
++
++### BL-001 — Push-to-VIN UI deferred (Wave 3A 2026-05-09)
++
++**Status:** Deferred from v2.2 launch (UI stubbed; route preserved)
++
++**Objective:** Decide whether to remove or re-enable the Push-to-VIN feature
++in TeamBox.
++
++**Context:** Wave 3A originally planned to remove both the UI button AND the
++route. Operator pivoted 2026-05-09 to UI-stub only ("reduce blast radius and
++allow me to think it through before we remove the route"). UI is hidden via
++const guard `PUSH_TO_VIN_UI_ENABLED` in `client/src/pages/teambox.tsx`. Backend
++route `POST /api/conversations/:id/push-to-vin` and its vin-safe-mcp call chain
++remain alive but unreachable from the UI.
++
++**Done looks like:** Operator decision recorded in decisions.md, then EITHER
++(a) flip flag to true and ensure E2E provider proof, OR (b) delete the route
++handler + mutation hook + dialog + flag together in a single Wave.
++
++**Scope (when un-deferred):** `client/src/pages/teambox.tsx`,
++`server/routes/conversations.ts:280-381`. No new files. May include
++issues.md EDR-04 and EDR-11 cleanup.
++
++**Constraints:** vin-safe-mcp boundary applies if route is exercised live.
++Wave 11A go/no-go does NOT block on this entry — UI is already hidden.
++
++**References:** Wave 3A bookend at `evidence/wave-3A-push-to-vin-stub/`,
++issues.md EDR-04 and EDR-11.
+diff --git a/client/src/pages/teambox.tsx b/client/src/pages/teambox.tsx
+index d53f2c4..e68c385 100644
+--- a/client/src/pages/teambox.tsx
++++ b/client/src/pages/teambox.tsx
+@@ -84,6 +84,13 @@ const channelFilters: { id: ConversationChannel | 'all'; label: string }[] = [
+   { id: 'voice', label: 'Voice' },
+ ];
+ 
++// ⚠️ BACKLOGGED 2026-05-09 — Push-to-VIN UI surface stubbed pending operator
++// decision on route removal. The route POST /api/conversations/:id/push-to-vin
++// and the mutation hook below remain alive (zero blast radius). Setting this
++// flag back to true is the only change required to re-enable the UI.
++// See: backlog.md "Push-to-VIN UI deferred" entry.
++const PUSH_TO_VIN_UI_ENABLED = false;
++
+ 
+ function getAgentName(agentId: string | null, agents: { id: string; name: string }[]): string | undefined {
+   if (!agentId) return undefined;
+@@ -269,7 +276,7 @@ export default function TeamboxPage() {
+       setVinConfirmOpen(false);
+     },
+     onError: (err: any) => {
+-      toast({ title: 'Push to VIN failed', description: err?.message || 'An error occurred.', variant: 'destructive' });
++      toast({ title: 'Push to VIN unavailable', description: err?.message || 'Push to VIN currently unavailable', variant: 'destructive' });
+       setVinConfirmOpen(false);
+     },
+   });
+@@ -775,21 +782,23 @@ export default function TeamboxPage() {
+                     {selectedConversation.campaignDisconnected ? 'Disconnected' : 'Disconnect Campaign'}
+                   </Button>
+                 )}
+-                <Button
+-                  variant="outline"
+-                  size="sm"
+-                  className="h-7 text-xs gap-1"
+-                  onClick={() => setVinConfirmOpen(true)}
+-                  disabled={pushToVinMutation.isPending}
+-                  data-testid="button-push-to-vin"
+-                >
+-                  {pushToVinMutation.isPending ? (
+-                    <Loader2 className="h-3 w-3 animate-spin" />
+-                  ) : (
+-                    <UserCheck className="h-3 w-3" />
+-                  )}
+-                  Push to VIN
+-                </Button>
++                {PUSH_TO_VIN_UI_ENABLED && (
++                  <Button
++                    variant="outline"
++                    size="sm"
++                    className="h-7 text-xs gap-1"
++                    onClick={() => setVinConfirmOpen(true)}
++                    disabled={pushToVinMutation.isPending}
++                    data-testid="button-push-to-vin"
++                  >
++                    {pushToVinMutation.isPending ? (
++                      <Loader2 className="h-3 w-3 animate-spin" />
++                    ) : (
++                      <UserCheck className="h-3 w-3" />
++                    )}
++                    Push to VIN
++                  </Button>
++                )}
+               </div>
+             </div>
+ 
+diff --git a/server/routes/conversations.ts b/server/routes/conversations.ts
+index 20a86b7..2d37200 100644
+--- a/server/routes/conversations.ts
++++ b/server/routes/conversations.ts
+@@ -278,6 +278,13 @@ export function registerConversationRoutes(app: Express) {
+   });
+ 
+   // POST /api/conversations/:id/push-to-vin — push TeamBox conversation as VIN Solutions lead
++  // ⚠️ BACKLOGGED 2026-05-09 (Wave 3A) — Push-to-VIN UI is stubbed in
++  // client/src/pages/teambox.tsx via PUSH_TO_VIN_UI_ENABLED flag. The button is
++  // hidden from users while the operator evaluates whether to remove this route.
++  // This handler is intentionally LEFT ALIVE so re-enabling is a one-line UI change.
++  // See: backlog.md "Push-to-VIN UI deferred" entry; issues.md EDR-04, EDR-11.
++  // Do not remove this route or its vin-safe-mcp prepare→execute calls without
++  // operator authorization.
+   app.post("/api/conversations/:id/push-to-vin", authenticateToken, async (req, res) => {
+     try {
+       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
+## grep — Push-to-VIN strings in client/src/pages/teambox.tsx
+88:// decision on route removal. The route POST /api/conversations/:id/push-to-vin
+92:const PUSH_TO_VIN_UI_ENABLED = false;
+269:  const pushToVinMutation = useMutation({
+271:      const res = await apiRequest('POST', `/api/conversations/${conversationId}/push-to-vin`, {});
+279:      toast({ title: 'Push to VIN unavailable', description: err?.message || 'Push to VIN currently unavailable', variant: 'destructive' });
+785:                {PUSH_TO_VIN_UI_ENABLED && (
+791:                    disabled={pushToVinMutation.isPending}
+792:                    data-testid="button-push-to-vin"
+794:                    {pushToVinMutation.isPending ? (
+799:                    Push to VIN
+988:            <DialogTitle>Push to VIN Solutions</DialogTitle>
+994:            <Button variant="outline" size="sm" onClick={() => setVinConfirmOpen(false)} disabled={pushToVinMutation.isPending}>
+999:              onClick={() => selectedConversationId && pushToVinMutation.mutate(selectedConversationId)}
+1000:              disabled={pushToVinMutation.isPending}
+1003:              {pushToVinMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+
+## grep — server route file (verify byte-unchanged except comment)
+280:  // POST /api/conversations/:id/push-to-vin — push TeamBox conversation as VIN Solutions lead
+281:  // ⚠️ BACKLOGGED 2026-05-09 (Wave 3A) — Push-to-VIN UI is stubbed in
+288:  app.post("/api/conversations/:id/push-to-vin", authenticateToken, async (req, res) => {
+
+## grep — backlog.md Push-to-VIN entry
+215:### BL-001 — Push-to-VIN UI deferred (Wave 3A 2026-05-09)
+216-
+217-**Status:** Deferred from v2.2 launch (UI stubbed; route preserved)
+218-
+219:**Objective:** Decide whether to remove or re-enable the Push-to-VIN feature
+220-in TeamBox.
+221-
+222-**Context:** Wave 3A originally planned to remove both the UI button AND the
+223-route. Operator pivoted 2026-05-09 to UI-stub only ("reduce blast radius and
+224-allow me to think it through before we remove the route"). UI is hidden via
+
+## TS check
+---tsc-exit-status:0
+
+## Byte-unchanged invariant (from builder reports)
+- server/routes/conversations.ts: handler body lines 281-381 (now 288-388 after +7 comment lines) byte-identical to pre-edit
+- client/src/pages/teambox.tsx dialog (orig 979-998, now 985-1008) byte-unchanged
+- client/src/pages/teambox.tsx mutation hook (orig 262-275, now 269-282) byte-unchanged except toast string at line 279
