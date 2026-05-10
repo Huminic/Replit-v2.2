@@ -363,7 +363,13 @@ export function registerOrganizationRoutes(app: Express) {
       if (req.params.id !== req.user.organizationId && req.user.roleLevel > 2) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const parsed = updateOrganizationSchema.safeParse(req.body);
+      // I-247 (Wave 9-Sec): slug renames must go through the dedicated
+      // PATCH /api/organizations/:id/slug endpoint below (uniqueness check +
+      // audit log). Strip slug from the generic update payload so an
+      // org_admin cannot silently break widget embeds / landing pages by
+      // PATCHing slug through this route.
+      const updateSchemaNoSlug = updateOrganizationSchema.omit({ slug: true });
+      const parsed = updateSchemaNoSlug.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid organization data", errors: parsed.error.flatten() });
       }
