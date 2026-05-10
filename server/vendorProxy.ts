@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { authenticateToken } from "./auth";
+import { resolveEffectiveOrgId } from "./lib/tenantScope";
 import https from "https";
 import { z } from "zod";
 
@@ -552,7 +553,14 @@ export function registerVendorRoutes(app: Express) {
   app.get("/api/vin/leads/summary", authenticateToken, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const orgId = (req.query.orgId as string) || req.user.organizationId;
+      // I-244: only roleLevel <= 2 (super_admin / partner_admin) may use a
+      // caller-supplied ?orgId override. For roleLevel > 2 the override is
+      // ignored and the user's own organizationId is enforced.
+      const orgId = resolveEffectiveOrgId(
+        req.user.roleLevel,
+        req.query.orgId as string | undefined,
+        req.user.organizationId,
+      );
       const nexxusOrgId = resolveNexxusOrgId(orgId);
 
       const { storage: storageModule } = await import("./storage");
