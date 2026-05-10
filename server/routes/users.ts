@@ -9,6 +9,7 @@ import { storage } from "../storage";
 import { updateUserProfileSchema } from "@shared/schema";
 import { canAssignRole } from "../lib/roleGuard";
 import { normalizeEmailForLookup } from "../lib/emailNormalize";
+import { isSelfDeactivationAttempt } from "../lib/selfModifyGuard";
 
 const upload = multer({
   storage: multer.diskStorage({ destination: os.tmpdir() }),
@@ -189,6 +190,14 @@ export function registerUserRoutes(app: Express) {
       const targetRole = await storage.getRole(targetUser.roleId);
       if (targetRole && !canAssignRole(req.user.roleLevel, targetRole.level)) {
         return res.status(403).json({ message: "Cannot modify a user with higher privileges than your own" });
+      }
+
+      // I-249 (Wave 9-Sec): forbid self-deactivation — only another admin
+      // can deactivate you. Prevents launch-week lockouts from a misclick.
+      if (isSelfDeactivationAttempt(req.user, req.params, req.body || {})) {
+        return res.status(400).json({
+          message: "Cannot deactivate yourself. Ask another admin to deactivate this account.",
+        });
       }
 
       const allowedFields: Record<string, any> = {};
