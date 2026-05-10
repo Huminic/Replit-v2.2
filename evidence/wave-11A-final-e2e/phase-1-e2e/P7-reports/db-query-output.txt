@@ -1,0 +1,16 @@
+P7 — Reports + Outbound (read-only inspection)
+Captured at: 2026-05-10T19:30Z (during Phase 1 sweep)
+
+Query: SELECT count + recent rows from outbound_log WHERE created_at > NOW() - INTERVAL '30 minutes'
+Outbound sends in last 30 min: 0
+Recent rows: (none)
+
+Query: SELECT recent rows from conversations WHERE created_at > NOW() - INTERVAL '30 minutes'
+Conversations in last 30 min: 2
+ - 2026-05-10T19:27:12.472Z form [TESTLANE] Wave 11A Operator | duane.wells@huminic.ai | +14126546500
+ - 2026-05-10T19:26:36.374Z chat Website Visitor | null | null
+
+Verdict: CLEAN — Phase 1 produced 0 provider sends; 2 conversations created (P5 widget probes, both TESTLANE-tagged or anonymous Website Visitor, recipients allowlisted).
+
+Daily-recap email scheduler: NOT triggered during Phase 1 (per protocol — read-only inspection only; triggering recap could fire real outbound to all admins).
+

@@ -1,0 +1,27 @@
+S1 (I-244 IDOR cross-tenant, vendorProxy)
+  GET /api/vin/leads/summary?orgId=<serra-nissan> with serra-honda token
+  status 200; response identical to own-org call (orgId param ignored at server)
+  Verdict: PASS
+
+S2 (I-245 AI-prompt PATCH bypass)
+  PATCH /api/settings/org with {systemPrompt, chatInstructions, aiModel} as org_admin (roleLevel=3)
+  status 200 (idempotent), all three fields stripped before merge — none persisted
+  Note: 'aiInstructions' is INTENTIONALLY not gated (per server/lib/aiSettingsGuard.ts comment); only aiModel/systemPrompt/chatInstructions are
+  Verdict: PASS
+
+S3 (AUTH-D forgot-password mixed case)
+  POST /api/auth/forgot-password with {email: "Duane.Wells@Huminic.ai"}
+  status 200 (privacy-safe response)
+  pm2 log: "[AUTH] Password reset email sent to duane.wells@huminic.ai"
+  → email lowercased + lookup found user; Resend send fired to lowercased recipient
+  Verdict: PASS
+
+S4 (I-247 org slug schema)
+  PATCH /api/organizations/<sh-org-id> with {slug: "EVIL_S4_2026"}
+  status 200; follow-up GET → slug remains "serra-honda" (route-level omit)
+  Verdict: PASS
+
+S5 (I-249 self-deactivation)
+  PATCH /api/users/<self-id> with {isActive: false}
+  status 400, body: {"message":"Cannot deactivate yourself. Ask another admin to deactivate this account."}
+  Verdict: PASS

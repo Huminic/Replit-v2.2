@@ -1,0 +1,4 @@
+[GET] https://live.huminic.app/api/public/landing/serra-honda => [200] 
+[POST] https://live.huminic.app/api/widget/chat => [200] 
+[GET] https://live.huminic.app/api/public/landing/serra-honda => [200] 
+[POST] https://live.huminic.app/api/widget/contact => [200] 

@@ -1,0 +1,22 @@
+P9 — TestLane envelope final check
+Captured at: 2026-05-10T19:32Z
+
+All 7 orgs outbound flags (DB):
+  cage-automotive        persona=Cage        ob=true sms=true phn=true eml=true
+  ford-of-columbia       persona=Savannah    ob=true sms=true phn=true eml=true
+  huminic                persona=Admin       ob=true sms=true phn=true eml=true
+  hyundai-of-columbia    persona=Elizabeth   ob=true sms=true phn=true eml=true
+  serra-honda            persona=Caroline    ob=true sms=true phn=true eml=true
+  serra-nissan           persona=Magnolia    ob=true sms=true phn=true eml=true
+  tony-serra-ford        persona=Georgia     ob=true sms=true phn=true eml=true
+
+Queued/pending outbound (last 60 min): 0
+Total outbound (any status, last 60 min): 0
+
+Env state (per test-safety-check.sh report at session start, 19:20:50Z):
+  dev .env: NODE_ENV=development, OUTBOUND_LIVE_ENABLED=true, ADF_MODE=live, ADF_TEST_EMAIL=duane.wells@huminic.ai
+  live container: NODE_ENV=production, OUTBOUND_LIVE_ENABLED=true (verified)
+  Caddy: live.huminic.app -> localhost:5001 (Coolify container)
+
+Verdict: PASS — outbound flags match expected, 0 unauthorized sends queued or fired during Phase 1.
+
