@@ -627,6 +627,18 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ---
 
+### I-NEW-2026-05-10-E-ADMINEMAIL-NORM: Org-create path `adminEmail` not normalized (AUTH-D parity gap)
+**Discovered:** Wave 9-Sec wave-end verification 2026-05-10 by integration-safety.
+**Status:** OPEN — deferred to v2.3 (NOT in Wave 9-Sec scope; non-blocking gap, admin-only path, not a public regression vector).
+**Severity:** LOW (admin-only call site; only super_admin/partner_admin create orgs).
+**Code:** `server/routes/organizations.ts:255` — org-create path does NOT call `normalizeEmailForLookup` on the inbound `adminEmail` field.
+**Behavior:** Wave 9-Sec S3 normalized email at forgot-password, signup, and invite paths. The org-create path that provisions an org's initial admin email was missed. If an org is created with `adminEmail: "Caroline@Serra-Honda.com"`, the resulting admin user could have a mixed-case email row that subsequent lookups (login, forgot-password) miss. Same root cause as AUTH-D; same fix shape (one call to `normalizeEmailForLookup`).
+**Recommended fix shape:** `const adminEmail = normalizeEmailForLookup(req.body?.adminEmail);` before user creation at `organizations.ts:255` area. One-line + test.
+**Why deferred:** admin-only path (super_admin or partner_admin invokes org creation); not a public regression vector during launch week; symptom only surfaces if an admin types mixed-case during initial org provisioning AND the resulting user later forgets their password. v2.3 batch with the other AUTH-G/H/I polish.
+**Trace:** integration-safety wave-end verification verdict 2026-05-10; flagged via grep audit of `normalizeEmailForLookup` consumers.
+
+---
+
 ### I-NEW-2026-05-10-D-SELF-ROLE: Self-role-change in PATCH /api/users/:id (sibling of I-249)
 **Discovered:** Wave 9-Sec S5 implementation 2026-05-10 by harness-backend during I-249 self-deactivation fix.
 **Status:** OPEN — deferred to v2.3 (NOT in Wave 9-Sec scope per operator's "no silent scope expansion" rule).
