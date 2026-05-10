@@ -85,4 +85,58 @@ Operator-authorized in chat 2026-05-09. Markers will be issued one-shot before e
 
 ---
 
-(CLOSING to follow after S1+S2+S3 + 4 verifier verdicts.)
+## CLOSING (2026-05-10T05:25Z)
+
+### Chunk results
+
+| Chunk | Verdict | Commit | Files |
+|---|---|---|---|
+| **S1 — UI stub** | PASS | `42cef31` | `client/src/pages/teambox.tsx` (+25/-16, net +9) — const guard `PUSH_TO_VIN_UI_ENABLED = false` at line 92, button wrapped at line 785, toast wording softened at line 279 |
+| **S2 — Backend BACKLOGGED comment** | PASS | `67140e5` | `server/routes/conversations.ts` (+7/-0) — 7-line comment block above the route handler at line 281; handler body byte-identical (zero deletions) |
+| **S3 — Backlog entry** | PASS | `67140e5` | `backlog.md` (+30/-0) — `BL-001 — Push-to-VIN UI deferred (Wave 3A 2026-05-09)` in new `## Deferred Items (carry-over)` section at line 213 |
+
+TS check: `npx tsc --noEmit` exit 0. No new compile errors.
+
+### Two deltas of proof
+
+| Delta | What | Result |
+|---|---|---|
+| **Delta 1** (Playwright UI) | `evidence/wave-3A-push-to-vin-stub/delta-1-playwright/` | PASS — full-page screenshot of TeamBox post-build/reload as `serra_honda@huminic.ai`; programmatic DOM check returned `0` `[data-testid="button-push-to-vin"]` rendered, `0` strings matching Push-to-VIN/PUSH_TO_VIN/etc. across 72 total buttons; Quick Actions = Call/Email/SMS only |
+| **Delta 2** (code diff + grep + tsc) | `evidence/wave-3A-push-to-vin-stub/delta-2-diff/` | PASS — git diff `592f3b5..HEAD` shows 3 source files + evidence; route handler body byte-identical to pre-edit; tsc clean |
+
+### Verifier verdicts (4 at gate, parallel)
+
+| Verifier | Verdict | Notable |
+|---|---|---|
+| blind-verifier | **AGREE** | claims-vs-evidence cross-check 8/8 verified at exact line numbers cited |
+| scope-guardian | **PASS** | only 3 source files + evidence dir; UI scope marker correctly one-shot-cleared after S1 commit |
+| drift-detector | **NO DRIFT** | all 8 governance-correction checks pass (no A/B/C, 3-category boundaries, no options menus, two deltas, no echo-rerun, no backdating, route preserved, no hidden operator-action items) |
+| integration-safety | **PASS** | `git diff` confirms zero deletions on `server/routes/conversations.ts`; vin-safe-mcp prepare/execute calls untouched; CommGate untouched; zero provider sends |
+
+### Operator scope honored exactly
+
+Verbatim 2026-05-09 instruction: "stub it and remove evidence from the UI and put notes in the code that this was backlogged. Nobody is in process in that route. This will reduce the blast radius and also allow me to think it through before we remove the route. please add a note in the backlog about this as well."
+
+| Operator ask | Delivered |
+|---|---|
+| Stub UI | ✅ const guard hides button + dialog (dialog is dead path now) |
+| Remove visible UI evidence | ✅ Playwright DOM check: 0 Push-to-VIN buttons rendered, 0 strings in DOM |
+| Code notes that this was backlogged | ✅ Comment block at top of teambox.tsx (line 87-91) + above route handler (line 281-287) |
+| Don't remove the route | ✅ Handler body byte-identical; vin-safe-mcp prepare/execute calls intact |
+| Add note in backlog | ✅ BL-001 entry with full four-field format |
+
+### Posture at CLOSING
+
+- Branch HEAD: `db9057b` on `wave/3-teambox/3A-push-to-vin-stub`
+- Provider sends this wave: 0
+- DB writes this wave: 0
+- pm2 restarts this wave: 1 (dev `pm2 reload nexxus-app --update-env` to surface UI stub for Playwright proof; live Coolify untouched)
+- Builds this wave: 1 (`npm run build` for the Playwright proof bundle)
+- Live deploys: 0
+
+Ready for ff-merge to `batch-1-finish-line`.
+
+---
+
+**Wave 3A status: DONE.**
+
