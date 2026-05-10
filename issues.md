@@ -627,6 +627,29 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ---
 
+### I-NEW-2026-05-10-A: Marketing Market Intel agent — `GOOGLE_MAPS_API_KEY` missing in dev env (silently masked by mock fallback)
+**Discovered:** Wave 3B Phase 1 investigation 2026-05-10 by qa-evaluator.
+**Status:** OPEN — non-blocking for v2.2 launch.
+**Severity:** Low (silently masked: agent renders mock data when key absent).
+**Symptom:** `POST /api/maps-proxy` returns HTTP 503 when invoked. Marketing "Market Intel" agent's client falls back to mock data, so the user sees a working agent but the data is not real.
+**Root cause:** `GOOGLE_MAPS_API_KEY` not set on dev pm2 environment; the proxy route returns 503 in that branch instead of erroring loudly.
+**Recommendation:** Either (a) provision the key on dev (operator action) and surface a real "no map data available" state when invocation fails, or (b) document the mock-fallback as intentional for v2.2 and revisit in v2.3.
+**Out of Wave 3B scope:** Operator-reported regression was the primary chat path (Anthropic/OpenAI), which is now fixed. Market Intel is a secondary surface and not the operator's reported bug.
+**Reference:** `evidence/wave-3B-marketing-agent-fix/investigation/root-cause-hypothesis.md`
+
+---
+
+### I-NEW-2026-05-10-B: `/api/maps-proxy` body-shape mismatch (separate from missing key)
+**Discovered:** Wave 3B Phase 1 investigation 2026-05-10 by qa-evaluator.
+**Status:** OPEN — non-blocking for v2.2 launch.
+**Severity:** Low (compounded by I-NEW-2026-05-10-A — until the key is set, this never surfaces).
+**Symptom:** Once `GOOGLE_MAPS_API_KEY` is set, the proxy route's expected request body shape and the client's outbound shape diverge, producing a different failure mode than the simple 503-without-key.
+**Root cause:** TBD on triage. Either the client sends a payload format the proxy doesn't accept, or the proxy forwards a payload format Google Maps API doesn't accept.
+**Out of Wave 3B scope:** Same rationale as I-NEW-2026-05-10-A.
+**Reference:** `evidence/wave-3B-marketing-agent-fix/investigation/root-cause-hypothesis.md`
+
+---
+
 ### I-NEW-2026-04-27-C: Add `jti` nonce to refresh JWT payload (defense-in-depth for token-rotation race)
 **Discovered:** 2026-04-27 during Priority #3 fix (refresh-token rotation race; see `evidence/priority-3-hard-reload-auth/investigation.md`).
 **Status:** OPEN — operator-deferred to v2.3 backlog.

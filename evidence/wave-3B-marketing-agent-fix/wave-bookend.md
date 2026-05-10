@@ -124,4 +124,71 @@ Independent boundary probe: `curl POST /api/openai-proxy` with same Nexxus token
 
 (code-reviewer / scope-guardian / general-purpose drift / integration-safety)
 
+---
+
+## CLOSING (2026-05-10T17:25Z)
+
+### Phase results
+
+| Phase | Owner | Result | Commit |
+|---|---|---|---|
+| Phase 1 — investigation (qa-evaluator) | qa-evaluator | PASS — error reproduced; root cause `OPENAI_API_KEY` rejected by OpenAI as invalid (verbatim 401: `Incorrect API key provided: sk-proj-...OxMA`) | `a2aa655` |
+| Phase 2 — fix (config-only) | orchestrator (no builder needed) | PASS — `.env` `OPENAI_API_KEY` rotated by atomic Python replace; `pm2 reload nexxus-app --update-env`; uptime 3s health check OK | `ea08fd2` (bookend amendment only; .env never committed) |
+| Phase 3 — re-verification (qa-evaluator) | qa-evaluator | PASS — `/api/openai-proxy` 401→200; coherent `gpt-4o-mini-2024-07-18` reply; UI no longer shows error toast | `46de9f6` |
+
+### Two deltas of proof (per phase, satisfying both directions of the Phase 1 vs Phase 3 contract)
+
+| | Phase 1 (FAIL) | Phase 3 (PASS) |
+|---|---|---|
+| Delta 1 (Playwright UI) | Error toast: "Sorry, I encountered an error connecting to the AI service" | Coherent assistant reply (clarifying question about Civic offer) — `screenshot-success.png` |
+| Delta 2 (curl boundary probe) | HTTP 401 with verbatim `{"code":"invalid_api_key","message":"Incorrect API key provided: sk-proj-...OxMA"}` | HTTP 200 with valid `chat.completion` body, 29 tokens, `chatcmpl-De251IyE` id |
+
+Same login, same path, same payload shape, same provider boundary — only `.env` `OPENAI_API_KEY` differs.
+
+### Verifier verdicts (4 at gate, parallel)
+
+| Verifier | Verdict | Notable |
+|---|---|---|
+| blind-verifier (code-reviewer) | **AGREE** | Phase 1 evidence ↔ root-cause-hypothesis ↔ Phase 2 amendment ↔ Phase 3 evidence cross-check verified at file:line; secret hygiene confirmed (only masked `...OxMA` / `...mE0A` forms in committed evidence) |
+| scope-guardian | **PASS** | 15 changed files, ALL under `evidence/wave-3B-marketing-agent-fix/**`; zero source-code; .env gitignored; zero secret leaks |
+| drift-detector (general-purpose) | **NO DRIFT** | All 10 governance + wave-specific checks pass (no A/B/C, 3-category boundaries, no options menu, mid-wave revision documented, two deltas per phase, no echo-rerun, no backdating, zero UI files, no harness-frontend dispatch, qa-evaluator as primary investigator) |
+| integration-safety | **PASS** | dev-only key rotation; live Coolify untouched; vin-safe-mcp + CommGate untouched; no real-customer recipient; OpenAI boundary healthy post-rotation |
+
+### Operator scope honored exactly
+
+| Operator ask | Delivered |
+|---|---|
+| "needs to work as it is" | ✅ marketing agent now responds (gpt-4o-mini) |
+| No UI change | ✅ zero edits to `client/src/{pages,components,styles,layouts}/**` |
+| Investigate the errors | ✅ qa-evaluator captured 2 distinct error signatures (UI toast + 401 boundary) |
+| Use proper subagent roles incl. qa-evaluator | ✅ qa-evaluator drove Phase 1 + Phase 3; no harness-frontend involved; 4 verifiers at gate |
+| Avoid drift | ✅ initial sub-menu-add scope was pulled back when operator clarified; mid-wave revision documented in OPENING |
+
+### Carry-forward issues filed
+
+- `I-NEW-2026-05-10-A` — `GOOGLE_MAPS_API_KEY` missing on dev (Market Intel agent silently uses mock fallback). Out of Wave 3B scope.
+- `I-NEW-2026-05-10-B` — `/api/maps-proxy` body-shape mismatch. Out of Wave 3B scope.
+
+### Posture at CLOSING
+
+- Branch HEAD: `46de9f6` on `wave/6-marketing/3B-agent-fix` (CLOSING commit will advance)
+- Provider sends this wave: 0 customer-facing (Anthropic/OpenAI server-side AI calls only — both read-only)
+- DB writes this wave: 0
+- Builds this wave: 0 (no source code changed)
+- pm2 restarts this wave: 1 (`pm2 reload nexxus-app --update-env` to pick up new `OPENAI_API_KEY`)
+- Live deploys: 0 (Coolify untouched on `becb739`)
+
+### Post-CLOSING actions (orchestrator-autonomous)
+
+- File 2 carry-forward issues in `issues.md` (DONE)
+- Update `plan.md` to mark Wave 3B DONE + add changelog entry
+- Write handoff to `.claude/session.md` and `memory/session-output.md`
+- ff-merge `wave/6-marketing/3B-agent-fix` to `batch-1-finish-line`
+- Push origin
+
+---
+
+**Wave 3B status: DONE.**
+
+
 
