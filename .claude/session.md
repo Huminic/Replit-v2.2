@@ -1,47 +1,54 @@
 # Session — nexxus2.2_replit
 
-**Date of this checkpoint:** 2026-05-09 (~01:03 UTC)
-**Last orchestrator action:** Wave 2B closed (Widget chat/callback/form provider proof). All 3 chunks PASS. 4 verifiers PASS. ff-merged to `batch-1-finish-line`, pushed to origin. plan.md updated to mark Phase 8 PROVEN.
+**Date of this checkpoint:** 2026-05-10 (~05:25 UTC)
+**Last orchestrator action:** Wave 3A closed (Push-to-VIN UI STUB — re-scoped from "+ route REMOVAL" per operator pivot 2026-05-09). All 3 chunks PASS. 4 verifiers PASS. ff-merged + pushed. plan.md updated.
 
-## Eight waves shipped to dev (this session: Wave 2B added)
+## Nine waves shipped to dev (this session: Wave 3A added)
 
-- Wave 1A, 1B — pre-session
-- Wave 1C — pre-compact prior session
-- Wave I-Auth — pre-compact prior session
-- Wave 3F — prior session post-compact
-- Wave 11-Gov — prior session
-- Wave 2A — prior session (T4 PARTIAL carry-forward)
-- **Wave 2B — DONE this turn** (T1 chat / T2 voice-callback / T3 form, all PASS)
+- Wave 1A, 1B, 1C, I-Auth, 3F, 11-Gov, 2A — prior sessions
+- Wave 2B — prior session (chat / callback / form provider proof)
+- **Wave 3A — DONE this turn** (Push-to-VIN UI stub, route preserved per operator)
 
 Coolify untouched. Live still on `becb739`. Live deploy gate is Wave 11A.
 
 ---
 
-## Wave 2B — DONE this turn
+## Wave 3A — DONE this turn
 
-**Branch (merged):** `wave/8-widget/2B-chat-callback-form` → `batch-1-finish-line`
-**HEAD now on origin:** `b9fac92` (was `55727c8`; +5 commits: OPENING, T1, T2, T3, CLOSING, plan-update)
+**Branch (merged):** `wave/3-teambox/3A-push-to-vin-stub` → `batch-1-finish-line`
+**HEAD now on origin:** `05e1228` (was `d96d80a`; +6 commits: OPENING, S1, S2/S3, deltas, screenshot, CLOSING, plan-update)
+
+### Operator scope pivot (verbatim, 2026-05-09)
+
+> "I would like you to stub it and remove evidence from the UI and put notes in the code that this was backlogged. Nobody is in process in that route. This will reduce the blast radius and also allow me to think it through before we remove the route. please add a note in the backlog about this as well."
+
+Original plan title: "TeamBox Push-to-VIN button + route REMOVAL". Re-scoped to STUB only. Route preserved.
 
 ### Resolution per chunk
 
-| Chunk | Result | Provider proof | Conversation id |
-|---|---|---|---|
-| T1 — chat | PASS | Anthropic claude-sonnet-4-6, 535 chars non-stub reply, 4930 ms | `67ddf429-e11d-4e3b-8dec-d1c24ffe3b7c` |
-| T2 — voice-callback | PASS | VAPI call_id `019e0a39-366a-700f-8829-2b212eaa7c2f` Elliott→Nancy `+19014361271`, 2703 ms | `dbaab6ff-79a5-4c40-99fc-2fbcb9219948` |
-| T3 — contact form | PASS | Storage-only (per design); HTTP 200, conversation+message rows | `e0c45066-daa3-4f14-a489-3fb4b123a34d` |
+| Chunk | Result | Files |
+|---|---|---|
+| S1 — UI stub via const guard | PASS | `client/src/pages/teambox.tsx` — `PUSH_TO_VIN_UI_ENABLED = false` const + button JSX wrapped + softer toast wording |
+| S2 — Backend BACKLOGGED comment | PASS | `server/routes/conversations.ts` — 7-line comment block above route handler; handler body byte-identical |
+| S3 — Backlog entry | PASS | `backlog.md` — `BL-001 — Push-to-VIN UI deferred (Wave 3A 2026-05-09)` in new Deferred Items section |
 
 ### Audit chain — 4 verifier verdicts (all PASS)
 
-- blind-verifier: AGREE — helper-vs-endpoint contract verified, deltas independent (HTTP-side vs DB-side)
-- scope-guardian: PASS — only `server/test-widget-2B.ts` (new) + `evidence/wave-2B-widget-provider-proof/**` changed; UI/schema/migrations untouched
-- drift-detector: NO DRIFT — all 7 governance-correction checks clean (no A/B/C, 3-category boundary, no options menu, two-deltas-per-chunk, no echo-rerun, no backdating)
-- integration-safety: PASS — VAPI through central-mcp 4002 boundary; vin-safe-mcp untouched; CommGate untouched; Nancy allowlist exit 0 BEFORE call; one call only
+- blind-verifier: AGREE — claims-vs-evidence cross-check 8/8 verified at exact line numbers
+- scope-guardian: PASS — only 3 source files + evidence dir; UI scope marker correctly one-shot-cleared
+- drift-detector: NO DRIFT — all 8 governance checks pass (no A/B/C, 3-category boundaries, no options menu, two deltas, no echo-rerun, no backdating, route preserved, no hidden operator-action items)
+- integration-safety: PASS — `git diff` confirms zero deletions on `server/routes/conversations.ts`; vin-safe-mcp prepare/execute calls untouched; CommGate untouched; zero provider sends
+
+### Two deltas of proof
+
+- Delta 1 (Playwright UI): `evidence/wave-3A-push-to-vin-stub/delta-1-playwright/` — full-page screenshot + browser_evaluate result: 0 `[data-testid="button-push-to-vin"]` rendered, 0 strings matching Push-to-VIN/PUSH_TO_VIN/etc. across 72 total buttons; Quick Actions = Call/Email/SMS only
+- Delta 2 (code diff + grep + tsc): `evidence/wave-3A-push-to-vin-stub/delta-2-diff/` — git diff `592f3b5..HEAD` shows 3 source files; route handler body byte-identical; tsc exit 0
 
 ### Builder findings (transparency)
 
-- T1: dispatch contract typo caught and corrected by builder via truth-over-compliance (real endpoint contract `{ slug, message, conversationId }` not the dispatch's `{ widgetCode, sessionId, message }`); future dispatches now pre-instruct contract verification
-- T2: builder repointed isolated worktree branch from unrelated lineage to T1 head before commit; result clean ff-mergeable history
-- Architectural finding (deferred to v2.3 per BL-107): `conversations` table lacks provider call reference column; VAPI call_id persists only in HTTP response + dashboard
+- S1 builder ran `npx tsc --noEmit`: clean.
+- Both S1 + S2/S3 builders worked in isolated worktrees, committed to wave branch directly.
+- pm2 reload (`pm2 reload nexxus-app --update-env`) ran ONCE after build to surface the UI stub on dev for Playwright proof. Live Coolify untouched.
 
 ---
 
@@ -49,20 +56,20 @@ Coolify untouched. Live still on `becb739`. Live deploy gate is Wave 11A.
 
 | Field | Value |
 |---|---|
-| Active branch | `batch-1-finish-line` (HEAD `b9fac92`) |
-| Origin `batch-1-finish-line` | matches local `b9fac92` |
-| Wave branches merged this session | 2B |
+| Active branch | `batch-1-finish-line` (HEAD `05e1228`) |
+| Origin `batch-1-finish-line` | matches local `05e1228` |
+| Wave branches merged this session | 3A |
 | Live container | `becb739` |
 | Working tree dirty | `evidence/watchdog-alerts.log` (auto) + 5 untracked unrelated entries |
-| Provider sends this turn | T1 = 0 external recipient (Anthropic only); T2 = 1 VAPI call (Nancy allowlist); T3 = 0 |
-| DB writes this turn | 3 conversations + 5 messages (TestLane-tagged, autonomous category) |
-| Builds this turn | NONE |
-| pm2 restarts this turn | NONE |
-| Live deploys | NONE |
+| Provider sends this turn | 0 |
+| DB writes this turn | 0 |
+| Builds this turn | 1 (`npm run build`) |
+| pm2 restarts this turn | 1 (`pm2 reload nexxus-app --update-env`, dev only) |
+| Live deploys | 0 |
 
 ---
 
-## Wave roadmap status (per plan.md, post-Wave-2B)
+## Wave roadmap status (per plan.md, post-Wave-3A)
 
 | Wave | State |
 |---|---|
@@ -71,34 +78,36 @@ Coolify untouched. Live still on `becb739`. Live deploy gate is Wave 11A.
 | 3F | DONE prior session |
 | 11-Gov | DONE prior session |
 | 2A | DONE prior session (T4 PARTIAL carry-forward) |
-| **2B** | **DONE this turn** |
-| 3A | next per plan order — TeamBox Push-to-VIN button + route REMOVAL (UI scope marker required) |
-| 3B | queued — Marketing tab routing fix (UI) |
+| 2B | DONE prior session |
+| **3A** | **DONE this turn** (re-scoped: UI stub, route preserved) |
+| 3B | next per plan order — Marketing tab routing fix (UI) |
 | 3C | queued — Marketing Insights filter propagation (UI) |
 | 9-Sec | queued — operator triage opens |
 | 11A | queued — Final E2E + go/no-go |
 
 ---
 
-## Operator action items (carry forward; non-blocking for Wave 3A)
+## Operator action items (carry forward; non-blocking for Wave 3B)
 
-1. **TextMagic dashboard inbound callback URL** — `I-NEW-2026-05-07-TEXTMAGIC-URL` (production-impact; ~30s in TextMagic UI)
+1. **TextMagic dashboard inbound callback URL** — `I-NEW-2026-05-07-TEXTMAGIC-URL`
 2. **Wave 11-Gov G1 cross-project fix** at `~/Claude-store/sysadmin/harness/lib/common.sh:56-58` per Path B
-3. **Wave 9-Sec triage decision** — v2.2 vs v2.3 placement for 5 original + 5 new auth security items
-4. **Dev VAPI/Tavus webhook env config** — `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`. Required to unblock T4 (video) and webhook-receive provider proofs in any future wave.
+3. **Wave 9-Sec triage decision** — v2.2 vs v2.3 placement
+4. **Dev VAPI/Tavus webhook env config** — `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`
+5. **NEW — BL-001 Push-to-VIN route-removal decision** — operator's deferred decision on whether to remove the route or re-enable the UI; non-blocking for v2.2 launch (UI is hidden either way)
 
 ---
 
 ## Cleanup queue (post-operator-review)
 
-- 8 merged wave branches deletable (now includes `wave/8-widget/2B-chat-callback-form`)
-- Worktrees: pre-existing 8 + 3 new from Wave 2B builders (chat/callback/form)
+- 9 merged wave branches deletable (now includes `wave/3-teambox/3A-push-to-vin-stub`)
+- Worktrees: pre-existing 8+ from prior waves + 2 new from Wave 3A builders
 - `evidence/governance-2026-05-01/local-main-divergence-2026-05-02.md` still untracked (parked per D-I2)
+- `.playwright-mcp/wave-3A-teambox-populated-conv-no-push-to-vin.png` is a working-copy artifact (gitignored); the canonical copy is at `evidence/wave-3A-push-to-vin-stub/delta-1-playwright/wave-3A-teambox-populated-conv-no-push-to-vin.png` (force-added)
 
 ---
 
-## Next-session: Wave 3A
+## Next-session: Wave 3B
 
-Per plan order: TeamBox Push-to-VIN button + route REMOVAL. UI scope-marker required (`client/src/pages/teambox.tsx` or equivalent). Operator approval needed BEFORE issuing scope marker since UI change is in the "user sees" category. Standard bookend pattern.
+Per plan order: Marketing tab routing fix. UI scope-marker required. Operator approval needed BEFORE dispatching builder, since UI change. Standard bookend pattern.
 
 If operator pivots to `/clear` instead of `/compact`, next session reads in this order: `CLAUDE.md`, `plan.md`, `backlog.md`, `issues.md`, `.claude/session.md` (this file), `memory/context.md`, `memory/session-output.md`.
