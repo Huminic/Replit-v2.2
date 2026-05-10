@@ -159,13 +159,40 @@ Project-level Claude Code harness lives at:
 2. For launch-affecting work, also run `/launch-check`.
 3. Dispatch `harness-orchestrator` (not the legacy `orchestrator`).
 4. Subagents:
-   - `scope-guardian` — verifies scope before completion
+   - `scope-guardian` — verifies scope before completion (also OWNS process-discipline drift checks: no A/B/C wave subdivisions, 3-category operator-decision boundaries, no options menus)
    - `harness-backend` / `harness-frontend` — implementation
-   - `qa-evaluator` — produces two deltas of proof
+   - `qa-evaluator` — produces two deltas of proof; PRIMARY investigator role for "broken / not working" complaints (run BEFORE proposing a fix scope)
    - `code-reviewer` — independent diff review
    - `integration-safety` — external-provider boundary safety
    - `nexxus-launch-captain` — launch readiness (Monday Apr 27, 2026 9 AM ET)
    - `nexxus-e2e-evaluator` — Playwright/MCP end-to-end recorded evidence
+
+### TEAM DISPATCH DEFAULT (mandatory; established 2026-05-10)
+
+**A persistent Claude Code team exists for this project: `nexxus-v22-release-factory`** (created 2026-05-10).
+
+Config path: `~/.claude/teams/nexxus-v22-release-factory/config.json`. Read the `members` array to discover idle teammates by NAME (not UUID).
+
+**DEFAULT DISPATCH PATH (use this 95% of the time):**
+1. `Read` the team config file to enumerate existing teammates.
+2. For wave work: `SendMessage({to: "<teammate-name>", ...})` to wake an idle teammate. Teammates retain context across waves — that's the whole point.
+3. Use `TaskUpdate({owner: "<teammate-name>"})` to assign tasks.
+
+**WHEN IT'S OK TO SPAWN A FRESH SUBAGENT VIA `Agent` TOOL:**
+- The required role does NOT exist as a teammate (e.g., one-shot `Explore` scout for a quick read-only research pass that doesn't need cross-wave continuity).
+- The team has been disbanded (post-Wave-11A live-deploy cleanup).
+- The orchestrator confirms the team config file is missing or corrupted.
+
+**NEVER kill and recreate teammates.** This was the failure mode the operator flagged 2026-05-10:
+
+> "The more consistent you are with your team members, the more they're going to follow your logic. The more that you kill them and recreate them by not having the foresight to put the team together the right way in the first place, the more problems you're gonna have."
+
+**Anti-patterns (do NOT do):**
+- Spawning a fresh `Agent({subagent_type: "qa-evaluator"})` when the team's `qa-evaluator` teammate is idle. Use `SendMessage` instead.
+- Inventing role names that aren't in the prescribed roster. The roster above is canonical. The "drift-detector" function (process-discipline checks) FOLDS into `scope-guardian`'s role, NOT a separate teammate.
+- Using `Agent` tool defaults out of habit when a team is in scope. Read the team config first.
+
+**Post-compact / post-clear behavior:** the next orchestrator MUST read this section + read `~/.claude/teams/nexxus-v22-release-factory/config.json` BEFORE first agent dispatch. If the team exists, dispatch via `SendMessage`. If the team is missing (truly deleted, not just unread), recreate it with the full prescribed roster.
 
 ### Hard requirements before completion
 
