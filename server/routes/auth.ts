@@ -2,6 +2,7 @@ import type { Express } from "express";
 import bcrypt from "bcrypt";
 import rateLimit from "express-rate-limit";
 import { storage } from "../storage";
+import { normalizeEmailForLookup } from "../lib/emailNormalize";
 import {
   authenticateToken,
   generateAccessToken,
@@ -346,7 +347,9 @@ export function registerAuthRoutes(app: Express) {
   });
 
   app.post("/api/auth/forgot-password", authLimiter, async (req, res) => {
-    const { email } = req.body;
+    // AUTH-D (Wave 9-Sec): lowercase + trim to match storage's exact-match
+    // SQL convention (operator-confirmed 2026-03-20 silent-fail regression).
+    const email = normalizeEmailForLookup(req.body?.email);
     if (!email) return res.status(400).json({ message: "Email is required" });
 
     try {

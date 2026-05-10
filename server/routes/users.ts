@@ -8,6 +8,7 @@ import { authenticateToken, requireRole } from "../auth";
 import { storage } from "../storage";
 import { updateUserProfileSchema } from "@shared/schema";
 import { canAssignRole } from "../lib/roleGuard";
+import { normalizeEmailForLookup } from "../lib/emailNormalize";
 
 const upload = multer({
   storage: multer.diskStorage({ destination: os.tmpdir() }),
@@ -38,7 +39,10 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users", authenticateToken, requireRole(3), async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-      const { email, password, firstName, lastName, roleId } = req.body;
+      const { password, firstName, lastName, roleId } = req.body;
+      // AUTH-D (Wave 9-Sec): normalize on WRITE so later lookups (login,
+      // forgot-password) match. storage layer does exact-match SQL.
+      const email = normalizeEmailForLookup(req.body?.email);
 
       if (!email || !password || !firstName || !lastName || !roleId) {
         return res.status(400).json({ message: "All fields are required: email, password, firstName, lastName, roleId" });
@@ -323,7 +327,9 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: "Invalid invite data", errors: parsed.error.flatten() });
       }
 
-      const { email, firstName, lastName, roleId } = parsed.data;
+      const { firstName, lastName, roleId } = parsed.data;
+      // AUTH-D (Wave 9-Sec): normalize on WRITE so later lookups match.
+      const email = normalizeEmailForLookup(parsed.data.email);
 
       const existing = await storage.getUserByEmail(email);
       if (existing) {
