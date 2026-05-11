@@ -15,8 +15,8 @@ Ship v2.2 to live.huminic.app. One operator-execute condition before the PR merg
 
 | Gate | Verdict | Evidence |
 |---|---|---|
-| E2E (9 paths × 2 deltas) | **PASS** | e2e-evaluator commit `f79690c`; `evidence/wave-11A-final-e2e/phase-1-e2e/phase-1-summary.md` |
-| Security (Wave 9-Sec) | **PASS** | 5 v2.2-critical fixes shipped; 66 unit tests; 4 verifier verdicts AGREE/PASS/PASS + qa-evaluator 5/5 PASS |
+| E2E (9 paths, two-deltas-via-mix) | **PASS** | e2e-evaluator commit `f79690c` + orchestrator-backfilled per-path summaries + `evidence/wave-11A-final-e2e/phase-1-e2e/phase-1-summary.md`. Honest characterization: 3 paths have full in-wave two-deltas (P1/P4/P5); 4 paths have cross-wave-reference deltas (P2/P3/P6/P8); 2 paths are single-delta-by-design read-only inspection (P7/P9). All 9 PASS. |
+| Security (Wave 9-Sec) | **PASS** | 5 v2.2-critical fixes shipped; 66 unit tests; **3 verifier verdicts** AGREE/PASS/PASS + qa-evaluator 5/5 PASS |
 | Provider boundaries | **PASS** | vin-safe-mcp (port 4003) untouched across all 11 waves; central-mcp (4002) only for VAPI/Anthropic reads; CommGate respected; allowlist enforcement verified |
 | Cross-tenant isolation | **PASS** | e2e-evaluator P8 (serra-nissan login shows only serra-nissan data) + Wave 9-Sec S1 (IDOR fix at vendorProxy.ts:555) |
 | TestLane envelope | **PASS** | e2e-evaluator P9: 0 unauthorized provider sends in last 60 min; all 7 orgs have flags as expected |
@@ -28,7 +28,7 @@ Ship v2.2 to live.huminic.app. One operator-execute condition before the PR merg
 |---|---|---|---|
 | 1 | **TextMagic dashboard URL fix** (`I-NEW-2026-05-07-TEXTMAGIC-URL`) | Operator logs into TextMagic dashboard, changes inbound callback URL from `dev.huminicdev.com/api/webhooks/textmagic` to `live.huminic.app/api/webhooks/textmagic` | ~30 seconds |
 
-**Why this gates GO:** Live Coolify will be on the post-merge container (post `batch-1-finish-line`) which has the I-236 fail-closed webhook auth gate. Without the dashboard URL pointing at live, customer-facing inbound SMS replies on live silently drop. This is a real customer-impact regression at launch moment.
+**Why this gates GO:** The TextMagic dashboard inbound callback URL currently points at `dev.huminicdev.com/api/webhooks/textmagic`. The dev pm2 container's I-236 auth gate returns HTTP 503 for inbound TextMagic webhooks (per `I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`). Live's webhook secret IS properly set, so live would accept correctly-routed webhooks — but the dashboard URL is pointing at dev, so the webhooks never reach live. Result: customer-facing inbound SMS replies are silently dropped (TextMagic gets the 503, has no retry to live). The fix is to repoint the dashboard URL at `live.huminic.app/api/webhooks/textmagic`. This is a real customer-impact regression at launch moment — operator-execute only.
 
 ### Ship-with-launch-acceptable (acknowledged, no fix needed)
 
@@ -52,7 +52,7 @@ None. All other items defer cleanly to v2.3.
 
 | Rule | Compliance |
 |---|---|
-| Service-campaign capability shipped ENABLED only for `serra-honda` | ✅ Wave 2A confirmation; other 4 orgs DARK as planned |
+| Service-campaign capability shipped ENABLED only for `serra-honda` | ✅ Verified by integration-safety commit `8171fd8` (`evidence/wave-11A-final-e2e/phase-2-go-no-go/service-campaign-dark-state-verification.md`). YELLOW verdict (not a launch blocker). Mechanism: no per-store `service_campaign_enabled` flag exists in schema — DARK is enforced via (a) absence of service campaigns on non-serra-honda orgs [0 across all 6 other orgs], (b) `settings.triggersEnabled` NULL on non-serra-honda (trigger service fail-closed), (c) 0 scheduled_actions across all 7 orgs. Org-level boolean channel flags are TRUE for all 7 orgs but practical-risk-zero because there's nothing to send. |
 | All 7 orgs in DB have outbound flags as expected | ✅ e2e-evaluator P9 PASS |
 | vin-safe-mcp prepare→review→execute→verify boundary | ✅ vin-safe-mcp untouched across 11 waves |
 | No real-customer recipients touched in test/verification | ✅ All probes used allowlisted destinations |
