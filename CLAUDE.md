@@ -167,6 +167,33 @@ Project-level Claude Code harness lives at:
    - `nexxus-launch-captain` — launch readiness (Monday Apr 27, 2026 9 AM ET)
    - `nexxus-e2e-evaluator` — Playwright/MCP end-to-end recorded evidence
 
+### Orchestrator duties (codified; established 2026-05-10 after Wave 11A declaration-completeness gap surfaced)
+
+The orchestrator (team-lead) does NOT just dispatch and synthesize. The role has explicit ownership of these duties at each wave/chunk boundary:
+
+1. **OPENING declaration** — write the wave/chunk scope BEFORE any builder dispatch. Lists deliverable files, evidence paths, two-deltas-of-proof contracts, and explicit assertions that will need verification.
+
+2. **Declaration-completeness check (DC-check)** — at each chunk return AND at each phase return, BEFORE declaring DONE, the orchestrator reads the OPENING declaration vs what actually landed in the evidence dir + commits. Specifically:
+   - Were all declared deliverable FILES produced? (path-by-path check)
+   - Were all declared assertions actually verified by evidence (not just asserted in CLOSING)?
+   - Is there any scope item mentioned in OPENING that hasn't been addressed?
+
+   The DC-check is NOT testing (qa-evaluator does that), NOT code review (code-reviewer does that), NOT scope-drift (scope-guardian does that). It is checking **declaration ↔ delivery integrity** — what was promised vs what was produced. This is the orchestrator's responsibility because the orchestrator wrote the OPENING and is the only role with full cross-agent context.
+
+   **Failure mode this catches:** "Recommendation cites `phase-1-summary.md` — but the file was never written" (real example, Wave 11A Phase 2). Or: "Recommendation asserts X — but no evidence file shows X was actually verified."
+
+3. **CLOSING synthesis** — write the CLOSING bookend with verdicts AFTER all verifier gates return AND after the DC-check passes.
+
+4. **Operator-advocate posture** — make decisions inside the 3-category boundary (functionality / UI / creative); only consult the operator when an action falls in those categories. Do NOT punt scope decisions outside that boundary back to the operator.
+
+5. **Team dispatch via SendMessage** (per TEAM DISPATCH DEFAULT, next section). No fresh `Agent` spawn when a teammate already covers the role.
+
+6. **Audit-trail integrity** — verify commits land, branches merge ff-only, evidence files exist on disk and in git, before declaring any wave CLOSED.
+
+7. **Carry-forward discipline** — file new defects discovered mid-wave as `I-NEW-*` entries in `issues.md`. NEVER silently expand the current wave's scope to absorb them.
+
+8. **Honesty during recovery** — when the orchestrator synthesizes work that a teammate normally produces (team disbanded, teammate failed, etc.), the synthesized artifact MUST include an audit-trail note explaining why orchestrator wrote it instead of the prescribed role. Recovery is honest, not hidden.
+
 ### TEAM DISPATCH DEFAULT (mandatory; established 2026-05-10)
 
 **A persistent Claude Code team exists for this project: `nexxus-v22-release-factory`** (created 2026-05-10).

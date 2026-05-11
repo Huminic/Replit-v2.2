@@ -1,0 +1,78 @@
+{
+  "$comment": "Persistent team definition for Nexxus v2.2 release factory. If ~/.claude/teams/nexxus-v22-release-factory/config.json is missing (e.g., after session pause/resume cleanup), the orchestrator reads this manifest and rebuilds the team deterministically. Authoritative team roster + initial-briefing template references.",
+  "team_name": "nexxus-v22-release-factory",
+  "agent_type": "release-orchestrator",
+  "description": "Nexxus Connect v2.2 release factory — wave-by-wave delivery from batch-1-finish-line to live.huminic.app. Wave-by-wave bookend protocol with operator-advocate orchestrator.",
+  "lifecycle": {
+    "spawned": "2026-05-10 mid-session",
+    "disband_at": "after Wave 11A CLOSING + post-deploy smoke test",
+    "successor_team": "nexxus-v23-release-factory (created when v2.3 release cycle begins)"
+  },
+  "members": [
+    {
+      "name": "harness-backend",
+      "agent_type": "harness-backend",
+      "role": "Server-side / API / data-layer implementation within approved scope, respecting CommGate / vin-safe-mcp / central-mcp boundaries.",
+      "definition_file": ".claude/agents/harness-backend.md"
+    },
+    {
+      "name": "harness-frontend",
+      "agent_type": "harness-frontend",
+      "role": "UI implementation ONLY when pre-approved by operator. Minimal, scoped UI changes. Per-file scope marker required.",
+      "definition_file": ".claude/agents/harness-frontend.md"
+    },
+    {
+      "name": "qa-evaluator",
+      "agent_type": "qa-evaluator",
+      "role": "Design + run tests/evals/Playwright MCP recordings; OWNS the two-deltas-of-proof requirement. PRIMARY investigator for 'broken/not-working' complaints — runs BEFORE fix scope is proposed.",
+      "definition_file": ".claude/agents/qa-evaluator.md"
+    },
+    {
+      "name": "code-reviewer",
+      "agent_type": "code-reviewer",
+      "role": "Independent diff review at gate. Cold-read posture — verify claims by reading files, not by trusting prior session context.",
+      "definition_file": ".claude/agents/code-reviewer.md"
+    },
+    {
+      "name": "scope-guardian",
+      "agent_type": "scope-guardian",
+      "role": "Verify scope before completion. CONSOLIDATED ROLE: also owns process-discipline drift checks (no A/B/C wave subdivisions, 3-category operator-decision boundaries, no options menus, two-deltas-per-chunk, no echo-rerun, no backdating). There is NO separate 'drift-detector' role.",
+      "definition_file": ".claude/agents/scope-guardian.md"
+    },
+    {
+      "name": "integration-safety",
+      "agent_type": "integration-safety",
+      "role": "External-provider boundary safety. Validates real provider sends go ONLY to approved internal/test destinations and the safe-MCP boundary is respected.",
+      "definition_file": ".claude/agents/integration-safety.md"
+    },
+    {
+      "name": "launch-captain",
+      "agent_type": "nexxus-launch-captain",
+      "role": "Nexxus launch readiness — owns the launch checklist + go/no-go gate. Pre-positioned for Wave 11A only.",
+      "definition_file": ".claude/agents/nexxus-launch-captain.md"
+    },
+    {
+      "name": "e2e-evaluator",
+      "agent_type": "nexxus-e2e-evaluator",
+      "role": "Autonomous Nexxus end-to-end Playwright/MCP/eval paths with recorded evidence. Pre-positioned for Wave 11A only.",
+      "definition_file": ".claude/agents/nexxus-e2e-evaluator.md"
+    }
+  ],
+  "initial_briefing_pattern": {
+    "$comment": "When recreating a teammate, the orchestrator's initial briefing message should include (a) the team name + project context, (b) current branch + HEAD, (c) the teammate's role per the definition_file above, (d) the three operator governance corrections in force (no A/B/C; 3-category boundaries; no options menus), (e) the team-dispatch-default rule from CLAUDE.md.",
+    "template_summary": "Project Nexxus v2.2; team nexxus-v22-release-factory; role <role>; future tasks arrive via SendMessage from team-lead; governance corrections + dispatch-default reaffirmed."
+  },
+  "restoration_steps": [
+    "1. Orchestrator detects missing ~/.claude/teams/nexxus-v22-release-factory/config.json on session start.",
+    "2. Read this manifest at .claude/team-manifest.json.",
+    "3. Call TeamCreate({team_name, agent_type, description}) using the fields above.",
+    "4. For each member, call Agent({subagent_type: <agent_type>, team_name, name, prompt: <initial briefing>}) with run_in_background=true to spawn all 8 in parallel.",
+    "5. Verify ~/.claude/teams/nexxus-v22-release-factory/config.json now lists 9 members (1 team-lead + 8 prescribed).",
+    "6. Resume normal SendMessage-to-teammate dispatch pattern."
+  ],
+  "do_not_invent_roles": [
+    "drift-detector (folds into scope-guardian)",
+    "blind-verifier (this is code-reviewer's role)",
+    "harness-orchestrator (the human-driven orchestrator IS the team-lead)"
+  ]
+}
