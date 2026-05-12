@@ -685,3 +685,95 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 **Compare:** `server/lib/refreshTokenRotation.ts` — handles the race; `server/auth.ts:73-75` — where the nonce would be added.
 
 ---
+
+### I-NEW-2026-05-12-A-TESTLANE-LIVE: `TESTLANE_MODE` suspected `true` on live Coolify container
+**Discovered:** 2026-05-12 recon side-sprint (qa-evaluator + integration-safety). Reference: `evidence/recon-2026-05-12-live-health/A1-db-followup-audit.md` + `A2-provider-health.md`.
+**Status:** OPEN — **HIGH PRIORITY**, blocks all real-customer outbound on live.
+**Severity:** Critical (production impact on launched dealerships).
+**Symptom:** 50 SMS sends in last 7 days fail-closed blocked by `TESTLANE_MODE=true but request lacks test-lane marker` on serra-honda. 106 Caroline widget-chat auto-greetings blocked in 14 days. The 2 successful SMS sends in 7d went to operator phone `+14126546500` only.
+**Root cause hypothesis:** live PM2 / Coolify container `phqqzjj5pal13wlp39m5ohx6-…` is still running with `TESTLANE_MODE=true` env. Launch-time test-safety setting that was never flipped to `false` after opening to real Serra users.
+**Verification needed:** Operator inspect Coolify dashboard → container env. Cannot verify from orchestrator host (live container PM2/stdout not reachable).
+**Recommended fix:** if confirmed `true`, flip to `false` and restart container. Caveat: see `I-NEW-2026-05-12-G-CAROLINE-SCHEDULER-BURSTS` — verify Caroline scheduler throttle BEFORE flipping to avoid burst-fire of 50+ queued sends at real customers.
+**Operator decision required.**
+
+---
+
+### I-NEW-2026-05-12-B-SERRA-HONDA-TESTPHONES: `triggerTestPhones` whitelist still active on serra-honda
+**Discovered:** 2026-05-12 recon side-sprint (qa-evaluator).
+**Status:** OPEN — blocks real-customer SMS even after Layer-1 (`I-NEW-2026-05-12-A`) is resolved.
+**Severity:** High (production impact on Serra Honda).
+**Symptom:** `serra-honda.settings.triggerTestPhones = ["+14126546500"]`. `checkInTriggerEnabled=true` on the same org but 0 fires on real leads in last 7 days (147 leads synced). Whitelist gates all sends to the single operator phone.
+**Root cause:** launch test-phone whitelist persisted in production org settings after launch.
+**Recommended fix:** `UPDATE organizations SET settings = settings - 'triggerTestPhones' WHERE slug='serra-honda'` (or set to `[]`). Single-row DB UPDATE; reversible.
+**Operator decision required.** Coordinate with `I-NEW-2026-05-12-A` so flips happen in correct order (gate-release sequence).
+
+---
+
+### I-NEW-2026-05-12-C-NISSAN-FORD-SMS-UNPROVISIONED: serra-nissan + tony-serra-ford never had SMS triggers configured
+**Discovered:** 2026-05-12 recon side-sprint (qa-evaluator + integration-safety).
+**Status:** OPEN — feature has NEVER fired for these 2 stores; operator told Serra it was working.
+**Severity:** High (production impact on Serra Nissan and Tony Serra Ford; potentially Hyundai of Columbia + Ford of Columbia by extension).
+**Symptom:**
+- `serra-nissan.settings.checkInTriggerEnabled = unset`, `afterHoursTriggerEnabled = unset`, `textmagicPhone = NULL` (NO PHONE PROVISIONED)
+- `tony-serra-ford.settings` — same shape
+- Zero `trigger_*_sent` rows in `activity_log` for either org. Ever.
+- Same situation for hyundai-of-columbia and ford-of-columbia
+**Root cause:** per-org settings + per-org TextMagic phone-number provisioning never completed for these stores.
+**Recommended fix:** TWO-PART —
+1. Provision TextMagic phone numbers for nissan + ford (and Columbia stores if they should also have SMS) — operator action with TextMagic dashboard
+2. `UPDATE organizations SET settings = settings || jsonb_build_object('triggersEnabled', true, 'checkInTriggerEnabled', true, 'afterHoursTriggerEnabled', true, 'textmagicPhone', '<NEW_NUMBER>') WHERE slug IN (...)` per store as numbers are issued
+**Operator decision required.**
+
+---
+
+### I-NEW-2026-05-12-D-DAILY-RECAP-NEVER-FIRED: Daily recap scheduler has not claimed lock since deploy
+**Discovered:** 2026-05-12 recon side-sprint (qa-evaluator).
+**Status:** OPEN — code-level issue; not config-only.
+**Severity:** Medium (feature was advertised; not customer-impacting directly but admin-recap-impacting).
+**Symptom:** Zero `daily_recap_sent` activity_log rows for any org since 2026-04-27 deploy. Zero `daily_recap_*` rows in `scheduler_locks` ever. `dailyRecapEnabled` flag is unset on ALL 7 orgs (compounding issue — even if scheduler ran, no org has it enabled). Daily-recap activity_log writer exists at `server/services/dailyRecapService.ts:315-340`.
+**Root cause hypotheses (need investigation):**
+1. Scheduler module not registered on live runtime — check `server/services/scheduler.ts` for daily-recap registration block; verify it executes on container start
+2. Registration silently fails (caught exception, no log)
+3. `dailyRecapEnabled` flag check filters all 7 orgs to zero candidates → no lock attempt
+4. Combination
+**Recommended fix sequence:**
+1. Investigate code path — read `scheduler.ts` registration block + live container logs (operator-side)
+2. If code-only fix: defer to v2.2.x patch or v2.3
+3. Set `dailyRecapEnabled=true` for any orgs that want it (DB UPDATEs, 5 rows max)
+**Operator decision required:** is daily-recap launch-blocking, or v2.2.x follow-up?
+
+---
+
+### I-NEW-2026-05-12-E-RESEND-OUTBOUND-LOG-BYPASS: Resend sends bypass `outbound_log` for weekly_report / auto_greeting flows
+**Discovered:** 2026-05-12 recon side-sprint (integration-safety).
+**Status:** OPEN — audit-trail integrity issue, NOT a delivery failure.
+**Severity:** Medium (compliance / observability).
+**Symptom:** `weekly_report_sent` activity_log rows for all 5 production dealerships on 2026-05-04 carry Resend `messageId` (e.g., `514470ae-2fc8-48d8-bbc6-092d6f845de2` for serra-honda 2026-W19) — proving Resend delivered the email — but **no corresponding `outbound_log` row** exists within ±2 minutes. Same pattern for `auto_greeting_sent` (serra-honda 2026-05-09 + 2026-05-10).
+**Root cause:** Resend send code paths in `weeklyReportService` and `autoGreeting` flows write activity_log but bypass the `outbound_log` writer used by the canonical send pipeline.
+**Recommended fix:** locate the send-call sites for these flows and ensure they invoke the unified outbound-log writer (probably `server/outbound.ts` `recordOutbound` or equivalent). Investigation required to identify exact files; cross-reference activity_log entries with the source-of-truth send code path.
+**Defer to v2.3.** Not launch-blocking; emails are reaching customers.
+
+---
+
+### I-NEW-2026-05-12-F-CAROLINE-WIDGET-BLOCKED: 106 widget-chat auto-greetings blocked on serra-honda
+**Discovered:** 2026-05-12 recon side-sprint (qa-evaluator + integration-safety).
+**Status:** OPEN — downstream of `I-NEW-2026-05-12-A-TESTLANE-LIVE`; resolves when Layer-1 does.
+**Severity:** High customer-perceived (widget chatbot appears silent).
+**Symptom:** 106 outbound SMS rows in `outbound_log` for serra-honda last 14 days carry `blocked_reason=TESTLANE_MODE=true but request lacks test-lane marker`. Each is a `Caroline from Serra Honda` auto-greeting. Widget visitors see no response from chatbot.
+**Cross-reference:** 15+ inbound `chat`/`ai-chat`/`agent-chat-*` conversations on serra-honda widget in last 14 days. Real visitors getting silence.
+**Root cause:** Layer-1 TESTLANE_MODE gate (see `I-NEW-2026-05-12-A`).
+**Recommended fix:** resolves with `I-NEW-2026-05-12-A`. No separate action needed UNLESS we determine TESTLANE_MODE should remain `true` for some reason — in which case we'd add a Caroline-specific exemption (not recommended).
+**Operator awareness item.**
+
+---
+
+### I-NEW-2026-05-12-G-CAROLINE-SCHEDULER-BURSTS: Caroline scheduler emits sub-second bursts of outbound SMS
+**Discovered:** 2026-05-12 recon side-sprint (integration-safety).
+**Status:** OPEN — must-investigate before flipping `TESTLANE_MODE=false` (could fire 50+ real-customer sends in a single second).
+**Severity:** Critical IF Layer-1 (`I-NEW-2026-05-12-A`) is flipped without first reviewing throttle.
+**Symptom:** 50 of the 106 blocked SMS in last 14d arrived in serra-honda's `outbound_log` in bursts of 6+ rows within a single second (example: 2026-05-11 07:03:36 had 7 attempts in one second). Pattern suggests unthrottled per-recipient loop in Caroline scheduler. `campaign_id` is NULL on all blocked rows.
+**Root cause:** scheduler loop iterating over a list of widget visitors and emitting Caroline auto-greeting without rate-limit / debounce. Specific code path to be identified — likely in `server/services/scheduler.ts` Caroline registration block.
+**Recommended fix:** EITHER (a) identify and patch the unthrottled loop BEFORE flipping TESTLANE_MODE=false, OR (b) keep Caroline auto-greeting DISABLED at first while other channels open up.
+**Operator decision required.** Must be coordinated with `I-NEW-2026-05-12-A` resolution to prevent customer-flood incident.
+
+---
