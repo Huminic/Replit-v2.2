@@ -767,6 +767,37 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ---
 
+### I-NEW-2026-05-12-H-VAPI-WEBHOOK-URL-SAME-AS-TEXTMAGIC: VAPI dashboard URL likely points at dev (silent rejection)
+**Discovered:** 2026-05-12 recon side-sprint (integration-safety A2 + orchestrator code-archaeology).
+**Status:** OPEN — **HIGH PRIORITY**, suspected same root cause as `I-NEW-2026-05-07-TEXTMAGIC-URL`.
+**Severity:** Critical (lost inbound calls + lost VIN lead creation for 11+ days across all 5 dealerships).
+**Symptom:** `vapi_call_received` activity_log shows 97 calls in 30 days pre-2026-04-30, then ZERO calls for 11+ consecutive days across all 5 stores. All recent pre-silence calls had `vinLeadCreated: true` and `vinContactHref` populated — meaning when the webhook DID reach live, the VIN lead creation worked correctly. Silence began precisely on a date pattern consistent with TextMagic's I-NEW-2026-05-07-TEXTMAGIC-URL.
+**Root cause hypothesis:** VAPI's dashboard inbound-webhook URL is pointed at `dev.huminicdev.com/api/webhooks/vapi`. Code at `server/routes/webhooks.ts:920-934` runs the same I-236 fail-closed auth gate as TextMagic — without a valid `VAPI_WEBHOOK_SECRET` env match on the receiving container, the call is rejected with HTTP 503 (or 401 if a wrong secret is passed). Live container has the secret; dev does not (`I-NEW-2026-05-08-DEV-PM2-WEBHOOK-AUTH`). VAPI does not retry on 503, so calls are silently dropped.
+**Verification needed:** Operator logs into VAPI dashboard → finds the assistant/webhook configuration → reads current webhook URL → compares against `live.huminic.app/api/webhooks/vapi`.
+**Recommended fix:** if URL is pointing at dev, repoint at live. Same 30-second dashboard task as TextMagic.
+**Confidence:** High — the code path is identical to TextMagic's, the symptom pattern matches, the date offset is consistent.
+**Operator decision required.** Coordinate with TextMagic dashboard fix (same hands-on session in the provider dashboards).
+
+---
+
+### I-NEW-2026-05-12-I-TAVUS-PUNCTUATION-READ-ALOUD: Tavus persona reads punctuation aloud (regression)
+**Discovered:** 2026-05-12 — operator-reported customer complaint.
+**Status:** OPEN — fix was previously applied, then regressed (or never persisted).
+**Severity:** Medium (quality regression — customer-facing).
+**Symptom:** Tavus video AI verbally reads punctuation marks ("comma", "period", etc.) instead of using them as speech rhythm cues. Customer noticed.
+**Operator note:** "I know there is a fix for that. We did it before."
+**Search results in code:**
+- nexxus2.2_replit git history: zero hits on `tavus.*punctuation`, `punctuation.*tavus`, `tavus.*ssml`, `stripPunctuation`, `sanitizeForTTS`, `cleanForVoice`, etc.
+- central-mcp `src/connectors/tavus-connector.ts` + `src/tools/tavus-tools.ts`: no text-preprocessing logic — passes prompts to Tavus API as-is
+- No SSML wrapping, no punctuation stripping, no persona-text sanitizer found
+**Root cause hypothesis:** the previous fix was applied at the **Tavus dashboard level** (persona system prompt or replica configuration), NOT in our code. Likely a persona system-prompt instruction like "speak naturally without verbalizing commas, periods, or other punctuation marks." If the persona configuration was reset (or a new persona was provisioned and not configured), the fix doesn't carry over.
+**Verification needed:** operator logs into Tavus dashboard → inspects the persona currently in use for each store → checks system prompt for punctuation guidance.
+**Recommended fix:** if confirmed dashboard-level, re-apply the system-prompt directive. If the operator remembers the exact previous fix, faster to just re-apply it. If not, a clear system-prompt addition like "Speak conversationally. Do not verbalize punctuation marks (commas, periods, exclamation points). Use natural speech rhythm to convey sentence boundaries." should resolve.
+**Alternative:** if it turns out the fix was code-level somewhere we haven't searched (a third repo, a deploy script, env var) — please point us at where the fix landed previously and we'll restore it.
+**Operator decision required:** where the previous fix lived, then apply.
+
+---
+
 ### I-NEW-2026-05-12-G-CAROLINE-SCHEDULER-BURSTS: Caroline scheduler emits sub-second bursts of outbound SMS
 **Discovered:** 2026-05-12 recon side-sprint (integration-safety).
 **Status:** OPEN — must-investigate before flipping `TESTLANE_MODE=false` (could fire 50+ real-customer sends in a single second).
