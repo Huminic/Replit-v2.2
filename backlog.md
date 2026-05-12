@@ -264,3 +264,41 @@ Marketing AGENT functionality was the actual concern for v2.2 — fixed in Wave 
 **Constraints:** UI changes require operator approval (per the 3-category rule — UI). Any new data ingestion must respect CommGate + test-lane envelope. Schema changes deferred per BL-107.
 
 **References:** Wave 3C scout report (in-conversation, not committed), issues.md (no Marketing-Insights-specific entries).
+
+---
+
+### BL-003 — Daily Recap email — redesign (operator deferred 2026-05-12)
+
+**Status:** Deferred from v2.2 (feature was never operator-requested; redesign required before any future use)
+
+**Objective:** Decide whether (and in what form) Nexxus should send a daily activity-summary email to org admins. If yes, design the content, cadence, recipient model, and delivery mechanism to match operator intent — not the speculative implementation currently in the codebase.
+
+**Context:** During the 2026-05-12 recon side-sprint, the qa-evaluator discovered that a "daily recap email" feature exists in code (`server/services/dailyRecapService.ts` + `server/services/notificationService.ts` `sendDailyRecapEmail`) but has never fired in production. Two stacked reasons: (1) `dailyRecapEnabled` flag is OFF on all 7 orgs by default, and (2) the scheduler appears to have never claimed a lock (`scheduler_locks` has zero `daily_recap_*` rows ever — registration is broken or silent-failing). Operator response 2026-05-12: "I never really asked for that report and I don't know where it came from but I like the idea of it. I want to change it." So the existing implementation is a feature-without-a-requirement; the right move is redesign, not patch.
+
+**Current state of the existing code (preserved as a reference, not deleted):**
+- `server/services/dailyRecapService.ts` — data-build + scheduler orchestration (`runDailyRecapScheduler`, `sendDailyRecapProduction`, `buildDailyRecap`).
+- `server/services/notificationService.ts` lines 846-997 — HTML template + send (`generateDailyRecapHTML`, `sendDailyRecapEmail`).
+- HTML template: teal-gradient header, subject `📊 {org} — Daily Recap ({date})`, 10-metric details table (new sales/service leads, customer replies, calls received, appointments created, unanswered >30min, SMS sent/blocked, emails sent, trigger activity), optional "needs attention" highlight box.
+- Per-org config: `settings.dailyRecapEnabled` (boolean, default false), `settings.dailyRecapHour` (number 0-23, default 18).
+- Idempotency: `daily_recap_{orgId}_{YYYY-MM-DD}` lock key with 1500-min TTL.
+
+**Done looks like:**
+1. Operator articulates the actual ask: do we want a daily recap at all? If yes, who is it for (org admin / sales manager / GM / dealer principal)? What metrics matter? What time of day? What channel (email / SMS / in-app)? Personalized or org-wide?
+2. Redesign decisions captured in `decisions.md` and a fresh spec doc.
+3. Implementation wave delivers the redesigned feature with two-deltas-of-proof.
+4. EITHER the existing code is repurposed for the new design, OR it is removed in the same wave that ships the redesigned version. Do NOT leave both.
+
+**Scope (when un-deferred):**
+- `server/services/dailyRecapService.ts`
+- `server/services/notificationService.ts` (daily-recap section)
+- `server/services/scheduler.ts` (where the registration appears to be broken/missing — needed regardless of redesign direction)
+- `shared/schema.ts` if new settings keys are introduced
+- Possibly new tables for recap-recipient management or recap subscription preferences
+- Possibly Marketing/Management/Sales section UI for the in-app recap view if email is supplanted
+
+**Constraints:** UI changes (if any) require operator approval per 3-category rule. CommGate + allowlist applies to any real email send. Schema changes follow normal migration approval flow.
+
+**References:**
+- `evidence/recon-2026-05-12-live-health/A1-db-followup-audit.md` § daily-recap findings
+- `evidence/recon-2026-05-12-live-health/recon-bookend.md` § Layer-3 (code)
+- issues.md `I-NEW-2026-05-12-D` (now DEFERRED-BACKLOG pointing here)
