@@ -728,7 +728,7 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ### I-NEW-2026-05-12-D-DAILY-RECAP-NEVER-FIRED: Daily recap scheduler has not claimed lock since deploy
 **Discovered:** 2026-05-12 recon side-sprint (qa-evaluator).
-**Status:** OPEN — code-level issue; not config-only.
+**Status:** **DEFERRED-BACKLOG (BL-003)** — operator decision 2026-05-12. Feature was not operator-requested; redesign rather than fix. The two-layer breakage (per-org flag never enabled + scheduler never claims lock) is preserved as starting reference for the redesigned feature.
 **Severity:** Medium (feature was advertised; not customer-impacting directly but admin-recap-impacting).
 **Symptom:** Zero `daily_recap_sent` activity_log rows for any org since 2026-04-27 deploy. Zero `daily_recap_*` rows in `scheduler_locks` ever. `dailyRecapEnabled` flag is unset on ALL 7 orgs (compounding issue — even if scheduler ran, no org has it enabled). Daily-recap activity_log writer exists at `server/services/dailyRecapService.ts:315-340`.
 **Root cause hypotheses (need investigation):**
