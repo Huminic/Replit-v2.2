@@ -686,10 +686,10 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ---
 
-### I-NEW-2026-05-12-A-TESTLANE-LIVE: `TESTLANE_MODE` suspected `true` on live Coolify container
+### I-NEW-2026-05-12-A-TESTLANE-LIVE: `TESTLANE_MODE` confirmed intentional on live (trial-mode gate pending Serra payment)
 **Discovered:** 2026-05-12 recon side-sprint (qa-evaluator + integration-safety). Reference: `evidence/recon-2026-05-12-live-health/A1-db-followup-audit.md` + `A2-provider-health.md`.
-**Status:** OPEN — **HIGH PRIORITY**, blocks all real-customer outbound on live.
-**Severity:** Critical (production impact on launched dealerships).
+**Status:** **TRIAL-MODE-INTENTIONAL** — operator clarified 2026-05-12 that TESTLANE was deliberately left ON while waiting for Serra to provide credit card on file for SMS/voice overages. Not a defect. Flip happens when Serra completes payment-on-file step.
+**Severity:** Not a launch defect; a billing precondition. Recategorized from "Critical" once operator context arrived.
 **Symptom:** 50 SMS sends in last 7 days fail-closed blocked by `TESTLANE_MODE=true but request lacks test-lane marker` on serra-honda. 106 Caroline widget-chat auto-greetings blocked in 14 days. The 2 successful SMS sends in 7d went to operator phone `+14126546500` only.
 **Root cause hypothesis:** live PM2 / Coolify container `phqqzjj5pal13wlp39m5ohx6-…` is still running with `TESTLANE_MODE=true` env. Launch-time test-safety setting that was never flipped to `false` after opening to real Serra users.
 **Verification needed:** Operator inspect Coolify dashboard → container env. Cannot verify from orchestrator host (live container PM2/stdout not reachable).
@@ -700,8 +700,8 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ### I-NEW-2026-05-12-B-SERRA-HONDA-TESTPHONES: `triggerTestPhones` whitelist still active on serra-honda
 **Discovered:** 2026-05-12 recon side-sprint (qa-evaluator).
-**Status:** OPEN — blocks real-customer SMS even after Layer-1 (`I-NEW-2026-05-12-A`) is resolved.
-**Severity:** High (production impact on Serra Honda).
+**Status:** **BLOCKS-ON-PAYMENT** — clears together with `I-NEW-2026-05-12-A` when Serra credit card lands. Operator-approved coordinated flip plan: DB UPDATE removes whitelist immediately before/after the Coolify env flip on the same maintenance window.
+**Severity:** Configuration step in the payment-completion remediation sequence; not an independent launch defect.
 **Symptom:** `serra-honda.settings.triggerTestPhones = ["+14126546500"]`. `checkInTriggerEnabled=true` on the same org but 0 fires on real leads in last 7 days (147 leads synced). Whitelist gates all sends to the single operator phone.
 **Root cause:** launch test-phone whitelist persisted in production org settings after launch.
 **Recommended fix:** `UPDATE organizations SET settings = settings - 'triggerTestPhones' WHERE slug='serra-honda'` (or set to `[]`). Single-row DB UPDATE; reversible.
@@ -757,8 +757,8 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ### I-NEW-2026-05-12-F-CAROLINE-WIDGET-BLOCKED: 106 widget-chat auto-greetings blocked on serra-honda
 **Discovered:** 2026-05-12 recon side-sprint (qa-evaluator + integration-safety).
-**Status:** OPEN — downstream of `I-NEW-2026-05-12-A-TESTLANE-LIVE`; resolves when Layer-1 does.
-**Severity:** High customer-perceived (widget chatbot appears silent).
+**Status:** **BLOCKS-ON-PAYMENT** — same gate as `I-NEW-2026-05-12-A`; resolves when Serra payment-on-file lands. **Hard prerequisite:** `I-NEW-2026-05-12-G-CAROLINE-SCHEDULER-BURSTS` (throttle review) must complete before TESTLANE flips, otherwise 50+ queued greetings could burst-fire at real visitors the instant the gate opens.
+**Severity:** Customer-perceived (silent chatbot) once gate opens; addressable as part of the same maintenance window.
 **Symptom:** 106 outbound SMS rows in `outbound_log` for serra-honda last 14 days carry `blocked_reason=TESTLANE_MODE=true but request lacks test-lane marker`. Each is a `Caroline from Serra Honda` auto-greeting. Widget visitors see no response from chatbot.
 **Cross-reference:** 15+ inbound `chat`/`ai-chat`/`agent-chat-*` conversations on serra-honda widget in last 14 days. Real visitors getting silence.
 **Root cause:** Layer-1 TESTLANE_MODE gate (see `I-NEW-2026-05-12-A`).
