@@ -800,11 +800,16 @@ chmod +x ~/.claude/hooks/sprint-gate.sh ~/.claude/hooks/plan-protection.sh ~/.cl
 
 ### I-NEW-2026-05-12-G-CAROLINE-SCHEDULER-BURSTS: Caroline scheduler emits sub-second bursts of outbound SMS
 **Discovered:** 2026-05-12 recon side-sprint (integration-safety).
-**Status:** OPEN — must-investigate before flipping `TESTLANE_MODE=false` (could fire 50+ real-customer sends in a single second).
-**Severity:** Critical IF Layer-1 (`I-NEW-2026-05-12-A`) is flipped without first reviewing throttle.
-**Symptom:** 50 of the 106 blocked SMS in last 14d arrived in serra-honda's `outbound_log` in bursts of 6+ rows within a single second (example: 2026-05-11 07:03:36 had 7 attempts in one second). Pattern suggests unthrottled per-recipient loop in Caroline scheduler. `campaign_id` is NULL on all blocked rows.
-**Root cause:** scheduler loop iterating over a list of widget visitors and emitting Caroline auto-greeting without rate-limit / debounce. Specific code path to be identified — likely in `server/services/scheduler.ts` Caroline registration block.
-**Recommended fix:** EITHER (a) identify and patch the unthrottled loop BEFORE flipping TESTLANE_MODE=false, OR (b) keep Caroline auto-greeting DISABLED at first while other channels open up.
-**Operator decision required.** Must be coordinated with `I-NEW-2026-05-12-A` resolution to prevent customer-flood incident.
+**Status:** **INVESTIGATED — CLOSED (no action needed for launch).** qa-evaluator investigation 2026-05-14 (full findings at `evidence/recon-2026-05-12-live-health/caroline-throttle-investigation.md`) determined the original "unthrottled scheduler loop" hypothesis was wrong.
+**Severity:** Recategorized from "Critical" to "investigated; root cause explained."
+**Actual findings:**
+1. Caroline has NO scheduler entrypoint. Both paths (`server/routes/public.ts:275-304` widget, `server/routes/sms.ts:450-553` SMS) are event-triggered (one-per-conversation-creation).
+2. The SMS path is mutex-serialised via `withConversationLock` (`sms.ts:13-26, 376`) and gated by `isNew=true` — at most one greeting per new conversation per phone per org.
+3. The literal "Caroline from Serra Honda" text in the blocked outbound_log rows traces to `server/test-trigger-2A.ts:104` (one-shot CLI test script — Wave 2A-T provider proof), NOT to the live SMS auto-greeting path. The live path renders dynamically with `{{customerName}}/{{dealershipName}}/{{agentName}}` placeholders.
+4. A2's own evidence (line 22) attributed the blocked rows to dev-process TESTLANE-marker-missing audit noise, not live customer-facing sends.
+5. Real-customer SMS inbound to serra-honda has been silent for 27+ days (A2:62) — there cannot be a Caroline customer-facing burst loop in this window.
+**Replacement concern surfaced — `scheduled_actions` queue pre-flip sanity check:** the REAL pre-flip risk is in a DIFFERENT code path (`server/services/scheduler.ts:66-136`, runs every 30s, processes `queued_sms` / `queued_immediate_trigger_sms` / `trigger_action`). Operator should run `SELECT COUNT(*), action_type FROM scheduled_actions WHERE executed_at IS NULL AND organization_id = '<serra-honda-id>' GROUP BY action_type` immediately before the TESTLANE flip. Per A1 the queue was empty as of 2026-05-12; verify at flip time.
+**Optional v2.2.x defense-in-depth (NOT launch-blocking):** per-org rate-limit (token bucket) at `processOutboundSend` entry. Out of scope for v2.2.
+**Coordination unchanged.** Bundled with `I-NEW-2026-05-12-A` flip when Serra payment lands; no separate fix work required.
 
 ---
