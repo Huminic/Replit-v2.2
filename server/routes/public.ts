@@ -499,27 +499,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       }
     }
 
-    // When loaded as a <script> tag, create a Tavus session and fullscreen iframe it
+    // When loaded as a <script> tag, create a Tavus session and fullscreen iframe it.
+    // Hardened 2026-05-18: (a) iframe.src assignment instead of innerHTML interpolation
+    // (XSS defense for the conversationUrl coming back from /api/widget/video-session);
+    // (b) AbortController-wrapped fetch with 5s timeout so a hung Tavus API doesn't
+    // leave users stuck on "Connecting..."; (c) Cache-Control max-age dropped from
+    // 86400 (24h) to 3600 (1h) so we can hotfix on launch day without 24h propagation.
     const js = `(function(){
 var H="${host}",S="${slug}",N="${name}";
 if(document.getElementById("nexxus-vw-"+S))return;
 var d=document.createElement("div");d.id="nexxus-vw-"+S;
 d.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;background:#000;";
-d.innerHTML='<p style="color:#fff;text-align:center;padding:40px;font-family:sans-serif;">Connecting to video chat...</p>';
+var msg=document.createElement("p");
+msg.style.cssText="color:#fff;text-align:center;padding:40px;font-family:sans-serif;";
+msg.textContent="Connecting to video chat...";
+d.appendChild(msg);
 document.body.appendChild(d);
-fetch(H+"/api/widget/video-session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:S})})
-.then(function(r){if(!r.ok)throw new Error("Failed");return r.json();})
+var fallback=function(text){while(d.firstChild)d.removeChild(d.firstChild);var p=document.createElement("p");p.style.cssText="color:#fff;text-align:center;padding:40px;font-family:sans-serif;";p.textContent=text||"Video chat is temporarily unavailable.";d.appendChild(p);};
+var ac=("AbortController" in window)?new AbortController():null;
+var t=setTimeout(function(){if(ac)ac.abort();fallback("Video chat timed out. Please try again.");},5000);
+fetch(H+"/api/widget/video-session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:S}),signal:ac?ac.signal:undefined})
+.then(function(r){clearTimeout(t);if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
 .then(function(data){
-  if(!data.conversationUrl)throw new Error("No URL");
-  d.innerHTML='<iframe src="'+data.conversationUrl+'" style="width:100%;height:100%;border:none;" allow="microphone;camera;autoplay;display-capture"></iframe>';
+  if(!data||!data.conversationUrl)throw new Error("No URL");
+  var url=String(data.conversationUrl);
+  // Defense in depth: only accept https URLs for the iframe source
+  if(!/^https:\\/\\//i.test(url))throw new Error("Invalid URL scheme");
+  while(d.firstChild)d.removeChild(d.firstChild);
+  var f=document.createElement("iframe");
+  f.src=url;
+  f.style.cssText="width:100%;height:100%;border:none;";
+  f.setAttribute("allow","microphone;camera;autoplay;display-capture");
+  d.appendChild(f);
 })
-.catch(function(){
-  d.innerHTML='<p style="color:#fff;text-align:center;padding:40px;font-family:sans-serif;">Video chat is temporarily unavailable.</p>';
-});
+.catch(function(){clearTimeout(t);fallback();});
 })();`;
     res.setHeader("Content-Type", "application/javascript");
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=3600");
     res.setHeader("Vary", "Accept");
     res.send(js);
   });
