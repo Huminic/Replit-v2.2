@@ -914,16 +914,15 @@ setInterval(() => {
 export function registerWebhookRoutes(app: Express) {
   app.post("/api/webhooks/vapi", async (req, res) => {
     try {
-      // I-236: in production, an unset webhook secret previously caused us to
-      // accept any unauthenticated request. Now we reject with 503 so operators
-      // see the misconfiguration. In dev we log a warning but accept.
+      // I-236 ROLLBACK (2026-05-15): fail-closed gate was rejecting all real
+      // VAPI inbound webhooks for 15 days (2026-04-30 → 2026-05-15) because the
+      // VAPI dashboard does not carry a secret header. Restoring pre-I-236
+      // behavior: accept unauthenticated webhooks (warning logged). If a secret
+      // IS configured, still validate it. Re-hardening is filed as a follow-up
+      // requiring coordinated dashboard-side secret provisioning.
       const vapiSecret = process.env.VAPI_WEBHOOK_SECRET;
       if (!vapiSecret) {
-        if (process.env.NODE_ENV === "production") {
-          console.error("[VAPI Webhook] VAPI_WEBHOOK_SECRET unset in production — rejecting request");
-          return res.status(503).json({ message: "Webhook secret not configured" });
-        }
-        console.warn("[VAPI Webhook] VAPI_WEBHOOK_SECRET unset — accepting in dev only (set the env var before going live)");
+        console.warn("[VAPI Webhook] VAPI_WEBHOOK_SECRET unset — accepting unauthenticated request (I-236 rolled back 2026-05-15)");
       } else {
         const headerSecret = req.headers["x-vapi-secret"] || req.headers["authorization"];
         const providedSecret = typeof headerSecret === "string" ? headerSecret.replace(/^Bearer\s+/i, "") : "";
